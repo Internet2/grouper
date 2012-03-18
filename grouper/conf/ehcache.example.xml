@@ -112,7 +112,7 @@
     maxElementsInMemory="500"
     eternal="false"
     timeToIdleSeconds="10"
-    timeToLiveSeconds="20"
+    timeToLiveSeconds="10"
     overflowToDisk="false"
   />
 
@@ -126,7 +126,7 @@
     maxElementsInMemory="500"
     eternal="false"
     timeToIdleSeconds="10"
-    timeToLiveSeconds="20"
+    timeToLiveSeconds="10"
     overflowToDisk="false"
   />
 
@@ -280,176 +280,176 @@
   <cache  name="edu.internet2.middleware.grouper.audit.AuditType"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="0"
-          timeToLiveSeconds="0"
+          timeToIdleSeconds="10"
+          timeToLiveSeconds="10"
           overflowToDisk="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.changeLog.ChangeLogType"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="0"
-          timeToLiveSeconds="0"
+          timeToIdleSeconds="10"
+          timeToLiveSeconds="10"
           overflowToDisk="false"
     />
 
   <cache  name="ImmediateMembershipEntry"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="0"
-          timeToLiveSeconds="0"
+          timeToIdleSeconds="10"
+          timeToLiveSeconds="10"
           overflowToDisk="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.permissions.role.RoleSet"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="0"
-          timeToLiveSeconds="0"
+          timeToIdleSeconds="10"
+          timeToLiveSeconds="10"
           overflowToDisk="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.attr.AttributeDefNameSet"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="0"
-          timeToLiveSeconds="0"
+          timeToIdleSeconds="10"
+          timeToLiveSeconds="10"
           overflowToDisk="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSetView"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="0"
-          timeToLiveSeconds="0"
+          timeToIdleSeconds="10"
+          timeToLiveSeconds="10"
           overflowToDisk="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.attr.AttributeDef"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="0"
-          timeToLiveSeconds="0"
+          timeToIdleSeconds="10"
+          timeToLiveSeconds="10"
           overflowToDisk="false"
     />
 
   <cache  name="MembershipEntry"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="0"
-          timeToLiveSeconds="0"
+          timeToIdleSeconds="10"
+          timeToLiveSeconds="10"
           overflowToDisk="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.attr.assign.AttributeAssign"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="0"
-          timeToLiveSeconds="0"
+          timeToIdleSeconds="10"
+          timeToLiveSeconds="10"
           overflowToDisk="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.attr.AttributeDefName"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="0"
-          timeToLiveSeconds="0"
+          timeToIdleSeconds="10"
+          timeToLiveSeconds="10"
           overflowToDisk="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.attr.AttributeDefScope"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="0"
-          timeToLiveSeconds="0"
+          timeToIdleSeconds="10"
+          timeToLiveSeconds="10"
           overflowToDisk="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.attr.AttributeDefNameSetView"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="0"
-          timeToLiveSeconds="0"
+          timeToIdleSeconds="10"
+          timeToLiveSeconds="10"
           overflowToDisk="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.permissions.role.RoleSetView"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="0"
-          timeToLiveSeconds="0"
+          timeToIdleSeconds="10"
+          timeToLiveSeconds="10"
           overflowToDisk="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="0"
-          timeToLiveSeconds="0"
+          timeToIdleSeconds="10"
+          timeToLiveSeconds="10"
           overflowToDisk="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.changeLog.ChangeLogConsumer"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="0"
-          timeToLiveSeconds="0"
+          timeToIdleSeconds="10"
+          timeToLiveSeconds="10"
           overflowToDisk="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.attr.assign.AttributeAssignValue"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="0"
-          timeToLiveSeconds="0"
+          timeToIdleSeconds="10"
+          timeToLiveSeconds="10"
           overflowToDisk="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="0"
-          timeToLiveSeconds="0"
+          timeToIdleSeconds="10"
+          timeToLiveSeconds="10"
           overflowToDisk="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefScopeDAO.FindByUuidOrName"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="30"
-          timeToLiveSeconds="120"
+          timeToIdleSeconds="20"
+          timeToLiveSeconds="20"
           overflowToDisk="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefNameDAO.FindByUuidOrName"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="30"
-          timeToLiveSeconds="120"
+          timeToIdleSeconds="10"
+          timeToLiveSeconds="10"
           overflowToDisk="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeAssignValueDAO.FindByAttributeAssignId"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="30"
-          timeToLiveSeconds="120"
+          timeToIdleSeconds="10"
+          timeToLiveSeconds="10"
           overflowToDisk="false"
   />
   
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib.Hib3AttributeAssignDAO.FindByAttributeTypeDefNameId"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="30"
-          timeToLiveSeconds="120"
+          timeToIdleSeconds="10"
+          timeToLiveSeconds="10"
           overflowToDisk="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib.Hib3AttributeDefDAO.FindById"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="5"
-          timeToLiveSeconds="5"
+          timeToIdleSeconds="10"
+          timeToLiveSeconds="10"
           overflowToDisk="false"
   />
 
@@ -1020,7 +1020,7 @@
           maxElementsInMemory="500"
           eternal="false"
           timeToIdleSeconds="30"
-          timeToLiveSeconds="120"
+          timeToLiveSeconds="30"
           overflowToDisk="false"
   />
 
@@ -1033,7 +1033,7 @@
           maxElementsInMemory="1000"
           eternal="false"
           timeToIdleSeconds="30"
-          timeToLiveSeconds="120"
+          timeToLiveSeconds="30"
           overflowToDisk="false"
   />
 
@@ -1043,7 +1043,7 @@
           maxElementsInMemory="1000"
           eternal="false"
           timeToIdleSeconds="30"
-          timeToLiveSeconds="120"
+          timeToLiveSeconds="30"
           overflowToDisk="false"
   />
 
@@ -1055,7 +1055,7 @@
           maxElementsInMemory="5000"
           eternal="false"
           timeToIdleSeconds="30"
-          timeToLiveSeconds="120"
+          timeToLiveSeconds="30"
           overflowToDisk="false"
   />
 
@@ -1064,7 +1064,7 @@
           maxElementsInMemory="5000"
           eternal="false"
           timeToIdleSeconds="30"
-          timeToLiveSeconds="120"
+          timeToLiveSeconds="30"
           overflowToDisk="false"
   />
 
@@ -1073,7 +1073,7 @@
           maxElementsInMemory="5000"
           eternal="false"
           timeToIdleSeconds="30"
-          timeToLiveSeconds="120"
+          timeToLiveSeconds="30"
           overflowToDisk="false"
   />
 
@@ -1082,7 +1082,7 @@
           maxElementsInMemory="5000"
           eternal="false"
           timeToIdleSeconds="30"
-          timeToLiveSeconds="120"
+          timeToLiveSeconds="30"
           overflowToDisk="false"
   />
 
@@ -1091,7 +1091,7 @@
           maxElementsInMemory="5000"
           eternal="false"
           timeToIdleSeconds="30"
-          timeToLiveSeconds="120"
+          timeToLiveSeconds="30"
           overflowToDisk="false"
   />
   
