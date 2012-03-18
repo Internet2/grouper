@@ -402,12 +402,14 @@ public class ByCriteriaStatic {
         ByCriteriaStatic.this.cacheable, ByCriteriaStatic.this.queryOptions);
     query.setCacheable(secondLevelCaching);
 
-    String secondLevelCacheRegion = HibUtils.secondLevelCacheRegion(ByCriteriaStatic.this.cacheRegion, 
-        ByCriteriaStatic.this.queryOptions);
-    if (!StringUtils.isBlank(secondLevelCacheRegion)) {
-      query.setCacheRegion(secondLevelCacheRegion);
+    if (secondLevelCaching) {
+      String secondLevelCacheRegion = HibUtils.secondLevelCacheRegion(ByCriteriaStatic.this.cacheRegion, 
+          ByCriteriaStatic.this.queryOptions);
+      if (!StringUtils.isBlank(secondLevelCacheRegion)) {
+        query.setCacheRegion(secondLevelCacheRegion);
+      }
     }
-
+    
     QuerySort querySort = this.queryOptions == null ? null : this.queryOptions.getQuerySort();
     if (querySort != null) {
       List<QuerySortField> sorts = querySort.getQuerySortFields();

@@ -48,6 +48,7 @@ import edu.internet2.middleware.grouper.helper.GroupHelper;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.role.Role;
@@ -79,7 +80,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testFindGroups"));
+    TestRunner.run(new GrouperClientWsTest("testAssignAttributesMembershipAssn"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -771,6 +772,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
+        //NOTE FOR THIS TO WORK YOU NEED TO ENABLE AUTO CREATE EXTERNAL SUBJECTS IN GROUPER.PROPERTIES ON WS
         GrouperClient
             .main(GrouperClientUtils
                 .splitTrim(
@@ -2802,6 +2804,15 @@ public class GrouperClientWsTest extends GrouperTest {
               && GrouperClientWs.mostRecentRequest.contains("aStem:newStem1")
               && GrouperClientWs.mostRecentRequest.contains("aStem:newStem0"));
 
+      //lets delete and recreate this stem...
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      try {
+        Stem stem = StemFinder.findByName(grouperSession, "aStem:newStem0", true, new QueryOptions().secondLevelCache(false));
+        stem.delete();
+      } finally {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+      
       // #####################################################
       // run again, with saveMode
       baos = new ByteArrayOutputStream();
@@ -13726,6 +13737,8 @@ public class GrouperClientWsTest extends GrouperTest {
     attributeDef2.setAssignToImmMembershipAssn(true);
     attributeDef2.store();
   
+    //we need to wait 10 seconds for the cache to clear
+    GrouperUtil.sleep(10000);
 
     Group group1 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
       .assignGroupNameToEdit("test:membershipTestAttrAssign").assignName("test:membershipTestAttrAssign").assignCreateParentStemsIfNotExist(true)
