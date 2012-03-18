@@ -34,7 +34,7 @@ X-Grouper-resultCode: SUCCESS_INSERTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sat, 25 Feb 2012 17:26:47 GMT
+Date: Sat, 17 Mar 2012 15:35:31 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -56,7 +56,7 @@ wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...
         <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">110</p>
+        <p class="millis">222</p>
         <p class="resultWarnings" />
         <p class="serverVersion">2.1.0</p>
       </div>
@@ -64,11 +64,11 @@ wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...
         <p class="name">test:testAttributeAssignDefNameToSave1RestLite_http_xhtml</p>
         <p class="displayName">test:My new attribute def name to save 1 rest lite http_xhtml</p>
         <p class="description">This is a description 1 rest lite http_xhtml</p>
-        <p class="uuid">8632e967ab8a4b12bdf53ebe9e086b46</p>
+        <p class="uuid">af9d1e9f36b443a89e4b1d5753c1ee34</p>
         <p class="extension">testAttributeAssignDefNameToSave1RestLite_http_xhtml</p>
         <p class="displayExtension">My new attribute def name to save 1 rest lite http_xhtml</p>
         <p class="attributeDefName">test:testAttributeAssignDefNameDef</p>
-        <p class="attributeDefId">3170090a4a264ea3bbe0a39d9874d859</p>
+        <p class="attributeDefId">e6c5ac46f9784db0a825fbda5360cd72</p>
       </div>
     </div>
   </body>

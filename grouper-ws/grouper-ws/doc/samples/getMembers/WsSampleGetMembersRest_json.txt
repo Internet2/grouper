@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMembers, WsSampleGetMembersRest, manually written lite/rest, format: json, for version: 2.0.0
+Grouper web service sample of service: getMembers, WsSampleGetMembersRest, manually written lite/rest, format: json, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getMembers, WsSampleGetMembersRest, manua
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_0_000/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -44,24 +44,24 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1299
-Date: Fri, 12 Aug 2011 22:13:26 GMT
+Content-Length: 1321
+Date: Sat, 17 Mar 2012 15:42:43 GMT
 Connection: close
 
 {
   "WsGetMembersResults":{
     "responseMetadata":{
-      "millis":"70",
-      "serverVersion":"2.0.0"
+      "millis":"37",
+      "serverVersion":"2.1.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.0.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]\n\n, memberFilter: All, includeSubjectDetail: false, actAsSubject: null, fieldName: null, subjectAttributeNames: Array size: 3: [0]: description\n[1]: loginid\n[2]: name\n\n, paramNames: \n, params: null\n, sourceIds: null\n, pointInTimeFrom: null, pointInTimeTo: null",
+      "resultMessage":"Success for: clientVersion: 2.1.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]\n\n, memberFilter: All, includeSubjectDetail: false, actAsSubject: null, fieldName: null, subjectAttributeNames: Array size: 3: [0]: description\n[1]: loginid\n[2]: name\n\n, paramNames: \n, params: null\n, sourceIds: null\n, pointInTimeFrom: null, pointInTimeTo: null",
       "success":"T"
     },
     "results":[
@@ -76,9 +76,23 @@ Connection: close
           "displayName":"a stem:a group",
           "extension":"aGroup",
           "name":"aStem:aGroup",
-          "uuid":"567862b1e8d64f0d8cd9aca6ba44d845"
+          "typeOfGroup":"group",
+          "uuid":"4f5848813a944f41bc2be8d9166e27e9"
         },
         "wsSubjects":[
+          {
+            "attributeValues":[
+              "GrouperSysAdmin",
+              "",
+              "EveryEntity"
+            ]
+            ,
+            "id":"GrouperSystem",
+            "name":"GrouperSysAdmin",
+            "resultCode":"SUCCESS",
+            "sourceId":"g:isa",
+            "success":"T"
+          },
           {
             "attributeValues":[
               "",
@@ -103,19 +117,6 @@ Connection: close
             "name":"10039438",
             "resultCode":"SUCCESS",
             "sourceId":"jdbc",
-            "success":"T"
-          },
-          {
-            "attributeValues":[
-              "GrouperSysAdmin",
-              "",
-              "EveryEntity"
-            ]
-            ,
-            "id":"GrouperSystem",
-            "name":"GrouperSysAdmin",
-            "resultCode":"SUCCESS",
-            "sourceId":"g:isa",
             "success":"T"
           }
         ]
@@ -164,6 +165,24 @@ import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
+ * <pre>
+ * Setup:
+ * 
+ * new GroupSave(grouperSession).assignName("aStem:aGroup").assignCreateParentStemsIfNotExist(true).save();
+ * 
+ * addMember("aStem:aGroup", "test.subject.0");
+ * addMember("aStem:aGroup", "test.subject.1");
+ * addMember("aStem:aGroup", "test.subject.2");
+ * addMember("aStem:aGroup", "test.subject.3");
+ * addMember("aStem:aGroup", "test.subject.4");
+ * addMember("aStem:aGroup", "test.subject.5");
+ * addMember("aStem:aGroup", "test.subject.6");
+ * addMember("aStem:aGroup", "test.subject.7");
+ * addMember("aStem:aGroup", "test.subject.8");
+ * addMember("aStem:aGroup", "test.subject.9");
+ * 
+ * 
+ * </pre>
  * @author mchyzer
  */
 public class WsSampleGetMembersRest implements WsSampleRest {
@@ -201,7 +220,7 @@ public class WsSampleGetMembersRest implements WsSampleRest {
       //your request document in whatever language or way you want
       WsRestGetMembersRequest getMembers = new WsRestGetMembersRequest();
 
-      // seeif two subjects are in the group
+      // see if two subjects are in the group
       WsGroupLookup[] groupLookups = new WsGroupLookup[1];
       groupLookups[0] = new WsGroupLookup("aStem:aGroup", null);
 
@@ -290,7 +309,7 @@ public class WsSampleGetMembersRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.0.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
+Server version: 2.1.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
 
 , memberFilter: All, includeSubjectDetail: false, actAsSubject: null, fieldName: null, subjectAttributeNames: Array size: 3: [0]: description
 [1]: loginid

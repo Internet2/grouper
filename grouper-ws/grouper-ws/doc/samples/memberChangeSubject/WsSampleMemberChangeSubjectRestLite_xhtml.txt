@@ -1,4 +1,4 @@
-Grouper web service sample of service: memberChangeSubject, WsSampleMemberChangeSubjectRestLite, manually written lite/rest, format: xhtml, for version: 2.0.0
+Grouper web service sample of service: memberChangeSubject, WsSampleMemberChangeSubjectRestLite, manually written lite/rest, format: xhtml, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: memberChangeSubject, WsSampleMemberChange
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_0_000/members HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_000/members HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -28,6 +28,7 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="clientVersion" />
       <p class="includeSubjectDetail" />
       <p class="subjectAttributeNames" />
+      <p class="deleteOldMember" />
       <p class="actAsSubjectId">GrouperSystem</p>
       <p class="actAsSubjectSourceId" />
       <p class="actAsSubjectIdentifier" />
@@ -41,7 +42,6 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="newSubjectId">test.subject.1</p>
       <p class="newSubjectSourceId" />
       <p class="newSubjectIdentifier" />
-      <p class="deleteOldMember" />
       <p class="retrieveSubjectDetail" />
     </div>
   </body>
@@ -58,12 +58,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Fri, 12 Aug 2011 22:22:16 GMT
+Date: Sat, 17 Mar 2012 16:04:54 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -76,18 +76,19 @@ Connection: close
     <div title="WsMemberChangeSubjectLiteResult">
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="success">T</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.0.0, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[
+        <p class="resultMessage">Success for: clientVersion: 2.1.0, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[
 oldSubjectLookup=WsSubjectLookup[subjectId=test.subject.0],
 newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1],deleteOldMember=T]
+
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE
 , params: null</p>
+        <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">210</p>
+        <p class="millis">131</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.0.0</p>
+        <p class="serverVersion">2.1.0</p>
       </div>
       <div class="wsSubjectNew" title="WsSubject">
         <p class="name">my name is test.subject.1</p>
@@ -134,9 +135,12 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectLiteResult;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
@@ -228,11 +232,21 @@ public class WsSampleMemberChangeSubjectRestLite implements WsSampleRest {
           + ", result message: " + resultMessage );
       
       //lets make sure the old member was deleted
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+      boolean startedSession = false;
+      if (grouperSession == null) {
+        grouperSession = GrouperSession.startRootSession();
+        startedSession = true;
+      }
       try {
-        GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectFinder.findById("test.subject.0"));
+        GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectFinder.findById("test.subject.0", true), true);
         throw new RuntimeException("Should find renamed member: test.subject.0!");
       } catch (MemberNotFoundException mnfe) {
         //good
+      } finally {
+        if (startedSession) {
+          GrouperSession.stopQuietly(grouperSession);
+        }
       }
 
     } catch (Exception e) {
@@ -274,7 +288,7 @@ public class WsSampleMemberChangeSubjectRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.0.0, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[
+Server version: 2.1.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.0, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[
   oldSubjectLookup=WsSubjectLookup[subjectId=test.subject.0],
   newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1],deleteOldMember=T]
 

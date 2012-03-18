@@ -615,7 +615,11 @@ public class FailoverClient implements Serializable {
               debugMap.put("savingStateToFile", saveStateFile.getAbsolutePath());
             }
             //long now = System.nanoTime();
-            GrouperClientUtils.serializeObjectToFile(instanceMapFromType, saveStateFile);
+            try {
+              GrouperClientUtils.serializeObjectToFile(instanceMapFromType, saveStateFile);
+            } catch (Throwable t) {
+              LOG.warn("Problem saving grouperClientFailoverState.bin: " + t.getMessage());
+            }
             //System.out.println("Serialized in " + ((System.nanoTime() - now) / 1000000) + "ms");
           }
 

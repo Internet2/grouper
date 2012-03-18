@@ -48,6 +48,7 @@ import edu.internet2.middleware.grouper.helper.GroupHelper;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.role.Role;
@@ -79,7 +80,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testFindGroups"));
+    TestRunner.run(new GrouperClientWsTest("testAssignPermissionsAnyMembership"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -182,6 +183,27 @@ public class GrouperClientWsTest extends GrouperTest {
     .put(
         "webService.getSubjects.output",
         "Index: ${index}: success: ${success}, code: ${wsSubject.resultCode}, subject: ${wsSubject.id}$newline$");
+    
+    GrouperClientUtils
+    .grouperClientOverrideMap()
+    .put(
+        "webService.assignAttributeDefNameInheritance.output",
+        "Success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}, message: ${resultMetadata.resultMessage}$newline$");
+    GrouperClientUtils
+    .grouperClientOverrideMap()
+    .put(
+        "webService.attributeDefNameSave.output",
+        "Success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: ${wsAttributeDefName.name}$newline$");
+    GrouperClientUtils
+    .grouperClientOverrideMap()
+    .put(
+        "webService.attributeDefNameDelete.output",
+        "Index ${index}: success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: ${wsAttributeDefName.name}$newline$");
+    GrouperClientUtils
+    .grouperClientOverrideMap()
+    .put(
+        "webService.findAttributeDefNames.output",
+        "Index ${index}: name: ${wsAttributeDefName.name}, displayName: ${wsAttributeDefName.displayName}$newline$");
     
     GrouperClientUtils.grouperClientOverrideMap().put(
         "grouperClient.alias.subjectIds", "pennIds");
@@ -750,6 +772,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
+        //NOTE FOR THIS TO WORK YOU NEED TO ENABLE AUTO CREATE EXTERNAL SUBJECTS IN GROUPER.PROPERTIES ON WS
         GrouperClient
             .main(GrouperClientUtils
                 .splitTrim(
@@ -2781,6 +2804,15 @@ public class GrouperClientWsTest extends GrouperTest {
               && GrouperClientWs.mostRecentRequest.contains("aStem:newStem1")
               && GrouperClientWs.mostRecentRequest.contains("aStem:newStem0"));
 
+      //lets delete and recreate this stem...
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      try {
+        Stem stem = StemFinder.findByName(grouperSession, "aStem:newStem0", true, new QueryOptions().secondLevelCache(false));
+        stem.delete();
+      } finally {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+      
       // #####################################################
       // run again, with saveMode
       baos = new ByteArrayOutputStream();
@@ -13699,12 +13731,11 @@ public class GrouperClientWsTest extends GrouperTest {
   
     AttributeDefName attributeDefName2 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignDefName2");
     
-    final AttributeDef attributeDef2 = attributeDefName.getAttributeDef();
+    final AttributeDef attributeDef2 = attributeDefName2.getAttributeDef();
 
     attributeDef2.setAssignToGroup(false);
     attributeDef2.setAssignToImmMembershipAssn(true);
     attributeDef2.store();
-  
 
     Group group1 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
       .assignGroupNameToEdit("test:membershipTestAttrAssign").assignName("test:membershipTestAttrAssign").assignCreateParentStemsIfNotExist(true)
@@ -13716,6 +13747,9 @@ public class GrouperClientWsTest extends GrouperTest {
     
     AttributeAssign attributeAssign = membership.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
     
+    //we need to wait some seconds for the cache to clear
+    GrouperUtil.sleep(20000);
+
     PrintStream systemOut = System.out;
   
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -15372,7 +15406,7 @@ public class GrouperClientWsTest extends GrouperTest {
         // match: Index: 0: permissionType: role, role: aStem:role, subject: jdbc - test.subject.0, attributeDefNameName: aStem:permissionDefName, action: action, enabled: null
         // match: ^Index: (\d+)\: permissionType\: (.+), role\: (.+), subject\: (.+), attributeDefNameName\: (.+), action\: (.+), enabled\: null
         Pattern pattern = Pattern
-            .compile("^Index: (\\d+)\\: permissionType\\: (.+), role\\: (.+), subject\\: (.+), attributeDefNameName: (.+), action\\: (.+), enabled\\: null$");
+            .compile("^Index: (\\d+)\\: permissionType\\: (.+), role\\: (.+), subject\\: (.+), attributeDefNameName: (.+), action\\: (.+), allowedOverall\\: T|F enabled\\: null$");
         
         assertEquals(2, outputLines.length);
         String outputLine = outputLines[0];
@@ -17852,13 +17886,12 @@ public class GrouperClientWsTest extends GrouperTest {
   
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
-    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignDefName");
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb(AttributeDefType.perm, "test", "testAttributeAssignDefName");
     
     final AttributeDef attributeDef = attributeDefName.getAttributeDef();
     
     attributeDef.setAssignToGroup(false);
     attributeDef.setAssignToEffMembership(true);
-    attributeDef.setAttributeDefType(AttributeDefType.perm);
     attributeDef.store();
     
     Group group1 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
@@ -17906,15 +17939,15 @@ public class GrouperClientWsTest extends GrouperTest {
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c, changed: true, valuesChanged: false
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F), changed\: (T|F), valuesChanged\: (T|F)$
       Pattern pattern = Pattern
-        .compile("^Index\\: (\\d+)\\: permissionType\\: (.+), owner\\: (.+), permissionDefNameName\\: (.+), action\\: (.+), enabled\\: (T|F), attributeAssignId\\: (.+), changed\\: (T|F), deleted\\: (T|F)$");
+        .compile("^Index\\: (\\d+)\\: permissionType\\: (.+), owner\\: (.+), permissionDefNameName\\: (.+), action\\: (.+), disallowed\\: (T|F), enabled\\: (T|F), attributeAssignId\\: (.+), changed\\: (T|F), deleted\\: (T|F)$");
       String outputLine = outputLines[0];
   
       Matcher matcher = pattern.matcher(outputLines[0]);
   
       assertTrue(outputLine, matcher.matches());
       assertEquals(outputLine, "0", matcher.group(1));
-      assertEquals(outputLine, "role", matcher.group(2));
-      assertEquals(outputLine, "test:groupTestAttrAssign", matcher.group(3));
+      assertEquals(outputLine, "role_subject", matcher.group(2));
+      assertEquals(outputLine, "test:anyMembershipTestAttrAssign - jdbc - test.subject.0", matcher.group(3));
       assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(4));
       assertEquals(outputLine, "assign", matcher.group(5));
       

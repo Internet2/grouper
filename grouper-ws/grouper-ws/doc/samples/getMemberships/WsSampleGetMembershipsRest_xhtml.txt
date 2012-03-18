@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRest, manually written lite/rest, format: xhtml, for version: 2.0.0
+Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRest, manually written lite/rest, format: xhtml, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRes
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_0_000/memberships HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_000/memberships HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -25,26 +25,26 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestGetMembershipsRequest">
-      <p class="enabled" />
       <p class="scope" />
+      <p class="enabled" />
       <p class="clientVersion" />
       <div class="actAsSubjectLookup" title="WsSubjectLookup" />
+      <p class="includeGroupDetail" />
       <p class="includeSubjectDetail" />
       <ul class="subjectAttributeNames">
         <li>description</li>
         <li>loginid</li>
         <li>name</li>
       </ul>
-      <p class="includeGroupDetail" />
       <p class="memberFilter" />
+      <div class="wsStemLookup" title="WsStemLookup" />
+      <p class="stemScope" />
       <ul class="wsGroupLookups">
         <li title="WsGroupLookup">
           <p class="uuid" />
           <p class="groupName">aStem:aGroup</p>
         </li>
       </ul>
-      <p class="stemScope" />
-      <div class="wsStemLookup" title="WsStemLookup" />
       <p class="fieldName" />
     </div>
   </body>
@@ -61,12 +61,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Fri, 12 Aug 2011 22:22:51 GMT
+Date: Sat, 17 Mar 2012 15:43:43 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -79,15 +79,20 @@ Connection: close
     <div title="WsGetMembershipsResults">
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="success">T</p>
         <p class="resultCode2" />
         <p class="resultMessage">Found 3 results involving 1 groups and 3 subjects</p>
+        <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">129</p>
+        <p class="millis">133</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.0.0</p>
+        <p class="serverVersion">2.1.0</p>
       </div>
+      <ul class="subjectAttributeNames">
+        <li>description</li>
+        <li>loginid</li>
+        <li>name</li>
+      </ul>
       <ul class="wsSubjects">
         <li title="WsSubject">
           <p class="name">GrouperSysAdmin</p>
@@ -129,20 +134,16 @@ Connection: close
           <p class="identifierLookup" />
         </li>
       </ul>
-      <ul class="subjectAttributeNames">
-        <li>description</li>
-        <li>loginid</li>
-        <li>name</li>
-      </ul>
       <ul class="wsGroups">
         <li title="WsGroup">
           <p class="name">aStem:aGroup</p>
           <p class="displayName">a stem:a group</p>
           <p class="description">a group description</p>
-          <p class="uuid">0b651632c0f945b5a647018eceb59070</p>
+          <p class="uuid">05363c4f1afe41dd8fd63902fed0b22a</p>
           <div class="detail" title="WsGroupDetail" />
           <p class="extension">aGroup</p>
           <p class="displayExtension">a group</p>
+          <p class="typeOfGroup">group</p>
         </li>
       </ul>
       <ul class="wsMemberships">
@@ -150,48 +151,48 @@ Connection: close
           <p class="subjectSourceId">g:isa</p>
           <p class="subjectId">GrouperSystem</p>
           <p class="groupName">aStem:aGroup</p>
-          <p class="createTime">2011/08/12 18:22:49.311</p>
-          <p class="immediateMembershipId">e67865feff284e25840d29f0ac6e9cfe</p>
-          <p class="enabledTime" />
+          <p class="createTime">2012/03/17 11:43:41.049</p>
           <p class="disabledTime" />
-          <p class="memberId">6cc7bc126ac24ac98f9f9840e96fcd99</p>
+          <p class="enabled">T</p>
+          <p class="enabledTime" />
+          <p class="membershipId">7d73582758e840d5a84138591f6f4edf:aec05e8ecd004292b38c5e1487e6d0f0</p>
+          <p class="memberId">79abac8156174e11a8f226bf7d001f91</p>
+          <p class="immediateMembershipId">7d73582758e840d5a84138591f6f4edf</p>
+          <p class="groupId">05363c4f1afe41dd8fd63902fed0b22a</p>
           <p class="listName">members</p>
           <p class="listType">list</p>
-          <p class="membershipId">e67865feff284e25840d29f0ac6e9cfe:eebf2def788b4044a87e3bf859c052d4</p>
-          <p class="enabled">T</p>
-          <p class="groupId">0b651632c0f945b5a647018eceb59070</p>
           <p class="membershipType">immediate</p>
         </li>
         <li title="WsMembership">
           <p class="subjectSourceId">jdbc</p>
           <p class="subjectId">10021368</p>
           <p class="groupName">aStem:aGroup</p>
-          <p class="createTime">2011/08/12 18:22:49.353</p>
-          <p class="immediateMembershipId">d3c3a32815c44ca2aefeb80e94c1cc2f</p>
-          <p class="enabledTime" />
+          <p class="createTime">2012/03/17 11:43:41.086</p>
           <p class="disabledTime" />
-          <p class="memberId">8170bdb8e1eb45ad80c65ce1fbbce921</p>
+          <p class="enabled">T</p>
+          <p class="enabledTime" />
+          <p class="membershipId">92e1920a2f34402ab19ff143c98f7ac3:aec05e8ecd004292b38c5e1487e6d0f0</p>
+          <p class="memberId">deb765ba55b64a2da212ee145b684d91</p>
+          <p class="immediateMembershipId">92e1920a2f34402ab19ff143c98f7ac3</p>
+          <p class="groupId">05363c4f1afe41dd8fd63902fed0b22a</p>
           <p class="listName">members</p>
           <p class="listType">list</p>
-          <p class="membershipId">d3c3a32815c44ca2aefeb80e94c1cc2f:eebf2def788b4044a87e3bf859c052d4</p>
-          <p class="enabled">T</p>
-          <p class="groupId">0b651632c0f945b5a647018eceb59070</p>
           <p class="membershipType">immediate</p>
         </li>
         <li title="WsMembership">
           <p class="subjectSourceId">jdbc</p>
           <p class="subjectId">10039438</p>
           <p class="groupName">aStem:aGroup</p>
-          <p class="createTime">2011/08/12 18:22:49.332</p>
-          <p class="immediateMembershipId">7f9f75edef14465e8abf523e38b0d15a</p>
-          <p class="enabledTime" />
+          <p class="createTime">2012/03/17 11:43:41.065</p>
           <p class="disabledTime" />
-          <p class="memberId">b95f46b4387c49a6abdfbb7d34989832</p>
+          <p class="enabled">T</p>
+          <p class="enabledTime" />
+          <p class="membershipId">6ce0a628cd474037a78a7f0a75021c2f:aec05e8ecd004292b38c5e1487e6d0f0</p>
+          <p class="memberId">c5aaa32680da4676bb63b927578070c9</p>
+          <p class="immediateMembershipId">6ce0a628cd474037a78a7f0a75021c2f</p>
+          <p class="groupId">05363c4f1afe41dd8fd63902fed0b22a</p>
           <p class="listName">members</p>
           <p class="listType">list</p>
-          <p class="membershipId">7f9f75edef14465e8abf523e38b0d15a:eebf2def788b4044a87e3bf859c052d4</p>
-          <p class="enabled">T</p>
-          <p class="groupId">0b651632c0f945b5a647018eceb59070</p>
           <p class="membershipType">immediate</p>
         </li>
       </ul>
@@ -360,4 +361,4 @@ public class WsSampleGetMembershipsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS, result message: Found 3 results involving 1 groups and 3 subjects
+Server version: 2.1.0, result code: SUCCESS, result message: Found 3 results involving 1 groups and 3 subjects

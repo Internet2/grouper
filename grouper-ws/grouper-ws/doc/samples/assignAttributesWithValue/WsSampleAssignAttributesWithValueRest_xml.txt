@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributesWithValue, WsSampleAssignAttributesWithValueRest, manually written lite/rest, format: xml, for version: 2.0.0
+Grouper web service sample of service: assignAttributesWithValue, WsSampleAssignAttributesWithValueRest, manually written lite/rest, format: xml, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: assignAttributesWithValue, WsSampleAssign
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_0_000/attributeAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_000/attributeAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -50,12 +50,12 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 12 Aug 2011 22:02:30 GMT
+Date: Sat, 17 Mar 2012 16:19:27 GMT
 Connection: close
 
 <WsAssignAttributesResults>
@@ -63,7 +63,7 @@ Connection: close
     <WsAttributeDef>
       <extension>testAttributeAssignDefNameDef</extension>
       <name>test:testAttributeAssignDefNameDef</name>
-      <uuid>6f8418ca22da403e9cf81dd8322fcf8c</uuid>
+      <uuid>15f59037e6d14ce6a810d15e0d87e9b6</uuid>
       <attributeDefType>attr</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>T</multiValued>
@@ -76,8 +76,8 @@ Connection: close
       <displayExtension>testAttributeAssignDefName</displayExtension>
       <displayName>test:testAttributeAssignDefName</displayName>
       <name>test:testAttributeAssignDefName</name>
-      <uuid>c5d7dd086fae4112af58339ea573771f</uuid>
-      <attributeDefId>6f8418ca22da403e9cf81dd8322fcf8c</attributeDefId>
+      <uuid>78207cf637014cc3ad08b17c92cbaecb</uuid>
+      <attributeDefId>15f59037e6d14ce6a810d15e0d87e9b6</attributeDefId>
       <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
     </WsAttributeDefName>
   </wsAttributeDefNames>
@@ -88,7 +88,7 @@ Connection: close
           <changed>T</changed>
           <deleted>F</deleted>
           <wsAttributeAssignValue>
-            <id>478f5d63d1714160a16b20f0c871496a</id>
+            <id>63f3b75841cf430985c0e43e0ed497d2</id>
             <valueSystem>63</valueSystem>
           </wsAttributeAssignValue>
         </WsAttributeAssignValueResult>
@@ -98,36 +98,36 @@ Connection: close
           <disallowed>F</disallowed>
           <attributeAssignActionType>immediate</attributeAssignActionType>
           <attributeAssignDelegatable>FALSE</attributeAssignDelegatable>
-          <attributeAssignActionId>b57355f157434700b2b833571db66079</attributeAssignActionId>
+          <attributeAssignActionId>a83fe127b3294443b3152e164f13d685</attributeAssignActionId>
           <attributeAssignActionName>assign</attributeAssignActionName>
           <attributeAssignType>group</attributeAssignType>
-          <attributeDefNameId>c5d7dd086fae4112af58339ea573771f</attributeDefNameId>
+          <attributeDefNameId>78207cf637014cc3ad08b17c92cbaecb</attributeDefNameId>
           <attributeDefNameName>test:testAttributeAssignDefName</attributeDefNameName>
-          <attributeDefId>6f8418ca22da403e9cf81dd8322fcf8c</attributeDefId>
+          <attributeDefId>15f59037e6d14ce6a810d15e0d87e9b6</attributeDefId>
           <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
           <wsAttributeAssignValues>
             <WsAttributeAssignValue>
-              <id>fcce3ea71a1d4f7982582182b10e6f92</id>
+              <id>bd7af88e517944f0a3b8fb161ce8142b</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>1200738ae0fe4d76a945e8d050b6a31e</id>
+              <id>9d0530366d154a7d9be28f2fb2764797</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>9627915f2ae5405f9ba3338428617a3f</id>
+              <id>e10566acd1354bdb9f9fbe7cfb390bbc</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>478f5d63d1714160a16b20f0c871496a</id>
+              <id>63f3b75841cf430985c0e43e0ed497d2</id>
               <valueSystem>63</valueSystem>
             </WsAttributeAssignValue>
           </wsAttributeAssignValues>
-          <createdOn>2011/08/12 18:02:28.599</createdOn>
+          <createdOn>2012/03/17 12:19:25.765</createdOn>
           <enabled>T</enabled>
-          <id>0f1dcac4458b4452b46d04697bc82418</id>
-          <lastUpdated>2011/08/12 18:02:28.599</lastUpdated>
-          <ownerGroupId>d4dde66571384115babc400d85af9a66</ownerGroupId>
+          <id>b747ded09b2b43689c97d55eac654744</id>
+          <lastUpdated>2012/03/17 12:19:25.765</lastUpdated>
+          <ownerGroupId>8f9606d6e8df4d71af04e7c4b38f4ca7</ownerGroupId>
           <ownerGroupName>test:groupTestAttrAssign</ownerGroupName>
         </WsAttributeAssign>
       </wsAttributeAssigns>
@@ -143,17 +143,18 @@ Connection: close
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>229</millis>
-    <serverVersion>2.0.0</serverVersion>
+    <millis>115</millis>
+    <serverVersion>2.1.0</serverVersion>
   </responseMetadata>
   <wsGroups>
     <WsGroup>
       <extension>groupTestAttrAssign</extension>
+      <typeOfGroup>group</typeOfGroup>
       <displayExtension>groupTestAttrAssign</displayExtension>
       <description>description</description>
       <displayName>test:groupTestAttrAssign</displayName>
       <name>test:groupTestAttrAssign</name>
-      <uuid>d4dde66571384115babc400d85af9a66</uuid>
+      <uuid>8f9606d6e8df4d71af04e7c4b38f4ca7</uuid>
     </WsGroup>
   </wsGroups>
   <wsStems/>
@@ -331,4 +332,4 @@ public class WsSampleAssignAttributesWithValueRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS, result message: , Found 1 results.
+Server version: 2.1.0, result code: SUCCESS, result message: , Found 1 results.

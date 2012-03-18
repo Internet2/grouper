@@ -1,4 +1,4 @@
-Grouper web service sample of service: getPermissionAssignments, WsSampleGetPermissionAssignmentsRest, manually written lite/rest, format: xhtml, for version: 2.0.0
+Grouper web service sample of service: getPermissionAssignments, WsSampleGetPermissionAssignmentsRest, manually written lite/rest, format: xhtml, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getPermissionAssignments, WsSampleGetPerm
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_0_000/permissionAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_000/permissionAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -29,17 +29,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="permissionType" />
       <p class="clientVersion" />
       <div class="actAsSubjectLookup" title="WsSubjectLookup" />
-      <p class="includeSubjectDetail" />
       <p class="includeGroupDetail" />
+      <p class="includeSubjectDetail" />
       <p class="pointInTimeFrom" />
       <p class="pointInTimeTo" />
+      <p class="includeAssignmentsOnAssignments" />
       <ul class="wsAttributeDefLookups">
         <li title="WsAttributeDefLookup">
           <p class="uuid" />
           <p class="name">aStem:permissionDef</p>
         </li>
       </ul>
-      <p class="includeAssignmentsOnAssignments" />
       <p class="includePermissionAssignDetail" />
       <p class="includeAttributeDefNames" />
       <p class="includeAttributeAssignments" />
@@ -61,12 +61,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sat, 13 Aug 2011 00:36:40 GMT
+Date: Sat, 17 Mar 2012 15:44:49 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -79,25 +79,103 @@ Connection: close
     <div title="WsGetPermissionAssignmentsResults">
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="success">T</p>
         <p class="resultCode2" />
-        <p class="resultMessage">, Found 0 results.</p>
+        <p class="resultMessage">, Found 3 results.</p>
+        <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">118</p>
+        <p class="millis">100</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.0.0</p>
+        <p class="serverVersion">2.1.0</p>
       </div>
+      <ul class="wsGroups">
+        <li title="WsGroup">
+          <p class="name">aStem:role</p>
+          <p class="displayName">a stem:role</p>
+          <p class="description" />
+          <p class="uuid">13242e00a9bc4f4bac15f8830dbad7ec</p>
+          <div class="detail" title="WsGroupDetail" />
+          <p class="extension">role</p>
+          <p class="displayExtension">role</p>
+          <p class="typeOfGroup">role</p>
+        </li>
+        <li title="WsGroup">
+          <p class="name">aStem:role2</p>
+          <p class="displayName">a stem:role2</p>
+          <p class="description" />
+          <p class="uuid">fa5ec70e26c84a7493be53821136d485</p>
+          <div class="detail" title="WsGroupDetail" />
+          <p class="extension">role2</p>
+          <p class="displayExtension">role2</p>
+          <p class="typeOfGroup">role</p>
+        </li>
+      </ul>
       <ul class="wsAttributeDefs">
         <li title="WsAttributeDef">
           <p class="name">aStem:permissionDef</p>
           <p class="description" />
-          <p class="uuid">c690d9a531c9408ea2c58bd026d314fe</p>
+          <p class="uuid">9bcace2ae8ba4df4b1b99e632d212a84</p>
           <p class="extension">permissionDef</p>
           <p class="attributeDefType">perm</p>
-          <p class="valueType">marker</p>
           <p class="multiAssignable">F</p>
           <p class="multiValued">F</p>
+          <p class="valueType">marker</p>
+        </li>
+      </ul>
+      <ul class="wsPermissionAssigns">
+        <li title="WsPermissionAssign">
+          <p class="action">read</p>
+          <p class="sourceId">jdbc</p>
+          <p class="subjectId">test.subject.0</p>
+          <div class="detail" title="WsPermissionAssignDetail" />
+          <p class="attributeDefName">aStem:permissionDef</p>
+          <p class="attributeDefId">9bcace2ae8ba4df4b1b99e632d212a84</p>
+          <p class="attributeDefNameId">bd0b285930544e28b239e52e04f27bf5</p>
+          <p class="attributeDefNameName">aStem:permissionDefName</p>
+          <p class="enabled">T</p>
+          <p class="permissionType">role</p>
+          <p class="attributeAssignId">1b3db570eb894baf9f7f8a8c506dea2e</p>
+          <p class="roleId">13242e00a9bc4f4bac15f8830dbad7ec</p>
+          <p class="roleName">aStem:role</p>
+          <p class="membershipId">f74385ecd833455a8b9a62808179ea16:cdef99bd72fc4f4d8acb689e4873cecc</p>
+          <p class="disallowed">F</p>
+          <p class="allowedOverall">T</p>
+        </li>
+        <li title="WsPermissionAssign">
+          <p class="action">read</p>
+          <p class="sourceId">jdbc</p>
+          <p class="subjectId">test.subject.4</p>
+          <div class="detail" title="WsPermissionAssignDetail" />
+          <p class="attributeDefName">aStem:permissionDef</p>
+          <p class="attributeDefId">9bcace2ae8ba4df4b1b99e632d212a84</p>
+          <p class="attributeDefNameId">bd0b285930544e28b239e52e04f27bf5</p>
+          <p class="attributeDefNameName">aStem:permissionDefName</p>
+          <p class="enabled">T</p>
+          <p class="permissionType">role</p>
+          <p class="attributeAssignId">1b3db570eb894baf9f7f8a8c506dea2e</p>
+          <p class="roleId">13242e00a9bc4f4bac15f8830dbad7ec</p>
+          <p class="roleName">aStem:role</p>
+          <p class="membershipId">30c2ee59de5f426ea699d30600496b2c:cdef99bd72fc4f4d8acb689e4873cecc</p>
+          <p class="disallowed">F</p>
+          <p class="allowedOverall">T</p>
+        </li>
+        <li title="WsPermissionAssign">
+          <p class="action">write</p>
+          <p class="sourceId">jdbc</p>
+          <p class="subjectId">test.subject.1</p>
+          <div class="detail" title="WsPermissionAssignDetail" />
+          <p class="attributeDefName">aStem:permissionDef</p>
+          <p class="attributeDefId">9bcace2ae8ba4df4b1b99e632d212a84</p>
+          <p class="attributeDefNameId">0aa81cb7118049caadfd777c39afecf8</p>
+          <p class="attributeDefNameName">aStem:permissionDefName2</p>
+          <p class="enabled">T</p>
+          <p class="permissionType">role_subject</p>
+          <p class="attributeAssignId">8455166d4ea0441e84ef7b4905644983</p>
+          <p class="roleId">fa5ec70e26c84a7493be53821136d485</p>
+          <p class="roleName">aStem:role2</p>
+          <p class="membershipId">c1a5e652586b49c88584c5b4bde03ea0:3027a0e0c4e24d598f9e5744f21680ac</p>
+          <p class="disallowed">F</p>
+          <p class="allowedOverall">T</p>
         </li>
       </ul>
     </div>
@@ -264,4 +342,4 @@ public class WsSampleGetPermissionAssignmentsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS, result message: , Found 0 results.
+Server version: 2.1.0, result code: SUCCESS, result message: , Found 3 results.

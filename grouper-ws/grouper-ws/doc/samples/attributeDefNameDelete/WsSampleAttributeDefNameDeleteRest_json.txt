@@ -50,13 +50,13 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
 Content-Length: 1421
-Date: Sat, 25 Feb 2012 20:42:07 GMT
+Date: Sat, 17 Mar 2012 15:34:24 GMT
 Connection: close
 
 {
   "WsAttributeDefNameDeleteResults":{
     "responseMetadata":{
-      "millis":"40",
+      "millis":"25",
       "serverVersion":"2.1.0"
     },
     "resultMetadata":{

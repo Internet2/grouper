@@ -45,7 +45,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:attributeDefNameDeleteLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sat, 25 Feb 2012 20:42:00 GMT
+Date: Sat, 17 Mar 2012 15:34:14 GMT
 
 6bb
 <?xml version='1.0' encoding='UTF-8'?>
@@ -189,6 +189,6 @@ public class WsSampleAttributeDefNameDeleteLite implements WsSampleGenerated {
 
 
 WsAttributeDefNameDeleteLiteResult[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@13b1fb5,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@9ee241,localResultMetadataTracker=true,
-  localWsAttributeDefName=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsAttributeDefName@1182607,localWsAttributeDefNameTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@16c703d,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@3cd138,localResultMetadataTracker=true,
+  localWsAttributeDefName=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsAttributeDefName@cbcc45,localWsAttributeDefNameTracker=true]

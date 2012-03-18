@@ -48,7 +48,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:attributeDefNameSaveLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sat, 25 Feb 2012 17:26:24 GMT
+Date: Sat, 17 Mar 2012 15:35:02 GMT
 
 71f
 <?xml version='1.0' encoding='UTF-8'?>
@@ -73,14 +73,14 @@ wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...
           <ns:success>T</ns:success>
         </ns:resultMetadata>
         <ns:wsAttributeDefName xsi:type="ns:WsAttributeDefName">
-          <ns:attributeDefId>f30d21448e09487297bda0cfb9af5c1c</ns:attributeDefId>
+          <ns:attributeDefId>94c4edeb80724e0893ccd9661c99859f</ns:attributeDefId>
           <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
           <ns:description>This is a description 1 lite soap</ns:description>
           <ns:displayExtension>My new attribute def name to save 1 lite + soap</ns:displayExtension>
           <ns:displayName>test:My new attribute def name to save 1 lite + soap</ns:displayName>
           <ns:extension>testAttributeAssignDefNameToSaveLite_soap</ns:extension>
           <ns:name>test:testAttributeAssignDefNameToSaveLite_soap</ns:name>
-          <ns:uuid>af14fa4e8f734e38a2fbb0fd4eb6be64</ns:uuid>
+          <ns:uuid>dc94f0ded86b444b92633a24fec2b12f</ns:uuid>
         </ns:wsAttributeDefName>
       </ns:return>
     </ns:attributeDefNameSaveLiteResponse>
@@ -196,6 +196,6 @@ public class WsSampleAttributeDefNameSaveLite implements WsSampleGenerated {
 
 
 WsAttributeDefNameSaveLiteResult[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@1427546,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@21767f,localResultMetadataTracker=true,
-  localWsAttributeDefName=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsAttributeDefName@eaa79c,localWsAttributeDefNameTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@10f1128,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@2f9a43,localResultMetadataTracker=true,
+  localWsAttributeDefName=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsAttributeDefName@138c07f,localWsAttributeDefNameTracker=true]

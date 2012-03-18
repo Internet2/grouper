@@ -1,4 +1,4 @@
-Grouper web service sample of service: getPermissionAssignments, WsSampleGetPermissionAssignmentsLite, code generated classes, format: soap, for version: 2.0.0
+Grouper web service sample of service: getPermissionAssignments, WsSampleGetPermissionAssignmentsLite, code generated classes, format: soap, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getPermissionAssignments, WsSampleGetPerm
 #########################################
 
 
-POST /grouperWs/services/GrouperService_v2_0 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_1 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:getPermissionAssignmentsLite"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
@@ -20,8 +20,8 @@ Transfer-Encoding: chunked
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:getPermissionAssignmentsLite xmlns:ns1="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_0_000</ns1:clientVersion>
+    <ns1:getPermissionAssignmentsLite xmlns:ns1="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_1_000</ns1:clientVersion>
       <ns1:wsAttributeDefName>aStem:permissionDef</ns1:wsAttributeDefName>
       <ns1:wsAttributeDefId></ns1:wsAttributeDefId>
       <ns1:wsAttributeDefNameName></ns1:wsAttributeDefNameName>
@@ -63,117 +63,119 @@ Transfer-Encoding: chunked
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:getPermissionAssignmentsLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sat, 13 Aug 2011 00:36:34 GMT
+Date: Sat, 17 Mar 2012 15:44:43 GMT
 
-1848
+1345
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:getPermissionAssignmentsLiteResponse xmlns:ns="http://soap_v2_0.ws.grouper.middleware.internet2.edu/xsd">
-      <ns:return type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGetPermissionAssignmentsResults">
-        <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResponseMeta">
-          <ns:millis xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:serverVersion>2.0.0</ns:serverVersion>
+    <ns:getPermissionAssignmentsLiteResponse xmlns:ns="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
+      <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsGetPermissionAssignmentsResults">
+        <ns:responseMetadata xsi:type="ns:WsResponseMeta">
+          <ns:millis xsi:nil="true" />
+          <ns:resultWarnings xsi:nil="true" />
+          <ns:serverVersion>2.1.0</ns:serverVersion>
         </ns:responseMetadata>
-        <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsResultMeta">
-          <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+        <ns:resultMetadata xsi:type="ns:WsResultMeta">
+          <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
-          <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:resultMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:resultCode2 xsi:nil="true" />
+          <ns:resultMessage>, Found 3 results.</ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
-        <ns:subjectAttributeNames xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-        <ns:wsAttributeAssigns xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-        <ns:wsAttributeDefNames xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-        <ns:wsAttributeDefs type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsAttributeDef">
-          <ns:assignableTos xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+        <ns:subjectAttributeNames xsi:nil="true" />
+        <ns:wsAttributeAssigns xsi:nil="true" />
+        <ns:wsAttributeDefNames xsi:nil="true" />
+        <ns:wsAttributeDefs xsi:type="ns:WsAttributeDef">
+          <ns:assignableTos xsi:nil="true" />
           <ns:attributeDefType>perm</ns:attributeDefType>
-          <ns:description xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:description xsi:nil="true" />
           <ns:extension>permissionDef</ns:extension>
           <ns:multiAssignable>F</ns:multiAssignable>
           <ns:multiValued>F</ns:multiValued>
           <ns:name>aStem:permissionDef</ns:name>
-          <ns:uuid>c690d9a531c9408ea2c58bd026d314fe</ns:uuid>
+          <ns:uuid>a81de03b66b449e5a5a2be5d0399f727</ns:uuid>
           <ns:valueType>marker</ns:valueType>
         </ns:wsAttributeDefs>
-        <ns:wsGroups type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroup">
-          <ns:description xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:detail xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+        <ns:wsGroups xsi:type="ns:WsGroup">
+          <ns:description xsi:nil="true" />
+          <ns:detail xsi:nil="true" />
           <ns:displayExtension>role</ns:displayExtension>
           <ns:displayName>a stem:role</ns:displayName>
           <ns:extension>role</ns:extension>
           <ns:name>aStem:role</ns:name>
-          <ns:uuid>14554cf3e0d64212b48fb9cabfaaa1c5</ns:uuid>
+          <ns:typeOfGroup>role</ns:typeOfGroup>
+          <ns:uuid>8106032a6b6e4879bb184d66be888769</ns:uuid>
         </ns:wsGroups>
-        <ns:wsGroups type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsGroup">
-          <ns:description xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:detail xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+        <ns:wsGroups xsi:type="ns:WsGroup">
+          <ns:description xsi:nil="true" />
+          <ns:detail xsi:nil="true" />
           <ns:displayExtension>role2</ns:displayExtension>
           <ns:displayName>a stem:role2</ns:displayName>
           <ns:extension>role2</ns:extension>
           <ns:name>aStem:role2</ns:name>
-          <ns:uuid>7eeeb5ad906b4f1b8c13c46749e61ee1</ns:uuid>
+          <ns:typeOfGroup>role</ns:typeOfGroup>
+          <ns:uuid>5eb11d785d174b9c92f10dea05755ef2</ns:uuid>
         </ns:wsGroups>
-        <ns:wsPermissionAssigns type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsPermissionAssign">
+        <ns:wsPermissionAssigns xsi:type="ns:WsPermissionAssign">
           <ns:action>read</ns:action>
           <ns:allowedOverall>T</ns:allowedOverall>
-          <ns:attributeAssignId>a2e60b821ae84d108c2b0e520318c099</ns:attributeAssignId>
-          <ns:attributeDefId>c690d9a531c9408ea2c58bd026d314fe</ns:attributeDefId>
+          <ns:attributeAssignId>947a37eb22c54d769c4f5784f490ce6d</ns:attributeAssignId>
+          <ns:attributeDefId>a81de03b66b449e5a5a2be5d0399f727</ns:attributeDefId>
           <ns:attributeDefName>aStem:permissionDef</ns:attributeDefName>
-          <ns:attributeDefNameId>01ee8a0674a04da180444bdf5c0b81c4</ns:attributeDefNameId>
+          <ns:attributeDefNameId>a1c311630ec64fc1aec59728f796de36</ns:attributeDefNameId>
           <ns:attributeDefNameName>aStem:permissionDefName</ns:attributeDefNameName>
-          <ns:detail xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:detail xsi:nil="true" />
           <ns:disallowed>F</ns:disallowed>
           <ns:enabled>T</ns:enabled>
-          <ns:limits xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:membershipId>b63003c253aa47889f117172b4ff6f25:3e9809482e2c4172966f5eaf07d6d819</ns:membershipId>
+          <ns:limits xsi:nil="true" />
+          <ns:membershipId>6525f8f21601475da96c22afdd2a1882:4bcf142ebaf94d12a9b4b1ab698296c1</ns:membershipId>
           <ns:permissionType>role</ns:permissionType>
-          <ns:roleId>14554cf3e0d64212b48fb9cabfaaa1c5</ns:roleId>
+          <ns:roleId>8106032a6b6e4879bb184d66be888769</ns:roleId>
           <ns:roleName>aStem:role</ns:roleName>
           <ns:sourceId>jdbc</ns:sourceId>
           <ns:subjectId>test.subject.0</ns:subjectId>
         </ns:wsPermissionAssigns>
-        <ns:wsPermissionAssigns type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsPermissionAssign">
+        <ns:wsPermissionAssigns xsi:type="ns:WsPermissionAssign">
           <ns:action>read</ns:action>
           <ns:allowedOverall>T</ns:allowedOverall>
-          <ns:attributeAssignId>a2e60b821ae84d108c2b0e520318c099</ns:attributeAssignId>
-          <ns:attributeDefId>c690d9a531c9408ea2c58bd026d314fe</ns:attributeDefId>
+          <ns:attributeAssignId>947a37eb22c54d769c4f5784f490ce6d</ns:attributeAssignId>
+          <ns:attributeDefId>a81de03b66b449e5a5a2be5d0399f727</ns:attributeDefId>
           <ns:attributeDefName>aStem:permissionDef</ns:attributeDefName>
-          <ns:attributeDefNameId>01ee8a0674a04da180444bdf5c0b81c4</ns:attributeDefNameId>
+          <ns:attributeDefNameId>a1c311630ec64fc1aec59728f796de36</ns:attributeDefNameId>
           <ns:attributeDefNameName>aStem:permissionDefName</ns:attributeDefNameName>
-          <ns:detail xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:detail xsi:nil="true" />
           <ns:disallowed>F</ns:disallowed>
           <ns:enabled>T</ns:enabled>
-          <ns:limits xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:membershipId>96da52fb3f9045bc99a8621bb0f18752:3e9809482e2c4172966f5eaf07d6d819</ns:membershipId>
+          <ns:limits xsi:nil="true" />
+          <ns:membershipId>fd7392379ba7475aabecc1ea2dc6d73d:4bcf142ebaf94d12a9b4b1ab698296c1</ns:membershipId>
           <ns:permissionType>role</ns:permissionType>
-          <ns:roleId>14554cf3e0d64212b48fb9cabfaaa1c5</ns:roleId>
+          <ns:roleId>8106032a6b6e4879bb184d66be888769</ns:roleId>
           <ns:roleName>aStem:role</ns:roleName>
           <ns:sourceId>jdbc</ns:sourceId>
           <ns:subjectId>test.subject.4</ns:subjectId>
         </ns:wsPermissionAssigns>
-        <ns:wsPermissionAssigns type="edu.internet2.middleware.grouper.ws.soap_v2_0.WsPermissionAssign">
+        <ns:wsPermissionAssigns xsi:type="ns:WsPermissionAssign">
           <ns:action>write</ns:action>
           <ns:allowedOverall>T</ns:allowedOverall>
-          <ns:attributeAssignId>a8ad55c469ca4df891cf2305a1dc1f8b</ns:attributeAssignId>
-          <ns:attributeDefId>c690d9a531c9408ea2c58bd026d314fe</ns:attributeDefId>
+          <ns:attributeAssignId>460636434e8840a8951b587e401fbed7</ns:attributeAssignId>
+          <ns:attributeDefId>a81de03b66b449e5a5a2be5d0399f727</ns:attributeDefId>
           <ns:attributeDefName>aStem:permissionDef</ns:attributeDefName>
-          <ns:attributeDefNameId>4381c5c4b8d340f1b6258be77c873978</ns:attributeDefNameId>
+          <ns:attributeDefNameId>bb6be680ac04430a98d1abfccb7b1614</ns:attributeDefNameId>
           <ns:attributeDefNameName>aStem:permissionDefName2</ns:attributeDefNameName>
-          <ns:detail xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:detail xsi:nil="true" />
           <ns:disallowed>F</ns:disallowed>
           <ns:enabled>T</ns:enabled>
-          <ns:limits xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:membershipId>550eb4933c1342e5a76edaa71b4d847b:b4087c00fea74f068ff59a056be07b25</ns:membershipId>
+          <ns:limits xsi:nil="true" />
+          <ns:membershipId>86c90517083440c6bfa4728a2700d292:052f77d517a947a6b1fcc13b55e3921a</ns:membershipId>
           <ns:permissionType>role_subject</ns:permissionType>
-          <ns:roleId>7eeeb5ad906b4f1b8c13c46749e61ee1</ns:roleId>
+          <ns:roleId>5eb11d785d174b9c92f10dea05755ef2</ns:roleId>
           <ns:roleName>aStem:role2</ns:roleName>
           <ns:sourceId>jdbc</ns:sourceId>
           <ns:subjectId>test.subject.1</ns:subjectId>
@@ -208,10 +210,10 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.GetPermissionAssignmentsLite;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGetPermissionAssignmentsResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroup;
-import edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsPermissionAssign;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.GetPermissionAssignmentsLite;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGetPermissionAssignmentsResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroup;
+import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsPermissionAssign;
 
 
 /**
@@ -329,19 +331,19 @@ public class WsSampleGetPermissionAssignmentsLite implements WsSampleGenerated {
 
 
 WsGetPermissionAssignmentsResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsResponseMeta@153d6ea,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsResultMeta@142a68f,localResultMetadataTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@257a10,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@70d156,localResultMetadataTracker=true,
   localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,
   localWsAttributeAssigns={<null>},localWsAttributeAssignsTracker=true,
   localWsAttributeDefNames={<null>},localWsAttributeDefNamesTracker=true,
-  localWsAttributeDefs={edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsAttributeDef@3a8aca},localWsAttributeDefsTracker=true,
-  localWsGroups={edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroup@2e6012,edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsGroup@a541f0},localWsGroupsTracker=true,
-  localWsPermissionAssigns={edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsPermissionAssign@e80ca9,edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsPermissionAssign@9730d7,edu.internet2.middleware.grouper.ws.soap_v2_0.xsd.WsPermissionAssign@777a8},localWsPermissionAssignsTracker=true,localWsSubjectsTracker=false]
-WsPermissionAssign[localAction=read,localActionTracker=true,localAllowedOverall=T,localAllowedOverallTracker=true,localAttributeAssignId=a2e60b821ae84d108c2b0e520318c099,localAttributeAssignIdTracker=true,localAttributeDefId=c690d9a531c9408ea2c58bd026d314fe,localAttributeDefIdTracker=true,localAttributeDefName=aStem:permissionDef,localAttributeDefNameTracker=true,localAttributeDefNameId=01ee8a0674a04da180444bdf5c0b81c4,localAttributeDefNameIdTracker=true,localAttributeDefNameName=aStem:permissionDefName,localAttributeDefNameNameTracker=true,localDetailTracker=true,localDisallowed=F,localDisallowedTracker=true,localEnabled=T,localEnabledTracker=true,
-  localLimits={<null>},localLimitsTracker=true,localMembershipId=b63003c253aa47889f117172b4ff6f25:3e9809482e2c4172966f5eaf07d6d819,localMembershipIdTracker=true,localPermissionType=role,localPermissionTypeTracker=true,localRoleId=14554cf3e0d64212b48fb9cabfaaa1c5,localRoleIdTracker=true,localRoleName=aStem:role,localRoleNameTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSubjectId=test.subject.0,localSubjectIdTracker=true]
-WsPermissionAssign[localAction=read,localActionTracker=true,localAllowedOverall=T,localAllowedOverallTracker=true,localAttributeAssignId=a2e60b821ae84d108c2b0e520318c099,localAttributeAssignIdTracker=true,localAttributeDefId=c690d9a531c9408ea2c58bd026d314fe,localAttributeDefIdTracker=true,localAttributeDefName=aStem:permissionDef,localAttributeDefNameTracker=true,localAttributeDefNameId=01ee8a0674a04da180444bdf5c0b81c4,localAttributeDefNameIdTracker=true,localAttributeDefNameName=aStem:permissionDefName,localAttributeDefNameNameTracker=true,localDetailTracker=true,localDisallowed=F,localDisallowedTracker=true,localEnabled=T,localEnabledTracker=true,
-  localLimits={<null>},localLimitsTracker=true,localMembershipId=96da52fb3f9045bc99a8621bb0f18752:3e9809482e2c4172966f5eaf07d6d819,localMembershipIdTracker=true,localPermissionType=role,localPermissionTypeTracker=true,localRoleId=14554cf3e0d64212b48fb9cabfaaa1c5,localRoleIdTracker=true,localRoleName=aStem:role,localRoleNameTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSubjectId=test.subject.4,localSubjectIdTracker=true]
-WsPermissionAssign[localAction=write,localActionTracker=true,localAllowedOverall=T,localAllowedOverallTracker=true,localAttributeAssignId=a8ad55c469ca4df891cf2305a1dc1f8b,localAttributeAssignIdTracker=true,localAttributeDefId=c690d9a531c9408ea2c58bd026d314fe,localAttributeDefIdTracker=true,localAttributeDefName=aStem:permissionDef,localAttributeDefNameTracker=true,localAttributeDefNameId=4381c5c4b8d340f1b6258be77c873978,localAttributeDefNameIdTracker=true,localAttributeDefNameName=aStem:permissionDefName2,localAttributeDefNameNameTracker=true,localDetailTracker=true,localDisallowed=F,localDisallowedTracker=true,localEnabled=T,localEnabledTracker=true,
-  localLimits={<null>},localLimitsTracker=true,localMembershipId=550eb4933c1342e5a76edaa71b4d847b:b4087c00fea74f068ff59a056be07b25,localMembershipIdTracker=true,localPermissionType=role_subject,localPermissionTypeTracker=true,localRoleId=7eeeb5ad906b4f1b8c13c46749e61ee1,localRoleIdTracker=true,localRoleName=aStem:role2,localRoleNameTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSubjectId=test.subject.1,localSubjectIdTracker=true]
-WsGroup[localDescriptionTracker=false,localDetailTracker=true,localDisplayExtension=role,localDisplayExtensionTracker=true,localDisplayName=a stem:role,localDisplayNameTracker=true,localExtension=role,localExtensionTracker=true,localName=aStem:role,localNameTracker=true,localUuid=14554cf3e0d64212b48fb9cabfaaa1c5,localUuidTracker=true]
-WsGroup[localDescriptionTracker=false,localDetailTracker=true,localDisplayExtension=role2,localDisplayExtensionTracker=true,localDisplayName=a stem:role2,localDisplayNameTracker=true,localExtension=role2,localExtensionTracker=true,localName=aStem:role2,localNameTracker=true,localUuid=7eeeb5ad906b4f1b8c13c46749e61ee1,localUuidTracker=true]
+  localWsAttributeDefs={edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsAttributeDef@1a49e99},localWsAttributeDefsTracker=true,
+  localWsGroups={edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroup@55a1f1,edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroup@1faef08},localWsGroupsTracker=true,
+  localWsPermissionAssigns={edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsPermissionAssign@b3a523,edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsPermissionAssign@1edcca,edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsPermissionAssign@318e5b},localWsPermissionAssignsTracker=true,localWsSubjectsTracker=false]
+WsPermissionAssign[localAction=read,localActionTracker=true,localAllowedOverall=T,localAllowedOverallTracker=true,localAttributeAssignId=947a37eb22c54d769c4f5784f490ce6d,localAttributeAssignIdTracker=true,localAttributeDefId=a81de03b66b449e5a5a2be5d0399f727,localAttributeDefIdTracker=true,localAttributeDefName=aStem:permissionDef,localAttributeDefNameTracker=true,localAttributeDefNameId=a1c311630ec64fc1aec59728f796de36,localAttributeDefNameIdTracker=true,localAttributeDefNameName=aStem:permissionDefName,localAttributeDefNameNameTracker=true,localDetailTracker=true,localDisallowed=F,localDisallowedTracker=true,localEnabled=T,localEnabledTracker=true,
+  localLimits={<null>},localLimitsTracker=true,localMembershipId=6525f8f21601475da96c22afdd2a1882:4bcf142ebaf94d12a9b4b1ab698296c1,localMembershipIdTracker=true,localPermissionType=role,localPermissionTypeTracker=true,localRoleId=8106032a6b6e4879bb184d66be888769,localRoleIdTracker=true,localRoleName=aStem:role,localRoleNameTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSubjectId=test.subject.0,localSubjectIdTracker=true]
+WsPermissionAssign[localAction=read,localActionTracker=true,localAllowedOverall=T,localAllowedOverallTracker=true,localAttributeAssignId=947a37eb22c54d769c4f5784f490ce6d,localAttributeAssignIdTracker=true,localAttributeDefId=a81de03b66b449e5a5a2be5d0399f727,localAttributeDefIdTracker=true,localAttributeDefName=aStem:permissionDef,localAttributeDefNameTracker=true,localAttributeDefNameId=a1c311630ec64fc1aec59728f796de36,localAttributeDefNameIdTracker=true,localAttributeDefNameName=aStem:permissionDefName,localAttributeDefNameNameTracker=true,localDetailTracker=true,localDisallowed=F,localDisallowedTracker=true,localEnabled=T,localEnabledTracker=true,
+  localLimits={<null>},localLimitsTracker=true,localMembershipId=fd7392379ba7475aabecc1ea2dc6d73d:4bcf142ebaf94d12a9b4b1ab698296c1,localMembershipIdTracker=true,localPermissionType=role,localPermissionTypeTracker=true,localRoleId=8106032a6b6e4879bb184d66be888769,localRoleIdTracker=true,localRoleName=aStem:role,localRoleNameTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSubjectId=test.subject.4,localSubjectIdTracker=true]
+WsPermissionAssign[localAction=write,localActionTracker=true,localAllowedOverall=T,localAllowedOverallTracker=true,localAttributeAssignId=460636434e8840a8951b587e401fbed7,localAttributeAssignIdTracker=true,localAttributeDefId=a81de03b66b449e5a5a2be5d0399f727,localAttributeDefIdTracker=true,localAttributeDefName=aStem:permissionDef,localAttributeDefNameTracker=true,localAttributeDefNameId=bb6be680ac04430a98d1abfccb7b1614,localAttributeDefNameIdTracker=true,localAttributeDefNameName=aStem:permissionDefName2,localAttributeDefNameNameTracker=true,localDetailTracker=true,localDisallowed=F,localDisallowedTracker=true,localEnabled=T,localEnabledTracker=true,
+  localLimits={<null>},localLimitsTracker=true,localMembershipId=86c90517083440c6bfa4728a2700d292:052f77d517a947a6b1fcc13b55e3921a,localMembershipIdTracker=true,localPermissionType=role_subject,localPermissionTypeTracker=true,localRoleId=5eb11d785d174b9c92f10dea05755ef2,localRoleIdTracker=true,localRoleName=aStem:role2,localRoleNameTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSubjectId=test.subject.1,localSubjectIdTracker=true]
+WsGroup[localDescriptionTracker=false,localDetailTracker=true,localDisplayExtension=role,localDisplayExtensionTracker=true,localDisplayName=a stem:role,localDisplayNameTracker=true,localExtension=role,localExtensionTracker=true,localName=aStem:role,localNameTracker=true,localTypeOfGroup=role,localTypeOfGroupTracker=true,localUuid=8106032a6b6e4879bb184d66be888769,localUuidTracker=true]
+WsGroup[localDescriptionTracker=false,localDetailTracker=true,localDisplayExtension=role2,localDisplayExtensionTracker=true,localDisplayName=a stem:role2,localDisplayNameTracker=true,localExtension=role2,localExtensionTracker=true,localName=aStem:role2,localNameTracker=true,localTypeOfGroup=role,localTypeOfGroupTracker=true,localUuid=5eb11d785d174b9c92f10dea05755ef2,localUuidTracker=true]

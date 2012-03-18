@@ -12,6 +12,7 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -115,19 +116,31 @@ public class WsSampleMemberChangeSubjectRest implements WsSampleRest {
           + ", result code: " + resultCode
           + ", result message: " + resultMessage );
       
-      //lets make sure the old member was deleted
-      try {
-        GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectFinder.findById("test.subject.0"));
-        throw new RuntimeException("Should not find renamed member: test.subject.0!");
-      } catch (MemberNotFoundException mnfe) {
-        //good
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+      boolean startedSession = false;
+      if (grouperSession == null) {
+        grouperSession = GrouperSession.startRootSession();
+        startedSession = true;
       }
-      
-      //make sure old member was not deleted
       try {
-        GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectFinder.findById("test.subject.2"));
-      } catch (MemberNotFoundException mnfe) {
-        throw new RuntimeException("Should find renamed member: test.subject.2!");
+        //lets make sure the old member was deleted
+        try {
+          GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectFinder.findById("test.subject.0"));
+          throw new RuntimeException("Should not find renamed member: test.subject.0!");
+        } catch (MemberNotFoundException mnfe) {
+          //good
+        }
+        
+        //make sure old member was not deleted
+        try {
+          GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectFinder.findById("test.subject.2"));
+        } catch (MemberNotFoundException mnfe) {
+          throw new RuntimeException("Should find renamed member: test.subject.2!");
+        }
+      } finally {
+        if (startedSession) {
+          GrouperSession.stopQuietly(grouperSession);
+        }
       }
 
     } catch (Exception e) {

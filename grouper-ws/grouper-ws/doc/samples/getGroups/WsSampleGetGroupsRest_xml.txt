@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsRest, manually written lite/rest, format: xml, for version: 2.0.0
+Grouper web service sample of service: getGroups, WsSampleGetGroupsRest, manually written lite/rest, format: xml, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRest, manuall
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_0_000/subjects HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_000/subjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -42,12 +42,12 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 12 Aug 2011 22:11:33 GMT
+Date: Sat, 17 Mar 2012 15:41:07 GMT
 Connection: close
 
 <WsGetGroupsResults>
@@ -56,33 +56,37 @@ Connection: close
       <wsGroups>
         <WsGroup>
           <extension>aGroup</extension>
+          <typeOfGroup>group</typeOfGroup>
           <displayExtension>a group</displayExtension>
           <description>a group description</description>
           <displayName>a stem:a group</displayName>
           <name>aStem:aGroup</name>
-          <uuid>21e78f60e4c44b76967e123a4e6c0bc9</uuid>
+          <uuid>55ce6c529a3e40a9b4b7c9f1a6188510</uuid>
         </WsGroup>
         <WsGroup>
           <extension>aGroup2</extension>
+          <typeOfGroup>group</typeOfGroup>
           <displayExtension>a group2</displayExtension>
           <description>a group description2</description>
           <displayName>a stem:a group2</displayName>
           <name>aStem:aGroup2</name>
-          <uuid>3b51b8e932ce481eb4593f30d15a2ba1</uuid>
+          <uuid>90b22651ccbd44a99e8a2a49f3328755</uuid>
         </WsGroup>
         <WsGroup>
           <extension>sysadmingroup</extension>
+          <typeOfGroup>group</typeOfGroup>
           <displayExtension>sysadmingroup</displayExtension>
           <displayName>etc:sysadmingroup</displayName>
           <name>etc:sysadmingroup</name>
-          <uuid>b65e8ce26922492ebe91c0fb4f4a4ee6</uuid>
+          <uuid>8510a3c0040e4896aa6b393afe3283f5</uuid>
         </WsGroup>
         <WsGroup>
           <extension>webServiceActAsGroup</extension>
+          <typeOfGroup>group</typeOfGroup>
           <displayExtension>webServiceActAsGroup</displayExtension>
           <displayName>etc:webServiceActAsGroup</displayName>
           <name>etc:webServiceActAsGroup</name>
-          <uuid>48fbef8633c14409a1da8d988b069319</uuid>
+          <uuid>40ad6dd62245421f9c1dba91e75a6257</uuid>
         </WsGroup>
       </wsGroups>
       <resultMetadata>
@@ -104,19 +108,21 @@ Connection: close
       <wsGroups>
         <WsGroup>
           <extension>aGroup</extension>
+          <typeOfGroup>group</typeOfGroup>
           <displayExtension>a group</displayExtension>
           <description>a group description</description>
           <displayName>a stem:a group</displayName>
           <name>aStem:aGroup</name>
-          <uuid>21e78f60e4c44b76967e123a4e6c0bc9</uuid>
+          <uuid>55ce6c529a3e40a9b4b7c9f1a6188510</uuid>
         </WsGroup>
         <WsGroup>
           <extension>aGroup2</extension>
+          <typeOfGroup>group</typeOfGroup>
           <displayExtension>a group2</displayExtension>
           <description>a group description2</description>
           <displayName>a stem:a group2</displayName>
           <name>aStem:aGroup2</name>
-          <uuid>3b51b8e932ce481eb4593f30d15a2ba1</uuid>
+          <uuid>90b22651ccbd44a99e8a2a49f3328755</uuid>
         </WsGroup>
       </wsGroups>
       <resultMetadata>
@@ -137,8 +143,9 @@ Connection: close
   </results>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.0.0, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+    <resultMessage>Success for: clientVersion: 2.1.0, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
+
 memberFilter: All, includeGroupDetail: false, actAsSubject: null
 , params: null
 fieldName1: null
@@ -152,8 +159,8 @@ fieldName1: null
   </subjectAttributeNames>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>70</millis>
-    <serverVersion>2.0.0</serverVersion>
+    <millis>47</millis>
+    <serverVersion>2.1.0</serverVersion>
   </responseMetadata>
 </WsGetGroupsResults>
 
@@ -321,7 +328,7 @@ public class WsSampleGetGroupsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.0.0, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: 2.1.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.0, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null

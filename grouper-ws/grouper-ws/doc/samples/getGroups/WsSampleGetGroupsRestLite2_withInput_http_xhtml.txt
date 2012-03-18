@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, manually written lite/rest, type: _withInput, format: http_xhtml, for version: 2.0.0
+Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, manually written lite/rest, type: _withInput, format: http_xhtml, for version: 2.1.0
 
 
 #########################################
@@ -9,14 +9,14 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, ma
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_0_000/subjects/sources/jdbc/subjectId/test.subject.0/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_000/subjects/sources/jdbc/subjectId/test.subject.0/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 116
 
-wsLiteObjectType=WsRestGetGroupsLiteRequest&includeSubjectDetail=T&includeGroupDetail=T&actAsSubjectId=GrouperSystem
+wsLiteObjectType=WsRestGetGroupsLiteRequest&includeGroupDetail=T&includeSubjectDetail=T&actAsSubjectId=GrouperSystem
 
 
 #########################################
@@ -29,12 +29,12 @@ wsLiteObjectType=WsRestGetGroupsLiteRequest&includeSubjectDetail=T&includeGroupD
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Fri, 12 Aug 2011 22:12:56 GMT
+Date: Sat, 17 Mar 2012 15:42:18 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -47,59 +47,53 @@ Connection: close
     <div title="WsGetGroupsLiteResult">
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="success">T</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.0.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+        <p class="resultMessage">Success for: clientVersion: 2.1.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null
 fieldName1: null
 , scope: null, wsStemLookup: WsStemLookup[]
 , stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null
 , pointInTimeFrom: null, pointInTimeTo: null</p>
+        <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">81</p>
+        <p class="millis">33</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.0.0</p>
-      </div>
-      <ul class="subjectAttributeNames">
-        <li>lfname</li>
-        <li>loginid</li>
-      </ul>
-      <div class="wsSubject" title="WsSubject">
-        <p class="name">my name is test.subject.0</p>
-        <p class="id">test.subject.0</p>
-        <p class="sourceId">jdbc</p>
-        <ul class="attributeValues">
-          <li>name.test.subject.0</li>
-          <li>id.test.subject.0</li>
-        </ul>
-        <p class="resultCode">SUCCESS</p>
-        <p class="success">T</p>
-        <p class="identifierLookup" />
+        <p class="serverVersion">2.1.0</p>
       </div>
       <ul class="wsGroups">
         <li title="WsGroup">
           <p class="name">aStem:role</p>
           <p class="displayName">a stem:role</p>
           <p class="description" />
-          <p class="uuid">1baee0c54ce84de383557fda747cd92c</p>
+          <p class="uuid">e5f2016c6b02481096c9f3901503ef5c</p>
           <div class="detail" title="WsGroupDetail">
-            <p class="createTime">2011/08/12 18:12:55.105</p>
-            <p class="modifyTime">2011/08/12 18:12:55.107</p>
-            <div class="leftGroup" title="WsGroup" />
-            <div class="rightGroup" title="WsGroup" />
             <p class="compositeType" />
             <p class="createSubjectId">GrouperSystem</p>
+            <p class="createTime">2012/03/17 11:42:16.663</p>
             <p class="isCompositeFactor">F</p>
             <p class="modifySource" />
             <p class="modifySubjectId">GrouperSystem</p>
+            <p class="modifyTime">2012/03/17 11:42:16.664</p>
             <p class="hasComposite">F</p>
+            <div class="leftGroup" title="WsGroup" />
+            <div class="rightGroup" title="WsGroup" />
           </div>
           <p class="extension">role</p>
           <p class="displayExtension">role</p>
+          <p class="typeOfGroup">role</p>
         </li>
       </ul>
+      <div class="wsSubject" title="WsSubject">
+        <p class="name">my name is test.subject.0</p>
+        <p class="id">test.subject.0</p>
+        <p class="sourceId">jdbc</p>
+        <p class="resultCode">SUCCESS</p>
+        <p class="success">T</p>
+        <p class="identifierLookup" />
+      </div>
     </div>
   </body>
 </html>
@@ -262,7 +256,7 @@ public class WsSampleGetGroupsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.0.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+Server version: 2.1.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null

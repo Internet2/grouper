@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRestLite2, manually written lite/rest, type: _withInput, format: xhtml, for version: 2.0.0
+Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRestLite2, manually written lite/rest, type: _withInput, format: xhtml, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRestLite2
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_0_000/groups/aStem%3AaGroup123 HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_000/groups/aStem%3AaGroup123 HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -25,8 +25,8 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestGroupDeleteLiteRequest">
-      <p class="groupName" />
       <p class="groupUuid" />
+      <p class="groupName" />
       <p class="clientVersion" />
       <p class="includeGroupDetail">T</p>
       <p class="actAsSubjectId">GrouperSystem</p>
@@ -51,12 +51,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS_GROUP_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Fri, 12 Aug 2011 22:19:36 GMT
+Date: Sat, 17 Mar 2012 15:47:13 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -69,17 +69,18 @@ Connection: close
     <div title="WsGroupDeleteLiteResult">
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS_GROUP_NOT_FOUND</p>
-        <p class="success">T</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.0.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123]
+        <p class="resultMessage">Success for: clientVersion: 2.1.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123]
+
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, includeGroupDetail: true, paramNames:
 , params: nullCant find group: 'WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123,
 groupFindResult=GROUP_NOT_FOUND]'.</p>
+        <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">24</p>
+        <p class="millis">53</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.0.0</p>
+        <p class="serverVersion">2.1.0</p>
       </div>
       <div class="wsGroup" title="WsGroup">
         <p class="name">aStem:aGroup123</p>
@@ -89,6 +90,7 @@ groupFindResult=GROUP_NOT_FOUND]'.</p>
         <div class="detail" title="WsGroupDetail" />
         <p class="extension">aGroup123</p>
         <p class="displayExtension" />
+        <p class="typeOfGroup" />
       </div>
     </div>
   </body>
@@ -251,7 +253,7 @@ public class WsSampleGroupDeleteRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS_GROUP_NOT_FOUND, result message: Success for: clientVersion: 2.0.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123]
+Server version: 2.1.0, result code: SUCCESS_GROUP_NOT_FOUND, result message: Success for: clientVersion: 2.1.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, includeGroupDetail: true, paramNames: 
 , params: nullCant find group: 'WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123,

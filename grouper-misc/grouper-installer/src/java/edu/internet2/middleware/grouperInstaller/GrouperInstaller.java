@@ -589,7 +589,7 @@ public class GrouperInstaller {
         if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
           System.out.println("stdout: " + commandResult.getOutputText());
         }
-      } catch (Exception e) {
+      } catch (Throwable e) {
         e.printStackTrace();
         if (!shouldContinue()) {
           return;
@@ -858,7 +858,7 @@ public class GrouperInstaller {
           System.out.println("stdout: " + commandResult.getOutputText());
         }
 
-        System.out.print("Do you want to run dos2unix on ghs.sh (t|f)? [t]: ");
+        System.out.print("Do you want to run dos2unix on gsh.sh (t|f)? [t]: ");
         setGshFile = readFromStdInBoolean(true);
         
         if (setGshFile) {
@@ -1169,20 +1169,21 @@ public class GrouperInstaller {
       System.out.print("Do you want to set tomcat scripts to executable (t|f)? [t]: ");
       boolean setTomcatFiles = readFromStdInBoolean(true);
       
+      //GrouperInstallerUtils.toSet("catalina.sh", "startup.sh", "shutdown.sh");
+      Set<String> shFileNames = new HashSet<String>();
+
+      File binDir = new File(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin");
+
+      //get all sh files, doing wildcards doesnt work
+      for (File file : binDir.listFiles()) {
+        String fileName = GrouperInstallerUtils.defaultString(file.getName());
+        if (file.isFile() && fileName.endsWith(".sh")) {
+          shFileNames.add(fileName);
+        }
+      }
+
       if (setTomcatFiles) {
       
-        File binDir = new File(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin");
-        //GrouperInstallerUtils.toSet("catalina.sh", "startup.sh", "shutdown.sh");
-        Set<String> shFileNames = new HashSet<String>();
-        
-        //get all sh files, doing wildcards doesnt work
-        for (File file : binDir.listFiles()) {
-          String fileName = GrouperInstallerUtils.defaultString(file.getName());
-          if (file.isFile() && fileName.endsWith(".sh")) {
-            shFileNames.add(fileName);
-          }
-        }
-        
         for (String command : shFileNames) {
           List<String> commands = new ArrayList<String>();
           
@@ -1204,30 +1205,47 @@ public class GrouperInstaller {
             System.out.println("stdout: " + commandResult.getOutputText());
           }
         }
-
-        for (String command : shFileNames) {
-          
-          List<String> commands = new ArrayList<String>();
-          
-          commands.add("dos2unix");
-          commands.add(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin" + File.separator + command);
-    
-          System.out.println("Making tomcat file in unix format: " + convertCommandsIntoCommand(commands) + "\n");
-    
-          CommandResult commandResult = GrouperInstallerUtils.execCommand(
-              GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-              new File(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin"), null);
-          
-          if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
-            System.out.println("stderr: " + commandResult.getErrorText());
-          }
-          if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
-            System.out.println("stdout: " + commandResult.getOutputText());
-          }
-        }
-
       }
       
+      System.out.print("Do you want to run dos2unix on tomcat sh files (t|f)? [t]: ");
+      boolean dos2unix = readFromStdInBoolean(true);
+      
+      if (dos2unix) {
+        
+        try {
+          
+          for (String command : shFileNames) {
+            
+            List<String> commands = new ArrayList<String>();
+            
+            commands.add("dos2unix");
+            commands.add(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin" + File.separator + command);
+      
+            System.out.println("Making tomcat file in unix format: " + convertCommandsIntoCommand(commands) + "\n");
+      
+            CommandResult commandResult = GrouperInstallerUtils.execCommand(
+                GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+                new File(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin"), null);
+            
+            if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+              System.out.println("stderr: " + commandResult.getErrorText());
+            }
+            if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+              System.out.println("stdout: " + commandResult.getOutputText());
+            }
+          }
+
+        } catch (Throwable t) {
+          String error = t.getMessage();
+          System.out.println("Error: " + error);
+          System.out.println("NOTE: you might need to run these to convert newline characters to mac/unix:\n");
+          for (String command : shFileNames) {
+            String fullPath = this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin" + File.separator + command;
+            System.out.println("cat " + fullPath 
+            + " | col -b > " + fullPath + "\n");
+          }
+        }
+      }
     }
       
     //see what the current ports are
@@ -1801,7 +1819,7 @@ public class GrouperInstaller {
     //stop tomcat
     try {
       tomcatBounce("stop");
-    } catch (Exception e) {
+    } catch (Throwable e) {
       System.out.println("Couldnt stop tomcat, ignoring...");
     }
     

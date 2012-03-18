@@ -40,7 +40,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 24 Feb 2012 16:10:03 GMT
+Date: Sat, 17 Mar 2012 15:37:03 GMT
 Connection: close
 
 <WsFindAttributeDefNamesResults>
@@ -50,8 +50,8 @@ Connection: close
       <displayExtension>testAttributeAssignAssignName</displayExtension>
       <displayName>test:testAttributeAssignAssignName</displayName>
       <name>test:testAttributeAssignAssignName</name>
-      <uuid>269581e6240d4d41abf9d93b87d977f6</uuid>
-      <attributeDefId>4cf6b758581f428aa985d52a9a3e01cb</attributeDefId>
+      <uuid>1458fb057c984f4295af7af821a77b9b</uuid>
+      <attributeDefId>e213008637c1425397fd1c5dd4e57163</attributeDefId>
       <attributeDefName>test:testAttributeAssignAssignNameDef</attributeDefName>
     </WsAttributeDefName>
     <WsAttributeDefName>
@@ -59,8 +59,8 @@ Connection: close
       <displayExtension>testAttributeAssignDefName</displayExtension>
       <displayName>test:testAttributeAssignDefName</displayName>
       <name>test:testAttributeAssignDefName</name>
-      <uuid>613ebacf6d5544299daf33a1f90a7d4e</uuid>
-      <attributeDefId>fedb59a4e79c4a6a91d0c8d68624804a</attributeDefId>
+      <uuid>e7d9e278dca64d9cb69b98ee39164e4a</uuid>
+      <attributeDefId>7ed735a2c7cb40289e8b7eaf9f01663e</attributeDefId>
       <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
     </WsAttributeDefName>
   </attributeDefNameResults>
@@ -68,7 +68,7 @@ Connection: close
     <WsAttributeDef>
       <extension>testAttributeAssignAssignNameDef</extension>
       <name>test:testAttributeAssignAssignNameDef</name>
-      <uuid>4cf6b758581f428aa985d52a9a3e01cb</uuid>
+      <uuid>e213008637c1425397fd1c5dd4e57163</uuid>
       <attributeDefType>attr</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>F</multiValued>
@@ -77,7 +77,7 @@ Connection: close
     <WsAttributeDef>
       <extension>testAttributeAssignDefNameDef</extension>
       <name>test:testAttributeAssignDefNameDef</name>
-      <uuid>fedb59a4e79c4a6a91d0c8d68624804a</uuid>
+      <uuid>7ed735a2c7cb40289e8b7eaf9f01663e</uuid>
       <attributeDefType>attr</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>T</multiValued>
@@ -94,7 +94,7 @@ wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: nu
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>364</millis>
+    <millis>38</millis>
     <serverVersion>2.1.0</serverVersion>
   </responseMetadata>
 </WsFindAttributeDefNamesResults>
@@ -110,7 +110,7 @@ wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: nu
 #########################################
 
 
-package edu.internet2.middleware.grouper.ws.samples.rest.group;
+package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
@@ -138,10 +138,10 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 public class WsSampleFindAttributeDefNamesRest implements WsSampleRest {
 
   /**
-   * find group lite web service with REST
+   * find group web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void findAttributeDefNamesLite(WsSampleRestType wsSampleRestType) {
+  public static void findAttributeDefNames(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -230,14 +230,14 @@ public class WsSampleFindAttributeDefNamesRest implements WsSampleRest {
    * @param args
    */
   public static void main(String[] args) {
-    findAttributeDefNamesLite(WsSampleRestType.xhtml);
+    findAttributeDefNames(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    findAttributeDefNamesLite(wsSampleRestType);
+    findAttributeDefNames(wsSampleRestType);
   }
 
   /**

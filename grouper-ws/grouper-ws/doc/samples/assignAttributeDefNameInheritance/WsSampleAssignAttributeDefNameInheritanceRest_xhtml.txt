@@ -26,6 +26,13 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   <body>
     <div title="WsRestAssignAttributeDefNameInheritanceRequest">
       <p class="clientVersion" />
+      <p class="replaceAllExisting" />
+      <div class="actAsSubjectLookup" title="WsSubjectLookup">
+        <p class="subjectSourceId" />
+        <p class="subjectId">GrouperSystem</p>
+        <p class="subjectIdentifier" />
+      </div>
+      <p class="txType" />
       <div class="wsAttributeDefNameLookup" title="WsAttributeDefNameLookup">
         <p class="uuid" />
         <p class="name">aStem:permissionDefName</p>
@@ -41,13 +48,6 @@ Content-Type: application/xhtml+xml; charset=UTF-8
         </li>
       </ul>
       <p class="assign">T</p>
-      <p class="replaceAllExisting" />
-      <div class="actAsSubjectLookup" title="WsSubjectLookup">
-        <p class="subjectSourceId" />
-        <p class="subjectId">GrouperSystem</p>
-        <p class="subjectIdentifier" />
-      </div>
-      <p class="txType" />
     </div>
   </body>
 </html>
@@ -68,7 +68,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sat, 25 Feb 2012 15:49:34 GMT
+Date: Sat, 17 Mar 2012 15:30:36 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -82,11 +82,11 @@ Connection: close
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
-        <p class="resultMessage">, Had 2 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.</p>
+        <p class="resultMessage">Had 2 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.</p>
         <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">78</p>
+        <p class="millis">200</p>
         <p class="resultWarnings" />
         <p class="serverVersion">2.1.0</p>
       </div>
@@ -105,7 +105,7 @@ Connection: close
 #########################################
 
 
-package edu.internet2.middleware.grouper.ws.samples.rest.group;
+package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
@@ -138,7 +138,7 @@ public class WsSampleAssignAttributeDefNameInheritanceRest implements WsSampleRe
    * assign attribute def name inheritance web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void assignAttributeDefNameInheritanceLite(WsSampleRestType wsSampleRestType) {
+  public static void assignAttributeDefNameInheritance(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -247,14 +247,14 @@ public class WsSampleAssignAttributeDefNameInheritanceRest implements WsSampleRe
    * @param args
    */
   public static void main(String[] args) {
-    assignAttributeDefNameInheritanceLite(WsSampleRestType.xhtml);
+    assignAttributeDefNameInheritance(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    assignAttributeDefNameInheritanceLite(wsSampleRestType);
+    assignAttributeDefNameInheritance(wsSampleRestType);
   }
 
   /**
@@ -274,4 +274,4 @@ public class WsSampleAssignAttributeDefNameInheritanceRest implements WsSampleRe
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: , Had 2 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.
+Server version: 2.1.0, result code: SUCCESS, result message: Had 2 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.

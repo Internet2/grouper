@@ -51,18 +51,18 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sat, 25 Feb 2012 15:49:44 GMT
+Date: Sat, 17 Mar 2012 15:30:46 GMT
 Connection: close
 
 <WsAssignAttributeDefNameInheritanceResults>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>, Had 2 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.  </resultMessage>
+    <resultMessage>Had 2 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.  </resultMessage>
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>577</millis>
+    <millis>173</millis>
     <serverVersion>2.1.0</serverVersion>
   </responseMetadata>
 </WsAssignAttributeDefNameInheritanceResults>
@@ -78,7 +78,7 @@ Connection: close
 #########################################
 
 
-package edu.internet2.middleware.grouper.ws.samples.rest.group;
+package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
@@ -111,7 +111,7 @@ public class WsSampleAssignAttributeDefNameInheritanceRest implements WsSampleRe
    * assign attribute def name inheritance web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void assignAttributeDefNameInheritanceLite(WsSampleRestType wsSampleRestType) {
+  public static void assignAttributeDefNameInheritance(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -220,14 +220,14 @@ public class WsSampleAssignAttributeDefNameInheritanceRest implements WsSampleRe
    * @param args
    */
   public static void main(String[] args) {
-    assignAttributeDefNameInheritanceLite(WsSampleRestType.xhtml);
+    assignAttributeDefNameInheritance(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    assignAttributeDefNameInheritanceLite(wsSampleRestType);
+    assignAttributeDefNameInheritance(wsSampleRestType);
   }
 
   /**
@@ -247,4 +247,4 @@ public class WsSampleAssignAttributeDefNameInheritanceRest implements WsSampleRe
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: , Had 2 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.
+Server version: 2.1.0, result code: SUCCESS, result message: Had 2 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.

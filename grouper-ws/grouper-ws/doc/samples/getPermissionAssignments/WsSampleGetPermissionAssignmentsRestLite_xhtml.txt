@@ -1,4 +1,4 @@
-Grouper web service sample of service: getPermissionAssignments, WsSampleGetPermissionAssignmentsRestLite, manually written lite/rest, format: xhtml, for version: 2.0.0
+Grouper web service sample of service: getPermissionAssignments, WsSampleGetPermissionAssignmentsRestLite, manually written lite/rest, format: xhtml, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getPermissionAssignments, WsSampleGetPerm
 #########################################
 
 
-POST /grouperWs/servicesRest/xhtml/v2_0_000/permissionAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/xhtml/v2_1_000/permissionAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -30,11 +30,9 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="roleId" />
       <p class="permissionType" />
       <p class="clientVersion" />
+      <p class="includeGroupDetail" />
       <p class="includeSubjectDetail" />
       <p class="subjectAttributeNames" />
-      <p class="includeGroupDetail" />
-      <p class="pointInTimeFrom" />
-      <p class="pointInTimeTo" />
       <p class="actAsSubjectId">GrouperSystem</p>
       <p class="actAsSubjectSourceId" />
       <p class="actAsSubjectIdentifier" />
@@ -42,26 +40,28 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="paramValue0" />
       <p class="paramName1" />
       <p class="paramValue1" />
-      <p class="includeAssignmentsOnAssignments" />
+      <p class="pointInTimeFrom" />
+      <p class="pointInTimeTo" />
       <p class="wsAttributeDefName">aStem:permissionDef</p>
       <p class="wsAttributeDefId" />
       <p class="wsAttributeDefNameName" />
       <p class="wsAttributeDefNameId" />
-      <p class="wsSubjectId" />
-      <p class="wsSubjectSourceId" />
-      <p class="wsSubjectIdentifier" />
+      <p class="includeAssignmentsOnAssignments" />
       <p class="includePermissionAssignDetail" />
       <p class="includeAttributeDefNames" />
       <p class="includeAttributeAssignments" />
       <p class="immediateOnly" />
       <p class="permissionProcessor" />
+      <p class="includeLimits" />
       <p class="limitEnvVarName0" />
       <p class="limitEnvVarValue0" />
-      <p class="limitEnvVarType0" />
       <p class="limitEnvVarName1" />
+      <p class="limitEnvVarType0" />
       <p class="limitEnvVarValue1" />
       <p class="limitEnvVarType1" />
-      <p class="includeLimits" />
+      <p class="wsSubjectId" />
+      <p class="wsSubjectSourceId" />
+      <p class="wsSubjectIdentifier" />
       <p class="action" />
     </div>
   </body>
@@ -78,12 +78,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sat, 13 Aug 2011 00:36:57 GMT
+Date: Sat, 17 Mar 2012 15:45:03 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -96,25 +96,25 @@ Connection: close
     <div title="WsGetPermissionAssignmentsResults">
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="success">T</p>
         <p class="resultCode2" />
         <p class="resultMessage">, Found 0 results.</p>
+        <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">98</p>
+        <p class="millis">92</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.0.0</p>
+        <p class="serverVersion">2.1.0</p>
       </div>
       <ul class="wsAttributeDefs">
         <li title="WsAttributeDef">
           <p class="name">aStem:permissionDef</p>
           <p class="description" />
-          <p class="uuid">c690d9a531c9408ea2c58bd026d314fe</p>
+          <p class="uuid">8b6e295640654512adb8da133b53c988</p>
           <p class="extension">permissionDef</p>
           <p class="attributeDefType">perm</p>
-          <p class="valueType">marker</p>
           <p class="multiAssignable">F</p>
           <p class="multiValued">F</p>
+          <p class="valueType">marker</p>
         </li>
       </ul>
     </div>
@@ -274,4 +274,4 @@ public class WsSampleGetPermissionAssignmentsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS, result message: , Found 0 results.
+Server version: 2.1.0, result code: SUCCESS, result message: , Found 0 results.

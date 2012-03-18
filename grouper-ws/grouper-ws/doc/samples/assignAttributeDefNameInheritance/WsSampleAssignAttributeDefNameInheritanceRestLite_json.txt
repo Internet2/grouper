@@ -41,19 +41,19 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 291
-Date: Sat, 25 Feb 2012 15:49:52 GMT
+Content-Length: 289
+Date: Sat, 17 Mar 2012 15:30:56 GMT
 Connection: close
 
 {
   "WsAssignAttributeDefNameInheritanceResults":{
     "responseMetadata":{
-      "millis":"78",
+      "millis":"92",
       "serverVersion":"2.1.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
-      "resultMessage":", Had 1 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.",
+      "resultMessage":"Had 1 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.",
       "success":"T"
     }
   }
@@ -70,7 +70,7 @@ Connection: close
 #########################################
 
 
-package edu.internet2.middleware.grouper.ws.samples.rest.group;
+package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
@@ -219,4 +219,4 @@ public class WsSampleAssignAttributeDefNameInheritanceRestLite implements WsSamp
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: , Had 1 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.
+Server version: 2.1.0, result code: SUCCESS, result message: Had 1 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.

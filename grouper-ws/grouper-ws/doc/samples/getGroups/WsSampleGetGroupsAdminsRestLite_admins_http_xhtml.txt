@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRestLite, manually written lite/rest, type: _admins, format: http_xhtml, for version: 2.0.0
+Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRestLite, manually written lite/rest, type: _admins, format: http_xhtml, for version: 2.1.0
 
 
 #########################################
@@ -9,14 +9,14 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRestLit
 #########################################
 
 
-POST /grouperWs/servicesRest/xhtml/v2_0_000/subjects/10021368/groups HTTP/1.1
+POST /grouper-ws/servicesRest/xhtml/v2_1_000/subjects/10021368/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 156
 
-wsLiteObjectType=WsRestGetGroupsLiteRequest&includeSubjectDetail=T&includeGroupDetail=T&actAsSubjectId=GrouperSystem&paramName0=fieldName&paramValue0=admins
+wsLiteObjectType=WsRestGetGroupsLiteRequest&includeGroupDetail=T&includeSubjectDetail=T&actAsSubjectId=GrouperSystem&paramName0=fieldName&paramValue0=admins
 
 
 #########################################
@@ -29,12 +29,12 @@ wsLiteObjectType=WsRestGetGroupsLiteRequest&includeSubjectDetail=T&includeGroupD
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Fri, 12 Aug 2011 22:12:33 GMT
+Date: Sat, 17 Mar 2012 15:41:57 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -47,33 +47,27 @@ Connection: close
     <div title="WsGetGroupsLiteResult">
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="success">T</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.0.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+        <p class="resultMessage">Success for: clientVersion: 2.1.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]
+
 fieldName1: null
 , scope: null, wsStemLookup: WsStemLookup[]
 , stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null
 , pointInTimeFrom: null, pointInTimeTo: null, field: admins</p>
+        <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">39</p>
+        <p class="millis">42</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.0.0</p>
+        <p class="serverVersion">2.1.0</p>
       </div>
-      <ul class="subjectAttributeNames">
-        <li>lfname</li>
-        <li>loginid</li>
-      </ul>
       <div class="wsSubject" title="WsSubject">
         <p class="name">10021368</p>
         <p class="id">10021368</p>
         <p class="sourceId">jdbc</p>
-        <ul class="attributeValues">
-          <li />
-          <li />
-        </ul>
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
         <p class="identifierLookup" />
@@ -243,7 +237,7 @@ public class WsSampleGetGroupsAdminsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.0.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: 2.1.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]

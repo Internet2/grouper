@@ -112,7 +112,18 @@ public class SourceManager {
   public Source getSource(String sourceId) throws SourceUnavailableException {
     Source source = this.sourceMap.get(sourceId);
     if (source == null) {
-      throw new SourceUnavailableException("Source not found: " + sourceId);
+      
+      StringBuilder allSources = new StringBuilder();
+      int i=0;
+      for (String theSourceId : this.sourceMap.keySet()) {
+        allSources.append(theSourceId);
+        if (i != this.sourceMap.size() - 1) {
+          allSources.append(", ");
+        }
+        i++;
+      }
+      
+      throw new SourceUnavailableException("Source not found: '" + sourceId + "', available sources are: " + allSources);
     }
     return source;
   }
@@ -216,6 +227,7 @@ public class SourceManager {
    * @param args 
    */
   public static void main(String[] args) {
+    
     try {
       SourceManager mgr = SourceManager.getInstance();
       for (Iterator iter = mgr.getSources().iterator(); iter.hasNext();) {

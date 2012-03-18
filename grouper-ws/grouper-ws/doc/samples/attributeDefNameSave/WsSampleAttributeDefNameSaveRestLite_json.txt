@@ -43,13 +43,13 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
 Content-Length: 1005
-Date: Sat, 25 Feb 2012 17:26:43 GMT
+Date: Sat, 17 Mar 2012 15:35:26 GMT
 Connection: close
 
 {
   "WsAttributeDefNameSaveLiteResult":{
     "responseMetadata":{
-      "millis":"62",
+      "millis":"52",
       "serverVersion":"2.1.0"
     },
     "resultMetadata":{
@@ -58,14 +58,14 @@ Connection: close
       "success":"T"
     },
     "wsAttributeDefName":{
-      "attributeDefId":"0d1a07023b9c44da9eebc82df716d322",
+      "attributeDefId":"6bdb529f509444a99b003c9efb808938",
       "attributeDefName":"test:testAttributeAssignDefNameDef",
       "description":"This is a description 1 rest lite json",
       "displayExtension":"My new attribute def name to save 1 rest lite json",
       "displayName":"test:My new attribute def name to save 1 rest lite json",
       "extension":"testAttributeAssignDefNameToSave1RestLite_json",
       "name":"test:testAttributeAssignDefNameToSave1RestLite_json",
-      "uuid":"7d6a3c52a00a41b8882dc781fb18cda9"
+      "uuid":"5fbb18f4b0a44960a3dbac19962f23dd"
     }
   }
 }

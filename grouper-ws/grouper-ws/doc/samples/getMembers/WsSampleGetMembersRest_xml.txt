@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMembers, WsSampleGetMembersRest, manually written lite/rest, format: xml, for version: 2.0.0
+Grouper web service sample of service: getMembers, WsSampleGetMembersRest, manually written lite/rest, format: xml, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getMembers, WsSampleGetMembersRest, manua
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_0_000/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -41,12 +41,12 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 12 Aug 2011 22:13:31 GMT
+Date: Sat, 17 Mar 2012 15:42:48 GMT
 Connection: close
 
 <WsGetMembersResults>
@@ -57,10 +57,12 @@ Connection: close
   </subjectAttributeNames>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.0.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
+    <resultMessage>Success for: clientVersion: 2.1.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
+
 , memberFilter: All, includeSubjectDetail: false, actAsSubject: null, fieldName: null, subjectAttributeNames: Array size: 3: [0]: description
 [1]: loginid
 [2]: name
+
 , paramNames:
 , params: null
 , sourceIds: null
@@ -70,29 +72,30 @@ Connection: close
   <responseMetadata>
     <resultWarnings></resultWarnings>
     <millis>44</millis>
-    <serverVersion>2.0.0</serverVersion>
+    <serverVersion>2.1.0</serverVersion>
   </responseMetadata>
   <results>
     <WsGetMembersResult>
       <wsGroup>
         <extension>aGroup</extension>
+        <typeOfGroup>group</typeOfGroup>
         <displayExtension>a group</displayExtension>
         <description>a group description</description>
         <displayName>a stem:a group</displayName>
         <name>aStem:aGroup</name>
-        <uuid>49bc604530c04eb39450a7325a620863</uuid>
+        <uuid>1a56e1b8af9746c48ec8cc3d20f0ae77</uuid>
       </wsGroup>
       <wsSubjects>
         <WsSubject>
           <resultCode>SUCCESS</resultCode>
           <success>T</success>
-          <id>GrouperSystem</id>
-          <name>GrouperSysAdmin</name>
-          <sourceId>g:isa</sourceId>
+          <id>10039438</id>
+          <name>10039438</name>
+          <sourceId>jdbc</sourceId>
           <attributeValues>
-            <string>GrouperSysAdmin</string>
             <string></string>
-            <string>EveryEntity</string>
+            <string></string>
+            <string>10039438</string>
           </attributeValues>
         </WsSubject>
         <WsSubject>
@@ -110,13 +113,13 @@ Connection: close
         <WsSubject>
           <resultCode>SUCCESS</resultCode>
           <success>T</success>
-          <id>10039438</id>
-          <name>10039438</name>
-          <sourceId>jdbc</sourceId>
+          <id>GrouperSystem</id>
+          <name>GrouperSysAdmin</name>
+          <sourceId>g:isa</sourceId>
           <attributeValues>
+            <string>GrouperSysAdmin</string>
             <string></string>
-            <string></string>
-            <string>10039438</string>
+            <string>EveryEntity</string>
           </attributeValues>
         </WsSubject>
       </wsSubjects>
@@ -162,6 +165,24 @@ import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
+ * <pre>
+ * Setup:
+ * 
+ * new GroupSave(grouperSession).assignName("aStem:aGroup").assignCreateParentStemsIfNotExist(true).save();
+ * 
+ * addMember("aStem:aGroup", "test.subject.0");
+ * addMember("aStem:aGroup", "test.subject.1");
+ * addMember("aStem:aGroup", "test.subject.2");
+ * addMember("aStem:aGroup", "test.subject.3");
+ * addMember("aStem:aGroup", "test.subject.4");
+ * addMember("aStem:aGroup", "test.subject.5");
+ * addMember("aStem:aGroup", "test.subject.6");
+ * addMember("aStem:aGroup", "test.subject.7");
+ * addMember("aStem:aGroup", "test.subject.8");
+ * addMember("aStem:aGroup", "test.subject.9");
+ * 
+ * 
+ * </pre>
  * @author mchyzer
  */
 public class WsSampleGetMembersRest implements WsSampleRest {
@@ -199,7 +220,7 @@ public class WsSampleGetMembersRest implements WsSampleRest {
       //your request document in whatever language or way you want
       WsRestGetMembersRequest getMembers = new WsRestGetMembersRequest();
 
-      // seeif two subjects are in the group
+      // see if two subjects are in the group
       WsGroupLookup[] groupLookups = new WsGroupLookup[1];
       groupLookups[0] = new WsGroupLookup("aStem:aGroup", null);
 
@@ -288,7 +309,7 @@ public class WsSampleGetMembersRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS, result message: Success for: clientVersion: 2.0.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
+Server version: 2.1.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
 
 , memberFilter: All, includeSubjectDetail: false, actAsSubject: null, fieldName: null, subjectAttributeNames: Array size: 3: [0]: description
 [1]: loginid

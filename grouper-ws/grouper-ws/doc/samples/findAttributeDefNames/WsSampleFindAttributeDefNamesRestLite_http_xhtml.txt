@@ -34,7 +34,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Fri, 24 Feb 2012 16:10:16 GMT
+Date: Sat, 17 Mar 2012 15:37:18 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -55,7 +55,7 @@ wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: nu
         <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">40</p>
+        <p class="millis">31</p>
         <p class="resultWarnings" />
         <p class="serverVersion">2.1.0</p>
       </div>
@@ -63,7 +63,7 @@ wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: nu
         <li title="WsAttributeDef">
           <p class="name">test:testAttributeAssignAssignNameDef</p>
           <p class="description" />
-          <p class="uuid">60962e691f7d447d92fdd6df14664804</p>
+          <p class="uuid">32aa739f008a4676a1a38ea45050f346</p>
           <p class="extension">testAttributeAssignAssignNameDef</p>
           <p class="attributeDefType">attr</p>
           <p class="multiAssignable">F</p>
@@ -73,7 +73,7 @@ wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: nu
         <li title="WsAttributeDef">
           <p class="name">test:testAttributeAssignDefNameDef</p>
           <p class="description" />
-          <p class="uuid">7363db34865a4be7937b3c1c4c2f8c80</p>
+          <p class="uuid">7ed1020c9c3e44368ad38827de131426</p>
           <p class="extension">testAttributeAssignDefNameDef</p>
           <p class="attributeDefType">attr</p>
           <p class="multiAssignable">F</p>
@@ -86,21 +86,21 @@ wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: nu
           <p class="name">test:testAttributeAssignAssignName</p>
           <p class="displayName">test:testAttributeAssignAssignName</p>
           <p class="description" />
-          <p class="uuid">412b80d1feaa48db88d64d2830782f50</p>
+          <p class="uuid">5f8c0685bb8c4f19945ec35309931af7</p>
           <p class="extension">testAttributeAssignAssignName</p>
           <p class="displayExtension">testAttributeAssignAssignName</p>
           <p class="attributeDefName">test:testAttributeAssignAssignNameDef</p>
-          <p class="attributeDefId">60962e691f7d447d92fdd6df14664804</p>
+          <p class="attributeDefId">32aa739f008a4676a1a38ea45050f346</p>
         </li>
         <li title="WsAttributeDefName">
           <p class="name">test:testAttributeAssignDefName</p>
           <p class="displayName">test:testAttributeAssignDefName</p>
           <p class="description" />
-          <p class="uuid">3cc2274d81dc4d65b8bdb4669ba18042</p>
+          <p class="uuid">1f5f6d8af19c4d46a33d855dfafde647</p>
           <p class="extension">testAttributeAssignDefName</p>
           <p class="displayExtension">testAttributeAssignDefName</p>
           <p class="attributeDefName">test:testAttributeAssignDefNameDef</p>
-          <p class="attributeDefId">7363db34865a4be7937b3c1c4c2f8c80</p>
+          <p class="attributeDefId">7ed1020c9c3e44368ad38827de131426</p>
         </li>
       </ul>
     </div>
@@ -118,7 +118,7 @@ wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: nu
 #########################################
 
 
-package edu.internet2.middleware.grouper.ws.samples.rest.group;
+package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;

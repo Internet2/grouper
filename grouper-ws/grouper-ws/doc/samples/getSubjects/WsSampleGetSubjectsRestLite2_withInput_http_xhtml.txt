@@ -1,4 +1,4 @@
-Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite2, manually written lite/rest, type: _withInput, format: http_xhtml, for version: 2.0.0
+Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite2, manually written lite/rest, type: _withInput, format: http_xhtml, for version: 2.1.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite2
 #########################################
 
 
-POST /grouperWs/servicesRest/v2_0_000/subjects HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_000/subjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -29,12 +29,12 @@ wsLiteObjectType=WsRestGetSubjectsLiteRequest&searchString=test
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Fri, 12 Aug 2011 22:25:05 GMT
+Date: Sat, 17 Mar 2012 15:46:20 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -47,19 +47,20 @@ Connection: close
     <div title="WsGetSubjectsResults">
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
-        <p class="success">T</p>
         <p class="resultCode2" />
         <p class="resultMessage">Queried 12 subjects</p>
+        <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">22</p>
+        <p class="millis">16</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.0.0</p>
+        <p class="serverVersion">2.1.0</p>
       </div>
+      <div class="wsGroup" title="WsGroup" />
       <ul class="wsSubjects">
         <li title="WsSubject">
           <p class="name">test:groupTestAttrAssign</p>
-          <p class="id">5830c8e7c31f42f591e2012d5c2a0185</p>
+          <p class="id">177c4cd3898c4528bfe3d07d10cabcb4</p>
           <p class="sourceId">g:gsa</p>
           <p class="resultCode">SUCCESS</p>
           <p class="success">T</p>
@@ -67,7 +68,7 @@ Connection: close
         </li>
         <li title="WsSubject">
           <p class="name">test:groupTestAttrAssign2</p>
-          <p class="id">d45941295f11497fb39719ab383d5516</p>
+          <p class="id">97cb4e3bd44b44a88a08974bd6357856</p>
           <p class="sourceId">g:gsa</p>
           <p class="resultCode">SUCCESS</p>
           <p class="success">T</p>
@@ -154,7 +155,6 @@ Connection: close
           <p class="identifierLookup" />
         </li>
       </ul>
-      <div class="wsGroup" title="WsGroup" />
     </div>
   </body>
 </html>
@@ -308,4 +308,4 @@ public class WsSampleGetSubjectsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: 2.0.0, result code: SUCCESS, result message: Queried 12 subjects
+Server version: 2.1.0, result code: SUCCESS, result message: Queried 12 subjects

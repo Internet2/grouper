@@ -5589,6 +5589,11 @@ public class GrouperServiceLogic {
       //get the attributeDefNames to retrieve
       Set<String> attributeDefNameIds = WsAttributeDefNameLookup.convertToAttributeDefNameIds(session, wsAttributeDefNameLookups, errorMessage, AttributeDefType.perm, usePIT, pointInTimeFrom, pointInTimeTo);
       
+      //if you sent some in, and none are remaining, then that is bad...
+      if (GrouperUtil.length(attributeDefNameIds) == 0 && GrouperUtil.length(wsAttributeDefNameLookups) > 0) {
+        throw new WsInvalidQueryException("Cant find any attribute def names from lookups!");
+      }
+      
       //get all the owner groups
       //the point in time tables do not have typeOfGroup.... permissions only exist on roles so hopefully this doesn't matter..
       TypeOfGroup typeOfGroup = usePIT ? null : TypeOfGroup.role;

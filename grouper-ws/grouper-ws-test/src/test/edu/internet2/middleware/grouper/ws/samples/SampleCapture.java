@@ -182,39 +182,41 @@ public class SampleCapture {
   public static void main(String[] args) {
 
     //setupData();
-    
-    captureAttributeDefNameDelete();
-    
-    //
-    //captureAddMember();
-    
+
+    captureAssignAttributesWithValue();
+
 //  captureRampart();
 //    captureSample(WsSampleClientType.REST_BEANS,  
 //        WsSampleMemberChangeSubjectRest.class, "memberChangeSubject", null);
 
+    
+//    captureAddMember();
 //    captureAssignAttributeDefNameInheritance();
 //    captureAssignAttributes();
 //    captureAssignAttributesWithValue();
-//    captureAssignPermissions();
-//    captureFindAttributeDefNames();
-//    captureGetAttributeAssignments();
-//    captureGetGrouperPrivileges();
-//    captureGetPermissionAssignments();
 //    captureAssignGrouperPrivileges();
-//    captureAddMember();
+//    captureAssignPermissions();
+//    captureAttributeDefNameDelete();
+//    captureAttributeDefNameSave();
 //    captureDeleteMember();
-//    captureHasMember();
-//    captureGetGroups();
-//    captureGetMembers();
+//    captureFindAttributeDefNames();
 //    captureFindGroups();
 //    captureFindStems();
-//    captureStemDelete();
-//    captureStemSave();
+//    captureGetAttributeAssignments();
+//    captureGetGrouperPrivileges();
+//    captureGetGroups();
+//    captureGetMembers();
+//    captureGetMemberships();
+//    captureGetPermissionAssignments();
+//    captureGetSubjects();
 //    captureGroupDelete();
 //    captureGroupSave();
+//    captureHasMember();
 //    captureMemberChangeSubject();
-//    captureGetMemberships();
-//    captureGetSubjects();
+////    captureRampart();
+//    captureStemDelete();
+//    captureStemSave();
+    
 
   }
 
@@ -671,6 +673,8 @@ public class SampleCapture {
       if (clientType.validFormat(clientClass, format)) {
         setupData();
         captureSample(clientType, clientClass, samplesFolderName, fileNameInfo, format);
+        //let the cache clear
+        GrouperUtil.sleep(10000);
       }
     }
   }

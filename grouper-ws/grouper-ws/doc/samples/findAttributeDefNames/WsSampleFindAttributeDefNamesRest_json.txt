@@ -42,30 +42,30 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1701
-Date: Fri, 24 Feb 2012 16:09:59 GMT
+Content-Length: 1700
+Date: Sat, 17 Mar 2012 15:36:58 GMT
 Connection: close
 
 {
   "WsFindAttributeDefNamesResults":{
     "attributeDefNameResults":[
       {
-        "attributeDefId":"3500ceb3824841978f2c1bd6c758dd61",
+        "attributeDefId":"dbfcc449ff0f443d8eb9179ccc2182d2",
         "attributeDefName":"test:testAttributeAssignAssignNameDef",
         "displayExtension":"testAttributeAssignAssignName",
         "displayName":"test:testAttributeAssignAssignName",
         "extension":"testAttributeAssignAssignName",
         "name":"test:testAttributeAssignAssignName",
-        "uuid":"ee2ef580d79f46b4806f9734e145fa3c"
+        "uuid":"b7e8c1dba87b4762af72e08ce808661d"
       },
       {
-        "attributeDefId":"8be6ee9a5aef4cff82808ce6c1d8af9d",
+        "attributeDefId":"b8bff7d01dfa40afb60a0b1a4d568673",
         "attributeDefName":"test:testAttributeAssignDefNameDef",
         "displayExtension":"testAttributeAssignDefName",
         "displayName":"test:testAttributeAssignDefName",
         "extension":"testAttributeAssignDefName",
         "name":"test:testAttributeAssignDefName",
-        "uuid":"5401ed510e634bb5b0a0483b629f829b"
+        "uuid":"8ff0bb8c92fa41f99ff6a87f21ed59eb"
       }
     ]
     ,
@@ -76,7 +76,7 @@ Connection: close
         "multiAssignable":"F",
         "multiValued":"F",
         "name":"test:testAttributeAssignAssignNameDef",
-        "uuid":"3500ceb3824841978f2c1bd6c758dd61",
+        "uuid":"dbfcc449ff0f443d8eb9179ccc2182d2",
         "valueType":"marker"
       },
       {
@@ -85,13 +85,13 @@ Connection: close
         "multiAssignable":"F",
         "multiValued":"T",
         "name":"test:testAttributeAssignDefNameDef",
-        "uuid":"8be6ee9a5aef4cff82808ce6c1d8af9d",
+        "uuid":"b8bff7d01dfa40afb60a0b1a4d568673",
         "valueType":"integer"
       }
     ]
     ,
     "responseMetadata":{
-      "millis":"427",
+      "millis":"26",
       "serverVersion":"2.1.0"
     },
     "resultMetadata":{
@@ -113,7 +113,7 @@ Connection: close
 #########################################
 
 
-package edu.internet2.middleware.grouper.ws.samples.rest.group;
+package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
@@ -141,10 +141,10 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 public class WsSampleFindAttributeDefNamesRest implements WsSampleRest {
 
   /**
-   * find group lite web service with REST
+   * find group web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void findAttributeDefNamesLite(WsSampleRestType wsSampleRestType) {
+  public static void findAttributeDefNames(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -233,14 +233,14 @@ public class WsSampleFindAttributeDefNamesRest implements WsSampleRest {
    * @param args
    */
   public static void main(String[] args) {
-    findAttributeDefNamesLite(WsSampleRestType.xhtml);
+    findAttributeDefNames(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    findAttributeDefNamesLite(wsSampleRestType);
+    findAttributeDefNames(wsSampleRestType);
   }
 
   /**

@@ -40,7 +40,7 @@ X-Grouper-resultCode: SUCCESS_INSERTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sat, 25 Feb 2012 17:26:51 GMT
+Date: Sat, 17 Mar 2012 15:35:35 GMT
 Connection: close
 
 <WsAttributeDefNameSaveLiteResult>
@@ -55,7 +55,7 @@ wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>125</millis>
+    <millis>81</millis>
     <serverVersion>2.1.0</serverVersion>
   </responseMetadata>
   <wsAttributeDefName>
@@ -64,8 +64,8 @@ wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...
     <description>This is a description 1 rest lite xml</description>
     <displayName>test:My new attribute def name to save 1 rest lite xml</displayName>
     <name>test:testAttributeAssignDefNameToSave1RestLite_xml</name>
-    <uuid>c9d1bb4216c148e08cdb9e231d340534</uuid>
-    <attributeDefId>76d0426e67c64e98b3fa0c5b7fdf92b9</attributeDefId>
+    <uuid>9dbbd5f7c4e044e78fa319f98698f707</uuid>
+    <attributeDefId>ad83367f04b54b70809df4a996dfc72e</attributeDefId>
     <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
   </wsAttributeDefName>
 </WsAttributeDefNameSaveLiteResult>
