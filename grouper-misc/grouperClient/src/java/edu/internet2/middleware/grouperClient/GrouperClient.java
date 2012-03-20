@@ -1213,6 +1213,7 @@ public class GrouperClient {
         "displayExtension", false);
   
     //just default to the id
+    //CH 20120320L I think the server does this anyway, not sure why needed...
     if (GrouperClientUtils.isBlank(displayExtension)) {
       displayExtension = GrouperClientUtils.substringAfterLast(name, ":");
     }
@@ -1427,6 +1428,7 @@ public class GrouperClient {
           "displayExtension", false);
 
       //just default to the id
+      //CH 20120320L I think the server does this anyway, not sure why needed...
       if (GrouperClientUtils.isBlank(displayExtension)) {
         displayExtension = GrouperClientUtils.substringAfterLast(name, ":");
       }
@@ -4440,10 +4442,10 @@ public class GrouperClient {
     String name = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "name", true);
     wsAttributeDefName.setName(name);
     
-    WsAttributeDefNameLookup wsAttributeDefNameLookup = new WsAttributeDefNameLookup();
-    wsAttributeDefNameToSave.setWsAttributeDefNameLookup(wsAttributeDefNameLookup);
     //do the lookup if an edit
     if (!GrouperClientUtils.isBlank(attributeDefNameLookupName) || !GrouperClientUtils.isBlank(attributeDefNameLookupUuid)) {
+      WsAttributeDefNameLookup wsAttributeDefNameLookup = new WsAttributeDefNameLookup();
+      wsAttributeDefNameToSave.setWsAttributeDefNameLookup(wsAttributeDefNameLookup);
       if (!GrouperClientUtils.isBlank(attributeDefNameLookupName)) {
         wsAttributeDefNameLookup.setName(attributeDefNameLookupName);
       }
@@ -4472,6 +4474,7 @@ public class GrouperClient {
         "displayExtension", false);
   
     //just default to the id
+    //CH 20120320L I think the server does this anyway, not sure why needed...
     if (GrouperClientUtils.isBlank(displayExtension)) {
       displayExtension = GrouperClientUtils.substringAfterLast(name, ":");
     }
