@@ -6168,18 +6168,27 @@ public class GrouperServiceLogic {
       final int[] addNoops = new int[]{0};
       final int[] removeNoops = new int[]{0};
       
+      Set<AttributeDefName> currentList = attributeDefName.getAttributeDefNameSetDelegate().getAttributeDefNamesImpliedByThis();
+      int currentListSize = currentList.size();
+      int relatedAttributeDefNamesSize = relatedAttributeDefNames.size();
       if (!assign) {
         removes.addAll(relatedAttributeDefNames);
+        removes.retainAll(currentList);
+        removeNoops[0] += relatedAttributeDefNamesSize - removes.size();
       } else if (assign && (replaceAllExisting == null || !replaceAllExisting)) {
         adds.addAll(relatedAttributeDefNames);
+        adds.removeAll(currentList);
+        addNoops[0] += relatedAttributeDefNamesSize - adds.size();
       } else {
         adds.addAll(relatedAttributeDefNames);
         //assigning and replacing all existing
         //get current list
-        Set<AttributeDefName> currentList = attributeDefName.getAttributeDefNameSetDelegate().getAttributeDefNamesImpliedByThis();
         adds.removeAll(currentList);
+        
+        addNoops[0] += relatedAttributeDefNamesSize - adds.size();
         removes.addAll(new LinkedHashSet<AttributeDefName>(currentList));
         removes.removeAll(relatedAttributeDefNames);
+        removeNoops[0] += currentListSize - removes.size();
       }
       
       //start a transaction (or not if none)

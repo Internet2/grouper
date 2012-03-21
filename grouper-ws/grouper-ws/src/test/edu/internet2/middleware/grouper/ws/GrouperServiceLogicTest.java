@@ -145,7 +145,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testAddExternalMember"));
+    TestRunner.run(new GrouperServiceLogicTest("testAssignAttributeDefNameInheritance"));
   }
 
   /**

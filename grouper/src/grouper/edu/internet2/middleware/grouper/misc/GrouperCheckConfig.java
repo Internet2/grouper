@@ -1188,7 +1188,7 @@ public class GrouperCheckConfig {
     checkJar("dom4j.jar", 730604, "org.dom4j.Attribute", "1.6.1");
     checkJar("ehcache.jar", 1838291, "net.sf.ehcache.bootstrap.BootstrapCacheLoader", "2.4.5");
     checkJar("ezmorph.jar", 86542, "net.sf.ezmorph.array.AbstractArrayMorpher", "1.0.6");
-    checkJar("grouperClient.jar", 2773490, "edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.InitializationException", "2.1.0");
+    checkJar("grouperClient.jar", 2773634, "edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.InitializationException", "2.1.0");
     checkJar("hibernate-jpa-2.0-api.jar", 102661, "javax.persistence.Access", "1.0.1.Final");
     checkJar("hibernate.jar", 7018087, "org.hibernate.action.AfterTransactionCompletionProcess", "3.6.7.Final");
     checkJar("invoker.jar", 27767, "com.dawidweiss.invoker.Invoker", "1.0");
