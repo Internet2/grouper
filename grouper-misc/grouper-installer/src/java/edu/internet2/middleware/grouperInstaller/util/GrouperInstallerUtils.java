@@ -9714,10 +9714,14 @@ public class GrouperInstallerUtils  {
         }
         
         byte[] b = new byte[4];
-        b[0] = Byte.parseByte(matcher.group(1));
-        b[1] = Byte.parseByte(matcher.group(2));
-        b[2] = Byte.parseByte(matcher.group(3));
-        b[3] = Byte.parseByte(matcher.group(4));
+        for (int i=0;i<4;i++) {
+          int theInt = intValue(matcher.group(i+1));
+          if (theInt > 255 || theInt < 0) {
+            System.out.println("IP address part must be between 0 and 255: '" + theInt + "'");
+          }
+          b[i] = (byte)theInt;
+        }
+
         //Returns an InetAddress object given the raw IP address .
         InetAddress inetAddress = InetAddress.getByAddress(b);
         

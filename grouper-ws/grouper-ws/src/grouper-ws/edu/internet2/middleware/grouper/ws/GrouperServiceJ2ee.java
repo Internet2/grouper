@@ -74,7 +74,7 @@ public class GrouperServiceJ2ee implements Filter {
   }
 
   /**
-   * get a single parameter value for key.  If nultiple exist, throw error
+   * get a single parameter value for key.  If multiple exist, throw error
    * @param paramMap is the map of params.  will get value from here if no request object
    * @param httpServletRequest optional.  if there, will make sure no dupes
    * @param key to lookup
@@ -84,7 +84,7 @@ public class GrouperServiceJ2ee implements Filter {
       HttpServletRequest httpServletRequest, String key) {
     //if no servlet (probably just testing), get from map
     if (httpServletRequest == null) {
-      return paramMap.get(key);
+      return paramMap == null ? null : paramMap.get(key);
     }
     String[] values = httpServletRequest.getParameterValues(key);
     if (values == null || values.length == 0) {

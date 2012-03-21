@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.ws.rest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -96,9 +97,12 @@ public class GrouperRestServlet extends HttpServlet {
     //we need something here if errors, so default to xhtml
     WsRestResponseContentType wsRestResponseContentType = WsRestResponseContentType.xhtml;
 
+    Map<String, String> parameterMap = null;
+
     try {
       
-      
+      parameterMap = request.getParameterMap();
+
       //default to xhtml, or whatever is in the config file
       String configResponseType = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_REST_DEFAULT_RESPONSE_CONTENT_TYPE);
       wsRestResponseContentType = StringUtils.isBlank(configResponseType) ? wsRestResponseContentType
@@ -164,12 +168,12 @@ public class GrouperRestServlet extends HttpServlet {
         requestObject = (WsRequestBean) wsRestRequestContentType.parseString(body,
             warnings);
       }
-      
+
       //might be in params (which might not be in body
       if (requestObject == null) {
         //might be in http params...
         requestObject = (WsRequestBean) GrouperServiceUtils.marshalHttpParamsToObject(
-            request.getParameterMap(), request, warnings);
+            parameterMap, request, warnings);
 
       }
       
@@ -236,7 +240,26 @@ public class GrouperRestServlet extends HttpServlet {
       //init millis for rest since doesnt call getters
       wsResponseBean.getResponseMetadata().getMillis();
       
+      boolean wrapJsonResponse = false;
+
+      //maybe response writer
+      if(wsRestResponseContentType == WsRestResponseContentType.json && GrouperWsConfig.getPropertyBoolean("ws.allowJsonWrapper", true)) {
+        
+        String grouperJsonResponseWrapper = GrouperServiceJ2ee.parameterValue(parameterMap, request, "grouperJsonResponseWrapper"); 
+        if (!StringUtils.isBlank(grouperJsonResponseWrapper)) {
+          response.getWriter().print(grouperJsonResponseWrapper);
+          response.getWriter().print("(");
+          wrapJsonResponse = true;
+        }
+        
+      }
+      
       wsRestResponseContentType.writeString(wsResponseBean, response.getWriter());
+      
+      if (wrapJsonResponse) {
+        response.getWriter().print(")");
+      }
+      
     } catch (RuntimeException re) {
       //problem!
       LOG.error("Problem with request: " + requestDebugInfo(request), re);

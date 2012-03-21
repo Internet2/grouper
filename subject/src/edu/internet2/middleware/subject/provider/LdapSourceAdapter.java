@@ -477,9 +477,9 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
                 Attribute attr = (Attribute) e.next();
                 String attrName = attr.getID();
                 // skip the basic ones
-                if (attrName.equals(nameAttributeName)) continue;
-                if (attrName.equals(subjectIDAttributeName)) continue;
-                if (attrName.equals(descriptionAttributeName)) continue;
+                //if (attrName.equals(nameAttributeName)) continue;
+                //if (attrName.equals(subjectIDAttributeName)) continue;
+                //if (attrName.equals(descriptionAttributeName)) continue;
                 Set<String> values = new HashSet<String>();
                 for (NamingEnumeration<?> en = attr.getAll(); en.hasMore(); ) {
                     Object value =  en.next();
@@ -526,11 +526,11 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
                 String attrName = attr.getID();
 
                 // special case the basic ones
-                if (attrName.equals(subjectIDAttributeName)) continue;  // already have
-                if (attrName.equals(nameAttributeName)) continue; // already have
+                //if (attrName.equals(subjectIDAttributeName)) continue;  // already have
+                //if (attrName.equals(nameAttributeName)) continue; // already have
                 if (attrName.equals(descriptionAttributeName)) {
                    subject.setDescription((String)attr.get());
-                   continue;
+                   //continue;
                 }
                    
                 Set<String> values = new HashSet<String>();
