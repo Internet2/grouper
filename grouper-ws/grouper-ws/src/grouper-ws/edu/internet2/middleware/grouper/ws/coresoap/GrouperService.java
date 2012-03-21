@@ -4016,7 +4016,7 @@ public class GrouperService {
           splitScope, "splitScope");
 
       Boolean ascendingBoolean = GrouperServiceUtils.booleanObjectValue(
-          splitScope, "ascending");
+          ascending, "ascending");
       Integer pageSizeInteger = GrouperServiceUtils.integerValue(pageSize, "pageSize");
       Integer pageNumberInteger = GrouperServiceUtils.integerValue(pageNumber, "pageNumber");
 
