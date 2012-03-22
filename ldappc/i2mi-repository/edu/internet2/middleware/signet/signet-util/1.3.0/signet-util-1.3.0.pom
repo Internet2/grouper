@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><project>
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>edu.internet2.middleware.signet</groupId>
-  <artifactId>signet-util</artifactId>
-  <version>1.3.0</version>
-  <name>Signet Utilities</name>
-  <description>Signet utitility jar</description>
-  <url>http://signet.internet2.edu</url>
-</project>

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><project>
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.dawidweiss.invoker</groupId>
-  <artifactId>invoker</artifactId>
-  <version>1.0</version>
-  <name>Invoker Utility</name>
-  <description>Invoker utitility jar</description>
-  <url>http://www.cs.put.poznan.pl/dweiss/xml/projects/invoker/index.xml?lang=en</url>
-</project>
