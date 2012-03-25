@@ -1970,6 +1970,29 @@ public enum GrouperDdl implements DdlVersionable {
           true, "object_name");
       
     }
+  }, 
+  
+  /**
+   * <pre>
+   * Grouper 2.2: migrate from attributeDefType domain to service
+   * </pre>
+   */
+  V27 {
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
+      
+      //migrate from attributeDefType domain to service
+      ddlVersionBean.getAdditionalScripts().append(
+          "update grouper_attribute_def set attribute_def_type = 'service' where attribute_def_type = 'domain';\ncommit;\n");
+      
+    }
+  
   };
 
   /**
@@ -2219,7 +2242,7 @@ public enum GrouperDdl implements DdlVersionable {
    * add stem alternate name col
    * @param database
    * @param ddlVersionBean
-   * @param groupsTable
+   * @param stemsTable 
    */
   private static void addStemAlternateNameCol(Database database,
       DdlVersionBean ddlVersionBean, Table stemsTable) {

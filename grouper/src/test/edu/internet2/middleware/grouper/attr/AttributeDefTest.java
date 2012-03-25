@@ -866,7 +866,7 @@ public class AttributeDefTest extends GrouperTest {
       attributeDef = exampleAttributeDefDb();
       exampleAttributeDef = exampleRetrieveAttributeDefDb();
 
-      attributeDef.setAttributeDefType(AttributeDefType.domain);
+      attributeDef.setAttributeDefType(AttributeDefType.perm);
       
       assertTrue(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
       assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));

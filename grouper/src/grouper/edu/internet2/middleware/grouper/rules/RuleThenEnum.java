@@ -525,7 +525,7 @@ public enum RuleThenEnum {
   
       for (String privilegeString : privilegesSet) {
         Privilege privilege = Privilege.getInstance(privilegeString);
-        if (attributeDef.getPrivilegeDelegate().grantPriv(subject, privilege, true)) {
+        if (attributeDef.getPrivilegeDelegate().grantPriv(subject, privilege, false)) {
           result = true;
         }
       }

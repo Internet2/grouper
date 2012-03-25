@@ -6,6 +6,8 @@ package edu.internet2.middleware.grouper.attr;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -19,7 +21,7 @@ public enum AttributeDefType {
   attr, 
   
   /** group up things into one application */
-  domain, 
+  service, 
   
   /** if this is a type */
   type, 
@@ -38,6 +40,10 @@ public enum AttributeDefType {
    * @return the enum or null or exception if not found
    */
   public static AttributeDefType valueOfIgnoreCase(String string, boolean exceptionOnNull) {
+    //v2.2+ convert domain to service
+    if (StringUtils.equalsIgnoreCase("domain", string)) {
+      string = service.name();
+    }
     return GrouperUtil.enumValueOfIgnoreCase(AttributeDefType.class, 
         string, exceptionOnNull);
 

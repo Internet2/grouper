@@ -285,7 +285,6 @@ public class RuleElUtils {
       }
       group.addMember(member.getSubject(), true);
       membership = group.getImmediateMembership(Group.getDefaultList(), member, true, false);
-      return false;
     }
     membership.setDisabledTime(new Timestamp(System.currentTimeMillis() + (daysInFuture * 24 * 60 * 60 * 1000)));
     membership.update();

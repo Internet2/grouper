@@ -379,6 +379,55 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
    */
   public void store() {
     
+    //validate the attribute definition
+    
+    //if a permission, can only be assigned to group or membership (not immediate)
+    if (this.attributeDefType == AttributeDefType.perm &&
+        (this.assignToAttributeDef || this.assignToAttributeDefAssn
+        || this.assignToStem || this.assignToStemAssn
+        || this.assignToGroupAssn
+        || this.assignToMember || this.assignToMemberAssn
+        || this.assignToEffMembershipAssn
+        || this.assignToImmMembership || this.assignToImmMembershipAssn )
+    ) {
+      throw new RuntimeException("An attribute definition of type permission can only be assignable to group/role or effective membership");
+    }
+
+    //invalid entry: permission type attributes cannot be multi-assignable
+    if (this.attributeDefType == AttributeDefType.perm && this.multiAssignable) {
+      throw new RuntimeException("An attribute definition of type permission can not be multi-assignable");
+    }
+
+    //Invalid entry: permission type attributes must have no-value value type
+    if (this.attributeDefType == AttributeDefType.perm && this.valueType != AttributeDefValueType.marker) {
+      throw new RuntimeException("An attribute definition of type permission can only have a marker value type.  In other words it cannot have values");
+    }
+
+    //if a service, can only be assigned to group, stem, attributeDef
+    if (this.attributeDefType == AttributeDefType.service &&
+        (this.assignToAttributeDefAssn
+        || this.assignToStemAssn
+        || this.assignToGroupAssn
+        || this.assignToMember || this.assignToMemberAssn
+        || this.assignToEffMembership || this.assignToEffMembershipAssn
+        || this.assignToImmMembership || this.assignToImmMembershipAssn )
+    ) {
+      throw new RuntimeException("An attribute definition of type service can only be assignable to group/folder/attributeDef or effective membership");
+    }
+
+    //invalid entry: permission type attributes cannot be multi-assignable
+    if (this.attributeDefType == AttributeDefType.service && this.multiAssignable) {
+      throw new RuntimeException("An attribute definition of type service can not be multi-assignable");
+    }
+
+    //Invalid entry: permission type attributes must have no-value value type
+    if (this.attributeDefType == AttributeDefType.service && this.valueType != AttributeDefValueType.marker) {
+      throw new RuntimeException("An attribute definition of type service can only have a marker value type.  In other words it cannot have values");
+    }
+    
+    if (this.multiValued && this.valueType == AttributeDefValueType.marker) {
+      throw new RuntimeException("An attribute definition of value type marker cannot be multi-valued");
+    }
     
     HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
