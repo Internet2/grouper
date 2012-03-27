@@ -447,7 +447,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
                 log.error("No value for LDAP attribute \"" + subjectIDAttributeName + "\". It is Grouper attribute \"SubjectID\".");
                 return null;
             }
-            subjectID   = ((String)attribute.get()).toLowerCase();
+            subjectID   = (String)attribute.get();
             attribute = attributes.get(nameAttributeName);
             if (attribute == null) {
                 if (log.isDebugEnabled()) {
