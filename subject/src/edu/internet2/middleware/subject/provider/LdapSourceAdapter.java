@@ -73,6 +73,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
     private Properties props;
     private String nameAttributeName = null;
     private String subjectIDAttributeName = null;
+    private boolean subjectIDFormatToLowerCase = false;
     private String descriptionAttributeName = null;
     // private String subjectTypeString = null;
     private String localDomain = null;
@@ -108,6 +109,8 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
 	subjectIDAttributeName = getNeededProperty(props,"SubjectID_AttributeType");
 	descriptionAttributeName = getNeededProperty(props,"Description_AttributeType");
 
+	subjectIDFormatToLowerCase = SubjectUtils.booleanValue(getNeededProperty(props,"SubjectID_formatToLowerCase"), false);
+	
         String mr = props.getProperty("Multiple_Results");
         if (mr!=null && (mr.equalsIgnoreCase("yes")||mr.equalsIgnoreCase("true"))) multipleResults = true;
 
@@ -448,6 +451,9 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
                 return null;
             }
             subjectID   = (String)attribute.get();
+            if (this.subjectIDFormatToLowerCase) {
+            	subjectID = subjectID.toLowerCase();
+            }
             attribute = attributes.get(nameAttributeName);
             if (attribute == null) {
                 if (log.isDebugEnabled()) {
