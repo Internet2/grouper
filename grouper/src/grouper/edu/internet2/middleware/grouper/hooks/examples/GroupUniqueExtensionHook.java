@@ -72,7 +72,9 @@ public class GroupUniqueExtensionHook extends GroupHooks {
   @Override
   public void groupPreUpdate(HooksContext hooksContext, HooksGroupBean preUpdateBean) {
     Group group = preUpdateBean.getGroup();
-    verifyUniqueExtension(group);
+    if (group.dbVersionDifferentFields().contains(Group.FIELD_EXTENSION) || group.dbVersionDifferentFields().contains(Group.FIELD_NAME)) {
+      verifyUniqueExtension(group);
+    }
   }
   
 }

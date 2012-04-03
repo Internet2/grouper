@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.lang.time.StopWatch;
@@ -190,6 +191,137 @@ public class GrouperSession implements Serializable {
       }
     }
 
+  }
+  
+  /**
+   * start a session based on a sourceId and subjectId
+   * @param sourceId if null search all sources
+   * @param subjectId
+   * @return return the GrouperSession
+   */
+  public static GrouperSession startBySubjectIdAndSource(final String subjectId, final String sourceId) {
+    
+    return startBySubjectIdAndSource(subjectId, sourceId, true);
+    
+  }
+  
+  /**
+   * start a session based on a sourceId and subjectId
+   * @param sourceId if null search all sources
+   * @param subjectId
+   * @param addToThreadLocal true if it should be in threadlocal, false if not
+   * @return return the GrouperSession
+   */
+  public static GrouperSession startBySubjectIdAndSource(final String subjectId, final String sourceId, 
+      boolean addToThreadLocal) {
+
+    Subject subject = null;
+    
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    boolean startedSession = false;
+    
+    try {
+      
+      if (grouperSession == null) {
+        grouperSession = GrouperSession.startRootSession(false);
+        startedSession = true;
+      }
+      
+      if (!PrivilegeHelper.isWheelOrRoot(grouperSession.getSubject())) {
+        grouperSession = grouperSession.internal_getRootSession();
+      }
+      
+      subject = (Subject)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+
+        /**
+         * 
+         */
+        @Override
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+
+          if (StringUtils.isBlank(sourceId)) {
+            return SubjectFinder.findById(subjectId, true);
+          }
+          return SubjectFinder.findByIdAndSource(subjectId, sourceId, true);
+          
+        }
+        
+      });
+      
+      
+      
+    } finally {
+      if (startedSession) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+    }
+    
+    return GrouperSession.start(subject, addToThreadLocal);
+    
+  }
+  
+  /**
+   * start a session based on a sourceId and subjectId
+   * @param sourceId if null search all sources
+   * @param subjectIdentifier
+   * @return return the GrouperSession
+   */
+  public static GrouperSession startBySubjectIdentifierAndSource(final String subjectIdentifier, final String sourceId) {
+    return startBySubjectIdentifierAndSource(subjectIdentifier, sourceId, true);
+  }
+  
+  /**
+   * start a session based on a sourceId and subjectId
+   * @param subjectIdentifier
+   * @param sourceId if null search all sources
+   * @return return the GrouperSession
+   */
+  public static GrouperSession startBySubjectIdentifierAndSource(final String subjectIdentifier, final String sourceId, boolean addToThreadLocal) {
+    Subject subject = null;
+    
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    boolean startedSession = false;
+    
+    try {
+      
+      if (grouperSession == null) {
+        grouperSession = GrouperSession.startRootSession(false);
+        startedSession = true;
+      }
+      
+      if (!PrivilegeHelper.isWheelOrRoot(grouperSession.getSubject())) {
+        grouperSession = grouperSession.internal_getRootSession();
+      }
+      
+      subject = (Subject)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+
+        /**
+         * 
+         */
+        @Override
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+
+          if (StringUtils.isBlank(sourceId)) {
+            return SubjectFinder.findByIdentifier(subjectIdentifier, true);
+          }
+          return SubjectFinder.findByIdentifierAndSource(subjectIdentifier, sourceId, true);
+          
+        }
+        
+      });
+      
+      
+      
+    } finally {
+      if (startedSession) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+    }
+    
+    return GrouperSession.start(subject, addToThreadLocal);
+    
   }
   
   /**

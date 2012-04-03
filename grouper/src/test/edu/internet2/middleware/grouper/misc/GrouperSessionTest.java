@@ -10,6 +10,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
@@ -76,7 +77,7 @@ public class GrouperSessionTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperSessionTest("testCaches"));
+    TestRunner.run(new GrouperSessionTest("testShorthandByIdNoThreadLocal"));
   }
 
   /**
@@ -95,5 +96,153 @@ public class GrouperSessionTest extends GrouperTest {
     }
   }
   
+  /**
+   * 
+   */
+  public void testShorthandById() {
+    
+    GrouperSession.stopQuietly(this.grouperSession);
+    
+    try {
+      SubjectFinder.findByIdentifier("edu:aGroup", true);
+      fail("Cant search for subjects without session");
+    } catch (Exception e) {
+      //good
+    }
+
+    try {
+      SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ0_IDENTIFIER, true);
+      fail("Cant search for subjects without session");
+    } catch (Exception e) {
+      //good
+    }
+
+    //now try to create a session by id
+    GrouperSession.startBySubjectIdAndSource(SubjectTestHelper.SUBJ0_ID, null);
+    
+    SubjectFinder.findByIdentifier("edu:aGroup", true);
+    
+    
+  }
+
+  /**
+   * 
+   */
+  public void testShorthandByIdNoThreadLocal() {
+    
+    GrouperSession.stopQuietly(this.grouperSession);
+    
+    try {
+      SubjectFinder.findByIdentifier("edu:aGroup", true);
+      fail("Cant search for subjects without session");
+    } catch (Exception e) {
+      //good
+    }
+
+    try {
+      SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ0_IDENTIFIER, true);
+      fail("Cant search for subjects without session");
+    } catch (Exception e) {
+      //good
+    }
+
+    //now try to create a session by id
+    GrouperSession.startBySubjectIdAndSource(SubjectTestHelper.SUBJ0_ID, null, false);
+    
+    try {
+      SubjectFinder.findByIdentifier("edu:aGroup", true);
+      fail("Shouldnt work");
+    } catch (Exception e) {
+      //good
+    }
+    
+  }
+
+  /**
+   * 
+   */
+  public void testShorthandByIdAndSource() {
+    
+    GrouperSession.stopQuietly(this.grouperSession);
+    
+    try {
+      SubjectFinder.findByIdentifier("edu:aGroup", true);
+      fail("Cant search for subjects without session");
+    } catch (Exception e) {
+      //good
+    }
+  
+    try {
+      SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ0_IDENTIFIER, true);
+      fail("Cant search for subjects without session");
+    } catch (Exception e) {
+      //good
+    }
+  
+    //now try to create a session by id
+    GrouperSession.startBySubjectIdAndSource(SubjectTestHelper.SUBJ0_ID, "jdbc");
+    
+    SubjectFinder.findByIdentifier("edu:aGroup", true);
+    
+    
+  }
+
+  /**
+   * 
+   */
+  public void testShorthandByIdentifier() {
+    
+    GrouperSession.stopQuietly(this.grouperSession);
+    
+    try {
+      SubjectFinder.findByIdentifier("edu:aGroup", true);
+      fail("Cant search for subjects without session");
+    } catch (Exception e) {
+      //good
+    }
+  
+    try {
+      SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ0_IDENTIFIER, true);
+      fail("Cant search for subjects without session");
+    } catch (Exception e) {
+      //good
+    }
+  
+    //now try to create a session by id
+    GrouperSession.startBySubjectIdentifierAndSource(SubjectTestHelper.SUBJ0_IDENTIFIER, null);
+    
+    SubjectFinder.findByIdentifier("edu:aGroup", true);
+    
+    
+  }
+
+  /**
+   * 
+   */
+  public void testShorthandByIdentifierAndSource() {
+    
+    GrouperSession.stopQuietly(this.grouperSession);
+    
+    try {
+      SubjectFinder.findByIdentifier("edu:aGroup", true);
+      fail("Cant search for subjects without session");
+    } catch (Exception e) {
+      //good
+    }
+  
+    try {
+      SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ0_IDENTIFIER, true);
+      fail("Cant search for subjects without session");
+    } catch (Exception e) {
+      //good
+    }
+  
+    //now try to create a session by id
+    GrouperSession.startBySubjectIdentifierAndSource(SubjectTestHelper.SUBJ0_IDENTIFIER, "jdbc");
+    
+    SubjectFinder.findByIdentifier("edu:aGroup", true);
+    
+    
+  }
 
 }

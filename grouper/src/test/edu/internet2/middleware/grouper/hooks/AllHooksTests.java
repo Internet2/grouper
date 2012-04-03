@@ -35,6 +35,7 @@ public class AllHooksTests {
     suite.addTestSuite(ESCOGroupHooksTest.class);
     suite.addTestSuite(GroupTypeTupleHooksTest.class);
     suite.addTestSuite(GroupHooksTest.class);
+    suite.addTestSuite(GroupHookUniqueTest.class);
     suite.addTestSuite(GroupHooksAddTypePostCommitTest.class);
     suite.addTestSuite(GroupHooksAddTypeTest.class);
     suite.addTestSuite(MembershipHooksTest.class);
