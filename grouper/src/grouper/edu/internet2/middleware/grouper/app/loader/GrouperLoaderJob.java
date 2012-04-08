@@ -273,7 +273,9 @@ public class GrouperLoaderJob implements Job, StatefulJob {
       if (grouperLoaderType.equals(GrouperLoaderType.ATTR_SQL_SIMPLE)) {
         
         runJobAttrDef(hib3GrouploaderLog, attributeDef, grouperSession);
-      } else if (grouperLoaderType.equals(GrouperLoaderType.LDAP_SIMPLE)) {
+      } else if (grouperLoaderType.equals(GrouperLoaderType.LDAP_SIMPLE)
+        || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUP_LIST)
+        || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES)) {
         
         runJobLdap(hib3GrouploaderLog, group, grouperSession);
       } else {
