@@ -139,7 +139,9 @@ public class GrouperLoaderJob implements Job, StatefulJob {
         }
       }
       
-      if (grouperLoaderType.equals(GrouperLoaderType.LDAP_SIMPLE)) {
+      if (grouperLoaderType.equals(GrouperLoaderType.LDAP_SIMPLE)
+          || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUP_LIST)
+          || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES)) {
         
         int uuidIndexStart = jobName.lastIndexOf("__");
         
