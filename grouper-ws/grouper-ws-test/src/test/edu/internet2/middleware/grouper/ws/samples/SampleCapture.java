@@ -98,6 +98,7 @@ import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssign
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributesRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributesRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributesWithValueRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributesWithValueRest2;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributesWithValueRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAttributeDefNameDeleteRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAttributeDefNameDeleteRestLite;
@@ -125,6 +126,7 @@ import edu.internet2.middleware.grouper.ws.samples.rest.grouperPrivileges.WsSamp
 import edu.internet2.middleware.grouper.ws.samples.rest.grouperPrivileges.WsSampleGetGrouperPrivilegesListRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.grouperPrivileges.WsSampleGetGrouperPrivilegesRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleAddMemberRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleAddMemberRest2;
 import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleAddMemberRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleAddMemberRestLite2;
 import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleDeleteMemberRest;
@@ -139,6 +141,7 @@ import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleHasMember
 import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleMemberChangeSubjectRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleMemberChangeSubjectRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.membership.WsSampleGetMembershipsRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.membership.WsSampleGetMembershipsRest2;
 import edu.internet2.middleware.grouper.ws.samples.rest.membership.WsSampleGetMembershipsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.membership.WsSampleGetMembershipsRestLite2;
 import edu.internet2.middleware.grouper.ws.samples.rest.permission.WsSampleAssignPermissionsRest;
@@ -413,6 +416,8 @@ public class SampleCapture {
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAddMemberRest.class, "addMember", null);
     captureSample(WsSampleClientType.REST_BEANS,  
+            WsSampleAddMemberRest2.class, "addMember", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAddMemberRestLite.class, "addMember", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAddMemberRestLite2.class, "addMember", "_withInput");
@@ -622,6 +627,8 @@ public class SampleCapture {
         WsSampleGetMembershipsLite.class, "getMemberships", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleGetMembershipsRest.class, "getMemberships", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+            WsSampleGetMembershipsRest2.class, "getMemberships", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleGetMembershipsRestLite.class, "getMemberships", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -911,6 +918,8 @@ public class SampleCapture {
         WsSampleAssignAttributesWithValueLite.class, "assignAttributesWithValue", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAssignAttributesWithValueRest.class, "assignAttributesWithValue", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+            WsSampleAssignAttributesWithValueRest2.class, "assignAttributesWithValue", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAssignAttributesWithValueRestLite.class, "assignAttributesWithValue", null);
     
