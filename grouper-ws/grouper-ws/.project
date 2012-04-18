@@ -16,19 +16,19 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>GROUPER_TRUNK_CLIENT</name>
+			<name>GROUPER_V2_1_CLIENT_SOURCE</name>
 			<type>2</type>
-			<locationURI>GROUPER_TRUNK_CLIENT</locationURI>
+			<locationURI>GROUPER_V2_1_CLIENT_SOURCE</locationURI>
 		</link>
 		<link>
-			<name>GROUPER_TRUNK_CONF</name>
+			<name>GROUPER_V2_1_CONF</name>
 			<type>2</type>
-			<locationURI>GROUPER_TRUNK_CONF</locationURI>
+			<locationURI>GROUPER_V2_1_CONF</locationURI>
 		</link>
 		<link>
-			<name>GROUPER_TRUNK_SOURCE</name>
+			<name>GROUPER_V2_1_SOURCE</name>
 			<type>2</type>
-			<locationURI>GROUPER_TRUNK_SOURCE</locationURI>
+			<locationURI>GROUPER_V2_1_SOURCE</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
