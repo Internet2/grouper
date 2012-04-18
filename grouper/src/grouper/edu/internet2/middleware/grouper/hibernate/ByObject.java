@@ -17,7 +17,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @version $Id: ByObject.java,v 1.13 2009-09-15 06:08:44 mchyzer Exp $
- * @author harveycg
+ * @author mchyzer
  */
 public class ByObject extends HibernateDelegate {
 

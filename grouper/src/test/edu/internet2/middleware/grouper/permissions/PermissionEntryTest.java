@@ -1,5 +1,5 @@
 /**
- * @author Kate
+ * @author mchyzer
  * $Id: PermissionEntryTest.java,v 1.5 2009-11-10 03:35:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.permissions;

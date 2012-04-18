@@ -1,5 +1,5 @@
 /**
- * @author Kate
+ * @author mchyzer
  * $Id: AttributeAssignType.java,v 1.1 2009-10-10 18:02:33 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;

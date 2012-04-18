@@ -1,5 +1,5 @@
 /**
- * @author Kate
+ * @author mchyzer
  * $Id: MembershipType.java,v 1.1 2009-12-07 07:31:09 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.membership;
