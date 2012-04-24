@@ -15,21 +15,30 @@
  ******************************************************************************/
 /*
  * @author mchyzer
- * $Id: GroupHooksDbVersionTest.java,v 1.4 2009-03-21 13:35:50 mchyzer Exp $
+ * $Id: GroupHooksTest.java,v 1.11 2009-03-20 19:56:41 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.exception.GroupDeleteException;
+import edu.internet2.middleware.grouper.exception.GroupModifyException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
+import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
+import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
+import edu.internet2.middleware.grouper.hooks.examples.GroupUniqueExtensionHook;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
+import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -37,22 +46,42 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  *
  */
-public class GroupHooksDbVersionTest extends GrouperTest {
+public class GroupHookUniqueTest extends GrouperTest {
 
   /**
    * 
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GroupHooksDbVersionTest("testGroupHooksDbVersion"));
-    //TestRunner.run(GroupHooksDbVersionTest.class);
+
+    TestRunner.run(new GroupHookUniqueTest("testGroupAdd"));
+
   }
   
   /**
    * @param name
    */
-  public GroupHooksDbVersionTest(String name) {
+  public GroupHookUniqueTest(String name) {
     super(name);
+  }
+  
+  /**
+   * 
+   */
+  public void testGroupAdd() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    new GroupSave(grouperSession).assignName("test:test1").assignCreateParentStemsIfNotExist(true).save();
+    new GroupSave(grouperSession).assignName("test:test2").assignCreateParentStemsIfNotExist(true).save();
+    
+    try {
+      new GroupSave(grouperSession).assignName("test2:test1").assignCreateParentStemsIfNotExist(true).save();
+      fail("Cant with same extension");
+      
+    } catch(Exception e) {
+      //e.printStackTrace();
+      //good
+    }
   }
 
   /** edu stem */
@@ -69,8 +98,8 @@ public class GroupHooksDbVersionTest extends GrouperTest {
    */
   @Override
   protected void tearDown() {
-    super.tearDown();
     overrideHooksRemove();
+    super.tearDown();
   }
 
   /**
@@ -86,48 +115,19 @@ public class GroupHooksDbVersionTest extends GrouperTest {
    * @see edu.internet2.middleware.grouper.helper.GrouperTest#setUp()
    */
   protected void setUp () {
-    super.setUp();
     overrideHooksAdd();
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
 
-    grouperSession     = SessionHelper.getRootSession();
-    root  = StemHelper.findRootStem(grouperSession);
-    edu   = StemHelper.addChildStem(root, "edu", "education");
   }
 
   /**
    * 
    */
   private void overrideHooksAdd() {
-    //this is the test hook imple
+    //this is the test hook implementation
     GrouperHookType.addHookOverride(GrouperHookType.GROUP.getPropertyFileKey(), 
-        GrouperUtil.toListClasses(GroupHookDbVersion.class));
+        GrouperUtil.toListClasses(GroupUniqueExtensionHook.class));
   }
 
-  /**
-   * @throws Exception 
-   * 
-   */
-  public void testGroupHooksDbVersion() throws Exception {
-    
-    //ApiConfig.testConfig.put("groups.allow.attribute.access.1.4", "true");
-    
-    //try an insert
-    Group group = edu.addChildGroup("myGroup", "myGroup");
-    
-    group = GroupFinder.findByName(this.grouperSession, "edu:myGroup", true);
-    
-    group.setExtension("anotherExt");
-    group.store();
-    
-    GroupType groupType = GroupType.createType(this.grouperSession, "test1");
-    
-    group.addType(groupType, false);
-    
-    group.setExtension("anotherExt2");
-    group.store();
-    
-  }
-  
 }
