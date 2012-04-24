@@ -1,3 +1,18 @@
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 /* ========================================================================
  * Copyright (c) 2009-2011 The University of Washington
  *
@@ -73,6 +88,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
     private Properties props;
     private String nameAttributeName = null;
     private String subjectIDAttributeName = null;
+    private boolean subjectIDFormatToLowerCase = false;
     private String descriptionAttributeName = null;
     // private String subjectTypeString = null;
     private String localDomain = null;
@@ -108,6 +124,8 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
 	subjectIDAttributeName = getNeededProperty(props,"SubjectID_AttributeType");
 	descriptionAttributeName = getNeededProperty(props,"Description_AttributeType");
 
+	subjectIDFormatToLowerCase = SubjectUtils.booleanValue(getNeededProperty(props,"SubjectID_formatToLowerCase"), false);
+	
         String mr = props.getProperty("Multiple_Results");
         if (mr!=null && (mr.equalsIgnoreCase("yes")||mr.equalsIgnoreCase("true"))) multipleResults = true;
 
@@ -447,7 +465,10 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
                 log.error("No value for LDAP attribute \"" + subjectIDAttributeName + "\". It is Grouper attribute \"SubjectID\".");
                 return null;
             }
-            subjectID   = ((String)attribute.get()).toLowerCase();
+            subjectID   = (String)attribute.get();
+            if (this.subjectIDFormatToLowerCase) {
+            	subjectID = subjectID.toLowerCase();
+            }
             attribute = attributes.get(nameAttributeName);
             if (attribute == null) {
                 if (log.isDebugEnabled()) {
