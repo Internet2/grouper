@@ -471,6 +471,10 @@ where
       <param-name>SubjectID_AttributeType</param-name>
       <param-value>exampleEduRegID</param-value>
     </init-param>
+     <init-param>
+      <param-name>SubjectID_formatToLowerCase</param-name>
+      <param-value>false</param-value>
+    </init-param>
     <init-param>
       <param-name>Name_AttributeType</param-name>
       <param-value>cn</param-value>

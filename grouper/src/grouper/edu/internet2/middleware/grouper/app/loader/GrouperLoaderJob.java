@@ -1,3 +1,18 @@
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 /*
  * @author mchyzer
  * $Id: GrouperLoaderJob.java,v 1.9 2009-04-28 20:08:08 mchyzer Exp $
@@ -139,7 +154,9 @@ public class GrouperLoaderJob implements Job, StatefulJob {
         }
       }
       
-      if (grouperLoaderType.equals(GrouperLoaderType.LDAP_SIMPLE)) {
+      if (grouperLoaderType.equals(GrouperLoaderType.LDAP_SIMPLE)
+          || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUP_LIST)
+          || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES)) {
         
         int uuidIndexStart = jobName.lastIndexOf("__");
         
@@ -273,7 +290,9 @@ public class GrouperLoaderJob implements Job, StatefulJob {
       if (grouperLoaderType.equals(GrouperLoaderType.ATTR_SQL_SIMPLE)) {
         
         runJobAttrDef(hib3GrouploaderLog, attributeDef, grouperSession);
-      } else if (grouperLoaderType.equals(GrouperLoaderType.LDAP_SIMPLE)) {
+      } else if (grouperLoaderType.equals(GrouperLoaderType.LDAP_SIMPLE)
+        || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUP_LIST)
+        || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES)) {
         
         runJobLdap(hib3GrouploaderLog, group, grouperSession);
       } else {

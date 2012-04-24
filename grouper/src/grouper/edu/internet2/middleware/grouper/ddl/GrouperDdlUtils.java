@@ -1,3 +1,18 @@
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 /*
  * @author mchyzer $Id: GrouperDdlUtils.java,v 1.49 2009-12-05 06:39:07 mchyzer Exp $
  */
@@ -483,6 +498,15 @@ public class GrouperDdlUtils {
                 + objectEnumClass.getName() + " for details on if things are compatible.");
             //not much we can do here... good luck!
             continue;
+          }
+          
+          if (!dropOnly && !theDropBeforeCreate) {
+            // if the temp change log has entries, don't let the upgrade continue..
+            int tempChangeLogCount = getTableCount("grouper_change_log_entry_temp", false);
+            if (tempChangeLogCount > 0) {
+              System.err.println("NOTE: Grouper database schema DDL may require updates, but the temp change log must be empty to perform an upgrade.  To process the temp change log, start up your current version of GSH and run: loaderRunOneJob(\"CHANGE_LOG_changeLogTempToChangeLog\")");
+              return false;
+            }
           }
   
           //shut down hibernate if not just testing
@@ -2592,12 +2616,11 @@ public class GrouperDdlUtils {
 
   /**
    * Get the number of records in a table
-   * @param database
    * @param tableName
    * @param exceptionIfTableDoesNotExist
    * @return count
    */
-  public static int getTableCount(Database database, String tableName, boolean exceptionIfTableDoesNotExist) {
+  public static int getTableCount(String tableName, boolean exceptionIfTableDoesNotExist) {
     try {
       return HibernateSession.bySqlStatic().select(int.class, "select count(*) from " + tableName);
     } catch (RuntimeException e) {

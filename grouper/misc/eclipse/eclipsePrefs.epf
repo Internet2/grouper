@@ -618,7 +618,7 @@
 /instance/org.eclipse.wst.jsdt.core/org.eclipse.wst.jsdt.core.formatter.insert_space_before_closing_paren_in_switch=do not insert
 /instance/org.eclipse.jst.jsp.core/validation.directive-taglib-duplicate-prefixes-different-uris=1
 /instance/org.eclipse.wst.jsdt.core/org.eclipse.wst.jsdt.core.formatter.brace_position_for_method_declaration=end_of_line
-/instance/org.eclipse.rse.core/org.eclipse.rse.systemtype.local.systemType.defaultUserId=harveycg
+/instance/org.eclipse.rse.core/org.eclipse.rse.systemtype.local.systemType.defaultUserId=mchyzer
 /instance/org.eclipse.jdt.core/org.eclipse.jdt.core.formatter.alignment_for_arguments_in_enum_constant=16
 /instance/org.eclipse.wst.jsdt.core/org.eclipse.wst.jsdt.core.formatter.insert_space_after_opening_brace_in_array_initializer=insert
 /instance/org.eclipse.wst.jsdt.ui/formatter_settings_version=11
@@ -766,7 +766,7 @@
 /instance/org.eclipse.jdt.core/org.eclipse.jdt.core.formatter.blank_lines_before_imports=1
 /instance/org.eclipse.wst.jsdt.ui/cleanup.qualify_static_member_accesses_through_instances_with_declaring_class=true
 /instance/org.eclipse.wst.jsdt.core/org.eclipse.wst.jsdt.core.formatter.comment.indent_parameter_description=true
-/instance/org.eclipse.rse.core/useridperkey=AIT100226.Local\=harveycg;
+/instance/org.eclipse.rse.core/useridperkey=AIT100226.Local\=mchyzer;
 \!/=
 /instance/org.eclipse.wst.jsdt.core/org.eclipse.wst.jsdt.core.formatter.insert_space_after_opening_bracket_in_array_allocation_expression=do not insert
 /instance/org.eclipse.wst.jsdt.core/org.eclipse.wst.jsdt.core.formatter.insert_space_before_prefix_operator=do not insert
