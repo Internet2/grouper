@@ -741,7 +741,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
      * @see edu.internet2.middleware.subject.Source#printConfig()
      */
     public String printConfig() {
-      String message = "sources.xml ldap source id:   " + this.getId() + ": " + propertiesFile;
+      String message = "sources.xml ldap source id:   " + this.getId();
       return message;
     }
     
