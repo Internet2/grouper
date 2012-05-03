@@ -12,6 +12,16 @@
     <filter-class>edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee</filter-class>
   </filter>
 
+  <filter>
+    <!-- logging filter -->
+    <filter-name>Grouper logging filter</filter-name>
+    <filter-class>edu.internet2.middleware.grouper.ws.j2ee.ServletFilterLogger</filter-class>
+  </filter>
+
+  <!-- filter-mapping>
+    <filter-name>Grouper logging filter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping -->
   <!-- Map the filter to a Servlet or URL -->
   <filter-mapping>
     <filter-name>Grouper service filter</filter-name>
