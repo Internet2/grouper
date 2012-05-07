@@ -28,6 +28,7 @@ import org.apache.commons.collections.keyvalue.MultiKey;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
@@ -417,6 +418,32 @@ public interface AttributeAssignDAO extends GrouperDAO {
       Boolean enabled, boolean includeAssignmentsOnAssignments);
 
   /**
+   * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or stem ids
+   * cannot have more than 100 bind variables
+   * @param attributeAssignIds
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param stemIds optional
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
+   * @param attributeDefValueType required if sending theValue, can be:
+   * floating, integer, memberId, string, timestamp
+   * @param theValue value if you are passing in one attributeDefNameLookup
+   * @param includeAssignmentsFromAssignments T|F if you are finding an assignment that is an assignmentOnAssignment,
+   * then get the assignment which tells you the owner as well
+   * @return the assignments
+   */
+  public Set<AttributeAssign> findStemAttributeAssignments(
+      Collection<String> attributeAssignIds,
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> stemIds, Collection<String> actions, 
+      Boolean enabled, boolean includeAssignmentsOnAssignments, 
+      AttributeDefValueType attributeDefValueType,
+      Object theValue, boolean includeAssignmentsFromAssignments);
+
+  /**
    * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or member ids
    * cannot have more than 100 bind variables
    * @param attributeAssignIds
@@ -682,5 +709,200 @@ public interface AttributeAssignDAO extends GrouperDAO {
       Collection<AttributeAssign> attributeAssigns,
       AttributeAssignType attributeAssignType, Boolean enabled);
 
+  /**
+   * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or attribute def assign to ids
+   * cannot have more than 100 bind variables
+   * @param attributeAssignIds
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param attributeDefAssignToIds optional
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
+   * @param attributeDefValueType required if sending theValue, can be:
+   * floating, integer, memberId, string, timestamp
+   * @param theValue value if you are passing in one attributeDefNameLookup
+   * @param includeAssignmentsFromAssignments T|F if you are finding an assignment that is an assignmentOnAssignment,
+   * then get the assignment which tells you the owner as well
+   * @return the assignments
+   */
+  public Set<AttributeAssign> findAttributeDefAttributeAssignments(
+      Collection<String> attributeAssignIds,
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> attributeDefAssignToIds, Collection<String> actions, 
+      Boolean enabled, boolean includeAssignmentsOnAssignments,
+      AttributeDefValueType attributeDefValueType, Object theValue, boolean includeAssignmentsFromAssignments);
+
+  /**
+   * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or membership ids
+   * cannot have more than 100 bind variables
+   * @param attributeAssignIds
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param groupIdsAndMemberIds optional
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
+   * @param attributeDefType attr, perm, limit, or null for all
+   * @param attributeDefValueType required if sending theValue, can be:
+   * floating, integer, memberId, string, timestamp
+   * @param theValue value if you are passing in one attributeDefNameLookup
+   * @param includeAssignmentsFromAssignments T|F if you are finding an assignment that is an assignmentOnAssignment,
+   * then get the assignment which tells you the owner as well
+   * @return the assignments
+   */
+  public Set<AttributeAssign> findAnyMembershipAttributeAssignments(
+      Collection<String> attributeAssignIds,
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<MultiKey> groupIdsAndMemberIds, Collection<String> actions, 
+      Boolean enabled, boolean includeAssignmentsOnAssignments, AttributeDefType attributeDefType,
+      AttributeDefValueType attributeDefValueType, Object theValue, boolean includeAssignmentsFromAssignments);
+
+  /**
+   * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids
+   * cannot have more than 100 bind variables
+   * @param attributeAssignIds
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param groupIds optional
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
+   * @param attributeDefType null for all, or specify a type e.g. AttributeDefType.limit
+   * @param attributeDefValueType required if sending theValue, can be:
+   * floating, integer, memberId, string, timestamp
+   * @param theValue value if you are passing in one attributeDefNameLookup
+   * @param includeAssignmentsFromAssignments T|F if you are finding an assignment that is an assignmentOnAssignment,
+   * then get the assignment which tells you the owner as well
+   * @return the assignments
+   */
+  public Set<AttributeAssign> findGroupAttributeAssignments(
+      Collection<String> attributeAssignIds,
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> groupIds, 
+      Collection<String> actions, 
+      Boolean enabled, 
+      boolean includeAssignmentsOnAssignments,
+      AttributeDefType attributeDefType,
+      AttributeDefValueType attributeDefValueType, Object theValue, boolean includeAssignmentsFromAssignments);
+
+  /**
+   * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or member ids
+   * cannot have more than 100 bind variables
+   * @param attributeAssignIds
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param memberIds optional
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
+   * @param attributeDefValueType required if sending theValue, can be:
+   * floating, integer, memberId, string, timestamp
+   * @param theValue value if you are passing in one attributeDefNameLookup
+   * @param includeAssignmentsFromAssignments T|F if you are finding an assignment that is an assignmentOnAssignment,
+   * then get the assignment which tells you the owner as well
+   * @return the assignments
+   */
+  public Set<AttributeAssign> findMemberAttributeAssignments(
+      Collection<String> attributeAssignIds,
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> memberIds, Collection<String> actions, 
+      Boolean enabled, boolean includeAssignmentsOnAssignments,
+      AttributeDefValueType attributeDefValueType, Object theValue, boolean includeAssignmentsFromAssignments);
+
+  /**
+   * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or membership ids
+   * cannot have more than 100 bind variables
+   * @param attributeAssignIds
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param membershipIds optional
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
+   * @param attributeDefValueType required if sending theValue, can be:
+   * floating, integer, memberId, string, timestamp
+   * @param theValue value if you are passing in one attributeDefNameLookup
+   * @param includeAssignmentsFromAssignments T|F if you are finding an assignment that is an assignmentOnAssignment,
+   * then get the assignment which tells you the owner as well
+   * @return the assignments
+   */
+  public Set<AttributeAssign> findMembershipAttributeAssignments(
+      Collection<String> attributeAssignIds,
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> membershipIds, Collection<String> actions, 
+      Boolean enabled, boolean includeAssignmentsOnAssignments,
+      AttributeDefValueType attributeDefValueType, Object theValue, boolean includeAssignmentsFromAssignments);
+
+  /**
+   * securely search for assignments on assignments of stems. 
+   * need to pass in either the assign ids, def ids, def name ids, or stem ids
+   * cannot have more than 100 bind variables
+   * @param attributeAssignIds
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param stemIds optional
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param attributeDefValueType required if sending theValue, can be:
+   * floating, integer, memberId, string, timestamp
+   * @param theValue value if you are passing in one attributeDefNameLookup
+   * @param includeAssignmentsFromAssignments T|F if you are finding an assignment that is an assignmentOnAssignment,
+   * then get the assignment which tells you the owner as well
+   * @param ownerAttributeAssignIds attribute assignment ids of the owner assignments
+   * @param ownerAttributeDefIds attribute definition ids of the owner assignments
+   * @param ownerAttributeDefNameIds attribute definition names ids of the owner assignments
+   * @param ownerActions actions of the owner assignment
+   * @param useCache to use a cache or not
+   * @return the assignments
+   */
+  public Set<AttributeAssign> findStemAttributeAssignmentsOnAssignments(
+      Collection<String> attributeAssignIds,
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> stemIds, Collection<String> actions, 
+      Boolean enabled, AttributeDefValueType attributeDefValueType,
+      Object theValue, boolean includeAssignmentsFromAssignments,
+      Collection<String> ownerAttributeAssignIds,
+      Collection<String> ownerAttributeDefIds, 
+      Collection<String> ownerAttributeDefNameIds,
+      Collection<String> ownerActions, boolean useCache);
+
+  /**
+   * find assignments from assignments.  Note, it is assumed the current user can read the assignments passed in (and other underlying objects),
+   * so only the attributeDefs of the assignments on assignments are checked for security
+   * @param attributeAssigns to find assignments on these assignments
+   * @param attributeAssignType of the assignments we are looking for or null for all
+   * @param enabled null for all, true for enabled only, false for disabled only
+   * @return the assignments
+   */
+  public Set<AttributeAssign> findAssignmentsFromAssignments(Collection<AttributeAssign> attributeAssigns, 
+      AttributeAssignType attributeAssignType, Boolean enabled, boolean useCache);
+
+  /**
+   * find assignments from assignments.  Note, it is assumed the current user can read the assignments passed in (and other underlying objects),
+   * so only the attributeDefs of the assignments on assignments are checked for security
+   * @param attributeAssignIds to find assignments on these assignment ids
+   * @param attributeAssignType of the assignments we are looking for
+   * @param attributeDefType attr, perm, limit, or null for all
+   * @param enabled null for all, true for enabled only, false for disabled only
+   * @return the assignments
+   */
+  public Set<AttributeAssign> findAssignmentsFromAssignmentsByIds(Collection<String> attributeAssignIds, 
+      AttributeAssignType attributeAssignType, AttributeDefType attributeDefType, Boolean enabled);
+
+  /**
+   * find attribute assignments by ids, this is not a secure method, any ids passed in will be returned if they exist
+   * @param ids no limit on number of ids passed
+   * @param enabled true to find enabled only, false to return disabled only
+   * @param useCache true to use a cache for the query, false if not
+   * @return the results never null
+   */
+  public Set<AttributeAssign> findByIds(Collection<String> ids, Boolean enabled, boolean useCache);
   
 }

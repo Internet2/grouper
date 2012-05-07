@@ -508,6 +508,12 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
           } else {
             query.setLong(hibernateParam.getName(), (Long)hibernateParam.getValue());
           }
+        } else if (Double.class.equals(hibernateParam.getType())) {
+          if (hibernateParam.getValue() == null) {
+            query.setBigDecimal(hibernateParam.getName(), null);
+          } else {
+            query.setDouble(hibernateParam.getName(), (Double)hibernateParam.getValue());
+          }
         } else if (Integer.class.equals(hibernateParam.getType())) {
           if (hibernateParam.getValue() == null) {
             query.setBigDecimal(hibernateParam.getName(), null);
@@ -556,6 +562,18 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
    */
   public ByHql options(QueryOptions queryOptions1) {
     this.queryOptions = queryOptions1;
+    return this;
+  }
+
+
+  /**
+   * assign data to the bind var
+   * @param bindVarName
+   * @param value is double
+   * @return this object for chaining
+   */
+  public ByHql setDouble(String bindVarName, Double value) {
+    this.bindVarNameParams().add(new HibernateParam(bindVarName, value, Double.class));
     return this;
   }
   
