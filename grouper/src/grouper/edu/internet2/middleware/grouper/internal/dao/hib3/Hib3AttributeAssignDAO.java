@@ -1244,8 +1244,6 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       Collection<String> memberIds, Collection<String> actions, Boolean enabled, boolean includeAssignmentsOnAssignments, 
       AttributeDefValueType attributeDefValueType, Object theValue, boolean includeAssignmentsFromAssignments) {
       
-    //TODO to do add in filter by value
-    
     int attributeAssignIdsSize = GrouperUtil.length(attributeAssignIds);
     int memberIdsSize = GrouperUtil.length(memberIds);
     int actionsSize = GrouperUtil.length(actions);
@@ -1280,6 +1278,8 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     
     Subject grouperSessionSubject = grouperSession.getSubject();
+
+    queryByValueAddTablesWhereClause(byHqlStatic, sqlTables, sqlWhereClause, attributeDefValueType, theValue);
     
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
