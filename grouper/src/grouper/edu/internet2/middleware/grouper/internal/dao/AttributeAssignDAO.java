@@ -854,9 +854,9 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param theValue value if you are passing in one attributeDefNameLookup
    * @param includeAssignmentsFromAssignments T|F if you are finding an assignment that is an assignmentOnAssignment,
    * then get the assignment which tells you the owner as well
-   * @param ownerAttributeAssignIds attribute assignment ids of the owner assignments
-   * @param ownerAttributeDefIds attribute definition ids of the owner assignments
-   * @param ownerAttributeDefNameIds attribute definition names ids of the owner assignments
+   * @param ownerAttributeAssignIds attribute assignment ids of the owner assignments (where the attributes are assigned to)
+   * @param ownerAttributeDefIds attribute definition ids of the owner assignments (where the attributes are assigned to)
+   * @param ownerAttributeDefNameIds attribute definition names ids of the owner assignments (where the attributes are assigned to)
    * @param ownerActions actions of the owner assignment
    * @param useCache to use a cache or not
    * @return the assignments
@@ -904,5 +904,39 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @return the results never null
    */
   public Set<AttributeAssign> findByIds(Collection<String> ids, Boolean enabled, boolean useCache);
+
+  /**
+   * securely search for assignments on assignments of members. 
+   * need to pass in either the assign ids, def ids, def name ids, or member ids
+   * cannot have more than 100 bind variables
+   * @param attributeAssignIds
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param memberIds optional
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param attributeDefValueType required if sending theValue, can be:
+   * floating, integer, memberId, string, timestamp
+   * @param theValue value if you are passing in one attributeDefNameLookup
+   * @param includeAssignmentsFromAssignments T|F if you are finding an assignment that is an assignmentOnAssignment,
+   * then get the assignment which tells you the owner as well
+   * @param ownerAttributeAssignIds attribute assignment ids of the owner assignments (where the attributes are assigned to)
+   * @param ownerAttributeDefIds attribute definition ids of the owner assignments (where the attributes are assigned to)
+   * @param ownerAttributeDefNameIds attribute definition names ids of the owner assignments (where the attributes are assigned to)
+   * @param ownerActions actions of the owner assignment
+   * @param useCache to use a cache or not
+   * @return the assignments
+   */
+  public Set<AttributeAssign> findMemberAttributeAssignmentsOnAssignments(
+      Collection<String> attributeAssignIds,
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> memberIds, Collection<String> actions, 
+      Boolean enabled, AttributeDefValueType attributeDefValueType,
+      Object theValue, boolean includeAssignmentsFromAssignments,
+      Collection<String> ownerAttributeAssignIds,
+      Collection<String> ownerAttributeDefIds, 
+      Collection<String> ownerAttributeDefNameIds,
+      Collection<String> ownerActions, boolean useCache);
   
 }
