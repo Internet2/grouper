@@ -269,6 +269,11 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
     this.setAttributeAssignActionId(this.attributeAssignAction.getId());
     this.setAttributeDefNameId(theAttributeDefName.getId());
+    AttributeDef theAttributeDef = this.getAttributeDef();
+    if (!theAttributeDef.isAssignToStem()) {
+      throw new RuntimeException("Attribute is not assignable to a stem, nameOfAttributeDefName: " 
+          + theAttributeDefName.getName() + ", nameOfAttributeDef: " + theAttributeDef.getName());
+    }
     this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
@@ -290,6 +295,13 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
     this.setAttributeAssignActionId(this.attributeAssignAction.getId());
     this.setAttributeDefNameId(theAttributeDefName.getId());
+    
+    AttributeDef theAttributeDef = this.getAttributeDef();
+    if (!theAttributeDef.isAssignToAttributeDef()) {
+      throw new RuntimeException("Attribute is not assignable to a attribute definition, nameOfAttributeDefName: " 
+          + theAttributeDefName.getName() + ", nameOfAttributeDef: " + theAttributeDef.getName());
+    }
+
     this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
@@ -311,6 +323,13 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
     this.setAttributeAssignActionId(this.attributeAssignAction.getId());
     this.setAttributeDefNameId(theAttributeDefName.getId());
+    
+    AttributeDef theAttributeDef = this.getAttributeDef();
+    if (!theAttributeDef.isAssignToGroup()) {
+      throw new RuntimeException("Attribute is not assignable to a group, nameOfAttributeDefName: " 
+          + theAttributeDefName.getName() + ", nameOfAttributeDef: " + theAttributeDef.getName());
+    }
+
     this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
@@ -346,6 +365,13 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
     this.setAttributeAssignActionId(this.attributeAssignAction.getId());
     this.setAttributeDefNameId(theAttributeDefName.getId());
+    
+    AttributeDef theAttributeDef = this.getAttributeDef();
+    if (!theAttributeDef.isAssignToEffMembership()) {
+      throw new RuntimeException("Attribute is not assignable to a effective membership, nameOfAttributeDefName: " 
+          + theAttributeDefName.getName() + ", nameOfAttributeDef: " + theAttributeDef.getName());
+    }
+
     this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
@@ -363,18 +389,59 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     this();
     this.attributeDefName = theAttributeDefName;
     AttributeAssignType ownerType = ownerAttributeAssign.getAttributeAssignType();
+    
+    this.setAttributeDefNameId(theAttributeDefName.getId());
+
+    AttributeDef theAttributeDef = this.getAttributeDef();
+
     if (AttributeAssignType.group == ownerType) {
       this.attributeAssignType = AttributeAssignType.group_asgn;
+      
+      if (!theAttributeDef.isAssignToGroupAssn()) {
+        throw new RuntimeException("Attribute is not assignable to a group attribute assignment, nameOfAttributeDefName: " 
+            + theAttributeDefName.getName() + ", nameOfAttributeDef: " + theAttributeDef.getName());
+      }
+
+
     } else if (AttributeAssignType.stem == ownerType) {
       this.attributeAssignType = AttributeAssignType.stem_asgn;
+
+      if (!theAttributeDef.isAssignToStemAssn()) {
+        throw new RuntimeException("Attribute is not assignable to a stem attribute assignment, nameOfAttributeDefName: " 
+            + theAttributeDefName.getName() + ", nameOfAttributeDef: " + theAttributeDef.getName());
+      }
     } else if (AttributeAssignType.member == ownerType) {
       this.attributeAssignType = AttributeAssignType.mem_asgn;
+      
+      if (!theAttributeDef.isAssignToMemberAssn()) {
+        throw new RuntimeException("Attribute is not assignable to a member attribute assignment, nameOfAttributeDefName: " 
+            + theAttributeDefName.getName() + ", nameOfAttributeDef: " + theAttributeDef.getName());
+      }
+
     } else if (AttributeAssignType.attr_def == ownerType) {
       this.attributeAssignType = AttributeAssignType.attr_def_asgn;
+    
+      if (!theAttributeDef.isAssignToAttributeDefAssn()) {
+        throw new RuntimeException("Attribute is not assignable to a attribute definition attribute assignment, nameOfAttributeDefName: " 
+            + theAttributeDefName.getName() + ", nameOfAttributeDef: " + theAttributeDef.getName());
+      }
+
     } else if (AttributeAssignType.any_mem == ownerType) {
       this.attributeAssignType = AttributeAssignType.any_mem_asgn;
+
+      if (!theAttributeDef.isAssignToEffMembershipAssn()) {
+        throw new RuntimeException("Attribute is not assignable to an effective membership attribute assignment, nameOfAttributeDefName: " 
+            + theAttributeDefName.getName() + ", nameOfAttributeDef: " + theAttributeDef.getName());
+      }
+
     } else if (AttributeAssignType.imm_mem == ownerType) {
       this.attributeAssignType = AttributeAssignType.imm_mem_asgn;
+    
+      if (!theAttributeDef.isAssignToImmMembershipAssn()) {
+        throw new RuntimeException("Attribute is not assignable to a immediate membership attribute assignment, nameOfAttributeDefName: " 
+            + theAttributeDefName.getName() + ", nameOfAttributeDef: " + theAttributeDef.getName());
+      }
+
     } else {
       throw new RuntimeException("Not expecting attribute on ownerAttributeType: " + ownerType);
     }
@@ -382,7 +449,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     
     //cant assign to an assignment of an assignment.
     if (!StringUtils.isBlank(ownerAttributeAssign.getOwnerAttributeAssignId())) {
-      throw new RuntimeException("You cants assign an attribute to " +
+      throw new RuntimeException("You cant assign an attribute to " +
       		"an assignment of an assignment (only to an assignment of a non-assignment): " 
           + theAction + ", " + theAttributeDefName.getName());
     }
@@ -395,7 +462,6 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
       .getAttributeDefActionDelegate().allowedAction(theAction, true);
 
     this.setAttributeAssignActionId(this.attributeAssignAction.getId());
-    this.setAttributeDefNameId(theAttributeDefName.getId());
     this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
@@ -432,6 +498,13 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
     this.setAttributeAssignActionId(this.attributeAssignAction.getId());
     this.setAttributeDefNameId(theAttributeDefName.getId());
+    
+    AttributeDef theAttributeDef = this.getAttributeDef();
+    if (!theAttributeDef.isAssignToImmMembership()) {
+      throw new RuntimeException("Attribute is not assignable to a immediate membership, nameOfAttributeDefName: " 
+          + theAttributeDefName.getName() + ", nameOfAttributeDef: " + theAttributeDef.getName());
+    }
+
     this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
@@ -454,6 +527,13 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     this.setOwnerMemberId(ownerMember.getUuid());
     this.setAttributeAssignActionId(theActionId);
     this.setAttributeDefNameId(theAttributeDefName.getId());
+    
+    AttributeDef theAttributeDef = this.getAttributeDef();
+    if (!theAttributeDef.isAssignToMember()) {
+      throw new RuntimeException("Attribute is not assignable to a member, nameOfAttributeDefName: " 
+          + theAttributeDefName.getName() + ", nameOfAttributeDef: " + theAttributeDef.getName());
+    }
+
     this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
