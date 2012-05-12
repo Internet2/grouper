@@ -60,7 +60,7 @@ public class MemberAttributeDefinition extends BaseGrouperAttributeDefinition {
 
     if (LOG.isTraceEnabled()) {
       for (Object dependencyValue : dependencyValues) {
-        LOG.trace("Subject attribute definition '{}' - Resolve principal '{}' dependency value '{}'", new Object[] {
+        LOG.trace("Member attribute definition '{}' - Resolve principal '{}' dependency value '{}'", new Object[] {
             getId(), principalName, dependencyValue });
       }
     }
