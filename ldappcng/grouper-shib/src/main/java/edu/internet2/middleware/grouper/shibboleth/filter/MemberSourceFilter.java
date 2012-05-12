@@ -63,8 +63,11 @@ public class MemberSourceFilter extends AbstractFilter<Member> {
   }
 
   /** {@inheritDoc} */
-  public boolean matches(Member member) {
-    return member.getSubjectSourceId().equals(sourceId);
+  public boolean matches(Object member) {
+    if (!(member instanceof Member)) {
+      return false;
+    }
+    return ((Member) member).getSubjectSourceId().equals(sourceId);
   }
 
   /**

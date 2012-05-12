@@ -43,8 +43,8 @@ public interface Filter<T> extends QueryFilter<T> {
   /**
    * Returns true if the Grouper object would be returned by the filter. False otherwise.
    * 
-   * @param t the Grouper object
+   * @param o the Grouper object
    * @return if the Grouper object matches or not
    */
-  public boolean matches(T t);
+  public boolean matches(Object o);
 }

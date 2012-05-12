@@ -79,9 +79,12 @@ public class GroupExactAttributeFilter extends AbstractFilter<Group> {
    * 
    * {@inheritDoc}
    */
-  public boolean matches(Group group) {
+  public boolean matches(Object group) {
+    if (!(group instanceof Group)) {
+      return false;
+    }
     try {
-      return value.equals(group.getAttributeOrFieldValue(name, true, false));
+      return value.equals(((Group) group).getAttributeOrFieldValue(name, true, false));
     } catch (AttributeNotFoundException e) {
       return false;
     }
