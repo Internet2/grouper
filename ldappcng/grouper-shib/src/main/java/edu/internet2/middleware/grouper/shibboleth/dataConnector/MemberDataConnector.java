@@ -45,7 +45,6 @@ import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.SubjectAttributeDefinition;
@@ -187,7 +186,7 @@ public class MemberDataConnector extends BaseGrouperDataConnector<Member> {
 
     // groups
     for (GroupsField groupsField : getGroupsFields()) {
-      BaseAttribute<Group> attr = groupsField.getAttribute(member, getFilter());
+      BaseAttribute<Group> attr = groupsField.getAttribute(member);
       if (attr != null) {
         attributes.put(groupsField.getId(), attr);
       }
@@ -202,12 +201,12 @@ public class MemberDataConnector extends BaseGrouperDataConnector<Member> {
     }
 
     // attribute defs
-    for (AttributeDefName attributeDefName : member.getAttributeDelegate().retrieveAttributes()) {
-      List<String> values = member.getAttributeValueDelegate().retrieveValuesString(attributeDefName.getName());
+    for (String attributeDefName : getAttributeDefNames()) {
+      List<String> values = member.getAttributeValueDelegate().retrieveValuesString(attributeDefName);
       if (values != null && !values.isEmpty()) {
-        BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeDefName.getName());
+        BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeDefName);
         basicAttribute.setValues(values);
-        attributes.put(attributeDefName.getName(), basicAttribute);
+        attributes.put(attributeDefName, basicAttribute);
       }
     }
 
