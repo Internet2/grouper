@@ -378,7 +378,7 @@ public class GrouperLoader {
         }
 
         //default to every minute on the minute, though add a couple of seconds for each one
-        if (StringUtils.isBlank(cronString)) {
+        if (StringUtils.isBlank(cronString) || StringUtils.equals("0 * * * * ?", cronString)) {
           cronString = ((index * 2) % 60) + " * * * * ?";
         }
         //at this point we have all the attributes and we know the required ones are there, and logged when 
