@@ -818,30 +818,79 @@ public enum GrouperLoaderType {
           @Override
           public void runJob(LoaderJobBean loaderJobBean) {
             
-            GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+            Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
 
-            Hib3GrouperLoaderLog hib3GrouploaderLog = loaderJobBean.getHib3GrouploaderLogOverall();
+            if (LOG.isDebugEnabled()) {
+              debugMap.put("operation", "runJob");
+            }
             
-            if (StringUtils.equals(GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG, hib3GrouploaderLog.getJobName())) {
-    
-              ChangeLogTempToEntity.convertRecords(hib3GrouploaderLog);
-    
-              hib3GrouploaderLog.setJobMessage("Ran the changeLogTempToChangeLog daemon");
+            try {
+              GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+  
+              Hib3GrouperLoaderLog hib3GrouploaderLog = loaderJobBean.getHib3GrouploaderLogOverall();
               
-              hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
-            } else if (hib3GrouploaderLog.getJobName().startsWith(GROUPER_CHANGE_LOG_CONSUMER_PREFIX)) {
+              if (LOG.isDebugEnabled()) {
+                debugMap.put("jobName", hib3GrouploaderLog.getJobName());
+              }
               
-              String consumerName = hib3GrouploaderLog.getJobName().substring(GROUPER_CHANGE_LOG_CONSUMER_PREFIX.length());
-              
-              //ok, we have the sequence, and the job name, lets get the change log records after that sequence, and give them to the 
-              //consumer
-              String theClassName = GrouperLoaderConfig.getPropertyString("changeLog.consumer." + consumerName + ".class");
-              Class<?> theClass = GrouperUtil.forName(theClassName);
-              ChangeLogConsumerBase changeLogConsumerBase = (ChangeLogConsumerBase)GrouperUtil.newInstance(theClass);
-
-              ChangeLogHelper.processRecords(consumerName, hib3GrouploaderLog, changeLogConsumerBase);
-            } else {
-              throw new RuntimeException("Cant find implementation for job: " + hib3GrouploaderLog.getJobName());
+              if (StringUtils.equals(GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG, hib3GrouploaderLog.getJobName())) {
+      
+                int recordsProcessed = ChangeLogTempToEntity.convertRecords(hib3GrouploaderLog);
+  
+                if (LOG.isDebugEnabled()) {
+                  debugMap.put("success", true);
+                  debugMap.put("recordsProcessed", recordsProcessed);
+                }
+  
+                hib3GrouploaderLog.setJobMessage("Ran the changeLogTempToChangeLog daemon");
+                
+                hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+              } else if (hib3GrouploaderLog.getJobName().startsWith(GROUPER_CHANGE_LOG_CONSUMER_PREFIX)) {
+                
+                String consumerName = hib3GrouploaderLog.getJobName().substring(GROUPER_CHANGE_LOG_CONSUMER_PREFIX.length());
+  
+                if (LOG.isDebugEnabled()) {
+                  debugMap.put("consumerName", consumerName);
+                }
+                
+                try {
+                  //ok, we have the sequence, and the job name, lets get the change log records after that sequence, and give them to the 
+                  //consumer
+                  String theClassName = GrouperLoaderConfig.getPropertyString("changeLog.consumer." + consumerName + ".class");
+                  
+                  if (LOG.isDebugEnabled()) {
+                    debugMap.put("className", theClassName);
+                  }
+                    
+                  Class<?> theClass = GrouperUtil.forName(theClassName);
+  
+                  if (LOG.isDebugEnabled()) {
+                    debugMap.put("class found", true);
+                  }
+                     
+                  ChangeLogConsumerBase changeLogConsumerBase = (ChangeLogConsumerBase)GrouperUtil.newInstance(theClass);
+  
+                  if (LOG.isDebugEnabled()) {
+                    debugMap.put("instance created", true);
+                  }
+                  
+                  ChangeLogHelper.processRecords(consumerName, hib3GrouploaderLog, changeLogConsumerBase);
+     
+                  if (LOG.isDebugEnabled()) {
+                    debugMap.put("success", true);
+                    debugMap.put("recordsProcessed", hib3GrouploaderLog.getTotalCount());
+                  }
+                } catch (RuntimeException re) {
+                  LOG.error("Problem with change log consumer: " + consumerName, re);
+                  throw re;
+                }
+              } else {
+                throw new RuntimeException("Cant find implementation for job: " + hib3GrouploaderLog.getJobName());
+              }
+            } finally {
+              if (LOG.isDebugEnabled()) {
+                LOG.debug(GrouperUtil.mapToString(debugMap));
+              }
             }
           }
         }, 
