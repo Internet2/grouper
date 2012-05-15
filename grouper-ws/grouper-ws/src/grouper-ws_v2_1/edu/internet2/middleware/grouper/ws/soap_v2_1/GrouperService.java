@@ -1865,9 +1865,14 @@ public class GrouperService {
    * @param includeGroupDetail T or F as to if the group detail should be returned
    * @param params optional: reserved for future use
    * @param enabled is A for all, T or null for enabled only, F for disabled 
+   * @param attributeDefValueType required if sending theValue, can be:
+   * floating, integer, memberId, string, timestamp
+   * @param theValue value if you are passing in one attributeDefNameLookup
+   * @param includeAssignmentsFromAssignments T|F if you are finding an assignment that is an assignmentOnAssignment,
+   * then get the assignment which tells you the owner as well
+   * @param attributeDefType null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm
    * @return the results
    */
-
   public WsGetAttributeAssignmentsResults getAttributeAssignments(
       String clientVersion, String attributeAssignType,
       WsAttributeAssignLookup[] wsAttributeAssignLookups,
@@ -1878,7 +1883,8 @@ public class GrouperService {
       String[] actions, 
       String includeAssignmentsOnAssignments, WsSubjectLookup actAsSubjectLookup, String includeSubjectDetail,
       String[] subjectAttributeNames, String includeGroupDetail, final WsParam[] params, 
-      String enabled) {  
+      String enabled, String attributeDefValueType, String theValue, String includeAssignmentsFromAssignments,
+      String attributeDefType) {  
 
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "getAttributeAssignments",
@@ -1898,7 +1904,7 @@ public class GrouperService {
       includeSubjectDetail,
       subjectAttributeNames, includeGroupDetail, 
       GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
-      enabled});
+      enabled, attributeDefValueType, theValue, includeAssignmentsFromAssignments, attributeDefType});
     
     return (WsGetAttributeAssignmentsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   
@@ -1951,9 +1957,14 @@ public class GrouperService {
    * @param paramValue1
    *            reserved for future use
    * @param enabled is A for all, T or null for enabled only, F for disabled 
+   * @param attributeDefValueType required if sending theValue, can be:
+   * floating, integer, memberId, string, timestamp
+   * @param theValue value if you are passing in one attributeDefNameLookup
+   * @param includeAssignmentsFromAssignments T|F if you are finding an assignment that is an assignmentOnAssignment,
+   * then get the assignment which tells you the owner as well
+   * @param attributeDefType null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm
    * @return the results
    */
-
   public WsGetAttributeAssignmentsResults getAttributeAssignmentsLite(
       String clientVersion, String attributeAssignType,
       String attributeAssignId,
@@ -1968,7 +1979,7 @@ public class GrouperService {
       String actAsSubjectIdentifier, String includeSubjectDetail,
       String subjectAttributeNames, String includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1, 
-      String enabled) {  
+      String enabled, String attributeDefValueType, String theValue, String includeAssignmentsFromAssignments, String attributeDefType) {  
 
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "getAttributeAssignmentsLite",
@@ -1985,7 +1996,7 @@ public class GrouperService {
       actAsSubjectIdentifier, includeSubjectDetail,
       subjectAttributeNames, includeGroupDetail, paramName0, paramValue0,
       paramName1, paramValue1, 
-      enabled});
+      enabled, attributeDefValueType, theValue, includeAssignmentsFromAssignments, attributeDefType});
     
     return (WsGetAttributeAssignmentsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   

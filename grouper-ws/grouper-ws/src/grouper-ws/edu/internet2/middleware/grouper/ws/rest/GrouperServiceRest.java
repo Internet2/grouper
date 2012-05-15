@@ -1479,7 +1479,11 @@ public class GrouperServiceRest {
         wsRestGetAttributesRequest.getIncludeAssignmentsOnAssignments(), wsRestGetAttributesRequest.getActAsSubjectLookup(), 
         wsRestGetAttributesRequest.getIncludeSubjectDetail(), wsRestGetAttributesRequest.getSubjectAttributeNames(), 
         wsRestGetAttributesRequest.getIncludeGroupDetail(), wsRestGetAttributesRequest.getParams(), 
-        wsRestGetAttributesRequest.getEnabled());
+        wsRestGetAttributesRequest.getEnabled(), 
+        wsRestGetAttributesRequest.getAttributeDefValueType(), 
+        wsRestGetAttributesRequest.getTheValue(), 
+        wsRestGetAttributesRequest.getIncludeAssignmentsFromAssignments(),
+        wsRestGetAttributesRequest.getAttributeDefType());
     
     return wsGetAttributeAssignmentsResults;
   }
@@ -1510,7 +1514,12 @@ public class GrouperServiceRest {
         wsRestGetAttributesLiteRequest.getIncludeAssignmentsOnAssignments(), wsRestGetAttributesLiteRequest.getActAsSubjectId(), wsRestGetAttributesLiteRequest.getActAsSubjectSourceId(), wsRestGetAttributesLiteRequest.getActAsSubjectIdentifier(), 
         wsRestGetAttributesLiteRequest.getIncludeSubjectDetail(), 
         wsRestGetAttributesLiteRequest.getSubjectAttributeNames(), wsRestGetAttributesLiteRequest.getIncludeGroupDetail(), wsRestGetAttributesLiteRequest.getParamName0(), 
-        wsRestGetAttributesLiteRequest.getParamValue0(), wsRestGetAttributesLiteRequest.getParamName1(), wsRestGetAttributesLiteRequest.getParamValue1(), wsRestGetAttributesLiteRequest.getEnabled());
+        wsRestGetAttributesLiteRequest.getParamValue0(), wsRestGetAttributesLiteRequest.getParamName1(), 
+        wsRestGetAttributesLiteRequest.getParamValue1(), wsRestGetAttributesLiteRequest.getEnabled(), 
+        wsRestGetAttributesLiteRequest.getAttributeDefValueType(), 
+        wsRestGetAttributesLiteRequest.getTheValue(),
+        wsRestGetAttributesLiteRequest.getIncludeAssignmentsFromAssignments(),
+        wsRestGetAttributesLiteRequest.getAttributeDefType());
     
     return wsGetAttributeAssignmentsResults;
     

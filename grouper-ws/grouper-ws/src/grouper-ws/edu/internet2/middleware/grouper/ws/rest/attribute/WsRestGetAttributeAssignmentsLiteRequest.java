@@ -29,6 +29,96 @@ import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 public class WsRestGetAttributeAssignmentsLiteRequest implements WsRequestBean {
 
   /**
+   * required if sending theValue, can be:
+   * floating, integer, memberId, string, timestamp
+   */
+  private String attributeDefValueType;
+  
+  /**
+   * required if sending theValue, can be:
+   * floating, integer, memberId, string, timestamp
+   * @return attributeDefValueType
+   */
+  public String getAttributeDefValueType() {
+    return this.attributeDefValueType;
+  }
+
+  /**
+   * required if sending theValue, can be:
+   * floating, integer, memberId, string, timestamp
+   * @param attributeDefValueType1
+   */
+  public void setAttributeDefValueType(String attributeDefValueType1) {
+    this.attributeDefValueType = attributeDefValueType1;
+  }
+
+  /**
+   * null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm
+   */
+  private String attributeDefType;
+  
+  /**
+   * null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm
+   * @return attributeDefValueType
+   */
+  public String getAttributeDefType() {
+    return this.attributeDefType;
+  }
+
+  /**
+   * null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm
+   * @param attributeDefType1
+   */
+  public void setAttributeDefType(String attributeDefType1) {
+    this.attributeDefType = attributeDefType1;
+  }
+
+  /**
+   * value if you are passing in one attributeDefNameLookup
+   */
+  private String theValue;
+
+  /**
+   * T|F if you are finding an assignment that is an assignmentOnAssignment,
+   * then get the assignment which tells you the owner as well
+   */
+  private String includeAssignmentsFromAssignments;
+
+  /**
+   * value if you are passing in one attributeDefNameLookup
+   * @return value
+   */
+  public String getTheValue() {
+    return this.theValue;
+  }
+
+  /**
+   * value if you are passing in one attributeDefNameLookup
+   * @param theValue1
+   */
+  public void setTheValue(String theValue1) {
+    this.theValue = theValue1;
+  }
+
+  /**
+   * T|F if you are finding an assignment that is an assignmentOnAssignment,
+   * then get the assignment which tells you the owner as well
+   * @return if include assignments from assignments
+   */
+  public String getIncludeAssignmentsFromAssignments() {
+    return this.includeAssignmentsFromAssignments;
+  }
+
+  /**
+   * T|F if you are finding an assignment that is an assignmentOnAssignment,
+   * then get the assignment which tells you the owner as well
+   * @param includeAssignmentsFromAssignments1
+   */
+  public void setIncludeAssignmentsFromAssignments(String includeAssignmentsFromAssignments1) {
+    this.includeAssignmentsFromAssignments = includeAssignmentsFromAssignments1;
+  }
+
+  /**
    * @see edu.internet2.middleware.grouper.ws.rest.WsRequestBean#retrieveRestHttpMethod()
    */
   public GrouperRestHttpMethod retrieveRestHttpMethod() {

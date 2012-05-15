@@ -52,11 +52,13 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignOperation;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueOperation;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue.AttributeAssignValueType;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
@@ -4809,6 +4811,12 @@ public class GrouperServiceLogic {
    * @param includeGroupDetail T or F as to if the group detail should be returned
    * @param params optional: reserved for future use
    * @param enabled is A for all, T or null for enabled only, F for disabled 
+   * @param attributeDefValueType required if sending theValue, can be:
+   * floating, integer, memberId, string, timestamp
+   * @param theValue value if you are passing in one attributeDefNameLookup
+   * @param includeAssignmentsFromAssignments T|F if you are finding an assignment that is an assignmentOnAssignment,
+   * then get the assignment which tells you the owner as well
+   * @param attributeDefType null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -4822,7 +4830,8 @@ public class GrouperServiceLogic {
       String[] actions, 
       boolean includeAssignmentsOnAssignments, WsSubjectLookup actAsSubjectLookup, boolean includeSubjectDetail,
       String[] subjectAttributeNames, boolean includeGroupDetail, final WsParam[] params, 
-      String enabled) {  
+      String enabled, AttributeDefValueType attributeDefValueType, Object theValue, boolean includeAssignmentsFromAssignments, 
+      AttributeDefType attributeDefType) {  
 
     WsGetAttributeAssignmentsResults wsGetAttributeAssignmentsResults = new WsGetAttributeAssignmentsResults();
   
@@ -4850,7 +4859,9 @@ public class GrouperServiceLogic {
           + GrouperUtil.toStringForLog(subjectAttributeNames) + "\n, paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100) + "\n, wsOwnerSubjectLookups: "
           + GrouperUtil.toStringForLog(wsOwnerSubjectLookups, 200) 
-          + ", enabled: " + enabled;
+          + ", enabled: " + enabled + ", attributeDefValueType: " + attributeDefValueType
+          + ", theValue: " + theValue + ", includeAssignmentsFromAssignments: " + includeAssignmentsFromAssignments
+          + ", attributeDefType: " + attributeDefType;
   
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -4929,67 +4940,75 @@ public class GrouperServiceLogic {
         case group:
           
           //if there is a lookup and its not about groups, then there is a problem
-          if (lookupCount[0] == 1 && GrouperUtil.length(wsOwnerGroupLookups) == 0) {
+          if (lookupCount[0] != GrouperUtil.length(wsOwnerGroupLookups)) {
             throw new WsInvalidQueryException("Group calls can only have group owner lookups.  ");
           }
           
           results = GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignments(
-              attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerGroupIds, actionsCollection, enabledBoolean, includeAssignmentsOnAssignments);
+              attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerGroupIds, actionsCollection, 
+              enabledBoolean, includeAssignmentsOnAssignments, attributeDefType, attributeDefValueType, 
+              theValue);
           
           break;  
         case stem:
           
           //if there is a lookup and its not about stems, then there is a problem
-          if (lookupCount[0] == 1 && GrouperUtil.length(wsOwnerStemLookups) == 0) {
+          if (lookupCount[0] != GrouperUtil.length(wsOwnerStemLookups)) {
             throw new WsInvalidQueryException("Stem calls can only have stem owner lookups.  ");
           }
           
           results = GrouperDAOFactory.getFactory().getAttributeAssign().findStemAttributeAssignments(
-              attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerStemIds, actionsCollection, enabledBoolean, includeAssignmentsOnAssignments);
+              attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerStemIds, actionsCollection, 
+              enabledBoolean, includeAssignmentsOnAssignments, attributeDefType, attributeDefValueType, theValue);
           
           break;  
         case member:
           
           //if there is a lookup and its not about subjects, then there is a problem
-          if (lookupCount[0] == 1 && GrouperUtil.length(wsOwnerSubjectLookups) == 0) {
+          if (lookupCount[0] != GrouperUtil.length(wsOwnerSubjectLookups)) {
             throw new WsInvalidQueryException("Subject calls can only have subject owner lookups.  ");
           }
           
           results = GrouperDAOFactory.getFactory().getAttributeAssign().findMemberAttributeAssignments(
-              attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerMemberIds, actionsCollection, enabledBoolean, includeAssignmentsOnAssignments);
+              attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerMemberIds, actionsCollection, 
+              enabledBoolean, includeAssignmentsOnAssignments, attributeDefType, attributeDefValueType, theValue);
           
           break;  
         case imm_mem:
           
           //if there is a lookup and its not about memberships, then there is a problem
-          if (lookupCount[0] == 1 && GrouperUtil.length(wsOwnerMembershipLookups) == 0) {
+          if (lookupCount[0] != GrouperUtil.length(wsOwnerMembershipLookups)) {
             throw new WsInvalidQueryException("Membership calls can only have membership owner lookups.  ");
           }
           
           results = GrouperDAOFactory.getFactory().getAttributeAssign().findMembershipAttributeAssignments(
-              attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerMembershipIds, actionsCollection, enabledBoolean, includeAssignmentsOnAssignments);
+              attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerMembershipIds, actionsCollection, 
+              enabledBoolean, includeAssignmentsOnAssignments, attributeDefType, attributeDefValueType, theValue);
           
           break;  
         case any_mem:
           
           //if there is a lookup and its not about memberships, then there is a problem
-          if (lookupCount[0] == 1 && GrouperUtil.length(wsOwnerMembershipAnyLookups) == 0) {
+          if (lookupCount[0] != GrouperUtil.length(wsOwnerMembershipAnyLookups)) {
             throw new WsInvalidQueryException("MembershipAny calls can only have membershipAny owner lookups.  ");
           }
           
           results = GrouperDAOFactory.getFactory().getAttributeAssign().findAnyMembershipAttributeAssignments(
-              attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerGroupMemberIds, actionsCollection, enabledBoolean, includeAssignmentsOnAssignments);
+              attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerGroupMemberIds, actionsCollection, 
+              enabledBoolean, includeAssignmentsOnAssignments, attributeDefType, attributeDefValueType, 
+              theValue);
           
           break;  
         case attr_def:
           
           //if there is a lookup and its not about attr def, then there is a problem
-          if (lookupCount[0] == 1 && GrouperUtil.length(wsOwnerAttributeDefLookups) == 0) {
+          if (lookupCount[0] != GrouperUtil.length(wsOwnerAttributeDefLookups)) {
             throw new WsInvalidQueryException("attributeDef calls can only have attributeDef owner lookups.  ");
           }
           
           results = GrouperDAOFactory.getFactory().getAttributeAssign().findAttributeDefAttributeAssignments(
-              attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerAttributeDefIds, actionsCollection, enabledBoolean, includeAssignmentsOnAssignments);
+              attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerAttributeDefIds, actionsCollection, 
+              enabledBoolean, includeAssignmentsOnAssignments, attributeDefType, attributeDefValueType, theValue);
           
           break;  
         default: 
@@ -5087,6 +5106,12 @@ public class GrouperServiceLogic {
    * @param paramValue1
    *            reserved for future use
    * @param enabled is A for all, T or null for enabled only, F for disabled 
+   * @param attributeDefValueType required if sending theValue, can be:
+   * floating, integer, memberId, string, timestamp
+   * @param theValue value if you are passing in one attributeDefNameLookup
+   * @param includeAssignmentsFromAssignments T|F if you are finding an assignment that is an assignmentOnAssignment,
+   * then get the assignment which tells you the owner as well
+   * @param attributeDefType null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -5104,7 +5129,8 @@ public class GrouperServiceLogic {
       String actAsSubjectIdentifier, boolean includeSubjectDetail,
       String subjectAttributeNames, boolean includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1, 
-      String enabled) {  
+      String enabled, AttributeDefValueType attributeDefValueType, Object theValue, boolean includeAssignmentsFromAssignments, 
+      AttributeDefType attributeDefType) {  
 
     WsAttributeAssignLookup[] attributeAssignLookups = null;
     
@@ -5172,7 +5198,7 @@ public class GrouperServiceLogic {
         attributeAssignLookups, wsAttributeDefLookups, wsAttributeDefNameLookups, wsOwnerGroupLookups, wsOwnerStemLookups, 
         wsOwnerSubjectLookups, wsOwnerMembershipLookups, wsOwnerMembershipAnyLookups, wsOwnerAttributeDefLookups, actions, 
         includeAssignmentsOnAssignments, actAsSubjectLookup, includeSubjectDetail, subjectAttributeArray, includeGroupDetail, 
-        params, enabled );
+        params, enabled, attributeDefValueType, theValue,  includeAssignmentsFromAssignments, attributeDefType);
     
     return wsGetAttributeAssignmentsResults; 
   

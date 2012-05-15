@@ -427,11 +427,10 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param actions (null means all actions)
    * @param enabled (null means all, true means enabled, false means disabled)
    * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
+   * @param attributeDefType null for all, or specify a type e.g. AttributeDefType.limit
    * @param attributeDefValueType required if sending theValue, can be:
    * floating, integer, memberId, string, timestamp
    * @param theValue value if you are passing in one attributeDefNameLookup
-   * @param includeAssignmentsFromAssignments T|F if you are finding an assignment that is an assignmentOnAssignment,
-   * then get the assignment which tells you the owner as well
    * @return the assignments
    */
   public Set<AttributeAssign> findStemAttributeAssignments(
@@ -440,8 +439,9 @@ public interface AttributeAssignDAO extends GrouperDAO {
       Collection<String> attributeDefNameIds,
       Collection<String> stemIds, Collection<String> actions, 
       Boolean enabled, boolean includeAssignmentsOnAssignments, 
+      AttributeDefType attributeDefType,
       AttributeDefValueType attributeDefValueType,
-      Object theValue, boolean includeAssignmentsFromAssignments);
+      Object theValue);
 
   /**
    * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or member ids
@@ -718,12 +718,11 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param attributeDefAssignToIds optional
    * @param actions (null means all actions)
    * @param enabled (null means all, true means enabled, false means disabled)
+   * @param attributeDefType attr, perm, limit, or null for all
    * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
    * @param attributeDefValueType required if sending theValue, can be:
    * floating, integer, memberId, string, timestamp
    * @param theValue value if you are passing in one attributeDefNameLookup
-   * @param includeAssignmentsFromAssignments T|F if you are finding an assignment that is an assignmentOnAssignment,
-   * then get the assignment which tells you the owner as well
    * @return the assignments
    */
   public Set<AttributeAssign> findAttributeDefAttributeAssignments(
@@ -731,8 +730,8 @@ public interface AttributeAssignDAO extends GrouperDAO {
       Collection<String> attributeDefIds, 
       Collection<String> attributeDefNameIds,
       Collection<String> attributeDefAssignToIds, Collection<String> actions, 
-      Boolean enabled, boolean includeAssignmentsOnAssignments,
-      AttributeDefValueType attributeDefValueType, Object theValue, boolean includeAssignmentsFromAssignments);
+      Boolean enabled, boolean includeAssignmentsOnAssignments, AttributeDefType attributeDefType,
+      AttributeDefValueType attributeDefValueType, Object theValue);
 
   /**
    * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or membership ids
@@ -748,7 +747,6 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param attributeDefValueType required if sending theValue, can be:
    * floating, integer, memberId, string, timestamp
    * @param theValue value if you are passing in one attributeDefNameLookup
-   * @param includeAssignmentsFromAssignments T|F if you are finding an assignment that is an assignmentOnAssignment,
    * then get the assignment which tells you the owner as well
    * @return the assignments
    */
@@ -758,7 +756,7 @@ public interface AttributeAssignDAO extends GrouperDAO {
       Collection<String> attributeDefNameIds,
       Collection<MultiKey> groupIdsAndMemberIds, Collection<String> actions, 
       Boolean enabled, boolean includeAssignmentsOnAssignments, AttributeDefType attributeDefType,
-      AttributeDefValueType attributeDefValueType, Object theValue, boolean includeAssignmentsFromAssignments);
+      AttributeDefValueType attributeDefValueType, Object theValue);
 
   /**
    * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids
@@ -774,7 +772,6 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param attributeDefValueType required if sending theValue, can be:
    * floating, integer, memberId, string, timestamp
    * @param theValue value if you are passing in one attributeDefNameLookup
-   * @param includeAssignmentsFromAssignments T|F if you are finding an assignment that is an assignmentOnAssignment,
    * then get the assignment which tells you the owner as well
    * @return the assignments
    */
@@ -787,7 +784,7 @@ public interface AttributeAssignDAO extends GrouperDAO {
       Boolean enabled, 
       boolean includeAssignmentsOnAssignments,
       AttributeDefType attributeDefType,
-      AttributeDefValueType attributeDefValueType, Object theValue, boolean includeAssignmentsFromAssignments);
+      AttributeDefValueType attributeDefValueType, Object theValue);
 
   /**
    * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or member ids
@@ -799,11 +796,10 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param actions (null means all actions)
    * @param enabled (null means all, true means enabled, false means disabled)
    * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
+   * @param attributeDefType null for all, or specify a type e.g. AttributeDefType.limit
    * @param attributeDefValueType required if sending theValue, can be:
    * floating, integer, memberId, string, timestamp
    * @param theValue value if you are passing in one attributeDefNameLookup
-   * @param includeAssignmentsFromAssignments T|F if you are finding an assignment that is an assignmentOnAssignment,
-   * then get the assignment which tells you the owner as well
    * @return the assignments
    */
   public Set<AttributeAssign> findMemberAttributeAssignments(
@@ -812,7 +808,8 @@ public interface AttributeAssignDAO extends GrouperDAO {
       Collection<String> attributeDefNameIds,
       Collection<String> memberIds, Collection<String> actions, 
       Boolean enabled, boolean includeAssignmentsOnAssignments,
-      AttributeDefValueType attributeDefValueType, Object theValue, boolean includeAssignmentsFromAssignments);
+      AttributeDefType attributeDefType, 
+      AttributeDefValueType attributeDefValueType, Object theValue);
 
   /**
    * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or membership ids
@@ -824,10 +821,10 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param actions (null means all actions)
    * @param enabled (null means all, true means enabled, false means disabled)
    * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
+   * @param attributeDefType null for all, or specify a type e.g. AttributeDefType.limit
    * @param attributeDefValueType required if sending theValue, can be:
    * floating, integer, memberId, string, timestamp
    * @param theValue value if you are passing in one attributeDefNameLookup
-   * @param includeAssignmentsFromAssignments T|F if you are finding an assignment that is an assignmentOnAssignment,
    * then get the assignment which tells you the owner as well
    * @return the assignments
    */
@@ -837,7 +834,8 @@ public interface AttributeAssignDAO extends GrouperDAO {
       Collection<String> attributeDefNameIds,
       Collection<String> membershipIds, Collection<String> actions, 
       Boolean enabled, boolean includeAssignmentsOnAssignments,
-      AttributeDefValueType attributeDefValueType, Object theValue, boolean includeAssignmentsFromAssignments);
+      AttributeDefType attributeDefType, 
+      AttributeDefValueType attributeDefValueType, Object theValue);
 
   /**
    * securely search for assignments on assignments of stems. 
@@ -849,6 +847,7 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param stemIds optional
    * @param actions (null means all actions)
    * @param enabled (null means all, true means enabled, false means disabled)
+   * @param attributeDefType null for all, or specify a type e.g. AttributeDefType.limit
    * @param attributeDefValueType required if sending theValue, can be:
    * floating, integer, memberId, string, timestamp
    * @param theValue value if you are passing in one attributeDefNameLookup
@@ -866,7 +865,9 @@ public interface AttributeAssignDAO extends GrouperDAO {
       Collection<String> attributeDefIds, 
       Collection<String> attributeDefNameIds,
       Collection<String> stemIds, Collection<String> actions, 
-      Boolean enabled, AttributeDefValueType attributeDefValueType,
+      Boolean enabled, 
+      AttributeDefType attributeDefType,
+      AttributeDefValueType attributeDefValueType,
       Object theValue, boolean includeAssignmentsFromAssignments,
       Collection<String> ownerAttributeAssignIds,
       Collection<String> ownerAttributeDefIds, 
@@ -915,6 +916,7 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param memberIds optional
    * @param actions (null means all actions)
    * @param enabled (null means all, true means enabled, false means disabled)
+   * @param attributeDefType null for all, or specify a type e.g. AttributeDefType.limit
    * @param attributeDefValueType required if sending theValue, can be:
    * floating, integer, memberId, string, timestamp
    * @param theValue value if you are passing in one attributeDefNameLookup
@@ -932,7 +934,7 @@ public interface AttributeAssignDAO extends GrouperDAO {
       Collection<String> attributeDefIds, 
       Collection<String> attributeDefNameIds,
       Collection<String> memberIds, Collection<String> actions, 
-      Boolean enabled, AttributeDefValueType attributeDefValueType,
+      Boolean enabled, AttributeDefType attributeDefType, AttributeDefValueType attributeDefValueType,
       Object theValue, boolean includeAssignmentsFromAssignments,
       Collection<String> ownerAttributeAssignIds,
       Collection<String> ownerAttributeDefIds, 
