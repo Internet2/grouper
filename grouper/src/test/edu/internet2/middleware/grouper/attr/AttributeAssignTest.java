@@ -71,7 +71,7 @@ public class AttributeAssignTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeAssignTest("testFindGroupAttributeAssignmentsByValue"));
+    TestRunner.run(new AttributeAssignTest("testFindGroupAttributeAssignmentsAssignmentsByValue"));
   }
   
   /**
@@ -4843,6 +4843,449 @@ public class AttributeAssignTest extends GrouperTest {
   
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findGroupAttributeAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), null, true, false);
+    assertEquals(0, attributeAssigns.size());
+  
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
+    assertEquals(0, attributeAssigns.size());
+    
+    attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
+    assertTrue(attributeDefs.size() == 1 && attributeDefs.contains(attributeDef));
+    
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.startRootSession();
+    
+    group.delete();
+    
+    GrouperSession.stopQuietly(this.grouperSession);
+  }
+
+  /**
+   * 
+   */
+  public void testFindGroupAttributeAssignmentsAssignmentsByValue() {
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignDefName");
+    
+    final AttributeDef attributeDef = attributeDefName.getAttributeDef();
+    
+    attributeDef.setAssignToGroup(false);
+    attributeDef.setAssignToGroup(true);
+    attributeDef.store();
+    
+    AttributeDefName attributeDefName2 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignAssignName");
+    
+    final AttributeDef attributeDef2 = attributeDefName2.getAttributeDef();
+    
+    attributeDef2.setAssignToGroup(false);
+    attributeDef2.setAssignToGroupAssn(true);
+    attributeDef2.setValueType(AttributeDefValueType.string);
+    attributeDef2.setMultiValued(true);
+  
+    attributeDef2.store();
+    
+  
+    //test subject 0 can read the assignment on assignment
+    attributeDef2.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, false);
+  
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignName("test:groupTestAttrAssign").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+  
+    Group group2 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignName("test:groupTestAttrAssign2").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description2").save();
+  
+    Group group3 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignName("test:groupTestAttrAssign3").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description3").save();
+  
+    //test subject 0 can read
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN);
+    group2.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN);
+    group3.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, false);
+    attributeDef2.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, false);
+  
+    //test subject 1 can read the assignment, but not the assignment on assignment
+    group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.VIEW);
+    group2.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.VIEW);
+    group3.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.VIEW);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_READ, false);
+    
+    //test subject 2 can read the assignment on assignment, but not the assignment
+    group.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.VIEW);
+    group2.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.VIEW);
+    group3.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.VIEW);
+    attributeDef2.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ2, AttributeDefPrivilege.ATTR_READ, false);
+    
+    //test subject 3 can not read
+    
+    //subject 4 can not view the group, but can read the assignments
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ4, AttributeDefPrivilege.ATTR_READ, false);
+    attributeDef2.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ4, AttributeDefPrivilege.ATTR_READ, false);
+  
+    //test subject 7 can update
+    group.grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.VIEW);
+    group2.grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.VIEW);
+    group3.grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.VIEW);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_UPDATE, false);
+    attributeDef2.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_UPDATE, false);
+    
+    //test subject 8 can admin
+    group.grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.VIEW);
+    group2.grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.VIEW);
+    group3.grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.VIEW);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ8, AttributeDefPrivilege.ATTR_ADMIN, false);
+    attributeDef2.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ8, AttributeDefPrivilege.ATTR_ADMIN, false);
+    
+    //test subject 9 can view
+    group.grantPriv(SubjectTestHelper.SUBJ9, AccessPrivilege.VIEW);
+    group2.grantPriv(SubjectTestHelper.SUBJ9, AccessPrivilege.VIEW);
+    group3.grantPriv(SubjectTestHelper.SUBJ9, AccessPrivilege.VIEW);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ9, AttributeDefPrivilege.ATTR_VIEW, false);
+    attributeDef2.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ9, AttributeDefPrivilege.ATTR_VIEW, false);
+  
+    
+    AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
+  
+    AttributeAssign attributeAssignValue = attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName2.getName(), "15a")
+      .getAttributeAssignResult().getAttributeAssign();
+    
+    AttributeAssignResult attributeAssignResult_2 = group2.getAttributeDelegate().assignAttribute(attributeDefName);
+    AttributeAssign attributeAssign_2 = attributeAssignResult_2.getAttributeAssign();
+  
+    attributeAssign_2.getAttributeValueDelegate().assignValue(attributeDefName2.getName(), "16a")
+      .getAttributeAssignResult().getAttributeAssign();
+    
+    AttributeAssignResult attributeAssignResult_3 = group3.getAttributeDelegate().assignAttribute(attributeDefName);
+    AttributeAssign attributeAssign_3 = attributeAssignResult_3.getAttributeAssign();
+  
+    attributeAssign_3.getAttributeValueDelegate().assignValue(attributeDefName2.getName(), "17a")
+      .getAttributeAssignResult().getAttributeAssign();
+    
+    Set<AttributeAssign> attributeAssignsBase2 = GrouperUtil.toSet(attributeAssign, attributeAssignValue);
+  
+    //Search for all, should be an error:
+    try {
+      GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(
+          null, null, null, null, null, null, null, null, null, false, null, null, null, null, true);
+      fail();
+    } catch (Exception e) {
+      //good
+    }
+  
+    //Search for stem, cant find by string
+    Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), 
+          null, true, null, AttributeDefValueType.memberId, "15a", false, null, null, null, null, false);
+    
+    //there is nothing assigned directly to the stem
+    assertEquals(0, attributeAssigns.size());
+  
+    //Search for stem, should find it
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), 
+          null, true, null, AttributeDefValueType.string, "15a", false, null, null, null, null, false);
+    
+    //there is nothing assigned directly to the stem
+    assertEquals(1, attributeAssigns.size());
+    assertTrue(attributeAssigns.contains(attributeAssignValue));
+  
+    
+    //Search for stem, should find it
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), 
+          null, true, AttributeDefType.domain, AttributeDefValueType.string, "15a", false, null, null, null, null, false);
+    
+    //there is nothing assigned directly to the stem
+    assertEquals(0, attributeAssigns.size());
+  
+    
+    //Search for stem, should find it
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), 
+          null, true, AttributeDefType.attr, AttributeDefValueType.string, "15a", false, null, null, null, null, false);
+    
+    //there is nothing assigned directly to the stem
+    assertEquals(1, attributeAssigns.size());
+    assertTrue(attributeAssigns.contains(attributeAssignValue));
+  
+    //search for not it, shouldnt find it
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, null, null, 
+          GrouperUtil.toSet("abc"), null, true, null, AttributeDefValueType.string, "15a", false, null, null, null, null, false);
+  
+    assertEquals(0, attributeAssigns.size());
+  
+    //search by attributeDefId, should find it
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, GrouperUtil.toSet(attributeDef2.getId()), 
+          null, null, null, true, null, AttributeDefValueType.string, "15a", false, null, null, null, null, false);
+  
+    assertEquals(1, attributeAssigns.size());
+    assertTrue(attributeAssigns.contains(attributeAssignValue));
+  
+    //search by attributeDefId and no value, should find it
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, GrouperUtil.toSet(attributeDef2.getId()), 
+          null, null, null, true, null, null, null, false, null, null, null, null, false);
+  
+    assertEquals(3, attributeAssigns.size());
+    assertTrue(attributeAssigns.contains(attributeAssignValue));
+  
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, GrouperUtil.toSet(attributeDef2.getId()), 
+          null, null, null, true, null, AttributeDefValueType.string, "15a", false, null, null, null, null, false);
+  
+    assertEquals(1, attributeAssigns.size());
+    assertTrue(attributeAssigns.contains(attributeAssignValue));
+  
+    //search by attributeDefId and action, should find it
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, GrouperUtil.toSet(attributeDef2.getId()), null, null, 
+          GrouperUtil.toSet("assign"), true, null, AttributeDefValueType.string, "15a", false, null, null, null, null, false);
+  
+    assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssignValue));
+  
+    //search by attributeDefId and action (wrong), shouldnt find it
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, GrouperUtil.toSet(attributeDef2.getId()), 
+          null, null, GrouperUtil.toSet("abc"), true, null, AttributeDefValueType.string, "15a", false, null, null, null, null, false);
+  
+    assertEquals(0, attributeAssigns.size());
+  
+    //search by attributeDefNameId, should find it
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, null, 
+          GrouperUtil.toSet(attributeDefName2.getId()), null, null, true, null, AttributeDefValueType.string, "15a", false, null, null, null, null, false);
+    
+    assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssignValue));
+  
+    //search by not attributeDefNameId, should find it
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, null, 
+          GrouperUtil.toSet("abc"), null, null, true, null, AttributeDefValueType.string, "15a", false, null, null, null, null, false);
+  
+    assertEquals(0, attributeAssigns.size());
+  
+    //search by attributeAssignId, should find it
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(GrouperUtil.toSet(attributeAssignValue.getId()), 
+          null, null, null, null, true, null, AttributeDefValueType.string, "15a", false, null, null, null, null, false);
+    
+    assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssignValue));
+  
+    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "1");
+    
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(GrouperUtil.toSet(attributeAssignValue.getId()), 
+          null, null, null, null, true, null, AttributeDefValueType.string, "15a", false, null, null, null, null, false);
+  
+    assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssignValue));
+    
+    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "0");
+    
+    try {
+      attributeAssigns = GrouperDAOFactory.getFactory()
+        .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(GrouperUtil.toSet(attributeAssignValue.getId()), 
+            null, null, null, null, true, null, AttributeDefValueType.string, "15a", false, null, null, null, null, false);
+      fail();
+    } catch (Exception e) {
+      //good
+    }
+  
+    ApiConfig.testConfig.remove("ws.findAttrAssignments.maxResultSize");
+    
+    //search by not attributeAssignId, should not find it
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(GrouperUtil.toSet("abc"), 
+          null, null, null, null, true, null, AttributeDefValueType.string, "15a", false, null, null, null, null, false);
+  
+    assertEquals(0, attributeAssigns.size());
+  
+  
+    //search by not attributeDefId, shouldnt find it
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, GrouperUtil.toSet("abc"), 
+          null, null, null, true, null, AttributeDefValueType.string, "15a", false, null, null, null, null, false);
+    
+    assertEquals(0, attributeAssigns.size());
+  
+    Set<AttributeAssign> attributeAssignsBase = GrouperUtil.toSet(attributeAssign);
+    Set<AttributeDef> attributeDefsBase = GrouperUtil.toSet(attributeDef);
+    
+    Set<AttributeAssign> attributeAssignAssignsBase = GrouperUtil.toSet(attributeAssignValue);
+    Set<AttributeDef> attributeDefAssignsBase = GrouperUtil.toSet(attributeDef2);
+    
+    //temp var for checking
+    Set<AttributeDef> attributeDefs;
+  
+    attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
+    
+    assertTrue(attributeDefs.size() == 1 && attributeDefs.contains(attributeDef));
+    
+    //#####################  CHECK SECURITY #############################
+    //test subject 0 can read
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+  
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), 
+          null, true, null, null, null, false, null, null, null, null, false);
+    assertEquals(1, attributeAssigns.size());
+    assertTrue(attributeAssigns.contains(attributeAssignValue));
+  
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
+    assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
+  
+    attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
+    assertTrue(attributeDefs.size() == 1 && attributeDefs.contains(attributeDef));
+  
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), 
+          null, true, AttributeDefType.attr, null, null, false, null, null, null, null, false);
+    assertEquals(1, attributeAssigns.size());
+    assertTrue(attributeAssigns.contains(attributeAssignValue));
+  
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), 
+          null, true, AttributeDefType.domain, null, null, false, null, null, null, null, false);
+    assertEquals(0, attributeAssigns.size());
+    
+    //test subject 0 can read the attribute assignment on assignment
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), 
+          null, true, null, null, null, true, null, null, null, null, false);
+    assertTrue(attributeAssigns.size() == 2 && attributeAssigns.contains(attributeAssign) && attributeAssigns.contains(attributeAssignValue));
+    
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2, false);
+    assertTrue(attributeAssigns.size() == 2 && attributeAssigns.contains(attributeAssign) && attributeAssigns.contains(attributeAssignValue));
+  
+    //###################################
+    //test subject 1 can not read
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+  
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), 
+          null, true, null, null, null, false, null, null, null, null, false);
+    assertEquals(0, attributeAssigns.size());
+  
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
+    assertEquals(1, attributeAssigns.size());
+  
+    attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
+    assertEquals(1, attributeDefs.size());
+  
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignAssignsBase, false);
+    assertEquals(0, attributeAssigns.size());
+  
+    attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefAssignsBase);
+    assertEquals(0, attributeDefs.size());
+  
+    //###################################
+    //test subject 2 can not read
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ2);
+  
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), 
+          null, true, null, null, null, false, null, null, null, null, false);
+    assertEquals(0, attributeAssigns.size());
+  
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
+    assertEquals(0, attributeAssigns.size());
+  
+    attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
+    assertEquals(0, attributeDefs.size());
+  
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignAssignsBase, false);
+    assertEquals(1, attributeAssigns.size());
+  
+    attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefAssignsBase);
+    assertEquals(1, attributeDefs.size());
+  
+    //test subject 3 can not read
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ3);
+  
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), 
+          null, true, null, null, null, false, null, null, null, null, false);
+    assertEquals(0, attributeAssigns.size());
+  
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
+    assertEquals(0, attributeAssigns.size());
+  
+    attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
+    assertEquals(0, attributeDefs.size());
+  
+    //test subject 4 cannot view the group, but can read the attributes
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ4);
+  
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), 
+          null, true, null, null, null, false, null, null, null, null, false);
+    assertEquals(0, attributeAssigns.size());
+  
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
+    assertEquals(0, attributeAssigns.size());
+  
+    attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
+    assertEquals(1, attributeDefs.size());
+  
+    
+    //test subject 7 can update
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ7);
+  
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), 
+          null, true, null, null, null, false, null, null, null, null, false);
+    assertEquals(0, attributeAssigns.size());
+  
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
+    assertEquals(0, attributeAssigns.size());
+  
+    attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
+    assertTrue(attributeDefs.size() == 1 && attributeDefs.contains(attributeDef));
+  
+    //test subject 8 can admin
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ8);
+  
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), 
+          null, true, null, null, null, false, null, null, null, null, false);
+    assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssignValue));
+  
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
+    assertEquals(1, attributeAssigns.size());
+    assertTrue(attributeAssigns.contains(attributeAssign));
+    
+    attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
+    assertTrue(attributeDefs.size() == 1 && attributeDefs.contains(attributeDef));
+  
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), 
+          null, true, null, null, null, true, null, null, null, null, false);
+    assertEquals(2, attributeAssigns.size());
+    assertTrue(attributeAssigns.contains(attributeAssignValue));
+    assertTrue(attributeAssigns.contains(attributeAssign));
+    
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2, false);
+    assertEquals(2, attributeAssigns.size());
+    assertTrue(attributeAssigns.contains(attributeAssign));
+    assertTrue(attributeAssigns.contains(attributeAssignValue));
+  
+    //test subject 9 can view
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ9);
+  
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), 
+          null, true, null, null, null, false, null, null, null, null, false);
     assertEquals(0, attributeAssigns.size());
   
     attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
