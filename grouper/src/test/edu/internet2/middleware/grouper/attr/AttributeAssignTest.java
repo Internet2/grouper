@@ -71,7 +71,7 @@ public class AttributeAssignTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeAssignTest("testFindStemAttributeAssignmentsByValue"));
+    TestRunner.run(new AttributeAssignTest("testFindGroupAttributeAssignmentsByValue"));
   }
   
   /**
@@ -4400,19 +4400,20 @@ public class AttributeAssignTest extends GrouperTest {
     //test subject 0 can read the assignment on assignment
     attributeDef2.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, false);
   
-    Stem stem = new StemSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
-      .assignName("test:stemTestAttrAssign").assignCreateParentStemsIfNotExist(true)
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignName("test:groupTestAttrAssign").assignCreateParentStemsIfNotExist(true)
       .assignDescription("description").save();
   
-    Stem stem2 = new StemSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
-      .assignName("test:stemTestAttrAssign2").assignCreateParentStemsIfNotExist(true)
+    Group group2 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignName("test:groupTestAttrAssign2").assignCreateParentStemsIfNotExist(true)
       .assignDescription("description2").save();
   
-    Stem stem3 = new StemSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
-      .assignName("test:stemTestAttrAssign3").assignCreateParentStemsIfNotExist(true)
+    Group group3 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignName("test:groupTestAttrAssign3").assignCreateParentStemsIfNotExist(true)
       .assignDescription("description3").save();
   
     //test subject 0 can read
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
     attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, false);
   
     //test subject 3 can not read
@@ -4427,17 +4428,17 @@ public class AttributeAssignTest extends GrouperTest {
     attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ9, AttributeDefPrivilege.ATTR_VIEW, false);
   
     
-    AttributeAssignResult attributeAssignResult = stem.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "15").getAttributeAssignResult();
+    AttributeAssignResult attributeAssignResult = group.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "15").getAttributeAssignResult();
     AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
   
     AttributeAssign attributeAssignValue = attributeAssign.getAttributeDelegate().assignAttribute(attributeDefName2).getAttributeAssign();
     
-    AttributeAssignResult attributeAssignResult_2 = stem2.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "16").getAttributeAssignResult();
+    AttributeAssignResult attributeAssignResult_2 = group2.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "16").getAttributeAssignResult();
     AttributeAssign attributeAssign_2 = attributeAssignResult_2.getAttributeAssign();
   
     attributeAssign_2.getAttributeDelegate().assignAttribute(attributeDefName2);
     
-    AttributeAssignResult attributeAssignResult_3 = stem3.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "17").getAttributeAssignResult();
+    AttributeAssignResult attributeAssignResult_3 = group3.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "17").getAttributeAssignResult();
     AttributeAssign attributeAssign_3 = attributeAssignResult_3.getAttributeAssign();
   
     attributeAssign_3.getAttributeDelegate().assignAttribute(attributeDefName2);
@@ -4454,7 +4455,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     //Search for stem, should find it
     Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory()
-      .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(stem.getUuid()), 
+      .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), 
           null, true, false, AttributeDefValueType.string, "15", false);
     
     //there is nothing assigned directly to the stem
@@ -4587,7 +4588,7 @@ public class AttributeAssignTest extends GrouperTest {
     this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
   
     attributeAssigns = GrouperDAOFactory.getFactory()
-      .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(stem.getUuid()), null, true, false);
+      .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), null, true, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
     attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
@@ -4598,7 +4599,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     //test subject 0 can read the attribute assignment on assignment
     attributeAssigns = GrouperDAOFactory.getFactory()
-      .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(stem.getUuid()), null, true, true);
+      .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), null, true, true);
     assertTrue(attributeAssigns.size() == 2 && attributeAssigns.contains(attributeAssign) && attributeAssigns.contains(attributeAssignValue));
     
     attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2, false);
@@ -4609,7 +4610,7 @@ public class AttributeAssignTest extends GrouperTest {
     this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ3);
   
     attributeAssigns = GrouperDAOFactory.getFactory()
-      .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(stem.getUuid()), null, true, false);
+      .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), null, true, false);
     assertEquals(0, attributeAssigns.size());
   
     attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
@@ -4623,7 +4624,7 @@ public class AttributeAssignTest extends GrouperTest {
     this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ7);
   
     attributeAssigns = GrouperDAOFactory.getFactory()
-      .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(stem.getUuid()), null, true, false);
+      .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), null, true, false);
     assertEquals(0, attributeAssigns.size());
   
     attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
@@ -4637,7 +4638,7 @@ public class AttributeAssignTest extends GrouperTest {
     this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ8);
   
     attributeAssigns = GrouperDAOFactory.getFactory()
-      .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(stem.getUuid()), null, true, false);
+      .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), null, true, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
     attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
@@ -4648,7 +4649,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     //test subject 8 cannot read the attribute assignment on assignment
     attributeAssigns = GrouperDAOFactory.getFactory()
-      .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(stem.getUuid()), null, true, true);
+      .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), null, true, true);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
     
     attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2, false);
@@ -4659,7 +4660,7 @@ public class AttributeAssignTest extends GrouperTest {
     this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ9);
   
     attributeAssigns = GrouperDAOFactory.getFactory()
-      .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(stem.getUuid()), null, true, false);
+      .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), null, true, false);
     assertEquals(0, attributeAssigns.size());
   
     attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
@@ -4671,7 +4672,7 @@ public class AttributeAssignTest extends GrouperTest {
     GrouperSession.stopQuietly(this.grouperSession);
     this.grouperSession = GrouperSession.startRootSession();
     
-    stem.delete();
+    group.delete();
     
     GrouperSession.stopQuietly(this.grouperSession);
   }

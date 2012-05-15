@@ -243,7 +243,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
                 LOG.debug("deleting attribute: " + field.getName() + " from group: " + group.getName()
                      + " since the type was removed");
                 try {
-                  group.deleteAttribute(field.getName());
+                  group.deleteAttribute(field.getName(), false);
                 } catch (Exception e) {
                   throw new RuntimeException("Exception removing field: " + field.getName() 
                       + ", from group: " + group.getName(),e);

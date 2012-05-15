@@ -105,7 +105,7 @@ public class Test_api_Group extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new Test_api_Group("test_copy_entity"));
+    TestRunner.run(new Test_api_Group("testRemoveRequiredAttributeType"));
   }
   
   private Group           top_group, child_group;
@@ -150,6 +150,23 @@ public class Test_api_Group extends GrouperTest {
 
   public void tearDown() {
     super.tearDown();
+  }
+  
+  /**
+   * 
+   */
+  public void testRemoveRequiredAttributeType() {
+    R r = R.populateRegistry(0, 0, 2);
+    Subject a = r.getSubject("a");
+    Subject b = r.getSubject("b");
+    
+    Stem stem = root.addChildStem("stem", "stem");
+    Group group = stem.addChildGroup("group", "group");
+    
+    group.addType(type1);
+    group.setAttribute("type1attr1", "test");
+    group.deleteType(type1);
+
   }
   
   /**
