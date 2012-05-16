@@ -1051,5 +1051,42 @@ public interface AttributeAssignDAO extends GrouperDAO {
       Collection<String> ownerAttributeDefIds, 
       Collection<String> ownerAttributeDefNameIds,
       Collection<String> ownerActions, boolean useCache);
+
+  /**
+   * securely search for assignments on assignments of effective memberships (or immediate). 
+   * need to pass in either the assign ids, def ids, def name ids, or imm membership ids
+   * cannot have more than 100 bind variables
+   * @param attributeAssignIds
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param groupIdsAndMemberIds optional
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param attributeDefType null for all, or specify a type e.g. AttributeDefType.limit
+   * @param attributeDefValueType required if sending theValue, can be:
+   * floating, integer, memberId, string, timestamp
+   * @param theValue value if you are passing in one attributeDefNameLookup
+   * @param includeAssignmentsFromAssignments T|F if you are finding an assignment that is an assignmentOnAssignment,
+   * then get the assignment which tells you the owner as well
+   * @param ownerAttributeAssignIds attribute assignment ids of the owner assignments (where the attributes are assigned to)
+   * @param ownerAttributeDefIds attribute definition ids of the owner assignments (where the attributes are assigned to)
+   * @param ownerAttributeDefNameIds attribute definition names ids of the owner assignments (where the attributes are assigned to)
+   * @param ownerActions actions of the owner assignment
+   * @param useCache to use a cache or not
+   * @return the assignments
+   */
+  public Set<AttributeAssign> findAnyMembershipAttributeAssignmentsOnAssignments(
+      Collection<String> attributeAssignIds,
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<MultiKey> groupIdsAndMemberIds, Collection<String> actions, 
+      Boolean enabled, 
+      AttributeDefType attributeDefType,
+      AttributeDefValueType attributeDefValueType,
+      Object theValue, boolean includeAssignmentsFromAssignments,
+      Collection<String> ownerAttributeAssignIds,
+      Collection<String> ownerAttributeDefIds, 
+      Collection<String> ownerAttributeDefNameIds,
+      Collection<String> ownerActions, boolean useCache);
   
 }

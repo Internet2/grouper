@@ -585,6 +585,16 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   }
   
   /**
+   * this delegate works on attributes and values at the same time
+   * @param member 
+   * @return the delegate
+   */
+  public AttributeValueDelegate getAttributeValueDelegateEffMship(Member member) {
+    return new AttributeValueDelegate(this.getAttributeDelegateEffMship(member));
+  }
+  
+
+  /**
    * delegate for effective memberships
    * @param member 
    * @return the delegate
@@ -609,6 +619,26 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     return new AttributeAssignMembershipDelegate(membership);
   }
   
+  /**
+   * this delegate works on attributes and values at the same time
+   * @param member 
+   * @param field 
+   * @return the delegate
+   */
+  public AttributeValueDelegate getAttributeValueDelegateMembership(Member member, Field field) {
+    return new AttributeValueDelegate(this.getAttributeDelegateMembership(member, field));
+  }
+
+  /**
+   * this delegate works on attributes and values at the same time
+   * @param member 
+   * @return the delegate
+   */
+  public AttributeValueDelegate getAttributeValueDelegateMembership(Member member) {
+    return new AttributeValueDelegate(this.getAttributeDelegateMembership(member));
+  }
+
+
   /**
    * Retrieve default members {@link Field}.
    * <pre class="eg">
