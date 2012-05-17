@@ -33,6 +33,7 @@
     timeToIdleSeconds="10"
     timeToLiveSeconds="10"
     overflowToDisk="false"
+    statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupDAO"
@@ -74,6 +75,7 @@
           timeToIdleSeconds="5"
           timeToLiveSeconds="10"
           overflowToDisk="false"  
+          statistics="false"
   />
 
   <!-- class: Hib3MemberDAO -->
@@ -83,7 +85,8 @@
           eternal="false"
           timeToIdleSeconds="5"
           timeToLiveSeconds="5"
-          overflowToDisk="false"  
+          overflowToDisk="false"
+          statistics="false"  
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeAssignActionDAO.FindByAttributeDefId"
@@ -91,7 +94,8 @@
           eternal="false"
           timeToIdleSeconds="5"
           timeToLiveSeconds="5"
-          overflowToDisk="false"  
+          overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeAssignDAO.FindById"
@@ -99,7 +103,8 @@
           eternal="false"
           timeToIdleSeconds="5"
           timeToLiveSeconds="5"
-          overflowToDisk="false"  
+          overflowToDisk="false"
+          statistics="false"
   />
 
   <!-- Queries -->
@@ -114,12 +119,14 @@
     timeToIdleSeconds="10"
     timeToLiveSeconds="10"
     overflowToDisk="false"
+    statistics="false"
   />
 
   <cache name="net.sf.hibernate.cache.UpdateTimestampsCache"
     maxElementsInMemory="5000"
     eternal="true"
     overflowToDisk="true"
+    statistics="false"
   />
 
   <cache name="org.hibernate.cache.StandardQueryCache"
@@ -128,12 +135,14 @@
     timeToIdleSeconds="10"
     timeToLiveSeconds="10"
     overflowToDisk="false"
+    statistics="false"
   />
 
   <cache name="org.hibernate.cache.UpdateTimestampsCache"
     maxElementsInMemory="5000"
     eternal="true"
     overflowToDisk="true"
+    statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.RegistrySubject"
@@ -142,6 +151,7 @@
           timeToIdleSeconds="1"
           timeToLiveSeconds="1"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.GroupTypeTuple"
@@ -150,6 +160,7 @@
           timeToIdleSeconds="1"
           timeToLiveSeconds="1"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.Field"
@@ -158,7 +169,7 @@
           timeToIdleSeconds="1"
           timeToLiveSeconds="1"
           overflowToDisk="false"
-          statistics="true"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.RegistrySubjectAttribute"
@@ -167,6 +178,7 @@
           timeToIdleSeconds="1"
           timeToLiveSeconds="1"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.AuditType"
@@ -175,6 +187,7 @@
           timeToIdleSeconds="1"
           timeToLiveSeconds="1"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.Attribute"
@@ -183,6 +196,7 @@
           timeToIdleSeconds="1"
           timeToLiveSeconds="1"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.Composite"
@@ -191,6 +205,7 @@
           timeToIdleSeconds="1"
           timeToLiveSeconds="1"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.GroupType"
@@ -199,6 +214,7 @@
           timeToIdleSeconds="1"
           timeToLiveSeconds="1"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.Membership"
@@ -207,7 +223,7 @@
           timeToIdleSeconds="1"
           timeToLiveSeconds="1"
           overflowToDisk="false"
-          statistics="true"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.Group"
@@ -216,7 +232,7 @@
           timeToIdleSeconds="1"
           timeToLiveSeconds="1"
           overflowToDisk="false"
-          statistics="true"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.Stem"
@@ -225,7 +241,7 @@
           timeToIdleSeconds="1"
           timeToLiveSeconds="1"
           overflowToDisk="false"
-          statistics="true"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.Member"
@@ -234,7 +250,7 @@
           timeToIdleSeconds="1"
           timeToLiveSeconds="1"
           overflowToDisk="false"
-          statistics="true"
+          statistics="false"
   />
 
   <!-- @see   StemDAO#findByName(...) -->
@@ -244,7 +260,7 @@
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
           overflowToDisk="false"
-          statistics="true"
+          statistics="false"
   />
   
   <!-- @see   StemDAO#findByUuid(...) -->
@@ -254,7 +270,7 @@
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
           overflowToDisk="false"
-          statistics="true"
+          statistics="false"
   />
 
   <!-- @see   GroupDAO#findByName(...) -->
@@ -264,7 +280,7 @@
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
           overflowToDisk="false"
-          statistics="true"
+          statistics="false"
   />
   
   <!-- @see   GroupDAO#findByUuid(...) -->
@@ -274,6 +290,7 @@
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefNameDAO.FindByName"
@@ -282,7 +299,7 @@
           timeToIdleSeconds="5"
           timeToLiveSeconds="5"
           overflowToDisk="false"
-          statistics="true"
+          statistics="false"
   />
 
 
@@ -292,6 +309,7 @@
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
           overflowToDisk="false"
+          statistics="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.changeLog.ChangeLogType"
@@ -300,6 +318,7 @@
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
           overflowToDisk="false"
+          statistics="false"
     />
 
   <cache  name="ImmediateMembershipEntry"
@@ -308,6 +327,7 @@
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
           overflowToDisk="false"
+          statistics="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.permissions.role.RoleSet"
@@ -316,6 +336,7 @@
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
           overflowToDisk="false"
+          statistics="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.attr.AttributeDefNameSet"
@@ -324,6 +345,7 @@
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
           overflowToDisk="false"
+          statistics="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSetView"
@@ -332,6 +354,7 @@
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
           overflowToDisk="false"
+          statistics="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.attr.AttributeDef"
@@ -340,7 +363,7 @@
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
           overflowToDisk="false"
-          statistics="true"
+          statistics="false"
     />
 
   <cache  name="MembershipEntry"
@@ -349,6 +372,7 @@
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
           overflowToDisk="false"
+          statistics="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.attr.assign.AttributeAssign"
@@ -357,6 +381,7 @@
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
           overflowToDisk="false"
+          statistics="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.attr.AttributeDefName"
@@ -365,6 +390,7 @@
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
           overflowToDisk="false"
+          statistics="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.attr.AttributeDefScope"
@@ -373,6 +399,7 @@
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
           overflowToDisk="false"
+          statistics="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.attr.AttributeDefNameSetView"
@@ -381,6 +408,7 @@
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
           overflowToDisk="false"
+          statistics="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.permissions.role.RoleSetView"
@@ -389,6 +417,7 @@
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
           overflowToDisk="false"
+          statistics="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet"
@@ -397,6 +426,7 @@
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
           overflowToDisk="false"
+          statistics="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.changeLog.ChangeLogConsumer"
@@ -405,6 +435,7 @@
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
           overflowToDisk="false"
+          statistics="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.attr.assign.AttributeAssignValue"
@@ -413,6 +444,7 @@
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
           overflowToDisk="false"
+          statistics="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction"
@@ -421,6 +453,7 @@
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
           overflowToDisk="false"
+          statistics="false"
     />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefScopeDAO.FindByUuidOrName"
@@ -429,6 +462,7 @@
           timeToIdleSeconds="20"
           timeToLiveSeconds="20"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefNameDAO.FindByUuidOrName"
@@ -437,6 +471,7 @@
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeAssignValueDAO.FindByAttributeAssignId"
@@ -445,6 +480,7 @@
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
           overflowToDisk="false"
+          statistics="false"
   />
   
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib.Hib3AttributeAssignDAO.FindByAttributeTypeDefNameId"
@@ -453,6 +489,7 @@
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib.Hib3AttributeDefDAO.FindById"
@@ -461,6 +498,7 @@
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3ChangeLogEntryDAO.FindBySequenceNumber"
@@ -469,6 +507,7 @@
           timeToIdleSeconds="5"
           timeToLiveSeconds="5"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3FieldDAO.FindAll"
@@ -477,6 +516,7 @@
           timeToIdleSeconds="5"
           timeToLiveSeconds="5"
           overflowToDisk="false"
+          statistics="false"
   />
   
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefDAO.FindByName"
@@ -485,6 +525,7 @@
           timeToIdleSeconds="5"
           timeToLiveSeconds="5"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefDAO.FindByAttributeDefNameIdSecure"
@@ -493,6 +534,7 @@
           timeToIdleSeconds="5"
           timeToLiveSeconds="5"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.pit.PITField"
@@ -501,6 +543,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITFieldDAO.FindById"
@@ -509,6 +552,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.pit.PITAttributeAssign"
@@ -517,6 +561,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.pit.PITAttributeAssignAction"
@@ -525,6 +570,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.pit.PITAttributeAssignActionSet"
@@ -533,6 +579,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.pit.PITAttributeAssignValue"
@@ -541,6 +588,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.pit.PITAttributeAssignValueView"
@@ -549,6 +597,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.pit.PITAttributeDef"
@@ -557,6 +606,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.pit.PITAttributeDefName"
@@ -565,6 +615,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.pit.PITAttributeDefNameSet"
@@ -573,6 +624,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.pit.PITGroup"
@@ -581,6 +633,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.pit.PITGroupSet"
@@ -589,6 +642,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.pit.PITMember"
@@ -597,6 +651,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.pit.PITMembership"
@@ -605,6 +660,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.pit.PITMembershipView"
@@ -613,6 +669,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.pit.PITPermissionAllView"
@@ -621,6 +678,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.pit.PITRoleSet"
@@ -629,6 +687,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.pit.PITStem"
@@ -637,6 +696,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeAssignActionDAO.FindById"
@@ -645,6 +705,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeAssignActionSetDAO.FindById"
@@ -653,6 +714,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeAssignDAO.FindById"
@@ -661,6 +723,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeAssignValueDAO.FindById"
@@ -669,6 +732,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeDefDAO.FindById"
@@ -677,6 +741,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeDefNameDAO.FindById"
@@ -685,6 +750,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeDefNameSetDAO.FindById"
@@ -693,6 +759,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITGroupDAO.FindById"
@@ -701,6 +768,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITGroupSetDAO.FindById"
@@ -709,6 +777,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITMemberDAO.FindById"
@@ -717,6 +786,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITMembershipDAO.FindById"
@@ -725,6 +795,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITRoleSetDAO.FindById"
@@ -733,6 +804,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITStemDAO.FindById"
@@ -741,6 +813,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeAssignActionDAO.FindBySourceIdActive"
@@ -749,6 +822,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeAssignActionSetDAO.FindBySourceIdActive"
@@ -757,6 +831,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeAssignDAO.FindBySourceIdActive"
@@ -765,6 +840,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeAssignValueDAO.FindBySourceIdActive"
@@ -773,6 +849,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeDefDAO.FindBySourceIdActive"
@@ -781,6 +858,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeDefNameDAO.FindBySourceIdActive"
@@ -789,6 +867,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITAttributeDefNameSetDAO.FindBySourceIdActive"
@@ -797,6 +876,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITGroupDAO.FindBySourceIdActive"
@@ -805,6 +885,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITGroupSetDAO.FindBySourceIdActive"
@@ -813,6 +894,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITMemberDAO.FindBySourceIdActive"
@@ -821,6 +903,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITMembershipDAO.FindBySourceIdActive"
@@ -829,6 +912,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITRoleSetDAO.FindBySourceIdActive"
@@ -837,6 +921,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITStemDAO.FindBySourceIdActive"
@@ -845,6 +930,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3PITFieldDAO.FindBySourceIdActive"
@@ -853,6 +939,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
 
@@ -863,6 +950,7 @@
     timeToIdleSeconds="10"
     timeToLiveSeconds="10"
     overflowToDisk="false"
+    statistics="false"
   />
 
 
@@ -872,6 +960,7 @@
     timeToIdleSeconds="10"
     timeToLiveSeconds="10"
     overflowToDisk="false"
+    statistics="false"
   />
 
 
@@ -881,6 +970,7 @@
     timeToIdleSeconds="10"
     timeToLiveSeconds="10"
     overflowToDisk="false"
+    statistics="false"
   />
 
 
@@ -890,6 +980,7 @@
     timeToIdleSeconds="10"
     timeToLiveSeconds="10"
     overflowToDisk="false"
+    statistics="false"
   />
 
 
@@ -899,7 +990,7 @@
     timeToIdleSeconds="10"
     timeToLiveSeconds="10"
     overflowToDisk="false"
-    statistics="true"
+    statistics="false"
   />
 
 
@@ -909,7 +1000,7 @@
     timeToIdleSeconds="10"
     timeToLiveSeconds="10"
     overflowToDisk="false"
-    statistics="true"
+    statistics="false"
   />
 
 
@@ -919,6 +1010,7 @@
     timeToIdleSeconds="10"
     timeToLiveSeconds="10"
     overflowToDisk="false"
+    statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3StemDAO.FindByCurrentName"
@@ -927,6 +1019,7 @@
     timeToIdleSeconds="10"
     timeToLiveSeconds="10"
     overflowToDisk="false"
+    statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3StemDAO.FindByAlternateName"
@@ -935,6 +1028,7 @@
     timeToIdleSeconds="10"
     timeToLiveSeconds="10"
     overflowToDisk="false"
+    statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupTypeTupleDAO.FindByUuidOrKey"
@@ -943,6 +1037,7 @@
     timeToIdleSeconds="10"
     timeToLiveSeconds="10"
     overflowToDisk="false"
+    statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3CompositeDAO.FindByUuidOrName"
@@ -951,6 +1046,7 @@
     timeToIdleSeconds="10"
     timeToLiveSeconds="10"
     overflowToDisk="false"
+    statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupSetDAO.FindSelfStem"
@@ -959,6 +1055,7 @@
     timeToIdleSeconds="10"
     timeToLiveSeconds="10"
     overflowToDisk="false"
+    statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupSetDAO.FindSelfGroup"
@@ -967,6 +1064,7 @@
     timeToIdleSeconds="10"
     timeToLiveSeconds="10"
     overflowToDisk="false"
+    statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3FieldDAO.FindByUuidOrName"
@@ -975,6 +1073,7 @@
     timeToIdleSeconds="10"
     timeToLiveSeconds="10"
     overflowToDisk="false"
+    statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeAssignActionDAO.FindByUuidOrName"
@@ -983,6 +1082,7 @@
     timeToIdleSeconds="10"
     timeToLiveSeconds="10"
     overflowToDisk="false"
+    statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefNameDAO.FindAll"
@@ -991,6 +1091,7 @@
     timeToIdleSeconds="10"
     timeToLiveSeconds="10"
     overflowToDisk="false"
+    statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeAssignDAO.FindByUuidOrKey"
@@ -999,6 +1100,7 @@
     timeToIdleSeconds="10"
     timeToLiveSeconds="10"
     overflowToDisk="false"
+    statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupSetDAO.FindByOwnerMemberFieldParentAndType"
@@ -1007,6 +1109,7 @@
     timeToIdleSeconds="10"
     timeToLiveSeconds="10"
     overflowToDisk="false"
+    statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AuditTypeDAO.FindByCategory"
@@ -1015,6 +1118,7 @@
     timeToIdleSeconds="10"
     timeToLiveSeconds="10"
     overflowToDisk="false"
+    statistics="false"
   />
 
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AuditTypeDAO.FindByUuidOrName"
@@ -1023,6 +1127,7 @@
     timeToIdleSeconds="10"
     timeToLiveSeconds="10"
     overflowToDisk="false"
+    statistics="false"
   />
 
 
@@ -1034,6 +1139,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="30"
           overflowToDisk="false"
+          statistics="false"
   />
 
 
@@ -1047,6 +1153,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="30"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <!--  attribute def resolving caching -->
@@ -1069,7 +1176,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="30"
           overflowToDisk="false"
-          statistics="true"
+          statistics="false"
   />
 
   <!-- @see   CachingResolver#findAll(...) -->
@@ -1079,7 +1186,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="30"
           overflowToDisk="false"
-          statistics="true"
+          statistics="false"
   />
 
   <!-- @see   CachingResolver#findPage(...) -->
@@ -1089,6 +1196,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="30"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <!-- @see   CachingResolver#findByIdentifier(...) -->
@@ -1098,7 +1206,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="30"
           overflowToDisk="false"
-          statistics="true"
+          statistics="false"
   />
 
   <!-- @see   CachingResolver#findByIdOrIdentifier(...) -->
@@ -1108,7 +1216,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="30"
           overflowToDisk="false"
-          statistics="true"
+          statistics="false"
   />
   
   <cache  name="edu.internet2.middleware.grouper.attr.AttributeDefName.CanAdminAttributeDef"
@@ -1126,6 +1234,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
     <!-- @see   Membership#getGroup(...) -->
@@ -1135,6 +1244,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
   
   <!-- @see   Membership#getStem(...) -->
@@ -1144,6 +1254,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <!-- @see   Membership#getAttributeDef(...) -->
@@ -1153,6 +1264,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
 
   <!-- @see   Hib3MemberDAO#exists(...) -->
@@ -1162,6 +1274,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
   
   <!-- @see   Hib3MemberDAO#findBySubject/Uuid(...) -->
@@ -1171,6 +1284,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="120"
           overflowToDisk="false"
+          statistics="false"
   />
   <cache  name="AttributeAssignBaseDelegate.allAttributeAssignsCache"
           maxElementsInMemory="1000"
@@ -1178,6 +1292,7 @@
           timeToIdleSeconds="1200"
           timeToLiveSeconds="1200"
           overflowToDisk="false"
+          statistics="false"
   />
   <cache  name="edu.internet2.middleware.grouper.entity.EntitySubject.EntityAttributeIdCache"
           maxElementsInMemory="5000"
@@ -1185,6 +1300,7 @@
           timeToIdleSeconds="30"
           timeToLiveSeconds="30"
           overflowToDisk="false"
+          statistics="false"
   />
 
 </ehcache>
