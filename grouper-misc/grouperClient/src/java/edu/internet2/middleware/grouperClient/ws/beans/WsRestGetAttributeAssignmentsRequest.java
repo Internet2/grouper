@@ -20,6 +20,7 @@
 package edu.internet2.middleware.grouperClient.ws.beans;
 
 
+
 /**
  *
  */
@@ -513,7 +514,93 @@ public class WsRestGetAttributeAssignmentsRequest implements WsRequestBean {
     this.enabled = enabled1;
   }
 
+  /**
+   * if looking for assignments on assignments, this is the assignment the assignment is assigned to
+   */
+  private WsAttributeAssignLookup[] wsAssignAssignOwnerAttributeAssignLookups;
   
+  /**
+   * if looking for assignments on assignments, this is the assignment the assignment is assigned to
+   * @return results
+   */
+  public WsAttributeAssignLookup[] getWsAssignAssignOwnerAttributeAssignLookups() {
+    return this.wsAssignAssignOwnerAttributeAssignLookups;
+  }
+
+  /**
+   * if looking for assignments on assignments, this is the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerAttributeAssignLookups1
+   */
+  public void setWsAssignAssignOwnerAttributeAssignLookups(
+      WsAttributeAssignLookup[] wsAssignAssignOwnerAttributeAssignLookups1) {
+    this.wsAssignAssignOwnerAttributeAssignLookups = wsAssignAssignOwnerAttributeAssignLookups1;
+  }
+
+  /**
+   * if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to
+   */
+  private WsAttributeDefLookup[] wsAssignAssignOwnerAttributeDefLookups;
+
+  /**
+   * if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to
+   * @return results
+   */
+  public WsAttributeDefLookup[] getWsAssignAssignOwnerAttributeDefLookups() {
+    return this.wsAssignAssignOwnerAttributeDefLookups;
+  }
+
+  /**
+   * if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerAttributeDefLookups1
+   */
+  public void setWsAssignAssignOwnerAttributeDefLookups(
+      WsAttributeDefLookup[] wsAssignAssignOwnerAttributeDefLookups1) {
+    this.wsAssignAssignOwnerAttributeDefLookups = wsAssignAssignOwnerAttributeDefLookups1;
+  }
+
+  /**
+   * if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
+   */
+  private WsAttributeDefNameLookup[] wsAssignAssignOwnerAttributeDefNameLookups;
+  
+  /**
+   * if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
+   * @return result
+   */
+  public WsAttributeDefNameLookup[] getWsAssignAssignOwnerAttributeDefNameLookups() {
+    return this.wsAssignAssignOwnerAttributeDefNameLookups;
+  }
+
+  /**
+   * if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerAttributeDefNameLookups1
+   */
+  public void setWsAssignAssignOwnerAttributeDefNameLookups(
+      WsAttributeDefNameLookup[] wsAssignAssignOwnerAttributeDefNameLookups1) {
+    this.wsAssignAssignOwnerAttributeDefNameLookups = wsAssignAssignOwnerAttributeDefNameLookups1;
+  }
+
+  /**
+   * if looking for assignments on assignments, this are the actions of the assignment the assignment is assigned to
+   */
+  private String[] wsAssignAssignOwnerActions;
+
+  /**
+   * if looking for assignments on assignments, this are the actions of the assignment the assignment is assigned to
+   * @return actions
+   */
+  public String[] getWsAssignAssignOwnerActions() {
+    return this.wsAssignAssignOwnerActions;
+  }
+
+  /**
+   * if looking for assignments on assignments, this are the actions of the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerActions1
+   */
+  public void setWsAssignAssignOwnerActions(String[] wsAssignAssignOwnerActions1) {
+    this.wsAssignAssignOwnerActions = wsAssignAssignOwnerActions1;
+  }
+
 
 
 }

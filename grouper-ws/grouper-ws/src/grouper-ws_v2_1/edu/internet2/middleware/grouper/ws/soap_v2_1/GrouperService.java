@@ -20,6 +20,9 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 
@@ -1871,6 +1874,10 @@ public class GrouperService {
    * @param includeAssignmentsFromAssignments T|F if you are finding an assignment that is an assignmentOnAssignment,
    * then get the assignment which tells you the owner as well
    * @param attributeDefType null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm
+   * @param wsAssignAssignOwnerAttributeAssignLookups if looking for assignments on assignments, this is the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerAttributeDefLookups if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerAttributeDefNameLookups if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerActions if looking for assignments on assignments, this are the actions of the assignment the assignment is assigned to
    * @return the results
    */
   public WsGetAttributeAssignmentsResults getAttributeAssignments(
@@ -1884,7 +1891,10 @@ public class GrouperService {
       String includeAssignmentsOnAssignments, WsSubjectLookup actAsSubjectLookup, String includeSubjectDetail,
       String[] subjectAttributeNames, String includeGroupDetail, final WsParam[] params, 
       String enabled, String attributeDefValueType, String theValue, String includeAssignmentsFromAssignments,
-      String attributeDefType) {  
+      String attributeDefType, WsAttributeAssignLookup[] wsAssignAssignOwnerAttributeAssignLookups,
+      WsAttributeDefLookup[] wsAssignAssignOwnerAttributeDefLookups, 
+      WsAttributeDefNameLookup[] wsAssignAssignOwnerAttributeDefNameLookups,
+      String[] wsAssignAssignOwnerActions) {  
 
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "getAttributeAssignments",
@@ -1904,7 +1914,11 @@ public class GrouperService {
       includeSubjectDetail,
       subjectAttributeNames, includeGroupDetail, 
       GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
-      enabled, attributeDefValueType, theValue, includeAssignmentsFromAssignments, attributeDefType});
+      enabled, attributeDefValueType, theValue, includeAssignmentsFromAssignments, attributeDefType,
+      wsAssignAssignOwnerAttributeAssignLookups,
+      wsAssignAssignOwnerAttributeDefLookups, 
+      wsAssignAssignOwnerAttributeDefNameLookups,
+      wsAssignAssignOwnerActions});
     
     return (WsGetAttributeAssignmentsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   
@@ -1963,6 +1977,12 @@ public class GrouperService {
    * @param includeAssignmentsFromAssignments T|F if you are finding an assignment that is an assignmentOnAssignment,
    * then get the assignment which tells you the owner as well
    * @param attributeDefType null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm
+   * @param wsAssignAssignOwnerAttributeAssignId if looking for assignments on assignments, this is the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerIdOfAttributeDef if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerNameOfAttributeDef if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerIdOfAttributeDefName if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerNameOfAttributeDefName if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerAction if looking for assignments on assignments, this is the action of the assignment the assignment is assigned to
    * @return the results
    */
   public WsGetAttributeAssignmentsResults getAttributeAssignmentsLite(
@@ -1979,7 +1999,10 @@ public class GrouperService {
       String actAsSubjectIdentifier, String includeSubjectDetail,
       String subjectAttributeNames, String includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1, 
-      String enabled, String attributeDefValueType, String theValue, String includeAssignmentsFromAssignments, String attributeDefType) {  
+      String enabled, String attributeDefValueType, String theValue, String includeAssignmentsFromAssignments, String attributeDefType,
+      String wsAssignAssignOwnerAttributeAssignId, 
+      String wsAssignAssignOwnerIdOfAttributeDef, String wsAssignAssignOwnerNameOfAttributeDef,
+      String wsAssignAssignOwnerIdOfAttributeDefName, String wsAssignAssignOwnerNameOfAttributeDefName, String wsAssignAssignOwnerAction) {  
 
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "getAttributeAssignmentsLite",
@@ -1996,7 +2019,10 @@ public class GrouperService {
       actAsSubjectIdentifier, includeSubjectDetail,
       subjectAttributeNames, includeGroupDetail, paramName0, paramValue0,
       paramName1, paramValue1, 
-      enabled, attributeDefValueType, theValue, includeAssignmentsFromAssignments, attributeDefType});
+      enabled, attributeDefValueType, theValue, includeAssignmentsFromAssignments, attributeDefType,
+      wsAssignAssignOwnerAttributeAssignId, 
+      wsAssignAssignOwnerIdOfAttributeDef, wsAssignAssignOwnerNameOfAttributeDef,
+      wsAssignAssignOwnerIdOfAttributeDefName, wsAssignAssignOwnerNameOfAttributeDefName, wsAssignAssignOwnerAction});
     
     return (WsGetAttributeAssignmentsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   

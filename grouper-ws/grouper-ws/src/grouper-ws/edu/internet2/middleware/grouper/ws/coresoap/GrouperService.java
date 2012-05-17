@@ -2810,6 +2810,10 @@ public class GrouperService {
    * @param includeAssignmentsFromAssignments T|F if you are finding an assignment that is an assignmentOnAssignment,
    * then get the assignment which tells you the owner as well
    * @param attributeDefType null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm
+   * @param wsAssignAssignOwnerAttributeAssignLookups if looking for assignments on assignments, this is the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerAttributeDefLookups if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerAttributeDefNameLookups if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerActions if looking for assignments on assignments, this are the actions of the assignment the assignment is assigned to
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -2823,7 +2827,12 @@ public class GrouperService {
       String[] actions, 
       String includeAssignmentsOnAssignments, WsSubjectLookup actAsSubjectLookup, String includeSubjectDetail,
       String[] subjectAttributeNames, String includeGroupDetail, final WsParam[] params, 
-      String enabled, String attributeDefValueType, String theValue, String includeAssignmentsFromAssignments, String attributeDefType) {  
+      String enabled, String attributeDefValueType, String theValue, 
+      String includeAssignmentsFromAssignments, String attributeDefType,
+      WsAttributeAssignLookup[] wsAssignAssignOwnerAttributeAssignLookups,
+      WsAttributeDefLookup[] wsAssignAssignOwnerAttributeDefLookups, 
+      WsAttributeDefNameLookup[] wsAssignAssignOwnerAttributeDefNameLookups,
+      String[] wsAssignAssignOwnerActions) {  
 
     WsGetAttributeAssignmentsResults wsGetAttributeAssignmentsResults = new WsGetAttributeAssignmentsResults();
   
@@ -2859,7 +2868,11 @@ public class GrouperService {
     		  wsOwnerMembershipAnyLookups, wsOwnerAttributeDefLookups, actions, 
     		  includeAssignmentsOnAssignmentsBoolean, actAsSubjectLookup, 
     		  includeSubjectDetailBoolean, subjectAttributeNames, includeGroupDetailBoolean, params, enabled,
-    		  attributeDefValueTypeEnum, theValue, includeAssignmentsFromAssignmentsBoolean, attributeDefTypeEnum);
+    		  attributeDefValueTypeEnum, theValue, includeAssignmentsFromAssignmentsBoolean, attributeDefTypeEnum,
+    		  wsAssignAssignOwnerAttributeAssignLookups,
+          wsAssignAssignOwnerAttributeDefLookups, 
+          wsAssignAssignOwnerAttributeDefNameLookups,
+          wsAssignAssignOwnerActions);
 
     } catch (Exception e) {
       wsGetAttributeAssignmentsResults.assignResultCodeException(null, null, e);
@@ -2928,6 +2941,12 @@ public class GrouperService {
    * @param includeAssignmentsFromAssignments T|F if you are finding an assignment that is an assignmentOnAssignment,
    * then get the assignment which tells you the owner as well
    * @param attributeDefType null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm
+   * @param wsAssignAssignOwnerAttributeAssignId if looking for assignments on assignments, this is the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerIdOfAttributeDef if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerNameOfAttributeDef if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerIdOfAttributeDefName if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerNameOfAttributeDefName if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerAction if looking for assignments on assignments, this is the action of the assignment the assignment is assigned to
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -2945,7 +2964,10 @@ public class GrouperService {
       String actAsSubjectIdentifier, String includeSubjectDetail,
       String subjectAttributeNames, String includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1, 
-      String enabled, String attributeDefValueType, String theValue, String includeAssignmentsFromAssignments, String attributeDefType) {  
+      String enabled, String attributeDefValueType, String theValue, String includeAssignmentsFromAssignments, String attributeDefType,
+      String wsAssignAssignOwnerAttributeAssignId, 
+      String wsAssignAssignOwnerIdOfAttributeDef, String wsAssignAssignOwnerNameOfAttributeDef,
+      String wsAssignAssignOwnerIdOfAttributeDefName, String wsAssignAssignOwnerNameOfAttributeDefName, String wsAssignAssignOwnerAction) {  
 
     WsGetAttributeAssignmentsResults wsGetAttributeAssignmentsResults = new WsGetAttributeAssignmentsResults();
     
@@ -2987,7 +3009,10 @@ public class GrouperService {
           actAsSubjectIdentifier, includeSubjectDetailBoolean, 
           subjectAttributeNames, includeGroupDetailBoolean, paramName0, 
           paramValue0, paramName1, paramValue1, enabled, attributeDefValueTypeEnum, 
-          theValue, includeAssignmentsFromAssignmentsBoolean, attributeDefTypeEnum );
+          theValue, includeAssignmentsFromAssignmentsBoolean, attributeDefTypeEnum,
+          wsAssignAssignOwnerAttributeAssignId, 
+          wsAssignAssignOwnerIdOfAttributeDef, wsAssignAssignOwnerNameOfAttributeDef,
+          wsAssignAssignOwnerIdOfAttributeDefName, wsAssignAssignOwnerNameOfAttributeDefName, wsAssignAssignOwnerAction);
 
     } catch (Exception e) {
       wsGetAttributeAssignmentsResults.assignResultCodeException(null, null, e);

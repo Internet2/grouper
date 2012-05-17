@@ -1483,7 +1483,11 @@ public class GrouperServiceRest {
         wsRestGetAttributesRequest.getAttributeDefValueType(), 
         wsRestGetAttributesRequest.getTheValue(), 
         wsRestGetAttributesRequest.getIncludeAssignmentsFromAssignments(),
-        wsRestGetAttributesRequest.getAttributeDefType());
+        wsRestGetAttributesRequest.getAttributeDefType(),
+        wsRestGetAttributesRequest.getWsAssignAssignOwnerAttributeAssignLookups(),
+        wsRestGetAttributesRequest.getWsAssignAssignOwnerAttributeDefLookups(), 
+        wsRestGetAttributesRequest.getWsAssignAssignOwnerAttributeDefNameLookups(),
+        wsRestGetAttributesRequest.getWsAssignAssignOwnerActions());
     
     return wsGetAttributeAssignmentsResults;
   }
@@ -1519,7 +1523,10 @@ public class GrouperServiceRest {
         wsRestGetAttributesLiteRequest.getAttributeDefValueType(), 
         wsRestGetAttributesLiteRequest.getTheValue(),
         wsRestGetAttributesLiteRequest.getIncludeAssignmentsFromAssignments(),
-        wsRestGetAttributesLiteRequest.getAttributeDefType());
+        wsRestGetAttributesLiteRequest.getAttributeDefType(), wsRestGetAttributesLiteRequest.getWsAssignAssignOwnerAttributeAssignId(), 
+        wsRestGetAttributesLiteRequest.getWsAssignAssignOwnerIdOfAttributeDef(), wsRestGetAttributesLiteRequest.getWsAssignAssignOwnerNameOfAttributeDef(),
+        wsRestGetAttributesLiteRequest.getWsAssignAssignOwnerIdOfAttributeDefName(), 
+        wsRestGetAttributesLiteRequest.getWsAssignAssignOwnerNameOfAttributeDefName(), wsRestGetAttributesLiteRequest.getWsAssignAssignOwnerAction());
     
     return wsGetAttributeAssignmentsResults;
     
