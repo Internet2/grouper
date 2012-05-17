@@ -97,9 +97,9 @@ public class MemberDataConnector extends BaseGrouperDataConnector<Member> {
             // use the configured source id if present to shortcut search
             if (filter != null && filter instanceof MemberSourceFilter) {
               String sourceId = ((MemberSourceFilter) filter).getSourceId();
-              subject = SubjectFinder.findByIdOrIdentifierAndSource(principalName, sourceId, false);
+              subject = SubjectFinder.findByIdAndSource(principalName, sourceId, false);
             } else {
-              subject = SubjectFinder.findByIdOrIdentifier(principalName, false);
+              subject = SubjectFinder.findById(principalName, false);
             }
 
             if (subject == null) {
