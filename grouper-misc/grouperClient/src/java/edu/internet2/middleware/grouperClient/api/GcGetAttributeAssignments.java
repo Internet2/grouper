@@ -44,6 +44,59 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
  */
 public class GcGetAttributeAssignments {
 
+  /**
+   * required if sending theValue, can be:
+   * floating|integer|memberId|string|timestamp
+   */
+  private String attributeDefValueType; 
+   
+  /**
+   * value if you are passing in one attributeDefNameLookup
+   */
+  private String theValue; 
+    
+  /**
+   * T|F if you are finding an assignment that is an assignmentOnAssignment,
+   * then get the assignment which tells you the owner as well
+   */
+  private String includeAssignmentsFromAssignments;
+   
+  /**
+   * null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm
+   */
+  private String attributeDefType;
+   
+  /**
+   * if looking for assignments on assignments, this is the assignment the assignment is assigned to
+   */
+  private Set<WsAttributeAssignLookup> assignAssignOwnerAttributeAssignLookups;
+   
+  /**
+   * if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to
+   */
+  private Set<String> assignAssignOwnerNamesOfAttributeDefs;
+   
+  /**
+   * if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to
+   */
+  private Set<String> assignAssignOwnerUuidsOfAttributeDefs;
+  
+  /**
+   * if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
+   */
+  private Set<String> assignAssignOwnerNamesOfAttributeDefNames;
+   
+  /**
+   * if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
+   */
+  private Set<String> assignAssignOwnerUuidsOfAttributeDefNames;
+   
+  /**
+   * if looking for assignments on assignments, this are the actions of the assignment the assignment is assigned to
+   */
+  private Set<String> assignAssignOwnerActions;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+  
   /** A for all, T or null for enabled only, F for disabled only */
   private String enabled;
   
