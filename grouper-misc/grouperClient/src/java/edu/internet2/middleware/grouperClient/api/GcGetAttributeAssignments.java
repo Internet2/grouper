@@ -53,13 +53,13 @@ public class GcGetAttributeAssignments {
   /**
    * value if you are passing in one attributeDefNameLookup
    */
-  private String theValue; 
+  private String value; 
     
   /**
    * T|F if you are finding an assignment that is an assignmentOnAssignment,
    * then get the assignment which tells you the owner as well
    */
-  private String includeAssignmentsFromAssignments;
+  private Boolean includeAssignmentsFromAssignments;
    
   /**
    * null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm
@@ -69,32 +69,32 @@ public class GcGetAttributeAssignments {
   /**
    * if looking for assignments on assignments, this is the assignment the assignment is assigned to
    */
-  private Set<WsAttributeAssignLookup> assignAssignOwnerAttributeAssignLookups;
+  private Set<WsAttributeAssignLookup> assignAssignOwnerAttributeAssignLookups = new LinkedHashSet<WsAttributeAssignLookup>();
    
   /**
    * if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to
    */
-  private Set<String> assignAssignOwnerNamesOfAttributeDefs;
+  private Set<String> assignAssignOwnerNamesOfAttributeDefs = new LinkedHashSet<String>();
    
   /**
    * if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to
    */
-  private Set<String> assignAssignOwnerUuidsOfAttributeDefs;
+  private Set<String> assignAssignOwnerUuidsOfAttributeDefs = new LinkedHashSet<String>();
   
   /**
    * if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
    */
-  private Set<String> assignAssignOwnerNamesOfAttributeDefNames;
+  private Set<String> assignAssignOwnerNamesOfAttributeDefNames = new LinkedHashSet<String>();
    
   /**
    * if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
    */
-  private Set<String> assignAssignOwnerUuidsOfAttributeDefNames;
+  private Set<String> assignAssignOwnerUuidsOfAttributeDefNames = new LinkedHashSet<String>();
    
   /**
    * if looking for assignments on assignments, this are the actions of the assignment the assignment is assigned to
    */
-  private Set<String> assignAssignOwnerActions;
+  private Set<String> assignAssignOwnerActions = new LinkedHashSet<String>();
                                                                                                                                                                                                                                                                                                                                                                                                                                                            
   
   /** A for all, T or null for enabled only, F for disabled only */
@@ -147,6 +147,46 @@ public class GcGetAttributeAssignments {
     return this;
   }
   
+  /**
+   * 
+   * @param theIncludeAssignmentsFromAssignments
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignments assignIncludeAssignmentsFromAssignments(Boolean theIncludeAssignmentsFromAssignments) {
+    this.includeAssignmentsFromAssignments = theIncludeAssignmentsFromAssignments;
+    return this;
+  }
+  
+  /**
+   * 
+   * @param theAttributeDefType
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignments assignAttributeDefType(String theAttributeDefType) {
+    this.attributeDefType = theAttributeDefType;
+    return this;
+  }
+  
+  /**
+   * 
+   * @param theAttributeDefValueType
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignments assignAttributeDefValueType(String theAttributeDefValueType) {
+    this.attributeDefValueType = theAttributeDefValueType;
+    return this;
+  }
+  
+  /**
+   * 
+   * @param theValue
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignments assignValue(Object theValue) {
+    this.value = GrouperClientUtils.stringValue(theValue);
+    return this;
+  }
+  
   /** to query, or none to query all actions */
   private Set<String> actions = new LinkedHashSet<String>();
   
@@ -159,6 +199,81 @@ public class GcGetAttributeAssignments {
     this.actions.add(action);
     return this;
   }
+  
+  /**
+   * 
+   * @param action
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignments addAssignAssignOwnerAction(String action) {
+    this.assignAssignOwnerActions.add(action);
+    return this;
+  }
+  
+
+  
+  /**
+   * 
+   * @param assignAssignOwnerAttributeAssignLookup
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignments addAssignAssignOwnerAttributeAssignLookup(WsAttributeAssignLookup assignAssignOwnerAttributeAssignLookup) {
+    this.assignAssignOwnerAttributeAssignLookups.add(assignAssignOwnerAttributeAssignLookup);
+    return this;
+  }
+  
+  /**
+   * add a assign assign owner attribute assign id lookup
+   * @param attributeAssignId id
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignments addAssignAssignOwnerAttributeAssignId(String attributeAssignId) {
+    WsAttributeAssignLookup wsAttributeAssignLookup = new WsAttributeAssignLookup();
+    wsAttributeAssignLookup.setUuid(attributeAssignId);
+    this.assignAssignOwnerAttributeAssignLookups.add(wsAttributeAssignLookup);
+    return this;
+  }
+
+  /**
+   * 
+   * @param assignAssignOwnerNamesOfAttributeDefName
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignments addAssignAssignOwnerNameOfAttributeDefName(String assignAssignOwnerNamesOfAttributeDefName) {
+    this.assignAssignOwnerNamesOfAttributeDefNames.add(assignAssignOwnerNamesOfAttributeDefName);
+    return this;
+  }
+  
+  /**
+   * 
+   * @param assignAssignOwnerNamesOfAttributeDefs
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignments addAssignAssignOwnerNameOfAttributeDef(String assignAssignOwnerNamesOfAttributeDef) {
+    this.assignAssignOwnerNamesOfAttributeDefs.add(assignAssignOwnerNamesOfAttributeDef);
+    return this;
+  }
+  
+  /**
+   * 
+   * @param assignAssignOwnerUuidsOfAttributeDefName
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignments addAssignAssignOwnerUuidOfAttributeDefName(String assignAssignOwnerUuidsOfAttributeDefName) {
+    this.assignAssignOwnerUuidsOfAttributeDefNames.add(assignAssignOwnerUuidsOfAttributeDefName);
+    return this;
+  }
+  
+  /**
+   * 
+   * @param assignAssignOwnerUuidsOfAttributeDef
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignments addAssignAssignOwnerUuidOfAttributeDef(String assignAssignOwnerUuidsOfAttributeDef) {
+    this.assignAssignOwnerUuidsOfAttributeDefs.add(assignAssignOwnerUuidsOfAttributeDef);
+    return this;
+  }
+  
   
   /**
    * assign client version
@@ -378,32 +493,36 @@ public class GcGetAttributeAssignments {
 
       getAttributeAssignments.setEnabled(this.enabled);
       
-      //########### ATTRIBUTE DEFS
-      List<WsAttributeDefLookup> attributeDefLookups = new ArrayList<WsAttributeDefLookup>();
-      //add names and/or uuids
-      for (String attributeDefName : this.attributeDefNames) {
-        attributeDefLookups.add(new WsAttributeDefLookup(attributeDefName, null));
+      {
+        //########### ATTRIBUTE DEFS
+        List<WsAttributeDefLookup> attributeDefLookups = new ArrayList<WsAttributeDefLookup>();
+        //add names and/or uuids
+        for (String attributeDefName : this.attributeDefNames) {
+          attributeDefLookups.add(new WsAttributeDefLookup(attributeDefName, null));
+        }
+        for (String attributeDefUuid : this.attributeDefUuids) {
+          attributeDefLookups.add(new WsAttributeDefLookup(null, attributeDefUuid));
+        }
+        if (GrouperClientUtils.length(attributeDefLookups) > 0) {
+          getAttributeAssignments.setWsAttributeDefLookups(GrouperClientUtils.toArray(attributeDefLookups, WsAttributeDefLookup.class));
+        }
       }
-      for (String attributeDefUuid : this.attributeDefUuids) {
-        attributeDefLookups.add(new WsAttributeDefLookup(null, attributeDefUuid));
+      
+      {
+        //########### ATTRIBUTE DEF NAMES
+        List<WsAttributeDefNameLookup> attributeDefNameLookups = new ArrayList<WsAttributeDefNameLookup>();
+        //add names and/or uuids
+        for (String attributeDefNameName : this.attributeDefNameNames) {
+          attributeDefNameLookups.add(new WsAttributeDefNameLookup(attributeDefNameName, null));
+        }
+        for (String attributeDefNameUuid : this.attributeDefNameUuids) {
+          attributeDefNameLookups.add(new WsAttributeDefNameLookup(null, attributeDefNameUuid));
+        }
+        if (GrouperClientUtils.length(attributeDefNameLookups) > 0) {
+          getAttributeAssignments.setWsAttributeDefNameLookups(GrouperClientUtils.toArray(attributeDefNameLookups, WsAttributeDefNameLookup.class));
+        }
       }
-      if (GrouperClientUtils.length(attributeDefLookups) > 0) {
-        getAttributeAssignments.setWsAttributeDefLookups(GrouperClientUtils.toArray(attributeDefLookups, WsAttributeDefLookup.class));
-      }
-
-      //########### ATTRIBUTE DEF NAMES
-      List<WsAttributeDefNameLookup> attributeDefNameLookups = new ArrayList<WsAttributeDefNameLookup>();
-      //add names and/or uuids
-      for (String attributeDefNameName : this.attributeDefNameNames) {
-        attributeDefNameLookups.add(new WsAttributeDefNameLookup(attributeDefNameName, null));
-      }
-      for (String attributeDefNameUuid : this.attributeDefNameUuids) {
-        attributeDefNameLookups.add(new WsAttributeDefNameLookup(null, attributeDefNameUuid));
-      }
-      if (GrouperClientUtils.length(attributeDefNameLookups) > 0) {
-        getAttributeAssignments.setWsAttributeDefNameLookups(GrouperClientUtils.toArray(attributeDefNameLookups, WsAttributeDefNameLookup.class));
-      }
-
+      
       //########### GROUPS
       List<WsGroupLookup> ownerGroupLookups = new ArrayList<WsGroupLookup>();
       //add names and/or uuids
@@ -478,6 +597,63 @@ public class GcGetAttributeAssignments {
 
       
       getAttributeAssignments.setAttributeAssignType(this.attributeAssignType);
+      
+      if (!GrouperClientUtils.isBlank(this.attributeDefValueType)) {
+        getAttributeAssignments.setAttributeDefValueType(this.attributeDefValueType);
+      }
+       
+      if (!GrouperClientUtils.isBlank(this.value)) {
+        getAttributeAssignments.setTheValue(this.value);
+      }
+       
+      if (this.includeAssignmentsFromAssignments != null) {
+        getAttributeAssignments.setIncludeAssignmentsFromAssignments(this.includeAssignmentsFromAssignments ? "T" : "F");
+      }
+      
+      if (!GrouperClientUtils.isBlank(this.attributeDefType)) {
+        getAttributeAssignments.setAttributeDefType(this.attributeDefType);
+      }
+      
+      if (this.assignAssignOwnerAttributeAssignLookups.size() > 0) {
+        getAttributeAssignments.setWsAssignAssignOwnerAttributeAssignLookups(GrouperClientUtils.toArray(
+            this.assignAssignOwnerAttributeAssignLookups, WsAttributeAssignLookup.class));
+      }
+      
+      {
+        //############# ASSIGN ASSIGN OWNER ATTRIBUTE DEFS
+        List<WsAttributeDefLookup> ownerAssignAssignOwnerAttributeDefLookups = new ArrayList<WsAttributeDefLookup>();
+        //add names and/or uuids
+        for (String assignAssignOwnerNameOfAttributeDef : this.assignAssignOwnerNamesOfAttributeDefs) {
+          ownerAssignAssignOwnerAttributeDefLookups.add(new WsAttributeDefLookup(assignAssignOwnerNameOfAttributeDef, null));
+        }
+        for (String assignAssignOwnerUuidOfAttributeDef : this.assignAssignOwnerUuidsOfAttributeDefs) {
+          ownerAssignAssignOwnerAttributeDefLookups.add(new WsAttributeDefLookup(null, assignAssignOwnerUuidOfAttributeDef));
+        }
+        if (GrouperClientUtils.length(ownerAssignAssignOwnerAttributeDefLookups) > 0) {
+          getAttributeAssignments.setWsAssignAssignOwnerAttributeDefLookups(GrouperClientUtils.toArray(ownerAssignAssignOwnerAttributeDefLookups, WsAttributeDefLookup.class));
+        }
+      }
+      
+      if (this.assignAssignOwnerActions.size() > 0) {
+        getAttributeAssignments.setActions(GrouperClientUtils.toArray(this.assignAssignOwnerActions, String.class));
+      }
+
+      {
+        //############# ASSIGN ASSIGN OWNER ATTRIBUTE DEF NAMES
+        List<WsAttributeDefNameLookup> ownerAssignAssignOwnerAttributeDefNameLookups = new ArrayList<WsAttributeDefNameLookup>();
+        //add names and/or uuids
+        for (String assignAssignOwnerNameOfAttributeDefName : this.assignAssignOwnerNamesOfAttributeDefNames) {
+          ownerAssignAssignOwnerAttributeDefNameLookups.add(new WsAttributeDefNameLookup(assignAssignOwnerNameOfAttributeDefName, null));
+        }
+        for (String assignAssignOwnerUuidOfAttributeDefName : this.assignAssignOwnerUuidsOfAttributeDefNames) {
+          ownerAssignAssignOwnerAttributeDefNameLookups.add(new WsAttributeDefNameLookup(null, assignAssignOwnerUuidOfAttributeDefName));
+        }
+        if (GrouperClientUtils.length(ownerAssignAssignOwnerAttributeDefNameLookups) > 0) {
+          getAttributeAssignments.setWsAssignAssignOwnerAttributeDefNameLookups(GrouperClientUtils.toArray(ownerAssignAssignOwnerAttributeDefNameLookups, WsAttributeDefNameLookup.class));
+        }
+      }
+       
+
       
       //add params if there are any
       if (this.params.size() > 0) {
