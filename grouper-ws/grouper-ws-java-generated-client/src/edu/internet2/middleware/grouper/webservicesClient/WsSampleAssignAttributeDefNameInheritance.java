@@ -29,11 +29,8 @@ import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
 import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.AssignAttributeDefNameInheritance;
 import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.AssignAttributeDefNameInheritanceResponse;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.FindAttributeDefNames;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.FindAttributeDefNamesResponse;
 import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsAssignAttributeDefNameInheritanceResults;
 import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsAttributeDefNameLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsFindAttributeDefNamesResults;
 
 
 /**

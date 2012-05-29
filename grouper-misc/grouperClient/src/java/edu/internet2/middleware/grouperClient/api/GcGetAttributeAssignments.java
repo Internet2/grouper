@@ -635,7 +635,7 @@ public class GcGetAttributeAssignments {
       }
       
       if (this.assignAssignOwnerActions.size() > 0) {
-        getAttributeAssignments.setActions(GrouperClientUtils.toArray(this.assignAssignOwnerActions, String.class));
+        getAttributeAssignments.setWsAssignAssignOwnerActions(GrouperClientUtils.toArray(this.assignAssignOwnerActions, String.class));
       }
 
       {

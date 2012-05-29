@@ -1193,6 +1193,16 @@
                         <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="enabled" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefValueType" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="theValue" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="includeAssignmentsFromAssignments" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefType" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsAssignAssignOwnerAttributeAssignId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsAssignAssignOwnerIdOfAttributeDef" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsAssignAssignOwnerNameOfAttributeDef" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsAssignAssignOwnerIdOfAttributeDefName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsAssignAssignOwnerNameOfAttributeDefName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsAssignAssignOwnerAction" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -1239,6 +1249,14 @@
                         <xs:element minOccurs="0" name="includeGroupDetail" nillable="true" type="xs:string"/>
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
                         <xs:element minOccurs="0" name="enabled" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefValueType" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="theValue" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="includeAssignmentsFromAssignments" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDefType" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAssignAssignOwnerAttributeAssignLookups" nillable="true" type="ns:WsAttributeAssignLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAssignAssignOwnerAttributeDefLookups" nillable="true" type="ns:WsAttributeDefLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAssignAssignOwnerAttributeDefNameLookups" nillable="true" type="ns:WsAttributeDefNameLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAssignAssignOwnerActions" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
