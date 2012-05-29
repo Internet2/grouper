@@ -25,6 +25,7 @@ import edu.emory.mathcs.backport.java.util.Arrays;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignValue;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
 
 
 /**
@@ -32,6 +33,39 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class WsAttributeAssignValue implements Comparable<WsAttributeAssignValue> {
 
+  /**
+   * turn an array to a string
+   * @param wsAttributeAssignValues1
+   * @param maxSize is the size where this value get larger than, 
+   * it should just quit and return what it has
+   * @return the string value
+   */
+  public static String toString(WsAttributeAssignValue[] wsAttributeAssignValues1, int maxSize) {
+    if (GrouperClientCommonUtils.length(wsAttributeAssignValues1) == 0) {
+      return "";
+    }
+    StringBuilder result = new StringBuilder();
+    
+    int index = 0;
+    for (WsAttributeAssignValue wsAttributeAssignValue : wsAttributeAssignValues1) {
+      if (maxSize > 0 && result.length() > maxSize) {
+        break;
+      }
+      result.append(index).append(". ");
+      if (!GrouperClientCommonUtils.isBlank(wsAttributeAssignValue.id)) {
+        result.append("id: ").append(wsAttributeAssignValue.id).append(", ");
+      }
+      if (!GrouperClientCommonUtils.isBlank(wsAttributeAssignValue.valueFormatted)) {
+        result.append("valueFormatted: ").append(wsAttributeAssignValue.valueFormatted).append(", ");
+      }
+      if (!GrouperClientCommonUtils.isBlank(wsAttributeAssignValue.valueSystem)) {
+        result.append("valueSystem: ").append(wsAttributeAssignValue.valueSystem).append(", ");
+      }
+      index++;
+    }
+    return result.toString();
+  }
+  
   /** id of this attribute assignment */
   private String id;
   

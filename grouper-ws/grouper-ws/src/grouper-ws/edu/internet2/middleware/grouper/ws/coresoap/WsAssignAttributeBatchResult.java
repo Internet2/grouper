@@ -25,7 +25,7 @@ package edu.internet2.middleware.grouper.ws.coresoap;
  * note if attribute assignments have values and the attribute is removed, the values will not be in 
  * this result
  */
-public class WsAssignAttributeResult implements Comparable<WsAssignAttributeResult> {
+public class WsAssignAttributeBatchResult implements Comparable<WsAssignAttributeBatchResult> {
 
   /** set of results of this attribute assign value */
   private WsAttributeAssignValueResult[] wsAttributeAssignValueResults;
@@ -111,7 +111,7 @@ public class WsAssignAttributeResult implements Comparable<WsAssignAttributeResu
    * sort by the underlying attribute assign
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
-  public int compareTo(WsAssignAttributeResult o2) {
+  public int compareTo(WsAssignAttributeBatchResult o2) {
     if (this == o2) {
       return 0;
     }

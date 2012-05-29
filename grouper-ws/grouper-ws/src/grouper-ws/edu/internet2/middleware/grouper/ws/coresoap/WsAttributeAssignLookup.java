@@ -100,6 +100,34 @@ public class WsAttributeAssignLookup {
   private String uuid;
 
   /**
+   * if sending in a batch of assignments, you can backreference the ids
+   * of assignments 0 indexed
+   */
+  private String indexOfBatchAssignmentUuid;
+
+  
+  
+  /**
+   * if sending in a batch of assignments, you can backreference the ids
+   * of assignments 0 indexed
+   * @return index
+   */
+  public String getIndexOfBatchAssignmentUuid() {
+    return this.indexOfBatchAssignmentUuid;
+  }
+
+
+  /**
+   * if sending in a batch of assignments, you can backreference the ids
+   * of assignments 0 indexed
+   * @param indexOfBatchAssignmentUuid1
+   */
+  public void setIndexOfBatchAssignmentUuid(String indexOfBatchAssignmentUuid1) {
+    this.indexOfBatchAssignmentUuid = indexOfBatchAssignmentUuid1;
+  }
+
+
+  /**
    * <pre>
    * 
    * Note: this is not a javabean property because we dont want it in the web service

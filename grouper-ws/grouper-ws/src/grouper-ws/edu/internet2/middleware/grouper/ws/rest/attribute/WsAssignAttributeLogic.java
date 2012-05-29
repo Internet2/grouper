@@ -272,6 +272,7 @@ public class WsAssignAttributeLogic {
    * @param attributeDefTypesToReplace if replacing attributeDefNames, then these are the
    * related attributeDefTypes, if blank, then just do all
    * @param disallowed is disallowed
+   * @param tallyResults true to tally results, false to not
    */
   public static void assignAttributesHelper(AttributeAssignType attributeAssignType,
       WsAttributeDefNameLookup[] wsAttributeDefNameLookups,
@@ -290,7 +291,7 @@ public class WsAssignAttributeLogic {
       boolean includeGroupDetail, WsAssignAttributesResults wsAssignAttributesResults,
       GrouperSession session, WsParam[] params, TypeOfGroup typeOfGroup, AttributeDefType attributeDefType,
       WsAttributeDefLookup[] attributeDefsToReplace, String[] actionsToReplace, String[] attributeDefTypesToReplace, 
-      Boolean disallowed) {
+      Boolean disallowed, boolean tallyResults) {
     
     final String[] subjectAttributeNamesToRetrieve = GrouperServiceUtils
       .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
