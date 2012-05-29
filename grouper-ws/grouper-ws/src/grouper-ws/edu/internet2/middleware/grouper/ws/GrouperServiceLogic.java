@@ -58,7 +58,6 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignOperation;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueOperation;
-import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue.AttributeAssignValueType;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
@@ -103,7 +102,9 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchEntry;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesLiteResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesLiteResult;
@@ -4898,42 +4899,92 @@ public class GrouperServiceLogic {
         throw new WsInvalidQueryException("You need to pass in an attributeAssignType");
       }
       
+      //if true, return no results
+      boolean notFound = false;
+      
       //get the attributeAssignids to retrieve
       Set<String> attributeAssignIds = WsAttributeAssignLookup.convertToAttributeAssignIds(session, wsAttributeAssignLookups, errorMessage);
       
+      if (!GrouperServiceUtils.nullArray(wsAttributeAssignLookups) && GrouperUtil.length(attributeAssignIds) == 0) {
+        notFound = true;
+      }
+      
       //get the attributedefs to retrieve
       Set<String> attributeDefIds = WsAttributeDefLookup.convertToAttributeDefIds(session, wsAttributeDefLookups, errorMessage, null, false, null, null);
+
+      if (!GrouperServiceUtils.nullArray(wsAttributeDefLookups) && GrouperUtil.length(attributeDefIds) == 0) {
+        notFound = true;
+      }
       
       //get the attributeDefNames to retrieve
       Set<String> attributeDefNameIds = WsAttributeDefNameLookup.convertToAttributeDefNameIds(session, wsAttributeDefNameLookups, errorMessage, null, false, null, null);
       
+      if (!GrouperServiceUtils.nullArray(wsAttributeDefNameLookups) && GrouperUtil.length(attributeDefNameIds) == 0) {
+        notFound = true;
+      }
+
       //get all the owner groups
       Set<String> ownerGroupIds = WsGroupLookup.convertToGroupIds(session, wsOwnerGroupLookups, errorMessage, null, false, null, null, lookupCount);
       
+      if (!GrouperServiceUtils.nullArray(wsOwnerGroupLookups) && GrouperUtil.length(ownerGroupIds) == 0) {
+        notFound = true;
+      }
+
       //get all the owner stems
       Set<String> ownerStemIds = WsStemLookup.convertToStemIds(session, wsOwnerStemLookups, errorMessage, lookupCount);
       
+      if (!GrouperServiceUtils.nullArray(wsOwnerStemLookups) && GrouperUtil.length(ownerStemIds) == 0) {
+        notFound = true;
+      }
+
       //get all the owner member ids
       Set<String> ownerMemberIds = WsSubjectLookup.convertToMemberIds(session, wsOwnerSubjectLookups, errorMessage, lookupCount);
       
+      if (!GrouperServiceUtils.nullArray(wsOwnerSubjectLookups) && GrouperUtil.length(ownerMemberIds) == 0) {
+        notFound = true;
+      }
+
       //get all the owner membership ids
       Set<String> ownerMembershipIds = WsMembershipLookup.convertToMembershipIds(session, wsOwnerMembershipLookups, errorMessage, lookupCount);
       
+      if (!GrouperServiceUtils.nullArray(wsOwnerMembershipLookups) && GrouperUtil.length(ownerMembershipIds) == 0) {
+        notFound = true;
+      }
+
       //get all the owner membership any ids
       Set<MultiKey> ownerGroupMemberIds = WsMembershipAnyLookup.convertToGroupMemberIds(session, wsOwnerMembershipAnyLookups, errorMessage, null, lookupCount);
       
+      if (!GrouperServiceUtils.nullArray(wsOwnerMembershipAnyLookups) && GrouperUtil.length(ownerGroupMemberIds) == 0) {
+        notFound = true;
+      }
+
       //get all the owner attributeDef ids
       Set<String> ownerAttributeDefIds = WsAttributeDefLookup.convertToAttributeDefIds(session, wsOwnerAttributeDefLookups, errorMessage, null, false, null, null, lookupCount);
+
+      if (!GrouperServiceUtils.nullArray(wsOwnerAttributeDefLookups) && GrouperUtil.length(ownerAttributeDefIds) == 0) {
+        notFound = true;
+      }
 
       //get owner attribute assign ids
       Set<String> ownerAttributeAssignIds = WsAttributeAssignLookup.convertToAttributeAssignIds(session, wsAssignAssignOwnerAttributeAssignLookups, errorMessage, lookupCount);
 
+      if (!GrouperServiceUtils.nullArray(wsAssignAssignOwnerAttributeAssignLookups) && GrouperUtil.length(ownerAttributeAssignIds) == 0) {
+        notFound = true;
+      }
+
       //get the attributedefs to retrieve
       Set<String> assignAssignOwnerAttributeDefIds = WsAttributeDefLookup.convertToAttributeDefIds(session, wsAssignAssignOwnerAttributeDefLookups, errorMessage, null, false, null, null);
       
+      if (!GrouperServiceUtils.nullArray(wsAssignAssignOwnerAttributeDefLookups) && GrouperUtil.length(assignAssignOwnerAttributeDefIds) == 0) {
+        notFound = true;
+      }
+
       //get the attributeDefNames to retrieve
       Set<String> assignAssignOwnerAttributeDefNameIds = WsAttributeDefNameLookup.convertToAttributeDefNameIds(session, wsAssignAssignOwnerAttributeDefNameLookups, errorMessage, null, false, null, null);
       
+      if (!GrouperServiceUtils.nullArray(wsAssignAssignOwnerAttributeDefNameLookups) && GrouperUtil.length(assignAssignOwnerAttributeDefNameIds) == 0) {
+        notFound = true;
+      }
 
       if (lookupCount[0] > 1) {
         throw new WsInvalidQueryException("Why is there more than one type of lookup?  ");
@@ -5003,168 +5054,173 @@ public class GrouperServiceLogic {
           throw new RuntimeException("Not expecting attribute assign type: " + attributeAssignType);
       }
       
+      //if couldnt find one of the lookups...
+      if (notFound) {
+        results = new HashSet<AttributeAssign>();
+      } else {
 
-      switch(attributeAssignType) {
-        case group:
-          
-          //if there is a lookup and its not about groups, then there is a problem
-          if (lookupCount[0] != GrouperUtil.length(wsOwnerGroupLookups)) {
-            throw new WsInvalidQueryException("Group calls can only have group owner lookups.  ");
-          }
-          
-          results = GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignments(
-              attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerGroupIds, actionsCollection, 
-              enabledBoolean, includeAssignmentsOnAssignments, attributeDefType, attributeDefValueType, 
-              theValue);
-          
-          break;  
-        case stem:
-          
-          //if there is a lookup and its not about stems, then there is a problem
-          if (lookupCount[0] != GrouperUtil.length(wsOwnerStemLookups)) {
-            throw new WsInvalidQueryException("Stem calls can only have stem owner lookups.  ");
-          }
-          
-          results = GrouperDAOFactory.getFactory().getAttributeAssign().findStemAttributeAssignments(
-              attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerStemIds, actionsCollection, 
-              enabledBoolean, includeAssignmentsOnAssignments, attributeDefType, attributeDefValueType, theValue);
-          
-          break;  
-        case member:
-          
-          //if there is a lookup and its not about subjects, then there is a problem
-          if (lookupCount[0] != GrouperUtil.length(wsOwnerSubjectLookups)) {
-            throw new WsInvalidQueryException("Subject calls can only have subject owner lookups.  ");
-          }
-          
-          results = GrouperDAOFactory.getFactory().getAttributeAssign().findMemberAttributeAssignments(
-              attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerMemberIds, actionsCollection, 
-              enabledBoolean, includeAssignmentsOnAssignments, attributeDefType, attributeDefValueType, theValue);
-          
-          break;  
-        case imm_mem:
-          
-          //if there is a lookup and its not about memberships, then there is a problem
-          if (lookupCount[0] != GrouperUtil.length(wsOwnerMembershipLookups)) {
-            throw new WsInvalidQueryException("Membership calls can only have membership owner lookups.  ");
-          }
-          
-          results = GrouperDAOFactory.getFactory().getAttributeAssign().findMembershipAttributeAssignments(
-              attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerMembershipIds, actionsCollection, 
-              enabledBoolean, includeAssignmentsOnAssignments, attributeDefType, attributeDefValueType, theValue);
-          
-          break;  
-        case any_mem:
-          
-          //if there is a lookup and its not about memberships, then there is a problem
-          if (lookupCount[0] != GrouperUtil.length(wsOwnerMembershipAnyLookups)) {
-            throw new WsInvalidQueryException("MembershipAny calls can only have membershipAny owner lookups.  ");
-          }
-          
-          results = GrouperDAOFactory.getFactory().getAttributeAssign().findAnyMembershipAttributeAssignments(
-              attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerGroupMemberIds, actionsCollection, 
-              enabledBoolean, includeAssignmentsOnAssignments, attributeDefType, attributeDefValueType, 
-              theValue);
-          
-          break;  
-        case attr_def:
-          
-          //if there is a lookup and its not about attr def, then there is a problem
-          if (lookupCount[0] != GrouperUtil.length(wsOwnerAttributeDefLookups)) {
-            throw new WsInvalidQueryException("attributeDef calls can only have attributeDef owner lookups.  ");
-          }
-          
-          results = GrouperDAOFactory.getFactory().getAttributeAssign().findAttributeDefAttributeAssignments(
-              attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerAttributeDefIds, actionsCollection, 
-              enabledBoolean, includeAssignmentsOnAssignments, attributeDefType, attributeDefValueType, theValue);
-          
-          break;  
-        case group_asgn:
-          
-          //if there is a lookup and its not about attr def, then there is a problem
-          if (lookupCount[0] != GrouperUtil.length(ownerAttributeAssignIds) + GrouperUtil.length(ownerGroupIds)) {
-            throw new WsInvalidQueryException("group_asgn calls can only have attribute assign owner lookups and/or group lookups.  ");
-          }
-          
-          results = GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(
-              attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerGroupIds, actionsCollection, 
-              enabledBoolean, attributeDefType, attributeDefValueType, theValue, includeAssignmentsFromAssignments, 
-              ownerAttributeAssignIds, assignAssignOwnerAttributeDefIds, assignAssignOwnerAttributeDefNameIds, ownerActionsCollection, true);
-
-          break;
-          
-        case stem_asgn:
-          
-          //if there is a lookup and its not about attr def, then there is a problem
-          if (lookupCount[0] != GrouperUtil.length(ownerAttributeAssignIds) + GrouperUtil.length(ownerStemIds)) {
-            throw new WsInvalidQueryException("stem_asgn calls can only have attribute assign owner lookups and/or stem lookups.  ");
-          }
-
-          results = GrouperDAOFactory.getFactory().getAttributeAssign().findStemAttributeAssignmentsOnAssignments(
-              attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerStemIds, actionsCollection, 
-              enabledBoolean, attributeDefType, attributeDefValueType, theValue, includeAssignmentsFromAssignments, 
-              ownerAttributeAssignIds, assignAssignOwnerAttributeDefIds, assignAssignOwnerAttributeDefNameIds, ownerActionsCollection, true);
-
-          break;
-          
-        case mem_asgn:
-          
-          //if there is a lookup and its not about attr def, then there is a problem
-          if (lookupCount[0] != GrouperUtil.length(ownerAttributeAssignIds) + GrouperUtil.length(ownerMemberIds)) {
-            throw new WsInvalidQueryException("mem_asgn calls can only have attribute assign owner lookups and/or member lookups.  ");
-          }
-
-          results = GrouperDAOFactory.getFactory().getAttributeAssign().findMemberAttributeAssignmentsOnAssignments(
-              attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerMemberIds, actionsCollection, 
-              enabledBoolean, attributeDefType, attributeDefValueType, theValue, includeAssignmentsFromAssignments, 
-              ownerAttributeAssignIds, assignAssignOwnerAttributeDefIds, assignAssignOwnerAttributeDefNameIds, ownerActionsCollection, true);
-
-          break;
-          
-        case any_mem_asgn:
-          
-          //if there is a lookup and its not about attr def, then there is a problem
-          if (lookupCount[0] != GrouperUtil.length(ownerAttributeAssignIds) + GrouperUtil.length(ownerGroupMemberIds)) {
-            throw new WsInvalidQueryException("any_mem_asgn calls can only have attribute assign owner lookups and/or any_mem lookups.  ");
-          }
-
-          results = GrouperDAOFactory.getFactory().getAttributeAssign().findAnyMembershipAttributeAssignmentsOnAssignments(
-              attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerGroupMemberIds, actionsCollection, 
-              enabledBoolean, attributeDefType, attributeDefValueType, theValue, includeAssignmentsFromAssignments, 
-              ownerAttributeAssignIds, assignAssignOwnerAttributeDefIds, assignAssignOwnerAttributeDefNameIds, ownerActionsCollection, true);
-
-          break;
-          
-        case attr_def_asgn:
-          
-          //if there is a lookup and its not about attr def, then there is a problem
-          if (lookupCount[0] != GrouperUtil.length(ownerAttributeAssignIds) + GrouperUtil.length(ownerAttributeDefIds)) {
-            throw new WsInvalidQueryException("attr_def_asgn calls can only have attribute assign owner lookups and/or owner attribute def lookups.  ");
-          }
-
-          results = GrouperDAOFactory.getFactory().getAttributeAssign().findAttributeDefAttributeAssignmentsOnAssignments(
-              attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerAttributeDefIds, actionsCollection, 
-              enabledBoolean, attributeDefType, attributeDefValueType, theValue, includeAssignmentsFromAssignments, 
-              ownerAttributeAssignIds, assignAssignOwnerAttributeDefIds, assignAssignOwnerAttributeDefNameIds, ownerActionsCollection, true);
-
-          break;
-          
-        case imm_mem_asgn:
-          
-          //if there is a lookup and its not about attr def, then there is a problem
-          if (lookupCount[0] != GrouperUtil.length(ownerAttributeAssignIds) + GrouperUtil.length(ownerAttributeDefIds)) {
-            throw new WsInvalidQueryException("imm_mem_asgn calls can only have attribute assign owner lookups and/or owner immediate membership lookups.  ");
-          }
-
-          results = GrouperDAOFactory.getFactory().getAttributeAssign().findMembershipAttributeAssignmentsOnAssignments(
-              attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerMembershipIds, actionsCollection, 
-              enabledBoolean, attributeDefType, attributeDefValueType, theValue, includeAssignmentsFromAssignments, 
-              ownerAttributeAssignIds, assignAssignOwnerAttributeDefIds, assignAssignOwnerAttributeDefNameIds, ownerActionsCollection, true);
-
-          break;
-          
-        default: 
-          throw new RuntimeException("Not expecting attribute assign type: " + attributeAssignType);
+        switch(attributeAssignType) {
+          case group:
+            
+            //if there is a lookup and its not about groups, then there is a problem
+            if (lookupCount[0] != GrouperUtil.length(wsOwnerGroupLookups)) {
+              throw new WsInvalidQueryException("Group calls can only have group owner lookups.  ");
+            }
+            
+            results = GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignments(
+                attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerGroupIds, actionsCollection, 
+                enabledBoolean, includeAssignmentsOnAssignments, attributeDefType, attributeDefValueType, 
+                theValue);
+            
+            break;  
+          case stem:
+            
+            //if there is a lookup and its not about stems, then there is a problem
+            if (lookupCount[0] != GrouperUtil.length(wsOwnerStemLookups)) {
+              throw new WsInvalidQueryException("Stem calls can only have stem owner lookups.  ");
+            }
+            
+            results = GrouperDAOFactory.getFactory().getAttributeAssign().findStemAttributeAssignments(
+                attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerStemIds, actionsCollection, 
+                enabledBoolean, includeAssignmentsOnAssignments, attributeDefType, attributeDefValueType, theValue);
+            
+            break;  
+          case member:
+            
+            //if there is a lookup and its not about subjects, then there is a problem
+            if (lookupCount[0] != GrouperUtil.length(wsOwnerSubjectLookups)) {
+              throw new WsInvalidQueryException("Subject calls can only have subject owner lookups.  ");
+            }
+            
+            results = GrouperDAOFactory.getFactory().getAttributeAssign().findMemberAttributeAssignments(
+                attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerMemberIds, actionsCollection, 
+                enabledBoolean, includeAssignmentsOnAssignments, attributeDefType, attributeDefValueType, theValue);
+            
+            break;  
+          case imm_mem:
+            
+            //if there is a lookup and its not about memberships, then there is a problem
+            if (lookupCount[0] != GrouperUtil.length(wsOwnerMembershipLookups)) {
+              throw new WsInvalidQueryException("Membership calls can only have membership owner lookups.  ");
+            }
+            
+            results = GrouperDAOFactory.getFactory().getAttributeAssign().findMembershipAttributeAssignments(
+                attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerMembershipIds, actionsCollection, 
+                enabledBoolean, includeAssignmentsOnAssignments, attributeDefType, attributeDefValueType, theValue);
+            
+            break;  
+          case any_mem:
+            
+            //if there is a lookup and its not about memberships, then there is a problem
+            if (lookupCount[0] != GrouperUtil.length(wsOwnerMembershipAnyLookups)) {
+              throw new WsInvalidQueryException("MembershipAny calls can only have membershipAny owner lookups.  ");
+            }
+            
+            results = GrouperDAOFactory.getFactory().getAttributeAssign().findAnyMembershipAttributeAssignments(
+                attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerGroupMemberIds, actionsCollection, 
+                enabledBoolean, includeAssignmentsOnAssignments, attributeDefType, attributeDefValueType, 
+                theValue);
+            
+            break;  
+          case attr_def:
+            
+            //if there is a lookup and its not about attr def, then there is a problem
+            if (lookupCount[0] != GrouperUtil.length(wsOwnerAttributeDefLookups)) {
+              throw new WsInvalidQueryException("attributeDef calls can only have attributeDef owner lookups.  ");
+            }
+            
+            results = GrouperDAOFactory.getFactory().getAttributeAssign().findAttributeDefAttributeAssignments(
+                attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerAttributeDefIds, actionsCollection, 
+                enabledBoolean, includeAssignmentsOnAssignments, attributeDefType, attributeDefValueType, theValue);
+            
+            break;  
+          case group_asgn:
+            
+            //if there is a lookup and its not about attr def, then there is a problem
+            if (lookupCount[0] != GrouperUtil.length(ownerAttributeAssignIds) + GrouperUtil.length(ownerGroupIds)) {
+              throw new WsInvalidQueryException("group_asgn calls can only have attribute assign owner lookups and/or group lookups.  ");
+            }
+            
+            results = GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(
+                attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerGroupIds, actionsCollection, 
+                enabledBoolean, attributeDefType, attributeDefValueType, theValue, includeAssignmentsFromAssignments, 
+                ownerAttributeAssignIds, assignAssignOwnerAttributeDefIds, assignAssignOwnerAttributeDefNameIds, ownerActionsCollection, true);
+  
+            break;
+            
+          case stem_asgn:
+            
+            //if there is a lookup and its not about attr def, then there is a problem
+            if (lookupCount[0] != GrouperUtil.length(ownerAttributeAssignIds) + GrouperUtil.length(ownerStemIds)) {
+              throw new WsInvalidQueryException("stem_asgn calls can only have attribute assign owner lookups and/or stem lookups.  ");
+            }
+  
+            results = GrouperDAOFactory.getFactory().getAttributeAssign().findStemAttributeAssignmentsOnAssignments(
+                attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerStemIds, actionsCollection, 
+                enabledBoolean, attributeDefType, attributeDefValueType, theValue, includeAssignmentsFromAssignments, 
+                ownerAttributeAssignIds, assignAssignOwnerAttributeDefIds, assignAssignOwnerAttributeDefNameIds, ownerActionsCollection, true);
+  
+            break;
+            
+          case mem_asgn:
+            
+            //if there is a lookup and its not about attr def, then there is a problem
+            if (lookupCount[0] != GrouperUtil.length(ownerAttributeAssignIds) + GrouperUtil.length(ownerMemberIds)) {
+              throw new WsInvalidQueryException("mem_asgn calls can only have attribute assign owner lookups and/or member lookups.  ");
+            }
+  
+            results = GrouperDAOFactory.getFactory().getAttributeAssign().findMemberAttributeAssignmentsOnAssignments(
+                attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerMemberIds, actionsCollection, 
+                enabledBoolean, attributeDefType, attributeDefValueType, theValue, includeAssignmentsFromAssignments, 
+                ownerAttributeAssignIds, assignAssignOwnerAttributeDefIds, assignAssignOwnerAttributeDefNameIds, ownerActionsCollection, true);
+  
+            break;
+            
+          case any_mem_asgn:
+            
+            //if there is a lookup and its not about attr def, then there is a problem
+            if (lookupCount[0] != GrouperUtil.length(ownerAttributeAssignIds) + GrouperUtil.length(ownerGroupMemberIds)) {
+              throw new WsInvalidQueryException("any_mem_asgn calls can only have attribute assign owner lookups and/or any_mem lookups.  ");
+            }
+  
+            results = GrouperDAOFactory.getFactory().getAttributeAssign().findAnyMembershipAttributeAssignmentsOnAssignments(
+                attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerGroupMemberIds, actionsCollection, 
+                enabledBoolean, attributeDefType, attributeDefValueType, theValue, includeAssignmentsFromAssignments, 
+                ownerAttributeAssignIds, assignAssignOwnerAttributeDefIds, assignAssignOwnerAttributeDefNameIds, ownerActionsCollection, true);
+  
+            break;
+            
+          case attr_def_asgn:
+            
+            //if there is a lookup and its not about attr def, then there is a problem
+            if (lookupCount[0] != GrouperUtil.length(ownerAttributeAssignIds) + GrouperUtil.length(ownerAttributeDefIds)) {
+              throw new WsInvalidQueryException("attr_def_asgn calls can only have attribute assign owner lookups and/or owner attribute def lookups.  ");
+            }
+  
+            results = GrouperDAOFactory.getFactory().getAttributeAssign().findAttributeDefAttributeAssignmentsOnAssignments(
+                attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerAttributeDefIds, actionsCollection, 
+                enabledBoolean, attributeDefType, attributeDefValueType, theValue, includeAssignmentsFromAssignments, 
+                ownerAttributeAssignIds, assignAssignOwnerAttributeDefIds, assignAssignOwnerAttributeDefNameIds, ownerActionsCollection, true);
+  
+            break;
+            
+          case imm_mem_asgn:
+            
+            //if there is a lookup and its not about attr def, then there is a problem
+            if (lookupCount[0] != GrouperUtil.length(ownerAttributeAssignIds) + GrouperUtil.length(ownerMembershipIds)) {
+              throw new WsInvalidQueryException("imm_mem_asgn calls can only have attribute assign owner lookups and/or owner immediate membership lookups.  ");
+            }
+  
+            results = GrouperDAOFactory.getFactory().getAttributeAssign().findMembershipAttributeAssignmentsOnAssignments(
+                attributeAssignIds, attributeDefIds, attributeDefNameIds, ownerMembershipIds, actionsCollection, 
+                enabledBoolean, attributeDefType, attributeDefValueType, theValue, includeAssignmentsFromAssignments, 
+                ownerAttributeAssignIds, assignAssignOwnerAttributeDefIds, assignAssignOwnerAttributeDefNameIds, ownerActionsCollection, true);
+  
+            break;
+            
+          default: 
+            throw new RuntimeException("Not expecting attribute assign type: " + attributeAssignType);
+        }
       }
       
       wsGetAttributeAssignmentsResults.assignResult(results, subjectAttributeNames);
@@ -5500,7 +5556,7 @@ public class GrouperServiceLogic {
           wsOwnerAttributeDefLookups, wsOwnerAttributeAssignLookups, actions,
           includeSubjectDetail, subjectAttributeNames, includeGroupDetail,
           wsAssignAttributesResults, session, params, null, null, 
-          attributeDefsToReplace, actionsToReplace, attributeDefTypesToReplace, false);
+          attributeDefsToReplace, actionsToReplace, attributeDefTypesToReplace, false, true);
 
         
     } catch (Exception e) {
@@ -6158,7 +6214,7 @@ public class GrouperServiceLogic {
           delegatable, null, wsAttributeAssignLookups, roleLookups, null, null, null, subjectRoleLookups, 
           null,null, actions, includeSubjectDetail, subjectAttributeNames, includeGroupDetail, 
           wsAssignAttributesResults, session, params, TypeOfGroup.role, AttributeDefType.perm,
-          attributeDefsToReplace, actionsToReplace, attributeDefTypesToReplace, disallowed);
+          attributeDefsToReplace, actionsToReplace, attributeDefTypesToReplace, disallowed, true);
       
     } catch (Exception e) {
       wsAssignAttributesResults.assignResultCodeException(null, theSummary, e);
@@ -7199,6 +7255,161 @@ public class GrouperServiceLogic {
   
     return wsFindAttributeDefNamesResults;
 
+  }
+
+  /**
+   * assign attributes and values to owner objects (groups, stems, etc), doing multiple operations in one batch
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param includeSubjectDetail
+   *            T|F, for if the extended subject information should be
+   *            returned (anything more than just the id)
+   * @param wsAssignAttributeBatchEntries batch of attribute assignments
+   * @param actAsSubjectLookup
+   * @param subjectAttributeNames are the additional subject attributes (data) to return.
+   * If blank, whatever is configured in the grouper-ws.properties will be sent
+   * @param includeGroupDetail T or F as to if the group detail should be returned
+   * @param params optional: reserved for future use
+   * @param txType is the GrouperTransactionType for the request.  If blank, defaults to
+   * NONE (will finish as much as possible).  Generally the only values for this param that make sense
+   * are NONE (or blank), and READ_WRITE_NEW.
+   * @return the results
+   */
+  @SuppressWarnings("unchecked")
+  public static WsAssignAttributesResults assignAttributesBatch(
+      final GrouperVersion clientVersion, final WsAssignAttributeBatchEntry[] wsAssignAttributeBatchEntries,
+      final WsSubjectLookup actAsSubjectLookup, final boolean includeSubjectDetail, GrouperTransactionType txType,
+      final String[] subjectAttributeNames, final boolean includeGroupDetail, final WsParam[] params) {  
+  
+    final WsAssignAttributesResults wsAssignAttributesResults = new WsAssignAttributesResults();
+  
+    GrouperSession session = null;
+    String theSummary = null;
+    try {
+  
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsAssignAttributesResults.getResponseMetadata().warnings());
+  
+      txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.NONE);
+      final GrouperTransactionType TX_TYPE = txType;
+
+      theSummary = "clientVersion: " + clientVersion 
+          + ", includeSubjectDetail: " + includeSubjectDetail + ", actAsSubject: "
+          + actAsSubjectLookup 
+          + ", subjectAttributeNames: "
+          + GrouperUtil.toStringForLog(subjectAttributeNames) + "\n, paramNames: "
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100) 
+          + "\n, wsAssignAttributeBatchEntries: "
+          + WsAssignAttributeBatchEntry.toString(wsAssignAttributeBatchEntries, 200);
+      
+      if (GrouperUtil.length(wsAssignAttributeBatchEntries) == 0) {
+        throw new WsInvalidQueryException(
+            "You must pass in at least one WsAssignAttributeBatchEntry");
+      }
+      
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+      final GrouperSession SESSION = session;
+      
+      //there should be as many results as there were batch entries
+      wsAssignAttributesResults.setWsAttributeAssignResults(new WsAssignAttributeResult[GrouperUtil.length(wsAssignAttributeBatchEntries)]);
+      
+      //start a transaction (or not if none)
+      GrouperTransaction.callbackGrouperTransaction(txType,
+          new GrouperTransactionHandler() {
+
+            public Object callback(GrouperTransaction grouperTransaction)
+                throws GrouperDAOException {
+
+              
+              for (WsAssignAttributeBatchEntry wsAssignAttributeBatchEntry : wsAssignAttributeBatchEntries) {
+                
+                AttributeAssignType attributeAssignType = GrouperServiceUtils.convertAttributeAssignType(
+                   wsAssignAttributeBatchEntry.getAttributeAssignType());
+                
+                WsAttributeDefNameLookup[] wsAttributeDefNameLookups = 
+                  new WsAttributeDefNameLookup[]{wsAssignAttributeBatchEntry.getWsAttributeDefNameLookup()};
+                
+                AttributeAssignOperation attributeAssignOperation = GrouperServiceUtils.convertAttributeAssignOperation(
+                    wsAssignAttributeBatchEntry.getAttributeAssignOperation());
+                
+                if (attributeAssignOperation == AttributeAssignOperation.replace_attrs) {
+                  throw new WsInvalidQueryException("You cannot relace attributes in a batch operation.  ");
+                }
+                
+                AttributeAssignValueOperation attributeAssignValueOperation = GrouperServiceUtils.
+                  convertAttributeAssignValueOperation(wsAssignAttributeBatchEntry.getAttributeAssignValueOperation());
+
+                if (attributeAssignType == null) {
+                  throw new WsInvalidQueryException("You need to pass in an attributeAssignType.  ");
+                }
+                
+                if (attributeAssignOperation == null) {
+                  throw new WsInvalidQueryException("You need to pass in an attributeAssignOperation.  ");
+                }
+
+                Timestamp assignmentEnabledTime = GrouperServiceUtils.stringToTimestamp(
+                    wsAssignAttributeBatchEntry.getAssignmentEnabledTime());
+                
+                Timestamp assignmentDisabledTime = GrouperServiceUtils.stringToTimestamp(
+                    wsAssignAttributeBatchEntry.getAssignmentDisabledTime());
+
+                AttributeAssignDelegatable attributeAssignDelegatable = GrouperServiceUtils
+                  .convertAttributeAssignDelegatable(wsAssignAttributeBatchEntry.getDelegatable());
+
+                WsAttributeAssignLookup[] wsAttributeAssignLookups = new WsAttributeAssignLookup[]{
+                    wsAssignAttributeBatchEntry.getWsAttributeAssignLookup()};
+                
+                WsGroupLookup[] wsOwnerGroupLookups = new WsGroupLookup[]{wsAssignAttributeBatchEntry.getWsOwnerGroupLookup()};
+
+                WsStemLookup[] wsOwnerStemLookups = new WsStemLookup[]{wsAssignAttributeBatchEntry.getWsOwnerStemLookup()};
+                
+                WsSubjectLookup[] wsOwnerSubjectLookups = new WsSubjectLookup[]{wsAssignAttributeBatchEntry.getWsOwnerSubjectLookup()};
+                
+                WsMembershipLookup[] wsOwnerMembershipLookups = new WsMembershipLookup[]{
+                    wsAssignAttributeBatchEntry.getWsOwnerMembershipLookup()};
+                
+                WsMembershipAnyLookup[] wsOwnerMembershipAnyLookups = new WsMembershipAnyLookup[]{wsAssignAttributeBatchEntry.getWsOwnerMembershipAnyLookup()};
+
+                WsAttributeDefLookup[] wsOwnerAttributeDefLookups = new WsAttributeDefLookup[]{wsAssignAttributeBatchEntry.getWsOwnerAttributeDefLookup()};
+                
+                WsAttributeAssignLookup[] wsOwnerAttributeAssignLookups = new WsAttributeAssignLookup[]{wsAssignAttributeBatchEntry.getWsAttributeAssignLookup()};
+                
+                WsAssignAttributeLogic.assignAttributesHelper(attributeAssignType, wsAttributeDefNameLookups,
+                    attributeAssignOperation, wsAssignAttributeBatchEntry.getValues(), 
+                    wsAssignAttributeBatchEntry.getAssignmentNotes(), assignmentEnabledTime,
+                    assignmentDisabledTime, attributeAssignDelegatable, attributeAssignValueOperation,
+                    wsAttributeAssignLookups, wsOwnerGroupLookups, wsOwnerStemLookups,
+                    wsOwnerSubjectLookups, wsOwnerMembershipLookups, wsOwnerMembershipAnyLookups,
+                    wsOwnerAttributeDefLookups, wsOwnerAttributeAssignLookups, new String[]{wsAssignAttributeBatchEntry.getAction()},
+                    includeSubjectDetail, subjectAttributeNames, includeGroupDetail,
+                    wsAssignAttributesResults, SESSION, params, null, null, 
+                    null, null, null, false, false);
+                
+              }
+              
+//              if (!wsAddMemberResults.tallyResults(TX_TYPE, THE_SUMMARY)) {
+//                grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
+//              }
+//
+//              for (WsStemDeleteResult wsStemDeleteResult : this.getResults()) {
+//                if (GrouperUtil.booleanValue(wsStemDeleteResult.getResultMetadata()
+//                    .getSuccess(), true)) {
+//                  wsStemDeleteResult
+//                      .assignResultCode(WsStemDeleteResultCode.TRANSACTION_ROLLED_BACK);
+//                  failures++;
+//                }
+//              }
+              return null;
+            }
+      });
+        
+    } catch (Exception e) {
+      wsAssignAttributesResults.assignResultCodeException(null, theSummary, e);
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  
+    return wsAssignAttributesResults; 
+  
   }
         
 }
