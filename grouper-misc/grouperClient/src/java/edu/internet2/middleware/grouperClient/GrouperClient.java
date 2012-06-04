@@ -3298,8 +3298,87 @@ public class GrouperClient {
       }
     }
     
+    {
+      String attributeDefValueType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "attributeDefValueType", false);
+      gcGetAttributeAssignments.assignAttributeDefValueType(attributeDefValueType);
+    }
+    
+    {
+      String value = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "value", false);
+      gcGetAttributeAssignments.assignValue(value);
+    }
+    
+    {
+      Boolean includeAssignmentsFromAssignments = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeAssignmentsFromAssignments");
+      gcGetAttributeAssignments.assignIncludeAssignmentsFromAssignments(includeAssignmentsFromAssignments);
+    }
+
+    {
+      String attributeDefType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "attributeDefType", false);
+      gcGetAttributeAssignments.assignAttributeDefType(attributeDefType);
+    }
+
+    {
+      Set<String> assignAssignOwnerAttributeAssignUuids = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "assignAssignOwnerAttributeAssignUuids", false);
+      
+      if (GrouperClientUtils.length(assignAssignOwnerAttributeAssignUuids) > 0) {
+        for (String assignAssignOwnerAttributeAssignUuid : assignAssignOwnerAttributeAssignUuids) {
+          gcGetAttributeAssignments.addAssignAssignOwnerAttributeAssignId(assignAssignOwnerAttributeAssignUuid);
+        }
+      }
+    }
+    
+    {
+      Set<String> assignAssignOwnerActions = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "assignAssignOwnerActions", false);
+      
+      if (GrouperClientUtils.length(assignAssignOwnerActions) > 0) {
+        for (String assignAssignOwnerAction : assignAssignOwnerActions) {
+          gcGetAttributeAssignments.addAssignAssignOwnerAction(assignAssignOwnerAction);
+        }
+      }
+    }
+    
+    {
+      Set<String> assignAssignOwnerNamesOfAttributeDefs = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "assignAssignOwnerNamesOfAttributeDefs", false);
+      
+      if (GrouperClientUtils.length(assignAssignOwnerNamesOfAttributeDefs) > 0) {
+        for (String assignAssignOwnerNameOfAttributeDef : assignAssignOwnerNamesOfAttributeDefs) {
+          gcGetAttributeAssignments.addAssignAssignOwnerNameOfAttributeDef(assignAssignOwnerNameOfAttributeDef);
+        }
+      }
+    }
+    
+    {
+      Set<String> assignAssignOwnerUuidsOfAttributeDefs = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "assignAssignOwnerUuidsOfAttributeDefs", false);
+      
+      if (GrouperClientUtils.length(assignAssignOwnerUuidsOfAttributeDefs) > 0) {
+        for (String assignAssignOwnerUuidOfAttributeDef : assignAssignOwnerUuidsOfAttributeDefs) {
+          gcGetAttributeAssignments.addAssignAssignOwnerUuidOfAttributeDef(assignAssignOwnerUuidOfAttributeDef);
+        }
+      }
+    }
     
     
+    {
+      Set<String> assignAssignOwnerNamesOfAttributeDefNames = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "assignAssignOwnerNamesOfAttributeDefNames", false);
+      
+      if (GrouperClientUtils.length(assignAssignOwnerNamesOfAttributeDefNames) > 0) {
+        for (String assignAssignOwnerNameOfAttributeDefName : assignAssignOwnerNamesOfAttributeDefNames) {
+          gcGetAttributeAssignments.addAssignAssignOwnerNameOfAttributeDefName(assignAssignOwnerNameOfAttributeDefName);
+        }
+      }
+    }
+    
+    {
+      Set<String> assignAssignOwnerUuidsOfAttributeDefNames = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "assignAssignOwnerUuidsOfAttributeDefNames", false);
+      
+      if (GrouperClientUtils.length(assignAssignOwnerUuidsOfAttributeDefNames) > 0) {
+        for (String assignAssignOwnerUuidOfAttributeDefName : assignAssignOwnerUuidsOfAttributeDefNames) {
+          gcGetAttributeAssignments.addAssignAssignOwnerUuidOfAttributeDefName(assignAssignOwnerUuidOfAttributeDefName);
+        }
+      }
+    }
+
     {
       List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
       

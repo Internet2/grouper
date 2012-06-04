@@ -202,6 +202,17 @@ public class ByHqlStatic implements HqlQuery {
   /**
    * assign data to the bind var
    * @param bindVarName
+   * @param value is double
+   * @return this object for chaining
+   */
+  public ByHqlStatic setDouble(String bindVarName, Double value) {
+    this.bindVarNameParams().add(new HibernateParam(bindVarName, value, Double.class));
+    return this;
+  }
+
+  /**
+   * assign data to the bind var
+   * @param bindVarName
    * @param value is long, primitive so not null
    * @return this object for chaining
    */

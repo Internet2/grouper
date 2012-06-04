@@ -3107,6 +3107,22 @@ public class Membership extends GrouperAPI implements
     
   }
 
+  /** */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  private AttributeValueDelegate attributeValueDelegateEffMship;
+  
+  /**
+   * this delegate works on attributes and values at the same time
+   * @return the delegate
+   */
+  public AttributeValueDelegate getAttributeValueDelegateEffMship() {
+    if (this.attributeValueDelegateEffMship == null) {
+      this.attributeValueDelegateEffMship = new AttributeValueDelegate(this.getAttributeDelegateEffMship());
+    }
+    return this.attributeValueDelegateEffMship;
+  }
+  
+
   /**
    * delegate for effective memberships
    * @return the delegate
@@ -3115,7 +3131,7 @@ public class Membership extends GrouperAPI implements
     if (!StringUtils.equals(this.fieldId, FieldFinder.find("members", true).getUuid())) {
       throw new RuntimeException("You can only put effective attributes on members list memberships");
     }
-    return new AttributeAssignEffMshipDelegate(this.getGroup(), this.getMember() );
+    return new AttributeAssignEffMshipDelegate(this.getOwnerGroup(), this.getMember() );
   }
   
 

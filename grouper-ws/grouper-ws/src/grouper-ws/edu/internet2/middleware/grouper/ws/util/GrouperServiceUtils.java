@@ -45,6 +45,8 @@ import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignOperation;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
@@ -677,6 +679,42 @@ public final class GrouperServiceUtils {
       throw new WsInvalidQueryException(e);
     }
     return attributeAssignOperationEnum;
+  }
+
+  /**
+   * convert the attributeDefValueType, default to null
+   * @param attributeDefValueTypeString
+   * @return the attributeDefValueType
+   * @throws WsInvalidQueryException if there is a problem
+   */
+  public static AttributeDefValueType convertAttributeDefValueType(String attributeDefValueTypeString)
+      throws WsInvalidQueryException {
+    AttributeDefValueType attributeDefValueTypeEnum = null;
+    try {
+      attributeDefValueTypeEnum = AttributeDefValueType.valueOfIgnoreCase(attributeDefValueTypeString, false);
+    } catch (Exception e) {
+      //this exception will be descriptive
+      throw new WsInvalidQueryException(e);
+    }
+    return attributeDefValueTypeEnum;
+  }
+
+  /**
+   * convert the attributeDefType, default to null
+   * @param attributeDefTypeString
+   * @return the attributeDefType
+   * @throws WsInvalidQueryException if there is a problem
+   */
+  public static AttributeDefType convertAttributeDefType(String attributeDefTypeString)
+      throws WsInvalidQueryException {
+    AttributeDefType attributeDefTypeEnum = null;
+    try {
+      attributeDefTypeEnum = AttributeDefType.valueOfIgnoreCase(attributeDefTypeString, false);
+    } catch (Exception e) {
+      //this exception will be descriptive
+      throw new WsInvalidQueryException(e);
+    }
+    return attributeDefTypeEnum;
   }
 
   /**

@@ -419,6 +419,9 @@
       <fileset dir="${grouper.lib.dir}/../jdbcSamples">
         <include name="*.jar"/>
       </fileset>
+      <fileset dir="${grouper.lib.dir}/../custom">
+        <include name="*.jar"/>
+      </fileset>
       <!-- this is for junit which is needed in dev since text classes extend GrouperTest -->
       <fileset file="${grouper.jar.name}/../test/grouper-test.jar" />
       <fileset dir="${grouper.lib.dir}">
@@ -517,6 +520,9 @@
 			  <include name="*.jar"/>
         <exclude name="grouper*.jar"/>
 			</fileset>
+      <fileset dir="${grouper.lib.dir}/../custom">
+        <include name="*.jar"/>
+      </fileset>
       <fileset dir="${grouper.lib.dir}">
         <include name="grouperClient.jar"/>
       </fileset>

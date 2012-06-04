@@ -585,6 +585,16 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   }
   
   /**
+   * this delegate works on attributes and values at the same time
+   * @param member 
+   * @return the delegate
+   */
+  public AttributeValueDelegate getAttributeValueDelegateEffMship(Member member) {
+    return new AttributeValueDelegate(this.getAttributeDelegateEffMship(member));
+  }
+  
+
+  /**
    * delegate for effective memberships
    * @param member 
    * @return the delegate
@@ -609,6 +619,26 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     return new AttributeAssignMembershipDelegate(membership);
   }
   
+  /**
+   * this delegate works on attributes and values at the same time
+   * @param member 
+   * @param field 
+   * @return the delegate
+   */
+  public AttributeValueDelegate getAttributeValueDelegateMembership(Member member, Field field) {
+    return new AttributeValueDelegate(this.getAttributeDelegateMembership(member, field));
+  }
+
+  /**
+   * this delegate works on attributes and values at the same time
+   * @param member 
+   * @return the delegate
+   */
+  public AttributeValueDelegate getAttributeValueDelegateMembership(Member member) {
+    return new AttributeValueDelegate(this.getAttributeDelegateMembership(member));
+  }
+
+
   /**
    * Retrieve default members {@link Field}.
    * <pre class="eg">
@@ -1543,6 +1573,32 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     throws  AttributeNotFoundException,
             GroupModifyException, 
             InsufficientPrivilegeException {
+    this.deleteAttribute(attrName, true);
+  }
+  
+  /**
+   * Delete a group attribute.
+   * <pre class="eg">
+   * try {
+   *   g.deleteAttribute(attribute);
+   * }
+   * catch (GroupModifyException e0) {
+   *   // Unable to modify group
+   * }
+   * catch (InsufficientPrivilegeException e1) {
+   *   // Not privileged to delete this attribute
+   * }
+   * </pre>
+   * @param   attrName  Delete this attribute.
+   * @param failOnRequiredAttribute true if exception when attribute is required
+   * @throws  AttributeNotFoundException
+   * @throws  GroupModifyException
+   * @throws  InsufficientPrivilegeException
+   */
+  public void deleteAttribute(final String attrName, final boolean failOnRequiredAttribute) 
+    throws  AttributeNotFoundException,
+            GroupModifyException, 
+            InsufficientPrivilegeException {
     HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
         new HibernateHandler() {
@@ -1560,7 +1616,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                 throw new AttributeNotFoundException(E.INVALID_ATTR_NAME + attrName);
               }
               Field f = FieldFinder.find(attrName, true);
-              if (f.getRequired()) {
+              if (failOnRequiredAttribute && f.getRequired()) {
                 throw new GroupModifyException( E.GROUP_DRA + f.getName() );
               }
               if ( !Group.this.canWriteField(f) ) {

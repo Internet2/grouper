@@ -18,6 +18,10 @@
  */
 package edu.internet2.middleware.grouper.attr;
 
+import java.sql.Timestamp;
+
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -38,6 +42,14 @@ public enum AttributeDefValueType {
     public boolean hasValue() {
       return true;
     }
+
+    /**
+     * @see AttributeDefValueType#convertToObject(String)
+     */
+    @Override
+    public Object convertToObject(Object theValue) {
+      return GrouperUtil.longObjectValue(theValue, true);
+    }
     
   },
   
@@ -52,7 +64,15 @@ public enum AttributeDefValueType {
     public boolean hasValue() {
       return true;
     }
-    
+
+    /**
+     * @see AttributeDefValueType#convertToObject(String)
+     */
+    @Override
+    public Object convertToObject(Object theValue) {
+      return GrouperUtil.toTimestamp(theValue);
+    }
+
   },
   
   /** text */
@@ -67,6 +87,18 @@ public enum AttributeDefValueType {
       return true;
     }
     
+
+    /**
+     * @see AttributeDefValueType#convertToObject(String)
+     */
+    @Override
+    public Object convertToObject(Object theValue) {
+      if (theValue != null) {
+        theValue = GrouperUtil.stringValue(theValue);
+      }
+      return theValue;
+    }
+
   },
   
   /** floating point number */
@@ -80,7 +112,15 @@ public enum AttributeDefValueType {
     public boolean hasValue() {
       return true;
     }
-    
+
+    /**
+     * @see AttributeDefValueType#convertToObject(String)
+     */
+    @Override
+    public Object convertToObject(Object theValue) {
+      return GrouperUtil.doubleObjectValue(theValue, true);
+    }
+
   },
   
   /** no value type, the attribute itself is all that is needed */
@@ -95,6 +135,18 @@ public enum AttributeDefValueType {
       return false;
     }
     
+
+    /**
+     * @see AttributeDefValueType#convertToObject(String)
+     */
+    @Override
+    public Object convertToObject(Object theValue) {
+      if (!GrouperUtil.isBlank(theValue)) {
+        throw new RuntimeException("Why does a marker attribute have a non-null value???");
+      }
+      return null;
+    }
+
   },
   
   /** this is a reference to a subject in the grouper_members table */
@@ -108,8 +160,27 @@ public enum AttributeDefValueType {
     public boolean hasValue() {
       return true;
     }
-    
+  
+    /**
+     * @see AttributeDefValueType#convertToObject(String)
+     */
+    @Override
+    public Object convertToObject(Object theValue) {
+      if (theValue == null || (!(theValue instanceof String))) {
+        throw new RuntimeException("theValue is null or not a string in a memberId value query!  '" + theValue + "'");
+      }
+      //its a string
+      return theValue;
+    }
+
   };
+  
+  /**
+   * convert from string to an object, e.g. from the string 12 to the integer 12
+   * @param theValue
+   * @return the object equivalent
+   */
+  public abstract Object convertToObject(Object theValue);
   
   /**
    * if this type has a value

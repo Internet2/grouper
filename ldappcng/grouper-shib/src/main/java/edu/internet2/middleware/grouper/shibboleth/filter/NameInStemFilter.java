@@ -91,13 +91,16 @@ public class NameInStemFilter extends AbstractFilter<String> {
    * 
    * {@inheritDoc}
    */
-  public boolean matches(String name) {
+  public boolean matches(Object name) {
+    if (!(name instanceof String)) {
+      return false;
+    }
 
     // the parent stem name
-    String parentStemName = GrouperUtil.parentStemNameFromName(name);
+    String parentStemName = GrouperUtil.parentStemNameFromName((String) name);
 
     // if the parent stem is the root stem and the stem to match is the root stem, return false
-    if (parentStemName == null && name.isEmpty()) {
+    if (parentStemName == null && ((String) name).isEmpty()) {
       return false;
     }
 

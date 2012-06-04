@@ -55,7 +55,10 @@ public class StemNameFilter extends AbstractFilter<Stem> {
    * 
    * {@inheritDoc}
    */
-  public boolean matches(Stem stem) {
-    return stem.getName().equals(name);
+  public boolean matches(Object stem) {
+    if (!(stem instanceof Stem)) {
+      return false;
+    }
+    return ((Stem) stem).getName().equals(name);
   }
 }

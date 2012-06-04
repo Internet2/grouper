@@ -239,7 +239,7 @@ public class GrouperLoaderConfig {
     boolean isGrouper = StringUtils.equals(name, GROUPER_DB_NAME);
     String user = null;
 
-    if (StringUtils.isNotBlank(getPropertyString("db." + name + ".user"))) {
+    if (isGrouper && StringUtils.isNotBlank(getPropertyString("db." + name + ".user"))) {
       LOG.error("Cant have a database named 'grouper' in " +
           "the grouper-loader.properties.  This is a special name for the " +
           "grouper.hibernate.properties database");

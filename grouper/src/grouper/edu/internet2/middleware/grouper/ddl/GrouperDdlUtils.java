@@ -499,6 +499,15 @@ public class GrouperDdlUtils {
             //not much we can do here... good luck!
             continue;
           }
+          
+          if (!dropOnly && !theDropBeforeCreate) {
+            // if the temp change log has entries, don't let the upgrade continue..
+            int tempChangeLogCount = getTableCount("grouper_change_log_entry_temp", false);
+            if (tempChangeLogCount > 0) {
+              System.err.println("NOTE: Grouper database schema DDL may require updates, but the temp change log must be empty to perform an upgrade.  To process the temp change log, start up your current version of GSH and run: loaderRunOneJob(\"CHANGE_LOG_changeLogTempToChangeLog\")");
+              return false;
+            }
+          }
   
           //shut down hibernate if not just testing
           if (!fromUnitTest) {
@@ -2607,12 +2616,11 @@ public class GrouperDdlUtils {
 
   /**
    * Get the number of records in a table
-   * @param database
    * @param tableName
    * @param exceptionIfTableDoesNotExist
    * @return count
    */
-  public static int getTableCount(Database database, String tableName, boolean exceptionIfTableDoesNotExist) {
+  public static int getTableCount(String tableName, boolean exceptionIfTableDoesNotExist) {
     try {
       return HibernateSession.bySqlStatic().select(int.class, "select count(*) from " + tableName);
     } catch (RuntimeException e) {
