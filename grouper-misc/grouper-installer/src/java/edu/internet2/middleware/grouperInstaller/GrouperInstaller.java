@@ -848,7 +848,7 @@ public class GrouperInstaller {
     File unzippedApiFile = unzip(apiFile.getAbsolutePath());
     this.untarredApiDir = untar(unzippedApiFile.getAbsolutePath());
     
-    //lts make sure gsh.sh is executable and in unix format
+    //lts make sure gsh is executable and in unix format
 
     if (!GrouperInstallerUtils.isWindows()) {
 
@@ -863,6 +863,22 @@ public class GrouperInstaller {
         System.out.println("Making sure gsh.sh is executable with command: " + convertCommandsIntoCommand(commands) + "\n");
   
         CommandResult commandResult = GrouperInstallerUtils.execCommand(
+            GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+            new File(this.untarredApiDir.getAbsolutePath() + File.separator + "bin"), null);
+        
+        if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+          System.out.println("stderr: " + commandResult.getErrorText());
+        }
+        if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+          System.out.println("stdout: " + commandResult.getOutputText());
+        }
+
+        commands = GrouperInstallerUtils.toList("chmod", "+x", 
+            this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh");
+  
+        System.out.println("Making sure gsh is executable with command: " + convertCommandsIntoCommand(commands) + "\n");
+  
+        commandResult = GrouperInstallerUtils.execCommand(
             GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
             new File(this.untarredApiDir.getAbsolutePath() + File.separator + "bin"), null);
         
@@ -888,6 +904,15 @@ public class GrouperInstaller {
             commandResult = GrouperInstallerUtils.execCommand(
                 GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
                 new File(this.untarredApiDir.getAbsolutePath() + File.separator + "bin"), null);
+
+            commands = GrouperInstallerUtils.toList("dos2unix", 
+                this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh");
+      
+            System.out.println("Making sure gsh is in unix format: " + convertCommandsIntoCommand(commands) + "\n");
+            commandResult = GrouperInstallerUtils.execCommand(
+                GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+                new File(this.untarredApiDir.getAbsolutePath() + File.separator + "bin"), null);
+
           } catch (Throwable t) {
             error = t.getMessage();
           }
@@ -902,6 +927,9 @@ public class GrouperInstaller {
             System.out.println("NOTE: you might need to run this to convert newline characters to mac/unix:\n\n" +
             		"cat " + this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh.sh" 
             		+ " | col -b > " + this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh.sh\n");
+            System.out.println("\n" +
+                "cat " + this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh" 
+                + " | col -b > " + this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh\n");
           }
         }
       }
@@ -1622,6 +1650,7 @@ public class GrouperInstaller {
    */
   private String gshCommand() {
     
+    //note: at some point change this to gsh instead of gsh.sh
     return this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator 
       + (GrouperInstallerUtils.isWindows() ? "gsh.bat" : "gsh.sh");
   }
