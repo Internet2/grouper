@@ -388,13 +388,13 @@
       <fileset dir="${basedir}/../../grouper-ws" />
     </copy>
     
-    <fixcrlf srcdir="${basedir}/../../grouper.ws-${version}/webapp/WEB-INF/bin" eol="unix" includes="*.sh" />
-    <fixcrlf srcdir="${basedir}/../../grouper.ws-${version}/webapp/WEB-INF/bin" eol="dos" includes="*.bat" />
-    <chmod dir="${basedir}/../../grouper.ws-${version}/webapp/WEB-INF/bin" includes="*.sh,*.bat" perm="ugo+rx"/>
+    <fixcrlf srcdir="${basedir}/../../grouper.ws-${version}/grouper-ws/webapp/WEB-INF/bin" eol="unix" includes="*.sh" />
+    <fixcrlf srcdir="grouper.ws-${vers${basedir}/../../grouper.ws-${version}p/WEB-INF/bin" eol="dos" includes="*.bat" />
+    <chmod dir="${basedir}/../../grouper.ws-${version}/grouper-ws/webapp/WEB-INF/bin" includes="*.sh,*.bat" perm="ugo+rx"/>
 
-    <copy file="${basedir}/../../grouper.ws-${version}/webapp/WEB-INF/bin/gsh.sh" tofile="${basedir}/../../grouper.ws-${version}/webapp/WEB-INF/bin/gsh" />
-    <fixcrlf srcdir="${basedir}/../../grouper.ws-${version}/webapp/WEB-INF/bin" eol="unix" includes="gsh" />
-    <chmod dir="${basedir}/../../grouper.ws-${version}/webapp/WEB-INF/bin" includes="gsh" perm="ugo+rx"/>
+    <copy file="${basedir}/../../grouper.ws-${version}/grouper-ws/webapp/WEB-INF/bin/gsh.sh" tofile="${basedir}/../../grouper.ws-${version}/grouper-ws/webapp/WEB-INF/bin/gsh" />
+    <fixcrlf srcdir="${basedir}/../../grouper.ws-${version}/grouper-ws/webapp/WEB-INF/bin" eol="unix" includes="gsh" />
+    <chmod dir="${basedir}/../../grouper.ws-${version}/grouper-ws/webapp/WEB-INF/bin" includes="gsh" perm="ugo+rx"/>
 
   	
     <!-- this assumes that everything was checked out to the right place, and no other dirs exist -->
@@ -616,13 +616,13 @@
       </else>
     </if>
 		
-    <fixcrlf srcdir="${webapp.folder}/webapp/WEB-INF/bin" eol="unix" includes="*.sh" />
-    <fixcrlf srcdir="${webapp.folder}/webapp/WEB-INF/bin" eol="dos" includes="*.bat" />
-    <chmod dir="${webapp.folder}/webapp/WEB-INF/bin" includes="*.sh,*.bat" perm="ugo+rx"/>
+    <fixcrlf srcdir="${webapp.folder}/WEB-INF/bin" eol="unix" includes="*.sh" />
+    <fixcrlf srcdir="${webapp.folder}/WEB-INF/bin" eol="dos" includes="*.bat" />
+    <chmod dir="${webapp.folder}/WEB-INF/bin" includes="*.sh,*.bat" perm="ugo+rx"/>
 
-    <copy file="${webapp.folder}/webapp/WEB-INF/bin/gsh.sh" tofile="${webapp.folder}/webapp/WEB-INF/bin/gsh" />
-    <fixcrlf srcdir="${webapp.folder}/webapp/WEB-INF/bin" eol="unix" includes="gsh" />
-    <chmod dir="${webapp.folder}/webapp/WEB-INF/bin" includes="gsh" perm="ugo+rx"/>
+    <copy file="${webapp.folder}/WEB-INF/bin/gsh.sh" tofile="${webapp.folder}/WEB-INF/bin/gsh" />
+    <fixcrlf srcdir="${webapp.folder}/WEB-INF/bin" eol="unix" includes="gsh" />
+    <chmod dir="${webapp.folder}/WEB-INF/bin" includes="gsh" perm="ugo+rx"/>
 
 		
 		<!-- make a war file -->
