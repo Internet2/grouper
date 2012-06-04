@@ -647,6 +647,16 @@
 	
 	<target name="-war" if="build.war">
 		<delete file="${dist.home}/${webapp.name}.war"/>
+		
+    <fixcrlf srcdir="${dist.home}/${webapp.name}/webapp/WEB-INF/bin" eol="unix" includes="*.sh" />
+    <fixcrlf srcdir="${dist.home}/${webapp.name}/webapp/WEB-INF/bin" eol="dos" includes="*.bat" />
+    <chmod dir="${dist.home}/${webapp.name}/webapp/WEB-INF/bin" includes="*.sh,*.bat" perm="ugo+rx"/>
+
+    <copy file="${dist.home}/${webapp.name}/webapp/WEB-INF/bin/gsh.sh" tofile="${dist.home}/${webapp.name}/webapp/WEB-INF/bin/gsh" />
+    <fixcrlf srcdir="${dist.home}/${webapp.name}/webapp/WEB-INF/bin" eol="unix" includes="gsh" />
+    <chmod dir="${dist.home}/${webapp.name}/webapp/WEB-INF/bin" includes="gsh" perm="ugo+rx"/>
+
+		
 		<echo message="Creating ${dist.home}/${webapp.name}.war"/>
 		<jar destfile="${dist.home}/${webapp.name}.war" basedir="${dist.home}/${webapp.name}"/>
 	</target>
