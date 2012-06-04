@@ -231,6 +231,8 @@
       <fileset dir="${basedir}/../grouper" />
     </copy>
     
+    <symlink link="${basedir}/../grouper.api-${version}/bin/gsh" resource="${basedir}/../grouper.api-${version}/bin/gsh.sh" />
+
     <!-- this assumes that everything was checked out to the right place, and no other dirs exist -->
     <tar destfile="${basedir}/../grouper.api-${version}.tar.gz" compression="gzip" longfile="gnu">
       <tarfileset dir="${basedir}/.." >
@@ -377,6 +379,8 @@
     <fixcrlf srcdir="${dist.binary.zip}/bin" eol="dos" includes="*.bat" />
     <chmod dir="${dist.binary.zip}/bin" includes="*.sh,*.bat" perm="ugo+rx"/>
 
+  	<symlink link="${dist.binary.zip}/bin/gsh" resource="${dist.binary.zip}/bin/gsh.sh" />
+  	
     <mkdir dir="${dist.binary.zip}/conf"/>
     <copy todir="${dist.binary.zip}/conf">
       <fileset dir="conf">
