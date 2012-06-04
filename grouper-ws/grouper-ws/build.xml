@@ -389,7 +389,7 @@
     </copy>
     
     <fixcrlf srcdir="${basedir}/../../grouper.ws-${version}/grouper-ws/webapp/WEB-INF/bin" eol="unix" includes="*.sh" />
-    <fixcrlf srcdir="grouper.ws-${vers${basedir}/../../grouper.ws-${version}p/WEB-INF/bin" eol="dos" includes="*.bat" />
+    <fixcrlf srcdir="${basedir}/../../grouper.ws-${version}/grouper-ws/webapp/WEB-INF/bin" eol="dos" includes="*.bat" />
     <chmod dir="${basedir}/../../grouper.ws-${version}/grouper-ws/webapp/WEB-INF/bin" includes="*.sh,*.bat" perm="ugo+rx"/>
 
     <copy file="${basedir}/../../grouper.ws-${version}/grouper-ws/webapp/WEB-INF/bin/gsh.sh" tofile="${basedir}/../../grouper.ws-${version}/grouper-ws/webapp/WEB-INF/bin/gsh" />
