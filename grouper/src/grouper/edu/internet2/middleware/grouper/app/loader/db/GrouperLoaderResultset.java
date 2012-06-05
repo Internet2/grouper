@@ -416,7 +416,10 @@ public class GrouperLoaderResultset {
           + hib3GrouperLoaderLog.getJobName());
     }
 
-    final String groupParentFolderName = GrouperUtil.parentStemNameFromName(groupName);
+    boolean requireTopStemAsStemFromConfigGroup = GrouperLoaderConfig.getPropertyBoolean(
+        "loader.ldap.requireTopStemAsStemFromConfigGroup", true);
+    
+    final String groupParentFolderName = requireTopStemAsStemFromConfigGroup ? (GrouperUtil.parentStemNameFromName(groupName) + ":") : "";
 
     Map<String, List<String>> resultMap = null;
     try {
@@ -486,7 +489,10 @@ public class GrouperLoaderResultset {
                     nameInNamespace += "," + searchDn + "," + baseDn;
                   }
                 }
-                String loaderGroupName = "groups:" + LoaderLdapElUtils.convertDnToSubPath(nameInNamespace, 
+                
+                String defaultFolder = defaultLdapFolder();
+                
+                String loaderGroupName = defaultFolder + LoaderLdapElUtils.convertDnToSubPath(nameInNamespace, 
                     grouperLoaderLdapServer.getBaseDn(), searchDn);
                 
                 String loaderGroupDisplayName = null;
@@ -524,12 +530,12 @@ public class GrouperLoaderResultset {
                   if (!StringUtils.isBlank(groupNameExpression)) {
                     String elGroupName = LoaderLdapUtils.substituteEl(groupNameExpression,
                         envVars);
-                    loaderGroupName = groupParentFolderName + ":" + elGroupName;
+                    loaderGroupName = groupParentFolderName + elGroupName;
                   }
                   if (!StringUtils.isBlank(groupDisplayNameExpression)) {
                     String elGroupDisplayName = LoaderLdapUtils.substituteEl(groupDisplayNameExpression,
                         envVars);
-                    loaderGroupDisplayName = groupParentFolderName + ":" + elGroupDisplayName;
+                    loaderGroupDisplayName = groupParentFolderName +  elGroupDisplayName;
                   }
                   if (!StringUtils.isBlank(groupDescriptionExpression)) {
                     String elGroupDescription = LoaderLdapUtils.substituteEl(groupDescriptionExpression,
@@ -663,7 +669,10 @@ public class GrouperLoaderResultset {
           + hib3GrouperLoaderLog.getJobName());
     }
 
-    final String groupParentFolderName = GrouperUtil.parentStemNameFromName(overallGroupName);
+    boolean requireTopStemAsStemFromConfigGroup = GrouperLoaderConfig.getPropertyBoolean(
+        "loader.ldap.requireTopStemAsStemFromConfigGroup", true);
+
+    final String groupParentFolderName = requireTopStemAsStemFromConfigGroup ? (GrouperUtil.parentStemNameFromName(overallGroupName) + ":") : "";
 
     Map<String, List<String>> resultMap = null;
     try {
@@ -800,7 +809,11 @@ public class GrouperLoaderResultset {
                       //lets see if we know the groupName
                       String groupName = attributeNameToGroupNameMap.get(attributeValue);
                       if (StringUtils.isBlank(groupName)) {
-                        groupName = "groups:" + attributeValue;
+                        
+                        String defaultFolder = defaultLdapFolder();
+
+                        
+                        groupName = defaultFolder + attributeValue;
                         
                         
                         String loaderGroupDisplayName = null;
@@ -832,7 +845,7 @@ public class GrouperLoaderResultset {
                           }
                         }
                         
-                        groupName = groupParentFolderName + ":"+ groupName;
+                        groupName = groupParentFolderName + ":" + groupName;
                         
                         if (!StringUtils.isBlank(loaderGroupDisplayName)) {
                           groupNameToDisplayName.put(groupName, loaderGroupDisplayName);
@@ -1314,6 +1327,21 @@ public class GrouperLoaderResultset {
       }
     }
     return null;
+  }
+
+  /**
+   * @return default ldap folder for groups including trailing colon if not blank
+   */
+  private static String defaultLdapFolder() {
+    String defaultFolder = "groups:";
+    
+    if (GrouperLoaderConfig.properties().containsKey("loader.ldap.defaultGroupFolder")) {
+      defaultFolder = StringUtils.defaultString(GrouperLoaderConfig.getPropertyString("loader.ldap.defaultGroupFolder", false));
+      if (!StringUtils.isBlank(defaultFolder) && !defaultFolder.endsWith(":")) {
+        defaultFolder += ":";
+      }
+    }
+    return defaultFolder;
   }
 
 }
