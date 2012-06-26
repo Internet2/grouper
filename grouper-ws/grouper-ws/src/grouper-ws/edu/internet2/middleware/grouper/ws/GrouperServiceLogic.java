@@ -103,8 +103,9 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchEntry;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesBatchResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesLiteResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesLiteResult;
@@ -7275,18 +7276,18 @@ public class GrouperServiceLogic {
    * @return the results
    */
   @SuppressWarnings("unchecked")
-  public static WsAssignAttributesResults assignAttributesBatch(
+  public static WsAssignAttributesBatchResults assignAttributesBatch(
       final GrouperVersion clientVersion, final WsAssignAttributeBatchEntry[] wsAssignAttributeBatchEntries,
       final WsSubjectLookup actAsSubjectLookup, final boolean includeSubjectDetail, GrouperTransactionType txType,
       final String[] subjectAttributeNames, final boolean includeGroupDetail, final WsParam[] params) {  
   
-    final WsAssignAttributesResults wsAssignAttributesResults = new WsAssignAttributesResults();
+    final WsAssignAttributesBatchResults wsAssignAttributesBatchResults = new WsAssignAttributesBatchResults();
   
     GrouperSession session = null;
     String theSummary = null;
     try {
   
-      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsAssignAttributesResults.getResponseMetadata().warnings());
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsAssignAttributesBatchResults.getResponseMetadata().warnings());
   
       txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.NONE);
       final GrouperTransactionType TX_TYPE = txType;
@@ -7300,6 +7301,8 @@ public class GrouperServiceLogic {
           + "\n, wsAssignAttributeBatchEntries: "
           + WsAssignAttributeBatchEntry.toString(wsAssignAttributeBatchEntries, 200);
       
+      final String THE_SUMMARY = theSummary;
+      
       if (GrouperUtil.length(wsAssignAttributeBatchEntries) == 0) {
         throw new WsInvalidQueryException(
             "You must pass in at least one WsAssignAttributeBatchEntry");
@@ -7310,7 +7313,7 @@ public class GrouperServiceLogic {
       final GrouperSession SESSION = session;
       
       //there should be as many results as there were batch entries
-      wsAssignAttributesResults.setWsAttributeAssignResults(new WsAssignAttributeResult[GrouperUtil.length(wsAssignAttributeBatchEntries)]);
+      wsAssignAttributesBatchResults.setWsAssignAttributeBatchResultArray(new WsAssignAttributeBatchResult[GrouperUtil.length(wsAssignAttributeBatchEntries)]);
       
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
@@ -7319,96 +7322,115 @@ public class GrouperServiceLogic {
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
 
-              
+              int index = 0;
               for (WsAssignAttributeBatchEntry wsAssignAttributeBatchEntry : wsAssignAttributeBatchEntries) {
+
+                String theError = null;
+                Exception exception = null;
+                WsAssignAttributesResults tempResults = null;
                 
-                AttributeAssignType attributeAssignType = GrouperServiceUtils.convertAttributeAssignType(
-                   wsAssignAttributeBatchEntry.getAttributeAssignType());
+                try {
+                  AttributeAssignType attributeAssignType = GrouperServiceUtils.convertAttributeAssignType(
+                     wsAssignAttributeBatchEntry.getAttributeAssignType());
+                  
+                  WsAttributeDefNameLookup[] wsAttributeDefNameLookups = 
+                    new WsAttributeDefNameLookup[]{wsAssignAttributeBatchEntry.getWsAttributeDefNameLookup()};
+                  
+                  AttributeAssignOperation attributeAssignOperation = GrouperServiceUtils.convertAttributeAssignOperation(
+                      wsAssignAttributeBatchEntry.getAttributeAssignOperation());
+                  
+                  if (attributeAssignOperation == AttributeAssignOperation.replace_attrs) {
+                    throw new WsInvalidQueryException("You cannot relace attributes in a batch operation.  ");
+                  }
+                  
+                  AttributeAssignValueOperation attributeAssignValueOperation = GrouperServiceUtils.
+                    convertAttributeAssignValueOperation(wsAssignAttributeBatchEntry.getAttributeAssignValueOperation());
+  
+                  if (attributeAssignType == null) {
+                    throw new WsInvalidQueryException("You need to pass in an attributeAssignType.  ");
+                  }
+                  
+                  if (attributeAssignOperation == null) {
+                    throw new WsInvalidQueryException("You need to pass in an attributeAssignOperation.  ");
+                  }
+  
+                  Timestamp assignmentEnabledTime = GrouperServiceUtils.stringToTimestamp(
+                      wsAssignAttributeBatchEntry.getAssignmentEnabledTime());
+                  
+                  Timestamp assignmentDisabledTime = GrouperServiceUtils.stringToTimestamp(
+                      wsAssignAttributeBatchEntry.getAssignmentDisabledTime());
+  
+                  AttributeAssignDelegatable attributeAssignDelegatable = GrouperServiceUtils
+                    .convertAttributeAssignDelegatable(wsAssignAttributeBatchEntry.getDelegatable());
+  
+                  WsAttributeAssignLookup[] wsAttributeAssignLookups = new WsAttributeAssignLookup[]{
+                      wsAssignAttributeBatchEntry.getWsAttributeAssignLookup()};
+                  
+                  WsGroupLookup[] wsOwnerGroupLookups = new WsGroupLookup[]{wsAssignAttributeBatchEntry.getWsOwnerGroupLookup()};
+  
+                  WsStemLookup[] wsOwnerStemLookups = new WsStemLookup[]{wsAssignAttributeBatchEntry.getWsOwnerStemLookup()};
+                  
+                  WsSubjectLookup[] wsOwnerSubjectLookups = new WsSubjectLookup[]{wsAssignAttributeBatchEntry.getWsOwnerSubjectLookup()};
+                  
+                  WsMembershipLookup[] wsOwnerMembershipLookups = new WsMembershipLookup[]{
+                      wsAssignAttributeBatchEntry.getWsOwnerMembershipLookup()};
+                  
+                  WsMembershipAnyLookup[] wsOwnerMembershipAnyLookups = new WsMembershipAnyLookup[]{wsAssignAttributeBatchEntry.getWsOwnerMembershipAnyLookup()};
+  
+                  WsAttributeDefLookup[] wsOwnerAttributeDefLookups = new WsAttributeDefLookup[]{wsAssignAttributeBatchEntry.getWsOwnerAttributeDefLookup()};
+                  
+                  WsAttributeAssignLookup[] wsOwnerAttributeAssignLookups = new WsAttributeAssignLookup[]{wsAssignAttributeBatchEntry.getWsOwnerAttributeAssignLookup()};
+                  
+                  String[] actions = new String[]{wsAssignAttributeBatchEntry.getAction()};
+                  
+                  String assignmentNotes = wsAssignAttributeBatchEntry.getAssignmentNotes();
+                  WsAttributeAssignValue[] values = wsAssignAttributeBatchEntry.getValues();
+                  
+                  tempResults = new WsAssignAttributesResults();
+                  
+                  WsAssignAttributeLogic.assignAttributesHelper(attributeAssignType, wsAttributeDefNameLookups,
+                      attributeAssignOperation, values, 
+                      assignmentNotes, assignmentEnabledTime,
+                      assignmentDisabledTime, attributeAssignDelegatable, attributeAssignValueOperation,
+                      wsAttributeAssignLookups, wsOwnerGroupLookups, wsOwnerStemLookups,
+                      wsOwnerSubjectLookups, wsOwnerMembershipLookups, wsOwnerMembershipAnyLookups,
+                      wsOwnerAttributeDefLookups, wsOwnerAttributeAssignLookups, actions,
+                      includeSubjectDetail, subjectAttributeNames, includeGroupDetail,
+                      tempResults, SESSION, params, null, null, 
+                      null, null, null, false, false);
+                } catch (Exception e) {
+                  exception = e;
+                  theError = "Error assigning attribute: " + wsAssignAttributeBatchEntry + ", " + e + ".  ";
+
+                }
+                //lets collate the results, note, we can make this more efficient later as far as resolving objects
+                wsAssignAttributesBatchResults.addResult(tempResults, theError, exception, index);
                 
-                WsAttributeDefNameLookup[] wsAttributeDefNameLookups = 
-                  new WsAttributeDefNameLookup[]{wsAssignAttributeBatchEntry.getWsAttributeDefNameLookup()};
-                
-                AttributeAssignOperation attributeAssignOperation = GrouperServiceUtils.convertAttributeAssignOperation(
-                    wsAssignAttributeBatchEntry.getAttributeAssignOperation());
-                
-                if (attributeAssignOperation == AttributeAssignOperation.replace_attrs) {
-                  throw new WsInvalidQueryException("You cannot relace attributes in a batch operation.  ");
+                //no need to continue if one failed
+                if (TX_TYPE.isTransactional()) {
+                  grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
+                  break;
                 }
                 
-                AttributeAssignValueOperation attributeAssignValueOperation = GrouperServiceUtils.
-                  convertAttributeAssignValueOperation(wsAssignAttributeBatchEntry.getAttributeAssignValueOperation());
-
-                if (attributeAssignType == null) {
-                  throw new WsInvalidQueryException("You need to pass in an attributeAssignType.  ");
-                }
-                
-                if (attributeAssignOperation == null) {
-                  throw new WsInvalidQueryException("You need to pass in an attributeAssignOperation.  ");
-                }
-
-                Timestamp assignmentEnabledTime = GrouperServiceUtils.stringToTimestamp(
-                    wsAssignAttributeBatchEntry.getAssignmentEnabledTime());
-                
-                Timestamp assignmentDisabledTime = GrouperServiceUtils.stringToTimestamp(
-                    wsAssignAttributeBatchEntry.getAssignmentDisabledTime());
-
-                AttributeAssignDelegatable attributeAssignDelegatable = GrouperServiceUtils
-                  .convertAttributeAssignDelegatable(wsAssignAttributeBatchEntry.getDelegatable());
-
-                WsAttributeAssignLookup[] wsAttributeAssignLookups = new WsAttributeAssignLookup[]{
-                    wsAssignAttributeBatchEntry.getWsAttributeAssignLookup()};
-                
-                WsGroupLookup[] wsOwnerGroupLookups = new WsGroupLookup[]{wsAssignAttributeBatchEntry.getWsOwnerGroupLookup()};
-
-                WsStemLookup[] wsOwnerStemLookups = new WsStemLookup[]{wsAssignAttributeBatchEntry.getWsOwnerStemLookup()};
-                
-                WsSubjectLookup[] wsOwnerSubjectLookups = new WsSubjectLookup[]{wsAssignAttributeBatchEntry.getWsOwnerSubjectLookup()};
-                
-                WsMembershipLookup[] wsOwnerMembershipLookups = new WsMembershipLookup[]{
-                    wsAssignAttributeBatchEntry.getWsOwnerMembershipLookup()};
-                
-                WsMembershipAnyLookup[] wsOwnerMembershipAnyLookups = new WsMembershipAnyLookup[]{wsAssignAttributeBatchEntry.getWsOwnerMembershipAnyLookup()};
-
-                WsAttributeDefLookup[] wsOwnerAttributeDefLookups = new WsAttributeDefLookup[]{wsAssignAttributeBatchEntry.getWsOwnerAttributeDefLookup()};
-                
-                WsAttributeAssignLookup[] wsOwnerAttributeAssignLookups = new WsAttributeAssignLookup[]{wsAssignAttributeBatchEntry.getWsAttributeAssignLookup()};
-                
-                WsAssignAttributeLogic.assignAttributesHelper(attributeAssignType, wsAttributeDefNameLookups,
-                    attributeAssignOperation, wsAssignAttributeBatchEntry.getValues(), 
-                    wsAssignAttributeBatchEntry.getAssignmentNotes(), assignmentEnabledTime,
-                    assignmentDisabledTime, attributeAssignDelegatable, attributeAssignValueOperation,
-                    wsAttributeAssignLookups, wsOwnerGroupLookups, wsOwnerStemLookups,
-                    wsOwnerSubjectLookups, wsOwnerMembershipLookups, wsOwnerMembershipAnyLookups,
-                    wsOwnerAttributeDefLookups, wsOwnerAttributeAssignLookups, new String[]{wsAssignAttributeBatchEntry.getAction()},
-                    includeSubjectDetail, subjectAttributeNames, includeGroupDetail,
-                    wsAssignAttributesResults, SESSION, params, null, null, 
-                    null, null, null, false, false);
+                index++;
                 
               }
               
-//              if (!wsAddMemberResults.tallyResults(TX_TYPE, THE_SUMMARY)) {
-//                grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
-//              }
-//
-//              for (WsStemDeleteResult wsStemDeleteResult : this.getResults()) {
-//                if (GrouperUtil.booleanValue(wsStemDeleteResult.getResultMetadata()
-//                    .getSuccess(), true)) {
-//                  wsStemDeleteResult
-//                      .assignResultCode(WsStemDeleteResultCode.TRANSACTION_ROLLED_BACK);
-//                  failures++;
-//                }
-//              }
+              if (!wsAssignAttributesBatchResults.tallyResults(TX_TYPE, THE_SUMMARY)) {
+                grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
+              }
+
               return null;
             }
       });
         
     } catch (Exception e) {
-      wsAssignAttributesResults.assignResultCodeException(null, theSummary, e);
+      wsAssignAttributesBatchResults.assignResultCodeException(null, theSummary, e);
     } finally {
       GrouperSession.stopQuietly(session);
     }
-  
-    return wsAssignAttributesResults; 
+    
+    return wsAssignAttributesBatchResults; 
   
   }
         

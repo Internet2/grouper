@@ -19,6 +19,15 @@
  */
 package edu.internet2.middleware.grouper.ws.coresoap;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
+
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.WsResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults.WsAssignAttributesResultsCode;
+import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+
 
 /**
  * holds an attribute assign result.  Also holds value results (if value operations were performed).
@@ -26,6 +35,169 @@ package edu.internet2.middleware.grouper.ws.coresoap;
  * this result
  */
 public class WsAssignAttributeBatchResult implements Comparable<WsAssignAttributeBatchResult> {
+
+  /**
+   * assign the code from the enum
+   * @param addMemberResultCode
+   */
+  public void assignResultCode(WsAssignAttributeBatchResultCode wsAssignAttributeBatchResultCode) {
+    this.getResultMetadata().assignResultCode(
+        wsAssignAttributeBatchResultCode == null ? null : wsAssignAttributeBatchResultCode.name());
+    this.getResultMetadata().assignSuccess(wsAssignAttributeBatchResultCode.isSuccess() ? "T" : "F");
+  }
+
+
+  /**
+   * constructor
+   */
+  public WsAssignAttributeBatchResult() {
+    super();
+  }
+  
+  /**
+   * 
+   * @param wsAssignAttributesResults
+   * @param wsAssignAttributeResult
+   */
+  public WsAssignAttributeBatchResult(WsAssignAttributesResults wsAssignAttributesResults, 
+      WsAssignAttributeResult wsAssignAttributeResult) {
+    this.setChanged(wsAssignAttributeResult.getChanged());
+    this.setDeleted(wsAssignAttributeResult.getDeleted());
+    this.setValuesChanged(wsAssignAttributeResult.getValuesChanged());
+    int length = GrouperUtil.length(wsAssignAttributeResult.getWsAttributeAssigns());
+    if (length > 1) {
+      throw new RuntimeException("Why is there more than one attribute assign? " + length);
+    }
+    if (length == 1) {
+      this.wsAttributeAssign = wsAssignAttributeResult.getWsAttributeAssigns()[0];
+    }
+    this.resultMetadata = wsAssignAttributesResults.getResultMetadata();
+    WsAssignAttributesResultsCode wsAssignAttributesResultsCode = 
+      WsAssignAttributesResults.WsAssignAttributesResultsCode.valueOfIgnoreCase(this.resultMetadata.getResultCode(), false);
+    this.resultMetadata.setResultCode(
+        WsAssignAttributeBatchResultCode.convertFromWsAssignAttributesResultCode(wsAssignAttributesResultsCode).name());
+  }
+  
+  /**
+   * construct with error/exception.  default to the result if possible, else assign
+   * @param wsAssignAttributesResults
+   * @param theError
+   * @param e
+   */
+  public WsAssignAttributeBatchResult(WsAssignAttributesResults wsAssignAttributesResults,
+      String theError, Exception e) {
+    
+    if (wsAssignAttributesResults != null) {
+      this.resultMetadata = wsAssignAttributesResults.getResultMetadata();
+    }
+    if (this.resultMetadata == null) {
+      this.resultMetadata = new WsResultMeta();
+    }
+    String stack = e == null ? "" : ExceptionUtils.getFullStackTrace(e);
+
+    if (StringUtils.isBlank(this.resultMetadata.getResultMessage())) {
+      this.resultMetadata.setResultMessage(theError + ", " + stack);
+    } else {
+      if (!StringUtils.isBlank(theError)) {
+        if (!StringUtils.defaultString(this.resultMetadata.getResultMessage()).contains(theError)) {
+          this.resultMetadata.setResultMessage(StringUtils.defaultString(this.resultMetadata.getResultMessage()) + ", " + theError);
+        }
+      }
+      
+      if (e != null) {
+        
+        if (!StringUtils.defaultString(this.resultMetadata.getResultMessage()).contains(stack)) {
+          this.resultMetadata.setResultMessage(StringUtils.defaultString(this.resultMetadata.getResultMessage()) + ", " + stack);
+        }
+        
+      }
+    }    
+    if (!StringUtils.isBlank(this.resultMetadata.getResultCode())) {
+      this.resultMetadata.setResultCode(
+          WsAssignAttributeBatchResultCode.convertFromWsAssignAttributesResultCode(
+              WsAssignAttributesResultsCode.valueOfIgnoreCase(this.resultMetadata.getResultCode(), true)).name());
+    } else {
+      if (e instanceof WsInvalidQueryException) {
+        this.resultMetadata.setResultCode(WsAssignAttributeBatchResultCode.INVALID_QUERY.name());
+      } else {
+        this.resultMetadata.setResultCode(WsAssignAttributeBatchResultCode.EXCEPTION.name());
+      }
+    }
+  }
+  
+  /**
+   * result code of a request.  The possible result codes 
+   * of WsGetMembersResultCode (with http status codes) are:
+   * SUCCESS(200), EXCEPTION(500), INVALID_QUERY(400)
+   */
+  public static enum WsAssignAttributeBatchResultCode implements WsResultCode {
+
+    /** found the attributeAssignments (lite status code 200) (success: T) */
+    SUCCESS(200),
+
+    /** something bad happened (lite status code 500) (success: F) */
+    EXCEPTION(500),
+
+    /** in tx, but another item had problem (lite status code 500) (success: F) */
+    TRANSACTION_ROLLED_BACK(500),
+
+    /** invalid query (e.g. if everything blank) (lite status code 400) (success: F) */
+    INVALID_QUERY(400),
+    
+    /** not allowed to the privileges on the inputs.  Note if broad search, then the results wont
+     * contain items not allowed.  If a specific search e.g. on a group, then if you cant read the
+     * group then you cant read the privs
+     */
+    INSUFFICIENT_PRIVILEGES(403);
+    
+    /**
+     * 
+     * @param wsAssignAttributesResultsCode
+     * @return the code
+     */
+    public static WsAssignAttributeBatchResultCode convertFromWsAssignAttributesResultCode(
+        WsAssignAttributesResultsCode wsAssignAttributesResultsCode) {
+      if (wsAssignAttributesResultsCode == null) {
+        return null;
+      }
+      return wsAssignAttributesResultsCode.convertToBatchResult();
+    }
+    
+    /** get the name label for a certain version of client 
+     * @param clientVersion 
+     * @return name
+     */
+    public String nameForVersion(GrouperVersion clientVersion) {
+      return this.name();
+    }
+
+    /**
+     * construct with http code
+     * @param theHttpStatusCode the code
+     */
+    private WsAssignAttributeBatchResultCode(int theHttpStatusCode) {
+      this.httpStatusCode = theHttpStatusCode;
+    }
+
+    /** http status code for result code */
+    private int httpStatusCode;
+
+    /**
+     * if this is a successful result
+     * @return true if success
+     */
+    public boolean isSuccess() {
+      return this == SUCCESS;
+    }
+
+    /** get the http result code for this status code
+     * @return the status code
+     */
+    public int getHttpStatusCode() {
+      return this.httpStatusCode;
+    }
+  }
+
 
   /** set of results of this attribute assign value */
   private WsAttributeAssignValueResult[] wsAttributeAssignValueResults;
@@ -47,23 +219,23 @@ public class WsAssignAttributeBatchResult implements Comparable<WsAssignAttribut
     this.wsAttributeAssignValueResults = wsAttributeAssignValueResults1;
   }
   
-  /** assignment(s) involved */
-  private WsAttributeAssign[] wsAttributeAssigns;
+  /** assignment involved */
+  private WsAttributeAssign wsAttributeAssign;
 
   /**
    * assignment involved
    * @return assignment involved
    */
-  public WsAttributeAssign[] getWsAttributeAssigns() {
-    return this.wsAttributeAssigns;
+  public WsAttributeAssign getWsAttributeAssign() {
+    return this.wsAttributeAssign;
   }
 
   /**
    * assignment involved
-   * @param wsAttributeAssigns1
+   * @param wsAttributeAssign1
    */
-  public void setWsAttributeAssigns(WsAttributeAssign[] wsAttributeAssigns1) {
-    this.wsAttributeAssigns = wsAttributeAssigns1;
+  public void setWsAttributeAssign(WsAttributeAssign wsAttributeAssign1) {
+    this.wsAttributeAssign = wsAttributeAssign1;
   }
 
   /** if this assignment was changed, T|F */
@@ -74,6 +246,11 @@ public class WsAssignAttributeBatchResult implements Comparable<WsAssignAttribut
 
   /** if this assignment was deleted, T|F */
   private String deleted;
+
+  /**
+   * metadata about the result
+   */
+  private WsResultMeta resultMetadata = new WsResultMeta();
 
   /**
    * if the values were changed, T|F
@@ -119,25 +296,13 @@ public class WsAssignAttributeBatchResult implements Comparable<WsAssignAttribut
     if (o2 == null) {
       return 1;
     }
-    if (this.wsAttributeAssigns == null) {
+    if (this.wsAttributeAssign == null) {
       return -1;
     }
-    if (o2.wsAttributeAssigns == null) {
+    if (o2.wsAttributeAssign == null) {
       return 1;
     }
-    if (this.wsAttributeAssigns.length == 0 && o2.wsAttributeAssigns.length == 0) {
-      return 0;
-    }
-    if  (this.wsAttributeAssigns.length == 0) {
-      return -1;
-    }
-    if  (o2.wsAttributeAssigns.length == 0) {
-      return 1;
-    }
-    if (this.wsAttributeAssigns[0] == null) {
-      return -1;
-    }
-    return this.wsAttributeAssigns[0].compareTo(o2.wsAttributeAssigns[0]);
+    return this.wsAttributeAssign.compareTo(o2.wsAttributeAssign);
   }
 
   /**
@@ -154,6 +319,28 @@ public class WsAssignAttributeBatchResult implements Comparable<WsAssignAttribut
    */
   public void setDeleted(String deleted1) {
     this.deleted = deleted1;
+  }
+
+  /**
+   * @return the resultMetadata
+   */
+  public WsResultMeta getResultMetadata() {
+    return this.resultMetadata;
+  }
+
+  /**
+   * convert string to result code
+   * @return the result code
+   */
+  public WsAssignAttributeBatchResultCode resultCode() {
+    return WsAssignAttributeBatchResultCode.valueOf(this.getResultMetadata().getResultCode());
+  }
+
+  /**
+   * @param resultMetadata1 the resultMetadata to set
+   */
+  public void setResultMetadata(WsResultMeta resultMetadata1) {
+    this.resultMetadata = resultMetadata1;
   }
   
   

@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult.WsAssignAttributeBatchResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.subject.Subject;
@@ -140,20 +141,49 @@ public class WsAssignAttributesResults implements WsResponseBean, ResultMetadata
   public static enum WsAssignAttributesResultsCode implements WsResultCode {
 
     /** found the attributeAssignments (lite status code 200) (success: T) */
-    SUCCESS(200),
+    SUCCESS(200) {
+
+      @Override
+      public WsAssignAttributeBatchResultCode convertToBatchResult() {
+        return WsAssignAttributeBatchResultCode.SUCCESS;
+      }
+    },
 
     /** something bad happened (lite status code 500) (success: F) */
-    EXCEPTION(500),
+    EXCEPTION(500) {
+
+      @Override
+      public WsAssignAttributeBatchResultCode convertToBatchResult() {
+        return WsAssignAttributeBatchResultCode.EXCEPTION;
+      }
+    },
 
     /** invalid query (e.g. if everything blank) (lite status code 400) (success: F) */
-    INVALID_QUERY(400),
+    INVALID_QUERY(400) {
+
+      @Override
+      public WsAssignAttributeBatchResultCode convertToBatchResult() {
+        return WsAssignAttributeBatchResultCode.INVALID_QUERY;
+      }
+    },
     
     /** not allowed to the privileges on the inputs.  Note if broad search, then the results wont
      * contain items not allowed.  If a specific search e.g. on a group, then if you cant read the
      * group then you cant read the privs
      */
-    INSUFFICIENT_PRIVILEGES(403);
+    INSUFFICIENT_PRIVILEGES(403) {
+
+      @Override
+      public WsAssignAttributeBatchResultCode convertToBatchResult() {
+        return WsAssignAttributeBatchResultCode.INSUFFICIENT_PRIVILEGES;
+      }
+    };
     
+    /**
+     * 
+     * @return the code
+     */
+    public abstract WsAssignAttributeBatchResultCode convertToBatchResult();
     
     /** get the name label for a certain version of client 
      * @param clientVersion 
@@ -188,6 +218,21 @@ public class WsAssignAttributesResults implements WsResponseBean, ResultMetadata
     public int getHttpStatusCode() {
       return this.httpStatusCode;
     }
+    
+    /**
+     * do a case-insensitive matching
+     * 
+     * @param string
+     * @param exceptionOnNull will not allow null or blank entries
+     * @return the enum or null or exception if not found
+     */
+    public static WsAssignAttributesResultsCode valueOfIgnoreCase(String string, boolean exceptionOnNull) {
+      return GrouperUtil.enumValueOfIgnoreCase(WsAssignAttributesResultsCode.class, 
+          string, exceptionOnNull);
+
+    }
+
+    
   }
 
   /**
