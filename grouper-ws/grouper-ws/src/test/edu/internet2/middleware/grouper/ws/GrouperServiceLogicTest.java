@@ -5536,108 +5536,136 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertTrue("You must pass in an attributeAssignType", 
         wsAssignAttributeBatchResult.getResultMetadata().getResultMessage().contains("You need to pass in an attributeAssignType"));
   
-//    //Error case lookups and names
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    group.getAttributeDelegate().removeAttribute(attributeDefName);
-//    
-//    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
-//        GROUPER_VERSION, AttributeAssignType.group, new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(attributeDefName.getName(),null)}, 
-//        AttributeAssignOperation.assign_attr, null, 
-//        null, null, null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup("abc")}, 
-//        new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, null, null, null, 
-//        null, null, null, null, null, false, null, false, null, null, null, null);
-//    
-//    assertEquals("Cant do defName and assign lookup", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultCode());
-//    assertTrue(wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultMessage().contains("If you are passing in assign lookup ids to query, you cant specify attribute def names"));
-//  
-//    
-//    //cant pass in attr assign ids and owners
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    group.getAttributeDelegate().removeAttribute(attributeDefName);
-//    
-//    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
-//        GROUPER_VERSION, AttributeAssignType.group, null, AttributeAssignOperation.assign_attr, null, 
-//        null, null, null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup("abc")}, 
-//        new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, null, null, null, 
-//        null, null, null, null, null, false, null, false, null, null, null, null);
-//    
-//    assertEquals("Why is there more than one type of lookup?", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultCode());
-//    assertTrue("Why is there more than one type of lookup?", 
-//        wsAssignAttributesResults.getResultMetadata().getResultMessage().contains("Why is there more than one type of lookup?"));
-//  
-//    
-//    //Need to pass in attribute assign operation
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    group.getAttributeDelegate().removeAttribute(attributeDefName);
-//    
-//    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
-//        GROUPER_VERSION, AttributeAssignType.group, null, null, null, 
-//        null, null, null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup("abc")}, 
-//        null, null, null, null, 
-//        null, null, null, null, null, false, null, false, null, null, null, null);
-//    
-//    assertEquals("Need to pass in attributeAssignOperation", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultCode());
-//    assertTrue("Need to pass in attributeAssignOperation", 
-//        wsAssignAttributesResults.getResultMetadata().getResultMessage().contains("You need to pass in an attributeAssignOperation"));
-//    
-//    //Need to do assign or delete by id if passing by id
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    group.getAttributeDelegate().removeAttribute(attributeDefName);
-//    
-//    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
-//        GROUPER_VERSION, AttributeAssignType.group, null, AttributeAssignOperation.add_attr, null, 
-//        null, null, null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup("abc")}, 
-//        null, null, null, null, 
-//        null, null, null, null, null, false, null, false, null, null, null, null);
-//    
-//    assertEquals("attributeAssignOperation must be assign_attr", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultCode());
-//    assertTrue(wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultMessage().contains(
-//            "attributeAssignOperation must be assign_attr or remove_attr"));
-//  
-//  
-//    //Need to do assign or delete by id if passing by id
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    group.getAttributeDelegate().removeAttribute(attributeDefName);
-//    AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
-//    AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
-//    
-//    
-//    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
-//        GROUPER_VERSION, AttributeAssignType.stem, null, AttributeAssignOperation.remove_attr, null, 
-//        null, null, null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
-//        null, null, null, null, 
-//        null, null, null, null, null, false, null, false, null, null, null, null);
-//    
-//    assertEquals("but this operation was passed attributeAssignType", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultCode());
-//    assertTrue(wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultMessage().contains(
-//            "but this operation was passed attributeAssignType"));
-//  
-//    //cant pass in actions if using attribute assign ids
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    group.getAttributeDelegate().removeAttribute(attributeDefName);
-//    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
-//    attributeAssign = attributeAssignResult.getAttributeAssign();
-//    
-//    
-//    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
-//        GROUPER_VERSION, AttributeAssignType.group, null, AttributeAssignOperation.remove_attr, null, 
-//        null, null, null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
-//        null, null, null, null, 
-//        null, null, null, new String[]{"assign"}, null, false, null, false, null, null, null, null);
-//    
-//    assertEquals("Cant pass in actions when using attribute assign id lookup", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultCode());
-//    assertTrue(wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultMessage().contains(
-//            "Cant pass in actions when using attribute assign id lookup"));
+    //Error case lookups and names
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    group.getAttributeDelegate().removeAttribute(attributeDefName);
+    
+    wsAssignAttributeBatchEntry = new WsAssignAttributeBatchEntry();
+    wsAssignAttributeBatchEntry.setAttributeAssignType(AttributeAssignType.group.name());
+    wsAssignAttributeBatchEntry.setWsOwnerGroupLookup(new WsGroupLookup(group.getName(), null));
+    wsAssignAttributeBatchEntry.setWsAttributeDefNameLookup(new WsAttributeDefNameLookup(attributeDefName.getName(),null));
+    wsAssignAttributeBatchEntry.setAttributeAssignOperation(AttributeAssignOperation.assign_attr.name());
+    wsAssignAttributeBatchEntry.setWsOwnerAttributeAssignLookup(new WsAttributeAssignLookup("abc"));
+    
+    wsAssignAttributeBatchEntries = new WsAssignAttributeBatchEntry[] {wsAssignAttributeBatchEntry};
+    
+    wsAssignAttributesBatchResults = GrouperServiceLogic.assignAttributesBatch(
+        GROUPER_VERSION, 
+        wsAssignAttributeBatchEntries, null, false, null, null, false, null);
+
+    assertEquals("Cant do defName and assign lookup", WsAssignAttributesBatchResultsCode.PROBLEM_WITH_ASSIGNMENT.name(), 
+        wsAssignAttributesBatchResults.getResultMetadata().getResultCode());
+    
+    assertEquals(1, GrouperUtil.length(wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()));
+    
+    wsAssignAttributeBatchResult = wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[0];
+    
+    assertEquals("Cant do defName and assign lookup", WsAssignAttributeBatchResultCode.INVALID_QUERY.name(), 
+        wsAssignAttributeBatchResult.getResultMetadata().getResultCode());
+    assertTrue(wsAssignAttributeBatchResult.getResultMetadata().getResultMessage(), 
+        wsAssignAttributeBatchResult.getResultMetadata().getResultMessage().contains(
+            "Why is there more than one type of lookup?"));
+  
+    
+    //Need to pass in attribute assign operation
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    group.getAttributeDelegate().removeAttribute(attributeDefName);
+
+    wsAssignAttributeBatchEntry = new WsAssignAttributeBatchEntry();
+    wsAssignAttributeBatchEntry.setAttributeAssignType(AttributeAssignType.group.name());
+    wsAssignAttributeBatchEntry.setWsOwnerGroupLookup(new WsGroupLookup(group.getName(), null));
+    wsAssignAttributeBatchEntry.setWsAttributeDefNameLookup(new WsAttributeDefNameLookup(attributeDefName.getName(),null));
+    
+    wsAssignAttributeBatchEntries = new WsAssignAttributeBatchEntry[] {wsAssignAttributeBatchEntry};
+    
+    wsAssignAttributesBatchResults = GrouperServiceLogic.assignAttributesBatch(
+        GROUPER_VERSION, 
+        wsAssignAttributeBatchEntries, null, false, null, null, false, null);
+
+    assertEquals("Need to pass in attributeAssignOperation", WsAssignAttributesBatchResultsCode.PROBLEM_WITH_ASSIGNMENT.name(), 
+        wsAssignAttributesBatchResults.getResultMetadata().getResultCode());
+    
+    assertEquals(1, GrouperUtil.length(wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()));
+    
+    wsAssignAttributeBatchResult = wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[0];
+    
+    assertEquals("Need to pass in attributeAssignOperation", WsAssignAttributeBatchResultCode.INVALID_QUERY.name(), 
+        wsAssignAttributeBatchResult.getResultMetadata().getResultCode());
+    assertTrue(wsAssignAttributeBatchResult.getResultMetadata().getResultMessage(), 
+        wsAssignAttributeBatchResult.getResultMetadata().getResultMessage().contains(
+            "You need to pass in an attributeAssignOperation"));
+
+    
+    
+
+  
+    //Need to do assign or delete by id if passing by id
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    group.getAttributeDelegate().removeAttribute(attributeDefName);
+    AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
+    
+
+    wsAssignAttributeBatchEntry = new WsAssignAttributeBatchEntry();
+    wsAssignAttributeBatchEntry.setAttributeAssignType(AttributeAssignType.stem.name());
+    wsAssignAttributeBatchEntry.setWsAttributeAssignLookup(new WsAttributeAssignLookup(attributeAssign.getId()));
+    wsAssignAttributeBatchEntry.setAttributeAssignOperation(AttributeAssignOperation.remove_attr.name());
+    
+    wsAssignAttributeBatchEntries = new WsAssignAttributeBatchEntry[] {wsAssignAttributeBatchEntry};
+    
+    wsAssignAttributesBatchResults = GrouperServiceLogic.assignAttributesBatch(
+        GROUPER_VERSION, 
+        wsAssignAttributeBatchEntries, null, false, null, null, false, null);
+
+    assertEquals("but this operation was passed attributeAssignType", WsAssignAttributesBatchResultsCode.PROBLEM_WITH_ASSIGNMENT.name(), 
+        wsAssignAttributesBatchResults.getResultMetadata().getResultCode());
+    
+    assertEquals(1, GrouperUtil.length(wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()));
+    
+    wsAssignAttributeBatchResult = wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[0];
+    
+    assertEquals("but this operation was passed attributeAssignType", WsAssignAttributeBatchResultCode.INVALID_QUERY.name(), 
+        wsAssignAttributeBatchResult.getResultMetadata().getResultCode());
+    assertTrue(wsAssignAttributeBatchResult.getResultMetadata().getResultMessage(), 
+        wsAssignAttributeBatchResult.getResultMetadata().getResultMessage().contains(
+            "but this operation was passed attributeAssignType"));
+
+    
+    
+  
+    //cant pass in actions if using attribute assign ids
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    group.getAttributeDelegate().removeAttribute(attributeDefName);
+    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+    
+
+    wsAssignAttributeBatchEntry = new WsAssignAttributeBatchEntry();
+    wsAssignAttributeBatchEntry.setAttributeAssignType(AttributeAssignType.group.name());
+    wsAssignAttributeBatchEntry.setWsAttributeAssignLookup(new WsAttributeAssignLookup(attributeAssign.getId()));
+    wsAssignAttributeBatchEntry.setAttributeAssignOperation(AttributeAssignOperation.remove_attr.name());
+    wsAssignAttributeBatchEntry.setAction("assign");
+    
+    wsAssignAttributeBatchEntries = new WsAssignAttributeBatchEntry[] {wsAssignAttributeBatchEntry};
+    
+    wsAssignAttributesBatchResults = GrouperServiceLogic.assignAttributesBatch(
+        GROUPER_VERSION, 
+        wsAssignAttributeBatchEntries, null, false, null, null, false, null);
+
+    assertEquals("Cant pass in actions when using attribute assign id lookup", WsAssignAttributesBatchResultsCode.PROBLEM_WITH_ASSIGNMENT.name(), 
+        wsAssignAttributesBatchResults.getResultMetadata().getResultCode());
+    
+    assertEquals(1, GrouperUtil.length(wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()));
+    
+    wsAssignAttributeBatchResult = wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[0];
+    
+    assertEquals("Cant pass in actions when using attribute assign id lookup", WsAssignAttributeBatchResultCode.INVALID_QUERY.name(), 
+        wsAssignAttributeBatchResult.getResultMetadata().getResultCode());
+    assertTrue(wsAssignAttributeBatchResult.getResultMetadata().getResultMessage(), 
+        wsAssignAttributeBatchResult.getResultMetadata().getResultMessage().contains(
+            "Cant pass in actions when using attribute assign id lookup"));
+
+    
 //  
 //    
 //    //Cant pass in values when deleting attributes
