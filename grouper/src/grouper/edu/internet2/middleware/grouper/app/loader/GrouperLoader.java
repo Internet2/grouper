@@ -410,6 +410,8 @@ public class GrouperLoader {
         }
 
         //default to every minute on the minute, though add a couple of seconds for each one
+        //        if (StringUtils.isBlank(cronString) || StringUtils.equals("0 * * * * ?", cronString)) {
+        //        dont change the crons that are explicitly set... only blank ones
         if (StringUtils.isBlank(cronString)) {
           cronString = ((index * 2) % 60) + " * * * * ?";
         }
