@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
@@ -324,7 +325,9 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned, XmlI
     if (copyContextData) {
       GrouperContext.assignAuditEntryFields(this);
     }
-    GrouperDAOFactory.getFactory().getAuditEntry().saveOrUpdate(this);
+    if (!GrouperLoader.isDryRun()) {
+      GrouperDAOFactory.getFactory().getAuditEntry().saveOrUpdate(this);
+    }
   }
   
   /**

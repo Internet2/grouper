@@ -16,33 +16,22 @@
 package edu.internet2.middleware.grouper.ws.coresoap;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.attr.AttributeDef;
-import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
-import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
-import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult.WsAddMemberResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults.WsAddMemberResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult.WsAssignAttributeBatchResultCode;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
-import edu.internet2.middleware.subject.Subject;
 
 /**
  * <pre>
@@ -58,6 +47,109 @@ import edu.internet2.middleware.subject.Subject;
  * @author mchyzer
  */
 public class WsAssignAttributesBatchResults implements WsResponseBean, ResultMetadataHolder {
+
+  /**
+   * make sure if there is an error, to record that as an error
+   * @param grouperTransactionType for request
+   * @param theSummary
+   * @return true if success, false if not
+   */
+  public boolean tallyResults(GrouperTransactionType grouperTransactionType,
+      String theSummary) {
+    
+    //maybe already a failure
+    boolean successOverall = GrouperUtil.booleanValue(this.getResultMetadata()
+        .getSuccess(), true);
+    if (this.getWsAssignAttributeBatchResultArray() != null) {
+      // check all entries
+      int successes = 0;
+      int failures = 0;
+
+      int arrayLength = GrouperUtil.length(this.getWsAssignAttributeBatchResultArray());
+      for (int i=0;i<arrayLength;i++) {
+        
+        WsAssignAttributeBatchResult wsAssignAttributeBatchResult = this.getWsAssignAttributeBatchResultArray()[i];
+        if(wsAssignAttributeBatchResult == null) {
+          wsAssignAttributeBatchResult = new WsAssignAttributeBatchResult();
+          this.getWsAssignAttributeBatchResultArray()[i] = wsAssignAttributeBatchResult;
+        }
+        if (wsAssignAttributeBatchResult.getResultMetadata() == null) {
+          wsAssignAttributeBatchResult.setResultMetadata(new WsResultMeta());
+          wsAssignAttributeBatchResult.getResultMetadata().setSuccess("F");
+        }
+        boolean theSuccess = "T".equalsIgnoreCase(wsAssignAttributeBatchResult.getResultMetadata()
+            .getSuccess());
+        if (theSuccess) {
+          successes++;
+        } else {
+          failures++;
+        }
+      }
+
+      //if transaction rolled back all line items, 
+      if ((!successOverall || failures > 0) && grouperTransactionType.isTransactional()
+          && !grouperTransactionType.isReadonly()) {
+        
+        for (int i=0;i<arrayLength;i++) {
+          
+          WsAssignAttributeBatchResult wsAssignAttributeBatchResult = this.getWsAssignAttributeBatchResultArray()[i];
+          if (GrouperUtil.booleanValue(
+              wsAssignAttributeBatchResult.getResultMetadata().getSuccess(), true)) {
+            wsAssignAttributeBatchResult
+                .assignResultCode(WsAssignAttributeBatchResultCode.TRANSACTION_ROLLED_BACK);
+            failures++;
+          }
+          
+        }
+        
+      }
+      if (failures > 0) {
+        this.getResultMetadata().appendResultMessage(
+            "There were " + successes + " successes and " + failures
+                + " failures of assigning attributes.   ");
+        this.assignResultCode(WsAssignAttributesBatchResultsCode.PROBLEM_WITH_ASSIGNMENT);
+        //this might not be a problem
+        LOG.warn(this.getResultMetadata().getResultMessage());
+
+      } else {
+        this.assignResultCode(WsAssignAttributesBatchResultsCode.SUCCESS);
+      }
+    } else {
+      //none is not ok, must pass one in
+      this.assignResultCode(WsAssignAttributesBatchResultsCode.SUCCESS);
+      this.getResultMetadata().appendResultMessage(
+          "No attribute assignments were passed in, ");
+    }
+    //make response descriptive
+    if (GrouperUtil.booleanValue(this.getResultMetadata().getSuccess(), false)) {
+      this.getResultMetadata().appendResultMessage("Success for: " + theSummary);
+      return true;
+    }
+    //false if need rollback
+    return !grouperTransactionType.isTransactional();
+  }
+
+
+  /**
+   * process an exception, log, etc
+   * @param wsAssignAttributesBatchResultsCode
+   * @param theError
+   * @param e
+   */
+  public void assignResultCodeException(
+      WsAssignAttributesBatchResultsCode wsAssignAttributesBatchResultsCode, String theError, Exception e) {
+
+    wsAssignAttributesBatchResultsCode = GrouperUtil.defaultIfNull(
+        wsAssignAttributesBatchResultsCode, WsAssignAttributesBatchResultsCode.PROBLEM_WITH_ASSIGNMENT);
+    //a helpful exception will probably be in the getMessage()
+    this.assignResultCode(wsAssignAttributesBatchResultsCode);
+    theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
+    this.getResultMetadata().appendResultMessage(
+        theError + ExceptionUtils.getFullStackTrace(e));
+    LOG.error(theError, e);
+
+  }
+
 
   /**
    * logger 
@@ -109,22 +201,22 @@ public class WsAssignAttributesBatchResults implements WsResponseBean, ResultMet
   /**
    * the assignment results being queried
    */
-  private WsAssignAttributeBatchResult[] wsAttributeAssignBatchResults;
+  private WsAssignAttributeBatchResult[] wsAssignAttributeBatchResultArray;
   
   /**
    * the assignment results being queried
    * @return the assignments being queried
    */
-  public WsAssignAttributeBatchResult[] getWsAttributeAssignBatchResults() {
-    return this.wsAttributeAssignBatchResults;
+  public WsAssignAttributeBatchResult[] getWsAssignAttributeBatchResultArray() {
+    return this.wsAssignAttributeBatchResultArray;
   }
 
   /**
    * the assignment results being queried
    * @param wsAttributeAssignResults1
    */
-  public void setWsAttributeAssignBatchResults(WsAssignAttributeBatchResult[] wsAttributeAssignResults1) {
-    this.wsAttributeAssignBatchResults = wsAttributeAssignResults1;
+  public void setWsAssignAttributeBatchResultArray(WsAssignAttributeBatchResult[] wsAttributeAssignResults1) {
+    this.wsAssignAttributeBatchResultArray = wsAttributeAssignResults1;
   }
 
   /**
@@ -137,23 +229,13 @@ public class WsAssignAttributesBatchResults implements WsResponseBean, ResultMet
    * of WsGetMembersResultCode (with http status codes) are:
    * SUCCESS(200), EXCEPTION(500), INVALID_QUERY(400)
    */
-  public static enum WsAssignAttributesResultsCode implements WsResultCode {
+  public static enum WsAssignAttributesBatchResultsCode implements WsResultCode {
 
     /** found the attributeAssignments (lite status code 200) (success: T) */
     SUCCESS(200),
 
-    /** something bad happened (lite status code 500) (success: F) */
-    EXCEPTION(500),
-
-    /** invalid query (e.g. if everything blank) (lite status code 400) (success: F) */
-    INVALID_QUERY(400),
-    
-    /** not allowed to the privileges on the inputs.  Note if broad search, then the results wont
-     * contain items not allowed.  If a specific search e.g. on a group, then if you cant read the
-     * group then you cant read the privs
-     */
-    INSUFFICIENT_PRIVILEGES(403);
-    
+    /** if one or more entries had problems, but some others succeeded. (success: F) */
+    PROBLEM_WITH_ASSIGNMENT(500);
     
     /** get the name label for a certain version of client 
      * @param clientVersion 
@@ -167,7 +249,7 @@ public class WsAssignAttributesBatchResults implements WsResponseBean, ResultMet
      * construct with http code
      * @param theHttpStatusCode the code
      */
-    private WsAssignAttributesResultsCode(int theHttpStatusCode) {
+    private WsAssignAttributesBatchResultsCode(int theHttpStatusCode) {
       this.httpStatusCode = theHttpStatusCode;
     }
 
@@ -194,40 +276,8 @@ public class WsAssignAttributesBatchResults implements WsResponseBean, ResultMet
    * assign the code from the enum
    * @param getAttributeAssignmentsResultCode
    */
-  public void assignResultCode(WsAssignAttributesResultsCode getAttributeAssignmentsResultCode) {
+  public void assignResultCode(WsAssignAttributesBatchResultsCode getAttributeAssignmentsResultCode) {
     this.getResultMetadata().assignResultCode(getAttributeAssignmentsResultCode);
-  }
-
-  /**
-   * prcess an exception, log, etc
-   * @param wsGetAttributeAssignmentsResultsCodeOverride
-   * @param theError
-   * @param e
-   */
-  public void assignResultCodeException(
-      WsAssignAttributesResultsCode wsGetAttributeAssignmentsResultsCodeOverride, String theError,
-      Exception e) {
-
-    if (e instanceof WsInvalidQueryException) {
-      wsGetAttributeAssignmentsResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsGetAttributeAssignmentsResultsCodeOverride, WsAssignAttributesResultsCode.INVALID_QUERY);
-      //a helpful exception will probably be in the getMessage()
-      this.assignResultCode(wsGetAttributeAssignmentsResultsCodeOverride);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
-      LOG.warn(e);
-
-    } else {
-      wsGetAttributeAssignmentsResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsGetAttributeAssignmentsResultsCodeOverride, WsAssignAttributesResultsCode.EXCEPTION);
-      LOG.error(theError, e);
-
-      theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      this.getResultMetadata().appendResultMessage(
-          theError + ExceptionUtils.getFullStackTrace(e));
-      this.assignResultCode(wsGetAttributeAssignmentsResultsCodeOverride);
-
-    }
   }
 
   /**
@@ -378,7 +428,7 @@ public class WsAssignAttributesBatchResults implements WsResponseBean, ResultMet
     
     this.subjectAttributeNames = theSubjectAttributeNames;
 
-    this.setWsAttributeAssignBatchResults(GrouperUtil.toArray(attributeAssignBatchResults, WsAssignAttributeBatchResult.class));
+    this.setWsAssignAttributeBatchResultArray(GrouperUtil.toArray(attributeAssignBatchResults, WsAssignAttributeBatchResult.class));
     
   }
 
@@ -387,8 +437,8 @@ public class WsAssignAttributesBatchResults implements WsResponseBean, ResultMet
    */
   public void sortResults() {
     //maybe we shouldnt do this for huge resultsets, but this makes things more organized and easier to test
-    if (this.wsAttributeAssignBatchResults != null) {
-      Arrays.sort(this.wsAttributeAssignBatchResults);
+    if (this.wsAssignAttributeBatchResultArray != null) {
+      Arrays.sort(this.wsAssignAttributeBatchResultArray);
     }
     if (this.wsAttributeDefNames != null) {
       Arrays.sort(this.wsAttributeDefNames);
@@ -409,234 +459,40 @@ public class WsAssignAttributesBatchResults implements WsResponseBean, ResultMet
       Arrays.sort(this.wsSubjects);
     }
   }
-
-  /**
-   * pass in the attribute def ids that were found by inputs, and add the attribute
-   * def ids found by the attribute assign results
-   * @param attributeDefIds
-   */
-  public void fillInAttributeDefs(Set<String> attributeDefIds) {
-    
-    Set<String> allAttributeDefIds = new HashSet<String>(GrouperUtil.nonNull(attributeDefIds));
-    
-    for (WsAssignAttributeBatchResult wsAttributeAssignBatchResult : GrouperUtil.nonNull(this.wsAttributeAssignBatchResults, WsAssignAttributeBatchResult.class)) {
-      for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(wsAttributeAssignBatchResult.getWsAttributeAssigns(), WsAttributeAssign.class)) {
-        if (wsAttributeAssign != null) {
-          if (!StringUtils.isBlank(wsAttributeAssign.getAttributeDefId())) {
-            allAttributeDefIds.add(wsAttributeAssign.getAttributeDefId());
-          }
-          if (!StringUtils.isBlank(wsAttributeAssign.getOwnerAttributeDefId())) {
-            allAttributeDefIds.add(wsAttributeAssign.getOwnerAttributeDefId());
-          }
-        }
-      }
-    }
-    
-    //make sure all attr def names are there
-    for (WsAttributeDefName wsAttributeDefName : GrouperUtil.nonNull(this.wsAttributeDefNames, WsAttributeDefName.class) ) {
-      allAttributeDefIds.add(wsAttributeDefName.getAttributeDefId());
-    }
-    
-    //security is already checked, lets pass these through...
-    this.wsAttributeDefs = new WsAttributeDef[allAttributeDefIds.size()];
-    
-    int i = 0;
-    for (String wsAttributeDefId : allAttributeDefIds) {
-      AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findById(wsAttributeDefId, true);
-      this.wsAttributeDefs[i] = new WsAttributeDef(attributeDef, null);
-      i++;
-    }
-  }
-
-  /**
-   * pass in the group ids that were found by inputs, and add the group id 
-   * found by the attribute assign results
-   * @param groupIds
-   * @param includeGroupDetail 
-   */
-  public void fillInGroups(Set<String> groupIds, boolean includeGroupDetail) {
-    
-    Set<String> allGroupIds = new HashSet<String>(GrouperUtil.nonNull(groupIds));
-    
-    for (WsAssignAttributeBatchResult wsAttributeAssignBatchResult : GrouperUtil.nonNull(this.wsAttributeAssignBatchResults, WsAssignAttributeBatchResult.class)) {
-      for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(wsAttributeAssignBatchResult.getWsAttributeAssigns(), WsAttributeAssign.class)) {
-        if (wsAttributeAssign != null) {
-          if (!StringUtils.isBlank(wsAttributeAssign.getOwnerGroupId())) {
-            allGroupIds.add(wsAttributeAssign.getOwnerGroupId());
-          }
-        }
-      }
-    }
-    
-    //security is already checked, lets pass these through...
-    this.wsGroups = new WsGroup[allGroupIds.size()];
-    
-    int i = 0;
-    for (String wsGroupId : allGroupIds) {
-      Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(wsGroupId, true);
-      this.wsGroups[i] = new WsGroup(group, null, includeGroupDetail);
-      i++;
-    }
-  }
-
-  /**
-   * pass in the stem ids that were found by inputs, and add the stem id 
-   * found by the attribute assign results
-   * @param stemIds
-   */
-  public void fillInStems(Set<String> stemIds) {
-    
-    Set<String> allStemIds = new HashSet<String>(GrouperUtil.nonNull(stemIds));
-    
-    for (WsAssignAttributeBatchResult wsAttributeAssignBatchResult : GrouperUtil.nonNull(this.wsAttributeAssignBatchResults, WsAssignAttributeBatchResult.class)) {
-      for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(wsAttributeAssignBatchResult.getWsAttributeAssigns(), WsAttributeAssign.class)) {
-        if (wsAttributeAssign != null) {
-          if (!StringUtils.isBlank(wsAttributeAssign.getOwnerStemId())) {
-            allStemIds.add(wsAttributeAssign.getOwnerStemId());
-          }
-        }
-      }
-    }
-    
-    //security is already checked, lets pass these through...
-    this.wsStems = new WsStem[allStemIds.size()];
-    
-    int i = 0;
-    for (String wsStemId : allStemIds) {
-      Stem stem = GrouperDAOFactory.getFactory().getStem().findByUuid(wsStemId, true);
-      this.wsStems[i] = new WsStem(stem);
-      i++;
-    }
-  }
-
-  /**
-   * pass in the stem ids that were found by inputs, and add the stem id 
-   * found by the attribute assign results
-   * @param membershipIds
-   */
-  public void fillInMemberships(Set<String> membershipIds) {
-    
-    Set<String> allMembershipIds = new HashSet<String>(GrouperUtil.nonNull(membershipIds));
-    
-    for (WsAssignAttributeBatchResult wsAttributeAssignBatchResult : GrouperUtil.nonNull(this.wsAttributeAssignBatchResults, WsAssignAttributeBatchResult.class)) {
-      for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(wsAttributeAssignBatchResult.getWsAttributeAssigns(), WsAttributeAssign.class)) {
-        if (wsAttributeAssign != null) {
-          if (!StringUtils.isBlank(wsAttributeAssign.getOwnerMembershipId())) {
-            allMembershipIds.add(wsAttributeAssign.getOwnerMembershipId());
-          }
-        }
-      }
-    }
-    
-    //put in a set to make sure no duplicates, could be since multiple types of ids
-    
-    Set<Membership> memberships = new HashSet<Membership>();
-    
-    for (String membershipId : allMembershipIds) {
-      //security is already checked, lets pass these through...
-      Membership membership = GrouperDAOFactory.getFactory().getMembership().findByUuid(membershipId, false, false);
-      if (membership != null) {
-        memberships.add(membership);
-      }
-    }
-    
-    this.wsMemberships = new WsMembership[memberships.size()];
-    
-    int i = 0;
-    for (Membership membership : memberships) {
-      this.wsMemberships[i] = new WsMembership(membership);
-      i++;
-    }
-  }
-
-  /**
-   * pass in the subject lookups that were found by inputs, and add the subject ids 
-   * found by the attribute assign results
-   * @param subjectLookups
-   * @param extraMemberIds 
-   * @param includeSubjectDetail 
-   * @param theSubjectAttributeNames 
-   */
-  public void fillInSubjects(WsSubjectLookup[] subjectLookups, Set<String> extraMemberIds, 
-      boolean includeSubjectDetail, String[] theSubjectAttributeNames) {
-        
-    Set<Subject> allSubjects = new HashSet<Subject>();
-    
-    for (WsSubjectLookup wsSubjectLookup : GrouperUtil.nonNull(subjectLookups, WsSubjectLookup.class)) {
-      if (wsSubjectLookup == null) {
-        continue;
-      }
-      Subject subject = wsSubjectLookup.retrieveSubject();
-      if (subject != null) {
-        if (!SubjectHelper.inList(allSubjects, subject)) {
-          allSubjects.add(subject);
-        }
-      }
-    }
-    
-    //process extra ones e.g. from list of any memberships passed in
-    for (String memberId : GrouperUtil.nonNull(extraMemberIds)) {
-      Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), 
-          memberId, false);
-      if (member != null && !SubjectHelper.inList(allSubjects, 
-          member.getSubjectSourceId(), member.getSubjectId())) {
-        allSubjects.add(member.getSubject());
-      }
-    }
-    
-    for (WsAssignAttributeBatchResult wsAttributeAssignBatchResult : GrouperUtil.nonNull(this.wsAttributeAssignBatchResults, WsAssignAttributeBatchResult.class)) {
-      for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(wsAttributeAssignBatchResult.getWsAttributeAssigns(), WsAttributeAssign.class)) {
-        if (wsAttributeAssign != null) {
-          if (!StringUtils.isBlank(wsAttributeAssign.getOwnerMemberSubjectId())) {
-            if (!SubjectHelper.inList(allSubjects, wsAttributeAssign.getOwnerMemberSourceId(), wsAttributeAssign.getOwnerMemberSubjectId())) {
-              Subject subject = SubjectFinder.findById(wsAttributeAssign.getOwnerMemberSubjectId(), null, wsAttributeAssign.getOwnerMemberSourceId(), false);
-              if (subject != null) {
-                allSubjects.add(subject);
-              }
-            }
-          }
-        }
-      }
-    }
-    
-    //security is already checked, lets pass these through...
-    this.wsSubjects = new WsSubject[allSubjects.size()];
-    
-    int i = 0;
-    for (Subject subject : allSubjects) {
-      this.wsSubjects[i] = new WsSubject(subject, theSubjectAttributeNames, null);
-      i++;
-    }
-  }
-
   
   /**
-   * pass in the attribute def name ids that were found by inputs, and add the attribute
-   * def name ids found by the attribute assign results
-   * @param attributeDefNameIds
+   * add a result to the list of results, and keep track of all the related objects
+   * @param wsAssignAttributesResults
+   * @param theError 
+   * @param e 
+   * @param index 
    */
-  public void fillInAttributeDefNames(Set<String> attributeDefNameIds) {
+  public void addResult(WsAssignAttributesResults wsAssignAttributesResults, String theError, Exception e, int index) {
+    //lets collate the results, note, we can make this more efficient later as far as resolving objects
     
-    Set<String> allAttributeDefNameIds = new HashSet<String>(GrouperUtil.nonNull(attributeDefNameIds));
+    WsAssignAttributeBatchResult wsAssignAttributeBatchResult = null;
     
-    for (WsAssignAttributeBatchResult wsAttributeAssignBatchResult : GrouperUtil.nonNull(this.wsAttributeAssignBatchResults, WsAssignAttributeResult.class)) {
-      for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(wsAttributeAssignBatchResult.getWsAttributeAssigns(), WsAttributeAssign.class)) {
-        if (wsAttributeAssign != null) {
-          if (!StringUtils.isBlank(wsAttributeAssign.getAttributeDefNameId())) {
-            allAttributeDefNameIds.add(wsAttributeAssign.getAttributeDefNameId());
-          }
-        }
+    //there should only be one result...
+    if (wsAssignAttributesResults != null && GrouperUtil.length(wsAssignAttributesResults.getWsAttributeAssignResults()) > 0) {
+      if (GrouperUtil.length(wsAssignAttributesResults.getWsAttributeAssignResults()) > 1) {
+        throw new RuntimeException("Why are there more one result???? " 
+            + GrouperUtil.length(wsAssignAttributesResults.getWsAttributeAssignResults()));
       }
+      wsAssignAttributeBatchResult = 
+        new WsAssignAttributeBatchResult(wsAssignAttributesResults, 
+            wsAssignAttributesResults.getWsAttributeAssignResults()[0]);
+    } else {
+      wsAssignAttributeBatchResult = new WsAssignAttributeBatchResult(wsAssignAttributesResults, theError, e);
+      //add a blank one?
     }
+    this.wsAssignAttributeBatchResultArray[index] = wsAssignAttributeBatchResult;
+    //add it to the array of results
     
-    //security is already checked, lets pass these through...
-    this.wsAttributeDefNames = new WsAttributeDefName[allAttributeDefNameIds.size()];
+    //there should be one result from the assignment
+    //tempResults.get
+
     
-    int i = 0;
-    for (String wsAttributeDefNameId : allAttributeDefNameIds) {
-      AttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByUuidOrName(wsAttributeDefNameId, null, true);
-      this.wsAttributeDefNames[i] = new WsAttributeDefName(attributeDefName, null);
-      i++;
-    }
   }
+  
+  
 }

@@ -56,6 +56,7 @@ import org.hibernate.classic.Lifecycle;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignEffMshipDelegate;
@@ -139,7 +140,6 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AccessResolver;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
-import edu.internet2.middleware.grouper.privs.WheelCache;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
@@ -1295,22 +1295,28 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
         }
         Set types = Group.this.getTypesDb();
         types.add( type );
-        GroupTypeTuple groupTypeTuple = null;
-        try {
-          groupTypeTuple = GrouperDAOFactory.getFactory().getGroup().addType( Group.this, type);
-        } catch (RuntimeException re) {
-          types.remove(type);
-          throw re;
+
+        if (GrouperLoader.isDryRun()) {
+          GrouperLoader.dryRunWriteLine("Group add type: " + type.getName());
+        } else {
+          
+          GroupTypeTuple groupTypeTuple = null;
+          try {
+            groupTypeTuple = GrouperDAOFactory.getFactory().getGroup().addType( Group.this, type);
+          } catch (RuntimeException re) {
+            types.remove(type);
+            throw re;
+          }
+          if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+            AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_TYPE_ASSIGN, "id", 
+                groupTypeTuple.getId(), "groupId", Group.this.getUuid(), 
+                "groupName", Group.this.getName(), "typeId", type.getUuid(), "typeName", type.getName());
+            auditEntry.setDescription("Assigned group type: " + name + ", typeId: " + type.getUuid() 
+                + ", to group: " + Group.this.getName() + ", groupId: " + Group.this.getUuid());
+            auditEntry.saveOrUpdate(true);
+          }
         }
 
-        if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_TYPE_ASSIGN, "id", 
-              groupTypeTuple.getId(), "groupId", Group.this.getUuid(), 
-              "groupName", Group.this.getName(), "typeId", type.getUuid(), "typeName", type.getName());
-          auditEntry.setDescription("Assigned group type: " + name + ", typeId: " + type.getUuid() 
-              + ", to group: " + Group.this.getName() + ", groupId: " + Group.this.getUuid());
-          auditEntry.saveOrUpdate(true);
-        }
         
         sw.stop();
         EventLog.info(
@@ -4446,6 +4452,11 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * store this object to the DB.
    */
   public void store() {    
+    
+    if (GrouperLoader.isDryRun()) {
+      return;
+    }
+    
       HibernateSession.callbackHibernateSession(
           GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
           new HibernateHandler() {

@@ -23,6 +23,7 @@ import java.sql.Timestamp;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle;
@@ -722,19 +723,23 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
     
     this.truncate();
     
-    //do this in autonomous transaction
-    HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, 
-        new HibernateHandler() {
-
-      public Object callback(HibernateHandlerBean hibernateHandlerBean)
-          throws GrouperDAOException {
-        HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
-        hibernateSession.byObject().saveOrUpdate(Hib3GrouperLoaderLog.this);
-        return null;
-      }
-      
-    });
+    //if dry run dont do this
+    if (!GrouperLoader.isDryRun()) {
+    
+      //do this in autonomous transaction
+      HibernateSession.callbackHibernateSession(
+          GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, 
+          new HibernateHandler() {
+  
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+          HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
+          hibernateSession.byObject().saveOrUpdate(Hib3GrouperLoaderLog.this);
+          return null;
+        }
+        
+      });
+    }
   }
 
   /**

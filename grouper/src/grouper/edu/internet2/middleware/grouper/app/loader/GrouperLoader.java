@@ -19,6 +19,9 @@
  */
 package edu.internet2.middleware.grouper.app.loader;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -53,6 +56,11 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.client.ClientConfig;
 import edu.internet2.middleware.grouper.client.ClientConfig.ClientGroupConfigBean;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -402,6 +410,8 @@ public class GrouperLoader {
         }
 
         //default to every minute on the minute, though add a couple of seconds for each one
+        //        if (StringUtils.isBlank(cronString) || StringUtils.equals("0 * * * * ?", cronString)) {
+        //        dont change the crons that are explicitly set... only blank ones
         if (StringUtils.isBlank(cronString)) {
           cronString = ((index * 2) % 60) + " * * * * ?";
         }
@@ -998,8 +1008,8 @@ public class GrouperLoader {
         GrouperLoaderJob.runJobLdap(hib3GrouperLoaderLog, group, grouperSession);
       }
       
-      return "loader ran successfully, inserted " + hib3GrouperLoaderLog.getInsertCount()
-        + " memberships, deleted " + hib3GrouperLoaderLog.getDeleteCount() + " memberships, total membership count: "
+      return "loader " + (isDryRun() ? "dry " : "") + "ran successfully, " + (isDryRun() ? "would have " : "") + "inserted " + hib3GrouperLoaderLog.getInsertCount()
+        + " memberships, " + (isDryRun() ? "would have " : "") + "deleted " + hib3GrouperLoaderLog.getDeleteCount() + " memberships, total membership count: "
         + hib3GrouperLoaderLog.getTotalCount();
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -1079,8 +1089,8 @@ public class GrouperLoader {
 
     Hib3GrouperLoaderLog hib3GrouperLoaderLog = _internal_runJobOnceForAttributeDef(grouperSession, attributeDef);
     
-    return "loader ran successfully, inserted " + hib3GrouperLoaderLog.getInsertCount()
-      + " attrDefNames, deleted " + hib3GrouperLoaderLog.getDeleteCount() + " records, total record count: "
+    return "loader " + (isDryRun() ? "dry " : "") + "ran successfully, " + (isDryRun() ? "would have " : "") + "inserted " + hib3GrouperLoaderLog.getInsertCount()
+      + " attrDefNames, " + (isDryRun() ? "would have " : "") + "deleted " + hib3GrouperLoaderLog.getDeleteCount() + " records, total record count: "
       + hib3GrouperLoaderLog.getTotalCount();
   }
 
@@ -1296,6 +1306,145 @@ public class GrouperLoader {
       }
     }
   
+  }
+
+  /**
+   * if there is a threadlocal, then we are in dry run mode
+   */
+  private static ThreadLocal<GrouperLoaderDryRunBean> threadLocalGrouperLoaderDryRun = new ThreadLocal<GrouperLoaderDryRunBean>();
+  
+  /**
+   * bean holds where the logging goes, and if there, then it means we are in dry run mode
+   *
+   */
+  private static class GrouperLoaderDryRunBean {
+    
+    /**
+     * filewriter for output
+     */
+    private FileWriter fileWriter;
+    
+    /**
+     * file
+     */
+    private File file;
+
+    /**
+     * construct
+     * @param fileName
+     */
+    public GrouperLoaderDryRunBean(String fileName) {
+      if (!StringUtils.isBlank(fileName)) {
+        this.file = new File(fileName); 
+        try {
+          this.fileWriter = new FileWriter(this.file);
+        } catch (IOException ioe) {
+          throw new RuntimeException("Cant open file: " + fileName, ioe);
+        }
+      }
+    }
+    
+    /**
+     * finish everything up
+     * @param success
+     */
+    public void finish(boolean success) {
+      if (this.fileWriter != null) {
+        try {
+          this.fileWriter.close();
+        } catch (IOException ioe) {
+          throw new RuntimeException("Problem closing file: " + this.file.getAbsolutePath(), ioe);
+        }
+        System.out.println("Wrote dry run to file: " + this.file.getAbsolutePath() + ", succcess? " + success);
+      }
+    }
+    
+    /**
+     * write a line, it shouldnt end in newline
+     * @param line
+     */
+    public void writeLine(String line) {
+      if (this.fileWriter != null) {
+        try {
+          this.fileWriter.write(line);
+          this.fileWriter.write("\n");
+        } catch (IOException ioe) {
+          throw new RuntimeException("Problem writing to file: " + this.file.getAbsolutePath(), ioe);
+        }
+      } else {
+        System.out.println(line);
+      }
+    }
+    
+  }
+  
+  /**
+   * @param group
+   * @param grouperSession
+   * @param fileName is the file where output should go
+   * @return status
+   */
+  public static String dryRunJobOnceForGroup(final GrouperSession grouperSession, final Group group, String fileName) {
+    
+    //put grouepr in readonly mode
+    HibernateSession.threadLocalReadonlyAssign();
+
+    try {
+      threadLocalGrouperLoaderDryRun.set(new GrouperLoaderDryRunBean(fileName));
+      
+      boolean success = false;
+      try {
+      
+        String result = (String)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READONLY_NEW, new GrouperTransactionHandler() {
+          
+          /**
+           * 
+           */
+          @Override
+          public Object callback(GrouperTransaction grouperTransaction)
+              throws GrouperDAOException {
+            
+            return runJobOnceForGroup(grouperSession, group);
+            
+          }
+        });
+        
+        success = true;
+        return result;
+        
+      } finally {
+        GrouperLoaderDryRunBean grouperLoaderDryRunBean = threadLocalGrouperLoaderDryRun.get();
+        if (grouperLoaderDryRunBean != null) {
+          try {
+            grouperLoaderDryRunBean.finish(success);
+          } finally {
+            threadLocalGrouperLoaderDryRun.remove();
+          }
+        }
+      }
+    } finally {
+      //no longer in readonly mode
+      HibernateSession.threadLocalReadonlyClear();
+    }
+  }
+  
+  /**
+   * 
+   * @return true if dry run
+   */
+  public static boolean isDryRun() {
+    return threadLocalGrouperLoaderDryRun.get() != null;
+  }
+  
+  /**
+   * 
+   * @param line
+   */
+  public static void dryRunWriteLine(String line) {
+    GrouperLoaderDryRunBean grouperLoaderDryRunBean = threadLocalGrouperLoaderDryRun.get();
+    if (grouperLoaderDryRunBean != null) {
+      grouperLoaderDryRunBean.writeLine(line);
+    }
   }
   
 }
