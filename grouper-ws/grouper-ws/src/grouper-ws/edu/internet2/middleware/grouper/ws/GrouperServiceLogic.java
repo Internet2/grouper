@@ -1616,31 +1616,38 @@ public class GrouperServiceLogic {
       //get all the groups
       //we could probably batch these to get better performance.  And we dont even have to lookup uuids
       Set<String> groupIds = null;
+      boolean groupsOk = GrouperUtil.length(wsGroupLookups) == 0;
+
       if (GrouperUtil.length(wsGroupLookups) > 0) {
-        
+        groupsOk = false;
         groupIds = new LinkedHashSet<String>();
+        int groupCount = 0;
         for (WsGroupLookup wsGroupLookup : wsGroupLookups) {
           
           if (wsGroupLookup == null) {
             continue;
           }
+          groupCount++;
           wsGroupLookup.retrieveGroupIfNeeded(session);
           Group group = wsGroupLookup.retrieveGroup();
           groupIds.add(group.getUuid());
           
         }
-        
+        groupsOk = groupCount == 0 || groupIds.size() > 0;
       }
 
       //get all the members
       Set<String> memberIds = null;
+      boolean membersOk = GrouperUtil.length(wsSubjectLookups) == 0;
       if (GrouperUtil.length(wsSubjectLookups) > 0) {
-        
+        membersOk = false;
+        int subjectCount = 0;
         memberIds = new LinkedHashSet<String>();
         for (WsSubjectLookup wsSubjectLookup : wsSubjectLookups) {
           if (wsSubjectLookup == null) {
             continue;
           }
+          subjectCount++;
           Member member = wsSubjectLookup.retrieveMember();
           if (member == null) {
             //cant find, thats ok
@@ -1652,6 +1659,7 @@ public class GrouperServiceLogic {
           }
           memberIds.add(member.getUuid());
         }
+        membersOk = subjectCount == 0 || memberIds.size() > 0;
       }
 
       Boolean enabledBoolean = true;
@@ -1672,7 +1680,7 @@ public class GrouperServiceLogic {
       }
       
       //if filtering by stem, and stem not found, then dont find any memberships
-      if (wsStemLookup == null || stem != null) {
+      if ((wsStemLookup == null || stem != null) && membersOk && groupsOk) {
         Set<Source> sources = GrouperUtil.convertSources(sourceIds);
         
         Set<String> membershipIdSet = null;
