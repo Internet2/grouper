@@ -376,6 +376,7 @@ public class GrouperLoaderResultset {
    * @param groupDescriptionExpression 
    * @param groupNameToDisplayName map to translate group name to display name
    * @param groupNameToDescription map to translate group name to description
+   * @param groupNames keep track of which group names there are
    */
   public void initForLdapListOfGroups(final String ldapServerId, final String filter,
       final String searchDn, final String subjectAttributeName, final String sourceId,
@@ -386,7 +387,7 @@ public class GrouperLoaderResultset {
       final String groupNameExpression, final String groupDisplayNameExpression, 
       final String groupDescriptionExpression,  
       final Map<String, String> groupNameToDisplayName,
-      final Map<String, String> groupNameToDescription) {
+      final Map<String, String> groupNameToDescription, final Set<String> groupNames) {
 
     //run the query
     final LdapSearchScope ldapSearchScopeEnum = LdapSearchScope.valueOfIgnoreCase(
@@ -419,8 +420,13 @@ public class GrouperLoaderResultset {
     boolean requireTopStemAsStemFromConfigGroup = GrouperLoaderConfig.getPropertyBoolean(
         "loader.ldap.requireTopStemAsStemFromConfigGroup", true);
     
-    final String groupParentFolderName = requireTopStemAsStemFromConfigGroup ? (GrouperUtil.parentStemNameFromName(groupName) + ":") : "";
+    String groupParentFolderNameTemp = requireTopStemAsStemFromConfigGroup ? (GrouperUtil.parentStemNameFromName(groupName) + ":") : "";
+    if (!groupParentFolderNameTemp.endsWith(":")) {
+      groupParentFolderNameTemp += ":";
+    }
+    final String groupParentFolderName = groupParentFolderNameTemp;
 
+    
     Map<String, List<String>> resultMap = null;
     try {
 
@@ -543,6 +549,9 @@ public class GrouperLoaderResultset {
                     loaderGroupDescription = elGroupDescription;
                   }
                 }
+                
+                groupNames.add(loaderGroupName);
+
                 result.put(loaderGroupName, valueResults);
 
                 if (!StringUtils.isBlank(loaderGroupDisplayName)) {
@@ -672,8 +681,12 @@ public class GrouperLoaderResultset {
     boolean requireTopStemAsStemFromConfigGroup = GrouperLoaderConfig.getPropertyBoolean(
         "loader.ldap.requireTopStemAsStemFromConfigGroup", true);
 
-    final String groupParentFolderName = requireTopStemAsStemFromConfigGroup ? (GrouperUtil.parentStemNameFromName(overallGroupName) + ":") : "";
-
+    String groupParentFolderNameTemp = requireTopStemAsStemFromConfigGroup ? (GrouperUtil.parentStemNameFromName(overallGroupName) + ":") : "";
+    if (!groupParentFolderNameTemp.endsWith(":")) {
+      groupParentFolderNameTemp += ":";
+    }
+    final String groupParentFolderName = groupParentFolderNameTemp;
+    
     Map<String, List<String>> resultMap = null;
     try {
 
@@ -836,7 +849,7 @@ public class GrouperLoaderResultset {
                           if (!StringUtils.isBlank(groupDisplayNameExpression)) {
                             String elGroupDisplayName = LoaderLdapUtils.substituteEl(groupDisplayNameExpression,
                                 envVars);
-                            loaderGroupDisplayName = groupParentFolderName + ":" + elGroupDisplayName;
+                            loaderGroupDisplayName = groupParentFolderName + elGroupDisplayName;
                           }
                           if (!StringUtils.isBlank(groupDescriptionExpression)) {
                             String elGroupDescription = LoaderLdapUtils.substituteEl(groupDescriptionExpression,
@@ -845,7 +858,7 @@ public class GrouperLoaderResultset {
                           }
                         }
                         
-                        groupName = groupParentFolderName + ":" + groupName;
+                        groupName = groupParentFolderName + groupName;
                         
                         if (!StringUtils.isBlank(loaderGroupDisplayName)) {
                           groupNameToDisplayName.put(groupName, loaderGroupDisplayName);

@@ -775,6 +775,8 @@ public enum GrouperLoaderType {
           
           final GrouperLoaderResultset grouperLoaderResultsetOverall = new GrouperLoaderResultset();
           
+          Set<String> groupNames = new HashSet<String>();
+          
           grouperLoaderResultsetOverall.initForLdapListOfGroups(
               loaderJobBean.getLdapServerId(), 
               loaderJobBean.getLdapFilter(), loaderJobBean.getLdapSearchDn(), ldapSubjectAttribute, 
@@ -784,7 +786,7 @@ public enum GrouperLoaderType {
               loaderJobBean.getLdapSubjectExpression(), errorUnresolvable, loaderJobBean.getLdapExtraAttributes(),
               loaderJobBean.getLdapGroupNameExpression(), loaderJobBean.getLdapGroupDisplayNameExpression(),
               loaderJobBean.getLdapGroupDescriptionExpression(), groupNameToDisplayName, 
-              groupNameToDescription);
+              groupNameToDescription, groupNames);
           
           
           String groupNameOverall = hib3GrouploaderLogOverall.getGroupNameFromJobName();
@@ -1975,7 +1977,14 @@ public enum GrouperLoaderType {
                     }
                   }
                   if (!skipPriv) {    
-                  added = groupForPriv.grantPriv(subject, privilege, false);
+                    if (GrouperLoader.isDryRun()) {
+                      //no sure if true or false
+                      added = true;
+                      GrouperLoader.dryRunWriteLine("Group: " + groupForPriv.getName() + " assign priv " + privilege.getName());
+                    } else {
+                      
+                      added = groupForPriv.grantPriv(subject, privilege, false);
+                    }
                   }
                   if (added != null && added) {
                     hib3GrouploaderLog.addInsertCount(1);
@@ -2146,8 +2155,18 @@ public enum GrouperLoaderType {
             //first remove members
             for (LoaderMemberWrapper member : membersToRemove) {
               try {
-                //go from subject since large lists might be removed from cache
-                boolean alreadyDeleted = group[0].deleteMember(member.findOrGetSubject(), false);
+                
+                boolean alreadyDeleted = false;
+                
+                Subject theSubject = member.findOrGetSubject();
+                if (GrouperLoader.isDryRun()) {
+                  alreadyDeleted = !group[0].hasMember(theSubject);
+                  GrouperLoader.dryRunWriteLine("Group: " + groupName + " delete " + GrouperUtil.subjectToString(theSubject));
+                } else {
+                  //go from subject since large lists might be removed from cache
+                  alreadyDeleted = group[0].deleteMember(theSubject, false);
+                }
+                 
                 if (LOG.isDebugEnabled() && (count != 0 && count % 200 == 0)) {
                   LOG.debug(groupName + " removing: " + count + " of " + numberOfRows + " members" 
                       + (alreadyDeleted ? ", [note: was already deleted... weird]" : ""));
@@ -2177,7 +2196,15 @@ public enum GrouperLoaderType {
             //then add new members
             for (Subject subject : subjectsToAdd) {
               try {
-                boolean alreadyAdded = group[0].addMember(subject, false);
+                boolean alreadyAdded = false;
+                
+                if (GrouperLoader.isDryRun()) {
+                  alreadyAdded = group[0].hasMember(subject);
+                  GrouperLoader.dryRunWriteLine("Group: " + groupName + " add " + GrouperUtil.subjectToString(subject));
+                } else {
+                  alreadyAdded = group[0].addMember(subject, false);
+                }
+                
                 if (LOG.isDebugEnabled() && (count != 0 && count % 200 == 0)) {
                   LOG.debug(groupName + " adding: " + count + " of " + numberOfRows + " subjects"
                       + (alreadyAdded ? ", [note: was already added... weird]" : ""));
