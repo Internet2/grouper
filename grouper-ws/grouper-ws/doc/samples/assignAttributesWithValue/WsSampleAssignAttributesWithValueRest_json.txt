@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributesWithValue, WsSampleAssignAttributesWithValueRest, manually written lite/rest, format: json, for version: 2.1.0
+Grouper web service sample of service: assignAttributesWithValue, WsSampleAssignAttributesWithValueRest, manually written lite/rest, format: json, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: assignAttributesWithValue, WsSampleAssign
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/attributeAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/attributeAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 330
 Content-Type: text/x-json; charset=UTF-8
@@ -60,14 +60,14 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
 Content-Length: 2276
-Date: Sat, 17 Mar 2012 16:19:12 GMT
+Date: Sun, 01 Jul 2012 16:20:58 GMT
 Connection: close
 
 {
   "WsAssignAttributesResults":{
     "responseMetadata":{
-      "millis":"152",
-      "serverVersion":"2.1.0"
+      "millis":"219",
+      "serverVersion":"2.1.1"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
@@ -84,7 +84,7 @@ Connection: close
             "changed":"T",
             "deleted":"F",
             "wsAttributeAssignValue":{
-              "id":"6c9088d21c4b4cb6a00d2c3bf214bb61",
+              "id":"1f13ec8bde144f1c82ef4e8ee0037ae5",
               "valueSystem":"63"
             }
           }
@@ -92,37 +92,37 @@ Connection: close
         ,
         "wsAttributeAssigns":[
           {
-            "attributeAssignActionId":"34962abb167e48dcb415f33e76c85560",
+            "attributeAssignActionId":"517fe14b5dc24918ae66b769dde89b7d",
             "attributeAssignActionName":"assign",
             "attributeAssignActionType":"immediate",
             "attributeAssignDelegatable":"FALSE",
             "attributeAssignType":"group",
-            "attributeDefId":"ff61d384926d4aa58d5818397367772d",
+            "attributeDefId":"cb51e6077a1746f9bbec9d1445b0a30d",
             "attributeDefName":"test:testAttributeAssignDefNameDef",
-            "attributeDefNameId":"82221aded81b43a5a0a72dbd65c4d78b",
+            "attributeDefNameId":"5cf8b9dbf80945d9ba7dc5a66c46e6f8",
             "attributeDefNameName":"test:testAttributeAssignDefName",
-            "createdOn":"2012/03/17 12:19:10.728",
+            "createdOn":"2012/07/01 12:20:56.945",
             "disallowed":"F",
             "enabled":"T",
-            "id":"3a43dd53f94f4e599db2dbb8e8580e6d",
-            "lastUpdated":"2012/03/17 12:19:10.728",
-            "ownerGroupId":"4f9dbb07d92045b49dd3555d8c773068",
+            "id":"c5bf33166b954694970824ef64523c5b",
+            "lastUpdated":"2012/07/01 12:20:56.945",
+            "ownerGroupId":"694a5da601cd4168a49f35fb8bcc41a0",
             "ownerGroupName":"test:groupTestAttrAssign",
             "wsAttributeAssignValues":[
               {
-                "id":"cc20837c8af44f4ca371a1cf599fffa4",
+                "id":"8f1fcb36bc0d465f85ba24ee97c5bc68",
                 "valueSystem":"15"
               },
               {
-                "id":"08982d29fc854475a946852935ea69b7",
+                "id":"3f77a24654db40ec8615bf4d26f047f4",
                 "valueSystem":"5"
               },
               {
-                "id":"85101c3a0b5d45ca9024dd7063707834",
+                "id":"90479d9a373a45668d1b1c60269daa1b",
                 "valueSystem":"5"
               },
               {
-                "id":"6c9088d21c4b4cb6a00d2c3bf214bb61",
+                "id":"1f13ec8bde144f1c82ef4e8ee0037ae5",
                 "valueSystem":"63"
               }
             ]
@@ -133,13 +133,13 @@ Connection: close
     ,
     "wsAttributeDefNames":[
       {
-        "attributeDefId":"ff61d384926d4aa58d5818397367772d",
+        "attributeDefId":"cb51e6077a1746f9bbec9d1445b0a30d",
         "attributeDefName":"test:testAttributeAssignDefNameDef",
         "displayExtension":"testAttributeAssignDefName",
         "displayName":"test:testAttributeAssignDefName",
         "extension":"testAttributeAssignDefName",
         "name":"test:testAttributeAssignDefName",
-        "uuid":"82221aded81b43a5a0a72dbd65c4d78b"
+        "uuid":"5cf8b9dbf80945d9ba7dc5a66c46e6f8"
       }
     ]
     ,
@@ -150,7 +150,7 @@ Connection: close
         "multiAssignable":"F",
         "multiValued":"T",
         "name":"test:testAttributeAssignDefNameDef",
-        "uuid":"ff61d384926d4aa58d5818397367772d",
+        "uuid":"cb51e6077a1746f9bbec9d1445b0a30d",
         "valueType":"integer"
       }
     ]
@@ -163,7 +163,7 @@ Connection: close
         "extension":"groupTestAttrAssign",
         "name":"test:groupTestAttrAssign",
         "typeOfGroup":"group",
-        "uuid":"4f9dbb07d92045b49dd3555d8c773068"
+        "uuid":"694a5da601cd4168a49f35fb8bcc41a0"
       }
     ]
     ,
@@ -189,6 +189,21 @@ Connection: close
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
@@ -336,7 +351,7 @@ public class WsSampleAssignAttributesWithValueRest implements WsSampleRest {
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
     //dont allow http params
-    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
   }
 }
 
@@ -348,4 +363,4 @@ public class WsSampleAssignAttributesWithValueRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: , Found 1 results.
+Server version: 2.1.1, result code: SUCCESS, result message: , Found 1 results.

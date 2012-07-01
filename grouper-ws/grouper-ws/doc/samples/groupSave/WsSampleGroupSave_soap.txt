@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupSave, WsSampleGroupSave, code generated classes, format: soap, for version: 2.1.0
+Grouper web service sample of service: groupSave, WsSampleGroupSave, code generated classes, format: soap, for version: 2.1.1
 
 
 #########################################
@@ -21,7 +21,7 @@ Transfer-Encoding: chunked
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns1:groupSave xmlns:ns1="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_1_000</ns1:clientVersion>
+      <ns1:clientVersion>v2_1_001</ns1:clientVersion>
       <ns1:wsGroupToSaves>
         <ns1:saveMode></ns1:saveMode>
         <ns1:wsGroup>
@@ -61,7 +61,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:groupSaveResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sat, 17 Mar 2012 15:47:32 GMT
+Date: Sun, 01 Jul 2012 14:09:55 GMT
 
 94b
 <?xml version='1.0' encoding='UTF-8'?>
@@ -72,13 +72,13 @@ Date: Sat, 17 Mar 2012 15:47:32 GMT
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.1.0</ns:serverVersion>
+          <ns:serverVersion>2.1.1</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: 2.1.0, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
+          <ns:resultMessage>Success for: clientVersion: 2.1.1, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
 wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:testGroup],
 wsGroup=WsGroup[displayExtension=test group,description=the test group,name=aStem:testGro...
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames:
@@ -100,13 +100,13 @@ wsGroup=WsGroup[displayExtension=test group,description=the test group,name=aSte
               <ns:attributeValues xsi:nil="true" />
               <ns:compositeType xsi:nil="true" />
               <ns:createSubjectId>GrouperSystem</ns:createSubjectId>
-              <ns:createTime>2012/03/17 11:47:32.380</ns:createTime>
+              <ns:createTime>2012/07/01 10:09:55.016</ns:createTime>
               <ns:hasComposite>F</ns:hasComposite>
               <ns:isCompositeFactor>F</ns:isCompositeFactor>
               <ns:leftGroup xsi:nil="true" />
               <ns:modifySource xsi:nil="true" />
               <ns:modifySubjectId>GrouperSystem</ns:modifySubjectId>
-              <ns:modifyTime>2012/03/17 11:47:32.787</ns:modifyTime>
+              <ns:modifyTime>2012/07/01 10:09:55.512</ns:modifyTime>
               <ns:params xsi:nil="true" />
               <ns:rightGroup xsi:nil="true" />
             </ns:detail>
@@ -115,7 +115,7 @@ wsGroup=WsGroup[displayExtension=test group,description=the test group,name=aSte
             <ns:extension>testGroup</ns:extension>
             <ns:name>aStem:testGroup</ns:name>
             <ns:typeOfGroup>group</ns:typeOfGroup>
-            <ns:uuid>4d2ca3fa35a84c89990b946d2162c359</ns:uuid>
+            <ns:uuid>5659fbc8ba394625a319c53bfd4b9148</ns:uuid>
           </ns:wsGroup>
         </ns:results>
       </ns:return>
@@ -135,6 +135,21 @@ wsGroup=WsGroup[displayExtension=test group,description=the test group,name=aSte
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 /**
  *
  */
@@ -260,9 +275,9 @@ public class WsSampleGroupSave implements WsSampleGenerated {
 
 
 WsGroupSaveResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@1978d73,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@c7b44e,localResultMetadataTracker=true,
-  localResults={edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroupSaveResult@10cb355},localResultsTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@11fcf63,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@168a280,localResultMetadataTracker=true,
+  localResults={edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroupSaveResult@8103e5},localResultsTracker=true]
 WsGroupSaveResult[
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@1ab7247,localResultMetadataTracker=true,
-  localWsGroup=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroup@dbc776,localWsGroupTracker=true]
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@15bd056,localResultMetadataTracker=true,
+  localWsGroup=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroup@cae9e1,localWsGroupTracker=true]

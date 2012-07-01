@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRest, manually written lite/rest, format: xml, for version: 2.1.0
+Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRest, manually written lite/rest, format: xml, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRes
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/memberships HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/memberships HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 278
 Content-Type: text/xml; charset=UTF-8
@@ -46,52 +46,52 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sat, 17 Mar 2012 15:43:53 GMT
+Date: Sun, 01 Jul 2012 15:47:27 GMT
 Connection: close
 
 <WsGetMembershipsResults>
   <wsMemberships>
     <WsMembership>
-      <membershipId>d7ded71789de479a99c7aa60f0ad94a5:fad7701029eb42f19dccb71923c586b2</membershipId>
-      <immediateMembershipId>d7ded71789de479a99c7aa60f0ad94a5</immediateMembershipId>
+      <membershipId>f6c50ddf9dd14a519022736119407214:3853587da1464b1795ff8ea03cdc08e4</membershipId>
+      <immediateMembershipId>f6c50ddf9dd14a519022736119407214</immediateMembershipId>
       <listName>members</listName>
       <listType>list</listType>
       <membershipType>immediate</membershipType>
       <enabled>T</enabled>
-      <memberId>79abac8156174e11a8f226bf7d001f91</memberId>
-      <groupId>eb3bc022c30e453f8ccc320c89bc475b</groupId>
+      <memberId>c6292ab1fe8c40289b69633fad5278f9</memberId>
+      <groupId>33c3a5701bb14c78b4ac73a153c4914e</groupId>
       <subjectId>GrouperSystem</subjectId>
       <subjectSourceId>g:isa</subjectSourceId>
       <groupName>aStem:aGroup</groupName>
-      <createTime>2012/03/17 11:43:50.977</createTime>
+      <createTime>2012/07/01 11:47:25.189</createTime>
     </WsMembership>
     <WsMembership>
-      <membershipId>93bc8491c0b041abab43b0a94fadb724:fad7701029eb42f19dccb71923c586b2</membershipId>
-      <immediateMembershipId>93bc8491c0b041abab43b0a94fadb724</immediateMembershipId>
+      <membershipId>7b1953968f2b4d0bbaff82106cf5138b:3853587da1464b1795ff8ea03cdc08e4</membershipId>
+      <immediateMembershipId>7b1953968f2b4d0bbaff82106cf5138b</immediateMembershipId>
       <listName>members</listName>
       <listType>list</listType>
       <membershipType>immediate</membershipType>
       <enabled>T</enabled>
-      <memberId>54a99fc3f0d14f13ab60a2d163583c03</memberId>
-      <groupId>eb3bc022c30e453f8ccc320c89bc475b</groupId>
+      <memberId>39924d34d5ee489d9336e2acc0ff772d</memberId>
+      <groupId>33c3a5701bb14c78b4ac73a153c4914e</groupId>
       <subjectId>10021368</subjectId>
       <subjectSourceId>jdbc</subjectSourceId>
       <groupName>aStem:aGroup</groupName>
-      <createTime>2012/03/17 11:43:51.008</createTime>
+      <createTime>2012/07/01 11:47:25.246</createTime>
     </WsMembership>
     <WsMembership>
-      <membershipId>443168ab2931498e963abae14f13c7ae:fad7701029eb42f19dccb71923c586b2</membershipId>
-      <immediateMembershipId>443168ab2931498e963abae14f13c7ae</immediateMembershipId>
+      <membershipId>f5af564b495b4fb2a88ec97668b67a74:3853587da1464b1795ff8ea03cdc08e4</membershipId>
+      <immediateMembershipId>f5af564b495b4fb2a88ec97668b67a74</immediateMembershipId>
       <listName>members</listName>
       <listType>list</listType>
       <membershipType>immediate</membershipType>
       <enabled>T</enabled>
-      <memberId>ac84536c5de949519fdb0b3b2965746a</memberId>
-      <groupId>eb3bc022c30e453f8ccc320c89bc475b</groupId>
+      <memberId>906fa74038464f69902c97ed50fb0617</memberId>
+      <groupId>33c3a5701bb14c78b4ac73a153c4914e</groupId>
       <subjectId>10039438</subjectId>
       <subjectSourceId>jdbc</subjectSourceId>
       <groupName>aStem:aGroup</groupName>
-      <createTime>2012/03/17 11:43:50.992</createTime>
+      <createTime>2012/07/01 11:47:25.218</createTime>
     </WsMembership>
   </wsMemberships>
   <subjectAttributeNames>
@@ -107,7 +107,7 @@ Connection: close
       <description>a group description</description>
       <displayName>a stem:a group</displayName>
       <name>aStem:aGroup</name>
-      <uuid>eb3bc022c30e453f8ccc320c89bc475b</uuid>
+      <uuid>33c3a5701bb14c78b4ac73a153c4914e</uuid>
     </WsGroup>
   </wsGroups>
   <wsSubjects>
@@ -155,8 +155,8 @@ Connection: close
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>153</millis>
-    <serverVersion>2.1.0</serverVersion>
+    <millis>283</millis>
+    <serverVersion>2.1.1</serverVersion>
   </responseMetadata>
 </WsGetMembershipsResults>
 
@@ -171,6 +171,21 @@ Connection: close
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.membership;
 
 import org.apache.commons.httpclient.Credentials;
@@ -309,7 +324,7 @@ public class WsSampleGetMembershipsRest implements WsSampleRest {
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
     //dont allow http params
-    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
   }
 }
 
@@ -321,4 +336,4 @@ public class WsSampleGetMembershipsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: Found 3 results involving 1 groups and 3 subjects
+Server version: 2.1.1, result code: SUCCESS, result message: Found 3 results involving 1 groups and 3 subjects

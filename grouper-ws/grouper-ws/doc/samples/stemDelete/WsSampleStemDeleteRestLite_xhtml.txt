@@ -1,4 +1,4 @@
-Grouper web service sample of service: stemDelete, WsSampleStemDeleteRestLite, manually written lite/rest, format: xhtml, for version: 2.1.0
+Grouper web service sample of service: stemDelete, WsSampleStemDeleteRestLite, manually written lite/rest, format: xhtml, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: stemDelete, WsSampleStemDeleteRestLite, m
 #########################################
 
 
-DELETE /grouper-ws/servicesRest/xhtml/v2_1_000/stems/aStem%3AaStemToDelete HTTP/1.1
+DELETE /grouper-ws/servicesRest/xhtml/v2_1_001/stems/aStem%3AaStemToDelete HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 
 
@@ -34,7 +34,7 @@ X-Grouper-resultCode: SUCCESS_STEM_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sat, 17 Mar 2012 15:51:32 GMT
+Date: Sun, 01 Jul 2012 14:21:21 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -48,7 +48,7 @@ Connection: close
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS_STEM_NOT_FOUND</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.1.0, wsStemLookups: Array size: 1: [0]: WsStemLookup[stemName=aStem:aStemToDelete]
+        <p class="resultMessage">Success for: clientVersion: 2.1.1, wsStemLookups: Array size: 1: [0]: WsStemLookup[stemName=aStem:aStemToDelete]
 
 , actAsSubject: null, txType: NONE, paramNames:
 , params: nullCant find stem: 'WsStemLookup[stemName=aStem:aStemToDelete,
@@ -56,9 +56,9 @@ stemFindResult=STEM_NOT_FOUND]'.</p>
         <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">24</p>
+        <p class="millis">13</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.1.0</p>
+        <p class="serverVersion">2.1.1</p>
       </div>
       <div class="wsStem" title="WsStem">
         <p class="name">aStem:aStemToDelete</p>
@@ -83,6 +83,21 @@ stemFindResult=STEM_NOT_FOUND]'.</p>
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.stem;
 
 import org.apache.commons.httpclient.Credentials;
@@ -203,7 +218,7 @@ public class WsSampleStemDeleteRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS_STEM_NOT_FOUND, result message: Success for: clientVersion: 2.1.0, wsStemLookups: Array size: 1: [0]: WsStemLookup[stemName=aStem:aStemToDelete]
+Server version: 2.1.1, result code: SUCCESS_STEM_NOT_FOUND, result message: Success for: clientVersion: 2.1.1, wsStemLookups: Array size: 1: [0]: WsStemLookup[stemName=aStem:aStemToDelete]
 
 , actAsSubject: null, txType: NONE, paramNames: 
 , params: nullCant find stem: 'WsStemLookup[stemName=aStem:aStemToDelete,

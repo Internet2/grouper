@@ -68,7 +68,7 @@ public enum WsRestRequestContentType {
      */
     @Override
     public WsRestResponseContentType calculateResponseContentType() {
-      return null;
+      return WsRestResponseContentType.xhtml;
     }
 
     /**

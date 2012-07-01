@@ -1,4 +1,4 @@
-Grouper web service sample of service: getPermissionAssignments, WsSampleGetPermissionAssignmentsRestLite, manually written lite/rest, format: json, for version: 2.1.0
+Grouper web service sample of service: getPermissionAssignments, WsSampleGetPermissionAssignmentsRestLite, manually written lite/rest, format: json, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getPermissionAssignments, WsSampleGetPerm
 #########################################
 
 
-POST /grouper-ws/servicesRest/json/v2_1_000/permissionAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/json/v2_1_001/permissionAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 123
 Content-Type: text/x-json; charset=UTF-8
@@ -41,14 +41,14 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
 Content-Length: 2419
-Date: Sat, 17 Mar 2012 15:45:08 GMT
+Date: Sun, 01 Jul 2012 14:02:30 GMT
 Connection: close
 
 {
   "WsGetPermissionAssignmentsResults":{
     "responseMetadata":{
-      "millis":"102",
-      "serverVersion":"2.1.0"
+      "millis":"271",
+      "serverVersion":"2.1.1"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
@@ -62,7 +62,7 @@ Connection: close
         "multiAssignable":"F",
         "multiValued":"F",
         "name":"aStem:permissionDef",
-        "uuid":"719128b7d4d54b7095aea8d7fa55a177",
+        "uuid":"15d81b5710164258aa0e15ccea0961da",
         "valueType":"marker"
       }
     ]
@@ -74,7 +74,7 @@ Connection: close
         "extension":"role",
         "name":"aStem:role",
         "typeOfGroup":"role",
-        "uuid":"76ecfb4d9ecc4bb7b58b3b7cfeef0662"
+        "uuid":"32131954bbd747aab0f2b17c49615d50"
       },
       {
         "displayExtension":"role2",
@@ -82,7 +82,7 @@ Connection: close
         "extension":"role2",
         "name":"aStem:role2",
         "typeOfGroup":"role",
-        "uuid":"7fb221e32cf843608b77a1e832302dfb"
+        "uuid":"661cbb5bf21f4102b41990f1f31ffeb2"
       }
     ]
     ,
@@ -90,16 +90,16 @@ Connection: close
       {
         "action":"read",
         "allowedOverall":"T",
-        "attributeAssignId":"be1393eb47c944f380f441d517a44cf7",
-        "attributeDefId":"719128b7d4d54b7095aea8d7fa55a177",
+        "attributeAssignId":"db3e0daa27a64302aad49a5f30e1965f",
+        "attributeDefId":"15d81b5710164258aa0e15ccea0961da",
         "attributeDefName":"aStem:permissionDef",
-        "attributeDefNameId":"f57d39efa6ac46ed8d6f3c805425c428",
+        "attributeDefNameId":"7f2745b38cf9474d994c7b27f33c8dbf",
         "attributeDefNameName":"aStem:permissionDefName",
         "disallowed":"F",
         "enabled":"T",
-        "membershipId":"871764a6967148d884e93315d166d3bc:baec8276d88944ce8f93f1f694a3881e",
+        "membershipId":"45c14b49d01e46d2b7db89a93f4c53a1:6b515f6191584321b53244fca5ebb59e",
         "permissionType":"role",
-        "roleId":"76ecfb4d9ecc4bb7b58b3b7cfeef0662",
+        "roleId":"32131954bbd747aab0f2b17c49615d50",
         "roleName":"aStem:role",
         "sourceId":"jdbc",
         "subjectId":"test.subject.0"
@@ -107,16 +107,16 @@ Connection: close
       {
         "action":"read",
         "allowedOverall":"T",
-        "attributeAssignId":"be1393eb47c944f380f441d517a44cf7",
-        "attributeDefId":"719128b7d4d54b7095aea8d7fa55a177",
+        "attributeAssignId":"db3e0daa27a64302aad49a5f30e1965f",
+        "attributeDefId":"15d81b5710164258aa0e15ccea0961da",
         "attributeDefName":"aStem:permissionDef",
-        "attributeDefNameId":"f57d39efa6ac46ed8d6f3c805425c428",
+        "attributeDefNameId":"7f2745b38cf9474d994c7b27f33c8dbf",
         "attributeDefNameName":"aStem:permissionDefName",
         "disallowed":"F",
         "enabled":"T",
-        "membershipId":"dda68a75ec69456a987ebac1e0620171:baec8276d88944ce8f93f1f694a3881e",
+        "membershipId":"3a087923848d4237948ffa2bb72279d3:6b515f6191584321b53244fca5ebb59e",
         "permissionType":"role",
-        "roleId":"76ecfb4d9ecc4bb7b58b3b7cfeef0662",
+        "roleId":"32131954bbd747aab0f2b17c49615d50",
         "roleName":"aStem:role",
         "sourceId":"jdbc",
         "subjectId":"test.subject.4"
@@ -124,16 +124,16 @@ Connection: close
       {
         "action":"write",
         "allowedOverall":"T",
-        "attributeAssignId":"583708cfeffc46d6bf9e88f4e8ec246c",
-        "attributeDefId":"719128b7d4d54b7095aea8d7fa55a177",
+        "attributeAssignId":"2b137e1ca83d4597888907951f022e40",
+        "attributeDefId":"15d81b5710164258aa0e15ccea0961da",
         "attributeDefName":"aStem:permissionDef",
-        "attributeDefNameId":"2c72e3ba786f49749264d8d35963d530",
+        "attributeDefNameId":"d95a0422f108407d9a86862baf449416",
         "attributeDefNameName":"aStem:permissionDefName2",
         "disallowed":"F",
         "enabled":"T",
-        "membershipId":"da75ec1968ca440384e9e48af6e03680:0a0831e44c2c419ea4be6a0d457dbee9",
+        "membershipId":"64e8d1c6bbb34a50b37b7569531b2cf6:c61be88dd2f94166877c2fdedf95ebe3",
         "permissionType":"role_subject",
-        "roleId":"7fb221e32cf843608b77a1e832302dfb",
+        "roleId":"661cbb5bf21f4102b41990f1f31ffeb2",
         "roleName":"aStem:role2",
         "sourceId":"jdbc",
         "subjectId":"test.subject.1"
@@ -156,6 +156,21 @@ Connection: close
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.permission;
 
 import org.apache.commons.httpclient.Credentials;
@@ -298,4 +313,4 @@ public class WsSampleGetPermissionAssignmentsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: , Found 3 results.
+Server version: 2.1.1, result code: SUCCESS, result message: , Found 3 results.

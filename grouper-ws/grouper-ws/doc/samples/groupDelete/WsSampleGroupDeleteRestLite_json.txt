@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRestLite, manually written lite/rest, format: json, for version: 2.1.0
+Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRestLite, manually written lite/rest, format: json, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRestLite,
 #########################################
 
 
-DELETE /grouper-ws/servicesRest/json/v2_1_000/groups/aStem%3AaGroup123 HTTP/1.1
+DELETE /grouper-ws/servicesRest/json/v2_1_001/groups/aStem%3AaGroup123 HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 
 
@@ -35,18 +35,18 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
 Content-Length: 568
-Date: Sat, 17 Mar 2012 15:46:59 GMT
+Date: Sun, 01 Jul 2012 14:08:09 GMT
 Connection: close
 
 {
   "WsGroupDeleteLiteResult":{
     "responseMetadata":{
-      "millis":"24",
-      "serverVersion":"2.1.0"
+      "millis":"31",
+      "serverVersion":"2.1.1"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS_GROUP_NOT_FOUND",
-      "resultMessage":"Success for: clientVersion: 2.1.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123]\n\n, actAsSubject: null, txType: NONE, includeGroupDetail: false, paramNames: \n, params: nullCant find group: 'WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123,\n  groupFindResult=GROUP_NOT_FOUND]'.",
+      "resultMessage":"Success for: clientVersion: 2.1.1, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123]\n\n, actAsSubject: null, txType: NONE, includeGroupDetail: false, paramNames: \n, params: nullCant find group: 'WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123,\n  groupFindResult=GROUP_NOT_FOUND]'.",
       "success":"T"
     },
     "wsGroup":{
@@ -67,6 +67,21 @@ Connection: close
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.group;
 
 import org.apache.commons.httpclient.Credentials;
@@ -187,7 +202,7 @@ public class WsSampleGroupDeleteRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS_GROUP_NOT_FOUND, result message: Success for: clientVersion: 2.1.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123]
+Server version: 2.1.1, result code: SUCCESS_GROUP_NOT_FOUND, result message: Success for: clientVersion: 2.1.1, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123]
 
 , actAsSubject: null, txType: NONE, includeGroupDetail: false, paramNames: 
 , params: nullCant find group: 'WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123,

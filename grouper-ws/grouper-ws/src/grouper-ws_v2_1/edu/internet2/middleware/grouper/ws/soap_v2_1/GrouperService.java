@@ -1913,9 +1913,9 @@ public class GrouperService {
       subjectAttributeNames, includeGroupDetail, 
       GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
       enabled, attributeDefValueType, theValue, includeAssignmentsFromAssignments, attributeDefType,
-      wsAssignAssignOwnerAttributeAssignLookups,
-      wsAssignAssignOwnerAttributeDefLookups, 
-      wsAssignAssignOwnerAttributeDefNameLookups,
+      GrouperUtil.changeToVersion(wsAssignAssignOwnerAttributeAssignLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(wsAssignAssignOwnerAttributeDefLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()), 
+      GrouperUtil.changeToVersion(wsAssignAssignOwnerAttributeDefNameLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
       wsAssignAssignOwnerActions});
     
     return (WsGetAttributeAssignmentsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);

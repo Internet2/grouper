@@ -1,4 +1,4 @@
-Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttributeDefNamesRest, manually written lite/rest, format: json, for version: 2.1.0
+Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttributeDefNamesRest, manually written lite/rest, format: json, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttrib
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 107
 Content-Type: text/x-json; charset=UTF-8
@@ -42,30 +42,30 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1700
-Date: Sat, 17 Mar 2012 15:36:58 GMT
+Content-Length: 1701
+Date: Sun, 01 Jul 2012 13:36:03 GMT
 Connection: close
 
 {
   "WsFindAttributeDefNamesResults":{
     "attributeDefNameResults":[
       {
-        "attributeDefId":"dbfcc449ff0f443d8eb9179ccc2182d2",
+        "attributeDefId":"90c56a2844724c5e9526faf740912171",
         "attributeDefName":"test:testAttributeAssignAssignNameDef",
         "displayExtension":"testAttributeAssignAssignName",
         "displayName":"test:testAttributeAssignAssignName",
         "extension":"testAttributeAssignAssignName",
         "name":"test:testAttributeAssignAssignName",
-        "uuid":"b7e8c1dba87b4762af72e08ce808661d"
+        "uuid":"d936dfbf8f7840ac91cc9d134926429d"
       },
       {
-        "attributeDefId":"b8bff7d01dfa40afb60a0b1a4d568673",
+        "attributeDefId":"5619b3a4c9d043e58664ba0f16be0c6a",
         "attributeDefName":"test:testAttributeAssignDefNameDef",
         "displayExtension":"testAttributeAssignDefName",
         "displayName":"test:testAttributeAssignDefName",
         "extension":"testAttributeAssignDefName",
         "name":"test:testAttributeAssignDefName",
-        "uuid":"8ff0bb8c92fa41f99ff6a87f21ed59eb"
+        "uuid":"6870340102e3481fb175cf7c48997967"
       }
     ]
     ,
@@ -76,7 +76,7 @@ Connection: close
         "multiAssignable":"F",
         "multiValued":"F",
         "name":"test:testAttributeAssignAssignNameDef",
-        "uuid":"dbfcc449ff0f443d8eb9179ccc2182d2",
+        "uuid":"90c56a2844724c5e9526faf740912171",
         "valueType":"marker"
       },
       {
@@ -85,18 +85,18 @@ Connection: close
         "multiAssignable":"F",
         "multiValued":"T",
         "name":"test:testAttributeAssignDefNameDef",
-        "uuid":"b8bff7d01dfa40afb60a0b1a4d568673",
+        "uuid":"5619b3a4c9d043e58664ba0f16be0c6a",
         "valueType":"integer"
       }
     ]
     ,
     "responseMetadata":{
-      "millis":"26",
-      "serverVersion":"2.1.0"
+      "millis":"117",
+      "serverVersion":"2.1.1"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.1.0, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null\nwsAttributeDefNameLookups: null\nwsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames: \n, params: null",
+      "resultMessage":"Success for: clientVersion: 2.1.1, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null\nwsAttributeDefNameLookups: null\nwsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames: \n, params: null",
       "success":"T"
     }
   }
@@ -113,6 +113,21 @@ Connection: close
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
@@ -248,7 +263,7 @@ public class WsSampleFindAttributeDefNamesRest implements WsSampleRest {
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
     //dont allow http params
-    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
   }
 }
 
@@ -260,7 +275,7 @@ public class WsSampleFindAttributeDefNamesRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.0, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
+Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
 wsAttributeDefNameLookups: null
 wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames: 
 , params: null

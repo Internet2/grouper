@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDefNameSaveRestLite, manually written lite/rest, format: json, for version: 2.1.0
+Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDefNameSaveRestLite, manually written lite/rest, format: json, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDe
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 309
 Content-Type: text/x-json; charset=UTF-8
@@ -43,29 +43,29 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
 Content-Length: 1005
-Date: Sat, 17 Mar 2012 15:35:26 GMT
+Date: Sun, 01 Jul 2012 13:31:15 GMT
 Connection: close
 
 {
   "WsAttributeDefNameSaveLiteResult":{
     "responseMetadata":{
-      "millis":"52",
-      "serverVersion":"2.1.0"
+      "millis":"92",
+      "serverVersion":"2.1.1"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS_INSERTED",
-      "resultMessage":"Success for: clientVersion: 2.1.0, wsAttributeDefNameToSaves: Array size: 1: [0]: WsAttributeDefNameToSave[\n  wsAttributeDefNameLookup=WsAttributeDefNameLookup[pitAttributeDefNames=[]],\n  wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
+      "resultMessage":"Success for: clientVersion: 2.1.1, wsAttributeDefNameToSaves: Array size: 1: [0]: WsAttributeDefNameToSave[\n  wsAttributeDefNameLookup=WsAttributeDefNameLookup[pitAttributeDefNames=[]],\n  wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
       "success":"T"
     },
     "wsAttributeDefName":{
-      "attributeDefId":"6bdb529f509444a99b003c9efb808938",
+      "attributeDefId":"a37f16ac21174a0184d844ccf470adb7",
       "attributeDefName":"test:testAttributeAssignDefNameDef",
       "description":"This is a description 1 rest lite json",
       "displayExtension":"My new attribute def name to save 1 rest lite json",
       "displayName":"test:My new attribute def name to save 1 rest lite json",
       "extension":"testAttributeAssignDefNameToSave1RestLite_json",
       "name":"test:testAttributeAssignDefNameToSave1RestLite_json",
-      "uuid":"5fbb18f4b0a44960a3dbac19962f23dd"
+      "uuid":"d6385e649c9242d082c300a0ad8bc975"
     }
   }
 }
@@ -81,6 +81,21 @@ Connection: close
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
@@ -226,7 +241,7 @@ public class WsSampleAttributeDefNameSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: 2.1.0, wsAttributeDefNameToSaves: Array size: 1: [0]: WsAttributeDefNameToSave[
+Server version: 2.1.1, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: 2.1.1, wsAttributeDefNameToSaves: Array size: 1: [0]: WsAttributeDefNameToSave[
   wsAttributeDefNameLookup=WsAttributeDefNameLookup[pitAttributeDefNames=[]],
   wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...
 , actAsSubject: null, txType: NONE, paramNames: 

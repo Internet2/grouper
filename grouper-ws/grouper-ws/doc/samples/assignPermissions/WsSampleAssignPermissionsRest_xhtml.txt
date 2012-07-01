@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRest, manually written lite/rest, format: xhtml, for version: 2.1.0
+Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRest, manually written lite/rest, format: xhtml, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: assignPermissions, WsSampleAssignPermissi
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/permissionAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/permissionAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 1038
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -29,6 +29,9 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="assignmentNotes" />
       <p class="permissionType">role</p>
       <p class="clientVersion" />
+      <div class="actAsSubjectLookup" title="WsSubjectLookup" />
+      <p class="includeGroupDetail" />
+      <p class="includeSubjectDetail" />
       <ul class="permissionDefNameLookups">
         <li title="WsAttributeDefNameLookup">
           <p class="uuid" />
@@ -45,9 +48,6 @@ Content-Type: application/xhtml+xml; charset=UTF-8
           <p class="groupName">aStem:role</p>
         </li>
       </ul>
-      <div class="actAsSubjectLookup" title="WsSubjectLookup" />
-      <p class="includeSubjectDetail" />
-      <p class="includeGroupDetail" />
       <ul class="actions">
         <li>write</li>
       </ul>
@@ -71,7 +71,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sat, 17 Mar 2012 16:13:15 GMT
+Date: Sun, 01 Jul 2012 13:25:42 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -89,16 +89,16 @@ Connection: close
         <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">91</p>
+        <p class="millis">213</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.1.0</p>
+        <p class="serverVersion">2.1.1</p>
       </div>
       <ul class="wsGroups">
         <li title="WsGroup">
           <p class="name">aStem:role</p>
           <p class="displayName">a stem:role</p>
           <p class="description" />
-          <p class="uuid">aba7254826fd4356a3c62c8755b09678</p>
+          <p class="uuid">dec81d38056c4ec09db758f66fde0b3a</p>
           <div class="detail" title="WsGroupDetail" />
           <p class="extension">role</p>
           <p class="displayExtension">role</p>
@@ -109,7 +109,7 @@ Connection: close
         <li title="WsAttributeDef">
           <p class="name">aStem:permissionDef</p>
           <p class="description" />
-          <p class="uuid">06848a5996a24305918b5ddb73d72752</p>
+          <p class="uuid">05490df6281c460899a3513ddf00ef4e</p>
           <p class="extension">permissionDef</p>
           <p class="attributeDefType">perm</p>
           <p class="multiAssignable">F</p>
@@ -122,37 +122,37 @@ Connection: close
           <p class="name">aStem:permissionDefName</p>
           <p class="displayName">a stem:permissionDefName</p>
           <p class="description" />
-          <p class="uuid">255687ef5f3a4425b7bb65a03a9f83b1</p>
+          <p class="uuid">5008b956a557499d97a6396ccb6380e9</p>
           <p class="extension">permissionDefName</p>
           <p class="displayExtension">permissionDefName</p>
           <p class="attributeDefName">aStem:permissionDef</p>
-          <p class="attributeDefId">06848a5996a24305918b5ddb73d72752</p>
+          <p class="attributeDefId">05490df6281c460899a3513ddf00ef4e</p>
         </li>
       </ul>
       <ul class="wsAssignPermissionResults">
         <li title="WsAssignPermissionResult">
           <ul class="wsAttributeAssigns">
             <li title="WsAttributeAssign">
-              <p class="id">59416f8ff38b460fa9eea8916e4341f5</p>
+              <p class="id">57bff31e8f0844e0b861a6d6fbfeb81e</p>
               <p class="attributeDefName">aStem:permissionDef</p>
-              <p class="attributeDefId">06848a5996a24305918b5ddb73d72752</p>
+              <p class="attributeDefId">05490df6281c460899a3513ddf00ef4e</p>
               <p class="attributeAssignDelegatable">FALSE</p>
               <p class="attributeAssignActionType">immediate</p>
-              <p class="attributeAssignActionId">e20db6b3345c4f65adae48a8af6de2a9</p>
+              <p class="attributeAssignActionId">04140493b5ea46629468a42c635f8a46</p>
               <p class="attributeAssignActionName">write</p>
               <p class="attributeAssignType">group</p>
-              <p class="attributeDefNameId">255687ef5f3a4425b7bb65a03a9f83b1</p>
+              <p class="attributeDefNameId">5008b956a557499d97a6396ccb6380e9</p>
               <p class="attributeDefNameName">aStem:permissionDefName</p>
-              <p class="createdOn">2012/03/17 12:13:15.543</p>
+              <p class="createdOn">2012/07/01 09:25:42.708</p>
               <p class="disabledTime" />
               <p class="enabled">T</p>
               <p class="enabledTime" />
-              <p class="lastUpdated">2012/03/17 12:13:15.543</p>
+              <p class="lastUpdated">2012/07/01 09:25:42.708</p>
               <p class="notes" />
               <p class="ownerAttributeAssignId" />
               <p class="ownerAttributeDefId" />
               <p class="ownerAttributeDefName" />
-              <p class="ownerGroupId">aba7254826fd4356a3c62c8755b09678</p>
+              <p class="ownerGroupId">dec81d38056c4ec09db758f66fde0b3a</p>
               <p class="ownerGroupName">aStem:role</p>
               <p class="ownerMemberId" />
               <p class="ownerMemberSubjectId" />
@@ -182,6 +182,21 @@ Connection: close
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.permission;
 
 import org.apache.commons.httpclient.Credentials;
@@ -324,7 +339,7 @@ public class WsSampleAssignPermissionsRest implements WsSampleRest {
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
     //dont allow http params
-    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
   }
 }
 
@@ -336,4 +351,4 @@ public class WsSampleAssignPermissionsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: , Found 1 results.
+Server version: 2.1.1, result code: SUCCESS, result message: , Found 1 results.

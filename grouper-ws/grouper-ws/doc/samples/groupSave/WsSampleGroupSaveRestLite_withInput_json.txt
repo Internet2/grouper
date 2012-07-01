@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, manually written lite/rest, type: _withInput, format: json, for version: 2.1.0
+Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, manually written lite/rest, type: _withInput, format: json, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, man
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/groups/aStem%3AaGroup HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/groups/aStem%3AaGroup HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 141
 Content-Type: text/x-json; charset=UTF-8
@@ -43,18 +43,18 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
 Content-Length: 705
-Date: Sat, 17 Mar 2012 15:48:54 GMT
+Date: Sun, 01 Jul 2012 14:13:31 GMT
 Connection: close
 
 {
   "WsGroupSaveLiteResult":{
     "responseMetadata":{
-      "millis":"113",
-      "serverVersion":"2.1.0"
+      "millis":"205",
+      "serverVersion":"2.1.1"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS_UPDATED",
-      "resultMessage":"Success for: clientVersion: 2.1.0, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[\n  wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:aGroup],\n  wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroup]]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: \n, params: null",
+      "resultMessage":"Success for: clientVersion: 2.1.1, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[\n  wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:aGroup],\n  wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroup]]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: \n, params: null",
       "success":"T"
     },
     "wsGroup":{
@@ -64,7 +64,7 @@ Connection: close
       "extension":"aGroup",
       "name":"aStem:aGroup",
       "typeOfGroup":"group",
-      "uuid":"f7a4af271025459bbb1683d19e73499f"
+      "uuid":"45c21e1dd3994497b415650ac7d42514"
     }
   }
 }
@@ -80,6 +80,21 @@ Connection: close
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.group;
 
 import org.apache.commons.httpclient.Credentials;
@@ -227,7 +242,7 @@ public class WsSampleGroupSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS_UPDATED, result message: Success for: clientVersion: 2.1.0, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
+Server version: 2.1.1, result code: SUCCESS_UPDATED, result message: Success for: clientVersion: 2.1.1, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
   wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:aGroup],
   wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroup]]
 

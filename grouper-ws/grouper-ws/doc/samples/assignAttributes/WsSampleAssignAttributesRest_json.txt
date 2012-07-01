@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributes, WsSampleAssignAttributesRest, manually written lite/rest, format: json, for version: 2.1.0
+Grouper web service sample of service: assignAttributes, WsSampleAssignAttributesRest, manually written lite/rest, format: json, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: assignAttributes, WsSampleAssignAttribute
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/attributeAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/attributeAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 254
 Content-Type: text/x-json; charset=UTF-8
@@ -52,15 +52,15 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 2064
-Date: Sat, 17 Mar 2012 16:16:22 GMT
+Content-Length: 2065
+Date: Sun, 01 Jul 2012 13:18:14 GMT
 Connection: close
 
 {
   "WsAssignAttributesResults":{
     "responseMetadata":{
-      "millis":"56",
-      "serverVersion":"2.1.0"
+      "millis":"208",
+      "serverVersion":"2.1.1"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
@@ -74,33 +74,33 @@ Connection: close
         "valuesChanged":"F",
         "wsAttributeAssigns":[
           {
-            "attributeAssignActionId":"cd4828e3fd5e4406a2185600027c5db5",
+            "attributeAssignActionId":"22d0fdd2a8754f20972a471fe6d86c7b",
             "attributeAssignActionName":"assign",
             "attributeAssignActionType":"immediate",
             "attributeAssignDelegatable":"FALSE",
             "attributeAssignType":"group",
-            "attributeDefId":"0fdbbe874df34b1e8cc57f1620e90f4c",
+            "attributeDefId":"159ef2b985ed401fa29fc6da155b08cb",
             "attributeDefName":"test:testAttributeAssignDefNameDef",
-            "attributeDefNameId":"60872ba8f99e46f9820f852e52bba063",
+            "attributeDefNameId":"e21881c92ab74c08b80b0105fb8032ca",
             "attributeDefNameName":"test:testAttributeAssignDefName",
-            "createdOn":"2012/03/17 12:16:21.276",
+            "createdOn":"2012/07/01 09:18:12.666",
             "disallowed":"F",
             "enabled":"T",
-            "id":"b2eca90c7e8d424b99b7ab02cbd3dc13",
-            "lastUpdated":"2012/03/17 12:16:21.276",
-            "ownerGroupId":"ad6b08609b344ce2b5dda9ffbb6e1c92",
+            "id":"4612d83c02204bb6b22dd92f11bb81cf",
+            "lastUpdated":"2012/07/01 09:18:12.666",
+            "ownerGroupId":"779317ed0a85439d8dd93b8186c2e739",
             "ownerGroupName":"test:groupTestAttrAssign",
             "wsAttributeAssignValues":[
               {
-                "id":"2c65fe374bf2430a9181d2cd6249be4f",
+                "id":"abb7c25ebddc45e280938d3b73ea27bd",
                 "valueSystem":"15"
               },
               {
-                "id":"55ec64fe181d4453a225e138ccf4bf79",
+                "id":"38028e98050f48248c18e3c1725c74a4",
                 "valueSystem":"5"
               },
               {
-                "id":"7eaec9a973134272bfae7d15bf65714f",
+                "id":"3b2bd105dca04fe8a3f85feaf896ab7c",
                 "valueSystem":"5"
               }
             ]
@@ -111,13 +111,13 @@ Connection: close
     ,
     "wsAttributeDefNames":[
       {
-        "attributeDefId":"0fdbbe874df34b1e8cc57f1620e90f4c",
+        "attributeDefId":"159ef2b985ed401fa29fc6da155b08cb",
         "attributeDefName":"test:testAttributeAssignDefNameDef",
         "displayExtension":"testAttributeAssignDefName",
         "displayName":"test:testAttributeAssignDefName",
         "extension":"testAttributeAssignDefName",
         "name":"test:testAttributeAssignDefName",
-        "uuid":"60872ba8f99e46f9820f852e52bba063"
+        "uuid":"e21881c92ab74c08b80b0105fb8032ca"
       }
     ]
     ,
@@ -128,7 +128,7 @@ Connection: close
         "multiAssignable":"F",
         "multiValued":"T",
         "name":"test:testAttributeAssignDefNameDef",
-        "uuid":"0fdbbe874df34b1e8cc57f1620e90f4c",
+        "uuid":"159ef2b985ed401fa29fc6da155b08cb",
         "valueType":"integer"
       }
     ]
@@ -141,7 +141,7 @@ Connection: close
         "extension":"groupTestAttrAssign",
         "name":"test:groupTestAttrAssign",
         "typeOfGroup":"group",
-        "uuid":"ad6b08609b344ce2b5dda9ffbb6e1c92"
+        "uuid":"779317ed0a85439d8dd93b8186c2e739"
       }
     ]
     ,
@@ -167,6 +167,21 @@ Connection: close
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
@@ -309,7 +324,7 @@ public class WsSampleAssignAttributesRest implements WsSampleRest {
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
     //dont allow http params
-    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
   }
 }
 
@@ -321,4 +336,4 @@ public class WsSampleAssignAttributesRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: , Found 1 results.
+Server version: 2.1.1, result code: SUCCESS, result message: , Found 1 results.

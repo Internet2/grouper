@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMembers, WsSampleGetMembers, code generated classes, format: soap, for version: 2.1.0
+Grouper web service sample of service: getMembers, WsSampleGetMembers, code generated classes, format: soap, for version: 2.1.1
 
 
 #########################################
@@ -21,7 +21,7 @@ Transfer-Encoding: chunked
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns1:getMembers xmlns:ns1="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_1_000</ns1:clientVersion>
+      <ns1:clientVersion>v2_1_001</ns1:clientVersion>
       <ns1:wsGroupLookups>
         <ns1:groupName>aStem:aGroup</ns1:groupName>
       </ns1:wsGroupLookups>
@@ -56,7 +56,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:getMembersResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sat, 17 Mar 2012 15:42:28 GMT
+Date: Sun, 01 Jul 2012 13:53:07 GMT
 
 b9d
 <?xml version='1.0' encoding='UTF-8'?>
@@ -67,13 +67,13 @@ b9d
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.1.0</ns:serverVersion>
+          <ns:serverVersion>2.1.1</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: 2.1.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
+          <ns:resultMessage>Success for: clientVersion: 2.1.1, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
 
 , memberFilter: All, includeSubjectDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, subjectAttributeNames: Array size: 2: [0]: a
 [1]: name
@@ -100,14 +100,14 @@ b9d
             <ns:extension>aGroup</ns:extension>
             <ns:name>aStem:aGroup</ns:name>
             <ns:typeOfGroup>group</ns:typeOfGroup>
-            <ns:uuid>301bdb2aa60f4fe09703c95be1be9d41</ns:uuid>
+            <ns:uuid>4436f658279e4bedafba5919d6c77b1b</ns:uuid>
           </ns:wsGroup>
           <ns:wsSubjects xsi:type="ns:WsSubject">
             <ns:attributeValues></ns:attributeValues>
-            <ns:attributeValues>10021368</ns:attributeValues>
-            <ns:id>10021368</ns:id>
+            <ns:attributeValues>10039438</ns:attributeValues>
+            <ns:id>10039438</ns:id>
             <ns:identifierLookup xsi:nil="true" />
-            <ns:name>10021368</ns:name>
+            <ns:name>10039438</ns:name>
             <ns:resultCode>SUCCESS</ns:resultCode>
             <ns:sourceId>jdbc</ns:sourceId>
             <ns:success>T</ns:success>
@@ -124,10 +124,10 @@ b9d
           </ns:wsSubjects>
           <ns:wsSubjects xsi:type="ns:WsSubject">
             <ns:attributeValues></ns:attributeValues>
-            <ns:attributeValues>10039438</ns:attributeValues>
-            <ns:id>10039438</ns:id>
+            <ns:attributeValues>10021368</ns:attributeValues>
+            <ns:id>10021368</ns:id>
             <ns:identifierLookup xsi:nil="true" />
-            <ns:name>10039438</ns:name>
+            <ns:name>10021368</ns:name>
             <ns:resultCode>SUCCESS</ns:resultCode>
             <ns:sourceId>jdbc</ns:sourceId>
             <ns:success>T</ns:success>
@@ -152,6 +152,21 @@ b9d
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 /**
  *
  */
@@ -278,14 +293,14 @@ public class WsSampleGetMembers implements WsSampleGenerated {
 
 
 WsGetMembersResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@1bdf68b,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@8551ce,localResultMetadataTracker=true,
-  localResults={edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGetMembersResult@e31a4f},localResultsTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@1de4992,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@b024b0,localResultMetadataTracker=true,
+  localResults={edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGetMembersResult@586193},localResultsTracker=true,
   localSubjectAttributeNames={a,name},localSubjectAttributeNamesTracker=true]
 Result: 0: code: SUCCESS
 WsSubject[
-  localAttributeValues={,10021368},localAttributeValuesTracker=true,localId=10021368,localIdTracker=true,localIdentifierLookupTracker=false,localName=10021368,localNameTracker=true,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]
+  localAttributeValues={,10039438},localAttributeValuesTracker=true,localId=10039438,localIdTracker=true,localIdentifierLookupTracker=false,localName=10039438,localNameTracker=true,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]
 WsSubject[
   localAttributeValues={,EveryEntity},localAttributeValuesTracker=true,localId=GrouperSystem,localIdTracker=true,localIdentifierLookupTracker=false,localName=GrouperSysAdmin,localNameTracker=true,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=g:isa,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]
 WsSubject[
-  localAttributeValues={,10039438},localAttributeValuesTracker=true,localId=10039438,localIdTracker=true,localIdentifierLookupTracker=false,localName=10039438,localNameTracker=true,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]
+  localAttributeValues={,10021368},localAttributeValuesTracker=true,localId=10021368,localIdTracker=true,localIdentifierLookupTracker=false,localName=10021368,localNameTracker=true,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]

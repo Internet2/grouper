@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite, manually written lite/rest, format: xml, for version: 2.1.0
+Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite, manually written lite/rest, format: xml, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite, man
 #########################################
 
 
-GET /grouper-ws/servicesRest/xml/v2_1_000/subjects/10021368/groups HTTP/1.1
+GET /grouper-ws/servicesRest/xml/v2_1_001/subjects/10021368/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 
 
@@ -34,13 +34,13 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sat, 17 Mar 2012 15:41:28 GMT
+Date: Sun, 01 Jul 2012 13:49:50 GMT
 Connection: close
 
 <WsGetGroupsLiteResult>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.1.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+    <resultMessage>Success for: clientVersion: 2.1.1, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null
 , params: null
@@ -52,8 +52,8 @@ fieldName1: null
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>26</millis>
-    <serverVersion>2.1.0</serverVersion>
+    <millis>237</millis>
+    <serverVersion>2.1.1</serverVersion>
   </responseMetadata>
   <wsGroups>
     <WsGroup>
@@ -63,7 +63,7 @@ fieldName1: null
       <description>a group description</description>
       <displayName>a stem:a group</displayName>
       <name>aStem:aGroup</name>
-      <uuid>25a5ff3050fe4dd98cca3a49e697c9ac</uuid>
+      <uuid>ed88d5f4ed514457b5ebc41a76079d7a</uuid>
     </WsGroup>
     <WsGroup>
       <extension>aGroup2</extension>
@@ -72,7 +72,7 @@ fieldName1: null
       <description>a group description2</description>
       <displayName>a stem:a group2</displayName>
       <name>aStem:aGroup2</name>
-      <uuid>67ab4060005449c9aa04dc31d2e406b8</uuid>
+      <uuid>1372afbafbf8488da9820bf233203ae8</uuid>
     </WsGroup>
     <WsGroup>
       <extension>sysadmingroup</extension>
@@ -80,7 +80,7 @@ fieldName1: null
       <displayExtension>sysadmingroup</displayExtension>
       <displayName>etc:sysadmingroup</displayName>
       <name>etc:sysadmingroup</name>
-      <uuid>643e6b2d696040ccb1bc5714307fc06c</uuid>
+      <uuid>c37bfcd4203148e49b0ef0dcdce6d553</uuid>
     </WsGroup>
     <WsGroup>
       <extension>webServiceActAsGroup</extension>
@@ -88,7 +88,7 @@ fieldName1: null
       <displayExtension>webServiceActAsGroup</displayExtension>
       <displayName>etc:webServiceActAsGroup</displayName>
       <name>etc:webServiceActAsGroup</name>
-      <uuid>3eb39908b0234a8bb50935406df9481e</uuid>
+      <uuid>fc5ebad6b6144774a1c82fd6d0f0b320</uuid>
     </WsGroup>
   </wsGroups>
   <wsSubject>
@@ -111,6 +111,21 @@ fieldName1: null
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.group;
 
 import org.apache.commons.httpclient.Credentials;
@@ -231,7 +246,7 @@ public class WsSampleGetGroupsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null
 , params: null

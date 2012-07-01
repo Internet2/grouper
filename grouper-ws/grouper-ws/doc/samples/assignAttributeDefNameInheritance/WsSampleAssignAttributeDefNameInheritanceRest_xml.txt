@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributeDefNameInheritance, WsSampleAssignAttributeDefNameInheritanceRest, manually written lite/rest, format: xml, for version: 2.1.0
+Grouper web service sample of service: assignAttributeDefNameInheritance, WsSampleAssignAttributeDefNameInheritanceRest, manually written lite/rest, format: xml, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: assignAttributeDefNameInheritance, WsSamp
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 530
 Content-Type: text/xml; charset=UTF-8
@@ -51,7 +51,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sat, 17 Mar 2012 15:30:46 GMT
+Date: Sun, 01 Jul 2012 13:16:11 GMT
 Connection: close
 
 <WsAssignAttributeDefNameInheritanceResults>
@@ -62,8 +62,8 @@ Connection: close
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>173</millis>
-    <serverVersion>2.1.0</serverVersion>
+    <millis>215</millis>
+    <serverVersion>2.1.1</serverVersion>
   </responseMetadata>
 </WsAssignAttributeDefNameInheritanceResults>
 
@@ -78,6 +78,21 @@ Connection: close
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
@@ -235,7 +250,7 @@ public class WsSampleAssignAttributeDefNameInheritanceRest implements WsSampleRe
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
     //dont allow http params
-    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
   }
 }
 
@@ -247,4 +262,4 @@ public class WsSampleAssignAttributeDefNameInheritanceRest implements WsSampleRe
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: Had 2 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.
+Server version: 2.1.1, result code: SUCCESS, result message: Had 2 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.

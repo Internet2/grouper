@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRestLite, manually written lite/rest, format: xhtml, for version: 2.1.0
+Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRestLite, manually written lite/rest, format: xhtml, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: assignPermissions, WsSampleAssignPermissi
 #########################################
 
 
-POST /grouper-ws/servicesRest/xhtml/v2_1_000/permissionAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/xhtml/v2_1_001/permissionAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 1337
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -32,13 +32,9 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="roleId" />
       <p class="permissionType">role_subject</p>
       <p class="clientVersion" />
-      <p class="permissionAssignOperation">remove_permission</p>
-      <p class="assignmentEnabledTime" />
-      <p class="assignmentDisabledTime" />
-      <p class="delegatable" />
+      <p class="includeGroupDetail" />
       <p class="includeSubjectDetail" />
       <p class="subjectAttributeNames" />
-      <p class="includeGroupDetail" />
       <p class="actAsSubjectId">GrouperSystem</p>
       <p class="actAsSubjectSourceId" />
       <p class="actAsSubjectIdentifier" />
@@ -46,6 +42,10 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="paramValue0" />
       <p class="paramName1" />
       <p class="paramValue1" />
+      <p class="permissionAssignOperation">remove_permission</p>
+      <p class="assignmentEnabledTime" />
+      <p class="assignmentDisabledTime" />
+      <p class="delegatable" />
       <p class="permissionDefNameName">aStem:permissionDefName</p>
       <p class="permissionDefNameId" />
       <p class="subjectRoleName">aStem:role</p>
@@ -74,7 +74,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sat, 17 Mar 2012 16:14:00 GMT
+Date: Sun, 01 Jul 2012 13:26:27 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -92,9 +92,9 @@ Connection: close
         <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">115</p>
+        <p class="millis">105</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.1.0</p>
+        <p class="serverVersion">2.1.1</p>
       </div>
       <div class="wsGroup" title="WsGroup" />
       <div class="wsSubject" title="WsSubject">
@@ -109,7 +109,7 @@ Connection: close
         <li title="WsAttributeDef">
           <p class="name">aStem:permissionDef</p>
           <p class="description" />
-          <p class="uuid">4e2dc59a192d4fe79e3c853fe8589750</p>
+          <p class="uuid">490bc49a5c894b84a00ce3e111e4a46c</p>
           <p class="extension">permissionDef</p>
           <p class="attributeDefType">perm</p>
           <p class="multiAssignable">F</p>
@@ -121,11 +121,11 @@ Connection: close
         <p class="name">aStem:permissionDefName</p>
         <p class="displayName">a stem:permissionDefName</p>
         <p class="description" />
-        <p class="uuid">d4bb767dc35b436abae038dc0393bb08</p>
+        <p class="uuid">21ea0aacdaeb4dc4a363a953ca3bc8f3</p>
         <p class="extension">permissionDefName</p>
         <p class="displayExtension">permissionDefName</p>
         <p class="attributeDefName">aStem:permissionDef</p>
-        <p class="attributeDefId">4e2dc59a192d4fe79e3c853fe8589750</p>
+        <p class="attributeDefId">490bc49a5c894b84a00ce3e111e4a46c</p>
       </div>
       <div class="wsPermissionAssignResult" title="WsAssignPermissionResult">
         <p class="changed">F</p>
@@ -146,6 +146,21 @@ Connection: close
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.permission;
 
 import org.apache.commons.httpclient.Credentials;
@@ -290,4 +305,4 @@ public class WsSampleAssignPermissionsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: , Found 1 results.
+Server version: 2.1.1, result code: SUCCESS, result message: , Found 1 results.

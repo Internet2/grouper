@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMemberships, WsSampleGetMemberships, code generated classes, format: soap, for version: 2.1.0
+Grouper web service sample of service: getMemberships, WsSampleGetMemberships, code generated classes, format: soap, for version: 2.1.1
 
 
 #########################################
@@ -21,7 +21,7 @@ Transfer-Encoding: chunked
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns1:getMemberships xmlns:ns1="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_1_000</ns1:clientVersion>
+      <ns1:clientVersion>v2_1_001</ns1:clientVersion>
       <ns1:wsGroupLookups>
         <ns1:groupName>aStem:aGroup</ns1:groupName>
       </ns1:wsGroupLookups>
@@ -63,7 +63,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:getMembershipsResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sat, 17 Mar 2012 15:43:32 GMT
+Date: Sun, 01 Jul 2012 15:45:53 GMT
 
 10e2
 <?xml version='1.0' encoding='UTF-8'?>
@@ -74,7 +74,7 @@ Date: Sat, 17 Mar 2012 15:43:32 GMT
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.1.0</ns:serverVersion>
+          <ns:serverVersion>2.1.1</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
@@ -91,52 +91,52 @@ Date: Sat, 17 Mar 2012 15:43:32 GMT
           <ns:extension>aGroup</ns:extension>
           <ns:name>aStem:aGroup</ns:name>
           <ns:typeOfGroup>group</ns:typeOfGroup>
-          <ns:uuid>643a4c20bea446638000b72ce5ad56ee</ns:uuid>
+          <ns:uuid>c729c52b67b544d8a6515acd3df43232</ns:uuid>
         </ns:wsGroups>
         <ns:wsMemberships xsi:type="ns:WsMembership">
-          <ns:createTime>2012/03/17 11:43:30.559</ns:createTime>
+          <ns:createTime>2012/07/01 11:45:49.799</ns:createTime>
           <ns:disabledTime xsi:nil="true" />
           <ns:enabled>T</ns:enabled>
           <ns:enabledTime xsi:nil="true" />
-          <ns:groupId>643a4c20bea446638000b72ce5ad56ee</ns:groupId>
+          <ns:groupId>c729c52b67b544d8a6515acd3df43232</ns:groupId>
           <ns:groupName>aStem:aGroup</ns:groupName>
-          <ns:immediateMembershipId>915c3c5b032a4c129b1ecfa635bd53ce</ns:immediateMembershipId>
+          <ns:immediateMembershipId>dab1758614fd4fd2b155f152cbf8cacf</ns:immediateMembershipId>
           <ns:listName>members</ns:listName>
           <ns:listType>list</ns:listType>
-          <ns:memberId>79abac8156174e11a8f226bf7d001f91</ns:memberId>
-          <ns:membershipId>915c3c5b032a4c129b1ecfa635bd53ce:870b82bc93a54920a6a7e383ad2adec3</ns:membershipId>
+          <ns:memberId>c6292ab1fe8c40289b69633fad5278f9</ns:memberId>
+          <ns:membershipId>dab1758614fd4fd2b155f152cbf8cacf:836bd7c48c3a4ff4add84e73dd85cbf1</ns:membershipId>
           <ns:membershipType>immediate</ns:membershipType>
           <ns:subjectId>GrouperSystem</ns:subjectId>
           <ns:subjectSourceId>g:isa</ns:subjectSourceId>
         </ns:wsMemberships>
         <ns:wsMemberships xsi:type="ns:WsMembership">
-          <ns:createTime>2012/03/17 11:43:30.589</ns:createTime>
+          <ns:createTime>2012/07/01 11:45:49.866</ns:createTime>
           <ns:disabledTime xsi:nil="true" />
           <ns:enabled>T</ns:enabled>
           <ns:enabledTime xsi:nil="true" />
-          <ns:groupId>643a4c20bea446638000b72ce5ad56ee</ns:groupId>
+          <ns:groupId>c729c52b67b544d8a6515acd3df43232</ns:groupId>
           <ns:groupName>aStem:aGroup</ns:groupName>
-          <ns:immediateMembershipId>f38f5e6534cc4cb6b0d5c363394d3e30</ns:immediateMembershipId>
+          <ns:immediateMembershipId>7514289aa0a84d6fb7a19e6c80a2c729</ns:immediateMembershipId>
           <ns:listName>members</ns:listName>
           <ns:listType>list</ns:listType>
-          <ns:memberId>56615bf123d34fd59263d0fa8004d052</ns:memberId>
-          <ns:membershipId>f38f5e6534cc4cb6b0d5c363394d3e30:870b82bc93a54920a6a7e383ad2adec3</ns:membershipId>
+          <ns:memberId>b39f4e078a654a2a99dcc7e2b65acd47</ns:memberId>
+          <ns:membershipId>7514289aa0a84d6fb7a19e6c80a2c729:836bd7c48c3a4ff4add84e73dd85cbf1</ns:membershipId>
           <ns:membershipType>immediate</ns:membershipType>
           <ns:subjectId>10021368</ns:subjectId>
           <ns:subjectSourceId>jdbc</ns:subjectSourceId>
         </ns:wsMemberships>
         <ns:wsMemberships xsi:type="ns:WsMembership">
-          <ns:createTime>2012/03/17 11:43:30.574</ns:createTime>
+          <ns:createTime>2012/07/01 11:45:49.840</ns:createTime>
           <ns:disabledTime xsi:nil="true" />
           <ns:enabled>T</ns:enabled>
           <ns:enabledTime xsi:nil="true" />
-          <ns:groupId>643a4c20bea446638000b72ce5ad56ee</ns:groupId>
+          <ns:groupId>c729c52b67b544d8a6515acd3df43232</ns:groupId>
           <ns:groupName>aStem:aGroup</ns:groupName>
-          <ns:immediateMembershipId>54a1d51fb8ce4908bf0fc3993db59c64</ns:immediateMembershipId>
+          <ns:immediateMembershipId>be6ae29fd7f94ebba448f62d7b902428</ns:immediateMembershipId>
           <ns:listName>members</ns:listName>
           <ns:listType>list</ns:listType>
-          <ns:memberId>e6a7e97187b74be38819d369a22f3a53</ns:memberId>
-          <ns:membershipId>54a1d51fb8ce4908bf0fc3993db59c64:870b82bc93a54920a6a7e383ad2adec3</ns:membershipId>
+          <ns:memberId>853a3b1f3f5440f2a9800ea246b1825a</ns:memberId>
+          <ns:membershipId>be6ae29fd7f94ebba448f62d7b902428:836bd7c48c3a4ff4add84e73dd85cbf1</ns:membershipId>
           <ns:membershipType>immediate</ns:membershipType>
           <ns:subjectId>10039438</ns:subjectId>
           <ns:subjectSourceId>jdbc</ns:subjectSourceId>
@@ -185,6 +185,21 @@ Date: Sat, 17 Mar 2012 15:43:32 GMT
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 /**
  *
  */
@@ -325,15 +340,15 @@ public class WsSampleGetMemberships implements WsSampleGenerated {
 
 
 WsGetMembershipsResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@1f001ea,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@dddee,localResultMetadataTracker=true,localSubjectAttributeNamesTracker=false,
-  localWsGroups={edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroup@1071f94},localWsGroupsTracker=true,
-  localWsMemberships={edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsMembership@15857de,edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsMembership@f0b8b7,edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsMembership@1ef16a9},localWsMembershipsTracker=true,
-  localWsSubjects={edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsSubject@8762ce,edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsSubject@67fc19,edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsSubject@d7f272},localWsSubjectsTracker=true]
-WsMembership[localCreateTime=2012/03/17 11:43:30.559,localCreateTimeTracker=true,localDisabledTimeTracker=false,localEnabled=T,localEnabledTracker=true,localEnabledTimeTracker=false,localGroupId=643a4c20bea446638000b72ce5ad56ee,localGroupIdTracker=true,localGroupName=aStem:aGroup,localGroupNameTracker=true,localImmediateMembershipId=915c3c5b032a4c129b1ecfa635bd53ce,localImmediateMembershipIdTracker=true,localListName=members,localListNameTracker=true,localListType=list,localListTypeTracker=true,localMemberId=79abac8156174e11a8f226bf7d001f91,localMemberIdTracker=true,localMembershipId=915c3c5b032a4c129b1ecfa635bd53ce:870b82bc93a54920a6a7e383ad2adec3,localMembershipIdTracker=true,localMembershipType=immediate,localMembershipTypeTracker=true,localSubjectId=GrouperSystem,localSubjectIdTracker=true,localSubjectSourceId=g:isa,localSubjectSourceIdTracker=true]
-WsMembership[localCreateTime=2012/03/17 11:43:30.589,localCreateTimeTracker=true,localDisabledTimeTracker=false,localEnabled=T,localEnabledTracker=true,localEnabledTimeTracker=false,localGroupId=643a4c20bea446638000b72ce5ad56ee,localGroupIdTracker=true,localGroupName=aStem:aGroup,localGroupNameTracker=true,localImmediateMembershipId=f38f5e6534cc4cb6b0d5c363394d3e30,localImmediateMembershipIdTracker=true,localListName=members,localListNameTracker=true,localListType=list,localListTypeTracker=true,localMemberId=56615bf123d34fd59263d0fa8004d052,localMemberIdTracker=true,localMembershipId=f38f5e6534cc4cb6b0d5c363394d3e30:870b82bc93a54920a6a7e383ad2adec3,localMembershipIdTracker=true,localMembershipType=immediate,localMembershipTypeTracker=true,localSubjectId=10021368,localSubjectIdTracker=true,localSubjectSourceId=jdbc,localSubjectSourceIdTracker=true]
-WsMembership[localCreateTime=2012/03/17 11:43:30.574,localCreateTimeTracker=true,localDisabledTimeTracker=false,localEnabled=T,localEnabledTracker=true,localEnabledTimeTracker=false,localGroupId=643a4c20bea446638000b72ce5ad56ee,localGroupIdTracker=true,localGroupName=aStem:aGroup,localGroupNameTracker=true,localImmediateMembershipId=54a1d51fb8ce4908bf0fc3993db59c64,localImmediateMembershipIdTracker=true,localListName=members,localListNameTracker=true,localListType=list,localListTypeTracker=true,localMemberId=e6a7e97187b74be38819d369a22f3a53,localMemberIdTracker=true,localMembershipId=54a1d51fb8ce4908bf0fc3993db59c64:870b82bc93a54920a6a7e383ad2adec3,localMembershipIdTracker=true,localMembershipType=immediate,localMembershipTypeTracker=true,localSubjectId=10039438,localSubjectIdTracker=true,localSubjectSourceId=jdbc,localSubjectSourceIdTracker=true]
-WsGroup[localDescription=a group description,localDescriptionTracker=true,localDetailTracker=true,localDisplayExtension=a group,localDisplayExtensionTracker=true,localDisplayName=a stem:a group,localDisplayNameTracker=true,localExtension=aGroup,localExtensionTracker=true,localName=aStem:aGroup,localNameTracker=true,localTypeOfGroup=group,localTypeOfGroupTracker=true,localUuid=643a4c20bea446638000b72ce5ad56ee,localUuidTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@ffb100,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@bd9750,localResultMetadataTracker=true,localSubjectAttributeNamesTracker=false,
+  localWsGroups={edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroup@433461},localWsGroupsTracker=true,
+  localWsMemberships={edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsMembership@1ef303b,edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsMembership@479662,edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsMembership@1e21096},localWsMembershipsTracker=true,
+  localWsSubjects={edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsSubject@35ce99,edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsSubject@8ead47,edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsSubject@11218cf},localWsSubjectsTracker=true]
+WsMembership[localCreateTime=2012/07/01 11:45:49.799,localCreateTimeTracker=true,localDisabledTimeTracker=false,localEnabled=T,localEnabledTracker=true,localEnabledTimeTracker=false,localGroupId=c729c52b67b544d8a6515acd3df43232,localGroupIdTracker=true,localGroupName=aStem:aGroup,localGroupNameTracker=true,localImmediateMembershipId=dab1758614fd4fd2b155f152cbf8cacf,localImmediateMembershipIdTracker=true,localListName=members,localListNameTracker=true,localListType=list,localListTypeTracker=true,localMemberId=c6292ab1fe8c40289b69633fad5278f9,localMemberIdTracker=true,localMembershipId=dab1758614fd4fd2b155f152cbf8cacf:836bd7c48c3a4ff4add84e73dd85cbf1,localMembershipIdTracker=true,localMembershipType=immediate,localMembershipTypeTracker=true,localSubjectId=GrouperSystem,localSubjectIdTracker=true,localSubjectSourceId=g:isa,localSubjectSourceIdTracker=true]
+WsMembership[localCreateTime=2012/07/01 11:45:49.866,localCreateTimeTracker=true,localDisabledTimeTracker=false,localEnabled=T,localEnabledTracker=true,localEnabledTimeTracker=false,localGroupId=c729c52b67b544d8a6515acd3df43232,localGroupIdTracker=true,localGroupName=aStem:aGroup,localGroupNameTracker=true,localImmediateMembershipId=7514289aa0a84d6fb7a19e6c80a2c729,localImmediateMembershipIdTracker=true,localListName=members,localListNameTracker=true,localListType=list,localListTypeTracker=true,localMemberId=b39f4e078a654a2a99dcc7e2b65acd47,localMemberIdTracker=true,localMembershipId=7514289aa0a84d6fb7a19e6c80a2c729:836bd7c48c3a4ff4add84e73dd85cbf1,localMembershipIdTracker=true,localMembershipType=immediate,localMembershipTypeTracker=true,localSubjectId=10021368,localSubjectIdTracker=true,localSubjectSourceId=jdbc,localSubjectSourceIdTracker=true]
+WsMembership[localCreateTime=2012/07/01 11:45:49.840,localCreateTimeTracker=true,localDisabledTimeTracker=false,localEnabled=T,localEnabledTracker=true,localEnabledTimeTracker=false,localGroupId=c729c52b67b544d8a6515acd3df43232,localGroupIdTracker=true,localGroupName=aStem:aGroup,localGroupNameTracker=true,localImmediateMembershipId=be6ae29fd7f94ebba448f62d7b902428,localImmediateMembershipIdTracker=true,localListName=members,localListNameTracker=true,localListType=list,localListTypeTracker=true,localMemberId=853a3b1f3f5440f2a9800ea246b1825a,localMemberIdTracker=true,localMembershipId=be6ae29fd7f94ebba448f62d7b902428:836bd7c48c3a4ff4add84e73dd85cbf1,localMembershipIdTracker=true,localMembershipType=immediate,localMembershipTypeTracker=true,localSubjectId=10039438,localSubjectIdTracker=true,localSubjectSourceId=jdbc,localSubjectSourceIdTracker=true]
+WsGroup[localDescription=a group description,localDescriptionTracker=true,localDetailTracker=true,localDisplayExtension=a group,localDisplayExtensionTracker=true,localDisplayName=a stem:a group,localDisplayNameTracker=true,localExtension=aGroup,localExtensionTracker=true,localName=aStem:aGroup,localNameTracker=true,localTypeOfGroup=group,localTypeOfGroupTracker=true,localUuid=c729c52b67b544d8a6515acd3df43232,localUuidTracker=true]
 WsSubject[
   localAttributeValues={<null>},localAttributeValuesTracker=true,localId=GrouperSystem,localIdTracker=true,localIdentifierLookupTracker=false,localName=GrouperSysAdmin,localNameTracker=true,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=g:isa,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]
 WsSubject[

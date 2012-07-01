@@ -1,4 +1,4 @@
-Grouper web service sample of service: getPermissionAssignments, WsSampleGetPermissionAssignmentsRest, manually written lite/rest, format: json, for version: 2.1.0
+Grouper web service sample of service: getPermissionAssignments, WsSampleGetPermissionAssignmentsRest, manually written lite/rest, format: json, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getPermissionAssignments, WsSampleGetPerm
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/permissionAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/permissionAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 110
 Content-Type: text/x-json; charset=UTF-8
@@ -44,19 +44,19 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 430
-Date: Sat, 17 Mar 2012 15:44:53 GMT
+Content-Length: 2419
+Date: Sun, 01 Jul 2012 14:01:45 GMT
 Connection: close
 
 {
   "WsGetPermissionAssignmentsResults":{
     "responseMetadata":{
-      "millis":"143",
-      "serverVersion":"2.1.0"
+      "millis":"133",
+      "serverVersion":"2.1.1"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
-      "resultMessage":", Found 0 results.",
+      "resultMessage":", Found 3 results.",
       "success":"T"
     },
     "wsAttributeDefs":[
@@ -66,12 +66,82 @@ Connection: close
         "multiAssignable":"F",
         "multiValued":"F",
         "name":"aStem:permissionDef",
-        "uuid":"9bcace2ae8ba4df4b1b99e632d212a84",
+        "uuid":"9178e253befd4167984402f9b278b56b",
         "valueType":"marker"
       }
     ]
     ,
     "wsGroups":[
+      {
+        "displayExtension":"role",
+        "displayName":"a stem:role",
+        "extension":"role",
+        "name":"aStem:role",
+        "typeOfGroup":"role",
+        "uuid":"053f316bcd2841748b20a05770c45430"
+      },
+      {
+        "displayExtension":"role2",
+        "displayName":"a stem:role2",
+        "extension":"role2",
+        "name":"aStem:role2",
+        "typeOfGroup":"role",
+        "uuid":"d64f429f33ce47829a3e9e719d17fb53"
+      }
+    ]
+    ,
+    "wsPermissionAssigns":[
+      {
+        "action":"read",
+        "allowedOverall":"T",
+        "attributeAssignId":"b6417d967e564406ade28febaf3d52f2",
+        "attributeDefId":"9178e253befd4167984402f9b278b56b",
+        "attributeDefName":"aStem:permissionDef",
+        "attributeDefNameId":"d6c9d77542834c05b3a084fd1a61ea5a",
+        "attributeDefNameName":"aStem:permissionDefName",
+        "disallowed":"F",
+        "enabled":"T",
+        "membershipId":"4dbb30a2711946b79de426e79a9fb141:9f66965496d94c9f80854e6080f25311",
+        "permissionType":"role",
+        "roleId":"053f316bcd2841748b20a05770c45430",
+        "roleName":"aStem:role",
+        "sourceId":"jdbc",
+        "subjectId":"test.subject.0"
+      },
+      {
+        "action":"read",
+        "allowedOverall":"T",
+        "attributeAssignId":"b6417d967e564406ade28febaf3d52f2",
+        "attributeDefId":"9178e253befd4167984402f9b278b56b",
+        "attributeDefName":"aStem:permissionDef",
+        "attributeDefNameId":"d6c9d77542834c05b3a084fd1a61ea5a",
+        "attributeDefNameName":"aStem:permissionDefName",
+        "disallowed":"F",
+        "enabled":"T",
+        "membershipId":"bc6485fc5107456daefb043040ef217b:9f66965496d94c9f80854e6080f25311",
+        "permissionType":"role",
+        "roleId":"053f316bcd2841748b20a05770c45430",
+        "roleName":"aStem:role",
+        "sourceId":"jdbc",
+        "subjectId":"test.subject.4"
+      },
+      {
+        "action":"write",
+        "allowedOverall":"T",
+        "attributeAssignId":"c6abf3f943af4a5587115199a9c21f54",
+        "attributeDefId":"9178e253befd4167984402f9b278b56b",
+        "attributeDefName":"aStem:permissionDef",
+        "attributeDefNameId":"3254c625666a455eb1f6567c8f814262",
+        "attributeDefNameName":"aStem:permissionDefName2",
+        "disallowed":"F",
+        "enabled":"T",
+        "membershipId":"f2b304e30a1d40678574c8ebe3e8eed0:e9561624ae16489f89188b466a9e2840",
+        "permissionType":"role_subject",
+        "roleId":"d64f429f33ce47829a3e9e719d17fb53",
+        "roleName":"aStem:role2",
+        "sourceId":"jdbc",
+        "subjectId":"test.subject.1"
+      }
     ]
     ,
     "wsSubjects":[
@@ -90,6 +160,21 @@ Connection: close
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.permission;
 
 import org.apache.commons.httpclient.Credentials;
@@ -227,7 +312,7 @@ public class WsSampleGetPermissionAssignmentsRest implements WsSampleRest {
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
     //dont allow http params
-    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
   }
 }
 
@@ -239,4 +324,4 @@ public class WsSampleGetPermissionAssignmentsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: , Found 0 results.
+Server version: 2.1.1, result code: SUCCESS, result message: , Found 3 results.
