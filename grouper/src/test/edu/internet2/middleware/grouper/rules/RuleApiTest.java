@@ -87,7 +87,7 @@ public class RuleApiTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleApiTest("testRuleVetoSubjectAssignInFolderInherit"));
+    TestRunner.run(new RuleApiTest("testPermissionAssignmentIntersectFolderDaemon"));
   }
 
   /**
