@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesListRestLite, manually written lite/rest, type: _list, format: xml, for version: 2.1.0
+Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesListRestLite, manually written lite/rest, type: _list, format: xml, for version: 2.1.1
 
 
 #########################################
@@ -9,16 +9,16 @@ Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperP
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/grouperPrivileges HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/grouperPrivileges HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 234
 Content-Type: text/xml; charset=UTF-8
 
 <WsRestGetGrouperPrivilegesLiteRequest>
-  <subjectId>test.subject.0</subjectId>
+  <subjectId>test.subject.9</subjectId>
   <groupName>aStem:aGroup</groupName>
   <privilegeType>access</privilegeType>
   <actAsSubjectId>GrouperSystem</actAsSubjectId>
@@ -40,7 +40,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sat, 17 Mar 2012 15:40:26 GMT
+Date: Sun, 01 Jul 2012 16:09:50 GMT
 Connection: close
 
 <WsGetGrouperPrivilegesLiteResult>
@@ -54,42 +54,13 @@ Connection: close
       <ownerSubject>
         <resultCode>SUCCESS</resultCode>
         <success>T</success>
-        <id>GrouperAll</id>
-        <name>EveryEntity</name>
-        <sourceId>g:isa</sourceId>
-      </ownerSubject>
-      <privilegeName>read</privilegeName>
-      <privilegeType>access</privilegeType>
-      <revokable>F</revokable>
-      <wsGroup>
-        <extension>aGroup</extension>
-        <typeOfGroup>group</typeOfGroup>
-        <displayExtension>a group</displayExtension>
-        <description>a group description</description>
-        <displayName>a stem:a group</displayName>
-        <name>aStem:aGroup</name>
-        <uuid>ca5a43a832b242c798fb45769b21ba66</uuid>
-      </wsGroup>
-      <wsSubject>
-        <resultCode>SUCCESS</resultCode>
-        <success>T</success>
-        <id>test.subject.0</id>
-        <name>my name is test.subject.0</name>
+        <id>test.subject.9</id>
+        <name>my name is test.subject.9</name>
         <sourceId>jdbc</sourceId>
-      </wsSubject>
-    </WsGrouperPrivilegeResult>
-    <WsGrouperPrivilegeResult>
-      <allowed>T</allowed>
-      <ownerSubject>
-        <resultCode>SUCCESS</resultCode>
-        <success>T</success>
-        <id>GrouperAll</id>
-        <name>EveryEntity</name>
-        <sourceId>g:isa</sourceId>
       </ownerSubject>
-      <privilegeName>view</privilegeName>
+      <privilegeName>admin</privilegeName>
       <privilegeType>access</privilegeType>
-      <revokable>F</revokable>
+      <revokable>T</revokable>
       <wsGroup>
         <extension>aGroup</extension>
         <typeOfGroup>group</typeOfGroup>
@@ -97,21 +68,21 @@ Connection: close
         <description>a group description</description>
         <displayName>a stem:a group</displayName>
         <name>aStem:aGroup</name>
-        <uuid>ca5a43a832b242c798fb45769b21ba66</uuid>
+        <uuid>9b3ac7543061425497b64ebf00181373</uuid>
       </wsGroup>
       <wsSubject>
         <resultCode>SUCCESS</resultCode>
         <success>T</success>
-        <id>test.subject.0</id>
-        <name>my name is test.subject.0</name>
+        <id>test.subject.9</id>
+        <name>my name is test.subject.9</name>
         <sourceId>jdbc</sourceId>
       </wsSubject>
     </WsGrouperPrivilegeResult>
   </privilegeResults>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>33</millis>
-    <serverVersion>2.1.0</serverVersion>
+    <millis>35</millis>
+    <serverVersion>2.1.1</serverVersion>
   </responseMetadata>
 </WsGetGrouperPrivilegesLiteResult>
 
@@ -126,6 +97,21 @@ Connection: close
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.grouperPrivileges;
 
 import org.apache.commons.httpclient.Credentials;
@@ -144,6 +130,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGrouperPrivilegeResult;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGrouperPrivilegesLiteRequest;
@@ -184,8 +171,10 @@ public class WsSampleGetGrouperPrivilegesListRestLite implements WsSampleRest {
       method.setRequestHeader("Connection", "close");
       
       //e.g. localhost and 8093
+      String host = RestClientSettings.HOST;
+      int port = RestClientSettings.PORT;
       httpClient.getState()
-          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
+          .setCredentials(new AuthScope(host, port), defaultcreds);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -195,7 +184,7 @@ public class WsSampleGetGrouperPrivilegesListRestLite implements WsSampleRest {
       // set the act as id
       wsRestGetGrouperPrivilegesLiteRequest.setActAsSubjectId("GrouperSystem");
       
-      wsRestGetGrouperPrivilegesLiteRequest.setSubjectId("test.subject.0");
+      wsRestGetGrouperPrivilegesLiteRequest.setSubjectId("test.subject.9");
       wsRestGetGrouperPrivilegesLiteRequest.setGroupName("aStem:aGroup");
       
       wsRestGetGrouperPrivilegesLiteRequest.setPrivilegeType("access");
@@ -242,7 +231,7 @@ public class WsSampleGetGrouperPrivilegesListRestLite implements WsSampleRest {
       boolean foundAdmin = false;
       
       //lets make sure admin is in there
-      for (WsGrouperPrivilegeResult wsGrouperPrivilegeResult : wsGetGrouperPrivilegesLiteResult.getPrivilegeResults()) {
+      for (WsGrouperPrivilegeResult wsGrouperPrivilegeResult : GrouperUtil.nonNull(wsGetGrouperPrivilegesLiteResult.getPrivilegeResults(), WsGrouperPrivilegeResult.class)) {
         if (StringUtils.equals("admin", wsGrouperPrivilegeResult.getPrivilegeName())
             && StringUtils.equals("T", wsGrouperPrivilegeResult.getAllowed())) {
           foundAdmin = true;
@@ -253,7 +242,7 @@ public class WsSampleGetGrouperPrivilegesListRestLite implements WsSampleRest {
       boolean shouldHaveAdmin = false;
       try {
         Group group = GroupFinder.findByName(grouperSession, "aStem:aGroup");
-        shouldHaveAdmin = group.hasAdmin(SubjectFinder.findById("test.subject.0"));
+        shouldHaveAdmin = group.hasAdmin(SubjectFinder.findById("test.subject.9"));
       } finally {
         GrouperSession.stopQuietly(grouperSession);
       }
@@ -301,14 +290,11 @@ public class WsSampleGetGrouperPrivilegesListRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: null
+Server version: 2.1.1, result code: SUCCESS, result message: null
 WsGetGrouperPrivilegesLiteResult[
   resultMetadata=WsResultMeta[resultCode=SUCCESS,success=T,httpStatusCode=0],
   privilegeResults={WsGrouperPrivilegeResult[allowed=T,
-  ownerSubject=WsSubject[resultCode=SUCCESS,success=T,id=GrouperAll,name=EveryEntity,sourceId=g:isa],privilegeName=read,privilegeType=access,revokable=F,
-  wsGroup=WsGroup[extension=aGroup,typeOfGroup=group,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=ca5a43a832b242c798fb45769b21ba66],
-  wsSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.0,name=my name is test.subject.0,sourceId=jdbc]],WsGrouperPrivilegeResult[allowed=T,
-  ownerSubject=WsSubject[resultCode=SUCCESS,success=T,id=GrouperAll,name=EveryEntity,sourceId=g:isa],privilegeName=view,privilegeType=access,revokable=F,
-  wsGroup=WsGroup[extension=aGroup,typeOfGroup=group,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=ca5a43a832b242c798fb45769b21ba66],
-  wsSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.0,name=my name is test.subject.0,sourceId=jdbc]]},
-  responseMetadata=WsResponseMeta[resultWarnings=,millis=33,millisStart=0,serverVersion=2.1.0]]
+  ownerSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.9,name=my name is test.subject.9,sourceId=jdbc],privilegeName=admin,privilegeType=access,revokable=T,
+  wsGroup=WsGroup[extension=aGroup,typeOfGroup=group,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=9b3ac7543061425497b64ebf00181373],
+  wsSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.9,name=my name is test.subject.9,sourceId=jdbc]]},
+  responseMetadata=WsResponseMeta[resultWarnings=,millis=35,millisStart=0,serverVersion=2.1.1]]

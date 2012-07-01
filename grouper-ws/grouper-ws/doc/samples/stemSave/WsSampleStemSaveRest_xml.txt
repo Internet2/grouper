@@ -1,4 +1,4 @@
-Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually written lite/rest, format: xml, for version: 2.1.0
+Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually written lite/rest, format: xml, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually 
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/stems HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/stems HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 589
 Content-Type: text/xml; charset=UTF-8
@@ -60,7 +60,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sat, 17 Mar 2012 15:52:33 GMT
+Date: Sun, 01 Jul 2012 14:24:39 GMT
 Connection: close
 
 <WsStemSaveResults>
@@ -72,7 +72,7 @@ Connection: close
         <description>desc1</description>
         <displayName>a stem:disp1</displayName>
         <name>aStem:whateverStem</name>
-        <uuid>2b4a37dda8ac4ad78e6b81c0083069dc</uuid>
+        <uuid>d13bdbba59ea41dba9321dc6a4a353f9</uuid>
       </wsStem>
       <resultMetadata>
         <resultCode>SUCCESS_INSERTED</resultCode>
@@ -86,7 +86,7 @@ Connection: close
         <description>descs</description>
         <displayName>a stem:disp2</displayName>
         <name>aStem:whateverStem2</name>
-        <uuid>b12da458a24d4547acacc51e0d09115d</uuid>
+        <uuid>723bf64c259f49e2a2f457edbc53ffcc</uuid>
       </wsStem>
       <resultMetadata>
         <resultCode>SUCCESS_INSERTED</resultCode>
@@ -96,7 +96,7 @@ Connection: close
   </results>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.1.0, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
+    <resultMessage>Success for: clientVersion: 2.1.1, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
 wsStemLookup=WsStemLookup[stemName=aStem:whateverStem],
 wsStem=WsStem[extension=whateverStem,displayExtension=disp1,description=desc1,name=aStem:whateverStem]]...
 , actAsSubject: null, txType: NONE, paramNames:
@@ -105,8 +105,8 @@ wsStem=WsStem[extension=whateverStem,displayExtension=disp1,description=desc1,na
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>228</millis>
-    <serverVersion>2.1.0</serverVersion>
+    <millis>263</millis>
+    <serverVersion>2.1.1</serverVersion>
   </responseMetadata>
 </WsStemSaveResults>
 
@@ -121,6 +121,21 @@ wsStem=WsStem[extension=whateverStem,displayExtension=disp1,description=desc1,na
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.stem;
 
 import org.apache.commons.httpclient.Credentials;
@@ -276,7 +291,7 @@ public class WsSampleStemSaveRest implements WsSampleRest {
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
     //dont allow http params
-    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
   }
 }
 
@@ -288,7 +303,7 @@ public class WsSampleStemSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.0, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
+Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
   wsStemLookup=WsStemLookup[stemName=aStem:whateverStem],
   wsStem=WsStem[extension=whateverStem,displayExtension=disp1,description=desc1,name=aStem:whateverStem]]...
 , actAsSubject: null, txType: NONE, paramNames: 

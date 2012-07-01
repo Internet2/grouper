@@ -1,4 +1,4 @@
-Grouper web service sample of service: findStems, WsSampleFindStemsRest, manually written lite/rest, format: xml, for version: 2.1.0
+Grouper web service sample of service: findStems, WsSampleFindStemsRest, manually written lite/rest, format: xml, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: findStems, WsSampleFindStemsRest, manuall
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/stems HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/stems HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 262
 Content-Type: text/xml; charset=UTF-8
@@ -43,7 +43,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sat, 17 Mar 2012 15:38:30 GMT
+Date: Sun, 01 Jul 2012 13:41:09 GMT
 Connection: close
 
 <WsFindStemsResults>
@@ -54,20 +54,20 @@ Connection: close
       <description>a stem description</description>
       <displayName>a stem</displayName>
       <name>aStem</name>
-      <uuid>be8eb3558ce44800af0d0437b08231db</uuid>
+      <uuid>5d2140303b0342ffbd4fe646867f0261</uuid>
     </WsStem>
   </stemResults>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.1.0, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
+    <resultMessage>Success for: clientVersion: 2.1.1, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null
 , wsStemLookups: null</resultMessage>
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>39</millis>
-    <serverVersion>2.1.0</serverVersion>
+    <millis>64</millis>
+    <serverVersion>2.1.1</serverVersion>
   </responseMetadata>
 </WsFindStemsResults>
 
@@ -82,6 +82,21 @@ Connection: close
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.stem;
 
 import org.apache.commons.httpclient.Credentials;
@@ -225,7 +240,7 @@ public class WsSampleFindStemsRest implements WsSampleRest {
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
     //dont allow http params
-    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
   }
 }
 
@@ -237,6 +252,6 @@ public class WsSampleFindStemsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.0, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
+Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null
 , wsStemLookups: null

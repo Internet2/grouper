@@ -77,7 +77,7 @@ public class WsSampleGetMembershipsRest2 implements WsSampleRest {
 
       // seeif two subjects are in the group
       WsGroupLookup[] groupLookups = new WsGroupLookup[1];
-      groupLookups[0] = new WsGroupLookup("test:testGroup", null);
+      groupLookups[0] = new WsGroupLookup("aStem:aGroup", null);
 
       getMemberships.setWsGroupLookups(groupLookups);
       

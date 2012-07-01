@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRestLite, manually written lite/rest, format: json, for version: 2.1.0
+Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRestLite, manually written lite/rest, format: json, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: assignPermissions, WsSampleAssignPermissi
 #########################################
 
 
-POST /grouper-ws/servicesRest/json/v2_1_000/permissionAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/json/v2_1_001/permissionAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 290
 Content-Type: text/x-json; charset=UTF-8
@@ -45,15 +45,15 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 882
-Date: Sat, 17 Mar 2012 16:14:15 GMT
+Content-Length: 883
+Date: Sun, 01 Jul 2012 13:26:42 GMT
 Connection: close
 
 {
   "WsAssignPermissionsLiteResults":{
     "responseMetadata":{
-      "millis":"55",
-      "serverVersion":"2.1.0"
+      "millis":"143",
+      "serverVersion":"2.1.1"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
@@ -61,13 +61,13 @@ Connection: close
       "success":"T"
     },
     "wsAttributeDefName":{
-      "attributeDefId":"83a31ddc83514fd18415231c906506ef",
+      "attributeDefId":"92ce0e30baa6429bb3823bd8077b0df5",
       "attributeDefName":"aStem:permissionDef",
       "displayExtension":"permissionDefName",
       "displayName":"a stem:permissionDefName",
       "extension":"permissionDefName",
       "name":"aStem:permissionDefName",
-      "uuid":"cc3c697432604101b3d6c4d04a28283e"
+      "uuid":"2eb7a9ec27f148969103626fd04fc5ed"
     },
     "wsAttributeDefs":[
       {
@@ -76,7 +76,7 @@ Connection: close
         "multiAssignable":"F",
         "multiValued":"F",
         "name":"aStem:permissionDef",
-        "uuid":"83a31ddc83514fd18415231c906506ef",
+        "uuid":"92ce0e30baa6429bb3823bd8077b0df5",
         "valueType":"marker"
       }
     ]
@@ -106,6 +106,21 @@ Connection: close
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.permission;
 
 import org.apache.commons.httpclient.Credentials;
@@ -250,4 +265,4 @@ public class WsSampleAssignPermissionsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: , Found 1 results.
+Server version: 2.1.1, result code: SUCCESS, result message: , Found 1 results.

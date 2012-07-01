@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMembers, WsSampleGetMembersRest, manually written lite/rest, format: xml, for version: 2.1.0
+Grouper web service sample of service: getMembers, WsSampleGetMembersRest, manually written lite/rest, format: xml, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getMembers, WsSampleGetMembersRest, manua
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 270
 Content-Type: text/xml; charset=UTF-8
@@ -46,7 +46,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sat, 17 Mar 2012 15:42:48 GMT
+Date: Sun, 01 Jul 2012 13:54:12 GMT
 Connection: close
 
 <WsGetMembersResults>
@@ -57,7 +57,7 @@ Connection: close
   </subjectAttributeNames>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.1.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
+    <resultMessage>Success for: clientVersion: 2.1.1, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
 
 , memberFilter: All, includeSubjectDetail: false, actAsSubject: null, fieldName: null, subjectAttributeNames: Array size: 3: [0]: description
 [1]: loginid
@@ -71,8 +71,8 @@ Connection: close
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>44</millis>
-    <serverVersion>2.1.0</serverVersion>
+    <millis>250</millis>
+    <serverVersion>2.1.1</serverVersion>
   </responseMetadata>
   <results>
     <WsGetMembersResult>
@@ -83,21 +83,9 @@ Connection: close
         <description>a group description</description>
         <displayName>a stem:a group</displayName>
         <name>aStem:aGroup</name>
-        <uuid>1a56e1b8af9746c48ec8cc3d20f0ae77</uuid>
+        <uuid>45ad651d1c6b457981f718e50585ccb9</uuid>
       </wsGroup>
       <wsSubjects>
-        <WsSubject>
-          <resultCode>SUCCESS</resultCode>
-          <success>T</success>
-          <id>10039438</id>
-          <name>10039438</name>
-          <sourceId>jdbc</sourceId>
-          <attributeValues>
-            <string></string>
-            <string></string>
-            <string>10039438</string>
-          </attributeValues>
-        </WsSubject>
         <WsSubject>
           <resultCode>SUCCESS</resultCode>
           <success>T</success>
@@ -122,6 +110,18 @@ Connection: close
             <string>EveryEntity</string>
           </attributeValues>
         </WsSubject>
+        <WsSubject>
+          <resultCode>SUCCESS</resultCode>
+          <success>T</success>
+          <id>10039438</id>
+          <name>10039438</name>
+          <sourceId>jdbc</sourceId>
+          <attributeValues>
+            <string></string>
+            <string></string>
+            <string>10039438</string>
+          </attributeValues>
+        </WsSubject>
       </wsSubjects>
       <resultMetadata>
         <resultCode>SUCCESS</resultCode>
@@ -142,6 +142,21 @@ Connection: close
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.member;
 
 import org.apache.commons.httpclient.Credentials;
@@ -297,7 +312,7 @@ public class WsSampleGetMembersRest implements WsSampleRest {
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
     //dont allow http params
-    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
   }
 }
 
@@ -309,7 +324,7 @@ public class WsSampleGetMembersRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
+Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
 
 , memberFilter: All, includeSubjectDetail: false, actAsSubject: null, fieldName: null, subjectAttributeNames: Array size: 3: [0]: description
 [1]: loginid

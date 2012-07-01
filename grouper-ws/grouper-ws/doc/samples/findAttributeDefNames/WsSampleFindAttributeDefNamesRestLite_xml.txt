@@ -1,4 +1,4 @@
-Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttributeDefNamesRestLite, manually written lite/rest, format: xml, for version: 2.1.0
+Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttributeDefNamesRestLite, manually written lite/rest, format: xml, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttrib
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 101
 Content-Type: text/xml; charset=UTF-8
@@ -37,7 +37,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sat, 17 Mar 2012 15:37:23 GMT
+Date: Sun, 01 Jul 2012 13:37:22 GMT
 Connection: close
 
 <WsFindAttributeDefNamesResults>
@@ -47,8 +47,8 @@ Connection: close
       <displayExtension>testAttributeAssignAssignName</displayExtension>
       <displayName>test:testAttributeAssignAssignName</displayName>
       <name>test:testAttributeAssignAssignName</name>
-      <uuid>219559ec2761458c9205dc72061c75fe</uuid>
-      <attributeDefId>e93b78b0691a45939427858180beaae6</attributeDefId>
+      <uuid>a68e1b48374d4ee1af384b0b4ec3f21e</uuid>
+      <attributeDefId>d4f44a15aa704de7998ab8c081e788cc</attributeDefId>
       <attributeDefName>test:testAttributeAssignAssignNameDef</attributeDefName>
     </WsAttributeDefName>
     <WsAttributeDefName>
@@ -56,8 +56,8 @@ Connection: close
       <displayExtension>testAttributeAssignDefName</displayExtension>
       <displayName>test:testAttributeAssignDefName</displayName>
       <name>test:testAttributeAssignDefName</name>
-      <uuid>6326ecdb3e8c44ae800287e6a5b72a22</uuid>
-      <attributeDefId>b5f96105458e49b5ae0414a252e5fdde</attributeDefId>
+      <uuid>4f87d94ce9c1459685a86791da6119e1</uuid>
+      <attributeDefId>8b65770f05d84fd9b4b177d9a7530476</attributeDefId>
       <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
     </WsAttributeDefName>
   </attributeDefNameResults>
@@ -65,7 +65,7 @@ Connection: close
     <WsAttributeDef>
       <extension>testAttributeAssignAssignNameDef</extension>
       <name>test:testAttributeAssignAssignNameDef</name>
-      <uuid>e93b78b0691a45939427858180beaae6</uuid>
+      <uuid>d4f44a15aa704de7998ab8c081e788cc</uuid>
       <attributeDefType>attr</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>F</multiValued>
@@ -74,7 +74,7 @@ Connection: close
     <WsAttributeDef>
       <extension>testAttributeAssignDefNameDef</extension>
       <name>test:testAttributeAssignDefNameDef</name>
-      <uuid>b5f96105458e49b5ae0414a252e5fdde</uuid>
+      <uuid>8b65770f05d84fd9b4b177d9a7530476</uuid>
       <attributeDefType>attr</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>T</multiValued>
@@ -83,7 +83,7 @@ Connection: close
   </attributeDefs>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.1.0, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
+    <resultMessage>Success for: clientVersion: 2.1.1, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
 wsAttributeDefNameLookups: null
 wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: null, paramNames:
 , params: null</resultMessage>
@@ -91,8 +91,8 @@ wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: nu
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>51</millis>
-    <serverVersion>2.1.0</serverVersion>
+    <millis>47</millis>
+    <serverVersion>2.1.1</serverVersion>
   </responseMetadata>
 </WsFindAttributeDefNamesResults>
 
@@ -107,6 +107,21 @@ wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: nu
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
@@ -248,7 +263,7 @@ public class WsSampleFindAttributeDefNamesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.0, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
+Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
 wsAttributeDefNameLookups: null
 wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: null, paramNames: 
 , params: null

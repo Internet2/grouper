@@ -1,4 +1,4 @@
-Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRest, manually written lite/rest, format: xhtml, for version: 2.1.0
+Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRest, manually written lite/rest, format: xhtml, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRest, man
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/subjects HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/subjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 1006
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -70,7 +70,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sat, 17 Mar 2012 15:45:34 GMT
+Date: Sun, 01 Jul 2012 14:03:47 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -88,9 +88,9 @@ Connection: close
         <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">91</p>
+        <p class="millis">223</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.1.0</p>
+        <p class="serverVersion">2.1.1</p>
       </div>
       <ul class="subjectAttributeNames">
         <li>description</li>
@@ -141,6 +141,21 @@ Connection: close
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.subject;
 
 import org.apache.commons.httpclient.Credentials;
@@ -281,7 +296,7 @@ public class WsSampleGetSubjectsRest implements WsSampleRest {
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
     //dont allow http params
-    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
   }
 }
 
@@ -293,4 +308,4 @@ public class WsSampleGetSubjectsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: Queried 2 subjects
+Server version: 2.1.1, result code: SUCCESS, result message: Queried 2 subjects

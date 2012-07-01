@@ -1,4 +1,4 @@
-Grouper web service sample of service: stemSave, WsSampleStemSaveRestLite, manually written lite/rest, format: json, for version: 2.1.0
+Grouper web service sample of service: stemSave, WsSampleStemSaveRestLite, manually written lite/rest, format: json, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: stemSave, WsSampleStemSaveRestLite, manua
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/stems/aStem%3AaStemToSave HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/stems/aStem%3AaStemToSave HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 144
 Content-Type: text/x-json; charset=UTF-8
@@ -43,18 +43,18 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
 Content-Length: 682
-Date: Sat, 17 Mar 2012 15:52:43 GMT
+Date: Sun, 01 Jul 2012 14:25:12 GMT
 Connection: close
 
 {
   "WsStemSaveLiteResult":{
     "responseMetadata":{
-      "millis":"192",
-      "serverVersion":"2.1.0"
+      "millis":"176",
+      "serverVersion":"2.1.1"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS_INSERTED",
-      "resultMessage":"Success for: clientVersion: 2.1.0, wsStemToSaves: Array size: 1: [0]: WsStemToSave[\n  wsStemLookup=WsStemLookup[stemName=aStem:aStemToSave],\n  wsStem=WsStem[displayExtension=disp1,description=desc1,name=aStem:aStemToSave]]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: \n, params: null",
+      "resultMessage":"Success for: clientVersion: 2.1.1, wsStemToSaves: Array size: 1: [0]: WsStemToSave[\n  wsStemLookup=WsStemLookup[stemName=aStem:aStemToSave],\n  wsStem=WsStem[displayExtension=disp1,description=desc1,name=aStem:aStemToSave]]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: \n, params: null",
       "success":"T"
     },
     "wsStem":{
@@ -63,7 +63,7 @@ Connection: close
       "displayName":"a stem:disp1",
       "extension":"aStemToSave",
       "name":"aStem:aStemToSave",
-      "uuid":"ffe392fd6cb649dcbd90cdf21a18e860"
+      "uuid":"fb4c6b6125ce42a6b9c721aea22f624d"
     }
   }
 }
@@ -79,6 +79,21 @@ Connection: close
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.stem;
 
 import org.apache.commons.httpclient.Credentials;
@@ -226,7 +241,7 @@ public class WsSampleStemSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: 2.1.0, wsStemToSaves: Array size: 1: [0]: WsStemToSave[
+Server version: 2.1.1, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: 2.1.1, wsStemToSaves: Array size: 1: [0]: WsStemToSave[
   wsStemLookup=WsStemLookup[stemName=aStem:aStemToSave],
   wsStem=WsStem[displayExtension=disp1,description=desc1,name=aStem:aStemToSave]]
 

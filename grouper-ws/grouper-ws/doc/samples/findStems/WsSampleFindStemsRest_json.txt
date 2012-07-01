@@ -1,4 +1,4 @@
-Grouper web service sample of service: findStems, WsSampleFindStemsRest, manually written lite/rest, format: json, for version: 2.1.0
+Grouper web service sample of service: findStems, WsSampleFindStemsRest, manually written lite/rest, format: json, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: findStems, WsSampleFindStemsRest, manuall
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/stems HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/stems HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 173
 Content-Type: text/x-json; charset=UTF-8
@@ -45,19 +45,19 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 570
-Date: Sat, 17 Mar 2012 15:38:26 GMT
+Content-Length: 571
+Date: Sun, 01 Jul 2012 13:40:53 GMT
 Connection: close
 
 {
   "WsFindStemsResults":{
     "responseMetadata":{
-      "millis":"41",
-      "serverVersion":"2.1.0"
+      "millis":"197",
+      "serverVersion":"2.1.1"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.1.0, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]\n, params: null\n, wsStemLookups: null",
+      "resultMessage":"Success for: clientVersion: 2.1.1, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]\n, params: null\n, wsStemLookups: null",
       "success":"T"
     },
     "stemResults":[
@@ -67,7 +67,7 @@ Connection: close
         "displayName":"a stem",
         "extension":"aStem",
         "name":"aStem",
-        "uuid":"3ad18eb0f86948fab6486a2f8ba0b1d0"
+        "uuid":"1a8bbe8d691e4810afb3f6d90f511a2f"
       }
     ]
   }
@@ -84,6 +84,21 @@ Connection: close
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.stem;
 
 import org.apache.commons.httpclient.Credentials;
@@ -227,7 +242,7 @@ public class WsSampleFindStemsRest implements WsSampleRest {
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
     //dont allow http params
-    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
   }
 }
 
@@ -239,6 +254,6 @@ public class WsSampleFindStemsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.0, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
+Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null
 , wsStemLookups: null

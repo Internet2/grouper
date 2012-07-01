@@ -201,11 +201,14 @@ public class SampleCapture {
 
     //setupData();
 
-    captureAssignAttributesWithValue();
+
+    captureAddMember();
+
 
 //  captureRampart();
 //    captureSample(WsSampleClientType.REST_BEANS,  
 //        WsSampleMemberChangeSubjectRest.class, "memberChangeSubject", null);
+
 
     
 //    captureAddMember();
@@ -295,6 +298,11 @@ public class SampleCapture {
       
       Group aGroup = Group.saveGroup(grouperSession, "aStem:aGroup",  null,"aStem:aGroup", 
           "a group","a group description",  null, false);
+      
+      new GroupSave(grouperSession).assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+      
+      aGroup.grantPriv(SubjectTestHelper.SUBJ9, AccessPrivilege.ADMIN);
+      
       Group aGroup2 = Group.saveGroup(grouperSession, "aStem:aGroup2", null,"aStem:aGroup2", 
           "a group2","a group description2",   null, false);
       
@@ -340,6 +348,15 @@ public class SampleCapture {
 
       //new attribute framework
       //###################################
+      
+      AttributeDefName testAttrName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttrName");
+      AttributeDef attrDef = testAttrName.getAttributeDef();
+      attrDef.setAssignToImmMembership(true);
+      attrDef.setMultiValued(true);
+      attrDef.setValueType(AttributeDefValueType.string);
+      attrDef.store();
+      
+
       AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignDefName");
       AttributeDefName attributeDefName2 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignAssignName");
       
@@ -712,6 +729,7 @@ public class SampleCapture {
   public static void captureSample(WsSampleClientType clientType,
         Class<? extends WsSample> clientClass, 
         String samplesFolderName, String fileNameInfo, Object format) {
+    File resultFile = null;
     try {
       
       //give the old server time to shut down?
@@ -722,7 +740,7 @@ public class SampleCapture {
       String formatString = format == null ? "" : ("_" + ((Enum<?>)format).name());
       
       //assume parent dirs are there...
-      File resultFile = new File(
+      resultFile = new File(
           GrouperWsConfig.getPropertyString("ws.testing.grouper-ws.dir") + 
           "/doc/samples/" + samplesFolderName + "/"
           + clientClass.getSimpleName() + StringUtils.trimToEmpty(fileNameInfo)
@@ -839,7 +857,7 @@ public class SampleCapture {
       
       
     } catch (Exception e) {
-      String error = "Problem with: " + clientType.name() + ", " 
+      String error = "Problem with: " + resultFile.getName() + ", " + clientType.name() + ", " 
           + clientClass.toString() + ", " + format + ", " + e.getMessage();
       System.out.println(error + ", " + ExceptionUtils.getFullStackTrace(e));
       LOG.error(error, e);

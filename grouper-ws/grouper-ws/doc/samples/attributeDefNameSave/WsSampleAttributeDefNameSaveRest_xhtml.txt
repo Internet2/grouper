@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDefNameSaveRest, manually written lite/rest, format: xhtml, for version: 2.1.0
+Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDefNameSaveRest, manually written lite/rest, format: xhtml, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDe
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 1825
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -84,7 +84,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sat, 17 Mar 2012 15:35:06 GMT
+Date: Sun, 01 Jul 2012 13:30:14 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -107,11 +107,11 @@ Connection: close
             <p class="name">test:testAttributeAssignDefNameToSave1Rest_xhtml</p>
             <p class="displayName">test:My new attribute def name to save 1 rest xhtml</p>
             <p class="description">This is a description 1 rest xhtml</p>
-            <p class="uuid">505d673949534b4f836c360cf506ad94</p>
+            <p class="uuid">c5557102faa94df5b77d86bdf18489ed</p>
             <p class="extension">testAttributeAssignDefNameToSave1Rest_xhtml</p>
             <p class="displayExtension">My new attribute def name to save 1 rest xhtml</p>
             <p class="attributeDefName">test:testAttributeAssignDefNameDef</p>
-            <p class="attributeDefId">f343c36c5cd846db93f3be654c8c1713</p>
+            <p class="attributeDefId">100c610e622b4db69aae81990744610a</p>
           </div>
         </li>
         <li title="WsAttributeDefNameSaveResult">
@@ -125,27 +125,27 @@ Connection: close
             <p class="name">test:testAttributeAssignDefNameToSave2Rest_xhtml</p>
             <p class="displayName">test:My new attribute def name to save 2 rest xhtml</p>
             <p class="description">This is a description 2 rest xhtml</p>
-            <p class="uuid">8e472ff5f59140668ea6ea5894017f9a</p>
+            <p class="uuid">c1445143bf3e4c2594a2d022a81cf2e7</p>
             <p class="extension">testAttributeAssignDefNameToSave2Rest_xhtml</p>
             <p class="displayExtension">My new attribute def name to save 2 rest xhtml</p>
             <p class="attributeDefName">test:testAttributeAssignDefNameDef</p>
-            <p class="attributeDefId">f343c36c5cd846db93f3be654c8c1713</p>
+            <p class="attributeDefId">100c610e622b4db69aae81990744610a</p>
           </div>
         </li>
       </ul>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.1.0, wsAttributeDefNameToSaves: Array size: 2: [0]: WsAttributeDefNameToSave[
+        <p class="resultMessage">Success for: clientVersion: 2.1.1, wsAttributeDefNameToSaves: Array size: 2: [0]: WsAttributeDefNameToSave[
 wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute def name to save 1 rest xhtml,description=This is a description 1 rest xhtml,...
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames:
 , params: null</p>
         <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">194</p>
+        <p class="millis">104</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.1.0</p>
+        <p class="serverVersion">2.1.1</p>
       </div>
     </div>
   </body>
@@ -162,6 +162,21 @@ wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute def name
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
@@ -325,7 +340,7 @@ public class WsSampleAttributeDefNameSaveRest implements WsSampleRest {
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
     //dont allow http params
-    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
   }
 }
 
@@ -337,7 +352,7 @@ public class WsSampleAttributeDefNameSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.0, wsAttributeDefNameToSaves: Array size: 2: [0]: WsAttributeDefNameToSave[
+Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, wsAttributeDefNameToSaves: Array size: 2: [0]: WsAttributeDefNameToSave[
   wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute def name to save 1 rest xhtml,description=This is a description 1 rest xhtml,...
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: 
 , params: null

@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributesWithValue, WsSampleAssignAttributesWithValueRest, manually written lite/rest, format: xml, for version: 2.1.0
+Grouper web service sample of service: assignAttributesWithValue, WsSampleAssignAttributesWithValueRest, manually written lite/rest, format: xml, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: assignAttributesWithValue, WsSampleAssign
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/attributeAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/attributeAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 628
 Content-Type: text/xml; charset=UTF-8
@@ -55,7 +55,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sat, 17 Mar 2012 16:19:27 GMT
+Date: Sun, 01 Jul 2012 16:21:13 GMT
 Connection: close
 
 <WsAssignAttributesResults>
@@ -63,7 +63,7 @@ Connection: close
     <WsAttributeDef>
       <extension>testAttributeAssignDefNameDef</extension>
       <name>test:testAttributeAssignDefNameDef</name>
-      <uuid>15f59037e6d14ce6a810d15e0d87e9b6</uuid>
+      <uuid>507554751ef54747bce730913fa6bd7e</uuid>
       <attributeDefType>attr</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>T</multiValued>
@@ -76,8 +76,8 @@ Connection: close
       <displayExtension>testAttributeAssignDefName</displayExtension>
       <displayName>test:testAttributeAssignDefName</displayName>
       <name>test:testAttributeAssignDefName</name>
-      <uuid>78207cf637014cc3ad08b17c92cbaecb</uuid>
-      <attributeDefId>15f59037e6d14ce6a810d15e0d87e9b6</attributeDefId>
+      <uuid>c8bf644e4bb74d6894f0c4f6ac97a676</uuid>
+      <attributeDefId>507554751ef54747bce730913fa6bd7e</attributeDefId>
       <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
     </WsAttributeDefName>
   </wsAttributeDefNames>
@@ -88,7 +88,7 @@ Connection: close
           <changed>T</changed>
           <deleted>F</deleted>
           <wsAttributeAssignValue>
-            <id>63f3b75841cf430985c0e43e0ed497d2</id>
+            <id>951d8c7cb5954b75b15b5e60ca789f91</id>
             <valueSystem>63</valueSystem>
           </wsAttributeAssignValue>
         </WsAttributeAssignValueResult>
@@ -98,36 +98,36 @@ Connection: close
           <disallowed>F</disallowed>
           <attributeAssignActionType>immediate</attributeAssignActionType>
           <attributeAssignDelegatable>FALSE</attributeAssignDelegatable>
-          <attributeAssignActionId>a83fe127b3294443b3152e164f13d685</attributeAssignActionId>
+          <attributeAssignActionId>030c0979a41a41cbba7d7b407bcbc55e</attributeAssignActionId>
           <attributeAssignActionName>assign</attributeAssignActionName>
           <attributeAssignType>group</attributeAssignType>
-          <attributeDefNameId>78207cf637014cc3ad08b17c92cbaecb</attributeDefNameId>
+          <attributeDefNameId>c8bf644e4bb74d6894f0c4f6ac97a676</attributeDefNameId>
           <attributeDefNameName>test:testAttributeAssignDefName</attributeDefNameName>
-          <attributeDefId>15f59037e6d14ce6a810d15e0d87e9b6</attributeDefId>
+          <attributeDefId>507554751ef54747bce730913fa6bd7e</attributeDefId>
           <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
           <wsAttributeAssignValues>
             <WsAttributeAssignValue>
-              <id>bd7af88e517944f0a3b8fb161ce8142b</id>
+              <id>ccd83ab492114e1baa86c0f8195d682c</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>9d0530366d154a7d9be28f2fb2764797</id>
+              <id>a65314f8432f47e4a6d7e84e626ade8e</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>e10566acd1354bdb9f9fbe7cfb390bbc</id>
+              <id>aa01322210674bdab2207a118e61d9bb</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>63f3b75841cf430985c0e43e0ed497d2</id>
+              <id>951d8c7cb5954b75b15b5e60ca789f91</id>
               <valueSystem>63</valueSystem>
             </WsAttributeAssignValue>
           </wsAttributeAssignValues>
-          <createdOn>2012/03/17 12:19:25.765</createdOn>
+          <createdOn>2012/07/01 12:21:12.218</createdOn>
           <enabled>T</enabled>
-          <id>b747ded09b2b43689c97d55eac654744</id>
-          <lastUpdated>2012/03/17 12:19:25.765</lastUpdated>
-          <ownerGroupId>8f9606d6e8df4d71af04e7c4b38f4ca7</ownerGroupId>
+          <id>a44a84b906274d459bae07206878cd39</id>
+          <lastUpdated>2012/07/01 12:21:12.218</lastUpdated>
+          <ownerGroupId>b0e7b796349647059e53f26223bdfa78</ownerGroupId>
           <ownerGroupName>test:groupTestAttrAssign</ownerGroupName>
         </WsAttributeAssign>
       </wsAttributeAssigns>
@@ -143,8 +143,8 @@ Connection: close
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>115</millis>
-    <serverVersion>2.1.0</serverVersion>
+    <millis>119</millis>
+    <serverVersion>2.1.1</serverVersion>
   </responseMetadata>
   <wsGroups>
     <WsGroup>
@@ -154,7 +154,7 @@ Connection: close
       <description>description</description>
       <displayName>test:groupTestAttrAssign</displayName>
       <name>test:groupTestAttrAssign</name>
-      <uuid>8f9606d6e8df4d71af04e7c4b38f4ca7</uuid>
+      <uuid>b0e7b796349647059e53f26223bdfa78</uuid>
     </WsGroup>
   </wsGroups>
   <wsStems/>
@@ -173,6 +173,21 @@ Connection: close
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
@@ -320,7 +335,7 @@ public class WsSampleAssignAttributesWithValueRest implements WsSampleRest {
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
     //dont allow http params
-    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
   }
 }
 
@@ -332,4 +347,4 @@ public class WsSampleAssignAttributesWithValueRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: , Found 1 results.
+Server version: 2.1.1, result code: SUCCESS, result message: , Found 1 results.

@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDefNameSaveLite, code generated classes, format: soap, for version: 2.1.0
+Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDefNameSaveLite, code generated classes, format: soap, for version: 2.1.1
 
 
 #########################################
@@ -21,7 +21,7 @@ Transfer-Encoding: chunked
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns1:attributeDefNameSaveLite xmlns:ns1="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_1_000</ns1:clientVersion>
+      <ns1:clientVersion>v2_1_001</ns1:clientVersion>
       <ns1:attributeDefLookupName>test:testAttributeAssignDefNameDef</ns1:attributeDefLookupName>
       <ns1:attributeDefNameName>test:testAttributeAssignDefNameToSaveLite_soap</ns1:attributeDefNameName>
       <ns1:displayExtension>My new attribute def name to save 1 lite + soap</ns1:displayExtension>
@@ -48,7 +48,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:attributeDefNameSaveLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sat, 17 Mar 2012 15:35:02 GMT
+Date: Sun, 01 Jul 2012 13:29:59 GMT
 
 71f
 <?xml version='1.0' encoding='UTF-8'?>
@@ -59,13 +59,13 @@ Date: Sat, 17 Mar 2012 15:35:02 GMT
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.1.0</ns:serverVersion>
+          <ns:serverVersion>2.1.1</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS_INSERTED</ns:resultCode>
           <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: 2.1.0, wsAttributeDefNameToSaves: Array size: 1: [0]: WsAttributeDefNameToSave[
+          <ns:resultMessage>Success for: clientVersion: 2.1.1, wsAttributeDefNameToSaves: Array size: 1: [0]: WsAttributeDefNameToSave[
 wsAttributeDefNameLookup=WsAttributeDefNameLookup[pitAttributeDefNames=[]],
 wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...
 , actAsSubject: null, txType: NONE, paramNames:
@@ -73,14 +73,14 @@ wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...
           <ns:success>T</ns:success>
         </ns:resultMetadata>
         <ns:wsAttributeDefName xsi:type="ns:WsAttributeDefName">
-          <ns:attributeDefId>94c4edeb80724e0893ccd9661c99859f</ns:attributeDefId>
+          <ns:attributeDefId>4985e0b96e9344a797df94b4304bebd1</ns:attributeDefId>
           <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
           <ns:description>This is a description 1 lite soap</ns:description>
           <ns:displayExtension>My new attribute def name to save 1 lite + soap</ns:displayExtension>
           <ns:displayName>test:My new attribute def name to save 1 lite + soap</ns:displayName>
           <ns:extension>testAttributeAssignDefNameToSaveLite_soap</ns:extension>
           <ns:name>test:testAttributeAssignDefNameToSaveLite_soap</ns:name>
-          <ns:uuid>dc94f0ded86b444b92633a24fec2b12f</ns:uuid>
+          <ns:uuid>2a12f0eca4214ea98b3809a338a51a1f</ns:uuid>
         </ns:wsAttributeDefName>
       </ns:return>
     </ns:attributeDefNameSaveLiteResponse>
@@ -99,6 +99,21 @@ wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 /**
  *
  */
@@ -196,6 +211,6 @@ public class WsSampleAttributeDefNameSaveLite implements WsSampleGenerated {
 
 
 WsAttributeDefNameSaveLiteResult[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@10f1128,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@2f9a43,localResultMetadataTracker=true,
-  localWsAttributeDefName=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsAttributeDefName@138c07f,localWsAttributeDefNameTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@5ec6a4,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@437091,localResultMetadataTracker=true,
+  localWsAttributeDefName=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsAttributeDefName@1936193,localWsAttributeDefNameTracker=true]

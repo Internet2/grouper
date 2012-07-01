@@ -1,4 +1,4 @@
-Grouper web service sample of service: stemDelete, WsSampleStemDeleteLite, code generated classes, format: soap, for version: 2.1.0
+Grouper web service sample of service: stemDelete, WsSampleStemDeleteLite, code generated classes, format: soap, for version: 2.1.1
 
 
 #########################################
@@ -21,7 +21,7 @@ Transfer-Encoding: chunked
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns1:stemDeleteLite xmlns:ns1="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_1_000</ns1:clientVersion>
+      <ns1:clientVersion>v2_1_001</ns1:clientVersion>
       <ns1:stemName>aStem:stemNotExist</ns1:stemName>
       <ns1:stemUuid></ns1:stemUuid>
       <ns1:actAsSubjectId>GrouperSystem</ns1:actAsSubjectId>
@@ -48,7 +48,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:stemDeleteLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sat, 17 Mar 2012 15:51:12 GMT
+Date: Sun, 01 Jul 2012 14:20:16 GMT
 
 577
 <?xml version='1.0' encoding='UTF-8'?>
@@ -59,13 +59,13 @@ Date: Sat, 17 Mar 2012 15:51:12 GMT
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.1.0</ns:serverVersion>
+          <ns:serverVersion>2.1.1</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS_STEM_NOT_FOUND</ns:resultCode>
           <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: 2.1.0, wsStemLookups: Array size: 1: [0]: WsStemLookup[uuid=,stemName=aStem:stemNotExist]
+          <ns:resultMessage>Success for: clientVersion: 2.1.1, wsStemLookups: Array size: 1: [0]: WsStemLookup[uuid=,stemName=aStem:stemNotExist]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem,subjectIdentifier=], txType: NONE, paramNames:
 , params: nullCant find stem: 'WsStemLookup[uuid=,stemName=aStem:stemNotExist,
@@ -97,6 +97,21 @@ stemFindResult=STEM_NOT_FOUND]'.</ns:resultMessage>
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 /**
  *
  */
@@ -189,6 +204,6 @@ public class WsSampleStemDeleteLite implements WsSampleGenerated {
 
 
 WsStemDeleteLiteResult[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@1367ee2,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@c4573d,localResultMetadataTracker=true,
-  localWsStem=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsStem@3b78a6,localWsStemTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@114596f,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@fba09b,localResultMetadataTracker=true,
+  localWsStem=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsStem@1ed6037,localWsStemTracker=true]

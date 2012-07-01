@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefNameDelete, WsSampleAttributeDefNameDeleteRest, manually written lite/rest, format: xml, for version: 2.1.0
+Grouper web service sample of service: attributeDefNameDelete, WsSampleAttributeDefNameDeleteRest, manually written lite/rest, format: xml, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: attributeDefNameDelete, WsSampleAttribute
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 435
 Content-Type: text/xml; charset=UTF-8
@@ -47,7 +47,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sat, 17 Mar 2012 15:34:29 GMT
+Date: Sun, 01 Jul 2012 13:28:28 GMT
 Connection: close
 
 <WsAttributeDefNameDeleteResults>
@@ -79,7 +79,7 @@ attributeDefNameFindResult=ATTRIBUTE_DEF_NAME_NOT_FOUND]&apos;.  </resultMessage
   </results>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.1.0, wsGroupLookups: Array size: 2: [0]: WsAttributeDefNameLookup[name=test:testAttributeAssignDefNameToDeleteRest1_xml]
+    <resultMessage>Success for: clientVersion: 2.1.1, wsGroupLookups: Array size: 2: [0]: WsAttributeDefNameLookup[name=test:testAttributeAssignDefNameToDeleteRest1_xml]
 [1]: WsAttributeDefNameLookup[name=test:testAttributeAssignDefNameToDeleteRest2_xml]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames:
@@ -88,8 +88,8 @@ attributeDefNameFindResult=ATTRIBUTE_DEF_NAME_NOT_FOUND]&apos;.  </resultMessage
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>31</millis>
-    <serverVersion>2.1.0</serverVersion>
+    <millis>106</millis>
+    <serverVersion>2.1.1</serverVersion>
   </responseMetadata>
 </WsAttributeDefNameDeleteResults>
 
@@ -104,6 +104,21 @@ attributeDefNameFindResult=ATTRIBUTE_DEF_NAME_NOT_FOUND]&apos;.  </resultMessage
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
@@ -256,7 +271,7 @@ public class WsSampleAttributeDefNameDeleteRest implements WsSampleRest {
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
     //dont allow http params
-    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
   }
 }
 
@@ -268,7 +283,7 @@ public class WsSampleAttributeDefNameDeleteRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.0, wsGroupLookups: Array size: 2: [0]: WsAttributeDefNameLookup[name=test:testAttributeAssignDefNameToDeleteRest1_xml]
+Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, wsGroupLookups: Array size: 2: [0]: WsAttributeDefNameLookup[name=test:testAttributeAssignDefNameToDeleteRest1_xml]
 [1]: WsAttributeDefNameLookup[name=test:testAttributeAssignDefNameToDeleteRest2_xml]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: 

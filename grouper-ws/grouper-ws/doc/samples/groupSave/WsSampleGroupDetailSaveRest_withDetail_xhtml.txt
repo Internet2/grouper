@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupSave, WsSampleGroupDetailSaveRest, manually written lite/rest, type: _withDetail, format: xhtml, for version: 2.1.0
+Grouper web service sample of service: groupSave, WsSampleGroupDetailSaveRest, manually written lite/rest, type: _withDetail, format: xhtml, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: groupSave, WsSampleGroupDetailSaveRest, m
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 3252
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -146,7 +146,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sat, 17 Mar 2012 15:48:07 GMT
+Date: Sun, 01 Jul 2012 14:11:29 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -169,7 +169,7 @@ Connection: close
             <p class="name">aStem:whateverGroupLeft</p>
             <p class="displayName">a stem:whateverGroupLeftDispExt</p>
             <p class="description">whateverGroupLeftDesc</p>
-            <p class="uuid">b6047dc48d654962965ea08cfddf06c5</p>
+            <p class="uuid">de5bb9d025654ef78bd2798e4f6532f7</p>
             <div class="detail" title="WsGroupDetail" />
             <p class="extension">whateverGroupLeft</p>
             <p class="displayExtension">whateverGroupLeftDispExt</p>
@@ -187,7 +187,7 @@ Connection: close
             <p class="name">aStem:whateverGroupRight</p>
             <p class="displayName">a stem:whateverGroupRightDispExt</p>
             <p class="description">whateverGroupRightDesc</p>
-            <p class="uuid">5c30e155dadd4ebf93d155eee47c5a51</p>
+            <p class="uuid">40f9f34135074a7c86e0d1c64cffbbcd</p>
             <div class="detail" title="WsGroupDetail" />
             <p class="extension">whateverGroupRight</p>
             <p class="displayExtension">whateverGroupRightDispExt</p>
@@ -205,7 +205,7 @@ Connection: close
             <p class="name">aStem:whateverGroup</p>
             <p class="displayName">a stem:disp1</p>
             <p class="description">desc1</p>
-            <p class="uuid">bf93e617cde94048984020767d46f5d1</p>
+            <p class="uuid">40c6e57934664f89a6b6033b7f37436f</p>
             <div class="detail" title="WsGroupDetail" />
             <p class="extension">whateverGroup</p>
             <p class="displayExtension">disp1</p>
@@ -216,7 +216,7 @@ Connection: close
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.1.0, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[
+        <p class="resultMessage">Success for: clientVersion: 2.1.1, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[
 wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:whateverGroupLeft],
 wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDis...
 , actAsSubject: null, txType: NONE, paramNames:
@@ -224,9 +224,9 @@ wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDi
         <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">852</p>
+        <p class="millis">627</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.1.0</p>
+        <p class="serverVersion">2.1.1</p>
       </div>
     </div>
   </body>
@@ -243,6 +243,21 @@ wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDi
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.group;
 
 import org.apache.commons.httpclient.Credentials;
@@ -418,7 +433,7 @@ public class WsSampleGroupDetailSaveRest implements WsSampleRest {
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
     //dont allow http params
-    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
   }
 }
 
@@ -430,7 +445,7 @@ public class WsSampleGroupDetailSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.0, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[
+Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[
   wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:whateverGroupLeft],
   wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDis...
 , actAsSubject: null, txType: NONE, paramNames: 

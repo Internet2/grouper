@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDefNameSaveRestLite, manually written lite/rest, format: xhtml, for version: 2.1.0
+Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDefNameSaveRestLite, manually written lite/rest, format: xhtml, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDe
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 1128
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -64,7 +64,7 @@ X-Grouper-resultCode: SUCCESS_INSERTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sat, 17 Mar 2012 15:35:21 GMT
+Date: Sun, 01 Jul 2012 13:31:00 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -78,7 +78,7 @@ Connection: close
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS_INSERTED</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.1.0, wsAttributeDefNameToSaves: Array size: 1: [0]: WsAttributeDefNameToSave[
+        <p class="resultMessage">Success for: clientVersion: 2.1.1, wsAttributeDefNameToSaves: Array size: 1: [0]: WsAttributeDefNameToSave[
 wsAttributeDefNameLookup=WsAttributeDefNameLookup[pitAttributeDefNames=[]],
 wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...
 , actAsSubject: null, txType: NONE, paramNames:
@@ -86,19 +86,19 @@ wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...
         <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">87</p>
+        <p class="millis">217</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.1.0</p>
+        <p class="serverVersion">2.1.1</p>
       </div>
       <div class="wsAttributeDefName" title="WsAttributeDefName">
         <p class="name">test:testAttributeAssignDefNameToSave1RestLite_xhtml</p>
         <p class="displayName">test:My new attribute def name to save 1 rest lite xhtml</p>
         <p class="description">This is a description 1 rest lite xhtml</p>
-        <p class="uuid">999fb6749d1142b494ea17d9aef7df67</p>
+        <p class="uuid">6e9c7e3fdec54c69a7b0908cf4e82bdf</p>
         <p class="extension">testAttributeAssignDefNameToSave1RestLite_xhtml</p>
         <p class="displayExtension">My new attribute def name to save 1 rest lite xhtml</p>
         <p class="attributeDefName">test:testAttributeAssignDefNameDef</p>
-        <p class="attributeDefId">544abf1bd0f04bc1bad03c6111961d2e</p>
+        <p class="attributeDefId">bad2b114a1664e91b8bb72a3fca0c828</p>
       </div>
     </div>
   </body>
@@ -115,6 +115,21 @@ wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
@@ -260,7 +275,7 @@ public class WsSampleAttributeDefNameSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: 2.1.0, wsAttributeDefNameToSaves: Array size: 1: [0]: WsAttributeDefNameToSave[
+Server version: 2.1.1, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: 2.1.1, wsAttributeDefNameToSaves: Array size: 1: [0]: WsAttributeDefNameToSave[
   wsAttributeDefNameLookup=WsAttributeDefNameLookup[pitAttributeDefNames=[]],
   wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...
 , actAsSubject: null, txType: NONE, paramNames: 
