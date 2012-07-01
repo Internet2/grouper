@@ -1687,11 +1687,18 @@ public class GrouperCheckConfig {
         if (ruleAttrType == null) {
           ruleAttrType = rulesStem.addChildAttributeDef("rulesAttrDef", AttributeDefType.attr);
           ruleAttrType.setAssignToGroupAssn(true);
+          ruleAttrType.setAssignToAttributeDefAssn(true);
           ruleAttrType.setAssignToStemAssn(true);
           ruleAttrType.setValueType(AttributeDefValueType.string);
           ruleAttrType.store();
         }
 
+        //if not configured properly, configure it properly
+        if (!ruleAttrType.isAssignToAttributeDefAssn()) {
+          ruleAttrType.setAssignToAttributeDefAssn(true);
+          ruleAttrType.store();
+        }
+        
         //the attributes can only be assigned to the type def
         // try an attribute def dependent on an attribute def name
         ruleAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(rule.getName());
