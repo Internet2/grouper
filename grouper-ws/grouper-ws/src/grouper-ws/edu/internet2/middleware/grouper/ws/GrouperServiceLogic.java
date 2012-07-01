@@ -5935,51 +5935,54 @@ public class GrouperServiceLogic {
 
       Set<PermissionEntry> results = null;
       Map<PermissionEntry, Set<PermissionLimitBean>> permissionLimitMap = null;
-      if (includeLimits) {
-        permissionLimitMap = permissionFinder.findPermissionsAndLimits();
-        results = permissionLimitMap.keySet();
-      } else {
-        results = permissionFinder.findPermissions();
-      }
+      if (errorMessage.length() == 0) {
 
-      permissionLimitMap = GrouperUtil.nonNull(permissionLimitMap);
-
-      wsGetPermissionAssignmentsResults.assignResult(results, permissionLimitMap, 
-          subjectAttributeNames, includePermissionAssignDetail);
-
-      if (includeAttributeAssignments) {
-        wsGetPermissionAssignmentsResults.fillInAttributeAssigns(usePIT, pointInTimeFrom, pointInTimeTo,
-            includeAssignmentsOnAssignments, enabledBoolean);
-      }
-      
-      //get the limit attribute assigns to fill in other objects
-      for (Set<PermissionLimitBean> permissionLimitBeanSet : permissionLimitMap.values()) {
-        for (PermissionLimitBean permissionLimitBean : GrouperUtil.nonNull(permissionLimitBeanSet)) {
-          AttributeAssign attributeAssign = permissionLimitBean.getLimitAssign();
-          if (!attributeDefNameIds.contains(attributeAssign.getAttributeDefNameId())) {
-            attributeDefNameIds.add(attributeAssign.getAttributeDefNameId());
-            attributeDefIds.add(attributeAssign.getAttributeDef().getId());
-          }
-          if (!StringUtils.isBlank(attributeAssign.getOwnerGroupId())) {
-            roleIds.add(attributeAssign.getOwnerGroupId());
-          }
-          //TODO add subjects?
+        if (includeLimits) {
+          permissionLimitMap = permissionFinder.findPermissionsAndLimits();
+          results = permissionLimitMap.keySet();
+        } else {
+          results = permissionFinder.findPermissions();
         }
+  
+        permissionLimitMap = GrouperUtil.nonNull(permissionLimitMap);
+  
+        wsGetPermissionAssignmentsResults.assignResult(results, permissionLimitMap, 
+            subjectAttributeNames, includePermissionAssignDetail);
+  
+        if (includeAttributeAssignments) {
+          wsGetPermissionAssignmentsResults.fillInAttributeAssigns(usePIT, pointInTimeFrom, pointInTimeTo,
+              includeAssignmentsOnAssignments, enabledBoolean);
+        }
+        
+        //get the limit attribute assigns to fill in other objects
+        for (Set<PermissionLimitBean> permissionLimitBeanSet : permissionLimitMap.values()) {
+          for (PermissionLimitBean permissionLimitBean : GrouperUtil.nonNull(permissionLimitBeanSet)) {
+            AttributeAssign attributeAssign = permissionLimitBean.getLimitAssign();
+            if (!attributeDefNameIds.contains(attributeAssign.getAttributeDefNameId())) {
+              attributeDefNameIds.add(attributeAssign.getAttributeDefNameId());
+              attributeDefIds.add(attributeAssign.getAttributeDef().getId());
+            }
+            if (!StringUtils.isBlank(attributeAssign.getOwnerGroupId())) {
+              roleIds.add(attributeAssign.getOwnerGroupId());
+            }
+            //TODO add subjects?
+          }
+        }
+        
+        if (includeAttributeDefNames) {
+          wsGetPermissionAssignmentsResults.fillInAttributeDefNames(usePIT, attributeDefNameIds);
+        }
+  
+        
+        wsGetPermissionAssignmentsResults.fillInAttributeDefs(usePIT, attributeDefIds);
+        
+        wsGetPermissionAssignmentsResults.fillInGroups(usePIT, roleIds, includeGroupDetail);
+        wsGetPermissionAssignmentsResults.fillInSubjects(wsSubjectLookups, null, 
+            includeSubjectDetail, subjectAttributeNamesToRetrieve);
+        
+        //sort after all the data is there
+        wsGetPermissionAssignmentsResults.sortResults();
       }
-      
-      if (includeAttributeDefNames) {
-        wsGetPermissionAssignmentsResults.fillInAttributeDefNames(usePIT, attributeDefNameIds);
-      }
-
-      
-      wsGetPermissionAssignmentsResults.fillInAttributeDefs(usePIT, attributeDefIds);
-      
-      wsGetPermissionAssignmentsResults.fillInGroups(usePIT, roleIds, includeGroupDetail);
-      wsGetPermissionAssignmentsResults.fillInSubjects(wsSubjectLookups, null, 
-          includeSubjectDetail, subjectAttributeNamesToRetrieve);
-      
-      //sort after all the data is there
-      wsGetPermissionAssignmentsResults.sortResults();
       
       if (errorMessage.length() > 0) {
         wsGetPermissionAssignmentsResults.assignResultCode(WsGetPermissionAssignmentsResultsCode.INVALID_QUERY);
