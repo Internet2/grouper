@@ -166,7 +166,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testAssignAttributesBatch"));
+    TestRunner.run(new GrouperServiceLogicTest("testGetPermissionAssignmentsPIT"));
   }
 
   /**
@@ -2019,7 +2019,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         false, null, null, null, false);
 
     assertEquals("bad attr def", 
-        WsGetAttributeAssignmentsResultsCode.EXCEPTION.name(), 
+        WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
         wsGetPermissionAssignmentsResults.getResultMetadata().getResultCode());
 
     assertEquals(0, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsPermissionAssigns()));
@@ -2784,8 +2784,8 @@ public class GrouperServiceLogicTest extends GrouperTest {
         null, null, null, null, null, null, null, 
         null, false, null, false, null, false, null, null, null, null, false, null, null, null, null, null);
   
-    assertTrue(!StringUtils.equals(WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
-        wsGetAttributeAssignmentsResults.getResultMetadata().getResultCode()));
+    assertEquals(WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsGetAttributeAssignmentsResults.getResultMetadata().getResultCode());
     
     assertEquals(0, GrouperUtil.length(wsGetAttributeAssignmentsResults.getWsAttributeAssigns()));
   

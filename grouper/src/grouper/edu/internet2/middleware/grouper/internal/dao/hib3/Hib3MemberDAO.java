@@ -318,13 +318,9 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   protected static void reset(HibernateSession hibernateSession) 
     throws  HibernateException
   {
-    hibernateSession.byHql().createQuery("delete from Member as m where m.subjectIdDb != :subject")
-      .setString( "subject", "GrouperSystem" )
-      .executeUpdate()
-      ;
-    hibernateSession.byHql().createQuery("delete from Member as m where m.subjectIdDb = 'GrouperSystem' and m.subjectSourceIdDb = 'jdbc'")
-    .executeUpdate()
-    ;
+    hibernateSession.byHql().createQuery("delete from Member as m where m.subjectSourceIdDb != 'g:isa'")
+      .executeUpdate();
+    
     getExistsCache().clear();
   }
 
