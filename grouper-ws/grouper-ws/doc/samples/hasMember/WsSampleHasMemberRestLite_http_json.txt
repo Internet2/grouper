@@ -1,0 +1,221 @@
+Grouper web service sample of service: hasMember, WsSampleHasMemberRestLite, manually written lite/rest, format: http_json, for version: 2.1.1
+
+
+#########################################
+##
+## HTTP request sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+GET /grouper-ws/servicesRest/json/v2_1_001/groups/aStem%3AaGroup/members/10021368 HTTP/1.1
+Connection: close
+Authorization: Basic xxxxxxxxxxxxxxxxx==
+User-Agent: Jakarta Commons-HttpClient/3.1
+Host: localhost:8092
+
+
+#########################################
+##
+## HTTP response sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+HTTP/1.1 200 OK
+Server: Apache-Coyote/1.1
+Pragma: No-cache
+Cache-Control: no-cache
+Expires: Wed, 31 Dec 1969 19:00:00 EST
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+X-Grouper-resultCode: IS_MEMBER
+X-Grouper-success: T
+X-Grouper-resultCode2: NONE
+Content-Type: text/x-json;charset=UTF-8
+Content-Length: 858
+Date: Sun, 01 Jul 2012 14:16:03 GMT
+Connection: close
+
+{
+  "WsHasMemberLiteResult":{
+    "responseMetadata":{
+      "millis":"87",
+      "serverVersion":"2.1.1"
+    },
+    "resultMetadata":{
+      "resultCode":"IS_MEMBER",
+      "resultMessage":"Success for: clientVersion: 2.1.1, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]\n\n memberFilter: All, actAsSubject: null, fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null\n,params: null\n,pointInTimeFrom: null, pointInTimeTo: null",
+      "success":"T"
+    },
+    "wsGroup":{
+      "description":"a group description",
+      "displayExtension":"a group",
+      "displayName":"a stem:a group",
+      "extension":"aGroup",
+      "name":"aStem:aGroup",
+      "typeOfGroup":"group",
+      "uuid":"db329487c0e34bd7847e147810d1e7be"
+    },
+    "wsSubject":{
+      "id":"10021368",
+      "name":"10021368",
+      "resultCode":"SUCCESS",
+      "sourceId":"jdbc",
+      "success":"T"
+    }
+  }
+}
+
+
+#########################################
+##
+## Java source code (note, any programming language / objects
+## can use used to generate the above request/response.  Nothing
+## is Java specific.  Also, if you are using Java, the client libraries
+## are available
+##
+#########################################
+
+
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+package edu.internet2.middleware.grouper.ws.samples.rest.member;
+
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberLiteResult;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
+import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
+
+/**
+ * @author mchyzer
+ */
+public class WsSampleHasMemberRestLite implements WsSampleRest {
+
+  /**
+   * has member lite web service with REST
+   * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
+   */
+  @SuppressWarnings("deprecation")
+  public static void hasMemberLite(WsSampleRestType wsSampleRestType) {
+
+    try {
+      HttpClient httpClient = new HttpClient();
+      
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
+      //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
+      //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
+      GetMethod method = new GetMethod(
+          RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
+            + "/" + RestClientSettings.VERSION  
+            + "/groups/aStem%3AaGroup/members/10021368");
+
+      httpClient.getParams().setAuthenticationPreemptive(true);
+      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
+          RestClientSettings.PASS);
+      
+      //no keep alive so response if easier to indent for tests
+      method.setRequestHeader("Connection", "close");
+      
+      //e.g. localhost and 8093
+      httpClient.getState()
+          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
+
+      httpClient.executeMethod(method);
+
+      //make sure a request came back
+      Header successHeader = method.getResponseHeader("X-Grouper-success");
+      String successString = successHeader == null ? null : successHeader.getValue();
+      if (StringUtils.isBlank(successString)) {
+        throw new RuntimeException("Web service did not even respond!");
+      }
+      boolean success = "T".equals(successString);
+      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+      
+      String response = RestClientSettings.responseBodyAsString(method);
+
+      //convert to object (from xhtml, xml, json, etc)
+      WsHasMemberLiteResult wsHasMemberLiteResult = (WsHasMemberLiteResult)wsSampleRestType
+        .getWsLiteResponseContentType().parseString(response);
+      
+      String resultMessage = wsHasMemberLiteResult.getResultMetadata().getResultMessage();
+
+      // see if request worked or not
+      if (!success) {
+        throw new RuntimeException("Bad response from web service: resultCode: " + resultCode
+            + ", " + resultMessage);
+      }
+      
+      System.out.println("Server version: " + wsHasMemberLiteResult.getResponseMetadata().getServerVersion()
+          + ", result code: " + resultCode
+          + ", result message: " + resultMessage );
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  /**
+   * @param args
+   */
+  @SuppressWarnings("unchecked")
+  public static void main(String[] args) {
+    hasMemberLite(WsSampleRestType.xhtml);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  public void executeSample(WsSampleRestType wsSampleRestType) {
+    hasMemberLite(wsSampleRestType);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#validType(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  public boolean validType(WsSampleRestType wsSampleRestType) {
+    return true;
+  }
+}
+
+
+#########################################
+##
+## Stdout
+##
+#########################################
+
+
+Server version: 2.1.1, result code: IS_MEMBER, result message: Success for: clientVersion: 2.1.1, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+
+ memberFilter: All, actAsSubject: null, fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+,params: null
+,pointInTimeFrom: null, pointInTimeTo: null
