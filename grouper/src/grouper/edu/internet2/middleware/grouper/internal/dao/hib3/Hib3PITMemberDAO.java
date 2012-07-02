@@ -59,8 +59,8 @@ public class Hib3PITMemberDAO extends Hib3DAO implements PITMemberDAO {
    * reset
    * @param hibernateSession
    */
-  public static void reset(HibernateSession hibernateSession) {
-    hibernateSession.byHql().createQuery("delete from PITMember where sourceId not in (select m.uuid from Member as m)").executeUpdate();
+  public static void reset(HibernateSession hibernateSession) {//and subjectSourceId != 'g:isa'
+    hibernateSession.byHql().createQuery("delete from PITMember where sourceId not in (select m.uuid from Member as m) ").executeUpdate();
   }
 
   /**
