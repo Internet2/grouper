@@ -63,6 +63,7 @@ browser.debug.group.enable-html-editor=false
 
 #Sets value in media.properties. Note that Grouper cannot guarantee that
 #ending the session will log the user out of your authentication system!!!
+#Only set to true if you can genuinely logout.
 logout.link.show=true
 
 #Switches to UI specific log4j.properties
@@ -82,8 +83,6 @@ error.mail.host=smtp.yourhost.edu
 error.mail.threshold=ERROR
 error.mail.buffer-size=100
 error.mail.subject=Grouper UI Error
-#Only set to true if you can genuinely logout.
-logout.link.show=true
 
 #uncomment and correct path for subject.folder if you want to generate Subject API
 #Javadoc in with Grouper Javadoc
