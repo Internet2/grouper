@@ -76,9 +76,6 @@ public class BaseField {
     }
     this.id = id;
     this.idElements = GrouperUtil.splitTrimToList(id, BaseField.DELIMITER);
-    if (idElements.size() > 3) {
-      throw new GrouperException("Invalid id '" + id + "', there should be a maximum of 3 elements.");
-    }
   }
 
   /**

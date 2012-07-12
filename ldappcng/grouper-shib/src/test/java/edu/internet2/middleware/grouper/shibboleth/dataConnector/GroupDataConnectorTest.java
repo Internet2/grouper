@@ -30,6 +30,11 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.shibboleth.filter.Filter;
@@ -67,6 +72,21 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
   public static void main(String[] args) {
     // TestRunner.run(GroupDataConnectorTest.class);
     TestRunner.run(new GroupDataConnectorTest("testMemberAttributeDefinition"));
+  }
+  
+  public void setUp() {
+
+    super.setUp();
+    
+    // add etc:attribute:courses:courseType attribute
+    Stem etcStem = StemFinder.findByName(GrouperSession.staticGrouperSession(), "etc:attribute", true);
+    Stem coursesStem = etcStem.addChildStem("courses", "Courses");
+    AttributeDef attributeDef = coursesStem.addChildAttributeDef("courseType", AttributeDefType.attr);
+    attributeDef.setAssignToGroup(true);
+    attributeDef.setMultiValued(true);
+    attributeDef.setValueType(AttributeDefValueType.string);
+    attributeDef.store();
+    coursesStem.addChildAttributeDefName(attributeDef, "courseType", "courseType");    
   }
 
   /**
@@ -580,5 +600,13 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
     AttributeMap groupCcorrectMap = new AttributeMap();
     groupCcorrectMap.setAttribute("testFilterNameInStemRootOne");
     runAttributeDefinitionTest("testAttributesOnly", groupC.getName(), groupCcorrectMap, "testFilterNameInStemRootOne");
+  }
+  
+  public void testAttributeNameWithMoreThanTwoColons() {
+    
+    groupA.getAttributeValueDelegate().assignValue("etc:attribute:courses:courseType", "spring");   
+    correctAttributesA.setAttribute("etc:attribute:courses:courseType", "spring");
+
+    runResolveTest("testAttributeNameWithMoreThanTwoColons", groupA, correctAttributesA);
   }
 }
