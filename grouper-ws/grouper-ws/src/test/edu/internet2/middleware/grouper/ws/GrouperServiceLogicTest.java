@@ -166,7 +166,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testGetPermissionAssignmentsPIT"));
+    TestRunner.run(new GrouperServiceLogicTest("testAssignAttributesBatch"));
   }
 
   /**
@@ -5666,331 +5666,486 @@ public class GrouperServiceLogicTest extends GrouperTest {
             "Cant pass in actions when using attribute assign id lookup"));
 
     
-//  
-//    
-//    //Cant pass in values when deleting attributes
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    group.getAttributeDelegate().removeAttribute(attributeDefName);
-//    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
-//    attributeAssign = attributeAssignResult.getAttributeAssign();
-//    
-//    WsAttributeAssignValue wsAttributeAssignValue = new WsAttributeAssignValue();
-//    //we dont use value formatted yet
-//    wsAttributeAssignValue.setValueSystem("hey");
-//    
-//    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
-//        GROUPER_VERSION, AttributeAssignType.group, null, AttributeAssignOperation.remove_attr, 
-//        new WsAttributeAssignValue[]{wsAttributeAssignValue}, 
-//        null, null, null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
-//        null, null, null, null, 
-//        null, null, null, null, null, false, null, false, null, null, null, null);
-//    
-//    assertEquals("Cant pass in values when deleting attributes", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultCode());
-//    assertTrue(wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultMessage().contains(
-//            "Cant pass in values when deleting attributes"));
-//  
-//    
-//    //Cant pass in assignmentNotes when deleting attributes
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    group.getAttributeDelegate().removeAttribute(attributeDefName);
-//    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
-//    attributeAssign = attributeAssignResult.getAttributeAssign();
-//    
-//    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
-//        GROUPER_VERSION, AttributeAssignType.group, null, AttributeAssignOperation.remove_attr, 
-//        null, 
-//        "a", null, null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
-//        null, null, null, null, 
-//        null, null, null, null, null, false, null, false, null, null, null, null);
-//    
-//    assertEquals("Cant pass in assignmentNotes when deleting attributes", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultCode());
-//    assertTrue(wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultMessage().contains(
-//            "Cant pass in assignmentNotes when deleting attributes"));
-//  
-//    //Cant pass in assignmentEnabledTime when deleting attributes
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    group.getAttributeDelegate().removeAttribute(attributeDefName);
-//    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
-//    attributeAssign = attributeAssignResult.getAttributeAssign();
-//    
-//    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
-//        GROUPER_VERSION, AttributeAssignType.group, null, AttributeAssignOperation.remove_attr, 
-//        null, 
-//        null, new Timestamp(0), null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
-//        null, null, null, null, 
-//        null, null, null, null, null, false, null, false, null, null, null, null);
-//    
-//    assertEquals("Cant pass in assignmentEnabledTime when deleting attributes", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultCode());
-//    assertTrue(wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultMessage().contains(
-//            "Cant pass in assignmentEnabledTime when deleting attributes"));
-//  
-//    //Cant pass in assignmentDisabledTime when deleting attributes
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    group.getAttributeDelegate().removeAttribute(attributeDefName);
-//    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
-//    attributeAssign = attributeAssignResult.getAttributeAssign();
-//    
-//    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
-//        GROUPER_VERSION, AttributeAssignType.group, null, AttributeAssignOperation.remove_attr, 
-//        null, 
-//        null, null, new Timestamp(0), null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
-//        null, null, null, null, 
-//        null, null, null, null, null, false, null, false, null, null, null, null);
-//    
-//    assertEquals("Cant pass in assignmentDisabledTime when deleting attributes", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultCode());
-//    assertTrue(wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultMessage().contains(
-//            "Cant pass in assignmentDisabledTime when deleting attributes"));
-//  
-//    //Cant pass in delegatable when deleting attributes
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    group.getAttributeDelegate().removeAttribute(attributeDefName);
-//    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
-//    attributeAssign = attributeAssignResult.getAttributeAssign();
-//    
-//    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
-//        GROUPER_VERSION, AttributeAssignType.group, null, AttributeAssignOperation.remove_attr, 
-//        null, 
-//        null, null, null, AttributeAssignDelegatable.TRUE, null, 
-//        new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
-//        null, null, null, null, 
-//        null, null, null, null, null, false, null, false, null, null, null, null);
-//    
-//    assertEquals("Cant pass in delegatable when deleting attributes", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultCode());
-//    assertTrue(wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultMessage().contains(
-//            "Cant pass in delegatable when deleting attributes"));
-//  
-//    //Cant pass in attributeAssignValueOperation when deleting attributes
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    group.getAttributeDelegate().removeAttribute(attributeDefName);
-//    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
-//    attributeAssign = attributeAssignResult.getAttributeAssign();
-//    
-//    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
-//        GROUPER_VERSION, AttributeAssignType.group, null, AttributeAssignOperation.remove_attr, 
-//        null, 
-//        null, null, null, null, AttributeAssignValueOperation.remove_value, 
-//        new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
-//        null, null, null, null, 
-//        null, null, null, null, null, false, null, false, null, null, null, null);
-//    
-//    assertEquals("Cant pass in attributeAssignValueOperation when deleting attributes", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultCode());
-//    assertTrue(wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultMessage().contains(
-//            "Cant pass in attributeAssignValueOperation when deleting attributes"));
-//  
-//    
-//    //lets assign by id (should ignore)
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    group.getAttributeDelegate().removeAttribute(attributeDefName);
-//    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
-//    attributeAssign = attributeAssignResult.getAttributeAssign();
-//    
-//    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
-//        GROUPER_VERSION, AttributeAssignType.group, null, AttributeAssignOperation.assign_attr, null, 
-//        null, null, null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
-//        null, null, null, null, 
-//        null, null, null, null, null, false, null, false, null, null, null, null);
-//    
-//    assertEquals("assign an existing attribute is ok", WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultCode());
-//    assertEquals("F", wsAssignAttributesResults.getWsAttributeAssignResults()[0].getChanged());
-//    
-//    
-//    //lets delete by id (should delete)
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    group.getAttributeDelegate().removeAttribute(attributeDefName);
-//    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
-//    attributeAssign = attributeAssignResult.getAttributeAssign();
-//    
-//    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
-//        GROUPER_VERSION, AttributeAssignType.group, null, AttributeAssignOperation.remove_attr, null, 
-//        null, null, null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
-//        null, null, null, null, 
-//        null, null, null, null, null, false, null, false, null, null, null, null);
-//  
-//    assertEquals("delete an existing attribute is ok", WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultCode());
-//    assertEquals("T", wsAssignAttributesResults.getWsAttributeAssignResults()[0].getChanged());
-//    
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    
-//    assertFalse("should be deleted", group.getAttributeDelegate().hasAttribute(attributeDefName));
-//    
-//    //lets assign by id and assign notes
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    group.getAttributeDelegate().removeAttribute(attributeDefName);
-//    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
-//    attributeAssign = attributeAssignResult.getAttributeAssign();
-//    
-//    String id = attributeAssign.getId();
-//    
-//    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
-//        GROUPER_VERSION, AttributeAssignType.group, null, AttributeAssignOperation.assign_attr, null, 
-//        "notes", null, null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
-//        null, null, null, null, 
-//        null, null, null, null, null, false, null, false, null, null, null, null);
-//    
-//    assertEquals("assign an existing attribute is ok", WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultCode());
-//    assertEquals("T", wsAssignAttributesResults.getWsAttributeAssignResults()[0].getChanged());
-//    
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    
-//    attributeAssign = group.getAttributeDelegate().retrieveAssignments(attributeDefName).iterator().next();
-//    assertEquals(id, attributeAssign.getId());
-//    assertEquals("notes", attributeAssign.getNotes());
-//  
-//    //lets assign by id and assign enabled date
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    group.getAttributeDelegate().removeAttribute(attributeDefName);
-//    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
-//    attributeAssign = attributeAssignResult.getAttributeAssign();
-//    
-//    id = attributeAssign.getId();
-//    
-//    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
-//        GROUPER_VERSION, AttributeAssignType.group, null, AttributeAssignOperation.assign_attr, null, 
-//        null, new Timestamp(123L), null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
-//        null, null, null, null, 
-//        null, null, null, null, null, false, null, false, null, null, null, null);
-//    
-//    assertEquals("assign an existing attribute is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
-//        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultCode());
-//    assertEquals("T", wsAssignAttributesResults.getWsAttributeAssignResults()[0].getChanged());
-//    
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    
-//    attributeAssign = group.getAttributeDelegate().retrieveAssignments(attributeDefName).iterator().next();
-//    assertEquals(id, attributeAssign.getId());
-//    assertEquals(123L, attributeAssign.getEnabledTime().getTime());
-//  
-//    //lets assign by id and assign disabled date
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    group.getAttributeDelegate().removeAttribute(attributeDefName);
-//    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
-//    attributeAssign = attributeAssignResult.getAttributeAssign();
-//    
-//    id = attributeAssign.getId();
-//    
-//    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
-//        GROUPER_VERSION, AttributeAssignType.group, null, AttributeAssignOperation.assign_attr, null, 
-//        null, null, new Timestamp(123L), null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
-//        null, null, null, null, 
-//        null, null, null, null, null, false, null, false, null, null, null, null);
-//    
-//    assertEquals("assign an existing attribute is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
-//        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultCode());
-//    assertEquals("T", wsAssignAttributesResults.getWsAttributeAssignResults()[0].getChanged());
-//    
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    
-//    attributeAssign = group.getAttributeDelegate().retrieveAssignments(attributeDefName).iterator().next();
-//    assertEquals(id, attributeAssign.getId());
-//    assertEquals(123L, attributeAssign.getDisabledTime().getTime());
-//  
-//    //lets assign by id and assign delegatable
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    group.getAttributeDelegate().removeAttribute(attributeDefName);
-//    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
-//    attributeAssign = attributeAssignResult.getAttributeAssign();
-//    
-//    id = attributeAssign.getId();
-//    
-//    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
-//        GROUPER_VERSION, AttributeAssignType.group, null, AttributeAssignOperation.assign_attr, null, 
-//        null, null, null, AttributeAssignDelegatable.TRUE, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
-//        null, null, null, null, 
-//        null, null, null, null, null, false, null, false, null, null, null, null);
-//    
-//    assertEquals("assign an existing attribute is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
-//        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultCode());
-//    assertEquals("F", wsAssignAttributesResults.getWsAttributeAssignResults()[0].getValuesChanged());
-//    assertEquals("T", wsAssignAttributesResults.getWsAttributeAssignResults()[0].getChanged());
-//    
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    
-//    attributeAssign = group.getAttributeDelegate().retrieveAssignments(attributeDefName).iterator().next();
-//    assertEquals(id, attributeAssign.getId());
-//    assertEquals(AttributeAssignDelegatable.TRUE, attributeAssign.getAttributeAssignDelegatable());
-//  
-//    //lets assign value
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    group.getAttributeDelegate().removeAttribute(attributeDefName);
-//    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
-//    attributeAssign = attributeAssignResult.getAttributeAssign();
-//    
-//    id = attributeAssign.getId();
-//    
-//    wsAttributeAssignValue = new WsAttributeAssignValue();
-//    wsAttributeAssignValue.setValueSystem("123");
-//    
-//    
-//    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
-//        GROUPER_VERSION, AttributeAssignType.group, null, AttributeAssignOperation.assign_attr, new WsAttributeAssignValue[]{wsAttributeAssignValue}, 
-//        null, null, null, null, AttributeAssignValueOperation.assign_value, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
-//        null, null, null, null, 
-//        null, null, null, null, null, false, null, false, null, null, null, null);
-//    
-//    assertEquals("assign an existing attribute is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
-//        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultCode());
-//    assertEquals("T", wsAssignAttributesResults.getWsAttributeAssignResults()[0].getValuesChanged());
-//    assertEquals("F", wsAssignAttributesResults.getWsAttributeAssignResults()[0].getChanged());
-//    
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    
-//    attributeAssign = group.getAttributeDelegate().retrieveAssignments(attributeDefName).iterator().next();
-//    assertEquals(id, attributeAssign.getId());
-//    List<Long> values =  attributeAssign.getValueDelegate().retrieveValuesInteger();
-//  
-//    assertEquals(1, values.size());
-//    assertEquals(123L, values.iterator().next().longValue());
-//    
-//    //lets delete a value by id
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    group.getAttributeDelegate().removeAttribute(attributeDefName);
-//    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
-//    attributeAssign = attributeAssignResult.getAttributeAssign();
-//    AttributeAssignValueResult attributeAssignValueResult = attributeAssign.getValueDelegate().assignValue("123");
-//    id = attributeAssign.getId();
-//    
-//    wsAttributeAssignValue = new WsAttributeAssignValue();
-//    wsAttributeAssignValue.setId(attributeAssignValueResult.getAttributeAssignValue().getId());
-//    
-//    
-//    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
-//        GROUPER_VERSION, AttributeAssignType.group, null, AttributeAssignOperation.assign_attr, new WsAttributeAssignValue[]{wsAttributeAssignValue}, 
-//        null, null, null, null, AttributeAssignValueOperation.remove_value, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
-//        null, null, null, null, 
-//        null, null, null, null, null, false, null, false, null, null, null, null);
-//    
-//    assertEquals("assign an existing attribute is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
-//        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
-//        wsAssignAttributesResults.getResultMetadata().getResultCode());
-//    assertEquals("T", wsAssignAttributesResults.getWsAttributeAssignResults()[0].getValuesChanged());
-//    assertEquals("F", wsAssignAttributesResults.getWsAttributeAssignResults()[0].getChanged());
-//    
-//    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-//    
-//    attributeAssign = group.getAttributeDelegate().retrieveAssignments(attributeDefName).iterator().next();
-//    assertEquals(id, attributeAssign.getId());
-//    values =  attributeAssign.getValueDelegate().retrieveValuesInteger();
-//  
-//    assertEquals(0, GrouperUtil.nonNull(values).size());
+//  //Cant pass in values when deleting attributes
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    group.getAttributeDelegate().removeAttribute(attributeDefName);
+    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+
+    WsAttributeAssignValue wsAttributeAssignValue = new WsAttributeAssignValue();
+    //we dont use value formatted yet
+    wsAttributeAssignValue.setValueSystem("hey");
+
+    wsAssignAttributeBatchEntry = new WsAssignAttributeBatchEntry();
+    wsAssignAttributeBatchEntry.setAttributeAssignType(AttributeAssignType.group.name());
+    wsAssignAttributeBatchEntry.setWsAttributeAssignLookup(new WsAttributeAssignLookup(attributeAssign.getId()));
+    wsAssignAttributeBatchEntry.setAttributeAssignOperation(AttributeAssignOperation.remove_attr.name());
+    
+    wsAssignAttributeBatchEntry.setValues(new WsAttributeAssignValue[]{wsAttributeAssignValue});
+    
+    wsAssignAttributeBatchEntries = new WsAssignAttributeBatchEntry[] {wsAssignAttributeBatchEntry};
+    
+    wsAssignAttributesBatchResults = GrouperServiceLogic.assignAttributesBatch(
+        GROUPER_VERSION, 
+        wsAssignAttributeBatchEntries, null, false, null, null, false, null);
+
+    assertEquals("Cant pass in actions when using attribute assign id lookup", WsAssignAttributesBatchResultsCode.PROBLEM_WITH_ASSIGNMENT.name(), 
+        wsAssignAttributesBatchResults.getResultMetadata().getResultCode());
+    
+    assertEquals(1, GrouperUtil.length(wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()));
+    
+    wsAssignAttributeBatchResult = wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[0];
+    
+    assertEquals("Cant pass in values when deleting attributes", WsAssignAttributeBatchResultCode.INVALID_QUERY.name(), 
+        wsAssignAttributeBatchResult.getResultMetadata().getResultCode());
+    assertTrue(wsAssignAttributeBatchResult.getResultMetadata().getResultMessage(), 
+        wsAssignAttributeBatchResult.getResultMetadata().getResultMessage().contains(
+            "Cant pass in values when deleting attributes"));
+
+
+    //Cant pass in assignmentNotes when deleting attributes
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    group.getAttributeDelegate().removeAttribute(attributeDefName);
+    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+
+    wsAssignAttributeBatchEntry = new WsAssignAttributeBatchEntry();
+    wsAssignAttributeBatchEntry.setAttributeAssignType(AttributeAssignType.group.name());
+    wsAssignAttributeBatchEntry.setWsAttributeAssignLookup(new WsAttributeAssignLookup(attributeAssign.getId()));
+    wsAssignAttributeBatchEntry.setAttributeAssignOperation(AttributeAssignOperation.remove_attr.name());
+    wsAssignAttributeBatchEntry.setAssignmentNotes("a");
+        
+    wsAssignAttributeBatchEntries = new WsAssignAttributeBatchEntry[] {wsAssignAttributeBatchEntry};
+    
+    wsAssignAttributesBatchResults = GrouperServiceLogic.assignAttributesBatch(
+        GROUPER_VERSION, 
+        wsAssignAttributeBatchEntries, null, false, null, null, false, null);
+
+    assertEquals("Cant pass in assignmentNotes when deleting attributes", WsAssignAttributesBatchResultsCode.PROBLEM_WITH_ASSIGNMENT.name(), 
+        wsAssignAttributesBatchResults.getResultMetadata().getResultCode());
+    
+    assertEquals(1, GrouperUtil.length(wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()));
+    
+    wsAssignAttributeBatchResult = wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[0];
+    
+    assertEquals("Cant pass in assignmentNotes when deleting attributes", WsAssignAttributeBatchResultCode.INVALID_QUERY.name(), 
+        wsAssignAttributeBatchResult.getResultMetadata().getResultCode());
+    assertTrue(wsAssignAttributeBatchResult.getResultMetadata().getResultMessage(), 
+        wsAssignAttributeBatchResult.getResultMetadata().getResultMessage().contains(
+            "Cant pass in assignmentNotes when deleting attributes"));
+
+    //Cant pass in assignmentEnabledTime when deleting attributes
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    group.getAttributeDelegate().removeAttribute(attributeDefName);
+    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+
+    wsAssignAttributeBatchEntry = new WsAssignAttributeBatchEntry();
+    wsAssignAttributeBatchEntry.setAttributeAssignType(AttributeAssignType.group.name());
+    wsAssignAttributeBatchEntry.setWsAttributeAssignLookup(new WsAttributeAssignLookup(attributeAssign.getId()));
+    wsAssignAttributeBatchEntry.setAttributeAssignOperation(AttributeAssignOperation.remove_attr.name());
+    wsAssignAttributeBatchEntry.setAssignmentEnabledTime("2012/01/01 01:01:01.000");
+
+    wsAssignAttributeBatchEntries = new WsAssignAttributeBatchEntry[] {wsAssignAttributeBatchEntry};
+    
+    wsAssignAttributesBatchResults = GrouperServiceLogic.assignAttributesBatch(
+        GROUPER_VERSION, 
+        wsAssignAttributeBatchEntries, null, false, null, null, false, null);
+
+    assertEquals("Cant pass in assignmentEnabledTime when deleting attributes", WsAssignAttributesBatchResultsCode.PROBLEM_WITH_ASSIGNMENT.name(), 
+        wsAssignAttributesBatchResults.getResultMetadata().getResultCode());
+
+    assertEquals(1, GrouperUtil.length(wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()));
+    
+    wsAssignAttributeBatchResult = wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[0];
+    
+    assertEquals("Cant pass in assignmentEnabledTime when deleting attributes", WsAssignAttributeBatchResultCode.INVALID_QUERY.name(), 
+        wsAssignAttributeBatchResult.getResultMetadata().getResultCode());
+    assertTrue(wsAssignAttributeBatchResult.getResultMetadata().getResultMessage(), 
+        wsAssignAttributeBatchResult.getResultMetadata().getResultMessage().contains(
+            "Cant pass in assignmentEnabledTime when deleting attributes"));
+
+    //Cant pass in assignmentDisabledTime when deleting attributes
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    group.getAttributeDelegate().removeAttribute(attributeDefName);
+    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+
+    wsAssignAttributeBatchEntry = new WsAssignAttributeBatchEntry();
+    wsAssignAttributeBatchEntry.setAttributeAssignType(AttributeAssignType.group.name());
+    wsAssignAttributeBatchEntry.setWsAttributeAssignLookup(new WsAttributeAssignLookup(attributeAssign.getId()));
+    wsAssignAttributeBatchEntry.setAttributeAssignOperation(AttributeAssignOperation.remove_attr.name());
+    wsAssignAttributeBatchEntry.setAssignmentDisabledTime("2012/01/01 01:01:01.000");
+
+    wsAssignAttributeBatchEntries = new WsAssignAttributeBatchEntry[] {wsAssignAttributeBatchEntry};
+    
+    wsAssignAttributesBatchResults = GrouperServiceLogic.assignAttributesBatch(
+        GROUPER_VERSION, 
+        wsAssignAttributeBatchEntries, null, false, null, null, false, null);
+
+    assertEquals("Cant pass in assignmentDisabledTime when deleting attributes", WsAssignAttributesBatchResultsCode.PROBLEM_WITH_ASSIGNMENT.name(), 
+        wsAssignAttributesBatchResults.getResultMetadata().getResultCode());
+
+    assertEquals(1, GrouperUtil.length(wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()));
+    
+    wsAssignAttributeBatchResult = wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[0];
+    
+    assertEquals("Cant pass in assignmentDisabledTime when deleting attributes", WsAssignAttributeBatchResultCode.INVALID_QUERY.name(), 
+        wsAssignAttributeBatchResult.getResultMetadata().getResultCode());
+    assertTrue(wsAssignAttributeBatchResult.getResultMetadata().getResultMessage(), 
+        wsAssignAttributeBatchResult.getResultMetadata().getResultMessage().contains(
+            "Cant pass in assignmentDisabledTime when deleting attributes"));
+
+    //Cant pass in delegatable when deleting attributes
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    group.getAttributeDelegate().removeAttribute(attributeDefName);
+    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+
+    wsAssignAttributeBatchEntry = new WsAssignAttributeBatchEntry();
+    wsAssignAttributeBatchEntry.setAttributeAssignType(AttributeAssignType.group.name());
+    wsAssignAttributeBatchEntry.setWsAttributeAssignLookup(new WsAttributeAssignLookup(attributeAssign.getId()));
+    wsAssignAttributeBatchEntry.setAttributeAssignOperation(AttributeAssignOperation.remove_attr.name());
+    wsAssignAttributeBatchEntry.setDelegatable("TRUE");
+
+    wsAssignAttributeBatchEntries = new WsAssignAttributeBatchEntry[] {wsAssignAttributeBatchEntry};
+    
+    wsAssignAttributesBatchResults = GrouperServiceLogic.assignAttributesBatch(
+        GROUPER_VERSION, 
+        wsAssignAttributeBatchEntries, null, false, null, null, false, null);
+
+    assertEquals("Cant pass in delegatable when deleting attributes", WsAssignAttributesBatchResultsCode.PROBLEM_WITH_ASSIGNMENT.name(), 
+        wsAssignAttributesBatchResults.getResultMetadata().getResultCode());
+
+    assertEquals(1, GrouperUtil.length(wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()));
+    
+    wsAssignAttributeBatchResult = wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[0];
+    
+    assertEquals("Cant pass in delegatable when deleting attributes", WsAssignAttributeBatchResultCode.INVALID_QUERY.name(), 
+        wsAssignAttributeBatchResult.getResultMetadata().getResultCode());
+    assertTrue(wsAssignAttributeBatchResult.getResultMetadata().getResultMessage(), 
+        wsAssignAttributeBatchResult.getResultMetadata().getResultMessage().contains(
+            "Cant pass in delegatable when deleting attributes"));
+
+
+    //Cant pass in attributeAssignValueOperation when deleting attributes
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    group.getAttributeDelegate().removeAttribute(attributeDefName);
+    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+
+    wsAssignAttributeBatchEntry = new WsAssignAttributeBatchEntry();
+    wsAssignAttributeBatchEntry.setAttributeAssignType(AttributeAssignType.group.name());
+    wsAssignAttributeBatchEntry.setWsAttributeAssignLookup(new WsAttributeAssignLookup(attributeAssign.getId()));
+    wsAssignAttributeBatchEntry.setAttributeAssignOperation(AttributeAssignOperation.remove_attr.name());
+    wsAssignAttributeBatchEntry.setAttributeAssignValueOperation("remove_value");
+
+    wsAssignAttributeBatchEntries = new WsAssignAttributeBatchEntry[] {wsAssignAttributeBatchEntry};
+    
+    wsAssignAttributesBatchResults = GrouperServiceLogic.assignAttributesBatch(
+        GROUPER_VERSION, 
+        wsAssignAttributeBatchEntries, null, false, null, null, false, null);
+
+    assertEquals("Cant pass in attributeAssignValueOperation when deleting attributes", WsAssignAttributesBatchResultsCode.PROBLEM_WITH_ASSIGNMENT.name(), 
+        wsAssignAttributesBatchResults.getResultMetadata().getResultCode());
+
+    assertEquals(1, GrouperUtil.length(wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()));
+    
+    wsAssignAttributeBatchResult = wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[0];
+    
+    assertEquals("Cant pass in attributeAssignValueOperation when deleting attributes", WsAssignAttributeBatchResultCode.INVALID_QUERY.name(), 
+        wsAssignAttributeBatchResult.getResultMetadata().getResultCode());
+    assertTrue(wsAssignAttributeBatchResult.getResultMetadata().getResultMessage(), 
+        wsAssignAttributeBatchResult.getResultMetadata().getResultMessage().contains(
+            "Cant pass in attributeAssignValueOperation when deleting attributes"));
+
+    //lets assign by id (should ignore)
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    group.getAttributeDelegate().removeAttribute(attributeDefName);
+    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+
+    wsAssignAttributeBatchEntry = new WsAssignAttributeBatchEntry();
+    wsAssignAttributeBatchEntry.setAttributeAssignType(AttributeAssignType.group.name());
+    wsAssignAttributeBatchEntry.setWsAttributeAssignLookup(new WsAttributeAssignLookup(attributeAssign.getId()));
+    wsAssignAttributeBatchEntry.setAttributeAssignOperation(AttributeAssignOperation.assign_attr.name());
+
+    wsAssignAttributeBatchEntries = new WsAssignAttributeBatchEntry[] {wsAssignAttributeBatchEntry};
+
+    wsAssignAttributesBatchResults = GrouperServiceLogic.assignAttributesBatch(
+        GROUPER_VERSION, 
+        wsAssignAttributeBatchEntries, null, false, null, null, false, null);
+
+    assertEquals("assign an existing attribute is ok", WsAssignAttributesBatchResultsCode.SUCCESS.name(), 
+        wsAssignAttributesBatchResults.getResultMetadata().getResultCode());
+
+    assertEquals(1, GrouperUtil.length(wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()));
+    
+    wsAssignAttributeBatchResult = wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[0];
+
+    assertEquals("F", wsAssignAttributeBatchResult.getChanged());
+
+    //lets delete by id (should delete)
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    group.getAttributeDelegate().removeAttribute(attributeDefName);
+    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+
+    wsAssignAttributeBatchEntry = new WsAssignAttributeBatchEntry();
+    wsAssignAttributeBatchEntry.setAttributeAssignType(AttributeAssignType.group.name());
+    wsAssignAttributeBatchEntry.setWsAttributeAssignLookup(new WsAttributeAssignLookup(attributeAssign.getId()));
+    wsAssignAttributeBatchEntry.setAttributeAssignOperation(AttributeAssignOperation.remove_attr.name());
+
+    wsAssignAttributeBatchEntries = new WsAssignAttributeBatchEntry[] {wsAssignAttributeBatchEntry};
+
+    wsAssignAttributesBatchResults = GrouperServiceLogic.assignAttributesBatch(
+        GROUPER_VERSION, 
+        wsAssignAttributeBatchEntries, null, false, null, null, false, null);
+
+    assertEquals("delete an existing attribute is ok", WsAssignAttributesBatchResultsCode.SUCCESS.name(), 
+        wsAssignAttributesBatchResults.getResultMetadata().getResultCode());
+
+    assertEquals(1, GrouperUtil.length(wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()));
+    
+    wsAssignAttributeBatchResult = wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[0];
+
+    assertEquals("T", wsAssignAttributeBatchResult.getChanged());
+
+    //lets assign by id and assign notes
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    group.getAttributeDelegate().removeAttribute(attributeDefName);
+    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+
+    String id = attributeAssign.getId();
+
+    wsAssignAttributeBatchEntry = new WsAssignAttributeBatchEntry();
+    wsAssignAttributeBatchEntry.setAttributeAssignType(AttributeAssignType.group.name());
+    wsAssignAttributeBatchEntry.setWsAttributeAssignLookup(new WsAttributeAssignLookup(attributeAssign.getId()));
+    wsAssignAttributeBatchEntry.setAttributeAssignOperation(AttributeAssignOperation.assign_attr.name());
+    wsAssignAttributeBatchEntry.setAssignmentNotes("notes");
+
+    wsAssignAttributeBatchEntries = new WsAssignAttributeBatchEntry[] {wsAssignAttributeBatchEntry};
+
+    wsAssignAttributesBatchResults = GrouperServiceLogic.assignAttributesBatch(
+        GROUPER_VERSION, 
+        wsAssignAttributeBatchEntries, null, false, null, null, false, null);
+
+    assertEquals("assign an existing attribute is ok", WsAssignAttributesBatchResultsCode.SUCCESS.name(), 
+        wsAssignAttributesBatchResults.getResultMetadata().getResultCode());
+
+    assertEquals(1, GrouperUtil.length(wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()));
+    
+    wsAssignAttributeBatchResult = wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[0];
+
+    assertEquals("T", wsAssignAttributeBatchResult.getChanged());
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssign = group.getAttributeDelegate().retrieveAssignments(attributeDefName).iterator().next();
+    assertEquals(id, attributeAssign.getId());
+    assertEquals("notes", attributeAssign.getNotes());
+
+    //lets assign by id and assign enabled date
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    group.getAttributeDelegate().removeAttribute(attributeDefName);
+    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+
+    id = attributeAssign.getId();
+
+    wsAssignAttributeBatchEntry = new WsAssignAttributeBatchEntry();
+    wsAssignAttributeBatchEntry.setAttributeAssignType(AttributeAssignType.group.name());
+    wsAssignAttributeBatchEntry.setWsAttributeAssignLookup(new WsAttributeAssignLookup(attributeAssign.getId()));
+    wsAssignAttributeBatchEntry.setAttributeAssignOperation(AttributeAssignOperation.assign_attr.name());
+    wsAssignAttributeBatchEntry.setAssignmentEnabledTime("2012/01/01 01:01:01.111");
+
+    wsAssignAttributeBatchEntries = new WsAssignAttributeBatchEntry[] {wsAssignAttributeBatchEntry};
+
+    wsAssignAttributesBatchResults = GrouperServiceLogic.assignAttributesBatch(
+        GROUPER_VERSION, 
+        wsAssignAttributeBatchEntries, null, false, null, null, false, null);
+
+    assertEquals("lets assign by id and assign enabled date", WsAssignAttributesBatchResultsCode.SUCCESS.name(), 
+        wsAssignAttributesBatchResults.getResultMetadata().getResultCode());
+
+    assertEquals(1, GrouperUtil.length(wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()));
+    
+    wsAssignAttributeBatchResult = wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[0];
+
+    assertEquals("T", wsAssignAttributeBatchResult.getChanged());
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssign = group.getAttributeDelegate().retrieveAssignments(attributeDefName).iterator().next();
+    assertEquals(id, attributeAssign.getId());
+    assertEquals("2012/01/01 01:01:01.111", GrouperUtil.timestampToString(attributeAssign.getEnabledTime()));
+
+    //lets assign by id and assign disabled date
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    group.getAttributeDelegate().removeAttribute(attributeDefName);
+    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+
+    id = attributeAssign.getId();
+
+    wsAssignAttributeBatchEntry = new WsAssignAttributeBatchEntry();
+    wsAssignAttributeBatchEntry.setAttributeAssignType(AttributeAssignType.group.name());
+    wsAssignAttributeBatchEntry.setWsAttributeAssignLookup(new WsAttributeAssignLookup(attributeAssign.getId()));
+    wsAssignAttributeBatchEntry.setAttributeAssignOperation(AttributeAssignOperation.assign_attr.name());
+    wsAssignAttributeBatchEntry.setAssignmentDisabledTime("2012/01/01 01:01:01.111");
+
+    wsAssignAttributeBatchEntries = new WsAssignAttributeBatchEntry[] {wsAssignAttributeBatchEntry};
+
+    wsAssignAttributesBatchResults = GrouperServiceLogic.assignAttributesBatch(
+        GROUPER_VERSION, 
+        wsAssignAttributeBatchEntries, null, false, null, null, false, null);
+
+    assertEquals("lets assign by id and assign disabled date", WsAssignAttributesBatchResultsCode.SUCCESS.name(), 
+        wsAssignAttributesBatchResults.getResultMetadata().getResultCode());
+
+    assertEquals(1, GrouperUtil.length(wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()));
+    
+    wsAssignAttributeBatchResult = wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[0];
+
+    assertEquals("T", wsAssignAttributeBatchResult.getChanged());
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssign = group.getAttributeDelegate().retrieveAssignments(attributeDefName).iterator().next();
+    assertEquals(id, attributeAssign.getId());
+    assertEquals("2012/01/01 01:01:01.111", GrouperUtil.timestampToString(attributeAssign.getDisabledTime()));
+
+    //lets assign by id and assign delegatable
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    group.getAttributeDelegate().removeAttribute(attributeDefName);
+    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+
+    id = attributeAssign.getId();
+
+    wsAssignAttributeBatchEntry = new WsAssignAttributeBatchEntry();
+    wsAssignAttributeBatchEntry.setAttributeAssignType(AttributeAssignType.group.name());
+    wsAssignAttributeBatchEntry.setWsAttributeAssignLookup(new WsAttributeAssignLookup(attributeAssign.getId()));
+    wsAssignAttributeBatchEntry.setAttributeAssignOperation(AttributeAssignOperation.assign_attr.name());
+    wsAssignAttributeBatchEntry.setDelegatable("TRUE");
+
+    wsAssignAttributeBatchEntries = new WsAssignAttributeBatchEntry[] {wsAssignAttributeBatchEntry};
+
+    wsAssignAttributesBatchResults = GrouperServiceLogic.assignAttributesBatch(
+        GROUPER_VERSION, 
+        wsAssignAttributeBatchEntries, null, false, null, null, false, null);
+
+    assertEquals("lets assign by id and assign delegatable", WsAssignAttributesBatchResultsCode.SUCCESS.name(), 
+        wsAssignAttributesBatchResults.getResultMetadata().getResultCode());
+
+    assertEquals(1, GrouperUtil.length(wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()));
+    
+    wsAssignAttributeBatchResult = wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[0];
+
+    assertEquals("T", wsAssignAttributeBatchResult.getChanged());
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssign = group.getAttributeDelegate().retrieveAssignments(attributeDefName).iterator().next();
+    assertEquals(id, attributeAssign.getId());
+    assertEquals(AttributeAssignDelegatable.TRUE, attributeAssign.getAttributeAssignDelegatable());
+
+    //lets assign value
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    group.getAttributeDelegate().removeAttribute(attributeDefName);
+    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+
+    id = attributeAssign.getId();
+
+    wsAssignAttributeBatchEntry = new WsAssignAttributeBatchEntry();
+    wsAssignAttributeBatchEntry.setAttributeAssignType(AttributeAssignType.group.name());
+    wsAssignAttributeBatchEntry.setWsAttributeAssignLookup(new WsAttributeAssignLookup(attributeAssign.getId()));
+    wsAssignAttributeBatchEntry.setAttributeAssignOperation(AttributeAssignOperation.assign_attr.name());    
+    wsAssignAttributeBatchEntry.setAttributeAssignValueOperation(AttributeAssignValueOperation.assign_value.name());    
+    wsAttributeAssignValue = new WsAttributeAssignValue();
+    wsAttributeAssignValue.setValueSystem("123");
+
+    wsAssignAttributeBatchEntry.setValues(new WsAttributeAssignValue[]{wsAttributeAssignValue});
+
+    wsAssignAttributeBatchEntries = new WsAssignAttributeBatchEntry[] {wsAssignAttributeBatchEntry};
+
+    wsAssignAttributesBatchResults = GrouperServiceLogic.assignAttributesBatch(
+        GROUPER_VERSION, 
+        wsAssignAttributeBatchEntries, null, false, null, null, false, null);
+
+    assertEquals("lets assign value: " + wsAssignAttributesBatchResults.getResultMetadata().getResultMessage()
+        + ", " + wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[0].getResultMetadata().getResultMessage(), 
+        WsAssignAttributesBatchResultsCode.SUCCESS.name(), 
+        wsAssignAttributesBatchResults.getResultMetadata().getResultCode());
+
+    assertEquals(1, GrouperUtil.length(wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()));
+    
+    wsAssignAttributeBatchResult = wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[0];
+
+    assertEquals("F", wsAssignAttributeBatchResult.getChanged());
+    assertEquals("T", wsAssignAttributeBatchResult.getValuesChanged());
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssign = group.getAttributeDelegate().retrieveAssignments(attributeDefName).iterator().next();
+    assertEquals(id, attributeAssign.getId());
+    
+    assertEquals(1, attributeAssign.getValueDelegate().getAttributeAssignValues().size());
+    assertEquals(new Long(123), attributeAssign.getValueDelegate().getAttributeAssignValues().iterator().next().getValueInteger());
+    
+    //lets delete a value by id
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    group.getAttributeDelegate().removeAttribute(attributeDefName);
+    attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+
+    id = attributeAssign.getId();
+
+    AttributeAssignValueResult attributeAssignValueResult = attributeAssign.getValueDelegate().assignValue("123");
+    id = attributeAssign.getId();
+    
+    wsAttributeAssignValue = new WsAttributeAssignValue();
+    wsAttributeAssignValue.setId(attributeAssignValueResult.getAttributeAssignValue().getId());
+
+    
+    wsAssignAttributeBatchEntry = new WsAssignAttributeBatchEntry();
+    wsAssignAttributeBatchEntry.setAttributeAssignType(AttributeAssignType.group.name());
+    wsAssignAttributeBatchEntry.setWsAttributeAssignLookup(new WsAttributeAssignLookup(attributeAssign.getId()));
+    wsAssignAttributeBatchEntry.setAttributeAssignOperation(AttributeAssignOperation.assign_attr.name());
+    wsAssignAttributeBatchEntry.setValues(new WsAttributeAssignValue[]{wsAttributeAssignValue});
+    wsAssignAttributeBatchEntry.setAttributeAssignValueOperation("remove_value");
+    
+    wsAttributeAssignValue = new WsAttributeAssignValue();
+    wsAttributeAssignValue.setValueSystem("123");
+
+    wsAssignAttributeBatchEntry.setValues(new WsAttributeAssignValue[]{wsAttributeAssignValue});
+
+    wsAssignAttributeBatchEntries = new WsAssignAttributeBatchEntry[] {wsAssignAttributeBatchEntry};
+
+    wsAssignAttributesBatchResults = GrouperServiceLogic.assignAttributesBatch(
+        GROUPER_VERSION, 
+        wsAssignAttributeBatchEntries, null, false, null, null, false, null);
+
+    assertEquals("lets assign value", WsAssignAttributesBatchResultsCode.SUCCESS.name(), 
+        wsAssignAttributesBatchResults.getResultMetadata().getResultCode());
+
+    assertEquals(1, GrouperUtil.length(wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()));
+    
+    wsAssignAttributeBatchResult = wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[0];
+
+    assertEquals("F", wsAssignAttributeBatchResult.getChanged());
+    assertEquals("T", wsAssignAttributeBatchResult.getValuesChanged());
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssign = group.getAttributeDelegate().retrieveAssignments(attributeDefName).iterator().next();
+    assertEquals(id, attributeAssign.getId());
+    List<Long> values =  attributeAssign.getValueDelegate().retrieveValuesInteger();
+    
+    assertEquals(0, GrouperUtil.nonNull(values).size());
+
 //    
 //    
 //    //lets delete a value by value

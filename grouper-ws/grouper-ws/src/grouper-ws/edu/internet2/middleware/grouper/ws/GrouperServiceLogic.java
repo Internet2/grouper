@@ -3071,7 +3071,7 @@ public class GrouperServiceLogic {
 
   /**
    * <pre>
-   * see if a group has a member (if already a direct member, ignore)
+   * get grouper privileges for a group or folder
    * e.g. /grouperPrivileges/subjects/1234567/groups/aStem:aGroup/types/access/names/update
    * e.g. /grouperPrivileges/subjects/sources/someSource/subjectId/1234567/stems/aStem1:aStem2/
    * </pre>
