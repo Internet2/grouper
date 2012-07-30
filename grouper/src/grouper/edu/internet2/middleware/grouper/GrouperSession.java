@@ -951,6 +951,7 @@ public class GrouperSession implements Serializable {
       //started (and added)
       GrouperSession grouperSession = staticGrouperSession.get();
       if (grouperSession == null && exceptionOnNull) {
+        //TODO CH 20120327: make this an option or something...
         throw new IllegalStateException("There is no open GrouperSession detected.  Make sure " +
         		"to start a grouper session (e.g. GrouperSession.startRootSession() if it should be a root session) before calling this method");
       }
