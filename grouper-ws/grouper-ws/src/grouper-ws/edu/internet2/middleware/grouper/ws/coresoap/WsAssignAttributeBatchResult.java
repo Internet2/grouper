@@ -76,6 +76,9 @@ public class WsAssignAttributeBatchResult implements Comparable<WsAssignAttribut
       WsAssignAttributesResults.WsAssignAttributesResultsCode.valueOfIgnoreCase(this.resultMetadata.getResultCode(), false);
     this.resultMetadata.setResultCode(
         WsAssignAttributeBatchResultCode.convertFromWsAssignAttributesResultCode(wsAssignAttributesResultsCode).name());
+    
+    this.setWsAttributeAssignValueResults(wsAssignAttributeResult.getWsAttributeAssignValueResults());
+    
   }
   
   /**
