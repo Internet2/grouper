@@ -38,7 +38,7 @@ public class WsAssignAttributeBatchResult implements Comparable<WsAssignAttribut
 
   /**
    * assign the code from the enum
-   * @param addMemberResultCode
+   * @param wsAssignAttributeBatchResultCode
    */
   public void assignResultCode(WsAssignAttributeBatchResultCode wsAssignAttributeBatchResultCode) {
     this.getResultMetadata().assignResultCode(
@@ -64,13 +64,7 @@ public class WsAssignAttributeBatchResult implements Comparable<WsAssignAttribut
     this.setChanged(wsAssignAttributeResult.getChanged());
     this.setDeleted(wsAssignAttributeResult.getDeleted());
     this.setValuesChanged(wsAssignAttributeResult.getValuesChanged());
-    int length = GrouperUtil.length(wsAssignAttributeResult.getWsAttributeAssigns());
-    if (length > 1) {
-      throw new RuntimeException("Why is there more than one attribute assign? " + length);
-    }
-    if (length == 1) {
-      this.wsAttributeAssign = wsAssignAttributeResult.getWsAttributeAssigns()[0];
-    }
+    this.wsAttributeAssigns = wsAssignAttributeResult.getWsAttributeAssigns();
     this.resultMetadata = wsAssignAttributesResults.getResultMetadata();
     WsAssignAttributesResultsCode wsAssignAttributesResultsCode = 
       WsAssignAttributesResults.WsAssignAttributesResultsCode.valueOfIgnoreCase(this.resultMetadata.getResultCode(), false);
@@ -222,25 +216,6 @@ public class WsAssignAttributeBatchResult implements Comparable<WsAssignAttribut
     this.wsAttributeAssignValueResults = wsAttributeAssignValueResults1;
   }
   
-  /** assignment involved */
-  private WsAttributeAssign wsAttributeAssign;
-
-  /**
-   * assignment involved
-   * @return assignment involved
-   */
-  public WsAttributeAssign getWsAttributeAssign() {
-    return this.wsAttributeAssign;
-  }
-
-  /**
-   * assignment involved
-   * @param wsAttributeAssign1
-   */
-  public void setWsAttributeAssign(WsAttributeAssign wsAttributeAssign1) {
-    this.wsAttributeAssign = wsAttributeAssign1;
-  }
-
   /** if this assignment was changed, T|F */
   private String changed;
 
@@ -254,6 +229,9 @@ public class WsAssignAttributeBatchResult implements Comparable<WsAssignAttribut
    * metadata about the result
    */
   private WsResultMeta resultMetadata = new WsResultMeta();
+
+  /** assignment(s) involved */
+  private WsAttributeAssign[] wsAttributeAssigns;
 
   /**
    * if the values were changed, T|F
@@ -299,13 +277,21 @@ public class WsAssignAttributeBatchResult implements Comparable<WsAssignAttribut
     if (o2 == null) {
       return 1;
     }
-    if (this.wsAttributeAssign == null) {
-      return -1;
+    int thisAttributeAssignsLength = GrouperUtil.length(this.wsAttributeAssigns);
+    int otherAttributeAssignsLength = GrouperUtil.length(o2.wsAttributeAssigns);
+    if (thisAttributeAssignsLength != otherAttributeAssignsLength) {
+      return new Integer(thisAttributeAssignsLength).compareTo(new Integer(otherAttributeAssignsLength));
     }
-    if (o2.wsAttributeAssign == null) {
-      return 1;
+    for (int i=0; i<thisAttributeAssignsLength; i++) {
+      WsAttributeAssign wsAttributeAssign = this.wsAttributeAssigns[i];
+      WsAttributeAssign otherAttributeAssign = o2.wsAttributeAssigns[i];
+      
+      int result = wsAttributeAssign.compareTo(otherAttributeAssign);
+      if (result != 0) {
+        return result;
+      }
     }
-    return this.wsAttributeAssign.compareTo(o2.wsAttributeAssign);
+    return 0;
   }
 
   /**
@@ -344,6 +330,24 @@ public class WsAssignAttributeBatchResult implements Comparable<WsAssignAttribut
    */
   public void setResultMetadata(WsResultMeta resultMetadata1) {
     this.resultMetadata = resultMetadata1;
+  }
+
+
+  /**
+   * assignment involved
+   * @return assignment involved
+   */
+  public WsAttributeAssign[] getWsAttributeAssigns() {
+    return this.wsAttributeAssigns;
+  }
+
+
+  /**
+   * assignment involved
+   * @param wsAttributeAssigns1
+   */
+  public void setWsAttributeAssigns(WsAttributeAssign[] wsAttributeAssigns1) {
+    this.wsAttributeAssigns = wsAttributeAssigns1;
   }
   
   
