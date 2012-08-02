@@ -7338,6 +7338,7 @@ public class GrouperServiceLogic {
                 throws GrouperDAOException {
 
               int index = 0;
+              List<Long> attributeAssignIds = new ArrayList<Long>();
               for (WsAssignAttributeBatchEntry wsAssignAttributeBatchEntry : wsAssignAttributeBatchEntries) {
 
                 String theError = null;
@@ -7413,6 +7414,9 @@ public class GrouperServiceLogic {
                       includeSubjectDetail, subjectAttributeNames, includeGroupDetail,
                       tempResults, SESSION, params, null, null, 
                       null, null, null, false, false);
+                  
+                  //TODO send in ID's or null for each one
+                  
                 } catch (Exception e) {
                   exception = e;
                   theError = "Error assigning attribute: " + wsAssignAttributeBatchEntry + ", " + e + ".  ";

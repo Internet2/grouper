@@ -50,7 +50,7 @@ public class WsAttributeAssignLookup {
    * @return true if blank
    */
   public boolean blank() {
-    return StringUtils.isBlank(this.uuid)
+    return StringUtils.isBlank(this.uuid) && StringUtils.isBlank(this.batchIndex)
       && this.attributeAssign == null && this.attributeAssignFindResult == null;
   }
 
@@ -60,7 +60,7 @@ public class WsAttributeAssignLookup {
    * @return true if it has data
    */
   public boolean hasData() {
-    return !StringUtils.isBlank(this.uuid);
+    return !StringUtils.isBlank(this.uuid) || !StringUtils.isBlank(this.batchIndex);
   }
   
   /**
@@ -98,34 +98,6 @@ public class WsAttributeAssignLookup {
    * uuid of the attributeAssign to find
    */
   private String uuid;
-
-  /**
-   * if sending in a batch of assignments, you can backreference the ids
-   * of assignments 0 indexed
-   */
-  private String indexOfBatchAssignmentUuid;
-
-  
-  
-  /**
-   * if sending in a batch of assignments, you can backreference the ids
-   * of assignments 0 indexed
-   * @return index
-   */
-  public String getIndexOfBatchAssignmentUuid() {
-    return this.indexOfBatchAssignmentUuid;
-  }
-
-
-  /**
-   * if sending in a batch of assignments, you can backreference the ids
-   * of assignments 0 indexed
-   * @param indexOfBatchAssignmentUuid1
-   */
-  public void setIndexOfBatchAssignmentUuid(String indexOfBatchAssignmentUuid1) {
-    this.indexOfBatchAssignmentUuid = indexOfBatchAssignmentUuid1;
-  }
-
 
   /**
    * <pre>
@@ -311,6 +283,9 @@ public class WsAttributeAssignLookup {
     if (!StringUtils.isBlank(this.uuid)) {
       return "id: " + this.uuid;
     }
+    if (!StringUtils.isBlank(this.batchIndex)) {
+      return "batchIndex: " + this.batchIndex;
+    }
     return "blank";
   }
 
@@ -323,11 +298,46 @@ public class WsAttributeAssignLookup {
   }
 
   /**
+   * 
+   * @param uuid1
+   * @param batchIndex1
+   */
+  public WsAttributeAssignLookup(String uuid1, String batchIndex1) {
+    this.uuid = uuid1;
+    this.batchIndex = batchIndex1;
+  }
+
+
+  /**
    * @param attributeAssign1 
    * @param uuid1
    */
   public WsAttributeAssignLookup(String uuid1) {
     this.uuid = uuid1;
+  }
+
+  /**
+   * if there is a batch request, and this attribute assignment 
+   * refers to a previously sent assignment, this is the index (0 indexed)
+   */
+  private String batchIndex;
+
+  /**
+   * if there is a batch request, and this attribute assignment 
+   * refers to a previously sent assignment, this is the index (0 indexed)
+   * @return the batch index
+   */
+  public String getBatchIndex() {
+    return this.batchIndex;
+  }
+
+  /**
+   * if there is a batch request, and this attribute assignment 
+   * refers to a previously sent assignment, this is the index (0 indexed)
+   * @param theIndex the index to set
+   */
+  public void setBatchIndex(String theIndex) {
+    this.batchIndex = theIndex;
   }
 
 }

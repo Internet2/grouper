@@ -6617,30 +6617,50 @@ public class GrouperServiceLogicTest extends GrouperTest {
     wsAssignAttributeBatchEntry.setWsAttributeDefNameLookup(new WsAttributeDefNameLookup(attributeDefName.getName(), null));
     wsAssignAttributeBatchEntry.setAttributeAssignOperation(AttributeAssignOperation.assign_attr.name());
 
-    WsAssignAttributeBatchEntry wsAssignAttributeBatchEntry2 = new WsAssignAttributeBatchEntry();
-    wsAssignAttributeBatchEntry.setAttributeAssignType(AttributeAssignType.group.name());
-    wsAssignAttributeBatchEntry.setWsOwnerGroupLookup(new WsGroupLookup(group.getName(), null));
-    wsAssignAttributeBatchEntry.setWsAttributeDefNameLookup(new WsAttributeDefNameLookup(attributeDefName.getName(), null));
-    wsAssignAttributeBatchEntry.setAttributeAssignOperation(AttributeAssignOperation.assign_attr.name());
+    wsAttributeAssignValue = new WsAttributeAssignValue();
+    wsAttributeAssignValue.setValueSystem("hello1");
 
-    wsAssignAttributeBatchEntries = new WsAssignAttributeBatchEntry[] {wsAssignAttributeBatchEntry};
+    WsAssignAttributeBatchEntry wsAssignAttributeBatchEntry2 = new WsAssignAttributeBatchEntry();
+    wsAssignAttributeBatchEntry2.setAttributeAssignType(AttributeAssignType.group_asgn.name());
+    wsAssignAttributeBatchEntry2.setWsOwnerAttributeAssignLookup(new WsAttributeAssignLookup(null, "0"));
+    wsAssignAttributeBatchEntry2.setWsAttributeDefNameLookup(new WsAttributeDefNameLookup(attributeDefName2.getName(), null));
+    wsAssignAttributeBatchEntry2.setAttributeAssignOperation(AttributeAssignOperation.assign_attr.name());
+    wsAssignAttributeBatchEntry2.setValues(new WsAttributeAssignValue[]{wsAttributeAssignValue});
+    wsAssignAttributeBatchEntry2.setAttributeAssignValueOperation(AttributeAssignValueOperation.assign_value.name());
+
+    wsAttributeAssignValue2 = new WsAttributeAssignValue();
+    wsAttributeAssignValue2.setValueSystem("hello2");
+
+    WsAssignAttributeBatchEntry wsAssignAttributeBatchEntry3 = new WsAssignAttributeBatchEntry();
+    wsAssignAttributeBatchEntry3.setAttributeAssignType(AttributeAssignType.group_asgn.name());
+    wsAssignAttributeBatchEntry3.setWsOwnerAttributeAssignLookup(new WsAttributeAssignLookup(null, "0"));
+    wsAssignAttributeBatchEntry3.setWsAttributeDefNameLookup(new WsAttributeDefNameLookup(attributeDefName3.getName(), null));
+    wsAssignAttributeBatchEntry3.setAttributeAssignOperation(AttributeAssignOperation.assign_attr.name());
+    wsAssignAttributeBatchEntry3.setValues(new WsAttributeAssignValue[]{wsAttributeAssignValue2});
+    wsAssignAttributeBatchEntry3.setAttributeAssignValueOperation(AttributeAssignValueOperation.assign_value.name());
+    
+    wsAssignAttributeBatchEntries = new WsAssignAttributeBatchEntry[] {wsAssignAttributeBatchEntry, wsAssignAttributeBatchEntry2, wsAssignAttributeBatchEntry3};
 
     wsAssignAttributesBatchResults = GrouperServiceLogic.assignAttributesBatch(
         GROUPER_VERSION, 
         wsAssignAttributeBatchEntries, null, false, null, null, false, null);
 
-    assertEquals("remove attribute is ok: " + wsAssignAttributesBatchResults.getResultMetadata().getResultMessage(), 
+    assertEquals("assign attributes is ok: " + wsAssignAttributesBatchResults.getResultMetadata().getResultMessage(), 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
         wsAssignAttributesBatchResults.getResultMetadata().getResultCode());
 
-    assertEquals(1, GrouperUtil.length(wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()));
+    assertEquals(3, GrouperUtil.length(wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()));
     
-    wsAssignAttributeBatchResult = wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[0];
+    assertEquals("F", wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[0].getValuesChanged());
+    assertEquals("T", wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[0].getChanged());
 
-    assertEquals("F", wsAssignAttributeBatchResult.getValuesChanged());
-    assertEquals("T", wsAssignAttributeBatchResult.getChanged());
+    assertEquals("T", wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[1].getValuesChanged());
+    assertEquals("T", wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[1].getChanged());
 
-    assertEquals(2, GrouperUtil.length(wsAssignAttributeBatchResult.getWsAttributeAssigns()));
+    assertEquals("T", wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[2].getValuesChanged());
+    assertEquals("T", wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[2].getChanged());
+
+    assertEquals(1, GrouperUtil.length(wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[0].getWsAttributeAssigns()));
   
     GrouperServiceUtils.testSession = GrouperSession.startRootSession();
     

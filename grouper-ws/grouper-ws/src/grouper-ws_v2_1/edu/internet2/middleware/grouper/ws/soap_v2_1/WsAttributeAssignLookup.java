@@ -35,7 +35,7 @@ public class WsAttributeAssignLookup {
    * @return true if it has data
    */
   public boolean hasData() {
-    return !StringUtils.isBlank(this.uuid);
+    return !StringUtils.isBlank(this.uuid) || !StringUtils.isBlank(this.batchIndex);
   }
   
   /**
@@ -64,6 +64,30 @@ public class WsAttributeAssignLookup {
    */
   public WsAttributeAssignLookup() {
     //blank
+  }
+
+  /**
+   * if there is a batch request, and this attribute assignment 
+   * refers to a previously sent assignment, this is the index (0 indexed)
+   */
+  private String batchIndex;
+
+  /**
+   * if there is a batch request, and this attribute assignment 
+   * refers to a previously sent assignment, this is the index (0 indexed)
+   * @return the batch index
+   */
+  public String getBatchIndex() {
+    return this.batchIndex;
+  }
+
+  /**
+   * if there is a batch request, and this attribute assignment 
+   * refers to a previously sent assignment, this is the index (0 indexed)
+   * @param theIndex the index to set
+   */
+  public void setBatchIndex(String theIndex) {
+    this.batchIndex = theIndex;
   }
 
 }
