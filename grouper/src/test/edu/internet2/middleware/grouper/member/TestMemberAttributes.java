@@ -303,6 +303,12 @@ public class TestMemberAttributes extends GrouperTest {
     ExpirableCache.clearAll();
 
     edu.grantPriv(SubjectFinder.findById("GrouperAll", true), NamingPrivilege.CREATE);
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+      // ignore
+    }
+
     Member member = GrouperDAOFactory.getFactory().getMember().findBySubject(GrouperConfig.ALL, true);
 
     assertEquals(GrouperConfig.ALL_NAME, member.getName());
@@ -323,6 +329,8 @@ public class TestMemberAttributes extends GrouperTest {
     ApiConfig.testConfig.clear();
     InternalSourceAdapter.instance().init();
     ExpirableCache.clearAll();
+    GrouperCacheUtils.clearAllCaches();
+    edu.revokePriv(SubjectFinder.findById("GrouperAll", true), NamingPrivilege.CREATE);
   }
   
   /**
@@ -422,6 +430,13 @@ public class TestMemberAttributes extends GrouperTest {
     Group group = edu.addChildGroup("Test", "Test Display");
     group.setDescription("Test Description");
     group.store();
+
+    try {
+      Thread.sleep(500);
+    } catch (InterruptedException e) {
+      // ignore
+    }
+
     Member member = GrouperDAOFactory.getFactory().getMember().findBySubject(group.getId(), true);
     
     assertEquals(group.getName(), member.getName());
@@ -446,6 +461,13 @@ public class TestMemberAttributes extends GrouperTest {
     Group group = edu.addChildGroup("Test", "Test Display");
     group.setDisplayExtension("Test Display2");
     group.store();
+
+    try {
+      Thread.sleep(500);
+    } catch (InterruptedException e) {
+      // ignore
+    }
+
     Member member = GrouperDAOFactory.getFactory().getMember().findBySubject(group.getId(), true);
     
     assertEquals(group.getName(), member.getName());
@@ -470,6 +492,13 @@ public class TestMemberAttributes extends GrouperTest {
     Group group = edu.addChildGroup("Test", "Test Display");
     group.setExtension("Test2");
     group.store();
+
+    try {
+      Thread.sleep(500);
+    } catch (InterruptedException e) {
+      // ignore
+    }
+
     Member member = GrouperDAOFactory.getFactory().getMember().findBySubject(group.getId(), true);
     
     assertEquals(group.getName(), member.getName());
@@ -493,6 +522,13 @@ public class TestMemberAttributes extends GrouperTest {
   public void testGroupMove() {
     Group group = edu.addChildGroup("Test", "Test Display");
     group.move(edu2);
+
+    try {
+      Thread.sleep(500);
+    } catch (InterruptedException e) {
+      // ignore
+    }
+
     Member member = GrouperDAOFactory.getFactory().getMember().findBySubject(group.getId(), true);
 
     assertEquals(group.getName(), member.getName());
@@ -518,6 +554,13 @@ public class TestMemberAttributes extends GrouperTest {
     edu.setExtension("edu3");
     edu.store();
     group = GrouperDAOFactory.getFactory().getGroup().findByUuid(group.getId(), true);
+
+    try {
+      Thread.sleep(500);
+    } catch (InterruptedException e) {
+      // ignore
+    }
+
     Member member = GrouperDAOFactory.getFactory().getMember().findBySubject(group.getId(), true);
     
     assertEquals(group.getName(), member.getName());
@@ -543,6 +586,13 @@ public class TestMemberAttributes extends GrouperTest {
     edu.setDisplayExtension("edu3");
     edu.store();
     group = GrouperDAOFactory.getFactory().getGroup().findByUuid(group.getId(), true);
+
+    try {
+      Thread.sleep(500);
+    } catch (InterruptedException e) {
+      // ignore
+    }
+
     Member member = GrouperDAOFactory.getFactory().getMember().findBySubject(group.getId(), true);
     
     assertEquals(group.getName(), member.getName());
