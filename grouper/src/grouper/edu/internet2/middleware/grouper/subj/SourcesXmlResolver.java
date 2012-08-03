@@ -960,6 +960,8 @@ public class SourcesXmlResolver implements SubjectResolver {
         subjectMapResults.putAll(subjectMap);
       }
     }
+
+    subjectMapResults = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjectMapResults, null);
     
     return subjectMapResults;
 
@@ -979,6 +981,9 @@ public class SourcesXmlResolver implements SubjectResolver {
 //        updateMemberAttributes(subject);
 //      }
 //    }
+    
+    subjectMap = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjectMap, null);
+
     return subjectMap;
   }
 
@@ -1016,6 +1021,8 @@ public class SourcesXmlResolver implements SubjectResolver {
       }
     }
     
+    subjectMapResults = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjectMapResults, null);
+
     return subjectMapResults;
     
   }
@@ -1032,7 +1039,9 @@ public class SourcesXmlResolver implements SubjectResolver {
 //      for (Subject subject : subjectMap.values()) {
 //        updateMemberAttributes(subject);
 //      }
+      
     }
+    subjectMap = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjectMap, null);
     return subjectMap;
 
   }
@@ -1071,6 +1080,8 @@ public class SourcesXmlResolver implements SubjectResolver {
       }
     }
     
+    subjectMapResults = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjectMapResults, null);
+
     return subjectMapResults;
 
     
@@ -1090,6 +1101,8 @@ public class SourcesXmlResolver implements SubjectResolver {
 //        updateMemberAttributes(subject);
 //      }
 //    }
+    subjectMap = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjectMap, null);
+
     return subjectMap;
 
   }

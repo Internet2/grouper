@@ -19,9 +19,6 @@ import java.util.Collection;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Stem.Scope;
-import edu.internet2.middleware.grouper.membership.MembershipResult;
-import edu.internet2.middleware.grouper.permissions.PermissionResult;
 import edu.internet2.middleware.subject.Subject;
 
 /**
