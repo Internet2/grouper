@@ -607,9 +607,8 @@ public class SubjectFinder {
    * @throws SubjectTooManyResults if more results than configured
    */
   public static Set<Subject> findAllInStem(String stemName, String query) {
-    
+    //TODO make sure filtering subjects
     return getResolver().findAllInStem(stemName, query);
-    
   } 
 
   /**
@@ -633,6 +632,7 @@ public class SubjectFinder {
   public static Set<Subject> findAll(String query, String source)
     throws  SourceUnavailableException
   {
+    //TODO make sure filtering subjects
     return getResolver().findAll(query, source);
   } 
 
@@ -659,10 +659,10 @@ public class SubjectFinder {
     if (sources == null || sources.isEmpty()) {
       return findAll(query);
     }
-    
+    //TODO make sure filtering subjects    
     return getResolver().findAll(query, sources);
     
-      }
+  }
 
   
   
@@ -1360,6 +1360,7 @@ public class SubjectFinder {
    * not be in the result
    */
   public static Map<String, Subject> findByIds(Collection<String> ids, String source) {
+    //TODO make sure filtering 
     return getResolver().findByIds(ids, source);
   }
 
