@@ -36,7 +36,9 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SubjectImpl;
 
-
+/**
+ * decorate an attribute for some subjects
+ */
 public class SubjectCustomizerForDecoratorUiDisplay extends SubjectCustomizerBase {
   
   /**
@@ -67,10 +69,20 @@ public class SubjectCustomizerForDecoratorUiDisplay extends SubjectCustomizerBas
     
     if (allowExtendedDisplay == null) {
       
-      //allow grouperSysAdmin or wheel group
-      allowExtendedDisplay = PrivilegeHelper.isWheelOrRoot(subjectCallingGrouperSession);
+      //dont allow grouperSysAdmin or wheel group
+      boolean grouperSystem = PrivilegeHelper.isSystemSubject(subjectCallingGrouperSession);
+      boolean wheel = PrivilegeHelper.isWheel(grouperSession);
       
-      if (!allowExtendedDisplay) {
+      //if grouper system then dont see the data, some thing happen as grouper system, dont allow
+      if (grouperSystem) {
+        allowExtendedDisplay = false;
+      } else if (wheel) {
+        
+        //if someone is a wheel group, they can see everything
+        allowExtendedDisplay = true;
+        
+      } else {
+
         //do this check as root so anyone can do it
         allowExtendedDisplay = (Boolean)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
           
