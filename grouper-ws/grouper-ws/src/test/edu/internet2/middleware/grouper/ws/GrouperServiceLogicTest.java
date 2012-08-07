@@ -6665,9 +6665,11 @@ public class GrouperServiceLogicTest extends GrouperTest {
     GrouperServiceUtils.testSession = GrouperSession.startRootSession();
     
     attributeAssigns = group.getAttributeDelegate().retrieveAssignments(attributeDefName);
-    assertEquals(0, GrouperUtil.length(attributeAssigns));
-    
-    
+    assertEquals(1, GrouperUtil.length(attributeAssigns));
+
+    attributeAssign = attributeAssigns.iterator().next();
+    assertEquals("hello1", attributeAssign.getAttributeValueDelegate().retrieveValueString(attributeDefName2.getName()));
+    assertEquals("hello2", attributeAssign.getAttributeValueDelegate().retrieveValueString(attributeDefName3.getName()));
     
   }
 
