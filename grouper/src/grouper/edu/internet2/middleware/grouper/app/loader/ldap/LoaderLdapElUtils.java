@@ -21,6 +21,10 @@ package edu.internet2.middleware.grouper.app.loader.ldap;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -91,5 +95,36 @@ public class LoaderLdapElUtils {
     }
     return path.toString();
   }
-  
+
+  /**
+   * test case showing a transformation where if the dn is the subjectIdToReturnGroup then make sure groupToCreateReturn
+   * exists and return its ID
+   * @param dn
+   * @param subjectIdToReturnGroup
+   * @param groupToCreateReturn
+   * @return the subject id or group id
+   */
+  public static String convertDnToSpecificValueTest(String dn, String subjectIdToReturnGroup, String groupToCreateReturn) {
+    
+    //not sure why this would happen
+    if (dn == null) {
+      return dn;
+    }
+   
+    String cn = LoaderLdapElUtils.convertDnToSpecificValue(dn);
+    
+    if (StringUtils.equals(cn, subjectIdToReturnGroup)) {
+      
+      Group group = GrouperDAOFactory.getFactory().getGroup().findByName(groupToCreateReturn, false, null);
+      
+      if (group == null) {
+        group = new GroupSave(GrouperSession.staticGrouperSession()).assignName(groupToCreateReturn).assignCreateParentStemsIfNotExist(true).save();
+      }
+
+      return group.getId();
+    }
+
+    //not a group
+    return cn;
+  }
 }

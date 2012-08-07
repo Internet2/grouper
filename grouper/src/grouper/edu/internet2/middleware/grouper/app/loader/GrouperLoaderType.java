@@ -2213,11 +2213,12 @@ public enum GrouperLoaderType {
                   GrouperLoader.dryRunWriteLine("Group: " + groupName + " delete " + GrouperUtil.subjectToString(theSubject));
                 } else {
                   //go from subject since large lists might be removed from cache
-                  alreadyDeleted = group[0].deleteMember(theSubject, false);
+                  alreadyDeleted = !group[0].deleteMember(theSubject, false);
+                  LOG.debug("Group: " + groupName + " delete " + GrouperUtil.subjectToString(theSubject) + ", alreadyDeleted? " + alreadyDeleted);
                 }
                  
-                if (LOG.isDebugEnabled() && (count != 0 && count % 200 == 0)) {
-                  LOG.debug(groupName + " removing: " + count + " of " + numberOfRows + " members" 
+                if (LOG.isInfoEnabled() && (count != 0 && count % 200 == 0)) {
+                  LOG.info(groupName + " removing: " + count + " of " + numberOfRows + " members" 
                       + (alreadyDeleted ? ", [note: was already deleted... weird]" : ""));
                 }
 
@@ -2248,14 +2249,15 @@ public enum GrouperLoaderType {
                 boolean alreadyAdded = false;
                 
                 if (GrouperLoader.isDryRun()) {
-                  alreadyAdded = group[0].hasMember(subject);
+                  alreadyAdded = !group[0].hasMember(subject);
                   GrouperLoader.dryRunWriteLine("Group: " + groupName + " add " + GrouperUtil.subjectToString(subject));
                 } else {
-                  alreadyAdded = group[0].addMember(subject, false);
+                  alreadyAdded = !group[0].addMember(subject, false);
+                  LOG.debug("Group: " + groupName + " add " + GrouperUtil.subjectToString(subject) + ", alreadyAdded: " + alreadyAdded);
                 }
                 
-                if (LOG.isDebugEnabled() && (count != 0 && count % 200 == 0)) {
-                  LOG.debug(groupName + " adding: " + count + " of " + numberOfRows + " subjects"
+                if (LOG.isInfoEnabled() && (count != 0 && count % 200 == 0)) {
+                  LOG.info(groupName + " adding: " + count + " of " + numberOfRows + " subjects"
                       + (alreadyAdded ? ", [note: was already added... weird]" : ""));
                 }
               } catch (Exception e) {
