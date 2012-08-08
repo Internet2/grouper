@@ -19,9 +19,11 @@
 package edu.internet2.middleware.grouper.ws.util;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -65,6 +67,8 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.coresoap.GrouperService;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefName;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsPermissionEnvVar;
 import edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta;
@@ -1294,4 +1298,66 @@ public final class GrouperServiceUtils {
     return false;
   }
   
+  /**
+   * merge one array into another array and return it
+   * @param <T> is the type that is being handled
+   * @param toArray
+   * @param fromArray
+   * @param propertyNameForEquality 
+   * @param theClass 
+   * @return the new array
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> T[] mergeArrays(T[] toArray, T[] fromArray, String propertyNameForEquality, Class<T> theClass) {
+    
+    //if there is nothing coming from, then return the old one (toArray)
+    if (GrouperUtil.length(fromArray) == 0) {
+      return toArray;
+    }
+    
+    //if there is nothing in to already, then use the from one
+    if (GrouperUtil.length(toArray) == 0) {
+      return fromArray;
+    }
+    
+    //see if they are in there
+    List<T> itemsToAdd = new ArrayList<T>();
+    
+    Set<String> toArrayNames = new HashSet<String>();
+    
+    //add all the toArrayNames
+    for (T item : toArray) {
+      String id = (String)GrouperUtil.propertyValue(item, propertyNameForEquality);
+      toArrayNames.add(id);
+    }
+    
+    Set<String> itemNamesToAddNames = new HashSet<String>();
+    
+    for (T item : fromArray) {
+      
+      String id = (String)GrouperUtil.propertyValue(item, propertyNameForEquality);
+
+      if (!toArrayNames.contains(id) && !itemNamesToAddNames.contains(id)) {
+        itemsToAdd.add(item);
+        itemNamesToAddNames.add(id);
+      }
+      
+    }
+    
+    //if there are any to add, then add them
+    T[] result = (T[])Array.newInstance(theClass, GrouperUtil.length(toArray) + itemNamesToAddNames.size());
+
+    if (GrouperUtil.length(toArray) > 0) {
+      System.arraycopy(toArray, 0, result, 0, GrouperUtil.length(toArray));
+    }
+    
+    int index = GrouperUtil.length(toArray);
+    for (T item : itemsToAdd) {
+      result[index++] = item;
+    }
+    
+    return result;
+  }
+
+
 }

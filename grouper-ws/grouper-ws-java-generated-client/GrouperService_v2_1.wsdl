@@ -1262,6 +1262,7 @@
             </xs:element>
             <xs:complexType name="WsAttributeAssignLookup">
                 <xs:sequence>
+                    <xs:element minOccurs="0" name="batchIndex" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
@@ -2004,6 +2005,73 @@
                     <xs:element minOccurs="0" name="wsAttributeAssignValue" nillable="true" type="ns:WsAttributeAssignValue"/>
                 </xs:sequence>
             </xs:complexType>
+            <xs:element name="assignAttributesBatch">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAssignAttributeBatchEntries" nillable="true" type="ns:WsAssignAttributeBatchEntry"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="includeSubjectDetail" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="txType" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="includeGroupDetail" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsAssignAttributeBatchEntry">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="action" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="assignmentDisabledTime" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="assignmentEnabledTime" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="assignmentNotes" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="attributeAssignOperation" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="attributeAssignType" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="attributeAssignValueOperation" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="delegatable" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="values" nillable="true" type="ns:WsAttributeAssignValue"/>
+                    <xs:element minOccurs="0" name="wsAttributeAssignLookup" nillable="true" type="ns:WsAttributeAssignLookup"/>
+                    <xs:element minOccurs="0" name="wsAttributeDefNameLookup" nillable="true" type="ns:WsAttributeDefNameLookup"/>
+                    <xs:element minOccurs="0" name="wsOwnerAttributeAssignLookup" nillable="true" type="ns:WsAttributeAssignLookup"/>
+                    <xs:element minOccurs="0" name="wsOwnerAttributeDefLookup" nillable="true" type="ns:WsAttributeDefLookup"/>
+                    <xs:element minOccurs="0" name="wsOwnerGroupLookup" nillable="true" type="ns:WsGroupLookup"/>
+                    <xs:element minOccurs="0" name="wsOwnerMembershipAnyLookup" nillable="true" type="ns:WsMembershipAnyLookup"/>
+                    <xs:element minOccurs="0" name="wsOwnerMembershipLookup" nillable="true" type="ns:WsMembershipLookup"/>
+                    <xs:element minOccurs="0" name="wsOwnerStemLookup" nillable="true" type="ns:WsStemLookup"/>
+                    <xs:element minOccurs="0" name="wsOwnerSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="assignAttributesBatchResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAssignAttributesBatchResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsAssignAttributesBatchResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAssignAttributeBatchResultArray" nillable="true" type="ns:WsAssignAttributeBatchResult"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeDefNames" nillable="true" type="ns:WsAttributeDefName"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeDefs" nillable="true" type="ns:WsAttributeDef"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsGroups" nillable="true" type="ns:WsGroup"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsMemberships" nillable="true" type="ns:WsMembership"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsStems" nillable="true" type="ns:WsStem"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsSubjects" nillable="true" type="ns:WsSubject"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsAssignAttributeBatchResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="changed" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="deleted" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element minOccurs="0" name="valuesChanged" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeAssignValueResults" nillable="true" type="ns:WsAttributeAssignValueResult"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeAssigns" nillable="true" type="ns:WsAttributeAssign"/>
+                </xs:sequence>
+            </xs:complexType>
             <xs:element name="assignAttributes">
                 <xs:complexType>
                     <xs:sequence>
@@ -2383,6 +2451,12 @@
     <wsdl:message name="getMembersLiteResponse">
         <wsdl:part name="parameters" element="ns:getMembersLiteResponse"/>
     </wsdl:message>
+    <wsdl:message name="assignAttributesBatchRequest">
+        <wsdl:part name="parameters" element="ns:assignAttributesBatch"/>
+    </wsdl:message>
+    <wsdl:message name="assignAttributesBatchResponse">
+        <wsdl:part name="parameters" element="ns:assignAttributesBatchResponse"/>
+    </wsdl:message>
     <wsdl:message name="getGroupsLiteRequest">
         <wsdl:part name="parameters" element="ns:getGroupsLite"/>
     </wsdl:message>
@@ -2603,6 +2677,10 @@
         <wsdl:operation name="getMembersLite">
             <wsdl:input message="tns:getMembersLiteRequest" wsaw:Action="urn:getMembersLite"/>
             <wsdl:output message="tns:getMembersLiteResponse" wsaw:Action="urn:getMembersLiteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="assignAttributesBatch">
+            <wsdl:input message="tns:assignAttributesBatchRequest" wsaw:Action="urn:assignAttributesBatch"/>
+            <wsdl:output message="tns:assignAttributesBatchResponse" wsaw:Action="urn:assignAttributesBatchResponse"/>
         </wsdl:operation>
         <wsdl:operation name="getGroupsLite">
             <wsdl:input message="tns:getGroupsLiteRequest" wsaw:Action="urn:getGroupsLite"/>
@@ -2943,6 +3021,15 @@
         </wsdl:operation>
         <wsdl:operation name="getMembersLite">
             <soap:operation soapAction="urn:getMembersLite" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="assignAttributesBatch">
+            <soap:operation soapAction="urn:assignAttributesBatch" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -3376,6 +3463,15 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="assignAttributesBatch">
+            <soap12:operation soapAction="urn:assignAttributesBatch" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="getGroupsLite">
             <soap12:operation soapAction="urn:getGroupsLite" style="document"/>
             <wsdl:input>
@@ -3795,6 +3891,15 @@
         </wsdl:operation>
         <wsdl:operation name="getMembersLite">
             <http:operation location="getMembersLite"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="assignAttributesBatch">
+            <http:operation location="assignAttributesBatch"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>

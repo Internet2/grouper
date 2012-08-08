@@ -60,6 +60,7 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMemberLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributeDefNameInheritance;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributeDefNameInheritanceLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributes;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributesBatch;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributesLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributesWithValue;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributesWithValueLite;
@@ -110,6 +111,7 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemSaveLite;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributeDefNameInheritanceRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributeDefNameInheritanceRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributesBatchRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributesRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributesRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributesWithValueRest;
@@ -202,7 +204,7 @@ public class SampleCapture {
     //setupData();
 
 
-    captureAddMember();
+    captureAssignAttributesBatch();
 
 
 //  captureRampart();
@@ -214,6 +216,7 @@ public class SampleCapture {
 //    captureAddMember();
 //    captureAssignAttributeDefNameInheritance();
 //    captureAssignAttributes();
+//    captureAssignAttributesBatch();
 //    captureAssignAttributesWithValue();
 //    captureAssignGrouperPrivileges();
 //    captureAssignPermissions();
@@ -908,6 +911,17 @@ public class SampleCapture {
         WsSampleAssignAttributesRest.class, "assignAttributes", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAssignAttributesRestLite.class, "assignAttributes", null);
+    
+  }
+
+  /**
+   * assign attributes batch captures
+   */
+  public static void captureAssignAttributesBatch() {
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleAssignAttributesBatch.class, "assignAttributesBatch", (String)null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleAssignAttributesBatchRest.class, "assignAttributesBatch", null);
     
   }
 

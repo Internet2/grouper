@@ -7457,6 +7457,8 @@ public class GrouperServiceLogic {
                 grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
               }
 
+              wsAssignAttributesBatchResults.sortResults();
+
               return null;
             }
       });
@@ -7466,6 +7468,7 @@ public class GrouperServiceLogic {
     } finally {
       GrouperSession.stopQuietly(session);
     }
+    
     
     return wsAssignAttributesBatchResults; 
   

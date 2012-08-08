@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult.WsAddMembe
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults.WsAddMemberResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult.WsAssignAttributeBatchResultCode;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * <pre>
@@ -436,10 +437,10 @@ public class WsAssignAttributesBatchResults implements WsResponseBean, ResultMet
    * sort the results by assignment
    */
   public void sortResults() {
-    //maybe we shouldnt do this for huge resultsets, but this makes things more organized and easier to test
-    if (this.wsAssignAttributeBatchResultArray != null) {
-      Arrays.sort(this.wsAssignAttributeBatchResultArray);
-    }
+    //dont do this, they should be in order
+    //if (this.wsAssignAttributeBatchResultArray != null) {
+    //  Arrays.sort(this.wsAssignAttributeBatchResultArray);
+    //}
     if (this.wsAttributeDefNames != null) {
       Arrays.sort(this.wsAttributeDefNames);
     }
@@ -481,6 +482,15 @@ public class WsAssignAttributesBatchResults implements WsResponseBean, ResultMet
       wsAssignAttributeBatchResult = 
         new WsAssignAttributeBatchResult(wsAssignAttributesResults, 
             wsAssignAttributesResults.getWsAttributeAssignResults()[0]);
+      
+      //do the related objects
+      this.wsAttributeDefNames = GrouperServiceUtils.mergeArrays(this.wsAttributeDefNames, wsAssignAttributesResults.getWsAttributeDefNames(), "name", WsAttributeDefName.class);
+      this.wsAttributeDefs = GrouperServiceUtils.mergeArrays(this.wsAttributeDefs, wsAssignAttributesResults.getWsAttributeDefs(), "name", WsAttributeDef.class);
+      this.wsGroups = GrouperServiceUtils.mergeArrays(this.wsGroups, wsAssignAttributesResults.getWsGroups(), "name", WsGroup.class);
+      this.wsMemberships = GrouperServiceUtils.mergeArrays(this.wsMemberships, wsAssignAttributesResults.getWsMemberships(), "name", WsMembership.class);
+      this.wsStems = GrouperServiceUtils.mergeArrays(this.wsStems, wsAssignAttributesResults.getWsStems(), "name", WsStem.class);
+      this.wsSubjects = GrouperServiceUtils.mergeArrays(this.wsSubjects, wsAssignAttributesResults.getWsSubjects(), "name", WsSubject.class);
+      
     } else {
       wsAssignAttributeBatchResult = new WsAssignAttributeBatchResult(wsAssignAttributesResults, theError, e);
       //add a blank one?
