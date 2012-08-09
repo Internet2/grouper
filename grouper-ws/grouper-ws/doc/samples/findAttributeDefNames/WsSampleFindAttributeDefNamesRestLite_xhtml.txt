@@ -1,4 +1,4 @@
-Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttributeDefNamesRestLite, manually written lite/rest, format: xhtml, for version: 2.1.0
+Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttributeDefNamesRestLite, manually written lite/rest, format: xhtml, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttrib
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 964
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -66,7 +66,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sat, 17 Mar 2012 15:37:08 GMT
+Date: Sun, 01 Jul 2012 13:36:34 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -80,22 +80,22 @@ Connection: close
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.1.0, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
+        <p class="resultMessage">Success for: clientVersion: 2.1.1, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
 wsAttributeDefNameLookups: null
 wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: null, paramNames:
 , params: null</p>
         <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">41</p>
+        <p class="millis">142</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.1.0</p>
+        <p class="serverVersion">2.1.1</p>
       </div>
       <ul class="attributeDefs">
         <li title="WsAttributeDef">
           <p class="name">test:testAttributeAssignAssignNameDef</p>
           <p class="description" />
-          <p class="uuid">228db852150c49b58b048a437a40dc0e</p>
+          <p class="uuid">4360488a2d0847cba8822aa22acd4a59</p>
           <p class="extension">testAttributeAssignAssignNameDef</p>
           <p class="attributeDefType">attr</p>
           <p class="multiAssignable">F</p>
@@ -105,7 +105,7 @@ wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: nu
         <li title="WsAttributeDef">
           <p class="name">test:testAttributeAssignDefNameDef</p>
           <p class="description" />
-          <p class="uuid">3a5fad572d814d7c8d0890bc10109c15</p>
+          <p class="uuid">01d837003bbd4a309e9a9475de2e9eea</p>
           <p class="extension">testAttributeAssignDefNameDef</p>
           <p class="attributeDefType">attr</p>
           <p class="multiAssignable">F</p>
@@ -118,21 +118,21 @@ wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: nu
           <p class="name">test:testAttributeAssignAssignName</p>
           <p class="displayName">test:testAttributeAssignAssignName</p>
           <p class="description" />
-          <p class="uuid">bd4e1adb79e24e7b89ca2821d2658dc3</p>
+          <p class="uuid">a56af4317f014fe0b0c317bf99fd5adf</p>
           <p class="extension">testAttributeAssignAssignName</p>
           <p class="displayExtension">testAttributeAssignAssignName</p>
           <p class="attributeDefName">test:testAttributeAssignAssignNameDef</p>
-          <p class="attributeDefId">228db852150c49b58b048a437a40dc0e</p>
+          <p class="attributeDefId">4360488a2d0847cba8822aa22acd4a59</p>
         </li>
         <li title="WsAttributeDefName">
           <p class="name">test:testAttributeAssignDefName</p>
           <p class="displayName">test:testAttributeAssignDefName</p>
           <p class="description" />
-          <p class="uuid">1aecdff06327433f9bcc0bfbd367792d</p>
+          <p class="uuid">7c032aa59b4a4d0e85ba884ea6b4eed0</p>
           <p class="extension">testAttributeAssignDefName</p>
           <p class="displayExtension">testAttributeAssignDefName</p>
           <p class="attributeDefName">test:testAttributeAssignDefNameDef</p>
-          <p class="attributeDefId">3a5fad572d814d7c8d0890bc10109c15</p>
+          <p class="attributeDefId">01d837003bbd4a309e9a9475de2e9eea</p>
         </li>
       </ul>
     </div>
@@ -150,6 +150,21 @@ wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: nu
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
 
 import org.apache.commons.httpclient.Credentials;
@@ -291,7 +306,7 @@ public class WsSampleFindAttributeDefNamesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: Success for: clientVersion: 2.1.0, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
+Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
 wsAttributeDefNameLookups: null
 wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: null, paramNames: 
 , params: null

@@ -1,4 +1,4 @@
-Grouper web service sample of service: getPermissionAssignments, WsSampleGetPermissionAssignmentsRest, manually written lite/rest, format: xhtml, for version: 2.1.0
+Grouper web service sample of service: getPermissionAssignments, WsSampleGetPermissionAssignmentsRest, manually written lite/rest, format: xhtml, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getPermissionAssignments, WsSampleGetPerm
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/permissionAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/permissionAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 1007
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -66,7 +66,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sat, 17 Mar 2012 15:44:49 GMT
+Date: Sun, 01 Jul 2012 14:01:30 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -84,16 +84,16 @@ Connection: close
         <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">100</p>
+        <p class="millis">119</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.1.0</p>
+        <p class="serverVersion">2.1.1</p>
       </div>
       <ul class="wsGroups">
         <li title="WsGroup">
           <p class="name">aStem:role</p>
           <p class="displayName">a stem:role</p>
           <p class="description" />
-          <p class="uuid">13242e00a9bc4f4bac15f8830dbad7ec</p>
+          <p class="uuid">0f105bb26b1c44aaabbf48dde0d47093</p>
           <div class="detail" title="WsGroupDetail" />
           <p class="extension">role</p>
           <p class="displayExtension">role</p>
@@ -103,7 +103,7 @@ Connection: close
           <p class="name">aStem:role2</p>
           <p class="displayName">a stem:role2</p>
           <p class="description" />
-          <p class="uuid">fa5ec70e26c84a7493be53821136d485</p>
+          <p class="uuid">dd6aeb1e19bf476595cf27679f5dbcb8</p>
           <div class="detail" title="WsGroupDetail" />
           <p class="extension">role2</p>
           <p class="displayExtension">role2</p>
@@ -114,7 +114,7 @@ Connection: close
         <li title="WsAttributeDef">
           <p class="name">aStem:permissionDef</p>
           <p class="description" />
-          <p class="uuid">9bcace2ae8ba4df4b1b99e632d212a84</p>
+          <p class="uuid">28ed32ca9a414933831bccdf08c78544</p>
           <p class="extension">permissionDef</p>
           <p class="attributeDefType">perm</p>
           <p class="multiAssignable">F</p>
@@ -129,15 +129,15 @@ Connection: close
           <p class="subjectId">test.subject.0</p>
           <div class="detail" title="WsPermissionAssignDetail" />
           <p class="attributeDefName">aStem:permissionDef</p>
-          <p class="attributeDefId">9bcace2ae8ba4df4b1b99e632d212a84</p>
-          <p class="attributeDefNameId">bd0b285930544e28b239e52e04f27bf5</p>
+          <p class="attributeDefId">28ed32ca9a414933831bccdf08c78544</p>
+          <p class="attributeDefNameId">40ef1dd3ffd641ca8462cc7c6de4621b</p>
           <p class="attributeDefNameName">aStem:permissionDefName</p>
           <p class="enabled">T</p>
           <p class="permissionType">role</p>
-          <p class="attributeAssignId">1b3db570eb894baf9f7f8a8c506dea2e</p>
-          <p class="roleId">13242e00a9bc4f4bac15f8830dbad7ec</p>
+          <p class="attributeAssignId">0994581a5dfb4478b2fec734c6ce3b45</p>
+          <p class="roleId">0f105bb26b1c44aaabbf48dde0d47093</p>
           <p class="roleName">aStem:role</p>
-          <p class="membershipId">f74385ecd833455a8b9a62808179ea16:cdef99bd72fc4f4d8acb689e4873cecc</p>
+          <p class="membershipId">2cf3b38923934862b64504cc59962272:24fdadd770dd4080931433de1cd2426c</p>
           <p class="disallowed">F</p>
           <p class="allowedOverall">T</p>
         </li>
@@ -147,15 +147,15 @@ Connection: close
           <p class="subjectId">test.subject.4</p>
           <div class="detail" title="WsPermissionAssignDetail" />
           <p class="attributeDefName">aStem:permissionDef</p>
-          <p class="attributeDefId">9bcace2ae8ba4df4b1b99e632d212a84</p>
-          <p class="attributeDefNameId">bd0b285930544e28b239e52e04f27bf5</p>
+          <p class="attributeDefId">28ed32ca9a414933831bccdf08c78544</p>
+          <p class="attributeDefNameId">40ef1dd3ffd641ca8462cc7c6de4621b</p>
           <p class="attributeDefNameName">aStem:permissionDefName</p>
           <p class="enabled">T</p>
           <p class="permissionType">role</p>
-          <p class="attributeAssignId">1b3db570eb894baf9f7f8a8c506dea2e</p>
-          <p class="roleId">13242e00a9bc4f4bac15f8830dbad7ec</p>
+          <p class="attributeAssignId">0994581a5dfb4478b2fec734c6ce3b45</p>
+          <p class="roleId">0f105bb26b1c44aaabbf48dde0d47093</p>
           <p class="roleName">aStem:role</p>
-          <p class="membershipId">30c2ee59de5f426ea699d30600496b2c:cdef99bd72fc4f4d8acb689e4873cecc</p>
+          <p class="membershipId">aa02912621a444b0b6fcbc025bca0f9d:24fdadd770dd4080931433de1cd2426c</p>
           <p class="disallowed">F</p>
           <p class="allowedOverall">T</p>
         </li>
@@ -165,15 +165,15 @@ Connection: close
           <p class="subjectId">test.subject.1</p>
           <div class="detail" title="WsPermissionAssignDetail" />
           <p class="attributeDefName">aStem:permissionDef</p>
-          <p class="attributeDefId">9bcace2ae8ba4df4b1b99e632d212a84</p>
-          <p class="attributeDefNameId">0aa81cb7118049caadfd777c39afecf8</p>
+          <p class="attributeDefId">28ed32ca9a414933831bccdf08c78544</p>
+          <p class="attributeDefNameId">f13fd62eb77147d589c02b92d97c8b03</p>
           <p class="attributeDefNameName">aStem:permissionDefName2</p>
           <p class="enabled">T</p>
           <p class="permissionType">role_subject</p>
-          <p class="attributeAssignId">8455166d4ea0441e84ef7b4905644983</p>
-          <p class="roleId">fa5ec70e26c84a7493be53821136d485</p>
+          <p class="attributeAssignId">61640a7b0b08405280604c1cd35ad529</p>
+          <p class="roleId">dd6aeb1e19bf476595cf27679f5dbcb8</p>
           <p class="roleName">aStem:role2</p>
-          <p class="membershipId">c1a5e652586b49c88584c5b4bde03ea0:3027a0e0c4e24d598f9e5744f21680ac</p>
+          <p class="membershipId">b3320f90c8c34860b2734ce36194797b:872f1582f44d423aafc4136c47a55f91</p>
           <p class="disallowed">F</p>
           <p class="allowedOverall">T</p>
         </li>
@@ -193,6 +193,21 @@ Connection: close
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.permission;
 
 import org.apache.commons.httpclient.Credentials;
@@ -330,7 +345,7 @@ public class WsSampleGetPermissionAssignmentsRest implements WsSampleRest {
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
     //dont allow http params
-    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
   }
 }
 
@@ -342,4 +357,4 @@ public class WsSampleGetPermissionAssignmentsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: , Found 3 results.
+Server version: 2.1.1, result code: SUCCESS, result message: , Found 3 results.

@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRest, manually written lite/rest, format: xhtml, for version: 2.1.0
+Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRest, manually written lite/rest, format: xhtml, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRes
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/memberships HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/memberships HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 861
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -27,7 +27,16 @@ Content-Type: application/xhtml+xml; charset=UTF-8
     <div title="WsRestGetMembershipsRequest">
       <p class="scope" />
       <p class="enabled" />
+      <p class="stemScope" />
+      <div class="wsStemLookup" title="WsStemLookup" />
       <p class="clientVersion" />
+      <ul class="wsGroupLookups">
+        <li title="WsGroupLookup">
+          <p class="uuid" />
+          <p class="groupName">aStem:aGroup</p>
+        </li>
+      </ul>
+      <p class="memberFilter" />
       <div class="actAsSubjectLookup" title="WsSubjectLookup" />
       <p class="includeGroupDetail" />
       <p class="includeSubjectDetail" />
@@ -35,15 +44,6 @@ Content-Type: application/xhtml+xml; charset=UTF-8
         <li>description</li>
         <li>loginid</li>
         <li>name</li>
-      </ul>
-      <p class="memberFilter" />
-      <div class="wsStemLookup" title="WsStemLookup" />
-      <p class="stemScope" />
-      <ul class="wsGroupLookups">
-        <li title="WsGroupLookup">
-          <p class="uuid" />
-          <p class="groupName">aStem:aGroup</p>
-        </li>
       </ul>
       <p class="fieldName" />
     </div>
@@ -66,7 +66,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sat, 17 Mar 2012 15:43:43 GMT
+Date: Sun, 01 Jul 2012 15:46:56 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -84,9 +84,9 @@ Connection: close
         <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">133</p>
+        <p class="millis">670</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.1.0</p>
+        <p class="serverVersion">2.1.1</p>
       </div>
       <ul class="subjectAttributeNames">
         <li>description</li>
@@ -139,7 +139,7 @@ Connection: close
           <p class="name">aStem:aGroup</p>
           <p class="displayName">a stem:a group</p>
           <p class="description">a group description</p>
-          <p class="uuid">05363c4f1afe41dd8fd63902fed0b22a</p>
+          <p class="uuid">674d142dd8084e338c1308b0abb798b2</p>
           <div class="detail" title="WsGroupDetail" />
           <p class="extension">aGroup</p>
           <p class="displayExtension">a group</p>
@@ -151,14 +151,14 @@ Connection: close
           <p class="subjectSourceId">g:isa</p>
           <p class="subjectId">GrouperSystem</p>
           <p class="groupName">aStem:aGroup</p>
-          <p class="createTime">2012/03/17 11:43:41.049</p>
+          <p class="createTime">2012/07/01 11:46:52.917</p>
           <p class="disabledTime" />
           <p class="enabled">T</p>
           <p class="enabledTime" />
-          <p class="membershipId">7d73582758e840d5a84138591f6f4edf:aec05e8ecd004292b38c5e1487e6d0f0</p>
-          <p class="memberId">79abac8156174e11a8f226bf7d001f91</p>
-          <p class="immediateMembershipId">7d73582758e840d5a84138591f6f4edf</p>
-          <p class="groupId">05363c4f1afe41dd8fd63902fed0b22a</p>
+          <p class="membershipId">c807fd350b3942869d8ef6937ee1f2eb:1d9db408dc324648aad7748d7469e46a</p>
+          <p class="memberId">c6292ab1fe8c40289b69633fad5278f9</p>
+          <p class="immediateMembershipId">c807fd350b3942869d8ef6937ee1f2eb</p>
+          <p class="groupId">674d142dd8084e338c1308b0abb798b2</p>
           <p class="listName">members</p>
           <p class="listType">list</p>
           <p class="membershipType">immediate</p>
@@ -167,14 +167,14 @@ Connection: close
           <p class="subjectSourceId">jdbc</p>
           <p class="subjectId">10021368</p>
           <p class="groupName">aStem:aGroup</p>
-          <p class="createTime">2012/03/17 11:43:41.086</p>
+          <p class="createTime">2012/07/01 11:46:52.990</p>
           <p class="disabledTime" />
           <p class="enabled">T</p>
           <p class="enabledTime" />
-          <p class="membershipId">92e1920a2f34402ab19ff143c98f7ac3:aec05e8ecd004292b38c5e1487e6d0f0</p>
-          <p class="memberId">deb765ba55b64a2da212ee145b684d91</p>
-          <p class="immediateMembershipId">92e1920a2f34402ab19ff143c98f7ac3</p>
-          <p class="groupId">05363c4f1afe41dd8fd63902fed0b22a</p>
+          <p class="membershipId">6d13edc29b2e44a2a93ada8cf31cf73b:1d9db408dc324648aad7748d7469e46a</p>
+          <p class="memberId">73887c79c97d4ee5903411f208be2bd8</p>
+          <p class="immediateMembershipId">6d13edc29b2e44a2a93ada8cf31cf73b</p>
+          <p class="groupId">674d142dd8084e338c1308b0abb798b2</p>
           <p class="listName">members</p>
           <p class="listType">list</p>
           <p class="membershipType">immediate</p>
@@ -183,14 +183,14 @@ Connection: close
           <p class="subjectSourceId">jdbc</p>
           <p class="subjectId">10039438</p>
           <p class="groupName">aStem:aGroup</p>
-          <p class="createTime">2012/03/17 11:43:41.065</p>
+          <p class="createTime">2012/07/01 11:46:52.963</p>
           <p class="disabledTime" />
           <p class="enabled">T</p>
           <p class="enabledTime" />
-          <p class="membershipId">6ce0a628cd474037a78a7f0a75021c2f:aec05e8ecd004292b38c5e1487e6d0f0</p>
-          <p class="memberId">c5aaa32680da4676bb63b927578070c9</p>
-          <p class="immediateMembershipId">6ce0a628cd474037a78a7f0a75021c2f</p>
-          <p class="groupId">05363c4f1afe41dd8fd63902fed0b22a</p>
+          <p class="membershipId">10a1636cb25146809b335d480c929a58:1d9db408dc324648aad7748d7469e46a</p>
+          <p class="memberId">124e34436b424b8dbe476c1ec1979270</p>
+          <p class="immediateMembershipId">10a1636cb25146809b335d480c929a58</p>
+          <p class="groupId">674d142dd8084e338c1308b0abb798b2</p>
           <p class="listName">members</p>
           <p class="listType">list</p>
           <p class="membershipType">immediate</p>
@@ -211,6 +211,21 @@ Connection: close
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.membership;
 
 import org.apache.commons.httpclient.Credentials;
@@ -349,7 +364,7 @@ public class WsSampleGetMembershipsRest implements WsSampleRest {
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
     //dont allow http params
-    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
   }
 }
 
@@ -361,4 +376,4 @@ public class WsSampleGetMembershipsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: Found 3 results involving 1 groups and 3 subjects
+Server version: 2.1.1, result code: SUCCESS, result message: Found 3 results involving 1 groups and 3 subjects

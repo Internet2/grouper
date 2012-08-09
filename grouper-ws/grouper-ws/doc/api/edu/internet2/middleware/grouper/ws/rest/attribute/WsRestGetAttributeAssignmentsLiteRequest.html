@@ -184,6 +184,23 @@ Bean for rest request to get attributes lite
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsLiteRequest.html?view=co#getAttributeDefType()">getAttributeDefType</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;null for all, or specify an AttributeDefType e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsLiteRequest.html?view=co#getAttributeDefValueType()">getAttributeDefValueType</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;required if sending theValue, can be:
+ floating, integer, memberId, string, timestamp</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsLiteRequest.html?view=co#getClientVersion()">getClientVersion</A></B>()</CODE>
 
 <BR>
@@ -196,6 +213,15 @@ Bean for rest request to get attributes lite
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;is A for all, T or null for enabled only, F for disabled</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsLiteRequest.html?view=co#getIncludeAssignmentsFromAssignments()">getIncludeAssignmentsFromAssignments</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T|F if you are finding an assignment that is an assignmentOnAssignment,
+ then get the assignment which tells you the owner as well</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -263,6 +289,62 @@ Bean for rest request to get attributes lite
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;are the additional subject attributes (data) to return (comma separated)
  If blank, whatever is configured in the grouper-ws.properties will be sent</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsLiteRequest.html?view=co#getTheValue()">getTheValue</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value if you are passing in one attributeDefNameLookup</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsLiteRequest.html?view=co#getWsAssignAssignOwnerAction()">getWsAssignAssignOwnerAction</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if looking for assignments on assignments, this is the action of the assignment the assignment is assigned to</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsLiteRequest.html?view=co#getWsAssignAssignOwnerAttributeAssignId()">getWsAssignAssignOwnerAttributeAssignId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if looking for assignments on assignments, this is the assignment the assignment is assigned to</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsLiteRequest.html?view=co#getWsAssignAssignOwnerIdOfAttributeDef()">getWsAssignAssignOwnerIdOfAttributeDef</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsLiteRequest.html?view=co#getWsAssignAssignOwnerIdOfAttributeDefName()">getWsAssignAssignOwnerIdOfAttributeDefName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsLiteRequest.html?view=co#getWsAssignAssignOwnerNameOfAttributeDef()">getWsAssignAssignOwnerNameOfAttributeDef</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsLiteRequest.html?view=co#getWsAssignAssignOwnerNameOfAttributeDefName()">getWsAssignAssignOwnerNameOfAttributeDefName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -476,6 +558,23 @@ Bean for rest request to get attributes lite
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsLiteRequest.html?view=co#setAttributeDefType(java.lang.String)">setAttributeDefType</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefType1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;null for all, or specify an AttributeDefType e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsLiteRequest.html?view=co#setAttributeDefValueType(java.lang.String)">setAttributeDefValueType</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefValueType1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;required if sending theValue, can be:
+ floating, integer, memberId, string, timestamp</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsLiteRequest.html?view=co#setClientVersion(java.lang.String)">setClientVersion</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;clientVersion1)</CODE>
 
 <BR>
@@ -488,6 +587,15 @@ Bean for rest request to get attributes lite
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;is A for all, T or null for enabled only, F for disabled</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsLiteRequest.html?view=co#setIncludeAssignmentsFromAssignments(java.lang.String)">setIncludeAssignmentsFromAssignments</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;includeAssignmentsFromAssignments1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T|F if you are finding an assignment that is an assignmentOnAssignment,
+ then get the assignment which tells you the owner as well</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -555,6 +663,62 @@ Bean for rest request to get attributes lite
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;are the additional subject attributes (data) to return (comma separated)
  If blank, whatever is configured in the grouper-ws.properties will be sent</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsLiteRequest.html?view=co#setTheValue(java.lang.String)">setTheValue</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theValue1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value if you are passing in one attributeDefNameLookup</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsLiteRequest.html?view=co#setWsAssignAssignOwnerAction(java.lang.String)">setWsAssignAssignOwnerAction</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;wsAssignAssignOwnerAction1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if looking for assignments on assignments, this is the action of the assignment the assignment is assigned to</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsLiteRequest.html?view=co#setWsAssignAssignOwnerAttributeAssignId(java.lang.String)">setWsAssignAssignOwnerAttributeAssignId</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;wsAssignAssignOwnerAttributeAssignId1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if looking for assignments on assignments, this is the assignment the assignment is assigned to</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsLiteRequest.html?view=co#setWsAssignAssignOwnerIdOfAttributeDef(java.lang.String)">setWsAssignAssignOwnerIdOfAttributeDef</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;wsAssignAssignOwnerIdOfAttributeDef1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsLiteRequest.html?view=co#setWsAssignAssignOwnerIdOfAttributeDefName(java.lang.String)">setWsAssignAssignOwnerIdOfAttributeDefName</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;wsAssignAssignOwnerIdOfAttributeDefName1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsLiteRequest.html?view=co#setWsAssignAssignOwnerNameOfAttributeDef(java.lang.String)">setWsAssignAssignOwnerNameOfAttributeDef</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;wsAssignAssignOwnerNameOfAttributeDef1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsLiteRequest.html?view=co#setWsAssignAssignOwnerNameOfAttributeDefName(java.lang.String)">setWsAssignAssignOwnerNameOfAttributeDefName</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;wsAssignAssignOwnerNameOfAttributeDefName1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -747,6 +911,142 @@ public <B>WsRestGetAttributeAssignmentsLiteRequest</B>()</PRE>
 <B>Method Detail</B></FONT></TH>
 </TR>
 </TABLE>
+
+<A NAME="getAttributeDefValueType()"><!-- --></A><H3>
+getAttributeDefValueType</H3>
+<PRE>
+public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getAttributeDefValueType</B>()</PRE>
+<DL>
+<DD>required if sending theValue, can be:
+ floating, integer, memberId, string, timestamp
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>attributeDefValueType</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setAttributeDefValueType(java.lang.String)"><!-- --></A><H3>
+setAttributeDefValueType</H3>
+<PRE>
+public void <B>setAttributeDefValueType</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefValueType1)</PRE>
+<DL>
+<DD>required if sending theValue, can be:
+ floating, integer, memberId, string, timestamp
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefValueType1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAttributeDefType()"><!-- --></A><H3>
+getAttributeDefType</H3>
+<PRE>
+public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getAttributeDefType</B>()</PRE>
+<DL>
+<DD>null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>attributeDefValueType</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setAttributeDefType(java.lang.String)"><!-- --></A><H3>
+setAttributeDefType</H3>
+<PRE>
+public void <B>setAttributeDefType</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefType1)</PRE>
+<DL>
+<DD>null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefType1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getTheValue()"><!-- --></A><H3>
+getTheValue</H3>
+<PRE>
+public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getTheValue</B>()</PRE>
+<DL>
+<DD>value if you are passing in one attributeDefNameLookup
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>value</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setTheValue(java.lang.String)"><!-- --></A><H3>
+setTheValue</H3>
+<PRE>
+public void <B>setTheValue</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theValue1)</PRE>
+<DL>
+<DD>value if you are passing in one attributeDefNameLookup
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theValue1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getIncludeAssignmentsFromAssignments()"><!-- --></A><H3>
+getIncludeAssignmentsFromAssignments</H3>
+<PRE>
+public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getIncludeAssignmentsFromAssignments</B>()</PRE>
+<DL>
+<DD>T|F if you are finding an assignment that is an assignmentOnAssignment,
+ then get the assignment which tells you the owner as well
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>if include assignments from assignments</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setIncludeAssignmentsFromAssignments(java.lang.String)"><!-- --></A><H3>
+setIncludeAssignmentsFromAssignments</H3>
+<PRE>
+public void <B>setIncludeAssignmentsFromAssignments</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;includeAssignmentsFromAssignments1)</PRE>
+<DL>
+<DD>T|F if you are finding an assignment that is an assignmentOnAssignment,
+ then get the assignment which tells you the owner as well
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>includeAssignmentsFromAssignments1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
 
 <A NAME="retrieveRestHttpMethod()"><!-- --></A><H3>
 retrieveRestHttpMethod</H3>
@@ -1924,6 +2224,204 @@ public void <B>setEnabled</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/j
 </DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>enabled1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getWsAssignAssignOwnerAttributeAssignId()"><!-- --></A><H3>
+getWsAssignAssignOwnerAttributeAssignId</H3>
+<PRE>
+public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getWsAssignAssignOwnerAttributeAssignId</B>()</PRE>
+<DL>
+<DD>if looking for assignments on assignments, this is the assignment the assignment is assigned to
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>id</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setWsAssignAssignOwnerAttributeAssignId(java.lang.String)"><!-- --></A><H3>
+setWsAssignAssignOwnerAttributeAssignId</H3>
+<PRE>
+public void <B>setWsAssignAssignOwnerAttributeAssignId</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;wsAssignAssignOwnerAttributeAssignId1)</PRE>
+<DL>
+<DD>if looking for assignments on assignments, this is the assignment the assignment is assigned to
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>wsAssignAssignOwnerAttributeAssignId1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getWsAssignAssignOwnerIdOfAttributeDef()"><!-- --></A><H3>
+getWsAssignAssignOwnerIdOfAttributeDef</H3>
+<PRE>
+public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getWsAssignAssignOwnerIdOfAttributeDef</B>()</PRE>
+<DL>
+<DD>if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>id</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setWsAssignAssignOwnerIdOfAttributeDef(java.lang.String)"><!-- --></A><H3>
+setWsAssignAssignOwnerIdOfAttributeDef</H3>
+<PRE>
+public void <B>setWsAssignAssignOwnerIdOfAttributeDef</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;wsAssignAssignOwnerIdOfAttributeDef1)</PRE>
+<DL>
+<DD>if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>wsAssignAssignOwnerIdOfAttributeDef1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getWsAssignAssignOwnerNameOfAttributeDef()"><!-- --></A><H3>
+getWsAssignAssignOwnerNameOfAttributeDef</H3>
+<PRE>
+public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getWsAssignAssignOwnerNameOfAttributeDef</B>()</PRE>
+<DL>
+<DD>if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setWsAssignAssignOwnerNameOfAttributeDef(java.lang.String)"><!-- --></A><H3>
+setWsAssignAssignOwnerNameOfAttributeDef</H3>
+<PRE>
+public void <B>setWsAssignAssignOwnerNameOfAttributeDef</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;wsAssignAssignOwnerNameOfAttributeDef1)</PRE>
+<DL>
+<DD>if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>wsAssignAssignOwnerNameOfAttributeDef1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getWsAssignAssignOwnerIdOfAttributeDefName()"><!-- --></A><H3>
+getWsAssignAssignOwnerIdOfAttributeDefName</H3>
+<PRE>
+public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getWsAssignAssignOwnerIdOfAttributeDefName</B>()</PRE>
+<DL>
+<DD>if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>id</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setWsAssignAssignOwnerIdOfAttributeDefName(java.lang.String)"><!-- --></A><H3>
+setWsAssignAssignOwnerIdOfAttributeDefName</H3>
+<PRE>
+public void <B>setWsAssignAssignOwnerIdOfAttributeDefName</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;wsAssignAssignOwnerIdOfAttributeDefName1)</PRE>
+<DL>
+<DD>if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>wsAssignAssignOwnerIdOfAttributeDefName1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getWsAssignAssignOwnerNameOfAttributeDefName()"><!-- --></A><H3>
+getWsAssignAssignOwnerNameOfAttributeDefName</H3>
+<PRE>
+public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getWsAssignAssignOwnerNameOfAttributeDefName</B>()</PRE>
+<DL>
+<DD>if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setWsAssignAssignOwnerNameOfAttributeDefName(java.lang.String)"><!-- --></A><H3>
+setWsAssignAssignOwnerNameOfAttributeDefName</H3>
+<PRE>
+public void <B>setWsAssignAssignOwnerNameOfAttributeDefName</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;wsAssignAssignOwnerNameOfAttributeDefName1)</PRE>
+<DL>
+<DD>if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>wsAssignAssignOwnerNameOfAttributeDefName1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getWsAssignAssignOwnerAction()"><!-- --></A><H3>
+getWsAssignAssignOwnerAction</H3>
+<PRE>
+public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getWsAssignAssignOwnerAction</B>()</PRE>
+<DL>
+<DD>if looking for assignments on assignments, this is the action of the assignment the assignment is assigned to
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>action</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setWsAssignAssignOwnerAction(java.lang.String)"><!-- --></A><H3>
+setWsAssignAssignOwnerAction</H3>
+<PRE>
+public void <B>setWsAssignAssignOwnerAction</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;wsAssignAssignOwnerAction1)</PRE>
+<DL>
+<DD>if looking for assignments on assignments, this is the action of the assignment the assignment is assigned to
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>wsAssignAssignOwnerAction1</CODE> - </DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

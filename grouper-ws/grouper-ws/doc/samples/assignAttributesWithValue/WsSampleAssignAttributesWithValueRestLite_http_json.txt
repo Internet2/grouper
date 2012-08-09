@@ -1,0 +1,312 @@
+Grouper web service sample of service: assignAttributesWithValue, WsSampleAssignAttributesWithValueRestLite, manually written lite/rest, format: http_json, for version: 2.1.1
+
+
+#########################################
+##
+## HTTP request sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+POST /grouper-ws/servicesRest/json/v2_1_001/attributeAssignments HTTP/1.1
+Connection: close
+Authorization: Basic xxxxxxxxxxxxxxxxx==
+User-Agent: Jakarta Commons-HttpClient/3.1
+Host: localhost:8092
+Content-Length: 298
+
+wsLiteObjectType=WsRestAssignAttributesLiteRequest&attributeAssignType=group&attributeAssignOperation=assign_attr&attributeAssignValueOperation=add_value&valueSystem=54&actAsSubjectId=GrouperSystem&wsAttributeDefNameName=test%3AtestAttributeAssignDefName&wsOwnerGroupName=test%3AgroupTestAttrAssign
+
+
+#########################################
+##
+## HTTP response sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+HTTP/1.1 200 OK
+Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+X-Grouper-resultCode: SUCCESS
+X-Grouper-success: T
+X-Grouper-resultCode2: NONE
+Content-Type: text/x-json;charset=UTF-8
+Content-Length: 2223
+Date: Sun, 01 Jul 2012 16:22:44 GMT
+Connection: close
+
+{
+  "WsAssignAttributesLiteResults":{
+    "responseMetadata":{
+      "millis":"220",
+      "serverVersion":"2.1.1"
+    },
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":", Found 1 results.",
+      "success":"T"
+    },
+    "wsAttributeAssignResult":{
+      "changed":"F",
+      "deleted":"F",
+      "valuesChanged":"T",
+      "wsAttributeAssignValueResults":[
+        {
+          "changed":"T",
+          "deleted":"F",
+          "wsAttributeAssignValue":{
+            "id":"ae353875b2eb4fe4ba0f036880947ccb",
+            "valueSystem":"54"
+          }
+        }
+      ]
+      ,
+      "wsAttributeAssigns":[
+        {
+          "attributeAssignActionId":"47926e1d15fe47ab960b7a0d22a321ee",
+          "attributeAssignActionName":"assign",
+          "attributeAssignActionType":"immediate",
+          "attributeAssignDelegatable":"FALSE",
+          "attributeAssignType":"group",
+          "attributeDefId":"74f0519f56064e5cb499a906a8370b94",
+          "attributeDefName":"test:testAttributeAssignDefNameDef",
+          "attributeDefNameId":"ce2e6d730ee04a82a831937c4bded93f",
+          "attributeDefNameName":"test:testAttributeAssignDefName",
+          "createdOn":"2012/07/01 12:22:42.775",
+          "disallowed":"F",
+          "enabled":"T",
+          "id":"b29a5c67e9bb42379a462253d050806e",
+          "lastUpdated":"2012/07/01 12:22:42.775",
+          "ownerGroupId":"356ac1ee6b534a358b681467027c2fd7",
+          "ownerGroupName":"test:groupTestAttrAssign",
+          "wsAttributeAssignValues":[
+            {
+              "id":"1b1119634b114b36a8c4e013b7d21897",
+              "valueSystem":"15"
+            },
+            {
+              "id":"5bcd16123eba47ce81d9ecf0603c557c",
+              "valueSystem":"5"
+            },
+            {
+              "id":"cf2fd6ceb174423ba07482a456b3854e",
+              "valueSystem":"5"
+            },
+            {
+              "id":"ae353875b2eb4fe4ba0f036880947ccb",
+              "valueSystem":"54"
+            }
+          ]
+        }
+      ]
+      
+    },
+    "wsAttributeDefName":{
+      "attributeDefId":"74f0519f56064e5cb499a906a8370b94",
+      "attributeDefName":"test:testAttributeAssignDefNameDef",
+      "displayExtension":"testAttributeAssignDefName",
+      "displayName":"test:testAttributeAssignDefName",
+      "extension":"testAttributeAssignDefName",
+      "name":"test:testAttributeAssignDefName",
+      "uuid":"ce2e6d730ee04a82a831937c4bded93f"
+    },
+    "wsAttributeDefs":[
+      {
+        "attributeDefType":"attr",
+        "extension":"testAttributeAssignDefNameDef",
+        "multiAssignable":"F",
+        "multiValued":"T",
+        "name":"test:testAttributeAssignDefNameDef",
+        "uuid":"74f0519f56064e5cb499a906a8370b94",
+        "valueType":"integer"
+      }
+    ]
+    ,
+    "wsGroup":{
+      "description":"description",
+      "displayExtension":"groupTestAttrAssign",
+      "displayName":"test:groupTestAttrAssign",
+      "extension":"groupTestAttrAssign",
+      "name":"test:groupTestAttrAssign",
+      "typeOfGroup":"group",
+      "uuid":"356ac1ee6b534a358b681467027c2fd7"
+    }
+  }
+}
+
+
+#########################################
+##
+## Java source code (note, any programming language / objects
+## can use used to generate the above request/response.  Nothing
+## is Java specific.  Also, if you are using Java, the client libraries
+## are available
+##
+#########################################
+
+
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
+
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesLiteResults;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesLiteRequest;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
+import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
+
+/**
+ * @author mchyzer
+ */
+public class WsSampleAssignAttributesWithValueRestLite implements WsSampleRest {
+
+  /**
+   * get attribute assignments lite web service with REST
+   * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
+   */
+  @SuppressWarnings("deprecation")
+  public static void assignAttributesWithValueLite(WsSampleRestType wsSampleRestType) {
+
+    try {
+      HttpClient httpClient = new HttpClient();
+      
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
+      //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
+      //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
+      PostMethod method = new PostMethod(
+          RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
+            + "/" + RestClientSettings.VERSION  
+            + "/attributeAssignments");
+
+      httpClient.getParams().setAuthenticationPreemptive(true);
+      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
+          RestClientSettings.PASS);
+      
+      //no keep alive so response if easier to indent for tests
+      method.setRequestHeader("Connection", "close");
+      
+      //e.g. localhost and 8093
+      httpClient.getState()
+          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
+
+      //Make the body of the request, in this case with beans and marshaling, but you can make
+      //your request document in whatever language or way you want
+      WsRestAssignAttributesLiteRequest wsRestAssignAttributesLiteRequest 
+        = new WsRestAssignAttributesLiteRequest();
+
+      // set the act as id
+      wsRestAssignAttributesLiteRequest.setActAsSubjectId("GrouperSystem");
+      wsRestAssignAttributesLiteRequest.setAttributeAssignType("group");
+      wsRestAssignAttributesLiteRequest.setWsAttributeDefNameName("test:testAttributeAssignDefName");
+      wsRestAssignAttributesLiteRequest.setWsOwnerGroupName("test:groupTestAttrAssign");
+      wsRestAssignAttributesLiteRequest.setAttributeAssignOperation("assign_attr");
+      wsRestAssignAttributesLiteRequest.setAttributeAssignValueOperation("add_value");
+      wsRestAssignAttributesLiteRequest.setValueSystem("54");
+      
+      //get the xml / json / xhtml / paramString
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(wsRestAssignAttributesLiteRequest);
+      
+      //make sure right content type is in request (e.g. application/xhtml+xml
+      String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
+      
+      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
+
+
+      
+      httpClient.executeMethod(method);
+
+      //make sure a request came back
+      Header successHeader = method.getResponseHeader("X-Grouper-success");
+      String successString = successHeader == null ? null : successHeader.getValue();
+      if (StringUtils.isBlank(successString)) {
+        throw new RuntimeException("Web service did not even respond!");
+      }
+      boolean success = "T".equals(successString);
+      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+      
+      String response = RestClientSettings.responseBodyAsString(method);
+
+      //convert to object (from xhtml, xml, json, etc)
+      WsAssignAttributesLiteResults wsAssignAttributesLiteResults = (WsAssignAttributesLiteResults)wsSampleRestType
+        .getWsLiteResponseContentType().parseString(response);
+      
+      String resultMessage = wsAssignAttributesLiteResults.getResultMetadata().getResultMessage();
+
+      // see if request worked or not
+      if (!success) {
+        throw new RuntimeException("Bad response from web service: resultCode: " + resultCode
+            + ", " + resultMessage);
+      }
+      
+      System.out.println("Server version: " + wsAssignAttributesLiteResults.getResponseMetadata().getServerVersion()
+          + ", result code: " + resultCode
+          + ", result message: " + resultMessage );
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  /**
+   * @param args
+   */
+  @SuppressWarnings("unchecked")
+  public static void main(String[] args) {
+    assignAttributesWithValueLite(WsSampleRestType.xml);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  public void executeSample(WsSampleRestType wsSampleRestType) {
+    assignAttributesWithValueLite(wsSampleRestType);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#validType(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  public boolean validType(WsSampleRestType wsSampleRestType) {
+    return true;
+  }
+}
+
+
+#########################################
+##
+## Stdout
+##
+#########################################
+
+
+Server version: 2.1.1, result code: SUCCESS, result message: , Found 1 results.

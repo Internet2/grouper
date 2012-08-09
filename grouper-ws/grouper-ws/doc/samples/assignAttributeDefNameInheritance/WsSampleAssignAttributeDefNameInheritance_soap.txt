@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributeDefNameInheritance, WsSampleAssignAttributeDefNameInheritance, code generated classes, format: soap, for version: 2.1.0
+Grouper web service sample of service: assignAttributeDefNameInheritance, WsSampleAssignAttributeDefNameInheritance, code generated classes, format: soap, for version: 2.1.1
 
 
 #########################################
@@ -21,7 +21,7 @@ Transfer-Encoding: chunked
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns1:assignAttributeDefNameInheritance xmlns:ns1="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_1_000</ns1:clientVersion>
+      <ns1:clientVersion>v2_1_001</ns1:clientVersion>
       <ns1:wsAttributeDefNameLookup>
         <ns1:name>aStem:permissionDefName</ns1:name>
       </ns1:wsAttributeDefNameLookup>
@@ -54,7 +54,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:assignAttributeDefNameInheritanceResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sat, 17 Mar 2012 15:30:26 GMT
+Date: Sun, 01 Jul 2012 13:15:09 GMT
 
 3c8
 <?xml version='1.0' encoding='UTF-8'?>
@@ -65,7 +65,7 @@ Date: Sat, 17 Mar 2012 15:30:26 GMT
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.1.0</ns:serverVersion>
+          <ns:serverVersion>2.1.1</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
@@ -91,6 +91,21 @@ Date: Sat, 17 Mar 2012 15:30:26 GMT
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 /**
  *
  */
@@ -107,11 +122,8 @@ import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
 import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.AssignAttributeDefNameInheritance;
 import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.AssignAttributeDefNameInheritanceResponse;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.FindAttributeDefNames;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.FindAttributeDefNamesResponse;
 import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsAssignAttributeDefNameInheritanceResults;
 import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsAttributeDefNameLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsFindAttributeDefNamesResults;
 
 
 /**
@@ -207,5 +219,5 @@ public class WsSampleAssignAttributeDefNameInheritance implements WsSampleGenera
 
 
 WsAssignAttributeDefNameInheritanceResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@10daecc,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@14f1024,localResultMetadataTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@c7b02,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@15ffde0,localResultMetadataTracker=true]

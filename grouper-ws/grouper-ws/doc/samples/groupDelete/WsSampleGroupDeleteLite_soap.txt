@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupDelete, WsSampleGroupDeleteLite, code generated classes, format: soap, for version: 2.1.0
+Grouper web service sample of service: groupDelete, WsSampleGroupDeleteLite, code generated classes, format: soap, for version: 2.1.1
 
 
 #########################################
@@ -21,7 +21,7 @@ Transfer-Encoding: chunked
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns1:groupDeleteLite xmlns:ns1="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_1_000</ns1:clientVersion>
+      <ns1:clientVersion>v2_1_001</ns1:clientVersion>
       <ns1:groupName>aStem:test</ns1:groupName>
       <ns1:groupUuid></ns1:groupUuid>
       <ns1:actAsSubjectId>GrouperSystem</ns1:actAsSubjectId>
@@ -50,7 +50,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:groupDeleteLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sat, 17 Mar 2012 15:46:34 GMT
+Date: Sun, 01 Jul 2012 14:06:51 GMT
 
 5e8
 <?xml version='1.0' encoding='UTF-8'?>
@@ -61,13 +61,13 @@ Date: Sat, 17 Mar 2012 15:46:34 GMT
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.1.0</ns:serverVersion>
+          <ns:serverVersion>2.1.1</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS_GROUP_NOT_FOUND</ns:resultCode>
           <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: 2.1.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],uuid=,groupName=aStem:test]
+          <ns:resultMessage>Success for: clientVersion: 2.1.1, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],uuid=,groupName=aStem:test]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem,subjectIdentifier=,subjectSourceId=], txType: NONE, includeGroupDetail: true, paramNames:
 , params: nullCant find group: 'WsGroupLookup[pitGroups=[],uuid=,groupName=aStem:test,
@@ -101,6 +101,21 @@ groupFindResult=GROUP_NOT_FOUND]'.</ns:resultMessage>
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 /**
  *
  */
@@ -193,6 +208,6 @@ public class WsSampleGroupDeleteLite implements WsSampleGenerated {
 
 
 WsGroupDeleteLiteResult[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@1d1164,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@60fade,localResultMetadataTracker=true,
-  localWsGroup=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroup@f60a24,localWsGroupTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@45528b,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@12e47b7,localResultMetadataTracker=true,
+  localWsGroup=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroup@166796e,localWsGroupTracker=true]

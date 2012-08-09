@@ -1,0 +1,353 @@
+Grouper web service sample of service: assignAttributesWithValue, WsSampleAssignAttributesWithValueRest2, manually written lite/rest, format: xml, for version: 2.1.1
+
+
+#########################################
+##
+## HTTP request sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+POST /grouper-ws/servicesRest/v2_1_001/attributeAssignments HTTP/1.1
+Connection: close
+Authorization: Basic xxxxxxxxxxxxxxxxx==
+User-Agent: Jakarta Commons-HttpClient/3.1
+Host: localhost:8092
+Content-Length: 629
+Content-Type: text/xml; charset=UTF-8
+
+<WsRestAssignAttributesRequest>
+  <attributeAssignOperation>assign_attr</attributeAssignOperation>
+  <attributeAssignValueOperation>add_value</attributeAssignValueOperation>
+  <values>
+    <WsAttributeAssignValue>
+      <valueSystem>some_value</valueSystem>
+    </WsAttributeAssignValue>
+  </values>
+  <attributeAssignType>imm_mem</attributeAssignType>
+  <wsAttributeDefNameLookups>
+    <WsAttributeDefNameLookup>
+      <name>test:testAttrName</name>
+    </WsAttributeDefNameLookup>
+  </wsAttributeDefNameLookups>
+  <wsOwnerMembershipLookups>
+    <WsMembershipLookup>
+      <uuid>99f5d54183bb43b9896f8582c41b61a5</uuid>
+    </WsMembershipLookup>
+  </wsOwnerMembershipLookups>
+</WsRestAssignAttributesRequest>
+
+
+#########################################
+##
+## HTTP response sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+HTTP/1.1 200 OK
+Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+X-Grouper-resultCode: SUCCESS
+X-Grouper-success: T
+X-Grouper-resultCode2: NONE
+Content-Type: text/xml;charset=UTF-8
+Date: Sun, 01 Jul 2012 16:41:35 GMT
+Connection: close
+
+<WsAssignAttributesResults>
+  <wsAttributeDefs>
+    <WsAttributeDef>
+      <extension>testAttrNameDef</extension>
+      <name>test:testAttrNameDef</name>
+      <uuid>d6375cfefaa946f1b230e5561b31ef35</uuid>
+      <attributeDefType>attr</attributeDefType>
+      <multiAssignable>F</multiAssignable>
+      <multiValued>T</multiValued>
+      <valueType>string</valueType>
+    </WsAttributeDef>
+  </wsAttributeDefs>
+  <wsAttributeDefNames>
+    <WsAttributeDefName>
+      <extension>testAttrName</extension>
+      <displayExtension>testAttrName</displayExtension>
+      <displayName>test:testAttrName</displayName>
+      <name>test:testAttrName</name>
+      <uuid>93ee9e38028e454fa4c62f3e29379668</uuid>
+      <attributeDefId>d6375cfefaa946f1b230e5561b31ef35</attributeDefId>
+      <attributeDefName>test:testAttrNameDef</attributeDefName>
+    </WsAttributeDefName>
+  </wsAttributeDefNames>
+  <wsAttributeAssignResults>
+    <WsAssignAttributeResult>
+      <wsAttributeAssignValueResults>
+        <WsAttributeAssignValueResult>
+          <changed>T</changed>
+          <deleted>F</deleted>
+          <wsAttributeAssignValue>
+            <id>6e9cd9b75ecf4f2b9bbc459e913bcb3f</id>
+            <valueSystem>some_value</valueSystem>
+          </wsAttributeAssignValue>
+        </WsAttributeAssignValueResult>
+      </wsAttributeAssignValueResults>
+      <wsAttributeAssigns>
+        <WsAttributeAssign>
+          <disallowed>F</disallowed>
+          <attributeAssignActionType>immediate</attributeAssignActionType>
+          <attributeAssignDelegatable>FALSE</attributeAssignDelegatable>
+          <attributeAssignActionId>b174f13b376048df8a445e42d1ccbcdf</attributeAssignActionId>
+          <attributeAssignActionName>assign</attributeAssignActionName>
+          <attributeAssignType>imm_mem</attributeAssignType>
+          <attributeDefNameId>93ee9e38028e454fa4c62f3e29379668</attributeDefNameId>
+          <attributeDefNameName>test:testAttrName</attributeDefNameName>
+          <attributeDefId>d6375cfefaa946f1b230e5561b31ef35</attributeDefId>
+          <attributeDefName>test:testAttrNameDef</attributeDefName>
+          <wsAttributeAssignValues>
+            <WsAttributeAssignValue>
+              <id>6e9cd9b75ecf4f2b9bbc459e913bcb3f</id>
+              <valueSystem>some_value</valueSystem>
+            </WsAttributeAssignValue>
+          </wsAttributeAssignValues>
+          <createdOn>2012/07/01 12:41:35.255</createdOn>
+          <enabled>T</enabled>
+          <id>bd19bf8dda3a4a38979cda94111e9d99</id>
+          <lastUpdated>2012/07/01 12:41:35.255</lastUpdated>
+          <ownerMembershipId>99f5d54183bb43b9896f8582c41b61a5</ownerMembershipId>
+        </WsAttributeAssign>
+      </wsAttributeAssigns>
+      <changed>T</changed>
+      <valuesChanged>T</valuesChanged>
+      <deleted>F</deleted>
+    </WsAssignAttributeResult>
+  </wsAttributeAssignResults>
+  <resultMetadata>
+    <resultCode>SUCCESS</resultCode>
+    <resultMessage>, Found 1 results.  </resultMessage>
+    <success>T</success>
+  </resultMetadata>
+  <responseMetadata>
+    <resultWarnings></resultWarnings>
+    <millis>812</millis>
+    <serverVersion>2.1.1</serverVersion>
+  </responseMetadata>
+  <wsGroups/>
+  <wsStems/>
+  <wsMemberships>
+    <WsMembership>
+      <membershipId>99f5d54183bb43b9896f8582c41b61a5:6507e24077724f1c999f3a84e2f2dc51</membershipId>
+      <immediateMembershipId>99f5d54183bb43b9896f8582c41b61a5</immediateMembershipId>
+      <listName>members</listName>
+      <listType>list</listType>
+      <membershipType>immediate</membershipType>
+      <enabled>T</enabled>
+      <memberId>c88eb34c29644af5b88c3320ebf7a37c</memberId>
+      <groupId>bb1aa5aa1cab4fe389f052faad3bf450</groupId>
+      <subjectId>test.subject.0</subjectId>
+      <subjectSourceId>jdbc</subjectSourceId>
+      <groupName>aStem:role</groupName>
+      <createTime>2012/07/01 12:41:33.094</createTime>
+    </WsMembership>
+  </wsMemberships>
+  <wsSubjects/>
+</WsAssignAttributesResults>
+
+
+#########################################
+##
+## Java source code (note, any programming language / objects
+## can use used to generate the above request/response.  Nothing
+## is Java specific.  Also, if you are using Java, the client libraries
+## are available
+##
+#########################################
+
+
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
+
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.MembershipFinder;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignValue;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipLookup;
+import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesRequest;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
+import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
+
+/**
+ * @author mchyzer
+ */
+public class WsSampleAssignAttributesWithValueRest2 implements WsSampleRest {
+
+  /**
+   * attribute assignments lite web service with REST
+   * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
+   */
+  public static void assignAttributesWithValue(WsSampleRestType wsSampleRestType) {
+
+    try {
+      HttpClient httpClient = new HttpClient();
+      
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
+      //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
+      //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
+      String url = RestClientSettings.URL + "/" + RestClientSettings.VERSION  
+        + "/attributeAssignments";
+      PostMethod method = new PostMethod(
+          url);
+
+      httpClient.getParams().setAuthenticationPreemptive(true);
+      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
+          RestClientSettings.PASS);
+
+      //no keep alive so response if easier to indent for tests
+      method.setRequestHeader("Connection", "close");
+      
+      //e.g. localhost and 8093
+      httpClient.getState()
+          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
+
+      //Make the body of the request, in this case with beans and marshaling, but you can make
+      //your request document in whatever language or way you want
+      WsRestAssignAttributesRequest assignAttributes = new WsRestAssignAttributesRequest();
+
+      assignAttributes.setAttributeAssignType("imm_mem");
+
+      
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), "aStem:role", true);
+      Membership membership = MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), group, SubjectTestHelper.SUBJ0, true);
+      
+      assignAttributes.setWsOwnerMembershipLookups(new WsMembershipLookup[]{new WsMembershipLookup(membership.getImmediateMembershipId())});
+      
+      GrouperSession.stopQuietly(grouperSession);
+      
+      assignAttributes.setAttributeAssignOperation("assign_attr");
+      assignAttributes.setAttributeAssignValueOperation("add_value");
+      WsAttributeAssignValue wsAttributeAssignValue = new WsAttributeAssignValue();
+      wsAttributeAssignValue.setValueSystem("some_value");
+      assignAttributes.setValues(new WsAttributeAssignValue[]{wsAttributeAssignValue});
+
+      WsAttributeDefNameLookup wsAttributeDefNameLookup = new WsAttributeDefNameLookup();
+      wsAttributeDefNameLookup.setName("test:testAttrName");
+      assignAttributes.setWsAttributeDefNameLookups(new WsAttributeDefNameLookup[]{wsAttributeDefNameLookup});
+      
+      //get the xml / json / xhtml / paramString
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(assignAttributes);
+      
+      //make sure right content type is in request (e.g. application/xhtml+xml
+      String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
+      
+      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
+      
+      httpClient.executeMethod(method);
+
+      //make sure a request came back
+      Header successHeader = method.getResponseHeader("X-Grouper-success");
+      String successString = successHeader == null ? null : successHeader.getValue();
+      if (StringUtils.isBlank(successString)) {
+        throw new RuntimeException("Web service did not even respond!");
+      }
+      boolean success = "T".equals(successString);
+      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+      
+      String response = RestClientSettings.responseBodyAsString(method);
+
+      Object result = wsSampleRestType
+        .getWsLiteResponseContentType().parseString(response);
+      
+      //see if problem
+      if (result instanceof WsRestResultProblem) {
+        throw new RuntimeException(((WsRestResultProblem)result).getResultMetadata().getResultMessage());
+      }
+      
+      //convert to object (from xhtml, xml, json, etc)
+      WsAssignAttributesResults wsAssignAttributesResults = (WsAssignAttributesResults)result;
+      
+      String resultMessage = wsAssignAttributesResults.getResultMetadata().getResultMessage();
+
+      // see if request worked or not
+      if (!success) {
+        throw new RuntimeException("Bad response from web service: successString: " + successString + ", resultCode: " + resultCode
+            + ", " + resultMessage);
+      }
+      
+      System.out.println("Server version: " + wsAssignAttributesResults.getResponseMetadata().getServerVersion()
+          + ", result code: " + resultCode
+          + ", result message: " + resultMessage );
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  /**
+   * @param args
+   */
+  public static void main(String[] args) {
+    assignAttributesWithValue(WsSampleRestType.json);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  public void executeSample(WsSampleRestType wsSampleRestType) {
+    assignAttributesWithValue(wsSampleRestType);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#validType(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  public boolean validType(WsSampleRestType wsSampleRestType) {
+    //dont allow http params
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
+  }
+}
+
+
+#########################################
+##
+## Stdout
+##
+#########################################
+
+
+Server version: 2.1.1, result code: SUCCESS, result message: , Found 1 results.

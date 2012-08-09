@@ -1,4 +1,4 @@
-Grouper web service sample of service: getPermissionAssignments, WsSampleGetPermissionAssignmentsRestLite, manually written lite/rest, format: xml, for version: 2.1.0
+Grouper web service sample of service: getPermissionAssignments, WsSampleGetPermissionAssignmentsRestLite, manually written lite/rest, format: xml, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getPermissionAssignments, WsSampleGetPerm
 #########################################
 
 
-POST /grouper-ws/servicesRest/xml/v2_1_000/permissionAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/xml/v2_1_001/permissionAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 193
 Content-Type: text/xml; charset=UTF-8
@@ -38,7 +38,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sat, 17 Mar 2012 15:45:17 GMT
+Date: Sun, 01 Jul 2012 14:03:00 GMT
 Connection: close
 
 <WsGetPermissionAssignmentsResults>
@@ -46,7 +46,7 @@ Connection: close
     <WsAttributeDef>
       <extension>permissionDef</extension>
       <name>aStem:permissionDef</name>
-      <uuid>e13ef4c0b8984681ac810c8427f38c47</uuid>
+      <uuid>25aae9df1f924f35bf1797f9054116a2</uuid>
       <attributeDefType>perm</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>F</multiValued>
@@ -57,51 +57,51 @@ Connection: close
     <WsPermissionAssign>
       <action>read</action>
       <permissionType>role</permissionType>
-      <attributeDefNameId>a1b03b49f62448028fea88e90e7e55ff</attributeDefNameId>
+      <attributeDefNameId>c412da2e430c436a9545a51631fa2851</attributeDefNameId>
       <attributeDefNameName>aStem:permissionDefName</attributeDefNameName>
-      <attributeDefId>e13ef4c0b8984681ac810c8427f38c47</attributeDefId>
+      <attributeDefId>25aae9df1f924f35bf1797f9054116a2</attributeDefId>
       <attributeDefName>aStem:permissionDef</attributeDefName>
       <enabled>T</enabled>
-      <attributeAssignId>01647ff4813b440e966bbdfa4de3bf45</attributeAssignId>
-      <roleId>c3167d2e4b4444cba9f7794b73b6f445</roleId>
+      <attributeAssignId>541296a0c0804b4c957120796c6fc5ed</attributeAssignId>
+      <roleId>fdd20140f99a46a98559385f9dec509d</roleId>
       <roleName>aStem:role</roleName>
       <subjectId>test.subject.0</subjectId>
       <sourceId>jdbc</sourceId>
-      <membershipId>e29567dfb2a84e7080aa5bbf1a196276:938b46545b3949e7b588e1e9682b5629</membershipId>
+      <membershipId>4e7e5929c82943f9b1e490a2ed78c548:eb08691b861948aaa2122d1920ddc405</membershipId>
       <allowedOverall>T</allowedOverall>
       <disallowed>F</disallowed>
     </WsPermissionAssign>
     <WsPermissionAssign>
       <action>read</action>
       <permissionType>role</permissionType>
-      <attributeDefNameId>a1b03b49f62448028fea88e90e7e55ff</attributeDefNameId>
+      <attributeDefNameId>c412da2e430c436a9545a51631fa2851</attributeDefNameId>
       <attributeDefNameName>aStem:permissionDefName</attributeDefNameName>
-      <attributeDefId>e13ef4c0b8984681ac810c8427f38c47</attributeDefId>
+      <attributeDefId>25aae9df1f924f35bf1797f9054116a2</attributeDefId>
       <attributeDefName>aStem:permissionDef</attributeDefName>
       <enabled>T</enabled>
-      <attributeAssignId>01647ff4813b440e966bbdfa4de3bf45</attributeAssignId>
-      <roleId>c3167d2e4b4444cba9f7794b73b6f445</roleId>
+      <attributeAssignId>541296a0c0804b4c957120796c6fc5ed</attributeAssignId>
+      <roleId>fdd20140f99a46a98559385f9dec509d</roleId>
       <roleName>aStem:role</roleName>
       <subjectId>test.subject.4</subjectId>
       <sourceId>jdbc</sourceId>
-      <membershipId>d7c44a8fbf58402f96675487e560dbce:938b46545b3949e7b588e1e9682b5629</membershipId>
+      <membershipId>fef96ed59eab4a1ca5583c7d6c66f6c5:eb08691b861948aaa2122d1920ddc405</membershipId>
       <allowedOverall>T</allowedOverall>
       <disallowed>F</disallowed>
     </WsPermissionAssign>
     <WsPermissionAssign>
       <action>write</action>
       <permissionType>role_subject</permissionType>
-      <attributeDefNameId>73b3f936d3144f1fba8cee46675000c4</attributeDefNameId>
+      <attributeDefNameId>14b27eb7c3004aa48000cf76573192a7</attributeDefNameId>
       <attributeDefNameName>aStem:permissionDefName2</attributeDefNameName>
-      <attributeDefId>e13ef4c0b8984681ac810c8427f38c47</attributeDefId>
+      <attributeDefId>25aae9df1f924f35bf1797f9054116a2</attributeDefId>
       <attributeDefName>aStem:permissionDef</attributeDefName>
       <enabled>T</enabled>
-      <attributeAssignId>3b9ac881991448dbbc8d9c940394a08d</attributeAssignId>
-      <roleId>8830e074306f43178d9d8d0c02708a15</roleId>
+      <attributeAssignId>00903170d32a4f7da37fc5614b718fa0</attributeAssignId>
+      <roleId>bf4da4a978d144638a3f9b7eaa4f818f</roleId>
       <roleName>aStem:role2</roleName>
       <subjectId>test.subject.1</subjectId>
       <sourceId>jdbc</sourceId>
-      <membershipId>293a0bf9f1534c019e8f8ff6a40a6fbe:db9ccbecb6f7409b8af8bba0acdd5964</membershipId>
+      <membershipId>210a5bb296c9416c8e1160f330136092:da392ccce82a4cd4b6fb5bfe9eb6d5d1</membershipId>
       <allowedOverall>T</allowedOverall>
       <disallowed>F</disallowed>
     </WsPermissionAssign>
@@ -113,8 +113,8 @@ Connection: close
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>105</millis>
-    <serverVersion>2.1.0</serverVersion>
+    <millis>184</millis>
+    <serverVersion>2.1.1</serverVersion>
   </responseMetadata>
   <wsGroups>
     <WsGroup>
@@ -123,7 +123,7 @@ Connection: close
       <displayExtension>role</displayExtension>
       <displayName>a stem:role</displayName>
       <name>aStem:role</name>
-      <uuid>c3167d2e4b4444cba9f7794b73b6f445</uuid>
+      <uuid>fdd20140f99a46a98559385f9dec509d</uuid>
     </WsGroup>
     <WsGroup>
       <extension>role2</extension>
@@ -131,7 +131,7 @@ Connection: close
       <displayExtension>role2</displayExtension>
       <displayName>a stem:role2</displayName>
       <name>aStem:role2</name>
-      <uuid>8830e074306f43178d9d8d0c02708a15</uuid>
+      <uuid>bf4da4a978d144638a3f9b7eaa4f818f</uuid>
     </WsGroup>
   </wsGroups>
   <wsSubjects/>
@@ -148,6 +148,21 @@ Connection: close
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.permission;
 
 import org.apache.commons.httpclient.Credentials;
@@ -290,4 +305,4 @@ public class WsSampleGetPermissionAssignmentsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: , Found 3 results.
+Server version: 2.1.1, result code: SUCCESS, result message: , Found 3 results.

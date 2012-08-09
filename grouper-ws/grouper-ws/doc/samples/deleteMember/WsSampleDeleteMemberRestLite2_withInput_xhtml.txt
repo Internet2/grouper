@@ -1,4 +1,4 @@
-Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRestLite2, manually written lite/rest, type: _withInput, format: xhtml, for version: 2.1.0
+Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRestLite2, manually written lite/rest, type: _withInput, format: xhtml, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRestLit
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/groups/aStem%3AaGroup/members/sources/jdbc/subjectId/test.subject.0 HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/groups/aStem%3AaGroup/members/sources/jdbc/subjectId/test.subject.0 HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 838
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -62,7 +62,7 @@ X-Grouper-resultCode: SUCCESS_WASNT_IMMEDIATE
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sat, 17 Mar 2012 15:36:24 GMT
+Date: Sun, 01 Jul 2012 13:34:17 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -76,22 +76,22 @@ Connection: close
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS_WASNT_IMMEDIATE</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.1.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+        <p class="resultMessage">Success for: clientVersion: 2.1.1, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE
 , params: null</p>
         <p class="success">T</p>
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">42</p>
+        <p class="millis">180</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.1.0</p>
+        <p class="serverVersion">2.1.1</p>
       </div>
       <div class="wsGroup" title="WsGroup">
         <p class="name">aStem:aGroup</p>
         <p class="displayName">a stem:a group</p>
         <p class="description">a group description</p>
-        <p class="uuid">b9ac90d5015945d6b8aa4c746ffd451d</p>
+        <p class="uuid">4af561c4805242a7ae961cb9144188fe</p>
         <div class="detail" title="WsGroupDetail" />
         <p class="extension">aGroup</p>
         <p class="displayExtension">a group</p>
@@ -120,6 +120,21 @@ Connection: close
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.member;
 
 import org.apache.commons.httpclient.Credentials;
@@ -264,7 +279,7 @@ public class WsSampleDeleteMemberRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS_WASNT_IMMEDIATE, result message: Success for: clientVersion: 2.1.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+Server version: 2.1.1, result code: SUCCESS_WASNT_IMMEDIATE, result message: Success for: clientVersion: 2.1.1, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE
 , params: null

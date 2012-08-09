@@ -1,4 +1,4 @@
-Grouper web service sample of service: getSubjects, WsSampleGetSubjectsLite, code generated classes, format: soap, for version: 2.1.0
+Grouper web service sample of service: getSubjects, WsSampleGetSubjectsLite, code generated classes, format: soap, for version: 2.1.1
 
 
 #########################################
@@ -21,7 +21,7 @@ Transfer-Encoding: chunked
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns1:getSubjectsLite xmlns:ns1="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_1_000</ns1:clientVersion>
+      <ns1:clientVersion>v2_1_001</ns1:clientVersion>
       <ns1:subjectId></ns1:subjectId>
       <ns1:sourceId></ns1:sourceId>
       <ns1:subjectIdentifier></ns1:subjectIdentifier>
@@ -63,7 +63,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:getSubjectsLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sat, 17 Mar 2012 15:45:29 GMT
+Date: Sun, 01 Jul 2012 14:03:32 GMT
 
 4fb
 <?xml version='1.0' encoding='UTF-8'?>
@@ -74,7 +74,7 @@ Date: Sat, 17 Mar 2012 15:45:29 GMT
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.1.0</ns:serverVersion>
+          <ns:serverVersion>2.1.1</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
@@ -92,7 +92,7 @@ Date: Sat, 17 Mar 2012 15:45:29 GMT
           <ns:extension>aGroup</ns:extension>
           <ns:name>aStem:aGroup</ns:name>
           <ns:typeOfGroup>group</ns:typeOfGroup>
-          <ns:uuid>3a711a0ec5e7429ba8c262de8dcf333d</ns:uuid>
+          <ns:uuid>e76f338085c746d9a00a7eaae315507b</ns:uuid>
         </ns:wsGroup>
         <ns:wsSubjects xsi:nil="true" />
       </ns:return>
@@ -112,6 +112,21 @@ Date: Sat, 17 Mar 2012 15:45:29 GMT
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 /**
  *
  */
@@ -229,9 +244,9 @@ public class WsSampleGetSubjectsLite implements WsSampleGenerated {
 
 
 WsGetSubjectsResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@16b25aa,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@175f50b,localResultMetadataTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@16ef818,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@61f271,localResultMetadataTracker=true,
   localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,
-  localWsGroup=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroup@1d762fe,localWsGroupTracker=true,
+  localWsGroup=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroup@1037267,localWsGroupTracker=true,
   localWsSubjects={<null>},localWsSubjectsTracker=true]
 <null>

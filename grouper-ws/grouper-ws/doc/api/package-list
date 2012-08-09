@@ -2,6 +2,7 @@ edu.internet2.middleware.grouper.esb
 edu.internet2.middleware.grouper.ws
 edu.internet2.middleware.grouper.ws.coresoap
 edu.internet2.middleware.grouper.ws.exceptions
+edu.internet2.middleware.grouper.ws.j2ee
 edu.internet2.middleware.grouper.ws.member
 edu.internet2.middleware.grouper.ws.query
 edu.internet2.middleware.grouper.ws.rest

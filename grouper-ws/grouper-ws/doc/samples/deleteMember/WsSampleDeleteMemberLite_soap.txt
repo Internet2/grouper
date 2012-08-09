@@ -1,4 +1,4 @@
-Grouper web service sample of service: deleteMember, WsSampleDeleteMemberLite, code generated classes, format: soap, for version: 2.1.0
+Grouper web service sample of service: deleteMember, WsSampleDeleteMemberLite, code generated classes, format: soap, for version: 2.1.1
 
 
 #########################################
@@ -21,7 +21,7 @@ Transfer-Encoding: chunked
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns1:deleteMemberLite xmlns:ns1="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_1_000</ns1:clientVersion>
+      <ns1:clientVersion>v2_1_001</ns1:clientVersion>
       <ns1:groupName>aStem:aGroup</ns1:groupName>
       <ns1:groupUuid></ns1:groupUuid>
       <ns1:subjectId>10021368</ns1:subjectId>
@@ -56,7 +56,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:deleteMemberLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sat, 17 Mar 2012 15:35:45 GMT
+Date: Sun, 01 Jul 2012 13:32:16 GMT
 
 743
 <?xml version='1.0' encoding='UTF-8'?>
@@ -67,13 +67,13 @@ Date: Sat, 17 Mar 2012 15:35:45 GMT
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.1.0</ns:serverVersion>
+          <ns:serverVersion>2.1.1</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: 2.1.0, wsGroupLookup: WsGroupLookup[pitGroups=[],uuid=,groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368,subjectIdentifier=,subjectSourceId=]
+          <ns:resultMessage>Success for: clientVersion: 2.1.1, wsGroupLookup: WsGroupLookup[pitGroups=[],uuid=,groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368,subjectIdentifier=,subjectSourceId=]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem,subjectIdentifier=,subjectSourceId=], fieldName: null, txType: NONE
 , params: null</ns:resultMessage>
@@ -88,7 +88,7 @@ Date: Sat, 17 Mar 2012 15:35:45 GMT
           <ns:extension>aGroup</ns:extension>
           <ns:name>aStem:aGroup</ns:name>
           <ns:typeOfGroup>group</ns:typeOfGroup>
-          <ns:uuid>7c4f2a99dae74873997fe1f69d9bf027</ns:uuid>
+          <ns:uuid>444ac2029f5c4ed592c9223b085d53b4</ns:uuid>
         </ns:wsGroup>
         <ns:wsSubject xsi:type="ns:WsSubject">
           <ns:attributeValues xsi:nil="true" />
@@ -116,6 +116,21 @@ Date: Sat, 17 Mar 2012 15:35:45 GMT
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 /**
  *
  */
@@ -220,8 +235,8 @@ public class WsSampleDeleteMemberLite implements WsSampleGenerated {
 
 
 WsDeleteMemberLiteResult[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@100283a,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@1511826,localResultMetadataTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@e28539,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@1988797,localResultMetadataTracker=true,
   localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,
-  localWsGroup=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroup@13996a2,localWsGroupTracker=true,
-  localWsSubject=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsSubject@1d07ff4,localWsSubjectTracker=true]
+  localWsGroup=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroup@1d99235,localWsGroupTracker=true,
+  localWsSubject=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsSubject@10e1726,localWsSubjectTracker=true]

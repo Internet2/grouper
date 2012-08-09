@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRest, manually written lite/rest, format: json, for version: 2.1.0
+Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRest, manually written lite/rest, format: json, for version: 2.1.1
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: assignPermissions, WsSampleAssignPermissi
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_000/permissionAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/v2_1_001/permissionAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.0
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 245
 Content-Type: text/x-json; charset=UTF-8
@@ -56,15 +56,15 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1601
-Date: Sat, 17 Mar 2012 16:13:30 GMT
+Content-Length: 1602
+Date: Sun, 01 Jul 2012 13:25:57 GMT
 Connection: close
 
 {
   "WsAssignPermissionsResults":{
     "responseMetadata":{
-      "millis":"73",
-      "serverVersion":"2.1.0"
+      "millis":"139",
+      "serverVersion":"2.1.1"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
@@ -77,21 +77,21 @@ Connection: close
         "deleted":"F",
         "wsAttributeAssigns":[
           {
-            "attributeAssignActionId":"85cf55f094dc4b87a4a0c6106f2b44e7",
+            "attributeAssignActionId":"104ce24012d640d7a1efad4951cee80a",
             "attributeAssignActionName":"write",
             "attributeAssignActionType":"immediate",
             "attributeAssignDelegatable":"FALSE",
             "attributeAssignType":"group",
-            "attributeDefId":"8679ac4b7cbd4c3f9171957556649c13",
+            "attributeDefId":"21b2b4dd46854c2a82a4a290172b2261",
             "attributeDefName":"aStem:permissionDef",
-            "attributeDefNameId":"c237668792bb439298c93de4281efdb8",
+            "attributeDefNameId":"1390e2a2b905499786ba29357fe5e1b0",
             "attributeDefNameName":"aStem:permissionDefName",
-            "createdOn":"2012/03/17 12:13:30.708",
+            "createdOn":"2012/07/01 09:25:57.716",
             "disallowed":"F",
             "enabled":"T",
-            "id":"1c27957d1c864b479b75ccf1dd4fc511",
-            "lastUpdated":"2012/03/17 12:13:30.708",
-            "ownerGroupId":"10cf8b4186b2407cb76eb9b2fe210ec5",
+            "id":"ec34a5c627f1435eb50111f449d5db94",
+            "lastUpdated":"2012/07/01 09:25:57.716",
+            "ownerGroupId":"2701d8b80dae48a6abee2bdc370bde57",
             "ownerGroupName":"aStem:role"
           }
         ]
@@ -100,13 +100,13 @@ Connection: close
     ,
     "wsAttributeDefNames":[
       {
-        "attributeDefId":"8679ac4b7cbd4c3f9171957556649c13",
+        "attributeDefId":"21b2b4dd46854c2a82a4a290172b2261",
         "attributeDefName":"aStem:permissionDef",
         "displayExtension":"permissionDefName",
         "displayName":"a stem:permissionDefName",
         "extension":"permissionDefName",
         "name":"aStem:permissionDefName",
-        "uuid":"c237668792bb439298c93de4281efdb8"
+        "uuid":"1390e2a2b905499786ba29357fe5e1b0"
       }
     ]
     ,
@@ -117,7 +117,7 @@ Connection: close
         "multiAssignable":"F",
         "multiValued":"F",
         "name":"aStem:permissionDef",
-        "uuid":"8679ac4b7cbd4c3f9171957556649c13",
+        "uuid":"21b2b4dd46854c2a82a4a290172b2261",
         "valueType":"marker"
       }
     ]
@@ -129,7 +129,7 @@ Connection: close
         "extension":"role",
         "name":"aStem:role",
         "typeOfGroup":"role",
-        "uuid":"10cf8b4186b2407cb76eb9b2fe210ec5"
+        "uuid":"2701d8b80dae48a6abee2bdc370bde57"
       }
     ]
     ,
@@ -149,6 +149,21 @@ Connection: close
 #########################################
 
 
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.samples.rest.permission;
 
 import org.apache.commons.httpclient.Credentials;
@@ -291,7 +306,7 @@ public class WsSampleAssignPermissionsRest implements WsSampleRest {
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
     //dont allow http params
-    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
   }
 }
 
@@ -303,4 +318,4 @@ public class WsSampleAssignPermissionsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.0, result code: SUCCESS, result message: , Found 1 results.
+Server version: 2.1.1, result code: SUCCESS, result message: , Found 1 results.
