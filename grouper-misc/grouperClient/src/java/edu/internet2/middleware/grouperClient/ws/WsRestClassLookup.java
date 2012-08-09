@@ -41,9 +41,13 @@ public class WsRestClassLookup {
     addAliasClass(WsAddMemberResults.class);
     
     addAliasClass(WsAssignAttributeResult.class);
+    addAliasClass(WsAssignAttributesBatchResults.class);
+    addAliasClass(WsAssignAttributeBatchResult.class);
+    addAliasClass(WsAssignAttributeBatchEntry.class);
     addAliasClass(WsAssignAttributesLiteResults.class);
     addAliasClass(WsAssignAttributesResults.class);
     addAliasClass(WsRestAssignAttributesRequest.class);
+    addAliasClass(WsRestAssignAttributesBatchRequest.class);
     addAliasClass(WsRestAssignAttributesLiteRequest.class);
     addAliasClass(WsAttributeAssignValueResult.class);
     addAliasClass(WsAttributeAssignValuesResult.class);

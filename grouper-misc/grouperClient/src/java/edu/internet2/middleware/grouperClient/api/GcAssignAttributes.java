@@ -498,7 +498,7 @@ public class GcAssignAttributes {
       
       //kick off the web service
       wsAssignAttributesResults = (WsAssignAttributesResults)
-        grouperClientWs.executeService("attributeAssignments", assignAttributes, "getAttributeAssignments", this.clientVersion, false);
+        grouperClientWs.executeService("attributeAssignments", assignAttributes, "assignAttributes", this.clientVersion, false);
       
       String resultMessage = wsAssignAttributesResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsAssignAttributesResults, null, resultMessage);
