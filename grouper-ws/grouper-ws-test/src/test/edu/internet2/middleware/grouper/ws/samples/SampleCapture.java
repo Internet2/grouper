@@ -203,6 +203,7 @@ public class SampleCapture {
 
     //setupData();
 
+//    captureAssignAttributesWithValue();
 
     captureAssignAttributesBatch();
 
@@ -211,9 +212,8 @@ public class SampleCapture {
 //    captureSample(WsSampleClientType.REST_BEANS,  
 //        WsSampleMemberChangeSubjectRest.class, "memberChangeSubject", null);
 
-
     
-//    captureAddMember();
+    captureAddMember();
 //    captureAssignAttributeDefNameInheritance();
 //    captureAssignAttributes();
 //    captureAssignAttributesBatch();
@@ -298,7 +298,10 @@ public class SampleCapture {
       }
       
       Stem aStem = Stem.saveStem(grouperSession, "aStem", null,"aStem", "a stem",  "a stem description", null, false);
-      
+
+      Group.saveGroup(grouperSession, "test:testGroup",  null, "test:testGroup", 
+          "test group","test group description",  null, true);
+
       Group aGroup = Group.saveGroup(grouperSession, "aStem:aGroup",  null,"aStem:aGroup", 
           "a group","a group description",  null, false);
       
@@ -308,7 +311,7 @@ public class SampleCapture {
       
       Group aGroup2 = Group.saveGroup(grouperSession, "aStem:aGroup2", null,"aStem:aGroup2", 
           "a group2","a group description2",   null, false);
-      
+
       //make sure assigned
       aGroup.addMember(grouperSystemSubject, false);
       aGroup.addMember(subject1, false);
@@ -756,7 +759,8 @@ public class SampleCapture {
       }
       
       TcpCaptureServer echoServer = new TcpCaptureServer();
-      Thread thread = echoServer.startServer(8092, 8091, true);
+      Thread thread = echoServer.startServer(GrouperWsConfig.getPropertyInt("ws.testing.port", 8092), 
+          GrouperWsConfig.getPropertyInt("ws.sampleForwardTo.port", 8091), true);
       
       //capture stdout and stderr
       PrintStream outOrig = System.out;
@@ -919,10 +923,9 @@ public class SampleCapture {
    */
   public static void captureAssignAttributesBatch() {
     captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAssignAttributesBatch.class, "assignAttributesBatch", (String)null);
+      WsSampleAssignAttributesBatch.class, "assignAttributesBatch", (String)null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAssignAttributesBatchRest.class, "assignAttributesBatch", null);
-    
   }
 
   /**
