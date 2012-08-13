@@ -362,8 +362,19 @@ public class GcGetMemberships {
    * assign ONE_LEVEL|ALL_IN_SUBTREE to stem scope
    * @param theStemScope
    * @return this for chaining
+   * @deprecated use assignStemScope
    */
+  @Deprecated
   public GcGetMemberships assigStemScope(String theStemScope) {
+    return assignStemScope(theStemScope);
+  }
+
+  /**
+   * assign ONE_LEVEL|ALL_IN_SUBTREE to stem scope
+   * @param theStemScope
+   * @return this for chaining
+   */
+  public GcGetMemberships assignStemScope(String theStemScope) {
     this.stemScope = theStemScope;
     return this;
   }
