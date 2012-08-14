@@ -686,7 +686,8 @@ public class GrouperCheckConfig {
     boolean isDriverPostgres = realDriverClass.toLowerCase().contains("postgres");
     boolean isDriverMysql = realDriverClass.toLowerCase().contains("mysql");
     boolean isDriverHsql = realDriverClass.toLowerCase().contains("hsql");
-    boolean isDriverSqlServer = realDriverClass.toLowerCase().contains("sqlserver");
+    boolean isDriverSqlServer = realDriverClass.toLowerCase().contains("sqlserver") 
+      || realDriverClass.toLowerCase().contains("jtds");
     
     String dialect = StringUtils.defaultString(GrouperUtil.propertiesValue(grouperHibernateProperties,"hibernate.dialect"));
     
@@ -698,18 +699,19 @@ public class GrouperCheckConfig {
     boolean isDialectHsql = dialect.toLowerCase().contains("hsql");
     boolean isDialectSqlServer = dialect.toLowerCase().contains("sqlserver");
     
-    if ((isDriverOracle && !isDialectOracle) || (isDriverPostgres && !isDialectPostgres) 
-        || (isDriverMysql && !isDialectMysql) || (isDriverHsql && !isDialectHsql)
-        || (!isDriverOracle && isDialectOracle) || (!isDriverPostgres && isDialectPostgres) 
-        || (!isDriverMysql && isDialectMysql) || (!isDriverHsql && isDialectHsql)
-        || (!isDriverSqlServer && isDialectSqlServer) || (isDriverSqlServer && !isDialectSqlServer)) {
-      String error = "Grouper error: detected mismatch in hibernate.connection.driver_class ("
-              + realDriverClass + ") and hibernate.dialect (" + dialect 
-              + ") in grouper.hibernate.properties" + spySuffix;
-      System.err.println(error);
-      LOG.error(error);
-    }
-    
+    if (GrouperConfig.getPropertyBoolean("db.log.driver.mismatch", true)) {
+      if ((isDriverOracle && !isDialectOracle) || (isDriverPostgres && !isDialectPostgres) 
+          || (isDriverMysql && !isDialectMysql) || (isDriverHsql && !isDialectHsql)
+          || (!isDriverOracle && isDialectOracle) || (!isDriverPostgres && isDialectPostgres) 
+          || (!isDriverMysql && isDialectMysql) || (!isDriverHsql && isDialectHsql)
+          || (!isDriverSqlServer && isDialectSqlServer) || (isDriverSqlServer && !isDialectSqlServer)) {
+        String error = "Grouper error: detected mismatch in hibernate.connection.driver_class ("
+                + realDriverClass + ") and hibernate.dialect (" + dialect 
+                + ") in grouper.hibernate.properties" + spySuffix;
+        System.err.println(error);
+        LOG.error(error);
+      }
+    }    
   }
 
   /**
@@ -1203,7 +1205,7 @@ public class GrouperCheckConfig {
     checkJar("dom4j.jar", 730604, "org.dom4j.Attribute", "1.6.1");
     checkJar("ehcache.jar", 1838291, "net.sf.ehcache.bootstrap.BootstrapCacheLoader", "2.4.5");
     checkJar("ezmorph.jar", 86542, "net.sf.ezmorph.array.AbstractArrayMorpher", "1.0.6");
-    checkJar("grouperClient.jar", 2932321, "edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.InitializationException", "2.1.1");
+    checkJar("grouperClient.jar", 2956773, "edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.InitializationException", "2.1.2");
     checkJar("hibernate-jpa-2.0-api.jar", 102661, "javax.persistence.Access", "1.0.1.Final");
     checkJar("hibernate.jar", 7018087, "org.hibernate.action.AfterTransactionCompletionProcess", "3.6.7.Final");
     checkJar("invoker.jar", 27767, "com.dawidweiss.invoker.Invoker", "1.0");

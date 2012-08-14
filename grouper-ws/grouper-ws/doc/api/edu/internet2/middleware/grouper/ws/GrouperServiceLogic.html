@@ -250,6 +250,21 @@ Meant to be delegate from GrouperService which has the same params (and names)
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAssignAttributesBatchResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAssignAttributesBatchResults</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co#assignAttributesBatch(GrouperVersion, edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchEntry[], edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup, boolean, GrouperTransactionType, java.lang.String[], boolean, edu.internet2.middleware.grouper.ws.coresoap.WsParam[])">assignAttributesBatch</A></B>(GrouperVersion&nbsp;clientVersion,
+                      <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAssignAttributeBatchEntry.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAssignAttributeBatchEntry</A>[]&nbsp;wsAssignAttributeBatchEntries,
+                      <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsSubjectLookup</A>&nbsp;actAsSubjectLookup,
+                      boolean&nbsp;includeSubjectDetail,
+                      GrouperTransactionType&nbsp;txType,
+                      <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>[]&nbsp;subjectAttributeNames,
+                      boolean&nbsp;includeGroupDetail,
+                      <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsParam.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsParam</A>[]&nbsp;params)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assign attributes and values to owner objects (groups, stems, etc), doing multiple operations in one batch</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAssignAttributesLiteResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAssignAttributesLiteResults</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co#assignAttributesLite(GrouperVersion, AttributeAssignType, java.lang.String, java.lang.String, AttributeAssignOperation, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.sql.Timestamp, java.sql.Timestamp, AttributeAssignDelegatable, AttributeAssignValueOperation, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, boolean, java.lang.String, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String)">assignAttributesLite</A></B>(GrouperVersion&nbsp;clientVersion,
                      AttributeAssignType&nbsp;attributeAssignType,
@@ -647,7 +662,7 @@ Meant to be delegate from GrouperService which has the same params (and names)
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsGetAttributeAssignmentsResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGetAttributeAssignmentsResults</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co#getAttributeAssignments(GrouperVersion, AttributeAssignType, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsMembershipLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsMembershipAnyLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup[], java.lang.String[], boolean, edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup, boolean, java.lang.String[], boolean, edu.internet2.middleware.grouper.ws.coresoap.WsParam[], java.lang.String)">getAttributeAssignments</A></B>(GrouperVersion&nbsp;clientVersion,
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co#getAttributeAssignments(GrouperVersion, AttributeAssignType, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsMembershipLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsMembershipAnyLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup[], java.lang.String[], boolean, edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup, boolean, java.lang.String[], boolean, edu.internet2.middleware.grouper.ws.coresoap.WsParam[], java.lang.String, AttributeDefValueType, java.lang.Object, boolean, AttributeDefType, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup[], java.lang.String[])">getAttributeAssignments</A></B>(GrouperVersion&nbsp;clientVersion,
                         AttributeAssignType&nbsp;attributeAssignType,
                         <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeAssignLookup</A>[]&nbsp;wsAttributeAssignLookups,
                         <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefLookup</A>[]&nbsp;wsAttributeDefLookups,
@@ -665,7 +680,15 @@ Meant to be delegate from GrouperService which has the same params (and names)
                         <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>[]&nbsp;subjectAttributeNames,
                         boolean&nbsp;includeGroupDetail,
                         <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsParam.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsParam</A>[]&nbsp;params,
-                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;enabled)</CODE>
+                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;enabled,
+                        AttributeDefValueType&nbsp;attributeDefValueType,
+                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;theValue,
+                        boolean&nbsp;includeAssignmentsFromAssignments,
+                        AttributeDefType&nbsp;attributeDefType,
+                        <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeAssignLookup</A>[]&nbsp;wsAssignAssignOwnerAttributeAssignLookups,
+                        <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefLookup</A>[]&nbsp;wsAssignAssignOwnerAttributeDefLookups,
+                        <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefNameLookup</A>[]&nbsp;wsAssignAssignOwnerAttributeDefNameLookups,
+                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>[]&nbsp;wsAssignAssignOwnerActions)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get attributeAssignments from groups etc based on inputs</TD>
@@ -673,7 +696,7 @@ Meant to be delegate from GrouperService which has the same params (and names)
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsGetAttributeAssignmentsResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGetAttributeAssignmentsResults</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co#getAttributeAssignmentsLite(GrouperVersion, AttributeAssignType, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, boolean, java.lang.String, java.lang.String, java.lang.String, boolean, java.lang.String, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)">getAttributeAssignmentsLite</A></B>(GrouperVersion&nbsp;clientVersion,
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co#getAttributeAssignmentsLite(GrouperVersion, AttributeAssignType, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, boolean, java.lang.String, java.lang.String, java.lang.String, boolean, java.lang.String, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, AttributeDefValueType, java.lang.Object, boolean, AttributeDefType, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)">getAttributeAssignmentsLite</A></B>(GrouperVersion&nbsp;clientVersion,
                             AttributeAssignType&nbsp;attributeAssignType,
                             <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignId,
                             <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;wsAttributeDefName,
@@ -707,7 +730,17 @@ Meant to be delegate from GrouperService which has the same params (and names)
                             <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;paramValue0,
                             <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;paramName1,
                             <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;paramValue1,
-                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;enabled)</CODE>
+                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;enabled,
+                            AttributeDefValueType&nbsp;attributeDefValueType,
+                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;theValue,
+                            boolean&nbsp;includeAssignmentsFromAssignments,
+                            AttributeDefType&nbsp;attributeDefType,
+                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;wsAssignAssignOwnerAttributeAssignId,
+                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;wsAssignAssignOwnerIdOfAttributeDef,
+                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;wsAssignAssignOwnerNameOfAttributeDef,
+                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;wsAssignAssignOwnerIdOfAttributeDefName,
+                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;wsAssignAssignOwnerNameOfAttributeDefName,
+                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;wsAssignAssignOwnerAction)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get attributeAssignments from group and or subject based on inputs</TD>
@@ -738,7 +771,7 @@ Meant to be delegate from GrouperService which has the same params (and names)
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
- see if a group has a member (if already a direct member, ignore)
+ get grouper privileges for a group or folder
  e.g.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
@@ -2220,7 +2253,7 @@ public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coreso
                                                                         <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;paramValue1)</PRE>
 <DL>
 <DD><pre>
- see if a group has a member (if already a direct member, ignore)
+ get grouper privileges for a group or folder
  e.g. /grouperPrivileges/subjects/1234567/groups/aStem:aGroup/types/access/names/update
  e.g. /grouperPrivileges/subjects/sources/someSource/subjectId/1234567/stems/aStem1:aStem2/
  </pre>
@@ -2401,7 +2434,7 @@ public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coreso
 </DL>
 <HR>
 
-<A NAME="getAttributeAssignments(GrouperVersion, AttributeAssignType, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsMembershipLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsMembershipAnyLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup[], java.lang.String[], boolean, edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup, boolean, java.lang.String[], boolean, edu.internet2.middleware.grouper.ws.coresoap.WsParam[], java.lang.String)"><!-- --></A><H3>
+<A NAME="getAttributeAssignments(GrouperVersion, AttributeAssignType, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsMembershipLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsMembershipAnyLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup[], java.lang.String[], boolean, edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup, boolean, java.lang.String[], boolean, edu.internet2.middleware.grouper.ws.coresoap.WsParam[], java.lang.String, AttributeDefValueType, java.lang.Object, boolean, AttributeDefType, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup[], java.lang.String[])"><!-- --></A><H3>
 getAttributeAssignments</H3>
 <PRE>
 public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsGetAttributeAssignmentsResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGetAttributeAssignmentsResults</A> <B>getAttributeAssignments</B>(GrouperVersion&nbsp;clientVersion,
@@ -2422,7 +2455,15 @@ public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coreso
                                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>[]&nbsp;subjectAttributeNames,
                                                                        boolean&nbsp;includeGroupDetail,
                                                                        <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsParam.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsParam</A>[]&nbsp;params,
-                                                                       <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;enabled)</PRE>
+                                                                       <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;enabled,
+                                                                       AttributeDefValueType&nbsp;attributeDefValueType,
+                                                                       <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;theValue,
+                                                                       boolean&nbsp;includeAssignmentsFromAssignments,
+                                                                       AttributeDefType&nbsp;attributeDefType,
+                                                                       <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeAssignLookup</A>[]&nbsp;wsAssignAssignOwnerAttributeAssignLookups,
+                                                                       <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefLookup</A>[]&nbsp;wsAssignAssignOwnerAttributeDefLookups,
+                                                                       <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefNameLookup</A>[]&nbsp;wsAssignAssignOwnerAttributeDefNameLookups,
+                                                                       <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>[]&nbsp;wsAssignAssignOwnerActions)</PRE>
 <DL>
 <DD>get attributeAssignments from groups etc based on inputs
 <P>
@@ -2432,13 +2473,15 @@ public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coreso
  NOT: stem_asgn, NOT: any_mem_asgn, NOT: imm_mem_asgn, NOT: attr_def_asgn<DD><CODE>clientVersion</CODE> - is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000<DD><CODE>wsAttributeAssignLookups</CODE> - if you know the assign ids you want, put them here<DD><CODE>wsOwnerGroupLookups</CODE> - are groups to look in<DD><CODE>wsOwnerSubjectLookups</CODE> - are subjects to look in<DD><CODE>wsAttributeDefLookups</CODE> - find assignments in these attribute defs (optional)<DD><CODE>wsAttributeDefNameLookups</CODE> - find assignments in these attribute def names (optional)<DD><CODE>wsOwnerStemLookups</CODE> - are stems to look in<DD><CODE>wsOwnerMembershipLookups</CODE> - to query attributes on immediate memberships<DD><CODE>wsOwnerMembershipAnyLookups</CODE> - to query attributes in "any" memberships which are on immediate or effective memberships<DD><CODE>wsOwnerAttributeDefLookups</CODE> - to query attributes assigned on attribute defs<DD><CODE>actions</CODE> - to query, or none to query all actions<DD><CODE>includeAssignmentsOnAssignments</CODE> - if this is not querying assignments on assignments directly, but the assignments
  and assignments on those assignments should be returned, enter true.  default to false.<DD><CODE>includeSubjectDetail</CODE> - T|F, for if the extended subject information should be
             returned (anything more than just the id)<DD><CODE>actAsSubjectLookup</CODE> - <DD><CODE>subjectAttributeNames</CODE> - are the additional subject attributes (data) to return.
- If blank, whatever is configured in the grouper-ws.properties will be sent<DD><CODE>includeGroupDetail</CODE> - T or F as to if the group detail should be returned<DD><CODE>params</CODE> - optional: reserved for future use<DD><CODE>enabled</CODE> - is A for all, T or null for enabled only, F for disabled
+ If blank, whatever is configured in the grouper-ws.properties will be sent<DD><CODE>includeGroupDetail</CODE> - T or F as to if the group detail should be returned<DD><CODE>params</CODE> - optional: reserved for future use<DD><CODE>enabled</CODE> - is A for all, T or null for enabled only, F for disabled<DD><CODE>attributeDefValueType</CODE> - required if sending theValue, can be:
+ floating, integer, memberId, string, timestamp<DD><CODE>theValue</CODE> - value if you are passing in one attributeDefNameLookup<DD><CODE>includeAssignmentsFromAssignments</CODE> - T|F if you are finding an assignment that is an assignmentOnAssignment,
+ then get the assignment which tells you the owner as well<DD><CODE>attributeDefType</CODE> - null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm<DD><CODE>wsAssignAssignOwnerAttributeAssignLookups</CODE> - if looking for assignments on assignments, this is the assignment the assignment is assigned to<DD><CODE>wsAssignAssignOwnerAttributeDefLookups</CODE> - if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to<DD><CODE>wsAssignAssignOwnerAttributeDefNameLookups</CODE> - if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to<DD><CODE>wsAssignAssignOwnerActions</CODE> - if looking for assignments on assignments, this are the actions of the assignment the assignment is assigned to
 <DT><B>Returns:</B><DD>the results</DL>
 </DD>
 </DL>
 <HR>
 
-<A NAME="getAttributeAssignmentsLite(GrouperVersion, AttributeAssignType, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, boolean, java.lang.String, java.lang.String, java.lang.String, boolean, java.lang.String, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
+<A NAME="getAttributeAssignmentsLite(GrouperVersion, AttributeAssignType, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, boolean, java.lang.String, java.lang.String, java.lang.String, boolean, java.lang.String, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, AttributeDefValueType, java.lang.Object, boolean, AttributeDefType, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
 getAttributeAssignmentsLite</H3>
 <PRE>
 public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsGetAttributeAssignmentsResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGetAttributeAssignmentsResults</A> <B>getAttributeAssignmentsLite</B>(GrouperVersion&nbsp;clientVersion,
@@ -2475,7 +2518,17 @@ public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coreso
                                                                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;paramValue0,
                                                                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;paramName1,
                                                                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;paramValue1,
-                                                                           <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;enabled)</PRE>
+                                                                           <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;enabled,
+                                                                           AttributeDefValueType&nbsp;attributeDefValueType,
+                                                                           <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;theValue,
+                                                                           boolean&nbsp;includeAssignmentsFromAssignments,
+                                                                           AttributeDefType&nbsp;attributeDefType,
+                                                                           <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;wsAssignAssignOwnerAttributeAssignId,
+                                                                           <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;wsAssignAssignOwnerIdOfAttributeDef,
+                                                                           <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;wsAssignAssignOwnerNameOfAttributeDef,
+                                                                           <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;wsAssignAssignOwnerIdOfAttributeDefName,
+                                                                           <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;wsAssignAssignOwnerNameOfAttributeDefName,
+                                                                           <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;wsAssignAssignOwnerAction)</PRE>
 <DL>
 <DD>get attributeAssignments from group and or subject based on inputs
 <P>
@@ -2485,7 +2538,9 @@ public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coreso
  NOT: stem_asgn, NOT: any_mem_asgn, NOT: imm_mem_asgn, NOT: attr_def_asgn<DD><CODE>clientVersion</CODE> - is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000<DD><CODE>attributeAssignId</CODE> - if you know the assign id you want, put it here<DD><CODE>wsAttributeDefName</CODE> - find assignments in this attribute def (optional)<DD><CODE>wsAttributeDefId</CODE> - find assignments in this attribute def (optional)<DD><CODE>wsAttributeDefNameName</CODE> - find assignments in this attribute def name (optional)<DD><CODE>wsAttributeDefNameId</CODE> - find assignments in this attribute def name (optional)<DD><CODE>wsOwnerGroupName</CODE> - is group name to look in<DD><CODE>wsOwnerGroupId</CODE> - is group id to look in<DD><CODE>wsOwnerStemName</CODE> - is stem to look in<DD><CODE>wsOwnerStemId</CODE> - is stem to look in<DD><CODE>wsOwnerSubjectId</CODE> - is subject to look in<DD><CODE>wsOwnerSubjectSourceId</CODE> - is subject to look in<DD><CODE>wsOwnerSubjectIdentifier</CODE> - is subject to look in<DD><CODE>wsOwnerMembershipId</CODE> - to query attributes on immediate membership<DD><CODE>wsOwnerMembershipAnyGroupName</CODE> - to query attributes in "any" membership which is on immediate or effective membership<DD><CODE>wsOwnerMembershipAnyGroupId</CODE> - to query attributes in "any" membership which is on immediate or effective membership<DD><CODE>wsOwnerMembershipAnySubjectId</CODE> - to query attributes in "any" membership which is on immediate or effective membership<DD><CODE>wsOwnerMembershipAnySubjectSourceId</CODE> - to query attributes in "any" membership which is on immediate or effective membership<DD><CODE>wsOwnerMembershipAnySubjectIdentifier</CODE> - to query attributes in "any" membership which is on immediate or effective membership<DD><CODE>wsOwnerAttributeDefName</CODE> - to query attributes assigned on attribute def<DD><CODE>wsOwnerAttributeDefId</CODE> - to query attributes assigned on attribute def<DD><CODE>action</CODE> - to query, or none to query all actions<DD><CODE>includeAssignmentsOnAssignments</CODE> - if this is not querying assignments on assignments directly, but the assignments
  and assignments on those assignments should be returned, enter true.  default to false.<DD><CODE>actAsSubjectId</CODE> - act as this subject<DD><CODE>actAsSubjectSourceId</CODE> - act as this subject<DD><CODE>actAsSubjectIdentifier</CODE> - act as this subject<DD><CODE>includeSubjectDetail</CODE> - T|F, for if the extended subject information should be
             returned (anything more than just the id)<DD><CODE>subjectAttributeNames</CODE> - are the additional subject attributes (data) to return (comma separated)
- If blank, whatever is configured in the grouper-ws.properties will be sent<DD><CODE>includeGroupDetail</CODE> - T or F as to if the group detail should be returned<DD><CODE>paramName0</CODE> - reserved for future use<DD><CODE>paramValue0</CODE> - reserved for future use<DD><CODE>paramName1</CODE> - reserved for future use<DD><CODE>paramValue1</CODE> - reserved for future use<DD><CODE>enabled</CODE> - is A for all, T or null for enabled only, F for disabled
+ If blank, whatever is configured in the grouper-ws.properties will be sent<DD><CODE>includeGroupDetail</CODE> - T or F as to if the group detail should be returned<DD><CODE>paramName0</CODE> - reserved for future use<DD><CODE>paramValue0</CODE> - reserved for future use<DD><CODE>paramName1</CODE> - reserved for future use<DD><CODE>paramValue1</CODE> - reserved for future use<DD><CODE>enabled</CODE> - is A for all, T or null for enabled only, F for disabled<DD><CODE>attributeDefValueType</CODE> - required if sending theValue, can be:
+ floating, integer, memberId, string, timestamp<DD><CODE>theValue</CODE> - value if you are passing in one attributeDefNameLookup<DD><CODE>includeAssignmentsFromAssignments</CODE> - T|F if you are finding an assignment that is an assignmentOnAssignment,
+ then get the assignment which tells you the owner as well<DD><CODE>attributeDefType</CODE> - null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm<DD><CODE>wsAssignAssignOwnerAttributeAssignId</CODE> - if looking for assignments on assignments, this is the assignment the assignment is assigned to<DD><CODE>wsAssignAssignOwnerIdOfAttributeDef</CODE> - if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to<DD><CODE>wsAssignAssignOwnerNameOfAttributeDef</CODE> - if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to<DD><CODE>wsAssignAssignOwnerIdOfAttributeDefName</CODE> - if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to<DD><CODE>wsAssignAssignOwnerNameOfAttributeDefName</CODE> - if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to<DD><CODE>wsAssignAssignOwnerAction</CODE> - if looking for assignments on assignments, this is the action of the assignment the assignment is assigned to
 <DT><B>Returns:</B><DD>the results</DL>
 </DD>
 </DL>
@@ -2873,7 +2928,7 @@ public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coreso
                                                                      GrouperTransactionType&nbsp;txType,
                                                                      <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsParam.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsParam</A>[]&nbsp;params)</PRE>
 <DL>
-<DD>delete an AttributeDefName or many.  Note, you cannot rename an existing AttributeDefName.
+<DD>delete an AttributeDefName or many.
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000<DD><CODE>wsAttributeDefNameLookups</CODE> - AttributeDefNames to delete<DD><CODE>actAsSubjectLookup</CODE> - <DD><CODE>txType</CODE> - is the GrouperTransactionType for the request.  If blank, defaults to
@@ -2994,7 +3049,7 @@ public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coreso
  e.g. if you have a scope of "pto permissions", and split scope T, it will return 
  school:apps:pto_app:internal:the_permissions:whatever<DD><CODE>wsAttributeDefLookup</CODE> - find names associated with this attribute definition<DD><CODE>attributeAssignType</CODE> - where can the attribute definition be assigned, e.g. any_mem, any_mem_asgn, attr_def, 
  attr_def_asgn, group, group_asgn, imm_mem, imm_mem_asgn, mem_asgn, member, stem, stem_asgn<DD><CODE>attributeDefType</CODE> - type of attribute definition, e.g. attr, domain, limit, perm, type<DD><CODE>actAsSubjectLookup</CODE> - if searching as someone else, pass in that subject here, note the caller must
- be allowed to act as that other subject<DD><CODE>params</CODE> - optional: reserved for future use<DD><CODE>wsAttributeDefNameLookups</CODE> - if you want to just pass in a list of uuids and/or names.<DD><CODE>pageSize</CODE> - page size if paging on a sort filter or parent<DD><CODE>pageNumber</CODE> - page number 1 indexed if paging on a sort filter or parent<DD><CODE>sortString</CODE> - must be an hql query field, e.g. 
+ be allowed to act as that other subject<DD><CODE>params</CODE> - optional: reserved for future use<DD><CODE>wsAttributeDefNameLookups</CODE> - if you want to just pass in a list of uuids and/or names.<DD><CODE>pageSize</CODE> - page size if paging<DD><CODE>pageNumber</CODE> - page number 1 indexed if paging<DD><CODE>sortString</CODE> - must be an hql query field, e.g. 
  can sort on name, displayName, extension, displayExtension<DD><CODE>ascending</CODE> - or null for ascending, F for descending.<DD><CODE>wsInheritanceSetRelation</CODE> - if there is one wsAttributeDefNameLookup, and this is specified, then find 
  the attribute def names which are related to the lookup by this relation, e.g. IMPLIED_BY_THIS, 
  IMPLIED_BY_THIS_IMMEDIATE, THAT_IMPLY_THIS, THAT_IMPLY_THIS_IMMEDIATE
@@ -3035,7 +3090,7 @@ public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coreso
 <DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000<DD><CODE>scope</CODE> - search string with % as wildcards will search name, display name, description<DD><CODE>splitScope</CODE> - T or F, if T will split the scope by whitespace, and find attribute def names with each token.
  e.g. if you have a scope of "pto permissions", and split scope T, it will return 
  school:apps:pto_app:internal:the_permissions:whatever<DD><CODE>uuidOfAttributeDef</CODE> - find names associated with this attribute definition, mutually exclusive with nameOfAttributeDef<DD><CODE>nameOfAttributeDef</CODE> - find names associated with this attribute definition, mutually exclusive with idOfAttributeDef<DD><CODE>wsAttributeDefLookup</CODE> - find names associated with this attribute definition<DD><CODE>attributeAssignType</CODE> - where can the attribute definition be assigned, e.g. any_mem, any_mem_asgn, attr_def, 
- attr_def_asgn, group, group_asgn, imm_mem, imm_mem_asgn, mem_asgn, member, stem, stem_asgn<DD><CODE>attributeDefType</CODE> - type of attribute definition, e.g. attr, domain, limit, perm, type<DD><CODE>attributeDefNameUuid</CODE> - to lookup an attribute def name by id, mutually exclusive with attributeDefNameName<DD><CODE>attributeDefNameName</CODE> - to lookup an attribute def name by name, mutually exclusive with attributeDefNameId<DD><CODE>pageSize</CODE> - page size if paging on a sort filter or parent<DD><CODE>pageNumber</CODE> - page number 1 indexed if paging on a sort filter or parent<DD><CODE>sortString</CODE> - must be an hql query field, e.g. 
+ attr_def_asgn, group, group_asgn, imm_mem, imm_mem_asgn, mem_asgn, member, stem, stem_asgn<DD><CODE>attributeDefType</CODE> - type of attribute definition, e.g. attr, domain, limit, perm, type<DD><CODE>attributeDefNameUuid</CODE> - to lookup an attribute def name by id, mutually exclusive with attributeDefNameName<DD><CODE>attributeDefNameName</CODE> - to lookup an attribute def name by name, mutually exclusive with attributeDefNameId<DD><CODE>pageSize</CODE> - page size if paging<DD><CODE>pageNumber</CODE> - page number 1 indexed if paging<DD><CODE>sortString</CODE> - must be an hql query field, e.g. 
  can sort on name, displayName, extension, displayExtension<DD><CODE>ascending</CODE> - or null for ascending, F for descending.<DD><CODE>wsInheritanceSetRelation</CODE> - if there is one wsAttributeDefNameLookup, and this is specified, then find 
  the attribute def names which are related to the lookup by this relation, e.g. IMPLIED_BY_THIS, 
  IMPLIED_BY_THIS_IMMEDIATE, THAT_IMPLY_THIS, THAT_IMPLY_THIS_IMMEDIATE<DD><CODE>actAsSubjectId</CODE> - optional: is the subject id of subject to act as (if
@@ -3044,6 +3099,31 @@ public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coreso
             proxying). Only pass one of actAsSubjectId or
             actAsSubjectIdentifer<DD><CODE>actAsSubjectSourceId</CODE> - optional to narrow the act as subject search to a particular source<DD><CODE>paramName0</CODE> - reserved for future use<DD><CODE>paramValue0</CODE> - reserved for future use<DD><CODE>paramName1</CODE> - reserved for future use<DD><CODE>paramValue1</CODE> - reserved for future use
 <DT><B>Returns:</B><DD>the attribute def names, or no attribute def names if none found</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignAttributesBatch(GrouperVersion, edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchEntry[], edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup, boolean, GrouperTransactionType, java.lang.String[], boolean, edu.internet2.middleware.grouper.ws.coresoap.WsParam[])"><!-- --></A><H3>
+assignAttributesBatch</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAssignAttributesBatchResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAssignAttributesBatchResults</A> <B>assignAttributesBatch</B>(GrouperVersion&nbsp;clientVersion,
+                                                                   <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAssignAttributeBatchEntry.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAssignAttributeBatchEntry</A>[]&nbsp;wsAssignAttributeBatchEntries,
+                                                                   <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsSubjectLookup</A>&nbsp;actAsSubjectLookup,
+                                                                   boolean&nbsp;includeSubjectDetail,
+                                                                   GrouperTransactionType&nbsp;txType,
+                                                                   <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>[]&nbsp;subjectAttributeNames,
+                                                                   boolean&nbsp;includeGroupDetail,
+                                                                   <A HREF="../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsParam.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsParam</A>[]&nbsp;params)</PRE>
+<DL>
+<DD>assign attributes and values to owner objects (groups, stems, etc), doing multiple operations in one batch
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000<DD><CODE>includeSubjectDetail</CODE> - T|F, for if the extended subject information should be
+            returned (anything more than just the id)<DD><CODE>wsAssignAttributeBatchEntries</CODE> - batch of attribute assignments<DD><CODE>actAsSubjectLookup</CODE> - <DD><CODE>subjectAttributeNames</CODE> - are the additional subject attributes (data) to return.
+ If blank, whatever is configured in the grouper-ws.properties will be sent<DD><CODE>includeGroupDetail</CODE> - T or F as to if the group detail should be returned<DD><CODE>params</CODE> - optional: reserved for future use<DD><CODE>txType</CODE> - is the GrouperTransactionType for the request.  If blank, defaults to
+ NONE (will finish as much as possible).  Generally the only values for this param that make sense
+ are NONE (or blank), and READ_WRITE_NEW.
+<DT><B>Returns:</B><DD>the results</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

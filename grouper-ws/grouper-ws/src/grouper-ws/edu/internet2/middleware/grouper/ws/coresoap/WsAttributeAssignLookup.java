@@ -134,18 +134,19 @@ public class WsAttributeAssignLookup {
    * @param grouperSession 
    */
   public void retrieveAttributeAssignIfNeeded(GrouperSession grouperSession) {
-    this.retrieveAttributeAssignIfNeeded(grouperSession, null);
+    this.retrieveAttributeAssignIfNeeded(grouperSession, null, null);
   }
 
   /**
    * retrieve the attributeAssign for this lookup if not looked up yet.  pass in a grouper session
    * @param grouperSession 
    * @param invalidQueryReason is the text to go in the WsInvalidQueryException
+   * @param backReferenceAttributeAssignIds are attribute assign ids  if in batch and needs backreferences
    * @return the attributeAssign
    * @throws WsInvalidQueryException if there is a problem, and if the invalidQueryReason is set
    */
   public AttributeAssign retrieveAttributeAssignIfNeeded(GrouperSession grouperSession,
-      String invalidQueryReason) throws WsInvalidQueryException {
+      String invalidQueryReason, String[] backReferenceAttributeAssignIds) throws WsInvalidQueryException {
     
     //see if we already retrieved
     if (this.attributeAssignFindResult != null) {
@@ -155,10 +156,19 @@ public class WsAttributeAssignLookup {
       //assume success (set otherwise if there is a problem)
       this.attributeAssignFindResult = AttributeAssignResult.SUCCESS;
 
-      boolean hasUuid = !StringUtils.isBlank(this.uuid);
+      String theUuid = this.uuid;
+      if (StringUtils.isBlank(theUuid) && !StringUtils.isBlank(this.batchIndex)) {
+        int batchIndexInt = GrouperUtil.intValue(this.batchIndex);
+        if (batchIndexInt >= GrouperUtil.length(backReferenceAttributeAssignIds)) {
+          this.attributeAssignFindResult = AttributeAssignResult.INVALID_QUERY;
+          throw new WsInvalidQueryException("Batch index is " + batchIndexInt 
+              + ", but max index is: " + (GrouperUtil.length(backReferenceAttributeAssignIds) -1));
+        }
+        theUuid = backReferenceAttributeAssignIds[batchIndexInt];        
+      }
 
       //must have a name or uuid
-      if (!hasUuid) {
+      if (StringUtils.isBlank(theUuid)) {
         this.attributeAssignFindResult = AttributeAssignResult.INVALID_QUERY;
         if (!StringUtils.isEmpty(invalidQueryReason)) {
           throw new WsInvalidQueryException("Invalid attributeAssign query for '"
@@ -166,11 +176,8 @@ public class WsAttributeAssignLookup {
         }
         String logMessage = "Invalid query: " + this;
         LOG.warn(logMessage);
-      }
-
-      if (hasUuid) {
-        this.attributeAssign = AttributeAssignFinder.findById(this.uuid, true);
-
+      } else {
+        this.attributeAssign = AttributeAssignFinder.findById(theUuid, true);
       }
 
     } catch (AttributeAssignNotFoundException anf) {
@@ -230,9 +237,27 @@ public class WsAttributeAssignLookup {
    * @param wsAttributeAssignLookups
    * @param errorMessage
    * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
+   * @param backReferenceAttributeAssignIds are attribute assign ids  if in batch and needs backreferences
    * @return the membership ids
    */
-  public static Set<String> convertToAttributeAssignIds(GrouperSession grouperSession, WsAttributeAssignLookup[] wsAttributeAssignLookups, StringBuilder errorMessage, int[] lookupCount) {
+  public static Set<String> convertToAttributeAssignIds(GrouperSession grouperSession, 
+      WsAttributeAssignLookup[] wsAttributeAssignLookups, StringBuilder errorMessage, int[] lookupCount) {
+    
+    return convertToAttributeAssignIds(grouperSession, wsAttributeAssignLookups, errorMessage, lookupCount, null); 
+    
+  }
+
+  /**
+   * convert attributeAssign lookups to attributeAssign ids
+   * @param grouperSession
+   * @param wsAttributeAssignLookups
+   * @param errorMessage
+   * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
+   * @param backReferenceAttributeAssignIds are attribute assign ids  if in batch and needs backreferences
+   * @return the membership ids
+   */
+  public static Set<String> convertToAttributeAssignIds(GrouperSession grouperSession, 
+      WsAttributeAssignLookup[] wsAttributeAssignLookups, StringBuilder errorMessage, int[] lookupCount, String[] backReferenceAttributeAssignIds) {
     //get all the attributeAssigns
     //we could probably batch these to get better performance.
     Set<String> attributeAssignIds = null;
@@ -254,7 +279,7 @@ public class WsAttributeAssignLookup {
           foundRecords = true;
         }
         
-        wsAttributeAssignLookup.retrieveAttributeAssignIfNeeded(grouperSession);
+        wsAttributeAssignLookup.retrieveAttributeAssignIfNeeded(grouperSession, null, backReferenceAttributeAssignIds);
         AttributeAssign attributeAssign = wsAttributeAssignLookup.retrieveAttributeAssign();
         if (attributeAssign != null) {
           attributeAssignIds.add(attributeAssign.getId());
@@ -264,7 +289,8 @@ public class WsAttributeAssignLookup {
             errorMessage.append(", ");
           }
           
-          errorMessage.append("Error on attributeAssign index: " + i + ", " + wsAttributeAssignLookup.retrieveAttributeAssignFindResult() + ", " + wsAttributeAssignLookup.toStringCompact());
+          errorMessage.append("Error on attributeAssign index: " + i + ", " 
+              + wsAttributeAssignLookup.retrieveAttributeAssignFindResult() + ", " + wsAttributeAssignLookup.toStringCompact());
         }
         
         i++;

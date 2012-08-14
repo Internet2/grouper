@@ -141,6 +141,22 @@
             }
                 
            /**
+            * auto generated Axis2 call back method for assignAttributesBatch method
+            * override this method for handling normal response from assignAttributesBatch operation
+            */
+           public void receiveResultassignAttributesBatch(
+                    edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.AssignAttributesBatchResponse result
+                        ) {
+           }
+
+          /**
+           * auto generated Axis2 Error handler
+           * override this method for handling error response from assignAttributesBatch operation
+           */
+            public void receiveErrorassignAttributesBatch(java.lang.Exception e) {
+            }
+                
+           /**
             * auto generated Axis2 call back method for getAttributeAssignmentsLite method
             * override this method for handling normal response from getAttributeAssignmentsLite operation
             */

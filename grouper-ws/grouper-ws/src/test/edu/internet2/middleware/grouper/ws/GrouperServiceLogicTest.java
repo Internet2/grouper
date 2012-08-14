@@ -6404,6 +6404,10 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertEquals("T", wsAssignAttributeBatchResult.getWsAttributeAssignValueResults()[1].getChanged());
     assertEquals("F", wsAssignAttributeBatchResult.getWsAttributeAssignValueResults()[1].getDeleted());
     
+    assertEquals(1, GrouperUtil.length(wsAssignAttributesBatchResults.getWsGroups()));
+    assertEquals(group.getName(), wsAssignAttributesBatchResults.getWsGroups()[0].getName());
+    
+
     
     GrouperServiceUtils.testSession = GrouperSession.startRootSession();
     
@@ -6665,9 +6669,11 @@ public class GrouperServiceLogicTest extends GrouperTest {
     GrouperServiceUtils.testSession = GrouperSession.startRootSession();
     
     attributeAssigns = group.getAttributeDelegate().retrieveAssignments(attributeDefName);
-    assertEquals(0, GrouperUtil.length(attributeAssigns));
-    
-    
+    assertEquals(1, GrouperUtil.length(attributeAssigns));
+
+    attributeAssign = attributeAssigns.iterator().next();
+    assertEquals("hello1", attributeAssign.getAttributeValueDelegate().retrieveValueString(attributeDefName2.getName()));
+    assertEquals("hello2", attributeAssign.getAttributeValueDelegate().retrieveValueString(attributeDefName3.getName()));
     
   }
 

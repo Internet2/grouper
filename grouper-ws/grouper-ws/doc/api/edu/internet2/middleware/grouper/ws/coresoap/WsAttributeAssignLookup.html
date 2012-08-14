@@ -151,6 +151,13 @@ Class WsAttributeAssignLookup</H2>
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignLookup.html?view=co#WsAttributeAssignLookup(java.lang.String, java.lang.String)">WsAttributeAssignLookup</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid1,
+                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;batchIndex1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
 </TABLE>
 &nbsp;
 <!-- ========== METHOD SUMMARY =========== -->
@@ -189,6 +196,27 @@ Class WsAttributeAssignLookup</H2>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert attributeAssign lookups to attributeAssign ids</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignLookup.html?view=co#convertToAttributeAssignIds(GrouperSession, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignLookup[], java.lang.StringBuilder, int[], java.lang.String[])">convertToAttributeAssignIds</A></B>(GrouperSession&nbsp;grouperSession,
+                            <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeAssignLookup</A>[]&nbsp;wsAttributeAssignLookups,
+                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage,
+                            int[]&nbsp;lookupCount,
+                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>[]&nbsp;backReferenceAttributeAssignIds)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert attributeAssign lookups to attributeAssign ids</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignLookup.html?view=co#getBatchIndex()">getBatchIndex</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if there is a batch request, and this attribute assignment 
+ refers to a previously sent assignment, this is the index (0 indexed)</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -237,11 +265,21 @@ Class WsAttributeAssignLookup</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;AttributeAssign</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignLookup.html?view=co#retrieveAttributeAssignIfNeeded(GrouperSession, java.lang.String)">retrieveAttributeAssignIfNeeded</A></B>(GrouperSession&nbsp;grouperSession,
-                                <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;invalidQueryReason)</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignLookup.html?view=co#retrieveAttributeAssignIfNeeded(GrouperSession, java.lang.String, java.lang.String[])">retrieveAttributeAssignIfNeeded</A></B>(GrouperSession&nbsp;grouperSession,
+                                <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;invalidQueryReason,
+                                <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>[]&nbsp;backReferenceAttributeAssignIds)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve the attributeAssign for this lookup if not looked up yet.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignLookup.html?view=co#setBatchIndex(java.lang.String)">setBatchIndex</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theIndex)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if there is a batch request, and this attribute assignment 
+ refers to a previously sent assignment, this is the index (0 indexed)</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -295,6 +333,17 @@ WsAttributeAssignLookup</H3>
 <PRE>
 public <B>WsAttributeAssignLookup</B>()</PRE>
 <DL>
+</DL>
+<HR>
+
+<A NAME="WsAttributeAssignLookup(java.lang.String, java.lang.String)"><!-- --></A><H3>
+WsAttributeAssignLookup</H3>
+<PRE>
+public <B>WsAttributeAssignLookup</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid1,
+                               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;batchIndex1)</PRE>
+<DL>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>uuid1</CODE> - <DD><CODE>batchIndex1</CODE> - </DL>
 </DL>
 <HR>
 
@@ -408,17 +457,18 @@ public void <B>retrieveAttributeAssignIfNeeded</B>(GrouperSession&nbsp;grouperSe
 </DL>
 <HR>
 
-<A NAME="retrieveAttributeAssignIfNeeded(GrouperSession, java.lang.String)"><!-- --></A><H3>
+<A NAME="retrieveAttributeAssignIfNeeded(GrouperSession, java.lang.String, java.lang.String[])"><!-- --></A><H3>
 retrieveAttributeAssignIfNeeded</H3>
 <PRE>
 public AttributeAssign <B>retrieveAttributeAssignIfNeeded</B>(GrouperSession&nbsp;grouperSession,
-                                                       <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;invalidQueryReason)
+                                                       <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;invalidQueryReason,
+                                                       <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>[]&nbsp;backReferenceAttributeAssignIds)
                                                 throws <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></PRE>
 <DL>
 <DD>retrieve the attributeAssign for this lookup if not looked up yet.  pass in a grouper session
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>invalidQueryReason</CODE> - is the text to go in the WsInvalidQueryException
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>invalidQueryReason</CODE> - is the text to go in the WsInvalidQueryException<DD><CODE>backReferenceAttributeAssignIds</CODE> - are attribute assign ids  if in batch and needs backreferences
 <DT><B>Returns:</B><DD>the attributeAssign
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></CODE> - if there is a problem, and if the invalidQueryReason is set</DL>
@@ -480,7 +530,25 @@ public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.htm
 <DD>convert attributeAssign lookups to attributeAssign ids
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>wsAttributeAssignLookups</CODE> - <DD><CODE>errorMessage</CODE> - <DD><CODE>lookupCount</CODE> - is an array of size one int where 1 will be added if there are records, and no change if not
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>wsAttributeAssignLookups</CODE> - <DD><CODE>errorMessage</CODE> - <DD><CODE>lookupCount</CODE> - is an array of size one int where 1 will be added if there are records, and no change if not<DD><CODE>backReferenceAttributeAssignIds</CODE> - are attribute assign ids  if in batch and needs backreferences
+<DT><B>Returns:</B><DD>the membership ids</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="convertToAttributeAssignIds(GrouperSession, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignLookup[], java.lang.StringBuilder, int[], java.lang.String[])"><!-- --></A><H3>
+convertToAttributeAssignIds</H3>
+<PRE>
+public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt; <B>convertToAttributeAssignIds</B>(GrouperSession&nbsp;grouperSession,
+                                                      <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssignLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeAssignLookup</A>[]&nbsp;wsAttributeAssignLookups,
+                                                      <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage,
+                                                      int[]&nbsp;lookupCount,
+                                                      <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>[]&nbsp;backReferenceAttributeAssignIds)</PRE>
+<DL>
+<DD>convert attributeAssign lookups to attributeAssign ids
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>wsAttributeAssignLookups</CODE> - <DD><CODE>errorMessage</CODE> - <DD><CODE>lookupCount</CODE> - is an array of size one int where 1 will be added if there are records, and no change if not<DD><CODE>backReferenceAttributeAssignIds</CODE> - are attribute assign ids  if in batch and needs backreferences
 <DT><B>Returns:</B><DD>the membership ids</DL>
 </DD>
 </DL>
@@ -496,6 +564,35 @@ public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?vi
 <DD><DL>
 
 <DT><B>Returns:</B><DD>return a compact to string</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getBatchIndex()"><!-- --></A><H3>
+getBatchIndex</H3>
+<PRE>
+public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getBatchIndex</B>()</PRE>
+<DL>
+<DD>if there is a batch request, and this attribute assignment 
+ refers to a previously sent assignment, this is the index (0 indexed)
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the batch index</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setBatchIndex(java.lang.String)"><!-- --></A><H3>
+setBatchIndex</H3>
+<PRE>
+public void <B>setBatchIndex</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theIndex)</PRE>
+<DL>
+<DD>if there is a batch request, and this attribute assignment 
+ refers to a previously sent assignment, this is the index (0 indexed)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theIndex</CODE> - the index to set</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

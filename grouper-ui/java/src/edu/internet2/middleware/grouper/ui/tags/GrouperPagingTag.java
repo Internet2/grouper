@@ -24,6 +24,8 @@ import java.io.IOException;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
@@ -73,7 +75,8 @@ public class GrouperPagingTag extends SimpleTagSupport  {
       result.append(queryPaging.getPageStartIndex());
       result.append("-");
       result.append(queryPaging.getPageEndIndex());
-      result.append(" of ");
+      //result.append(" of ");
+      result.append(" ").append(StringUtils.trim(GrouperUiUtils.escapeHtml(GrouperUiUtils.message("page.outOf"), true))).append(" ");
       result.append(queryPaging.getTotalRecordCount());
       result.append(" &nbsp;&nbsp; ");
       result.append(GrouperUiUtils.escapeHtml(GrouperUiUtils.message("page.size"), true));
@@ -113,7 +116,8 @@ public class GrouperPagingTag extends SimpleTagSupport  {
       if (!queryPaging.isFirstPage()) {
         //allObjects.appState.pagers.")
         //.append(this.pagingName).append(".pageNumber = ").append( "; return false;\
-        this.appendButton(result, "Previous", queryPaging.getPageNumber()-1);
+        
+        this.appendButton(result, GrouperUiUtils.escapeHtml(GrouperUiUtils.message("page.previous"), true), queryPaging.getPageNumber()-1);
       } else {
         //just show a label (nothing)
         //result.append("Previous");
@@ -142,8 +146,7 @@ public class GrouperPagingTag extends SimpleTagSupport  {
 
       //see if there should be a next tag
       if (!queryPaging.isLastPage()) {
-        
-        this.appendButton(result, "Next", queryPaging.getPageNumber()+1);
+        this.appendButton(result, GrouperUiUtils.escapeHtml(GrouperUiUtils.message("page.next"), true), queryPaging.getPageNumber()+1);
       }
 
       

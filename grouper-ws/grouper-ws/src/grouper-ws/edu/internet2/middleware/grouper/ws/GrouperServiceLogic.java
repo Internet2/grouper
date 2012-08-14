@@ -106,6 +106,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchEntry;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesBatchResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesLiteResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults;
@@ -114,6 +115,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesRes
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsLiteResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssign;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignValue;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
@@ -5569,7 +5571,7 @@ public class GrouperServiceLogic {
           wsOwnerAttributeDefLookups, wsOwnerAttributeAssignLookups, actions,
           includeSubjectDetail, subjectAttributeNames, includeGroupDetail,
           wsAssignAttributesResults, session, params, null, null, 
-          attributeDefsToReplace, actionsToReplace, attributeDefTypesToReplace, false, true);
+          attributeDefsToReplace, actionsToReplace, attributeDefTypesToReplace, false, true, null);
 
         
     } catch (Exception e) {
@@ -6230,7 +6232,7 @@ public class GrouperServiceLogic {
           delegatable, null, wsAttributeAssignLookups, roleLookups, null, null, null, subjectRoleLookups, 
           null,null, actions, includeSubjectDetail, subjectAttributeNames, includeGroupDetail, 
           wsAssignAttributesResults, session, params, TypeOfGroup.role, AttributeDefType.perm,
-          attributeDefsToReplace, actionsToReplace, attributeDefTypesToReplace, disallowed, true);
+          attributeDefsToReplace, actionsToReplace, attributeDefTypesToReplace, disallowed, true, null);
       
     } catch (Exception e) {
       wsAssignAttributesResults.assignResultCodeException(null, theSummary, e);
@@ -6645,7 +6647,7 @@ public class GrouperServiceLogic {
   }
     
   /**
-   * delete an AttributeDefName or many.  Note, you cannot rename an existing AttributeDefName.
+   * delete an AttributeDefName or many.  
    * 
    * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
    * @param wsAttributeDefNameLookups
@@ -7338,12 +7340,15 @@ public class GrouperServiceLogic {
                 throws GrouperDAOException {
 
               int index = 0;
-              List<Long> attributeAssignIds = new ArrayList<Long>();
+              String[] attributeAssignIds = new String[GrouperUtil.length(wsAssignAttributeBatchEntries)];
               for (WsAssignAttributeBatchEntry wsAssignAttributeBatchEntry : wsAssignAttributeBatchEntries) {
 
                 String theError = null;
                 Exception exception = null;
                 WsAssignAttributesResults tempResults = null;
+                
+                //keep track for back references
+                String attributeAssignId = null;
                 
                 try {
                   AttributeAssignType attributeAssignType = GrouperServiceUtils.convertAttributeAssignType(
@@ -7413,24 +7418,37 @@ public class GrouperServiceLogic {
                       wsOwnerAttributeDefLookups, wsOwnerAttributeAssignLookups, actions,
                       includeSubjectDetail, subjectAttributeNames, includeGroupDetail,
                       tempResults, SESSION, params, null, null, 
-                      null, null, null, false, false);
+                      null, null, null, false, false, attributeAssignIds);
                   
-                  //TODO send in ID's or null for each one
+                  //keep track of id's 
+                  if (GrouperUtil.length(tempResults.getWsAttributeAssignResults()) == 1) {
+                    
+                    WsAssignAttributeResult wsAssignAttributeResult = tempResults.getWsAttributeAssignResults()[0];
+                    if (wsAssignAttributeResult != null) {
+                      
+                      if (GrouperUtil.length(wsAssignAttributeResult.getWsAttributeAssigns()) == 1) {
+                        
+                        WsAttributeAssign wsAttributeAssign = wsAssignAttributeResult.getWsAttributeAssigns()[0];
+                        attributeAssignId = wsAttributeAssign.getId();
+                      }
+                    }
+                  }
                   
                 } catch (Exception e) {
                   exception = e;
                   theError = "Error assigning attribute: " + wsAssignAttributeBatchEntry + ", " + e + ".  ";
-
+ 
                 }
                 //lets collate the results, note, we can make this more efficient later as far as resolving objects
                 wsAssignAttributesBatchResults.addResult(tempResults, theError, exception, index);
-                
+
                 //no need to continue if one failed
-                if (TX_TYPE.isTransactional()) {
+                if (exception != null && TX_TYPE.isTransactional()) {
                   grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
                   break;
                 }
                 
+                attributeAssignIds[index] = attributeAssignId;
                 index++;
                 
               }
@@ -7438,6 +7456,8 @@ public class GrouperServiceLogic {
               if (!wsAssignAttributesBatchResults.tallyResults(TX_TYPE, THE_SUMMARY)) {
                 grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
               }
+
+              wsAssignAttributesBatchResults.sortResults();
 
               return null;
             }
@@ -7448,6 +7468,7 @@ public class GrouperServiceLogic {
     } finally {
       GrouperSession.stopQuietly(session);
     }
+    
     
     return wsAssignAttributesBatchResults; 
   

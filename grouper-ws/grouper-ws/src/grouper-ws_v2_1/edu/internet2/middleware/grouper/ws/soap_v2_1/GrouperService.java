@@ -2116,6 +2116,40 @@ public class GrouperService {
   }
 
   /**
+   * assign attributes and values to owner objects (groups, stems, etc), doing multiple operations in one batch
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param includeSubjectDetail
+   *            T|F, for if the extended subject information should be
+   *            returned (anything more than just the id)
+   * @param wsAssignAttributeBatchEntries batch of attribute assignments
+   * @param actAsSubjectLookup
+   * @param subjectAttributeNames are the additional subject attributes (data) to return.
+   * If blank, whatever is configured in the grouper-ws.properties will be sent
+   * @param includeGroupDetail T or F as to if the group detail should be returned
+   * @param params optional: reserved for future use
+   * @param txType is the GrouperTransactionType for the request.  If blank, defaults to
+   * NONE (will finish as much as possible).  Generally the only values for this param that make sense
+   * are NONE (or blank), and READ_WRITE_NEW.
+   * @return the results
+   */
+  public WsAssignAttributesBatchResults assignAttributesBatch(
+      final String clientVersion, final WsAssignAttributeBatchEntry[] wsAssignAttributeBatchEntries,
+      final WsSubjectLookup actAsSubjectLookup, final String includeSubjectDetail, String txType,
+      final String[] subjectAttributeNames, final String includeGroupDetail, final WsParam[] params) {  
+  
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "assignAttributesBatch",
+        new Object[]{clientVersion, 
+      GrouperUtil.changeToVersion(wsAssignAttributeBatchEntries, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      includeSubjectDetail, txType, subjectAttributeNames, includeGroupDetail, 
+      GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()) });
+    
+    return (WsAssignAttributesBatchResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
+  
+  }
+  
+  /**
    * assign attributes and values to owner objects (groups, stems, etc)
    * @param attributeAssignType Type of owner, from enum AttributeAssignType, e.g.
    * group, member, stem, any_mem, imm_mem, attr_def, group_asgn, mem_asgn, 

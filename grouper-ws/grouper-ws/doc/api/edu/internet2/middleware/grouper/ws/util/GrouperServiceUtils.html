@@ -200,6 +200,15 @@ Class GrouperServiceUtils</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#booleanValue(java.lang.String, java.lang.String)">booleanValue</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;input,
+             <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;paramName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;parse a boolean as "T" or "F" or "TRUE" or "FALSE" case insensitive.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>[]</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#calculateSubjectAttributes(java.lang.String[], boolean)">calculateSubjectAttributes</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>[]&nbsp;requestedAttributes,
                            boolean&nbsp;includeSubjectDetailBoolean)</CODE>
@@ -263,6 +272,22 @@ Class GrouperServiceUtils</H2>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert the attributeAssignValueOperation, default to null</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;AttributeDefType</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#convertAttributeDefType(java.lang.String)">convertAttributeDefType</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefTypeString)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert the attributeDefType, default to null</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;AttributeDefValueType</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#convertAttributeDefValueType(java.lang.String)">convertAttributeDefValueType</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefValueTypeString)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert the attributeDefValueType, default to null</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -477,6 +502,24 @@ E</CODE></FONT></TD>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert a bean to a query string (including bean type)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;T&gt; T[]</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#mergeArrays(T[], T[], java.lang.String, java.lang.Class)">mergeArrays</A></B>(T[]&nbsp;toArray,
+            T[]&nbsp;fromArray,
+            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;propertyNameForEquality,
+            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Class.html?view=co" title="class or interface in java.lang">Class</A>&lt;T&gt;&nbsp;theClass)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;merge one array into another array and return it</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -945,6 +988,40 @@ public static AttributeAssignOperation <B>convertAttributeAssignOperation</B>(<A
 </DL>
 <HR>
 
+<A NAME="convertAttributeDefValueType(java.lang.String)"><!-- --></A><H3>
+convertAttributeDefValueType</H3>
+<PRE>
+public static AttributeDefValueType <B>convertAttributeDefValueType</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefValueTypeString)
+                                                          throws <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></PRE>
+<DL>
+<DD>convert the attributeDefValueType, default to null
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefValueTypeString</CODE> - 
+<DT><B>Returns:</B><DD>the attributeDefValueType
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></CODE> - if there is a problem</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="convertAttributeDefType(java.lang.String)"><!-- --></A><H3>
+convertAttributeDefType</H3>
+<PRE>
+public static AttributeDefType <B>convertAttributeDefType</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefTypeString)
+                                                throws <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></PRE>
+<DL>
+<DD>convert the attributeDefType, default to null
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefTypeString</CODE> - 
+<DT><B>Returns:</B><DD>the attributeDefType
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></CODE> - if there is a problem</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="convertPermissionAssignOperation(java.lang.String)"><!-- --></A><H3>
 convertPermissionAssignOperation</H3>
 <PRE>
@@ -1164,6 +1241,25 @@ public static boolean <B>booleanValue</B>(<A HREF="http://java.sun.com/j2se/1.4.
 </DL>
 <HR>
 
+<A NAME="booleanValue(java.lang.String, java.lang.String)"><!-- --></A><H3>
+booleanValue</H3>
+<PRE>
+public static boolean <B>booleanValue</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;input,
+                                   <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;paramName)
+                            throws <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></PRE>
+<DL>
+<DD>parse a boolean as "T" or "F" or "TRUE" or "FALSE" case insensitive. If
+ not specified, then exception. If malformed, then exception
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>input</CODE> - <DD><CODE>paramName</CODE> - to put in the invalid query exception
+<DT><B>Returns:</B><DD>the boolean
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></CODE> - if there is a problem</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="booleanObjectValue(java.lang.String, java.lang.String)"><!-- --></A><H3>
 booleanObjectValue</H3>
 <PRE>
@@ -1354,6 +1450,23 @@ public static &lt;T&gt; boolean <B>nullArray</B>(T[]&nbsp;array)</PRE>
 <DD><DL>
 <DT><B>Type Parameters:</B><DD><CODE>T</CODE> - <DT><B>Parameters:</B><DD><CODE>array</CODE> - 
 <DT><B>Returns:</B><DD>true if empty false if not</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="mergeArrays(java.lang.Object[],java.lang.Object[],java.lang.String,java.lang.Class)"><!-- --></A><A NAME="mergeArrays(T[], T[], java.lang.String, java.lang.Class)"><!-- --></A><H3>
+mergeArrays</H3>
+<PRE>
+public static &lt;T&gt; T[] <B>mergeArrays</B>(T[]&nbsp;toArray,
+                                  T[]&nbsp;fromArray,
+                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;propertyNameForEquality,
+                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Class.html?view=co" title="class or interface in java.lang">Class</A>&lt;T&gt;&nbsp;theClass)</PRE>
+<DL>
+<DD>merge one array into another array and return it
+<P>
+<DD><DL>
+<DT><B>Type Parameters:</B><DD><CODE>T</CODE> - is the type that is being handled<DT><B>Parameters:</B><DD><CODE>toArray</CODE> - <DD><CODE>fromArray</CODE> - <DD><CODE>propertyNameForEquality</CODE> - <DD><CODE>theClass</CODE> - 
+<DT><B>Returns:</B><DD>the new array</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

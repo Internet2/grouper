@@ -273,6 +273,7 @@ public class WsAssignAttributeLogic {
    * related attributeDefTypes, if blank, then just do all
    * @param disallowed is disallowed
    * @param tallyResults true to tally results, false to not
+   * @param backReferenceAttributeAssignIds if batch attribute assignments, then these are backreference ids
    */
   public static void assignAttributesHelper(AttributeAssignType attributeAssignType,
       WsAttributeDefNameLookup[] wsAttributeDefNameLookups,
@@ -291,7 +292,7 @@ public class WsAssignAttributeLogic {
       boolean includeGroupDetail, WsAssignAttributesResults wsAssignAttributesResults,
       GrouperSession session, WsParam[] params, TypeOfGroup typeOfGroup, AttributeDefType attributeDefType,
       WsAttributeDefLookup[] attributeDefsToReplace, String[] actionsToReplace, String[] attributeDefTypesToReplace, 
-      Boolean disallowed, boolean tallyResults) {
+      Boolean disallowed, boolean tallyResults, String[] backReferenceAttributeAssignIds) {
     
     final String[] subjectAttributeNamesToRetrieve = GrouperServiceUtils
       .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
@@ -324,10 +325,10 @@ public class WsAssignAttributeLogic {
     }
     
     //get the attributeAssignids to retrieve.  but shouldnt have owner as well as this...
-    Set<String> attributeAssignIds = WsAttributeAssignLookup.convertToAttributeAssignIds(session, wsAttributeAssignLookups, errorMessage, lookupCount);
+    Set<String> attributeAssignIds = WsAttributeAssignLookup.convertToAttributeAssignIds(session, wsAttributeAssignLookups, errorMessage, lookupCount, backReferenceAttributeAssignIds);
     
     //get the owner attributeAssignids to retrieve
-    Set<String> ownerAttributeAssignIds = WsAttributeAssignLookup.convertToAttributeAssignIds(session, wsOwnerAttributeAssignLookups, errorMessage, lookupCount);
+    Set<String> ownerAttributeAssignIds = WsAttributeAssignLookup.convertToAttributeAssignIds(session, wsOwnerAttributeAssignLookups, errorMessage, lookupCount, backReferenceAttributeAssignIds);
     
     //get the attributeDefNames to retrieve
     Set<String> attributeDefNameIds = WsAttributeDefNameLookup.convertToAttributeDefNameIds(session, wsAttributeDefNameLookups, errorMessage, attributeDefType, false, null, null);

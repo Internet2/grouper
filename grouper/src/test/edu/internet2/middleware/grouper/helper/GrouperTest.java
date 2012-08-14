@@ -627,6 +627,78 @@ public class GrouperTest extends TestCase {
       ApiConfig.testConfig.put("configuration.autocreate.group.subjects." + i, null);
     }
 
+    //set grouper.example.properties stuff...
+    ApiConfig.testConfig.put("groups.create.grant.all.admin", "false");
+    ApiConfig.testConfig.put("groups.create.grant.all.optin", "false");
+    ApiConfig.testConfig.put("groups.create.grant.all.optout", "false");
+    ApiConfig.testConfig.put("groups.create.grant.all.read", "true");
+    ApiConfig.testConfig.put("groups.create.grant.all.update", "false");
+    ApiConfig.testConfig.put("groups.create.grant.all.view", "true");
+    ApiConfig.testConfig.put("stems.create.grant.all.create", "false");
+    ApiConfig.testConfig.put("stems.create.grant.all.stem", "false");
+    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrAdmin", "false");
+    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrOptin", "false");
+    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrOptout", "false");
+    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrRead", "false");
+    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrUpdate", "false");
+    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrView", "false");
+    ApiConfig.testConfig.put("entities.create.grant.all.view", "false");
+    ApiConfig.testConfig.put("groups.wheel.use", "false");
+    ApiConfig.testConfig.put("groups.wheel.group", "etc:sysadmingroup");
+    ApiConfig.testConfig.put("subject.internal.grouperall.name", "EveryEntity");
+    ApiConfig.testConfig.put("subject.internal.groupersystem.name", "GrouperSysAdmin");
+    ApiConfig.testConfig.put("internalSubjects.searchAttribute0.el", "${subject.name},${subject.id}");
+    ApiConfig.testConfig.put("internalSubjects.sortAttribute0.el", "${subject.name}");
+    ApiConfig.testConfig.put("security.types.grouperLoader.wheelOnly", "true");
+    ApiConfig.testConfig.put("security.types.grouperGroupMembershipSettings.wheelOnly", "true");
+    ApiConfig.testConfig.put("security.stem.groupAllowedToMoveStem", null);
+    ApiConfig.testConfig.put("security.stem.groupAllowedToRenameStem", null);
+    ApiConfig.testConfig.put("security.stem.groupAllowedToCopyStem", null);
+    ApiConfig.testConfig.put("member.search.defaultIndexOrder", "0");
+    ApiConfig.testConfig.put("member.sort.defaultIndexOrder", "0");
+    ApiConfig.testConfig.put("grouperIncludeExclude.use", "false");
+    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroups.use", "false");
+    ApiConfig.testConfig.put("subjects.allPage.useThreadForkJoin", "false");
+    ApiConfig.testConfig.put("subjects.idOrIdentifier.useThreadForkJoin", "false");
+    ApiConfig.testConfig.put("subjects.group.useCreatorAndModifierAsSubjectAttributes", "true");
+    ApiConfig.testConfig.put("subjects.customizer.className", null);
+    ApiConfig.testConfig.put("subjects.startRootSessionIfOneIsntStarted", "false");
+    ApiConfig.testConfig.put("hooks.attribute.class", null);
+    ApiConfig.testConfig.put("hooks.attributeDef.class", null);
+    ApiConfig.testConfig.put("hooks.attributeDefName.class", null);
+    ApiConfig.testConfig.put("hooks.attributeAssign.class", null);
+    ApiConfig.testConfig.put("hooks.attributeAssignValue.class", null);
+    ApiConfig.testConfig.put("hooks.group.class", null);
+    ApiConfig.testConfig.put("hooks.lifecycle.class", null);
+    ApiConfig.testConfig.put("hooks.membership.class", null);
+    ApiConfig.testConfig.put("hooks.member.class", null);
+    ApiConfig.testConfig.put("hooks.stem.class", null);
+    ApiConfig.testConfig.put("hooks.composite.class", null);
+    ApiConfig.testConfig.put("hooks.field.class", null);
+    ApiConfig.testConfig.put("hooks.grouperSession.class", null);
+    ApiConfig.testConfig.put("hooks.groupType.class", null);
+    ApiConfig.testConfig.put("hooks.groupTypeTuple.class", null);
+    ApiConfig.testConfig.put("hooks.loader.class", null);
+    ApiConfig.testConfig.put("hooks.externalSubject.class", null);
+    ApiConfig.testConfig.put("rules.act.as.group", null);
+    ApiConfig.testConfig.put("rules.accessToApiInEl.group", null);
+    ApiConfig.testConfig.put("rules.act.as.cache.minutes", "30");
+    ApiConfig.testConfig.put("rules.customElClasses", null);
+    ApiConfig.testConfig.put("rules.allowActAsGrouperSystemForInheritedStemPrivileges", null); 
+    ApiConfig.testConfig.put("rules.emailTemplatesFolder", null);
+    ApiConfig.testConfig.put("group.attribute.validator.attributeName.0", null);
+    ApiConfig.testConfig.put("group.attribute.validator.regex.0", null);
+    ApiConfig.testConfig.put("group.attribute.validator.vetoMessage.0", null);
+    ApiConfig.testConfig.put("changeLog.enabled", "true");
+    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "false");
+    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "false");
+    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "false");
+    ApiConfig.testConfig.put("grouper.api.readonly", "false");
+    ApiConfig.testConfig.put("membershipUpdateLiteTypeAutoCreate", "false");
+    ApiConfig.testConfig.put("grouper.attribute.rootStem", "etc:attribute");
+    ApiConfig.testConfig.put("grouper.attribute.loader.autoconfigure", "true");
+    ApiConfig.testConfig.put("grouper.permissions.limits.builtin.createAs.public", "true");
+
     setupConfigs();
     
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
@@ -635,16 +707,10 @@ public class GrouperTest extends TestCase {
 
     GrouperLoaderConfig.testConfig.put("default.subject.source.id", null);
     ApiConfig.testConfig.put("configuration.autocreate.system.groups", "false");
-    ApiConfig.testConfig.put("groups.create.grant.all.read", "true");
-    ApiConfig.testConfig.put("groups.create.grant.all.view", "true");
-
-    ApiConfig.testConfig.put("entities.create.grant.all.view", "false");
     
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrRead", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrView", "false");
-
     //dont send emails
     ApiConfig.testConfig.put("mail.smtp.server", "testing");
+    
     GrouperEmail.testingEmails().clear();
 
   }

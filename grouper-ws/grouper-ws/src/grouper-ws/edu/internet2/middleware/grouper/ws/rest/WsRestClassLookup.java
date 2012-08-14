@@ -28,8 +28,11 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchEntry;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesBatchResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesLiteResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesLiteResult;
@@ -114,6 +117,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributeDefNameInheritanceLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributeDefNameInheritanceRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesBatchRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefNameDeleteLiteRequest;
@@ -267,9 +271,13 @@ public class WsRestClassLookup {
     addAliasClass(WsSubjectLookup.class);
 
     addAliasClass(WsRestAssignAttributesLiteRequest.class);
+    addAliasClass(WsRestAssignAttributesBatchRequest.class);
+    addAliasClass(WsAssignAttributeBatchEntry.class);
     addAliasClass(WsRestAssignAttributesRequest.class);
     addAliasClass(WsAssignAttributesLiteResults.class);
     addAliasClass(WsAssignAttributesResults.class);
+    addAliasClass(WsAssignAttributesBatchResults.class);
+    addAliasClass(WsAssignAttributeBatchResult.class);
     addAliasClass(WsAssignAttributeResult.class);
     
     addAliasClass(WsRestAssignPermissionsLiteRequest.class);
