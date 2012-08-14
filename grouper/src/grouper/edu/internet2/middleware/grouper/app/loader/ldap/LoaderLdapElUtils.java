@@ -267,7 +267,7 @@ public class LoaderLdapElUtils {
     // convert the rest of the bushy group part of dn to the group name
     StringBuilder groupName = new StringBuilder();
     for (String element : splitDn) {
-      if (element.indexOf('=') >= 0) {  // split by equals comma, and put in by colon
+      if (element.indexOf('=') >= 0) {  // Avoid empty elements (e.g. if you have a ',' at the end)
         groupName.insert(0, element.substring(element.indexOf('=') + 1)).insert(0,':');
       }
     }
@@ -275,6 +275,11 @@ public class LoaderLdapElUtils {
     // add the base stem if it is there
     if (!StringUtils.isBlank(grouperBaseStem)) {
       groupName.insert(0, grouperBaseStem);
+    } else {
+      //if it starts with a colon, delete it
+      if (groupName.charAt(0) == ':') {
+        groupName.deleteCharAt(0);
+      }
     }
     
     cacheDnToGroupName.put(dn, groupName.toString());
