@@ -267,7 +267,7 @@ public class LoaderLdapElUtils {
     // convert the rest of the bushy group part of dn to the group name
     StringBuilder groupName = new StringBuilder();
     for (String element : splitDn) {
-      if (element.indexOf('=') >= 0) {  // Éviter les éléments vide (p. ex. s'il reste ',' à la fin)
+      if (element.indexOf('=') >= 0) {  // split by equals comma, and put in by colon
         groupName.insert(0, element.substring(element.indexOf('=') + 1)).insert(0,':');
       }
     }
