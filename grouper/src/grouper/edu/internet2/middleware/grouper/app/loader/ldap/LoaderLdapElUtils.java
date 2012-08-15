@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- *
+ * loaded in EL context for loader el's
  */
 public class LoaderLdapElUtils {
 
@@ -57,6 +57,63 @@ public class LoaderLdapElUtils {
       }
     }
     return result;
+  }
+  
+  /**
+   * convert from uid=someapp,ou=people,dc=myschool,dc=edu to someapp and allow groups
+   * @param dn full dn
+   * @param allowGroups if groups are allowed
+   * @param groupSuffix group suffix e.g. ,OU=Groups,DC=dev,DC=umontreal,DC=ca
+   * @param groupPrefix group prefix e.g. umontreal:adgroups: 
+   * if null then no prefix
+   * @param createGroupIfNotThere if we should see if group exists and if not, create
+   * @param idOrIdentifier true for Id (uuid), false for Identifier of group (name)
+   * @return the subjectId or Identifier
+   */
+  public static String convertDnToSpecificValueOrGroup(String dn, String groupPrefix, 
+      String groupSuffix, boolean createGroupIfNotThere, boolean idOrIdentifier) {
+
+    //not sure why this would happen 
+    if (dn == null) {
+      return dn;
+    }
+
+    boolean isGroup = dn.toLowerCase().endsWith(groupSuffix.toLowerCase());
+    
+    if (isGroup) {
+      String cn = dn.substring(0, dn.length() - groupSuffix.length());
+
+      if (StringUtils.countMatches(cn, "=") != 1) {
+        throw new RuntimeException("Why is there not 1 equals in this CN??? '" + cn + "'");
+      }
+
+      //this should be CN=groupName, convert to groupName 
+      cn = GrouperUtil.prefixOrSuffix(cn, "=", false);
+
+      String groupName = StringUtils.isBlank(groupPrefix) ? cn : (groupPrefix + cn);
+      
+      Group group = GrouperDAOFactory.getFactory().getGroup().findByName(groupName,
+          false, null);
+
+      if (createGroupIfNotThere) {
+        if (group == null) {
+
+          group = new GroupSave(GrouperSession.staticGrouperSession())
+              .assignName(groupName).assignCreateParentStemsIfNotExist(true).save();
+        }        
+      }
+
+      if (group == null) {
+        
+        LOG.error("Why is group null??? " + groupName);
+        return null;
+      }
+      
+      return idOrIdentifier ? group.getId() : group.getName();
+
+    }
+    //not a group 
+    return LoaderLdapElUtils.convertDnToSpecificValue(dn);
   }
   
   /**
@@ -132,7 +189,7 @@ public class LoaderLdapElUtils {
     //not a group
     return cn;
   }
-  
+
   /**
    * cache for if cn is person or group
    * cn -> is Person; true = person, false = group, store in memory for 3 hours

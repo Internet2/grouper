@@ -76,6 +76,24 @@ import edu.internet2.middleware.subject.Subject;
 public class GrouperUtilElSafe {
 
   /**
+   * null safe to upper method
+   * @param input
+   * @return upper
+   */
+  public static String toUpperCase(String input) {
+    return input == null ? null : input.toUpperCase();
+  }
+  
+  /**
+   * null safe to lower method
+   * @param input
+   * @return lower
+   */
+  public static String toLowerCase(String input) {
+    return input == null ? null : input.toLowerCase();
+  }
+  
+  /**
    * take email addresses from a textarea and turn them into semi separated
    * @param emailAddresses can be whitespace, comma, or semi separated
    * @return the email addresses semi separated
