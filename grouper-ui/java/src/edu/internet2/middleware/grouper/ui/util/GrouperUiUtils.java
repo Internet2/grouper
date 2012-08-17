@@ -1253,6 +1253,7 @@ public class GrouperUiUtils {
       }
       {
         Map<String, String> theSubjectToScreenElLong = new HashMap<String, String>();
+        //TODO CH 20120803 this should come from the resource bundle!
         Properties propertiesSettings = GrouperUtil
           .propertiesFromResourceName("resources/grouper/media.properties");
         

@@ -137,4 +137,8 @@
     <grouper:Filter xsi:type="grouper:NameInStem" name="" scope="ONE" />
   </resolver:AttributeDefinition>
   
+  <resolver:DataConnector id="testAttributeNameWithMoreThanTwoColons" xsi:type="grouper:GroupDataConnector">
+    <grouper:Attribute id="etc:attribute:courses:courseType" />
+  </resolver:DataConnector>
+  
 </AttributeResolver>

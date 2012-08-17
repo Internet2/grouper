@@ -74,6 +74,39 @@ public class HibernateSession {
   /** save point count for testing */
   static int savePointCount = 0;
   
+  /** threadlocal to store if we are in readonly mode */
+  private static ThreadLocal<Boolean> threadlocalReadonly = new ThreadLocal<Boolean>();
+  
+  /**
+   * if readonly by threadlocal or config param
+   * @return true if readonly
+   */
+  public static boolean isReadonlyMode() {
+    if (GrouperConfig.getPropertyBoolean("grouper.api.readonly", false)) {
+      return true;
+    }
+    
+    Boolean threadlocalBoolean = threadlocalReadonly.get();
+    
+    return threadlocalBoolean != null && threadlocalBoolean;
+    
+  }
+
+  /**
+   * 
+   * assign that grouper is in readonly mode, make sure to call clear in a finally block
+   */
+  public static void threadLocalReadonlyAssign() {
+    threadlocalReadonly.set(true);
+  }
+
+  /**
+   * in finally block call this to not make grouper readonly anymore
+   */
+  public static void threadLocalReadonlyClear() {
+    threadlocalReadonly.remove();
+  }
+  
   /**
    * construct a hibernate session based on existing hibernate session (if
    * applicable), and a transaction type. If these conflict, then throw grouper
@@ -98,7 +131,7 @@ public class HibernateSession {
     }
     
     //if readonly, then dont allow read/write transactions
-    if (GrouperConfig.getPropertyBoolean("grouper.api.readonly", false)) {
+    if (isReadonlyMode()) {
       if (grouperTransactionType != null && grouperTransactionType.isTransactional()) {
         grouperTransactionType = GrouperTransactionType.READONLY_OR_USE_EXISTING;
       }

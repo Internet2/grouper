@@ -32,7 +32,7 @@ Please send email to the [grouper-dev][1] list or report them in the [issue trac
   * "api"
      Contains Grouper Javadoc (binary distribution only)
   * "bin"
-    * "gsh.bat / gsh.sh"
+    * "gsh.bat / gsh"
 	   Command line and interactive shell interface to Grouper. Run with -h
 	   option for help and see Wiki[0] for detailed information
     * "setenv.example.bat / setenv.example.sh"

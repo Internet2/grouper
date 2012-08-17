@@ -290,6 +290,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
     this.setAttributeAssignActionId(this.attributeAssignAction.getId());
     this.setAttributeDefNameId(theAttributeDefName.getId());
+    
     this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
@@ -311,6 +312,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
     this.setAttributeAssignActionId(this.attributeAssignAction.getId());
     this.setAttributeDefNameId(theAttributeDefName.getId());
+    
     this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
@@ -346,6 +348,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
     this.setAttributeAssignActionId(this.attributeAssignAction.getId());
     this.setAttributeDefNameId(theAttributeDefName.getId());
+    
     this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
@@ -362,27 +365,12 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     
     this();
     this.attributeDefName = theAttributeDefName;
-    AttributeAssignType ownerType = ownerAttributeAssign.getAttributeAssignType();
-    if (AttributeAssignType.group == ownerType) {
-      this.attributeAssignType = AttributeAssignType.group_asgn;
-    } else if (AttributeAssignType.stem == ownerType) {
-      this.attributeAssignType = AttributeAssignType.stem_asgn;
-    } else if (AttributeAssignType.member == ownerType) {
-      this.attributeAssignType = AttributeAssignType.mem_asgn;
-    } else if (AttributeAssignType.attr_def == ownerType) {
-      this.attributeAssignType = AttributeAssignType.attr_def_asgn;
-    } else if (AttributeAssignType.any_mem == ownerType) {
-      this.attributeAssignType = AttributeAssignType.any_mem_asgn;
-    } else if (AttributeAssignType.imm_mem == ownerType) {
-      this.attributeAssignType = AttributeAssignType.imm_mem_asgn;
-    } else {
-      throw new RuntimeException("Not expecting attribute on ownerAttributeType: " + ownerType);
-    }
-
+    
+    this.setAttributeDefNameId(theAttributeDefName.getId());
     
     //cant assign to an assignment of an assignment.
     if (!StringUtils.isBlank(ownerAttributeAssign.getOwnerAttributeAssignId())) {
-      throw new RuntimeException("You cants assign an attribute to " +
+      throw new RuntimeException("You cant assign an attribute to " +
       		"an assignment of an assignment (only to an assignment of a non-assignment): " 
           + theAction + ", " + theAttributeDefName.getName());
     }
@@ -395,7 +383,6 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
       .getAttributeDefActionDelegate().allowedAction(theAction, true);
 
     this.setAttributeAssignActionId(this.attributeAssignAction.getId());
-    this.setAttributeDefNameId(theAttributeDefName.getId());
     this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
@@ -432,6 +419,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
     this.setAttributeAssignActionId(this.attributeAssignAction.getId());
     this.setAttributeDefNameId(theAttributeDefName.getId());
+    
     this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
@@ -454,6 +442,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     this.setOwnerMemberId(ownerMember.getUuid());
     this.setAttributeAssignActionId(theActionId);
     this.setAttributeDefNameId(theAttributeDefName.getId());
+    
     this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
@@ -486,11 +475,70 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
       throw new AttributeAssignNotAllowed("Not allowed to assign to effective membership: " + theAttributeDef + ", " + this.ownerGroupId + ", " + this.ownerMemberId + ", to allow this, make sure the attributeDef has setAssignToEffMembership(true)");
     }
     
+    final AttributeDefName ATTRIBUTE_DEF_NAME = this.getAttributeDefName();
+
+    if (StringUtils.isNotEmpty(this.ownerAttributeAssignId)) {
+      AttributeAssign ownerAttributeAssign = this.getOwnerAttributeAssign();
+      AttributeAssignType ownerType = ownerAttributeAssign.getAttributeAssignType();
+
+      if (AttributeAssignType.group == ownerType) {
+        this.attributeAssignType = AttributeAssignType.group_asgn;
+        
+        if (!theAttributeDef.isAssignToGroupAssn()) {
+          throw new RuntimeException("Attribute is not assignable to a group attribute assignment, nameOfAttributeDefName: " 
+              + ATTRIBUTE_DEF_NAME.getName() + ", nameOfAttributeDef: " + theAttributeDef.getName());
+        }
+
+
+      } else if (AttributeAssignType.stem == ownerType) {
+        this.attributeAssignType = AttributeAssignType.stem_asgn;
+
+        if (!theAttributeDef.isAssignToStemAssn()) {
+          throw new RuntimeException("Attribute is not assignable to a stem attribute assignment, nameOfAttributeDefName: " 
+              + ATTRIBUTE_DEF_NAME.getName() + ", nameOfAttributeDef: " + theAttributeDef.getName());
+        }
+      } else if (AttributeAssignType.member == ownerType) {
+        this.attributeAssignType = AttributeAssignType.mem_asgn;
+        
+        if (!theAttributeDef.isAssignToMemberAssn()) {
+          throw new RuntimeException("Attribute is not assignable to a member attribute assignment, nameOfAttributeDefName: " 
+              + ATTRIBUTE_DEF_NAME.getName() + ", nameOfAttributeDef: " + theAttributeDef.getName());
+        }
+
+      } else if (AttributeAssignType.attr_def == ownerType) {
+        this.attributeAssignType = AttributeAssignType.attr_def_asgn;
+      
+        if (!theAttributeDef.isAssignToAttributeDefAssn()) {
+          throw new RuntimeException("Attribute is not assignable to a attribute definition attribute assignment, nameOfAttributeDefName: " 
+              + ATTRIBUTE_DEF_NAME.getName() + ", nameOfAttributeDef: " + theAttributeDef.getName());
+        }
+
+      } else if (AttributeAssignType.any_mem == ownerType) {
+        this.attributeAssignType = AttributeAssignType.any_mem_asgn;
+
+        if (!theAttributeDef.isAssignToEffMembershipAssn()) {
+          throw new RuntimeException("Attribute is not assignable to an effective membership attribute assignment, nameOfAttributeDefName: " 
+              + ATTRIBUTE_DEF_NAME.getName() + ", nameOfAttributeDef: " + theAttributeDef.getName());
+        }
+
+      } else if (AttributeAssignType.imm_mem == ownerType) {
+        this.attributeAssignType = AttributeAssignType.imm_mem_asgn;
+      
+        if (!theAttributeDef.isAssignToImmMembershipAssn()) {
+          throw new RuntimeException("Attribute is not assignable to a immediate membership attribute assignment, nameOfAttributeDefName: " 
+              + ATTRIBUTE_DEF_NAME.getName() + ", nameOfAttributeDef: " + theAttributeDef.getName());
+        }
+
+      } else {
+        throw new RuntimeException("Not expecting attribute on ownerAttributeType: " + ownerType);
+      }
+
+    }
+    
     //this is the owner of the assignment
     final AttributeAssignable attributeAssignable = AttributeAssign.this.retrieveAttributeAssignable();
     
     //make sure subject is allowed to do this
-    final AttributeDefName ATTRIBUTE_DEF_NAME = this.getAttributeDefName();
     final AttributeAssignAction ATTRIBUTE_ASSIGN_ACTION = AttributeAssign.this.getAttributeAssignAction();
 
     attributeAssignable.getAttributeDelegate().assertCanUpdateAttributeDefName(ATTRIBUTE_DEF_NAME);

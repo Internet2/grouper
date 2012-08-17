@@ -8981,7 +8981,7 @@ public class GrouperUtil {
       throw new RuntimeException("Error substituting string: '" + stringToParse + "'", e);
     } finally {
       if (LOG.isDebugEnabled()) {
-        Set<String> keysSet = GrouperUtil.nonNull(variableMap).keySet();
+        Set<String> keysSet = new LinkedHashSet<String>(GrouperUtil.nonNull(variableMap).keySet());
         keysSet.add("grouperUtil");
         StringBuilder logMessage = new StringBuilder();
         logMessage.append("Subsituting EL: '").append(stringToParse).append("', and with env vars: ");

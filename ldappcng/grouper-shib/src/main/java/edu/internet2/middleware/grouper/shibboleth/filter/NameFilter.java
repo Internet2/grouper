@@ -74,7 +74,7 @@ public class NameFilter extends AbstractFilter<String> {
    * 
    * {@inheritDoc}
    */
-  public boolean matches(String name) {
+  public boolean matches(Object name) {
     return this.name.equals(name);
   }
 }

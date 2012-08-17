@@ -40,9 +40,35 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class GuiResponseJs implements Serializable {
 
   /**
+   * message on screen if session ended
+   */
+  private String guiAjaxSessionProblem;
+  
+  /**
+   * message on screen if session ended
+   * @return the guiAjaxSessionProblem
+   */
+  public String getGuiAjaxSessionProblem() {
+    return this.guiAjaxSessionProblem;
+  }
+  
+  /**
+   * message on screen if session ended
+   * @param guiAjaxSessionProblem1 the guiAjaxSessionProblem to set
+   */
+  public void setGuiAjaxSessionProblem(String guiAjaxSessionProblem1) {
+    this.guiAjaxSessionProblem = guiAjaxSessionProblem1;
+  }
+
+
+  /**
    * print this object to screen
    */
   public void printToScreen() {
+    
+    //set the session error message
+    this.guiAjaxSessionProblem = GrouperUiUtils.message("guiAjaxSessionProblem", false);
+    
     StringBuilder result = new StringBuilder();
 
     // if this is an ajax file submit, we need to add textarea around response

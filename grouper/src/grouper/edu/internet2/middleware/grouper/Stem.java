@@ -50,6 +50,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
@@ -2014,8 +2015,15 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         
               Group _g = new Group();
               _g.setParentUuid(Stem.this.getUuid());
-              _g.setDisplayExtension(dExtn);
-              _g.setExtension(extn);
+              if (GrouperLoader.isDryRun()) {
+                _g.setDisplayExtensionDb(dExtn);
+                _g.setExtensionDb(extn);
+                
+              } else {
+                _g.setDisplayExtension(dExtn);
+                _g.setExtension(extn);
+                
+              }
               _g.setDescription(description);
               _g.setCreateTimeLong(new Date().getTime());
               _g.setCreatorUuid(session.getMember().getUuid());
@@ -2033,40 +2041,46 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
                 _g.setUuid(uuid);
               }
         
-              GrouperSubject  subj  = new GrouperSubject(_g);
-              Member _m = new Member();
-              _m.setSubjectIdDb( subj.getId() );
-              _m.setSubjectSourceIdDb( subj.getSource().getId() );
-              _m.setSubjectTypeId( subj.getType().getName() );
-              _m.updateMemberAttributes(subj, false);
-              // TODO 20070328 this is incredibly ugly.  making it even worse is that i am also checking
-              //               for existence in the dao as well.
-              if (uuid == null) {
-                _m.setUuid( GrouperUuid.getUuid() ); // assign a new uuid
-              }
-              else {
-                try {
-                  // member already exists.  use existing uuid.
-                  _m.setUuid( GrouperDAOFactory.getFactory().getMember().findBySubject(subj, true).getUuid() );
-                }
-                catch (MemberNotFoundException eMNF) {
-                  // couldn't find member.  assign new uuid.
-                  _m.setUuid( GrouperUuid.getUuid() ); 
-                }
-              }
-        
-              //CH 20080220: this will start saving the stem
-              GrouperDAOFactory.getFactory().getStem().createChildGroup( Stem.this, _g, _m, attributes );
+              //CH 20080220: this will start saving the group
+              //if loader dry run dont bother
+              if (GrouperLoader.isDryRun()) {
+                GrouperLoader.dryRunWriteLine("Creating group: " + name);
                 
-              if (addDefaultGroupPrivileges) {
-                _grantDefaultPrivsUponCreate(_g);
+              } else {
+                GrouperSubject  subj  = new GrouperSubject(_g);
+                Member _m = new Member();
+                _m.setSubjectIdDb( subj.getId() );
+                _m.setSubjectSourceIdDb( subj.getSource().getId() );
+                _m.setSubjectTypeId( subj.getType().getName() );
+                _m.updateMemberAttributes(subj, false);
+                // TODO 20070328 this is incredibly ugly.  making it even worse is that i am also checking
+                //               for existence in the dao as well.
+                if (uuid == null) {
+                  _m.setUuid( GrouperUuid.getUuid() ); // assign a new uuid
+                }
+                else {
+                  try {
+                    // member already exists.  use existing uuid.
+                    _m.setUuid( GrouperDAOFactory.getFactory().getMember().findBySubject(subj, true).getUuid() );
+                  }
+                  catch (MemberNotFoundException eMNF) {
+                    // couldn't find member.  assign new uuid.
+                    _m.setUuid( GrouperUuid.getUuid() ); 
+                  }
+                }
+        
+
+                GrouperDAOFactory.getFactory().getStem().createChildGroup( Stem.this, _g, _m, attributes );
+                if (addDefaultGroupPrivileges) {
+                  _grantDefaultPrivsUponCreate(_g);
+                }
+                //fire a rule
+                RulesGroupBean rulesGroupBean = new RulesGroupBean(_g);
+                //fire rules directly connected to this membership remove
+                RuleEngine.fireRule(RuleCheckType.groupCreate, rulesGroupBean);
+
               }
               
-              //fire a rule
-              RulesGroupBean rulesGroupBean = new RulesGroupBean(_g);
-              //fire rules directly connected to this membership remove
-              RuleEngine.fireRule(RuleCheckType.groupCreate, rulesGroupBean);
-
               
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
                 AuditEntry auditEntry = null;
@@ -2318,7 +2332,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
 
             StopWatch sw = new StopWatch();
             sw.start();
-            if ( !PrivilegeHelper.canStem( Stem.this, session.getSubject() ) ) {
+            if ( !GrouperLoader.isDryRun() && !PrivilegeHelper.canStem( Stem.this, session.getSubject() ) ) {
               throw new InsufficientPrivilegeException(E.CANNOT_STEM + ", "
                   + GrouperUtil.toStringSafe(Stem.this) + ", extn: " + extn + ", dExtn: " 
                   + dExtn + ", uuid: " + uuid + ", subject: " + session.getSubject());
@@ -2348,26 +2362,29 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
               else {
                 _ns.setUuid(uuid);
               }
-              GrouperDAOFactory.getFactory().getStem().createChildStem( _ns ) ;
-
-
-              if (addDefaultStemPrivileges) {
-                _grantDefaultPrivsUponCreate(_ns);
-              }
-
-              //fire a rule
-              RulesStemBean rulesStemBean = new RulesStemBean(_ns);
-              //fire rules directly connected to this membership remove
-              RuleEngine.fireRule(RuleCheckType.stemCreate, rulesStemBean);
-
               
-              if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_ADD, "id", 
-                    _ns.getUuid(), "name", _ns.getName(), "parentStemId", Stem.this.getUuid(), "displayName", 
-                    _ns.getDisplayName(), "description", _ns.getDescription());
-                auditEntry.setDescription("Added stem: " + _ns.getName());
-                auditEntry.saveOrUpdate(true);
-              }
+              if (!GrouperLoader.isDryRun()) {
+                GrouperDAOFactory.getFactory().getStem().createChildStem( _ns ) ;
+  
+  
+                if (addDefaultStemPrivileges) {
+                  _grantDefaultPrivsUponCreate(_ns);
+                }
+  
+                //fire a rule
+                RulesStemBean rulesStemBean = new RulesStemBean(_ns);
+                //fire rules directly connected to this membership remove
+                RuleEngine.fireRule(RuleCheckType.stemCreate, rulesStemBean);
+  
+                
+                if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                  AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_ADD, "id", 
+                      _ns.getUuid(), "name", _ns.getName(), "parentStemId", Stem.this.getUuid(), "displayName", 
+                      _ns.getDisplayName(), "description", _ns.getDescription());
+                  auditEntry.setDescription("Added stem: " + _ns.getName());
+                  auditEntry.saveOrUpdate(true);
+                }
+              } 
               
               sw.stop();
               EventLog.info(session, M.STEM_ADD + Quote.single( _ns.getName() ), sw);

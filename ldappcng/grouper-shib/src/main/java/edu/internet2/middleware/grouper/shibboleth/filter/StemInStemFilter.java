@@ -65,7 +65,11 @@ public class StemInStemFilter extends AbstractFilter<Stem> {
    * 
    * {@inheritDoc}
    */
-  public boolean matches(final Stem stem) {
+  public boolean matches(final Object stem) {
+    if (!(stem instanceof Stem)) {
+      return false;
+    }
+
     // find the configured parent stem
     Stem parentStem = StemFinder.findByName(getGrouperSession(), name, false);
 
@@ -75,12 +79,12 @@ public class StemInStemFilter extends AbstractFilter<Stem> {
     }
 
     // if the parent stem is the root stem and the stem to match is the root stem, return false
-    if (parentStem.isRootStem() && stem.isRootStem()) {
+    if (parentStem.isRootStem() && ((Stem) stem).isRootStem()) {
       return false;
     }
 
     // if stem to match is at top level, then return true only if parent stem is root
-    if (GrouperUtil.parentStemNameFromName(stem.getName()) == null) {
+    if (GrouperUtil.parentStemNameFromName(((Stem) stem).getName()) == null) {
       if (parentStem.isRootStem()) {
         return true;
       } else {
@@ -89,9 +93,9 @@ public class StemInStemFilter extends AbstractFilter<Stem> {
     }
 
     if (scope.equals(Scope.SUB)) {
-      return GrouperUtil.parentStemNameFromName(stem.getName(), false).startsWith(parentStem.getName());
+      return GrouperUtil.parentStemNameFromName(((Stem) stem).getName(), false).startsWith(parentStem.getName());
     } else if (scope.equals(Scope.ONE)) {
-      return GrouperUtil.parentStemNameFromName(stem.getName(), false).equals(parentStem.getName());
+      return GrouperUtil.parentStemNameFromName(((Stem) stem).getName(), false).equals(parentStem.getName());
     } else {
       throw new GrouperException("Unknown scope " + scope);
     }

@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
@@ -81,6 +82,8 @@ public class RegistryInstall {
 
         public Object callback(GrouperSession grouperSession)
             throws GrouperSessionException {
+          //make sure the ALL subject is created before the change log happens
+          MemberFinder.findBySubject(grouperSession, SubjectFinder.findAllSubject(), true);
           boolean changed = false;
           try {
             changed = changed | _installFieldsAndTypes(grouperSession);

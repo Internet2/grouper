@@ -686,7 +686,8 @@ public class GrouperCheckConfig {
     boolean isDriverPostgres = realDriverClass.toLowerCase().contains("postgres");
     boolean isDriverMysql = realDriverClass.toLowerCase().contains("mysql");
     boolean isDriverHsql = realDriverClass.toLowerCase().contains("hsql");
-    boolean isDriverSqlServer = realDriverClass.toLowerCase().contains("sqlserver");
+    boolean isDriverSqlServer = realDriverClass.toLowerCase().contains("sqlserver") 
+      || realDriverClass.toLowerCase().contains("jtds");
     
     String dialect = StringUtils.defaultString(GrouperUtil.propertiesValue(grouperHibernateProperties,"hibernate.dialect"));
     
@@ -698,18 +699,19 @@ public class GrouperCheckConfig {
     boolean isDialectHsql = dialect.toLowerCase().contains("hsql");
     boolean isDialectSqlServer = dialect.toLowerCase().contains("sqlserver");
     
-    if ((isDriverOracle && !isDialectOracle) || (isDriverPostgres && !isDialectPostgres) 
-        || (isDriverMysql && !isDialectMysql) || (isDriverHsql && !isDialectHsql)
-        || (!isDriverOracle && isDialectOracle) || (!isDriverPostgres && isDialectPostgres) 
-        || (!isDriverMysql && isDialectMysql) || (!isDriverHsql && isDialectHsql)
-        || (!isDriverSqlServer && isDialectSqlServer) || (isDriverSqlServer && !isDialectSqlServer)) {
-      String error = "Grouper error: detected mismatch in hibernate.connection.driver_class ("
-              + realDriverClass + ") and hibernate.dialect (" + dialect 
-              + ") in grouper.hibernate.properties" + spySuffix;
-      System.err.println(error);
-      LOG.error(error);
-    }
-    
+    if (GrouperConfig.getPropertyBoolean("db.log.driver.mismatch", true)) {
+      if ((isDriverOracle && !isDialectOracle) || (isDriverPostgres && !isDialectPostgres) 
+          || (isDriverMysql && !isDialectMysql) || (isDriverHsql && !isDialectHsql)
+          || (!isDriverOracle && isDialectOracle) || (!isDriverPostgres && isDialectPostgres) 
+          || (!isDriverMysql && isDialectMysql) || (!isDriverHsql && isDialectHsql)
+          || (!isDriverSqlServer && isDialectSqlServer) || (isDriverSqlServer && !isDialectSqlServer)) {
+        String error = "Grouper error: detected mismatch in hibernate.connection.driver_class ("
+                + realDriverClass + ") and hibernate.dialect (" + dialect 
+                + ") in grouper.hibernate.properties" + spySuffix;
+        System.err.println(error);
+        LOG.error(error);
+      }
+    }    
   }
 
   /**
@@ -1203,7 +1205,7 @@ public class GrouperCheckConfig {
     checkJar("dom4j.jar", 730604, "org.dom4j.Attribute", "1.6.1");
     checkJar("ehcache.jar", 1838291, "net.sf.ehcache.bootstrap.BootstrapCacheLoader", "2.4.5");
     checkJar("ezmorph.jar", 86542, "net.sf.ezmorph.array.AbstractArrayMorpher", "1.0.6");
-    checkJar("grouperClient.jar", 2773634, "edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.InitializationException", "2.1.0");
+    checkJar("grouperClient.jar", 2956773, "edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.InitializationException", "2.1.2");
     checkJar("hibernate-jpa-2.0-api.jar", 102661, "javax.persistence.Access", "1.0.1.Final");
     checkJar("hibernate.jar", 7018087, "org.hibernate.action.AfterTransactionCompletionProcess", "3.6.7.Final");
     checkJar("invoker.jar", 27767, "com.dawidweiss.invoker.Invoker", "1.0");
@@ -1224,7 +1226,7 @@ public class GrouperCheckConfig {
     checkJar("slf4j-log4j12.jar", 9752, "org.slf4j.impl.Log4jLoggerAdapter", "1.6.2");
     checkJar("smack.jar", 1381464, "com.jcraft.jzlib.Deflate", "3.1.0");
     checkJar("smtp.jar", 23567, "com.sun.mail.smtp.DigestMD5", "1.3.2");
-    checkJar("subject.jar", 183799, "edu.internet2.middleware.subject.InvalidQueryException", "2.1.0");
+    checkJar("subject.jar", 195413, "edu.internet2.middleware.subject.InvalidQueryException", "2.1.1");
     checkJar("vt-ldap.jar", 472910, "edu.vt.middleware.ldap.AbstractCli", "3.3.5");
     //checkJar("xpp3_min.jar", 24979, "org.xmlpull.mxp1.MXParser", "1.1.4c");
     checkJar("xstream.jar", 692061, "com.thoughtworks.xstream.alias.CannotResolveClassException", "1.3");
@@ -1687,11 +1689,18 @@ public class GrouperCheckConfig {
         if (ruleAttrType == null) {
           ruleAttrType = rulesStem.addChildAttributeDef("rulesAttrDef", AttributeDefType.attr);
           ruleAttrType.setAssignToGroupAssn(true);
+          ruleAttrType.setAssignToAttributeDefAssn(true);
           ruleAttrType.setAssignToStemAssn(true);
           ruleAttrType.setValueType(AttributeDefValueType.string);
           ruleAttrType.store();
         }
 
+        //if not configured properly, configure it properly
+        if (!ruleAttrType.isAssignToAttributeDefAssn()) {
+          ruleAttrType.setAssignToAttributeDefAssn(true);
+          ruleAttrType.store();
+        }
+        
         //the attributes can only be assigned to the type def
         // try an attribute def dependent on an attribute def name
         ruleAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(rule.getName());

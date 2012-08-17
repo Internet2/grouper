@@ -218,6 +218,10 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
     }
     
     switch(attributeDefValueType) {
+      case timestamp:
+        Timestamp timestamp = GrouperUtil.toTimestamp(value);
+        this.valueInteger = timestamp == null ? null : timestamp.getTime();
+        break;
       case floating:
         this.valueFloating = GrouperUtil.doubleValue(value);
         break;

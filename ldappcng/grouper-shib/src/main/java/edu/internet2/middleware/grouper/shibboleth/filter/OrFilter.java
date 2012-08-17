@@ -55,7 +55,7 @@ public class OrFilter<T> extends AbstractSetOperationFilter<T> {
    * 
    * {@inheritDoc}
    */
-  public boolean matches(T t) {
-    return this.getFilter0().matches(t) || this.getFilter1().matches(t);
+  public boolean matches(Object o) {
+    return this.getFilter0().matches(o) || this.getFilter1().matches(o);
   }
 }

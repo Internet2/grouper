@@ -607,9 +607,8 @@ public class SubjectFinder {
    * @throws SubjectTooManyResults if more results than configured
    */
   public static Set<Subject> findAllInStem(String stemName, String query) {
-    
+
     return getResolver().findAllInStem(stemName, query);
-    
   } 
 
   /**
@@ -659,10 +658,9 @@ public class SubjectFinder {
     if (sources == null || sources.isEmpty()) {
       return findAll(query);
     }
-    
     return getResolver().findAll(query, sources);
     
-      }
+  }
 
   
   
@@ -1410,6 +1408,40 @@ public class SubjectFinder {
     }    
   }
 
+  
+  /**
+   * filter subjects based on subject customizer in grouper.properties
+   * @param grouperSession
+   * @param subjectMap is map os subject id to subject
+   * @param filterSubjectsInStemName 
+   * @param attributeNamesRequested 
+   * @return subject map
+   */
+  public static Map<String,Subject> filterSubjects(GrouperSession grouperSession, Map<String,Subject> subjectMap, String filterSubjectsInStemName) {
+    
+    //if nothing to do
+    if (GrouperUtil.length(subjectMap) == 0) {
+      return subjectMap;
+    }
+    
+    SubjectCustomizer subjectCustomizer = subjectCustomizer();
+    if (subjectCustomizer != null) {
+      
+      Set<Subject> subjectSet = new LinkedHashSet<Subject>(subjectMap.values());
+      
+      subjectSet = subjectCustomizer.filterSubjects(grouperSession, subjectSet, filterSubjectsInStemName);
+      
+      //make a new map
+      subjectMap = new LinkedHashMap<String, Subject>();
+      
+      for (Subject subject : subjectSet) {
+        subjectMap.put(subject.getId(), subject);
+      }
+      
+    }    
+    return subjectMap;
+  }
+  
   /**
    * filter subjects based on subject customizer in grouper.properties
    * @param grouperSession

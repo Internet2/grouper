@@ -66,16 +66,20 @@ public class GroupInStemFilter extends AbstractFilter<Group> {
    * 
    * {@inheritDoc}
    */
-  public boolean matches(Group group) {
+  public boolean matches(Object group) {
+    if (!(group instanceof Group)) {
+      return false;
+    }
+
     Stem stem = StemFinder.findByName(getGrouperSession(), name, false);
     if (stem == null) {
       return false;
     }
-    
+
     if (scope.equals(Scope.SUB)) {
-      return GrouperUtil.parentStemNameFromName(group.getName()).startsWith(stem.getName());
+      return GrouperUtil.parentStemNameFromName(((Group) group).getName()).startsWith(stem.getName());
     } else if (scope.equals(Scope.ONE)) {
-      return GrouperUtil.parentStemNameFromName(group.getName()).equals(stem.getName());
+      return GrouperUtil.parentStemNameFromName(((Group) group).getName()).equals(stem.getName());
     } else {
       throw new GrouperException("Unknown scope " + scope);
     }

@@ -56,6 +56,7 @@ import org.hibernate.classic.Lifecycle;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignEffMshipDelegate;
@@ -139,7 +140,6 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AccessResolver;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
-import edu.internet2.middleware.grouper.privs.WheelCache;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
@@ -585,6 +585,16 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   }
   
   /**
+   * this delegate works on attributes and values at the same time
+   * @param member 
+   * @return the delegate
+   */
+  public AttributeValueDelegate getAttributeValueDelegateEffMship(Member member) {
+    return new AttributeValueDelegate(this.getAttributeDelegateEffMship(member));
+  }
+  
+
+  /**
    * delegate for effective memberships
    * @param member 
    * @return the delegate
@@ -609,6 +619,26 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     return new AttributeAssignMembershipDelegate(membership);
   }
   
+  /**
+   * this delegate works on attributes and values at the same time
+   * @param member 
+   * @param field 
+   * @return the delegate
+   */
+  public AttributeValueDelegate getAttributeValueDelegateMembership(Member member, Field field) {
+    return new AttributeValueDelegate(this.getAttributeDelegateMembership(member, field));
+  }
+
+  /**
+   * this delegate works on attributes and values at the same time
+   * @param member 
+   * @return the delegate
+   */
+  public AttributeValueDelegate getAttributeValueDelegateMembership(Member member) {
+    return new AttributeValueDelegate(this.getAttributeDelegateMembership(member));
+  }
+
+
   /**
    * Retrieve default members {@link Field}.
    * <pre class="eg">
@@ -1265,22 +1295,28 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
         }
         Set types = Group.this.getTypesDb();
         types.add( type );
-        GroupTypeTuple groupTypeTuple = null;
-        try {
-          groupTypeTuple = GrouperDAOFactory.getFactory().getGroup().addType( Group.this, type);
-        } catch (RuntimeException re) {
-          types.remove(type);
-          throw re;
+
+        if (GrouperLoader.isDryRun()) {
+          GrouperLoader.dryRunWriteLine("Group add type: " + type.getName());
+        } else {
+          
+          GroupTypeTuple groupTypeTuple = null;
+          try {
+            groupTypeTuple = GrouperDAOFactory.getFactory().getGroup().addType( Group.this, type);
+          } catch (RuntimeException re) {
+            types.remove(type);
+            throw re;
+          }
+          if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+            AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_TYPE_ASSIGN, "id", 
+                groupTypeTuple.getId(), "groupId", Group.this.getUuid(), 
+                "groupName", Group.this.getName(), "typeId", type.getUuid(), "typeName", type.getName());
+            auditEntry.setDescription("Assigned group type: " + name + ", typeId: " + type.getUuid() 
+                + ", to group: " + Group.this.getName() + ", groupId: " + Group.this.getUuid());
+            auditEntry.saveOrUpdate(true);
+          }
         }
 
-        if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_TYPE_ASSIGN, "id", 
-              groupTypeTuple.getId(), "groupId", Group.this.getUuid(), 
-              "groupName", Group.this.getName(), "typeId", type.getUuid(), "typeName", type.getName());
-          auditEntry.setDescription("Assigned group type: " + name + ", typeId: " + type.getUuid() 
-              + ", to group: " + Group.this.getName() + ", groupId: " + Group.this.getUuid());
-          auditEntry.saveOrUpdate(true);
-        }
         
         sw.stop();
         EventLog.info(
@@ -1543,6 +1579,32 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     throws  AttributeNotFoundException,
             GroupModifyException, 
             InsufficientPrivilegeException {
+    this.deleteAttribute(attrName, true);
+  }
+  
+  /**
+   * Delete a group attribute.
+   * <pre class="eg">
+   * try {
+   *   g.deleteAttribute(attribute);
+   * }
+   * catch (GroupModifyException e0) {
+   *   // Unable to modify group
+   * }
+   * catch (InsufficientPrivilegeException e1) {
+   *   // Not privileged to delete this attribute
+   * }
+   * </pre>
+   * @param   attrName  Delete this attribute.
+   * @param failOnRequiredAttribute true if exception when attribute is required
+   * @throws  AttributeNotFoundException
+   * @throws  GroupModifyException
+   * @throws  InsufficientPrivilegeException
+   */
+  public void deleteAttribute(final String attrName, final boolean failOnRequiredAttribute) 
+    throws  AttributeNotFoundException,
+            GroupModifyException, 
+            InsufficientPrivilegeException {
     HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
         new HibernateHandler() {
@@ -1560,7 +1622,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                 throw new AttributeNotFoundException(E.INVALID_ATTR_NAME + attrName);
               }
               Field f = FieldFinder.find(attrName, true);
-              if (f.getRequired()) {
+              if (failOnRequiredAttribute && f.getRequired()) {
                 throw new GroupModifyException( E.GROUP_DRA + f.getName() );
               }
               if ( !Group.this.canWriteField(f) ) {
@@ -4390,6 +4452,11 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * store this object to the DB.
    */
   public void store() {    
+    
+    if (GrouperLoader.isDryRun()) {
+      return;
+    }
+    
       HibernateSession.callbackHibernateSession(
           GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
           new HibernateHandler() {

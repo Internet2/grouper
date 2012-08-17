@@ -530,13 +530,29 @@ public enum GrouperLoaderType {
           @Override
           public void runJob(LoaderJobBean loaderJobBean) {
             
+            Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+
+            if (LOG.isDebugEnabled()) {
+              debugMap.put("operation", "runJob");
+            }
+            
+            try {
             GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
 
             Hib3GrouperLoaderLog hib3GrouploaderLog = loaderJobBean.getHib3GrouploaderLogOverall();
             
+              if (LOG.isDebugEnabled()) {
+                debugMap.put("jobName", hib3GrouploaderLog.getJobName());
+              }
+              
             if (StringUtils.equals(GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG, hib3GrouploaderLog.getJobName())) {
     
-              ChangeLogTempToEntity.convertRecords(hib3GrouploaderLog);
+                int recordsProcessed = ChangeLogTempToEntity.convertRecords(hib3GrouploaderLog);
+                
+                if (LOG.isDebugEnabled()) {
+                  debugMap.put("success", true);
+                  debugMap.put("recordsProcessed", recordsProcessed);
+                }
     
               hib3GrouploaderLog.setJobMessage("Ran the changeLogTempToChangeLog daemon");
               
@@ -545,15 +561,48 @@ public enum GrouperLoaderType {
               
               String consumerName = hib3GrouploaderLog.getJobName().substring(GROUPER_CHANGE_LOG_CONSUMER_PREFIX.length());
               
+                if (LOG.isDebugEnabled()) {
+                  debugMap.put("consumerName", consumerName);
+                }
+                
+                try {
               //ok, we have the sequence, and the job name, lets get the change log records after that sequence, and give them to the 
               //consumer
               String theClassName = GrouperLoaderConfig.getPropertyString("changeLog.consumer." + consumerName + ".class");
+                  
+                  if (LOG.isDebugEnabled()) {
+                    debugMap.put("className", theClassName);
+                  }
+                    
               Class<?> theClass = GrouperUtil.forName(theClassName);
+                  
+                  if (LOG.isDebugEnabled()) {
+                    debugMap.put("class found", true);
+                  }
+                     
               ChangeLogConsumerBase changeLogConsumerBase = (ChangeLogConsumerBase)GrouperUtil.newInstance(theClass);
 
+                  if (LOG.isDebugEnabled()) {
+                    debugMap.put("instance created", true);
+                  }
+                  
               ChangeLogHelper.processRecords(consumerName, hib3GrouploaderLog, changeLogConsumerBase);
+                  
+                  if (LOG.isDebugEnabled()) {
+                    debugMap.put("success", true);
+                    debugMap.put("recordsProcessed", hib3GrouploaderLog.getTotalCount());
+                  }
+                } catch (RuntimeException re) {
+                  LOG.error("Problem with change log consumer: " + consumerName, re);
+                  throw re;
+                }
             } else {
               throw new RuntimeException("Cant find implementation for job: " + hib3GrouploaderLog.getJobName());
+            }
+            } finally {
+              if (LOG.isDebugEnabled()) {
+                LOG.debug(GrouperUtil.mapToString(debugMap));
+              }
             }
           }
         }, 
@@ -775,6 +824,8 @@ public enum GrouperLoaderType {
           
           final GrouperLoaderResultset grouperLoaderResultsetOverall = new GrouperLoaderResultset();
           
+          Set<String> groupNames = new HashSet<String>();
+          
           grouperLoaderResultsetOverall.initForLdapListOfGroups(
               loaderJobBean.getLdapServerId(), 
               loaderJobBean.getLdapFilter(), loaderJobBean.getLdapSearchDn(), ldapSubjectAttribute, 
@@ -784,7 +835,7 @@ public enum GrouperLoaderType {
               loaderJobBean.getLdapSubjectExpression(), errorUnresolvable, loaderJobBean.getLdapExtraAttributes(),
               loaderJobBean.getLdapGroupNameExpression(), loaderJobBean.getLdapGroupDisplayNameExpression(),
               loaderJobBean.getLdapGroupDescriptionExpression(), groupNameToDisplayName, 
-              groupNameToDescription);
+              groupNameToDescription, groupNames);
           
           
           String groupNameOverall = hib3GrouploaderLogOverall.getGroupNameFromJobName();
@@ -814,7 +865,7 @@ public enum GrouperLoaderType {
           
           syncGroupList(grouperLoaderResultsetOverall, startTime, grouperSession, 
               andGroups, groupTypes, groupLikeString, groupNameOverall, hib3GrouploaderLogOverall,
-              statusOverall, loaderJobBean.getGrouperLoaderDb(), groupNameToDisplayName, groupNameToDescription, privsToAdd, null);
+              statusOverall, loaderJobBean.getGrouperLoaderDb(), groupNameToDisplayName, groupNameToDescription, privsToAdd, groupNames);
           
         } finally {
           hib3GrouploaderLogOverall.setStatus(statusOverall[0].name());
@@ -1975,7 +2026,14 @@ public enum GrouperLoaderType {
                     }
                   }
                   if (!skipPriv) {    
-                  added = groupForPriv.grantPriv(subject, privilege, false);
+                    if (GrouperLoader.isDryRun()) {
+                      //no sure if true or false
+                      added = true;
+                      GrouperLoader.dryRunWriteLine("Group: " + groupForPriv.getName() + " assign priv " + privilege.getName());
+                    } else {
+                      
+                      added = groupForPriv.grantPriv(subject, privilege, false);
+                    }
                   }
                   if (added != null && added) {
                     hib3GrouploaderLog.addInsertCount(1);
@@ -2146,10 +2204,21 @@ public enum GrouperLoaderType {
             //first remove members
             for (LoaderMemberWrapper member : membersToRemove) {
               try {
-                //go from subject since large lists might be removed from cache
-                boolean alreadyDeleted = group[0].deleteMember(member.findOrGetSubject(), false);
-                if (LOG.isDebugEnabled() && (count != 0 && count % 200 == 0)) {
-                  LOG.debug(groupName + " removing: " + count + " of " + numberOfRows + " members" 
+                
+                boolean alreadyDeleted = false;
+                
+                Subject theSubject = member.findOrGetSubject();
+                if (GrouperLoader.isDryRun()) {
+                  alreadyDeleted = !group[0].hasMember(theSubject);
+                  GrouperLoader.dryRunWriteLine("Group: " + groupName + " delete " + GrouperUtil.subjectToString(theSubject));
+                } else {
+                  //go from subject since large lists might be removed from cache
+                  alreadyDeleted = !group[0].deleteMember(theSubject, false);
+                  LOG.debug("Group: " + groupName + " delete " + GrouperUtil.subjectToString(theSubject) + ", alreadyDeleted? " + alreadyDeleted);
+                }
+                 
+                if (LOG.isInfoEnabled() && (count != 0 && count % 200 == 0)) {
+                  LOG.info(groupName + " removing: " + count + " of " + numberOfRows + " members" 
                       + (alreadyDeleted ? ", [note: was already deleted... weird]" : ""));
                 }
 
@@ -2177,9 +2246,18 @@ public enum GrouperLoaderType {
             //then add new members
             for (Subject subject : subjectsToAdd) {
               try {
-                boolean alreadyAdded = group[0].addMember(subject, false);
-                if (LOG.isDebugEnabled() && (count != 0 && count % 200 == 0)) {
-                  LOG.debug(groupName + " adding: " + count + " of " + numberOfRows + " subjects"
+                boolean alreadyAdded = false;
+                
+                if (GrouperLoader.isDryRun()) {
+                  alreadyAdded = !group[0].hasMember(subject);
+                  GrouperLoader.dryRunWriteLine("Group: " + groupName + " add " + GrouperUtil.subjectToString(subject));
+                } else {
+                  alreadyAdded = !group[0].addMember(subject, false);
+                  LOG.debug("Group: " + groupName + " add " + GrouperUtil.subjectToString(subject) + ", alreadyAdded: " + alreadyAdded);
+                }
+                
+                if (LOG.isInfoEnabled() && (count != 0 && count % 200 == 0)) {
+                  LOG.info(groupName + " adding: " + count + " of " + numberOfRows + " subjects"
                       + (alreadyAdded ? ", [note: was already added... weird]" : ""));
                 }
               } catch (Exception e) {

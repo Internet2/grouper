@@ -22,6 +22,7 @@ package edu.internet2.middleware.grouper;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
@@ -325,7 +326,16 @@ public class GroupSave {
                     
                     //at this point the stem should be there (and is equal to currentStem), 
                     //just to be sure, query again
-                    parentStem = Stem._createStemAndParentStemsIfNotExist(grouperSession, parentStemNameNew, parentStemDisplayNameNew);
+                    if (GrouperLoader.isDryRun()) {
+                      parentStem = StemFinder.findByName(grouperSession, parentStemNameNew, false);
+                      if (parentStem == null) {
+                        parentStem = new Stem();
+                        parentStem.setNameDb(parentStemNameNew);
+                        parentStem.setExtensionDb(GrouperUtil.extensionFromName(parentStemNameNew));
+                      }
+                    } else {
+                      parentStem = Stem._createStemAndParentStemsIfNotExist(grouperSession, parentStemNameNew, parentStemDisplayNameNew);
+                    }
                   } else {
                     throw new GrouperSessionException(new StemNotFoundException("Cant find stem: '" + parentStemNameNew 
                         + "' (from update on stem name: '" + groupNameForError + "')"));

@@ -231,8 +231,17 @@
       <fileset dir="${basedir}/../grouper" />
     </copy>
     
+    <fixcrlf srcdir="${basedir}/../grouper.api-${version}/bin" eol="unix" includes="*.sh" />
+    <fixcrlf srcdir="${basedir}/../grouper.api-${version}/bin" eol="dos" includes="*.bat" />
+    <chmod dir="${basedir}/../grouper.api-${version}/bin" includes="*.sh,*.bat" perm="ugo+rx"/>
+
+    <copy file="${basedir}/../grouper.api-${version}/bin/gsh.sh" tofile="${basedir}/../grouper.api-${version}/bin/gsh" />
+    <fixcrlf srcdir="${basedir}/../grouper.api-${version}/bin" eol="unix" includes="gsh" />
+    <chmod dir="${basedir}/../grouper.api-${version}/bin" includes="gsh" perm="ugo+rx"/>
+
+  	
     <!-- this assumes that everything was checked out to the right place, and no other dirs exist -->
-    <tar destfile="${basedir}/../grouper.api-${version}.tar.gz" compression="gzip" longfile="gnu">
+    <tar destfile="${basedir}/../grouper.api-${version}.tar.gz" compression="gzip" longfile="gnu" >
       <tarfileset dir="${basedir}/.." >
         <include name="grouper.api-${version}/**"/>
       </tarfileset>
@@ -377,6 +386,10 @@
     <fixcrlf srcdir="${dist.binary.zip}/bin" eol="dos" includes="*.bat" />
     <chmod dir="${dist.binary.zip}/bin" includes="*.sh,*.bat" perm="ugo+rx"/>
 
+  	<copy file="${dist.binary.zip}/bin/gsh.sh" tofile="${dist.binary.zip}/bin/gsh" />
+    <fixcrlf srcdir="${dist.binary.zip}/bin" eol="unix" includes="gsh" />
+    <chmod dir="${dist.binary.zip}/bin" includes="gsh" perm="ugo+rx"/>
+  	
     <mkdir dir="${dist.binary.zip}/conf"/>
     <copy todir="${dist.binary.zip}/conf">
       <fileset dir="conf">
@@ -657,13 +670,9 @@
 
     <!-- fix line endings and permissions of scripts -->
     <fixcrlf srcdir="bin" eol="unix" includes="*.sh" />
+    <fixcrlf srcdir="bin" eol="unix" includes="gsh" />
     <fixcrlf srcdir="bin" eol="dos" includes="*.bat" />
-    <chmod dir="bin" includes="*.sh,*.bat" perm="ugo+rx"/>
-
-    <!-- fix line endings and permissions of scripts -->
-    <fixcrlf srcdir="bin" eol="unix" includes="*.sh" />
-    <fixcrlf srcdir="bin" eol="dos" includes="*.bat" />
-    <chmod dir="bin" includes="*.sh,*.bat" perm="ugo+rx"/>
+    <chmod dir="bin" includes="*.sh,*.bat,gsh" perm="ugo+rx"/>
 
   </target>
   <!-- target: init -->

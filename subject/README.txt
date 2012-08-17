@@ -61,16 +61,4 @@ TBD
 
 # Getting Subject
 
-Read-only anonymous access to the Subject CVS repository is now
-available.  To perform a CVS checkout, run the following commands.
-When prompted for a password, hit enter.
-
-  % cvs -z3 -d :pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi login
-  % cvs -z3 -d :pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi co subject
-
-test line
----
-
-$Id: README.txt,v 1.4 2006-08-07 18:22:12 blair Exp $
-
-
+Read-only anonymous access to the Subject SVN repository

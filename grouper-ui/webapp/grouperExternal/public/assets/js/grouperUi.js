@@ -1,4 +1,7 @@
 
+//TODO put this in nav.properties and put base HTML pages into JSP
+var guiAjaxSessionProblem = "There was an error communicating with the server.  Your session probably expired.  You will be redirected to login again.";
+
 function guiRoundCorners() {
   //round those corners
   //IE messes up
@@ -392,7 +395,13 @@ function ajax(theUrl, options) {
     //TODO handle errors success better.  probably non modal disappearing reusable window
     error: function(error){
       $.unblockUI(); 
-      alert('error' + error);        
+      //note, this is probably a session problem.
+      var shouldRedirect = confirm(guiAjaxSessionProblem);
+      if (shouldRedirect) {
+        //this should redirect
+        location.href = location.href; 
+      }
+      //alert('error' + error);        
     },
     //TODO process the response object
     success: function(json){
@@ -406,16 +415,21 @@ function ajax(theUrl, options) {
  * @param guiResponseJs
  */
 function guiProcessJsonResponse(guiResponseJs) {
-  
-  //$.unblockUI(); 
-  
+
+  //$.unblockUI();
+
+  //message if session ends
+  if (guiResponseJs.guiAjaxSessionProblem) {
+    guiAjaxSessionProblem = guiResponseJs.guiAjaxSessionProblem;
+  }
+
   //put new pagers in the app state
   if (guiResponseJs.pagers) {
     for(var pagerName in guiResponseJs.pagers) {
       allObjects.appState.pagers[pagerName] = guiResponseJs.pagers[pagerName];
     }
   }
-  
+
   //put new pagers in the app state
   if (guiResponseJs.hideShows) {
     for(var hideShowName in guiResponseJs.hideShows) {

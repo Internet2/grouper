@@ -330,7 +330,7 @@ public abstract class GrouperCapableAction
 				request.setAttribute("timingsClass",this.getClass().getName());
 				request.setAttribute("timingsMS",new Long(diff+mss));
 			}
-			if(forward.getRedirect()&& !isEmpty(request.getAttribute("message"))) {
+			if(forward != null && forward.getRedirect()&& !isEmpty(request.getAttribute("message"))) {
 				try {
 				session.setAttribute("sessionMessage",request.getAttribute("message"));
 				}catch(IllegalStateException e){}

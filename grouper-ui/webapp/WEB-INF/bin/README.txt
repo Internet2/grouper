@@ -1,9 +1,9 @@
 Note, if you are on unix, you need to convert the script to unix and make it executable.  e.g.
 
-[appadmin@flash2 bin]$ dos2unix gsh.sh
-dos2unix: converting file gsh.sh to UNIX format ...
-[appadmin@flash2 bin]$ chmod +x gsh.sh
-[appadmin@flash2 bin]$ ./gsh.sh 
+[appadmin@flash2 bin]$ dos2unix gsh
+dos2unix: converting file gsh to UNIX format ...
+[appadmin@flash2 bin]$ chmod +x gsh
+[appadmin@flash2 bin]$ ./gsh 
 Using GROUPER_HOME: /opt/appserv/tomcat_2v/webapps/grouper/WEB-INF/bin/..
 Using GROUPER_CONF: /opt/appserv/tomcat_2v/webapps/grouper/WEB-INF/bin/../classes
 Using JAVA: /opt/appserv/java6/bin/java
