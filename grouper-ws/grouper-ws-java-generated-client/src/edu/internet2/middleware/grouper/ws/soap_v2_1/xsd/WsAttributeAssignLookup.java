@@ -1,18 +1,4 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
+
 /**
  * WsAttributeAssignLookup.java
  *
@@ -37,6 +23,48 @@
                 Namespace Prefix = ns1
                 */
             
+
+                        /**
+                        * field for BatchIndex
+                        */
+
+                        
+                                    protected java.lang.String localBatchIndex ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localBatchIndexTracker = false ;
+
+                           public boolean isBatchIndexSpecified(){
+                               return localBatchIndexTracker;
+                           }
+
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getBatchIndex(){
+                               return localBatchIndex;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param BatchIndex
+                               */
+                               public void setBatchIndex(java.lang.String param){
+                            localBatchIndexTracker = true;
+                                   
+                                            this.localBatchIndex=param;
+                                    
+
+                               }
+                            
 
                         /**
                         * field for Uuid
@@ -138,7 +166,25 @@
 
                
                    }
-                if (localUuidTracker){
+                if (localBatchIndexTracker){
+                                    namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
+                                    writeStartElement(null, namespace, "batchIndex", xmlWriter);
+                             
+
+                                          if (localBatchIndex==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localBatchIndex);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             } if (localUuidTracker){
                                     namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
                                     writeStartElement(null, namespace, "uuid", xmlWriter);
                              
@@ -341,7 +387,13 @@
                  java.util.ArrayList elementList = new java.util.ArrayList();
                  java.util.ArrayList attribList = new java.util.ArrayList();
 
-                 if (localUuidTracker){
+                 if (localBatchIndexTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "batchIndex"));
+                                 
+                                         elementList.add(localBatchIndex==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localBatchIndex));
+                                    } if (localUuidTracker){
                                       elementList.add(new javax.xml.namespace.QName("http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd",
                                                                       "uuid"));
                                  
@@ -423,6 +475,33 @@
                     
                     reader.next();
                 
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd","batchIndex").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setBatchIndex(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 

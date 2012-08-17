@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 import junit.textui.TestRunner;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
@@ -98,7 +99,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testFindAttributeDefNames"));
+    TestRunner.run(new GrouperClientWsTest("testAssignAttributesBatchGroup"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -15097,63 +15098,23 @@ public class GrouperClientWsTest extends GrouperTest {
         
         // ######################################################
         // Try roleName and act as subject
+        // Should this be an error or a blank result set????
 
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
         
-        GrouperClient.main(GrouperClientUtils.splitTrim(
-            "--operation=getPermissionAssignmentsWs --roleNames=" + role.getName() + " --actAsSubjectId=" + SubjectTestHelper.SUBJ0_ID,
-            " "));
-  
+        try {
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=getPermissionAssignmentsWs --roleNames=" + role.getName() + " --actAsSubjectId=" + SubjectTestHelper.SUBJ0_ID,
+              " "));
+        } catch (Exception e) {
+          assertTrue(ExceptionUtils.getFullStackTrace(e).contains("GROUP_NOT_FOUND"));
+        }
         System.out.flush();
-        output = new String(baos.toByteArray());
-    
-        outputLines = GrouperClientUtils.splitTrim(output, "\n");
         
         System.setOut(systemOut);
         
         
-        assertEquals(0, GrouperUtil.length(outputLines));
-
-        
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("actions"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("enabled"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("includeAttributeDefNames"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("includeAttributeAssignments"));
-        assertTrue(GrouperClientWs.mostRecentResponse,
-            !GrouperClientWs.mostRecentResponse.contains("<hasComposite>"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("includePermissionAssignDetail"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("params"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            GrouperClientWs.mostRecentRequest.contains("roleLookups") && GrouperClientWs.mostRecentRequest.contains("<groupName>"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("wsSubjectLookups"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("<immediateOnly>T</immediateOnly>"));
 
         // ######################################################
         // Try roleName and immediateOnly
@@ -15420,11 +15381,11 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(systemOut);
     
         String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
-    
+                  
         // match: Index: 0: permissionType: role, role: aStem:role, subject: jdbc - test.subject.0, attributeDefNameName: aStem:permissionDefName, action: action, enabled: null
         // match: ^Index: (\d+)\: permissionType\: (.+), role\: (.+), subject\: (.+), attributeDefNameName\: (.+), action\: (.+), enabled\: null
         Pattern pattern = Pattern
-            .compile("^Index: (\\d+)\\: permissionType\\: (.+), role\\: (.+), subject\\: (.+), attributeDefNameName: (.+), action\\: (.+), allowedOverall\\: T|F enabled\\: null$");
+            .compile("^Index: (\\d+)\\: permissionType\\: (.+), role\\: (.+), subject\\: (.+), attributeDefNameName: (.+), action\\: (.+), allowedOverall\\: (T|F), enabled\\: null$");
         
         assertEquals(2, outputLines.length);
         String outputLine = outputLines[0];
@@ -16439,55 +16400,16 @@ public class GrouperClientWsTest extends GrouperTest {
         args.add("--actAsSubjectId=" + SubjectTestHelper.SUBJ0_ID);
         args.add("--pointInTimeFrom=" + GrouperClientUtils.timestampToString(pointInTime));
         args.add("--pointInTimeTo=" + GrouperClientUtils.timestampToString(pointInTime));
-        GrouperClient.main(args.toArray(new String[0]));
-  
+        
+        try {
+          GrouperClient.main(args.toArray(new String[0]));
+        } catch (Exception e) {
+          assertTrue(ExceptionUtils.getFullStackTrace(e).contains("GROUP_NOT_FOUND"));
+        }
         System.out.flush();
-        output = new String(baos.toByteArray());
-    
-        outputLines = GrouperClientUtils.splitTrim(output, "\n");
         
         System.setOut(systemOut);
         
-        
-        assertEquals(0, GrouperUtil.length(outputLines));
-
-        
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("actions"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("enabled"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("includeAttributeDefNames"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("includeAttributeAssignments"));
-        assertTrue(GrouperClientWs.mostRecentResponse,
-            !GrouperClientWs.mostRecentResponse.contains("<hasComposite>"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("includePermissionAssignDetail"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("params"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            GrouperClientWs.mostRecentRequest.contains("roleLookups") && GrouperClientWs.mostRecentRequest.contains("<groupName>"));
-        assertTrue(GrouperClientWs.mostRecentRequest,
-            !GrouperClientWs.mostRecentRequest.contains("wsSubjectLookups"));
 
         
         // ######################################################
@@ -19120,6 +19042,15320 @@ public class GrouperClientWsTest extends GrouperTest {
       
       
         
+    } finally {
+      System.setOut(systemOut);
+    }
+  
+  }
+
+  /**
+   * @throws Exception
+   */
+  public void testGetAttributeAssignsGroupExtraFeatures() throws Exception {
+  
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignDefName");
+    AttributeDefName attributeDefName2 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignAssignName");
+    
+    final AttributeDef attributeDef = attributeDefName.getAttributeDef();
+    
+    attributeDef.setValueType(AttributeDefValueType.string);
+    attributeDef.store();
+    
+    final AttributeDef attributeDef2 = attributeDefName2.getAttributeDef();
+    
+    attributeDef2.setAssignToGroup(false);
+    attributeDef2.setAssignToGroupAssn(true);
+    attributeDef2.setValueType(AttributeDefValueType.integer);
+    attributeDef2.store();
+    
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTestAttrAssign").assignName("test:groupTestAttrAssign").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+
+    //test subject 0 can view and read
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, false);
+
+    //test subject 0 can read the assignment on assignment
+    attributeDef2.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, false);
+    
+    AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
+    attributeAssign.getValueDelegate().assignValue("abc");
+    
+    AttributeAssignResult attributeAssignResult2 = attributeAssign.getAttributeDelegate().assignAttribute(attributeDefName2);
+    AttributeAssign attributeAssign2 = attributeAssignResult2.getAttributeAssign();
+    attributeAssign2.getValueDelegate().assignValue("123");
+  
+    PrintStream systemOut = System.out;
+  
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(baos));
+  
+    try {
+  
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=group " +
+          "--attributeDefNames=test:testAttributeAssignDefNameDef " +
+          "--attributeDefValueType=string --value=abc",
+          " "));
+      System.out.flush();
+      String output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      Pattern pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      String outputLine = outputLines[0];
+  
+      Matcher matcher = pattern.matcher(outputLines[0]);
+  
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "group", matcher.group(2));
+      assertEquals(outputLine, "test:groupTestAttrAssign", matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "abc", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(8));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<name>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("abc"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      // ######################################################
+      // Try wrong value
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=group --attributeDefUuids=" + attributeDef.getId() +
+          " --attributeDefNames=test:testAttributeAssignDefNameDef " +
+          "--attributeDefValueType=string --value=123",
+          " "));
+
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(0, GrouperUtil.length(outputLines));
+//      outputLine = outputLines[0];
+//      
+//      matcher = pattern.matcher(outputLines[0]);
+  
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<name>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+      
+      
+      // ######################################################
+      // Try wrong id
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            " --operation=getAttributeAssignmentsWs --attributeAssignType=group --attributeDefUuids=123" + attributeDef.getId() +
+            " --attributeDefNames=test:testAttributeAssignDefNameDef " +
+            "--attributeDefValueType=string --value=123",
+            " "));
+        fail("Shouldnt get here");
+      } catch (GcWebServiceError gwse) {
+        //ignore
+      }
+      
+      // ######################################################
+      // Try correct attributeDefType
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=group --attributeDefUuids=" + attributeDef.getId() +
+          " --attributeDefValueType=string --value=abc --attributeDefType=attr",
+          " "));
+
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      outputLine = outputLines[0];
+  
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "group", matcher.group(2));
+      assertEquals(outputLine, "test:groupTestAttrAssign", matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "abc", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(8));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("abc"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+      
+      // ######################################################
+      // Try wrong attributeDefType
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=group --attributeDefUuids=" + attributeDef.getId() +
+          " --attributeDefValueType=string --value=abc --attributeDefType=limit",
+          " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(0, GrouperUtil.length(outputLines));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("abc"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("limit"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+      
+      // ######################################################
+      // Try group assignment on assignment by attributeDef
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --attributeDefUuids=" + attributeDef2.getId(),
+          " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      outputLine = outputLines[0];
+  
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "group_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">abc<"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+      
+      // ######################################################
+      // Try group assignment on assignment by attributeDef with wrong id
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --attributeDefUuids=1" + attributeDef2.getId(),
+            " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+        fail("Why did it not fail?");
+      } catch (Exception e) {
+        //good
+      }
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("abc"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+      
+      
+      // ######################################################
+      // Try group assignment on assignment by attributeDef and value
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --attributeDefUuids=" + attributeDef2.getId()
+          + " --attributeDefValueType=integer --value=123 ",
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      outputLine = outputLines[0];
+  
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "group_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by attributeDef and wrong value
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --attributeDefUuids=" + attributeDef2.getId()
+          + " --attributeDefValueType=integer --value=1234 ",
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(0, GrouperUtil.length(outputLines));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("1234"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by attributeDef and value
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --attributeDefUuids=" + attributeDef2.getId()
+          + " --includeAssignmentsFromAssignments=T ",
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(2, GrouperUtil.length(outputLines));
+      outputLine = outputLines[0];
+  
+      matcher = pattern.matcher(outputLine);
+      
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "group", matcher.group(2));
+      assertEquals(outputLine, "test:groupTestAttrAssign", matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "abc", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(8));
+      
+      outputLine = outputLines[1];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "1", matcher.group(1));
+      assertEquals(outputLine, "group_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by owner attribute assign id with wrong id
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerAttributeAssignUuids=1" + attributeAssign.getId()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+        fail("Shouldnt get here");
+      } catch (Exception e) {
+        //good
+      } finally {
+        System.setOut(systemOut);
+        
+      }
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+      
+      // ######################################################
+      // Try group assignment on assignment by owner attribute assign id
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerAttributeAssignUuids=" + attributeAssign.getId()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "group_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerNamesOfAttributeDefs=" + attributeDef.getName()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "group_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefLookups with wrong name
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerNamesOfAttributeDefs=1" + attributeDef.getName()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+
+        fail("shouldnt get here");
+      } catch (Exception e) {
+        //good
+      } finally {
+        System.setOut(systemOut);
+      }
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerUuidsOfAttributeDefs=" + attributeDef.getId()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "group_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerUuidsOfAttributeDefs=" + attributeDef.getId()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "group_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerUuidsOfAttributeDefs=1" + attributeDef.getId()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+        fail("Shouldnt get here");
+      } catch (Exception e) {
+        //good
+      } finally {
+        
+        System.setOut(systemOut);
+        
+      }
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerNamesOfAttributeDefNames=" + attributeDefName.getName()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "group_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerNamesOfAttributeDefNames=1" + attributeDefName.getName()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+        fail("Shouldnt get here");
+        
+      } catch (Exception e) {
+        //ok
+      } finally {
+        
+        System.setOut(systemOut);
+
+      }
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "group_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups wrong name
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerUuidsOfAttributeDefNames=1" + attributeDefName.getId()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        fail("Shouldnt get here");
+      } catch (Exception e) {
+        //good
+      } finally {
+        
+        System.setOut(systemOut);
+        
+      }
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
+          + " --assignAssignOwnerActions=assign",
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "group_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("<actions>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups wrong action
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
+          + " --assignAssignOwnerActions=assign2",
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(0, GrouperUtil.length(outputLines));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("<actions>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerActions"));
+
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --ownerGroupNames=" + group.getName()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "group_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("<actions>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerActions"));
+
+      
+    } finally {
+      System.setOut(systemOut);
+    }
+  
+  }
+
+  /**
+     * @throws Exception
+     */
+    public void testGetAttributeAssignsStemExtraFeatures() throws Exception {
+    
+      AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignDefName");
+      AttributeDefName attributeDefName2 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignAssignName");
+      
+      final AttributeDef attributeDef = attributeDefName.getAttributeDef();
+      
+      attributeDef.setValueType(AttributeDefValueType.string);
+      attributeDef.setAssignToStem(true);
+      attributeDef.store();
+      
+      final AttributeDef attributeDef2 = attributeDefName2.getAttributeDef();
+      
+      attributeDef2.setAssignToGroup(false);
+      attributeDef2.setAssignToStemAssn(true);
+      attributeDef2.setValueType(AttributeDefValueType.integer);
+      attributeDef2.store();
+      
+      Stem stem = new StemSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignName("test:stemTestAttrAssign").assignCreateParentStemsIfNotExist(true)
+        .assignDescription("description").save();
+  
+      AttributeAssignResult attributeAssignResult = stem.getAttributeDelegate().assignAttribute(attributeDefName);
+      AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
+      attributeAssign.getValueDelegate().assignValue("abc");
+      
+      AttributeAssignResult attributeAssignResult2 = attributeAssign.getAttributeDelegate().assignAttribute(attributeDefName2);
+      AttributeAssign attributeAssign2 = attributeAssignResult2.getAttributeAssign();
+      attributeAssign2.getValueDelegate().assignValue("123");
+    
+      PrintStream systemOut = System.out;
+    
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+    
+      try {
+    
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=stem " +
+            "--attributeDefNames=test:testAttributeAssignDefNameDef " +
+            "--attributeDefValueType=string --value=abc",
+            " "));
+        System.out.flush();
+        String output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group, owner: test:stemTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        Pattern pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        String outputLine = outputLines[0];
+    
+        Matcher matcher = pattern.matcher(outputLines[0]);
+    
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "stem", matcher.group(2));
+        assertEquals(outputLine, "test:stemTestAttrAssign", matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "abc", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(8));
+        
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<name>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("abc"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+        // ######################################################
+        // Try wrong value
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=stem --attributeDefUuids=" + attributeDef.getId() +
+            " --attributeDefNames=test:testAttributeAssignDefNameDef " +
+            "--attributeDefValueType=string --value=123",
+            " "));
+  
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+  //      outputLine = outputLines[0];
+  //      
+  //      matcher = pattern.matcher(outputLines[0]);
+    
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<name>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+        
+        
+        // ######################################################
+        // Try wrong id
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        try {
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              " --operation=getAttributeAssignmentsWs --attributeAssignType=stem --attributeDefUuids=123" + attributeDef.getId() +
+              " --attributeDefNames=test:testAttributeAssignDefNameDef " +
+              "--attributeDefValueType=string --value=123",
+              " "));
+          fail("Shouldnt get here");
+        } catch (GcWebServiceError gwse) {
+          //ignore
+        }
+        
+        // ######################################################
+        // Try correct attributeDefType
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=stem --attributeDefUuids=" + attributeDef.getId() +
+            " --attributeDefValueType=string --value=abc --attributeDefType=attr",
+            " "));
+  
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group, owner: test:stemTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        outputLine = outputLines[0];
+    
+        matcher = pattern.matcher(outputLines[0]);
+  
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "stem", matcher.group(2));
+        assertEquals(outputLine, "test:stemTestAttrAssign", matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "abc", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(8));
+        
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("abc"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+        
+        // ######################################################
+        // Try wrong attributeDefType
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=stem --attributeDefUuids=" + attributeDef.getId() +
+            " --attributeDefValueType=string --value=abc --attributeDefType=limit",
+            " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group, owner: test:stemTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("abc"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("limit"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+        
+        // ######################################################
+        // Try group assignment on assignment by attributeDef
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --attributeDefUuids=" + attributeDef2.getId(),
+            " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        outputLine = outputLines[0];
+    
+        matcher = pattern.matcher(outputLines[0]);
+  
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "stem_asgn", matcher.group(2));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "123", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+        
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">abc<"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+        
+        // ######################################################
+        // Try group assignment on assignment by attributeDef with wrong id
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        try {
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --attributeDefUuids=1" + attributeDef2.getId(),
+              " "));
+      
+          System.out.flush();
+          output = new String(baos.toByteArray());
+      
+          System.setOut(systemOut);
+      
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
+      
+          // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+          // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+          pattern = Pattern
+              .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+    
+          assertEquals(0, GrouperUtil.length(outputLines));
+          fail("Why did it not fail?");
+        } catch (Exception e) {
+          //good
+        }
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("abc"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+        
+        
+        // ######################################################
+        // Try group assignment on assignment by attributeDef and value
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --attributeDefUuids=" + attributeDef2.getId()
+            + " --attributeDefValueType=integer --value=123 ",
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        outputLine = outputLines[0];
+    
+        matcher = pattern.matcher(outputLines[0]);
+  
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "stem_asgn", matcher.group(2));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "123", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+        
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by attributeDef and wrong value
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --attributeDefUuids=" + attributeDef2.getId()
+            + " --attributeDefValueType=integer --value=1234 ",
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("1234"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by attributeDef and value
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --attributeDefUuids=" + attributeDef2.getId()
+            + " --includeAssignmentsFromAssignments=T ",
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(2, GrouperUtil.length(outputLines));
+        outputLine = outputLines[0];
+    
+        matcher = pattern.matcher(outputLine);
+        
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "stem", matcher.group(2));
+        assertEquals(outputLine, "test:stemTestAttrAssign", matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "abc", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(8));
+        
+        outputLine = outputLines[1];
+        
+        matcher = pattern.matcher(outputLine);
+  
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "1", matcher.group(1));
+        assertEquals(outputLine, "stem_asgn", matcher.group(2));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "123", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by owner attribute assign id with wrong id
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        try {
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerAttributeAssignUuids=1" + attributeAssign.getId()
+              ,
+            " "));
+      
+          System.out.flush();
+          output = new String(baos.toByteArray());
+      
+          System.setOut(systemOut);
+      
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
+      
+          // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+          // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+          pattern = Pattern
+              .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+    
+          assertEquals(0, GrouperUtil.length(outputLines));
+          fail("Shouldnt get here");
+        } catch (Exception e) {
+          //good
+        } finally {
+          System.setOut(systemOut);
+          
+        }
+        
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+        
+        // ######################################################
+        // Try group assignment on assignment by owner attribute assign id
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerAttributeAssignUuids=" + attributeAssign.getId()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        
+        outputLine = outputLines[0];
+        
+        matcher = pattern.matcher(outputLine);
+  
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "stem_asgn", matcher.group(2));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "123", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefLookups
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerNamesOfAttributeDefs=" + attributeDef.getName()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        
+        outputLine = outputLines[0];
+        
+        matcher = pattern.matcher(outputLine);
+  
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "stem_asgn", matcher.group(2));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "123", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+        
+        
+        // ######################################################
+        // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefLookups with wrong name
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        try {
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerNamesOfAttributeDefs=1" + attributeDef.getName()
+              ,
+            " "));
+      
+          System.out.flush();
+          output = new String(baos.toByteArray());
+      
+          System.setOut(systemOut);
+      
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
+      
+          // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+          // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+          pattern = Pattern
+              .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+    
+          assertEquals(0, GrouperUtil.length(outputLines));
+  
+          fail("shouldnt get here");
+        } catch (Exception e) {
+          //good
+        } finally {
+          System.setOut(systemOut);
+        }
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefLookups
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerUuidsOfAttributeDefs=" + attributeDef.getId()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        
+        outputLine = outputLines[0];
+        
+        matcher = pattern.matcher(outputLine);
+  
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "stem_asgn", matcher.group(2));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "123", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefLookups
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerUuidsOfAttributeDefs=" + attributeDef.getId()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        
+        outputLine = outputLines[0];
+        
+        matcher = pattern.matcher(outputLine);
+  
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "stem_asgn", matcher.group(2));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "123", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefLookups
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        try {
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerUuidsOfAttributeDefs=1" + attributeDef.getId()
+              ,
+            " "));
+      
+          System.out.flush();
+          output = new String(baos.toByteArray());
+      
+          System.setOut(systemOut);
+      
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
+      
+          // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+          // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+          pattern = Pattern
+              .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+    
+          assertEquals(0, GrouperUtil.length(outputLines));
+          fail("Shouldnt get here");
+        } catch (Exception e) {
+          //good
+        } finally {
+          
+          System.setOut(systemOut);
+          
+        }
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerNamesOfAttributeDefNames=" + attributeDefName.getName()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        
+        outputLine = outputLines[0];
+        
+        matcher = pattern.matcher(outputLine);
+  
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "stem_asgn", matcher.group(2));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "123", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        try {
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerNamesOfAttributeDefNames=1" + attributeDefName.getName()
+              ,
+            " "));
+      
+          System.out.flush();
+          output = new String(baos.toByteArray());
+      
+          System.setOut(systemOut);
+      
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
+      
+          // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+          // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+          pattern = Pattern
+              .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+    
+          assertEquals(0, GrouperUtil.length(outputLines));
+          fail("Shouldnt get here");
+          
+        } catch (Exception e) {
+          //ok
+        } finally {
+          
+          System.setOut(systemOut);
+  
+        }
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        
+        outputLine = outputLines[0];
+        
+        matcher = pattern.matcher(outputLine);
+  
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "stem_asgn", matcher.group(2));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "123", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups wrong name
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        try {
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=1" + attributeDefName.getId()
+              ,
+            " "));
+      
+          System.out.flush();
+          output = new String(baos.toByteArray());
+      
+          System.setOut(systemOut);
+      
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
+      
+          // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+          // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+          pattern = Pattern
+              .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+    
+          assertEquals(1, GrouperUtil.length(outputLines));
+          fail("Shouldnt get here");
+        } catch (Exception e) {
+          //good
+        } finally {
+          
+          System.setOut(systemOut);
+          
+        }
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
+            + " --assignAssignOwnerActions=assign",
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        
+        outputLine = outputLines[0];
+        
+        matcher = pattern.matcher(outputLine);
+  
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "stem_asgn", matcher.group(2));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "123", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("<actions>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerActions"));
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups wrong action
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
+            + " --assignAssignOwnerActions=assign2",
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+        
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("<actions>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerActions"));
+  
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --ownerStemNames=" + stem.getName()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        
+        outputLine = outputLines[0];
+        
+        matcher = pattern.matcher(outputLine);
+  
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "stem_asgn", matcher.group(2));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "123", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("<actions>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerActions"));
+  
+        
+      } finally {
+        System.setOut(systemOut);
+      }
+    
+    }
+
+  /**
+     * @throws Exception
+     */
+    public void testGetAttributeAssignsMemberExtraFeatures() throws Exception {
+    
+      AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignDefName");
+      AttributeDefName attributeDefName2 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignAssignName");
+      
+      final AttributeDef attributeDef = attributeDefName.getAttributeDef();
+      
+      attributeDef.setValueType(AttributeDefValueType.string);
+      attributeDef.setAssignToMember(true);
+      attributeDef.store();
+      
+      final AttributeDef attributeDef2 = attributeDefName2.getAttributeDef();
+      
+      attributeDef2.setAssignToGroup(false);
+      attributeDef2.setAssignToMemberAssn(true);
+      attributeDef2.setValueType(AttributeDefValueType.integer);
+      attributeDef2.store();
+      
+      Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ0, true);
+  
+      AttributeAssignResult attributeAssignResult = member.getAttributeDelegate().assignAttribute(attributeDefName);
+      AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
+      attributeAssign.getValueDelegate().assignValue("abc");
+      
+      AttributeAssignResult attributeAssignResult2 = attributeAssign.getAttributeDelegate().assignAttribute(attributeDefName2);
+      AttributeAssign attributeAssign2 = attributeAssignResult2.getAttributeAssign();
+      attributeAssign2.getValueDelegate().assignValue("123");
+    
+      PrintStream systemOut = System.out;
+    
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+    
+      try {
+    
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=member " +
+            "--attributeDefNames=test:testAttributeAssignDefNameDef " +
+            "--attributeDefValueType=string --value=abc",
+            " "));
+        System.out.flush();
+        String output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group, owner: jdbc - test.subject.0, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        Pattern pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        String outputLine = outputLines[0];
+    
+        Matcher matcher = pattern.matcher(outputLines[0]);
+    
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "member", matcher.group(2));
+        assertEquals(outputLine, "jdbc - test.subject.0", matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "abc", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(8));
+        
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<name>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("abc"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+        // ######################################################
+        // Try wrong value
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=member --attributeDefUuids=" + attributeDef.getId() +
+            " --attributeDefNames=test:testAttributeAssignDefNameDef " +
+            "--attributeDefValueType=string --value=123",
+            " "));
+  
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+  //      outputLine = outputLines[0];
+  //      
+  //      matcher = pattern.matcher(outputLines[0]);
+    
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<name>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+        
+        
+        // ######################################################
+        // Try wrong id
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        try {
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              " --operation=getAttributeAssignmentsWs --attributeAssignType=member --attributeDefUuids=123" + attributeDef.getId() +
+              " --attributeDefNames=test:testAttributeAssignDefNameDef " +
+              "--attributeDefValueType=string --value=123",
+              " "));
+          fail("Shouldnt get here");
+        } catch (GcWebServiceError gwse) {
+          //ignore
+        }
+        
+        // ######################################################
+        // Try correct attributeDefType
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=member --attributeDefUuids=" + attributeDef.getId() +
+            " --attributeDefValueType=string --value=abc --attributeDefType=attr",
+            " "));
+  
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group, owner: jdbc - test.subject.0, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        outputLine = outputLines[0];
+    
+        matcher = pattern.matcher(outputLines[0]);
+  
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "member", matcher.group(2));
+        assertEquals(outputLine, "jdbc - test.subject.0", matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "abc", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(8));
+        
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("abc"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+        
+        // ######################################################
+        // Try wrong attributeDefType
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=member --attributeDefUuids=" + attributeDef.getId() +
+            " --attributeDefValueType=string --value=abc --attributeDefType=limit",
+            " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group, owner: jdbc - test.subject.0, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("abc"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("limit"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+        
+        // ######################################################
+        // Try group assignment on assignment by attributeDef
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --attributeDefUuids=" + attributeDef2.getId(),
+            " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        outputLine = outputLines[0];
+    
+        matcher = pattern.matcher(outputLines[0]);
+  
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "mem_asgn", matcher.group(2));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "123", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+        
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">abc<"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+        
+        // ######################################################
+        // Try group assignment on assignment by attributeDef with wrong id
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        try {
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --attributeDefUuids=1" + attributeDef2.getId(),
+              " "));
+      
+          System.out.flush();
+          output = new String(baos.toByteArray());
+      
+          System.setOut(systemOut);
+      
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
+      
+          // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+          // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+          pattern = Pattern
+              .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+    
+          assertEquals(0, GrouperUtil.length(outputLines));
+          fail("Why did it not fail?");
+        } catch (Exception e) {
+          //good
+        }
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("abc"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+        
+        
+        // ######################################################
+        // Try group assignment on assignment by attributeDef and value
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --attributeDefUuids=" + attributeDef2.getId()
+            + " --attributeDefValueType=integer --value=123 ",
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        outputLine = outputLines[0];
+    
+        matcher = pattern.matcher(outputLines[0]);
+  
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "mem_asgn", matcher.group(2));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "123", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+        
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by attributeDef and wrong value
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --attributeDefUuids=" + attributeDef2.getId()
+            + " --attributeDefValueType=integer --value=1234 ",
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("1234"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by attributeDef and value
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --attributeDefUuids=" + attributeDef2.getId()
+            + " --includeAssignmentsFromAssignments=T ",
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(2, GrouperUtil.length(outputLines));
+        outputLine = outputLines[0];
+    
+        matcher = pattern.matcher(outputLine);
+        
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "mem_asgn", matcher.group(2));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "123", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+          
+        outputLine = outputLines[1];
+        
+        matcher = pattern.matcher(outputLine);
+
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "1", matcher.group(1));
+        assertEquals(outputLine, "member", matcher.group(2));
+        assertEquals(outputLine, "jdbc - test.subject.0", matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "abc", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(8));
+        
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by owner attribute assign id with wrong id
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        try {
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerAttributeAssignUuids=1" + attributeAssign.getId()
+              ,
+            " "));
+      
+          System.out.flush();
+          output = new String(baos.toByteArray());
+      
+          System.setOut(systemOut);
+      
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
+      
+          // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+          // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+          pattern = Pattern
+              .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+    
+          assertEquals(0, GrouperUtil.length(outputLines));
+          fail("Shouldnt get here");
+        } catch (Exception e) {
+          //good
+        } finally {
+          System.setOut(systemOut);
+          
+        }
+        
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+        
+        // ######################################################
+        // Try group assignment on assignment by owner attribute assign id
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerAttributeAssignUuids=" + attributeAssign.getId()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        
+        outputLine = outputLines[0];
+        
+        matcher = pattern.matcher(outputLine);
+  
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "mem_asgn", matcher.group(2));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "123", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefLookups
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerNamesOfAttributeDefs=" + attributeDef.getName()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        
+        outputLine = outputLines[0];
+        
+        matcher = pattern.matcher(outputLine);
+  
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "mem_asgn", matcher.group(2));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "123", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+        
+        
+        // ######################################################
+        // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefLookups with wrong name
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        try {
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerNamesOfAttributeDefs=1" + attributeDef.getName()
+              ,
+            " "));
+      
+          System.out.flush();
+          output = new String(baos.toByteArray());
+      
+          System.setOut(systemOut);
+      
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
+      
+          // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+          // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+          pattern = Pattern
+              .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+    
+          assertEquals(0, GrouperUtil.length(outputLines));
+  
+          fail("shouldnt get here");
+        } catch (Exception e) {
+          //good
+        } finally {
+          System.setOut(systemOut);
+        }
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefLookups
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerUuidsOfAttributeDefs=" + attributeDef.getId()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        
+        outputLine = outputLines[0];
+        
+        matcher = pattern.matcher(outputLine);
+  
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "mem_asgn", matcher.group(2));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "123", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefLookups
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerUuidsOfAttributeDefs=" + attributeDef.getId()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        
+        outputLine = outputLines[0];
+        
+        matcher = pattern.matcher(outputLine);
+  
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "mem_asgn", matcher.group(2));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "123", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefLookups
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        try {
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerUuidsOfAttributeDefs=1" + attributeDef.getId()
+              ,
+            " "));
+      
+          System.out.flush();
+          output = new String(baos.toByteArray());
+      
+          System.setOut(systemOut);
+      
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
+      
+          // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+          // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+          pattern = Pattern
+              .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+    
+          assertEquals(0, GrouperUtil.length(outputLines));
+          fail("Shouldnt get here");
+        } catch (Exception e) {
+          //good
+        } finally {
+          
+          System.setOut(systemOut);
+          
+        }
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerNamesOfAttributeDefNames=" + attributeDefName.getName()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        
+        outputLine = outputLines[0];
+        
+        matcher = pattern.matcher(outputLine);
+  
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "mem_asgn", matcher.group(2));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "123", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        try {
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerNamesOfAttributeDefNames=1" + attributeDefName.getName()
+              ,
+            " "));
+      
+          System.out.flush();
+          output = new String(baos.toByteArray());
+      
+          System.setOut(systemOut);
+      
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
+      
+          // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+          // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+          pattern = Pattern
+              .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+    
+          assertEquals(0, GrouperUtil.length(outputLines));
+          fail("Shouldnt get here");
+          
+        } catch (Exception e) {
+          //ok
+        } finally {
+          
+          System.setOut(systemOut);
+  
+        }
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        
+        outputLine = outputLines[0];
+        
+        matcher = pattern.matcher(outputLine);
+  
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "mem_asgn", matcher.group(2));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "123", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups wrong name
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        try {
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=1" + attributeDefName.getId()
+              ,
+            " "));
+      
+          System.out.flush();
+          output = new String(baos.toByteArray());
+      
+          System.setOut(systemOut);
+      
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
+      
+          // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+          // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+          pattern = Pattern
+              .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+    
+          assertEquals(1, GrouperUtil.length(outputLines));
+          fail("Shouldnt get here");
+        } catch (Exception e) {
+          //good
+        } finally {
+          
+          System.setOut(systemOut);
+          
+        }
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actions"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
+            + " --assignAssignOwnerActions=assign",
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        
+        outputLine = outputLines[0];
+        
+        matcher = pattern.matcher(outputLine);
+  
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "mem_asgn", matcher.group(2));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "123", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("<actions>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerActions"));
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups wrong action
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
+            + " --assignAssignOwnerActions=assign2",
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+        
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("<actions>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerActions"));
+  
+  
+        
+        // ######################################################
+        // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+    
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --owner0SubjectId=" + SubjectTestHelper.SUBJ0_ID
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        
+        outputLine = outputLines[0];
+        
+        matcher = pattern.matcher(outputLine);
+  
+        assertTrue(outputLine, matcher.matches());
+        assertEquals(outputLine, "0", matcher.group(1));
+        assertEquals(outputLine, "mem_asgn", matcher.group(2));
+        assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+        assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+        assertEquals(outputLine, "assign", matcher.group(5));
+        assertEquals(outputLine, "123", matcher.group(6));
+        assertEquals(outputLine, "T", matcher.group(7));
+        assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("<actions>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("enabled"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("theValue"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains(">123<"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+        assertFalse(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerActions"));
+  
+        
+      } finally {
+        System.setOut(systemOut);
+      }
+    
+    }
+
+/**
+   * @throws Exception
+   */
+  public void testGetAttributeAssignsAttributeDefExtraFeatures() throws Exception {
+  
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignDefName");
+    AttributeDefName attributeDefName2 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignAssignName");
+    
+    final AttributeDef attributeDef = attributeDefName.getAttributeDef();
+    
+    attributeDef.setValueType(AttributeDefValueType.string);
+    attributeDef.setAssignToAttributeDef(true);
+    attributeDef.store();
+    
+    final AttributeDef attributeDef2 = attributeDefName2.getAttributeDef();
+    
+    attributeDef2.setAssignToGroup(false);
+    attributeDef2.setAssignToAttributeDefAssn(true);
+    attributeDef2.setValueType(AttributeDefValueType.integer);
+    attributeDef2.store();
+    
+    AttributeDef ownerAttributeDef = new AttributeDefSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignName("test:attributeDefTestAttrAssign").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+
+    //test subject 0 can read the assignment on assignment
+    attributeDef2.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, false);
+    
+    AttributeAssignResult attributeAssignResult = ownerAttributeDef.getAttributeDelegate().assignAttribute(attributeDefName);
+    AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
+    attributeAssign.getValueDelegate().assignValue("abc");
+    
+    AttributeAssignResult attributeAssignResult2 = attributeAssign.getAttributeDelegate().assignAttribute(attributeDefName2);
+    AttributeAssign attributeAssign2 = attributeAssignResult2.getAttributeAssign();
+    attributeAssign2.getValueDelegate().assignValue("123");
+  
+    PrintStream systemOut = System.out;
+  
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(baos));
+  
+    try {
+  
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def " +
+          "--attributeDefNames=test:testAttributeAssignDefNameDef " +
+          "--attributeDefValueType=string --value=abc",
+          " "));
+      System.out.flush();
+      String output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: attributeDef, owner: test:attributeDefTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
+      // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      Pattern pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      String outputLine = outputLines[0];
+  
+      Matcher matcher = pattern.matcher(outputLines[0]);
+  
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "attr_def", matcher.group(2));
+      assertEquals(outputLine, "test:attributeDefTestAttrAssign", matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "abc", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(8));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<name>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("abc"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      // ######################################################
+      // Try wrong value
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def --attributeDefUuids=" + attributeDef.getId() +
+          " --attributeDefNames=test:testAttributeAssignDefNameDef " +
+          "--attributeDefValueType=string --value=123",
+          " "));
+
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(0, GrouperUtil.length(outputLines));
+//      outputLine = outputLines[0];
+//      
+//      matcher = pattern.matcher(outputLines[0]);
+  
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<name>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+      
+      
+      // ######################################################
+      // Try wrong id
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            " --operation=getAttributeAssignmentsWs --attributeAssignType=attr_def --attributeDefUuids=123" + attributeDef.getId() +
+            " --attributeDefNames=test:testAttributeAssignDefNameDef " +
+            "--attributeDefValueType=string --value=123",
+            " "));
+        fail("Shouldnt get here");
+      } catch (GcWebServiceError gwse) {
+        //ignore
+      }
+      
+      // ######################################################
+      // Try correct attributeDefType
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def --attributeDefUuids=" + attributeDef.getId() +
+          " --attributeDefValueType=string --value=abc --attributeDefType=attr",
+          " "));
+
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: attributeDef, owner: test:attributeDefTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
+      // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      outputLine = outputLines[0];
+  
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "attr_def", matcher.group(2));
+      assertEquals(outputLine, "test:attributeDefTestAttrAssign", matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "abc", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(8));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("abc"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+      
+      // ######################################################
+      // Try wrong attributeDefType
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def --attributeDefUuids=" + attributeDef.getId() +
+          " --attributeDefValueType=string --value=abc --attributeDefType=limit",
+          " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: attributeDef, owner: test:attributeDefTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
+      // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(0, GrouperUtil.length(outputLines));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("abc"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("limit"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+      
+      // ######################################################
+      // Try attributeDef assignment on assignment by attributeDef
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --attributeDefUuids=" + attributeDef2.getId(),
+          " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      outputLine = outputLines[0];
+  
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "attr_def_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">abc<"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+      
+      // ######################################################
+      // Try attributeDef assignment on assignment by attributeDef with wrong id
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --attributeDefUuids=1" + attributeDef2.getId(),
+            " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+        fail("Why did it not fail?");
+      } catch (Exception e) {
+        //good
+      }
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("abc"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+      
+      
+      // ######################################################
+      // Try attributeDef assignment on assignment by attributeDef and value
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --attributeDefUuids=" + attributeDef2.getId()
+          + " --attributeDefValueType=integer --value=123 ",
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      outputLine = outputLines[0];
+  
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "attr_def_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try attributeDef assignment on assignment by attributeDef and wrong value
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --attributeDefUuids=" + attributeDef2.getId()
+          + " --attributeDefValueType=integer --value=1234 ",
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(0, GrouperUtil.length(outputLines));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("1234"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try attributeDef assignment on assignment by attributeDef and value
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --attributeDefUuids=" + attributeDef2.getId()
+          + " --includeAssignmentsFromAssignments=T ",
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(2, GrouperUtil.length(outputLines));
+      outputLine = outputLines[0];
+  
+      matcher = pattern.matcher(outputLine);
+      
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "attr_def", matcher.group(2));
+      assertEquals(outputLine, "test:attributeDefTestAttrAssign", matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "abc", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(8));
+      
+      outputLine = outputLines[1];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "1", matcher.group(1));
+      assertEquals(outputLine, "attr_def_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try attributeDef assignment on assignment by owner attribute assign id with wrong id
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerAttributeAssignUuids=1" + attributeAssign.getId()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+        fail("Shouldnt get here");
+      } catch (Exception e) {
+        //good
+      } finally {
+        System.setOut(systemOut);
+        
+      }
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+      
+      // ######################################################
+      // Try attributeDef assignment on assignment by owner attribute assign id
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerAttributeAssignUuids=" + attributeAssign.getId()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "attr_def_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try attributeDef assignment on assignment by wsAssignAssignOwnerAttributeDefLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerNamesOfAttributeDefs=" + attributeDef.getName()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "attr_def_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      
+      // ######################################################
+      // Try attributeDef assignment on assignment by wsAssignAssignOwnerAttributeDefLookups with wrong name
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerNamesOfAttributeDefs=1" + attributeDef.getName()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+
+        fail("shouldnt get here");
+      } catch (Exception e) {
+        //good
+      } finally {
+        System.setOut(systemOut);
+      }
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try attributeDef assignment on assignment by wsAssignAssignOwnerAttributeDefLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerUuidsOfAttributeDefs=" + attributeDef.getId()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "attr_def_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try attributeDef assignment on assignment by wsAssignAssignOwnerAttributeDefLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerUuidsOfAttributeDefs=" + attributeDef.getId()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: attr_def_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "attr_def_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+
+      
+      // ######################################################
+      // Try attributeDef assignment on assignment by wsAssignAssignOwnerAttributeDefLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerUuidsOfAttributeDefs=1" + attributeDef.getId()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+        fail("Shouldnt get here");
+      } catch (Exception e) {
+        //good
+      } finally {
+        
+        System.setOut(systemOut);
+        
+      }
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try attributeDef assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerNamesOfAttributeDefNames=" + attributeDefName.getName()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "attr_def_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+
+      
+      // ######################################################
+      // Try attributeDef assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerNamesOfAttributeDefNames=1" + attributeDefName.getName()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+        fail("Shouldnt get here");
+        
+      } catch (Exception e) {
+        //ok
+      } finally {
+        
+        System.setOut(systemOut);
+
+      }
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try attributeDef assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: attr_def_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "attr_def_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+
+      
+      // ######################################################
+      // Try attributeDef assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups wrong name
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerUuidsOfAttributeDefNames=1" + attributeDefName.getId()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        fail("Shouldnt get here");
+      } catch (Exception e) {
+        //good
+      } finally {
+        
+        System.setOut(systemOut);
+        
+      }
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try attributeDef assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
+          + " --assignAssignOwnerActions=assign",
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "attr_def_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("<actions>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try attributeDef assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups wrong action
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
+          + " --assignAssignOwnerActions=assign2",
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(0, GrouperUtil.length(outputLines));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("<actions>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerActions"));
+
+
+      
+      // ######################################################
+      // Try attributeDef assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --ownerAttributeDefNames=" + ownerAttributeDef.getName()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "attr_def_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("<actions>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerActions"));
+
+      
+    } finally {
+      System.setOut(systemOut);
+    }
+  
+  }
+
+/**
+   * @throws Exception
+   */
+  public void testGetAttributeAssignsMembershipExtraFeatures() throws Exception {
+  
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignDefName");
+    AttributeDefName attributeDefName2 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignAssignName");
+    
+    final AttributeDef attributeDef = attributeDefName.getAttributeDef();
+    
+    attributeDef.setValueType(AttributeDefValueType.string);
+    attributeDef.setAssignToGroup(false);
+    attributeDef.setAssignToImmMembership(true);
+    attributeDef.store();
+    
+    final AttributeDef attributeDef2 = attributeDefName2.getAttributeDef();
+    
+    attributeDef2.setAssignToGroup(false);
+    attributeDef2.setAssignToImmMembershipAssn(true);
+    attributeDef2.setValueType(AttributeDefValueType.integer);
+    attributeDef2.store();
+    
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTestAttrAssign").assignName("test:groupTestAttrAssign").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+
+    group.addMember(SubjectTestHelper.SUBJ1);
+
+    Membership membership = MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), 
+        group, SubjectTestHelper.SUBJ1, true);
+
+    AttributeAssignResult attributeAssignResult = membership.getAttributeDelegate().assignAttribute(attributeDefName);
+    AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
+    attributeAssign.getValueDelegate().assignValue("abc");
+    
+    AttributeAssignResult attributeAssignResult2 = attributeAssign.getAttributeDelegate().assignAttribute(attributeDefName2);
+    AttributeAssign attributeAssign2 = attributeAssignResult2.getAttributeAssign();
+    attributeAssign2.getValueDelegate().assignValue("123");
+  
+    PrintStream systemOut = System.out;
+  
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(baos));
+  
+    try {
+  
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem " +
+          "--attributeDefNames=test:testAttributeAssignDefNameDef " +
+          "--attributeDefValueType=string --value=abc",
+          " "));
+      System.out.flush();
+      String output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      Pattern pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      String outputLine = outputLines[0];
+  
+      Matcher matcher = pattern.matcher(outputLines[0]);
+  
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "imm_mem", matcher.group(2));
+      assertEquals(outputLine, membership.getImmediateMembershipId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "abc", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(8));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<name>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("abc"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      // ######################################################
+      // Try wrong value
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem --attributeDefUuids=" + attributeDef.getId() +
+          " --attributeDefNames=test:testAttributeAssignDefNameDef " +
+          "--attributeDefValueType=string --value=123",
+          " "));
+
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(0, GrouperUtil.length(outputLines));
+//      outputLine = outputLines[0];
+//      
+//      matcher = pattern.matcher(outputLines[0]);
+  
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<name>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+      
+      
+      // ######################################################
+      // Try wrong id
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            " --operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem --attributeDefUuids=123" + attributeDef.getId() +
+            " --attributeDefNames=test:testAttributeAssignDefNameDef " +
+            "--attributeDefValueType=string --value=123",
+            " "));
+        fail("Shouldnt get here");
+      } catch (GcWebServiceError gwse) {
+        //ignore
+      }
+      
+      // ######################################################
+      // Try correct attributeDefType
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem --attributeDefUuids=" + attributeDef.getId() +
+          " --attributeDefValueType=string --value=abc --attributeDefType=attr",
+          " "));
+
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      outputLine = outputLines[0];
+  
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "imm_mem", matcher.group(2));
+      assertEquals(outputLine, membership.getImmediateMembershipId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "abc", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(8));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("abc"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+      
+      // ######################################################
+      // Try wrong attributeDefType
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem --attributeDefUuids=" + attributeDef.getId() +
+          " --attributeDefValueType=string --value=abc --attributeDefType=limit",
+          " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(0, GrouperUtil.length(outputLines));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("abc"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("limit"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+      
+      // ######################################################
+      // Try group assignment on assignment by attributeDef
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --attributeDefUuids=" + attributeDef2.getId(),
+          " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      outputLine = outputLines[0];
+  
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "imm_mem_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">abc<"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+      
+      // ######################################################
+      // Try group assignment on assignment by attributeDef with wrong id
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --attributeDefUuids=1" + attributeDef2.getId(),
+            " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+        fail("Why did it not fail?");
+      } catch (Exception e) {
+        //good
+      }
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("abc"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+      
+      
+      // ######################################################
+      // Try group assignment on assignment by attributeDef and value
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --attributeDefUuids=" + attributeDef2.getId()
+          + " --attributeDefValueType=integer --value=123 ",
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      outputLine = outputLines[0];
+  
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "imm_mem_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by attributeDef and wrong value
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --attributeDefUuids=" + attributeDef2.getId()
+          + " --attributeDefValueType=integer --value=1234 ",
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(0, GrouperUtil.length(outputLines));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("1234"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by attributeDef and value
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --attributeDefUuids=" + attributeDef2.getId()
+          + " --includeAssignmentsFromAssignments=T ",
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(2, GrouperUtil.length(outputLines));
+      outputLine = outputLines[0];
+  
+      matcher = pattern.matcher(outputLine);
+      
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "imm_mem", matcher.group(2));
+      assertEquals(outputLine, membership.getImmediateMembershipId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "abc", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(8));
+      
+      outputLine = outputLines[1];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "1", matcher.group(1));
+      assertEquals(outputLine, "imm_mem_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by owner attribute assign id with wrong id
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerAttributeAssignUuids=1" + attributeAssign.getId()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+        fail("Shouldnt get here");
+      } catch (Exception e) {
+        //good
+      } finally {
+        System.setOut(systemOut);
+        
+      }
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+      
+      // ######################################################
+      // Try group assignment on assignment by owner attribute assign id
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerAttributeAssignUuids=" + attributeAssign.getId()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "imm_mem_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerNamesOfAttributeDefs=" + attributeDef.getName()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "imm_mem_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefLookups with wrong name
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerNamesOfAttributeDefs=1" + attributeDef.getName()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+
+        fail("shouldnt get here");
+      } catch (Exception e) {
+        //good
+      } finally {
+        System.setOut(systemOut);
+      }
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerUuidsOfAttributeDefs=" + attributeDef.getId()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "imm_mem_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerUuidsOfAttributeDefs=" + attributeDef.getId()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "imm_mem_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerUuidsOfAttributeDefs=1" + attributeDef.getId()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+        fail("Shouldnt get here");
+      } catch (Exception e) {
+        //good
+      } finally {
+        
+        System.setOut(systemOut);
+        
+      }
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerNamesOfAttributeDefNames=" + attributeDefName.getName()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "imm_mem_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerNamesOfAttributeDefNames=1" + attributeDefName.getName()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+        fail("Shouldnt get here");
+        
+      } catch (Exception e) {
+        //ok
+      } finally {
+        
+        System.setOut(systemOut);
+
+      }
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "imm_mem_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups wrong name
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=1" + attributeDefName.getId()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        fail("Shouldnt get here");
+      } catch (Exception e) {
+        //good
+      } finally {
+        
+        System.setOut(systemOut);
+        
+      }
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
+          + " --assignAssignOwnerActions=assign",
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "imm_mem_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("<actions>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups wrong action
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
+          + " --assignAssignOwnerActions=assign2",
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(0, GrouperUtil.length(outputLines));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("<actions>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerActions"));
+
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --ownerMembershipUuids=" + membership.getImmediateMembershipId()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "imm_mem_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("<actions>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerActions"));
+
+      
+    } finally {
+      System.setOut(systemOut);
+    }
+  
+  }
+
+/**
+   * @throws Exception
+   */
+  public void testGetAttributeAssignsAnyMembershipExtraFeatures() throws Exception {
+  
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignDefName");
+    AttributeDefName attributeDefName2 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignAssignName");
+    
+    final AttributeDef attributeDef = attributeDefName.getAttributeDef();
+    
+    attributeDef.setValueType(AttributeDefValueType.string);
+    attributeDef.setAssignToGroup(false);
+    attributeDef.setAssignToEffMembership(true);
+    attributeDef.store();
+    
+    final AttributeDef attributeDef2 = attributeDefName2.getAttributeDef();
+    
+    attributeDef2.setAssignToGroup(false);
+    attributeDef2.setAssignToEffMembershipAssn(true);
+    attributeDef2.setValueType(AttributeDefValueType.integer);
+    attributeDef2.store();
+    
+    Group group1 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:anyMembershipTestAttrAssign").assignName("test:anyMembershipTestAttrAssign").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+  
+    Group group2 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:anyMembershipTestAttrAssign2").assignName("test:anyMembershipTestAttrAssign2").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+    
+    //add one group to another to make effective membership and add attribute to that membership
+    group1.addMember(group2.toSubject());
+    group2.addMember(SubjectTestHelper.SUBJ0);    
+    
+    Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ0, false);
+  
+    Membership membership = (Membership)MembershipFinder.findMemberships(GrouperUtil.toSet(group1.getId()), 
+        GrouperUtil.toSet(member.getUuid()), null, null, FieldFinder.find("members", true), null, null, null, null, null).iterator().next()[0];
+    
+    AttributeAssignResult attributeAssignResult = membership.getAttributeDelegateEffMship().assignAttribute(attributeDefName);
+
+    AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
+    attributeAssign.getValueDelegate().assignValue("abc");
+    
+    AttributeAssignResult attributeAssignResult2 = attributeAssign.getAttributeDelegate().assignAttribute(attributeDefName2);
+    AttributeAssign attributeAssign2 = attributeAssignResult2.getAttributeAssign();
+    attributeAssign2.getValueDelegate().assignValue("123");
+  
+    PrintStream systemOut = System.out;
+  
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(baos));
+  
+    try {
+  
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem " +
+          "--attributeDefNames=test:testAttributeAssignDefNameDef " +
+          "--attributeDefValueType=string --value=abc",
+          " "));
+      System.out.flush();
+      String output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      Pattern pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      String outputLine = outputLines[0];
+  
+      Matcher matcher = pattern.matcher(outputLines[0]);
+  
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "any_mem", matcher.group(2));
+      assertEquals(outputLine, "test:anyMembershipTestAttrAssign - jdbc - test.subject.0", matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "abc", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(8));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<name>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("abc"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      // ######################################################
+      // Try wrong value
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem --attributeDefUuids=" + attributeDef.getId() +
+          " --attributeDefNames=test:testAttributeAssignDefNameDef " +
+          "--attributeDefValueType=string --value=123",
+          " "));
+
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(0, GrouperUtil.length(outputLines));
+//      outputLine = outputLines[0];
+//      
+//      matcher = pattern.matcher(outputLines[0]);
+  
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<name>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+      
+      
+      // ######################################################
+      // Try wrong id
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            " --operation=getAttributeAssignmentsWs --attributeAssignType=any_mem --attributeDefUuids=123" + attributeDef.getId() +
+            " --attributeDefNames=test:testAttributeAssignDefNameDef " +
+            "--attributeDefValueType=string --value=123",
+            " "));
+        fail("Shouldnt get here");
+      } catch (GcWebServiceError gwse) {
+        //ignore
+      }
+      
+      // ######################################################
+      // Try correct attributeDefType
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem --attributeDefUuids=" + attributeDef.getId() +
+          " --attributeDefValueType=string --value=abc --attributeDefType=attr",
+          " "));
+
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group, owner: test:anyMembershipTestAttrAssign - jdbc - test.subject.0, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      outputLine = outputLines[0];
+  
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "any_mem", matcher.group(2));
+      assertEquals(outputLine, "test:anyMembershipTestAttrAssign - jdbc - test.subject.0", matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "abc", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(8));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("abc"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+      
+      // ######################################################
+      // Try wrong attributeDefType
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem --attributeDefUuids=" + attributeDef.getId() +
+          " --attributeDefValueType=string --value=abc --attributeDefType=limit",
+          " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group, owner: test:anyMembershipTestAttrAssign - jdbc - test.subject.0, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(0, GrouperUtil.length(outputLines));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("abc"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("limit"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+      
+      // ######################################################
+      // Try group assignment on assignment by attributeDef
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --attributeDefUuids=" + attributeDef2.getId(),
+          " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      outputLine = outputLines[0];
+  
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "any_mem_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">abc<"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+      
+      // ######################################################
+      // Try group assignment on assignment by attributeDef with wrong id
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --attributeDefUuids=1" + attributeDef2.getId(),
+            " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+        fail("Why did it not fail?");
+      } catch (Exception e) {
+        //good
+      }
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("abc"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+      
+      
+      // ######################################################
+      // Try group assignment on assignment by attributeDef and value
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --attributeDefUuids=" + attributeDef2.getId()
+          + " --attributeDefValueType=integer --value=123 ",
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      outputLine = outputLines[0];
+  
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "any_mem_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by attributeDef and wrong value
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --attributeDefUuids=" + attributeDef2.getId()
+          + " --attributeDefValueType=integer --value=1234 ",
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(0, GrouperUtil.length(outputLines));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("1234"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by attributeDef and value
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --attributeDefUuids=" + attributeDef2.getId()
+          + " --includeAssignmentsFromAssignments=T ",
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(2, GrouperUtil.length(outputLines));
+      outputLine = outputLines[0];
+  
+      matcher = pattern.matcher(outputLine);
+      
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "any_mem", matcher.group(2));
+      assertEquals(outputLine, "test:anyMembershipTestAttrAssign - jdbc - test.subject.0", matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "abc", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(8));
+      
+      outputLine = outputLines[1];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "1", matcher.group(1));
+      assertEquals(outputLine, "any_mem_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by owner attribute assign id with wrong id
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerAttributeAssignUuids=1" + attributeAssign.getId()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+        fail("Shouldnt get here");
+      } catch (Exception e) {
+        //good
+      } finally {
+        System.setOut(systemOut);
+        
+      }
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+      
+      // ######################################################
+      // Try group assignment on assignment by owner attribute assign id
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerAttributeAssignUuids=" + attributeAssign.getId()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "any_mem_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerNamesOfAttributeDefs=" + attributeDef.getName()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "any_mem_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefLookups with wrong name
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerNamesOfAttributeDefs=1" + attributeDef.getName()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+
+        fail("shouldnt get here");
+      } catch (Exception e) {
+        //good
+      } finally {
+        System.setOut(systemOut);
+      }
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerUuidsOfAttributeDefs=" + attributeDef.getId()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "any_mem_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerUuidsOfAttributeDefs=" + attributeDef.getId()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "any_mem_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerUuidsOfAttributeDefs=1" + attributeDef.getId()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+        fail("Shouldnt get here");
+      } catch (Exception e) {
+        //good
+      } finally {
+        
+        System.setOut(systemOut);
+        
+      }
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefs"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerUuidsOfAttributeDefNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerNamesOfAttributeDefNames=" + attributeDefName.getName()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "any_mem_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerNamesOfAttributeDefNames=1" + attributeDefName.getName()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(0, GrouperUtil.length(outputLines));
+        fail("Shouldnt get here");
+        
+      } catch (Exception e) {
+        //ok
+      } finally {
+        
+        System.setOut(systemOut);
+
+      }
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "any_mem_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups wrong name
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=1" + attributeDefName.getId()
+            ,
+          " "));
+    
+        System.out.flush();
+        output = new String(baos.toByteArray());
+    
+        System.setOut(systemOut);
+    
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+        // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+        // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+        pattern = Pattern
+            .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+  
+        assertEquals(1, GrouperUtil.length(outputLines));
+        fail("Shouldnt get here");
+      } catch (Exception e) {
+        //good
+      } finally {
+        
+        System.setOut(systemOut);
+        
+      }
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actions"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
+          + " --assignAssignOwnerActions=assign",
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "any_mem_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("<actions>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerActions"));
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups wrong action
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
+          + " --assignAssignOwnerActions=assign2",
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(0, GrouperUtil.length(outputLines));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("<actions>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerActions"));
+
+
+      
+      // ######################################################
+      // Try group assignment on assignment by wsAssignAssignOwnerAttributeDefNameLookups
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --ownerMembershipAny0SubjectId=" + member.getSubjectId()
+          + " --ownerMembershipAny0GroupName=" + group1.getName()
+          ,
+        " "));
+  
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName: (.+), action\\: (.+), values: (.+), enabled\\: (T|F), id: (.+)$");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+      
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "any_mem_asgn", matcher.group(2));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(3));
+      assertEquals(outputLine, "test:testAttributeAssignAssignName", matcher.group(4));
+      assertEquals(outputLine, "assign", matcher.group(5));
+      assertEquals(outputLine, "123", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      assertEquals(outputLine, attributeAssign2.getId(), matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("<actions>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeAssignmentsOnAssignments"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefValueType"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("theValue"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains(">123<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("includeAssignmentsFromAssignments"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDefType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignAssignOwnerAttributeAssignUuids"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerAttributeDefNameLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAssignAssignOwnerActions"));
+
+      
+    } finally {
+      System.setOut(systemOut);
+    }
+  
+  }
+
+  /**
+   * @throws Exception
+   */
+  public void testAssignAttributesBatchGroup() throws Exception {
+  
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignDefName");
+    
+    final AttributeDef attributeDef = attributeDefName.getAttributeDef();
+    
+    attributeDef.setValueType(AttributeDefValueType.integer);
+    attributeDef.setMultiValued(true);
+    attributeDef.store();
+    
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTestAttrAssign").assignName("test:groupTestAttrAssign").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+  
+    //test subject 0 can view and read
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, false);
+  
+    AttributeAssign attributeAssign = null;
+    //    AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    //     = attributeAssignResult.getAttributeAssign();
+    
+    PrintStream systemOut = System.out;
+  
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(baos));
+  
+    try {
+  
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
+          "--entry_0_nameOfAttributeDefName=test:testAttributeAssignDefName --entry_0_ownerGroupName=test:groupTestAttrAssign",
+          " "));
+      
+      attributeAssign = group.getAttributeDelegate().retrieveAssignment("assign", attributeDefName, false, true);
+      
+      System.out.flush();
+      String output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      // match: Index: ${assignIndex}, itemIndex: ${assignItemIndex}: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c, changed: true, valuesChanged: false
+      // match: ^Index: (\d+), \: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F), changed\: (T|F), valuesChanged\: (T|F)$
+      Pattern pattern = Pattern
+        .compile("^Index\\: (\\d+), itemIndex: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName\\: (.+), action\\: (.+), " +
+        		"values\\: (.+), enabled\\: (T|F), id\\: (.+), changed\\: (T|F), deleted\\: (T|F), valuesChanged\\: (T|F)$");
+      String outputLine = outputLines[0];
+  
+      Matcher matcher = pattern.matcher(outputLines[0]);
+  
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "0", matcher.group(2));
+      assertEquals(outputLine, "group", matcher.group(3));
+      assertEquals(outputLine, "test:groupTestAttrAssign", matcher.group(4));
+      assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(5));
+      assertEquals(outputLine, "assign", matcher.group(6));
+      assertEquals(outputLine, "none", matcher.group(7));
+      assertEquals(outputLine, "T", matcher.group(8));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(9));
+      assertEquals(outputLine, "T", matcher.group(10));
+      assertEquals(outputLine, "F", matcher.group(11));
+      assertEquals(outputLine, "F", matcher.group(12));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("action"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignmentDisabledTime"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignmentEnabledTime"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignmentNotes"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignOperation"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("attributeAssignValueOperation"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("delegatable"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("values"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookup")
+          && GrouperClientWs.mostRecentRequest.contains("test:testAttributeAssignDefName"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeAssignLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookup")
+          && GrouperClientWs.mostRecentRequest.contains("test:groupTestAttrAssign"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookup"));
+  
+      
+      // ######################################################
+      // Try attributeDefNameId
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+    
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
+          "--entry_0_uuidOfAttributeDefName=" + attributeDefName.getId() +  " --entry_0_ownerGroupName=test:groupTestAttrAssign",
+          " "));
+      
+      attributeAssign = group.getAttributeDelegate().retrieveAssignment("assign", attributeDefName, false, true);
+      
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      outputLine = outputLines[0];
+  
+      matcher = pattern.matcher(outputLines[0]);
+  
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "0", matcher.group(2));
+      assertEquals(outputLine, "group", matcher.group(3));
+      assertEquals(outputLine, "test:groupTestAttrAssign", matcher.group(4));
+      assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(5));
+      assertEquals(outputLine, "assign", matcher.group(6));
+      assertEquals(outputLine, "none", matcher.group(7));
+      assertEquals(outputLine, "T", matcher.group(8));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(9));
+      assertEquals(outputLine, "F", matcher.group(10));
+      assertEquals(outputLine, "F", matcher.group(11));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("action"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignmentDisabledTime"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignmentEnabledTime"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignmentNotes"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignOperation"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("attributeAssignValueOperation"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("delegatable"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("values"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookup")
+          && GrouperClientWs.mostRecentRequest.contains(attributeDefName.getId()));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeAssignLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookup")
+          && GrouperClientWs.mostRecentRequest.contains("test:groupTestAttrAssign"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookup"));
+  
+      // ######################################################
+      // Try ownerGroupUuid
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+    
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
+          "--entry_0_nameOfAttributeDefName=test:testAttributeAssignDefName --entry_0_ownerGroupUuid=" + group.getUuid(),
+          " "));
+      
+      attributeAssign = group.getAttributeDelegate().retrieveAssignment("assign", attributeDefName, false, true);
+      
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      outputLine = outputLines[0];
+  
+      matcher = pattern.matcher(outputLines[0]);
+  
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "0", matcher.group(2));
+      assertEquals(outputLine, "group", matcher.group(3));
+      assertEquals(outputLine, "test:groupTestAttrAssign", matcher.group(4));
+      assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(5));
+      assertEquals(outputLine, "assign", matcher.group(6));
+      assertEquals(outputLine, "none", matcher.group(7));
+      assertEquals(outputLine, "T", matcher.group(8));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(9));
+      assertEquals(outputLine, "F", matcher.group(10));
+      assertEquals(outputLine, "F", matcher.group(11));
+      assertEquals(outputLine, "F", matcher.group(12));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("action"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignmentDisabledTime"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignmentEnabledTime"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignmentNotes"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignOperation"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("attributeAssignValueOperation"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("delegatable"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("values"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookup")
+          && GrouperClientWs.mostRecentRequest.contains("test:testAttributeAssignDefName"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeAssignLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookup")
+          && GrouperClientWs.mostRecentRequest.contains(group.getUuid()));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookup"));
+
+      // ######################################################
+      // Try enabledTime
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+    
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
+          "--entry_0_nameOfAttributeDefName=test:testAttributeAssignDefName --entry_0_ownerGroupName=test:groupTestAttrAssign "
+          + " --entry_0_assignmentEnabledTime=2010/03/05_17:05:13.123",
+          " "));
+      
+      attributeAssign = group.getAttributeDelegate().retrieveAssignment("assign", attributeDefName, false, true);
+      
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      outputLine = outputLines[0];
+  
+      matcher = pattern.matcher(outputLines[0]);
+  
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "0", matcher.group(2));
+      assertEquals(outputLine, "group", matcher.group(3));
+      assertEquals(outputLine, "test:groupTestAttrAssign", matcher.group(4));
+      assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(5));
+      assertEquals(outputLine, "assign", matcher.group(6));
+      assertEquals(outputLine, "none", matcher.group(7));
+      assertEquals(outputLine, "T", matcher.group(8));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(9));
+      assertEquals(outputLine, "T", matcher.group(10));
+      assertEquals(outputLine, "F", matcher.group(11));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("action"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignmentDisabledTime"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("assignmentEnabledTime") 
+          && GrouperClientWs.mostRecentRequest.contains("2010/03/05 17:05:13.123"));
+      assertTrue(GrouperClientWs.mostRecentResponse,
+          GrouperClientWs.mostRecentResponse.contains("2010/03/05 17:05:13.123"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignmentNotes"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignOperation"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("attributeAssignValueOperation"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("delegatable"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("values"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookup")
+          && GrouperClientWs.mostRecentRequest.contains("test:testAttributeAssignDefName"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeAssignLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookup")
+          && GrouperClientWs.mostRecentRequest.contains("test:groupTestAttrAssign"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookup"));
+
+      // ######################################################
+      // Try disabledTime
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+    
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
+          "--entry_0_nameOfAttributeDefName=test:testAttributeAssignDefName --entry_0_ownerGroupName=test:groupTestAttrAssign "
+          + " --entry_0_assignmentDisabledTime=2010/03/05_17:05:13.123",
+          " "));
+      
+      attributeAssign = group.getAttributeDelegate().retrieveAssignment("assign", attributeDefName, false, true);
+      
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      outputLine = outputLines[0];
+  
+      matcher = pattern.matcher(outputLines[0]);
+  
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "0", matcher.group(2));
+      assertEquals(outputLine, "group", matcher.group(3));
+      assertEquals(outputLine, "test:groupTestAttrAssign", matcher.group(4));
+      assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(5));
+      assertEquals(outputLine, "assign", matcher.group(6));
+      assertEquals(outputLine, "none", matcher.group(7));
+      assertEquals(outputLine, "F", matcher.group(8));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(9));
+      assertEquals(outputLine, "T", matcher.group(10));
+      assertEquals(outputLine, "F", matcher.group(11));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("action"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignmentEnabledTime"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("assignmentDisabledTime") 
+          && GrouperClientWs.mostRecentRequest.contains("2010/03/05 17:05:13.123"));
+      assertTrue(GrouperClientWs.mostRecentResponse,
+          GrouperClientWs.mostRecentResponse.contains("2010/03/05 17:05:13.123"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignmentNotes"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignOperation"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("attributeAssignValueOperation"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("delegatable"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("values"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookup")
+          && GrouperClientWs.mostRecentRequest.contains("test:testAttributeAssignDefName"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeAssignLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookup")
+          && GrouperClientWs.mostRecentRequest.contains("test:groupTestAttrAssign"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookup"));
+
+      // ######################################################
+      // Try assignmentNotes
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+    
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
+          "--entry_0_nameOfAttributeDefName=test:testAttributeAssignDefName --entry_0_ownerGroupName=test:groupTestAttrAssign "
+          + " --entry_0_assignmentNotes=theNotes",
+          " "));
+      
+      attributeAssign = group.getAttributeDelegate().retrieveAssignment("assign", attributeDefName, false, true);
+      
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      outputLine = outputLines[0];
+  
+      matcher = pattern.matcher(outputLines[0]);
+  
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "0", matcher.group(2));
+      assertEquals(outputLine, "group", matcher.group(3));
+      assertEquals(outputLine, "test:groupTestAttrAssign", matcher.group(4));
+      assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(5));
+      assertEquals(outputLine, "assign", matcher.group(6));
+      assertEquals(outputLine, "none", matcher.group(7));
+      assertEquals(outputLine, "T", matcher.group(8));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(9));
+      assertEquals(outputLine, "T", matcher.group(10));
+      assertEquals(outputLine, "F", matcher.group(11));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("action"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignmentEnabledTime"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignmentDisabledTime"));
+      assertTrue(GrouperClientWs.mostRecentResponse,
+          GrouperClientWs.mostRecentResponse.contains("theNotes"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("assignmentNotes") 
+          && GrouperClientWs.mostRecentRequest.contains("theNotes") );
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignOperation"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("attributeAssignValueOperation"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("delegatable"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("values"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookup")
+          && GrouperClientWs.mostRecentRequest.contains("test:testAttributeAssignDefName"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeAssignLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookup")
+          && GrouperClientWs.mostRecentRequest.contains("test:groupTestAttrAssign"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookup"));
+  
+      
+      // ######################################################
+      // Try delegatable
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+    
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
+          "--entry_0_nameOfAttributeDefName=test:testAttributeAssignDefName --entry_0_ownerGroupName=test:groupTestAttrAssign "
+          + " --entry_0_delegatable=FALSE",
+          " "));
+      
+      attributeAssign = group.getAttributeDelegate().retrieveAssignment("assign", attributeDefName, false, true);
+      
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      outputLine = outputLines[0];
+  
+      matcher = pattern.matcher(outputLines[0]);
+  
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "0", matcher.group(2));
+      assertEquals(outputLine, "group", matcher.group(3));
+      assertEquals(outputLine, "test:groupTestAttrAssign", matcher.group(4));
+      assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(5));
+      assertEquals(outputLine, "assign", matcher.group(6));
+      assertEquals(outputLine, "none", matcher.group(7));
+      assertEquals(outputLine, "T", matcher.group(8));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(9));
+      assertEquals(outputLine, "T", matcher.group(10));
+      assertEquals(outputLine, "F", matcher.group(11));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("action"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignmentEnabledTime"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignmentDisabledTime"));
+      //assertTrue(GrouperClientWs.mostRecentResponse,
+      //    GrouperClientWs.mostRecentResponse.contains("theNotes"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignmentNotes"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignOperation"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("attributeAssignValueOperation"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("delegatable")
+          && GrouperClientWs.mostRecentRequest.contains("FALSE"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("values"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookup")
+          && GrouperClientWs.mostRecentRequest.contains("test:testAttributeAssignDefName"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeAssignLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookup")
+          && GrouperClientWs.mostRecentRequest.contains("test:groupTestAttrAssign"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookup"));
+
+      // ######################################################
+      // Try action
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+    
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
+          "--entry_0_nameOfAttributeDefName=test:testAttributeAssignDefName --entry_0_ownerGroupName=test:groupTestAttrAssign "
+          + " --entry_0_action=assign",
+          " "));
+      
+      attributeAssign = group.getAttributeDelegate().retrieveAssignment("assign", attributeDefName, false, true);
+      
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      outputLine = outputLines[0];
+  
+      matcher = pattern.matcher(outputLines[0]);
+  
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "0", matcher.group(2));
+      assertEquals(outputLine, "group", matcher.group(3));
+      assertEquals(outputLine, "test:groupTestAttrAssign", matcher.group(4));
+      assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(5));
+      assertEquals(outputLine, "assign", matcher.group(6));
+      assertEquals(outputLine, "none", matcher.group(7));
+      assertEquals(outputLine, "T", matcher.group(8));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(9));
+      assertEquals(outputLine, "F", matcher.group(10));
+      assertEquals(outputLine, "F", matcher.group(11));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("action"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignmentEnabledTime"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignmentDisabledTime"));
+      //assertTrue(GrouperClientWs.mostRecentResponse,
+      //    GrouperClientWs.mostRecentResponse.contains("theNotes"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignmentNotes"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignOperation"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("attributeAssignValueOperation"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("delegatable"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("values"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookup")
+          && GrouperClientWs.mostRecentRequest.contains("test:testAttributeAssignDefName"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeAssignLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookup")
+          && GrouperClientWs.mostRecentRequest.contains("test:groupTestAttrAssign"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookup"));
+
+      // ######################################################
+      // Try values
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+    
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
+          "--entry_0_nameOfAttributeDefName=test:testAttributeAssignDefName --entry_0_ownerGroupName=test:groupTestAttrAssign "
+          + " --entry_0_values0System=3 --entry_0_values1System=4 --entry_0_values2System=5 --entry_0_attributeAssignValueOperation=replace_values",
+          " "));
+      
+      attributeAssign = group.getAttributeDelegate().retrieveAssignment("assign", attributeDefName, false, true);
+      
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      outputLine = outputLines[0];
+  
+      matcher = pattern.matcher(outputLines[0]);
+  
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "0", matcher.group(2));
+      assertEquals(outputLine, "group", matcher.group(3));
+      assertEquals(outputLine, "test:groupTestAttrAssign", matcher.group(4));
+      assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(5));
+      assertEquals(outputLine, "assign", matcher.group(6));
+      assertEquals(outputLine, "3,4,5", matcher.group(7));
+      assertEquals(outputLine, "T", matcher.group(8));
+      assertEquals(outputLine, attributeAssign.getId(), matcher.group(9));
+      assertEquals(outputLine, "F", matcher.group(10));
+      assertEquals(outputLine, "F", matcher.group(11));
+      assertEquals(outputLine, "T", matcher.group(12));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("action"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignmentEnabledTime"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignmentDisabledTime"));
+      //assertTrue(GrouperClientWs.mostRecentResponse,
+      //    GrouperClientWs.mostRecentResponse.contains("theNotes"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("assignmentNotes"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignOperation"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignValueOperation"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("delegatable"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("values")
+          && GrouperClientWs.mostRecentRequest.contains(">3<")
+          && GrouperClientWs.mostRecentRequest.contains(">4<")
+          && GrouperClientWs.mostRecentRequest.contains(">5<"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookup")
+          && GrouperClientWs.mostRecentRequest.contains("test:testAttributeAssignDefName"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeAssignLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookup")
+          && GrouperClientWs.mostRecentRequest.contains("test:groupTestAttrAssign"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookup"));
+
+  //    // ######################################################
+  //    // includeGroupDetail
+  //
+  //    baos = new ByteArrayOutputStream();
+  //    System.setOut(new PrintStream(baos));
+  //  
+  //    GrouperClient.main(GrouperClientUtils.splitTrim(
+  //        "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
+  //        "--entry_0_nameOfAttributeDefName=test:testAttributeAssignDefName --entry_0_ownerGroupName=test:groupTestAttrAssign "
+  //        + " --includeGroupDetail=T",
+  //        " "));
+  //    
+  //    attributeAssign = group.getAttributeDelegate().retrieveAssignment("assign", attributeDefName, false, true);
+  //    
+  //    System.out.flush();
+  //    output = new String(baos.toByteArray());
+  //
+  //    System.setOut(systemOut);
+  //
+  //    outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  //
+  //    outputLine = outputLines[0];
+  //
+  //    matcher = pattern.matcher(outputLines[0]);
+  //
+  //    assertTrue(outputLine, matcher.matches());
+  //    assertEquals(outputLine, "0", matcher.group(1));
+  //    assertEquals(outputLine, "0", matcher.group(2));
+  //    assertEquals(outputLine, "group", matcher.group(3));
+  //    assertEquals(outputLine, "test:groupTestAttrAssign", matcher.group(4));
+  //    assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(5));
+  //    assertEquals(outputLine, "assign", matcher.group(6));
+  //    assertEquals(outputLine, "3,4,5", matcher.group(7));
+  //    assertEquals(outputLine, "T", matcher.group(8));
+  //    assertEquals(outputLine, attributeAssign.getId(), matcher.group(9));
+  //    assertEquals(outputLine, "F", matcher.group(10));
+  //    assertEquals(outputLine, "F", matcher.group(11));
+  //    assertEquals(outputLine, "F", matcher.group(12));
+  //    
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("action"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("assignmentEnabledTime"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("assignmentDisabledTime"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("assignmentNotes"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("attributeAssignOperation"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("attributeAssignValueOperation"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("delegatable"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("params"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("values"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookup")
+  //        && GrouperClientWs.mostRecentRequest.contains("test:testAttributeAssignDefName"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeAssignLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookup")
+  //        && GrouperClientWs.mostRecentRequest.contains("test:groupTestAttrAssign"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookup"));
+  //
+  //
+  //    // ######################################################
+  //    // includeSubjectDetail
+  //
+  //    baos = new ByteArrayOutputStream();
+  //    System.setOut(new PrintStream(baos));
+  //  
+  //    GrouperClient.main(GrouperClientUtils.splitTrim(
+  //        "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
+  //        "--entry_0_nameOfAttributeDefName=test:testAttributeAssignDefName --entry_0_ownerGroupName=test:groupTestAttrAssign "
+  //        + " --includeSubjectDetail=T",
+  //        " "));
+  //    
+  //    attributeAssign = group.getAttributeDelegate().retrieveAssignment("assign", attributeDefName, false, true);
+  //    
+  //    System.out.flush();
+  //    output = new String(baos.toByteArray());
+  //
+  //    System.setOut(systemOut);
+  //
+  //    outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  //
+  //    outputLine = outputLines[0];
+  //
+  //    matcher = pattern.matcher(outputLines[0]);
+  //
+  //    assertTrue(outputLine, matcher.matches());
+  //    assertEquals(outputLine, "0", matcher.group(1));
+  //    assertEquals(outputLine, "0", matcher.group(2));
+  //    assertEquals(outputLine, "group", matcher.group(3));
+  //    assertEquals(outputLine, "test:groupTestAttrAssign", matcher.group(4));
+  //    assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(5));
+  //    assertEquals(outputLine, "assign", matcher.group(6));
+  //    assertEquals(outputLine, "3,4,5", matcher.group(7));
+  //    assertEquals(outputLine, "T", matcher.group(8));
+  //    assertEquals(outputLine, attributeAssign.getId(), matcher.group(9));
+  //    assertEquals(outputLine, "F", matcher.group(10));
+  //    assertEquals(outputLine, "F", matcher.group(11));
+  //    assertEquals(outputLine, "F", matcher.group(12));
+  //    
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("action"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("assignmentEnabledTime"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("assignmentDisabledTime"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("assignmentNotes"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("attributeAssignOperation"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("attributeAssignValueOperation"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("delegatable"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("params"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("values"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookup")
+  //        && GrouperClientWs.mostRecentRequest.contains("test:testAttributeAssignDefName"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeAssignLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookup")
+  //        && GrouperClientWs.mostRecentRequest.contains("test:groupTestAttrAssign"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookup"));
+  //
+  //    
+  //    // ######################################################
+  //    // subjectAttributeNames
+  //
+  //    baos = new ByteArrayOutputStream();
+  //    System.setOut(new PrintStream(baos));
+  //  
+  //    GrouperClient.main(GrouperClientUtils.splitTrim(
+  //        "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
+  //        "--entry_0_nameOfAttributeDefName=test:testAttributeAssignDefName --entry_0_ownerGroupName=test:groupTestAttrAssign "
+  //        + " --subjectAttributeNames=abc",
+  //        " "));
+  //    
+  //    attributeAssign = group.getAttributeDelegate().retrieveAssignment("assign", attributeDefName, false, true);
+  //    
+  //    System.out.flush();
+  //    output = new String(baos.toByteArray());
+  //
+  //    System.setOut(systemOut);
+  //
+  //    outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  //
+  //    outputLine = outputLines[0];
+  //
+  //    matcher = pattern.matcher(outputLines[0]);
+  //
+  //    assertTrue(outputLine, matcher.matches());
+  //    assertEquals(outputLine, "0", matcher.group(1));
+  //    assertEquals(outputLine, "0", matcher.group(2));
+  //    assertEquals(outputLine, "group", matcher.group(3));
+  //    assertEquals(outputLine, "test:groupTestAttrAssign", matcher.group(4));
+  //    assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(5));
+  //    assertEquals(outputLine, "assign", matcher.group(6));
+  //    assertEquals(outputLine, "3,4,5", matcher.group(7));
+  //    assertEquals(outputLine, "T", matcher.group(8));
+  //    assertEquals(outputLine, attributeAssign.getId(), matcher.group(9));
+  //    assertEquals(outputLine, "F", matcher.group(10));
+  //    assertEquals(outputLine, "F", matcher.group(11));
+  //    assertEquals(outputLine, "F", matcher.group(12));
+  //    
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("action"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("assignmentEnabledTime"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("assignmentDisabledTime"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("assignmentNotes"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("attributeAssignOperation"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("attributeAssignValueOperation"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("delegatable"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("params"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("values"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookup")
+  //        && GrouperClientWs.mostRecentRequest.contains("test:testAttributeAssignDefName"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeAssignLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookup")
+  //        && GrouperClientWs.mostRecentRequest.contains("test:groupTestAttrAssign"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookup"));
+  //
+  //    
+  //    // ######################################################
+  //    // params
+  //
+  //    baos = new ByteArrayOutputStream();
+  //    System.setOut(new PrintStream(baos));
+  //  
+  //    GrouperClient.main(GrouperClientUtils.splitTrim(
+  //        "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
+  //        "--entry_0_nameOfAttributeDefName=test:testAttributeAssignDefName --entry_0_ownerGroupName=test:groupTestAttrAssign "
+  //        + " --paramName0=a --paramValue0=b",
+  //        " "));
+  //    
+  //    attributeAssign = group.getAttributeDelegate().retrieveAssignment("assign", attributeDefName, false, true);
+  //    
+  //    System.out.flush();
+  //    output = new String(baos.toByteArray());
+  //
+  //    System.setOut(systemOut);
+  //
+  //    outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  //
+  //    outputLine = outputLines[0];
+  //
+  //    matcher = pattern.matcher(outputLines[0]);
+  //
+  //    assertTrue(outputLine, matcher.matches());
+  //    assertEquals(outputLine, "0", matcher.group(1));
+  //    assertEquals(outputLine, "0", matcher.group(2));
+  //    assertEquals(outputLine, "group", matcher.group(3));
+  //    assertEquals(outputLine, "test:groupTestAttrAssign", matcher.group(4));
+  //    assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(5));
+  //    assertEquals(outputLine, "assign", matcher.group(6));
+  //    assertEquals(outputLine, "3,4,5", matcher.group(7));
+  //    assertEquals(outputLine, "T", matcher.group(8));
+  //    assertEquals(outputLine, attributeAssign.getId(), matcher.group(9));
+  //    assertEquals(outputLine, "F", matcher.group(10));
+  //    assertEquals(outputLine, "F", matcher.group(11));
+  //    assertEquals(outputLine, "F", matcher.group(12));
+  //    
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("action"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("assignmentEnabledTime"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("assignmentDisabledTime"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("assignmentNotes"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("attributeAssignOperation"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("attributeAssignValueOperation"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("delegatable"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("params"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("values"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookup")
+  //        && GrouperClientWs.mostRecentRequest.contains("test:testAttributeAssignDefName"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeAssignLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookup")
+  //        && GrouperClientWs.mostRecentRequest.contains("test:groupTestAttrAssign"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookup"));
+  //
+  //    
+  //    // ######################################################
+  //    // attribute assign lookups
+  //
+  //    baos = new ByteArrayOutputStream();
+  //    System.setOut(new PrintStream(baos));
+  //  
+  //    attributeAssign = group.getAttributeDelegate().retrieveAssignment("assign", attributeDefName, false, true);
+  //
+  //    String attributeAssignId = attributeAssign.getId();
+  //    
+  //    GrouperClient.main(GrouperClientUtils.splitTrim(
+  //        "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=remove_attr "
+  //        + " --attributeAssignUuids=" + attributeAssign.getId(),
+  //        " "));
+  //    
+  //    attributeAssign = group.getAttributeDelegate().retrieveAssignment("assign", attributeDefName, false, false);
+  //
+  //    assertNull("Should be deleted", attributeAssign);
+  //    
+  //    System.out.flush();
+  //    output = new String(baos.toByteArray());
+  //
+  //    System.setOut(systemOut);
+  //
+  //    outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  //
+  //    outputLine = outputLines[0];
+  //
+  //    matcher = pattern.matcher(outputLines[0]);
+  //
+  //    assertTrue(outputLine, matcher.matches());
+  //    assertEquals(outputLine, "0", matcher.group(1));
+  //    assertEquals(outputLine, "0", matcher.group(2));
+  //    assertEquals(outputLine, "group", matcher.group(3));
+  //    assertEquals(outputLine, "test:groupTestAttrAssign", matcher.group(4));
+  //    assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(5));
+  //    assertEquals(outputLine, "assign", matcher.group(6));
+  //    assertEquals(outputLine, "none", matcher.group(7));
+  //    assertEquals(outputLine, "T", matcher.group(8));
+  //    assertEquals(outputLine, attributeAssignId, matcher.group(9));
+  //    assertEquals(outputLine, "T", matcher.group(10));
+  //    assertEquals(outputLine, "T", matcher.group(11));
+  //    assertEquals(outputLine, "F", matcher.group(12));
+  //    
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("action"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("assignmentEnabledTime"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("assignmentDisabledTime"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("assignmentNotes"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("attributeAssignOperation"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("attributeAssignValueOperation"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("delegatable"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("params"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("values"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookup")
+  //        && !GrouperClientWs.mostRecentRequest.contains("test:testAttributeAssignDefName"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeAssignLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookup")
+  //        && !GrouperClientWs.mostRecentRequest.contains("test:groupTestAttrAssign"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookup"));
+  //
+  //    // ######################################################
+  //    // attribute assign lookups custom tempplate
+  //
+  //    baos = new ByteArrayOutputStream();
+  //    System.setOut(new PrintStream(baos));
+  //  
+  //    attributeAssign = group.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+  //
+  //    attributeAssignId = attributeAssign.getId();
+  //    
+  //    GrouperClient.main(GrouperClientUtils.splitTrim(
+  //        "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=remove_attr "
+  //        + " --attributeAssignUuids=" + attributeAssign.getId() + " --outputTemplate=${wsAttributeAssign.attributeAssignType}$newline$",
+  //        " "));
+  //    
+  //    attributeAssign = group.getAttributeDelegate().retrieveAssignment("assign", attributeDefName, false, false);
+  //
+  //    assertNull("Should be deleted", attributeAssign);
+  //    
+  //    System.out.flush();
+  //    output = new String(baos.toByteArray());
+  //
+  //    System.setOut(systemOut);
+  //
+  //    outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  //
+  //    outputLine = GrouperClientUtils.trim(outputLines[0]);
+  //    
+  //    assertEquals(outputLine, "group", outputLine);      
+  //
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("action"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("assignmentEnabledTime"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("assignmentDisabledTime"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("assignmentNotes"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("attributeAssignOperation"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("attributeAssignValueOperation"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("delegatable"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("params"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("values"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookup")
+  //        && !GrouperClientWs.mostRecentRequest.contains("test:testAttributeAssignDefName"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeAssignLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookup")
+  //        && !GrouperClientWs.mostRecentRequest.contains("test:groupTestAttrAssign"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookup"));
+  //
+  //    
+  //    // ######################################################
+  //    // attribute assign lookups
+  //
+  //    baos = new ByteArrayOutputStream();
+  //    System.setOut(new PrintStream(baos));
+  //  
+  //    attributeAssign = group.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+  //
+  //    attributeAssignId = attributeAssign.getId();
+  //    
+  //    GrouperClient.main(GrouperClientUtils.splitTrim(
+  //        "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=remove_attr "
+  //        + " --attributeAssignUuids=" + attributeAssign.getId() + " --actAsSubjectId=GrouperSystem",
+  //        " "));
+  //    
+  //    attributeAssign = group.getAttributeDelegate().retrieveAssignment("assign", attributeDefName, false, false);
+  //
+  //    assertNull("Should be deleted", attributeAssign);
+  //    
+  //    System.out.flush();
+  //    output = new String(baos.toByteArray());
+  //
+  //    System.setOut(systemOut);
+  //
+  //    outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  //
+  //    outputLine = outputLines[0];
+  //
+  //    matcher = pattern.matcher(outputLines[0]);
+  //
+  //    assertTrue(outputLine, matcher.matches());
+  //    assertEquals(outputLine, "0", matcher.group(1));
+  //    assertEquals(outputLine, "0", matcher.group(2));
+  //    assertEquals(outputLine, "group", matcher.group(3));
+  //    assertEquals(outputLine, "test:groupTestAttrAssign", matcher.group(4));
+  //    assertEquals(outputLine, "test:testAttributeAssignDefName", matcher.group(5));
+  //    assertEquals(outputLine, "assign", matcher.group(6));
+  //    assertEquals(outputLine, "none", matcher.group(7));
+  //    assertEquals(outputLine, "T", matcher.group(8));
+  //    assertEquals(outputLine, attributeAssignId, matcher.group(9));
+  //    assertEquals(outputLine, "T", matcher.group(10));
+  //    assertEquals(outputLine, "T", matcher.group(11));
+  //    assertEquals(outputLine, "F", matcher.group(12));
+  //    
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("action"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("assignmentEnabledTime"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("assignmentDisabledTime"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("assignmentNotes"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("attributeAssignOperation"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("attributeAssignValueOperation"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("attributeAssignType"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("clientVersion"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("delegatable"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("params"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("values"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookup")
+  //        && !GrouperClientWs.mostRecentRequest.contains("test:testAttributeAssignDefName"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeAssignLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerAttributeDefLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerGroupLookup")
+  //        && !GrouperClientWs.mostRecentRequest.contains("test:groupTestAttrAssign"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipAnyLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerMembershipLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookup"));
+  //    assertTrue(GrouperClientWs.mostRecentRequest,
+  //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookup"));
+  
+  
+      
     } finally {
       System.setOut(systemOut);
     }

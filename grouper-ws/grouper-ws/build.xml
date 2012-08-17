@@ -388,6 +388,15 @@
       <fileset dir="${basedir}/../../grouper-ws" />
     </copy>
     
+    <fixcrlf srcdir="${basedir}/../../grouper.ws-${version}/grouper-ws/webapp/WEB-INF/bin" eol="unix" includes="*.sh" />
+    <fixcrlf srcdir="${basedir}/../../grouper.ws-${version}/grouper-ws/webapp/WEB-INF/bin" eol="dos" includes="*.bat" />
+    <chmod dir="${basedir}/../../grouper.ws-${version}/grouper-ws/webapp/WEB-INF/bin" includes="*.sh,*.bat" perm="ugo+rx"/>
+
+    <copy file="${basedir}/../../grouper.ws-${version}/grouper-ws/webapp/WEB-INF/bin/gsh.sh" tofile="${basedir}/../../grouper.ws-${version}/grouper-ws/webapp/WEB-INF/bin/gsh" />
+    <fixcrlf srcdir="${basedir}/../../grouper.ws-${version}/grouper-ws/webapp/WEB-INF/bin" eol="unix" includes="gsh" />
+    <chmod dir="${basedir}/../../grouper.ws-${version}/grouper-ws/webapp/WEB-INF/bin" includes="gsh" perm="ugo+rx"/>
+
+  	
     <!-- this assumes that everything was checked out to the right place, and no other dirs exist -->
     <tar destfile="${basedir}/../../grouper.ws-${version}.tar.gz" compression="gzip">
       <tarfileset dir="${basedir}/../.." >
@@ -417,6 +426,9 @@
       <fileset dir="${basedir}/lib/axis" includes="*.jar" />
       <fileset dir="${basedir}/lib/rampart" includes="*.jar" />
       <fileset dir="${grouper.lib.dir}/../jdbcSamples">
+        <include name="*.jar"/>
+      </fileset>
+      <fileset dir="${grouper.lib.dir}/../custom">
         <include name="*.jar"/>
       </fileset>
       <!-- this is for junit which is needed in dev since text classes extend GrouperTest -->
@@ -517,6 +529,9 @@
 			  <include name="*.jar"/>
         <exclude name="grouper*.jar"/>
 			</fileset>
+      <fileset dir="${grouper.lib.dir}/../custom">
+        <include name="*.jar"/>
+      </fileset>
       <fileset dir="${grouper.lib.dir}">
         <include name="grouperClient.jar"/>
       </fileset>
@@ -600,6 +615,16 @@
         </if>
       </else>
     </if>
+		
+    <fixcrlf srcdir="${webapp.folder}/WEB-INF/bin" eol="unix" includes="*.sh" />
+    <fixcrlf srcdir="${webapp.folder}/WEB-INF/bin" eol="dos" includes="*.bat" />
+    <chmod dir="${webapp.folder}/WEB-INF/bin" includes="*.sh,*.bat" perm="ugo+rx"/>
+
+    <copy file="${webapp.folder}/WEB-INF/bin/gsh.sh" tofile="${webapp.folder}/WEB-INF/bin/gsh" />
+    <fixcrlf srcdir="${webapp.folder}/WEB-INF/bin" eol="unix" includes="gsh" />
+    <chmod dir="${webapp.folder}/WEB-INF/bin" includes="gsh" perm="ugo+rx"/>
+
+		
 		<!-- make a war file -->
 		<property name="webapp.war" value="${webapp.folder}.war" />
 		<delete file="${webapp.war}" />

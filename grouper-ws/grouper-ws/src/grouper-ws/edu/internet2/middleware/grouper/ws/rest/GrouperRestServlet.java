@@ -110,7 +110,7 @@ public class GrouperRestServlet extends HttpServlet {
     StringBuilder warnings = new StringBuilder();
     WsResponseBean wsResponseBean = null;
     //we need something here if errors, so default to xhtml
-    WsRestResponseContentType wsRestResponseContentType = WsRestResponseContentType.xhtml;
+    WsRestResponseContentType wsRestResponseContentType = WsRestResponseContentType.json;
 
     Map<String, String> parameterMap = null;
 

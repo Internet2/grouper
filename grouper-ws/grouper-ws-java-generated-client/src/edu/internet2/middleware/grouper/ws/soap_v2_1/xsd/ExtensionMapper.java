@@ -1,18 +1,4 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
+
 /**
  * ExtensionMapper.java
  *
@@ -277,9 +263,9 @@
               
                   if (
                   "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
-                  "WsGetMembershipsResults".equals(typeName)){
+                  "WsGroupDeleteLiteResult".equals(typeName)){
                    
-                            return  edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGetMembershipsResults.Factory.parse(reader);
+                            return  edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroupDeleteLiteResult.Factory.parse(reader);
                         
 
                   }
@@ -287,9 +273,9 @@
               
                   if (
                   "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
-                  "WsGroupDeleteLiteResult".equals(typeName)){
+                  "WsGetMembershipsResults".equals(typeName)){
                    
-                            return  edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroupDeleteLiteResult.Factory.parse(reader);
+                            return  edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGetMembershipsResults.Factory.parse(reader);
                         
 
                   }
@@ -310,6 +296,16 @@
                   "WsDeleteMemberLiteResult".equals(typeName)){
                    
                             return  edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsDeleteMemberLiteResult.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
+                  "WsAssignAttributesBatchResults".equals(typeName)){
+                   
+                            return  edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsAssignAttributesBatchResults.Factory.parse(reader);
                         
 
                   }
@@ -777,9 +773,29 @@
               
                   if (
                   "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
+                  "WsAssignAttributeBatchEntry".equals(typeName)){
+                   
+                            return  edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsAssignAttributeBatchEntry.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
                   "WsGrouperPrivilegeResult".equals(typeName)){
                    
                             return  edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGrouperPrivilegeResult.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
+                  "WsAssignAttributeBatchResult".equals(typeName)){
+                   
+                            return  edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsAssignAttributeBatchResult.Factory.parse(reader);
                         
 
                   }

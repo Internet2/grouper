@@ -27,10 +27,15 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.MembershipFinder;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignValue;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesRequest;
@@ -79,7 +84,14 @@ public class WsSampleAssignAttributesWithValueRest2 implements WsSampleRest {
 
       assignAttributes.setAttributeAssignType("imm_mem");
 
-      assignAttributes.setWsOwnerMembershipLookups(new WsMembershipLookup[]{new WsMembershipLookup("b74074ca8e81429fbb366bb254bb55e8")});
+      
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), "aStem:role", true);
+      Membership membership = MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), group, SubjectTestHelper.SUBJ0, true);
+      
+      assignAttributes.setWsOwnerMembershipLookups(new WsMembershipLookup[]{new WsMembershipLookup(membership.getImmediateMembershipId())});
+      
+      GrouperSession.stopQuietly(grouperSession);
       
       assignAttributes.setAttributeAssignOperation("assign_attr");
       assignAttributes.setAttributeAssignValueOperation("add_value");
@@ -160,6 +172,6 @@ public class WsSampleAssignAttributesWithValueRest2 implements WsSampleRest {
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
     //dont allow http params
-    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
   }
 }

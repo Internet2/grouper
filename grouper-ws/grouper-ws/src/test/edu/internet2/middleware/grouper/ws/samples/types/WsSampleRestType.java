@@ -35,7 +35,7 @@ public enum WsSampleRestType {
   json(WsRestRequestContentType.json, WsRestResponseContentType.json),
   
   /** http param request with xhtml response */
-  http_xhtml(WsRestRequestContentType.http, WsRestResponseContentType.xhtml),
+  http_json(WsRestRequestContentType.http, WsRestResponseContentType.json),
   
   /** xml request */
   xml(WsRestRequestContentType.xml, WsRestResponseContentType.xml);

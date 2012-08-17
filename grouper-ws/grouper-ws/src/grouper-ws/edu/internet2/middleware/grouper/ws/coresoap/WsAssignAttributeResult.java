@@ -29,8 +29,6 @@ public class WsAssignAttributeResult implements Comparable<WsAssignAttributeResu
 
   /** set of results of this attribute assign value */
   private WsAttributeAssignValueResult[] wsAttributeAssignValueResults;
-
-  
   
   /**
    * set of results of this attribute assign value

@@ -77,7 +77,7 @@ public class WsSampleGetMembershipsRest2 implements WsSampleRest {
 
       // seeif two subjects are in the group
       WsGroupLookup[] groupLookups = new WsGroupLookup[1];
-      groupLookups[0] = new WsGroupLookup("test:testGroup", null);
+      groupLookups[0] = new WsGroupLookup("aStem:aGroup", null);
 
       getMemberships.setWsGroupLookups(groupLookups);
       
@@ -155,6 +155,6 @@ public class WsSampleGetMembershipsRest2 implements WsSampleRest {
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
     //dont allow http params
-    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
   }
 }

@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributeDefNameInheritanceLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributeDefNameInheritanceRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesBatchRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefNameSaveLiteRequest;
@@ -193,6 +194,12 @@ public enum GrouperWsRestPut {
         //assign attributes
         return GrouperServiceRest.assignAttributesLite(clientVersion,
             (WsRestAssignAttributesLiteRequest)requestObject);
+
+      } else if (requestObject instanceof WsRestAssignAttributesBatchRequest) {
+        
+        //assign attributes batch
+        return GrouperServiceRest.assignAttributesBatch(clientVersion,
+            (WsRestAssignAttributesBatchRequest)requestObject);
 
       } else {
         throw new RuntimeException("Must pass in a request object of type " 

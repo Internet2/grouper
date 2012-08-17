@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGrouperPrivilegeResult;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGrouperPrivilegesLiteRequest;
@@ -71,8 +72,10 @@ public class WsSampleGetGrouperPrivilegesListRestLite implements WsSampleRest {
       method.setRequestHeader("Connection", "close");
       
       //e.g. localhost and 8093
+      String host = RestClientSettings.HOST;
+      int port = RestClientSettings.PORT;
       httpClient.getState()
-          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
+          .setCredentials(new AuthScope(host, port), defaultcreds);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -82,7 +85,7 @@ public class WsSampleGetGrouperPrivilegesListRestLite implements WsSampleRest {
       // set the act as id
       wsRestGetGrouperPrivilegesLiteRequest.setActAsSubjectId("GrouperSystem");
       
-      wsRestGetGrouperPrivilegesLiteRequest.setSubjectId("test.subject.0");
+      wsRestGetGrouperPrivilegesLiteRequest.setSubjectId("test.subject.9");
       wsRestGetGrouperPrivilegesLiteRequest.setGroupName("aStem:aGroup");
       
       wsRestGetGrouperPrivilegesLiteRequest.setPrivilegeType("access");
@@ -129,7 +132,7 @@ public class WsSampleGetGrouperPrivilegesListRestLite implements WsSampleRest {
       boolean foundAdmin = false;
       
       //lets make sure admin is in there
-      for (WsGrouperPrivilegeResult wsGrouperPrivilegeResult : wsGetGrouperPrivilegesLiteResult.getPrivilegeResults()) {
+      for (WsGrouperPrivilegeResult wsGrouperPrivilegeResult : GrouperUtil.nonNull(wsGetGrouperPrivilegesLiteResult.getPrivilegeResults(), WsGrouperPrivilegeResult.class)) {
         if (StringUtils.equals("admin", wsGrouperPrivilegeResult.getPrivilegeName())
             && StringUtils.equals("T", wsGrouperPrivilegeResult.getAllowed())) {
           foundAdmin = true;
@@ -140,7 +143,7 @@ public class WsSampleGetGrouperPrivilegesListRestLite implements WsSampleRest {
       boolean shouldHaveAdmin = false;
       try {
         Group group = GroupFinder.findByName(grouperSession, "aStem:aGroup");
-        shouldHaveAdmin = group.hasAdmin(SubjectFinder.findById("test.subject.0"));
+        shouldHaveAdmin = group.hasAdmin(SubjectFinder.findById("test.subject.9"));
       } finally {
         GrouperSession.stopQuietly(grouperSession);
       }

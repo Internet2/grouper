@@ -9,65 +9,46 @@
 	<classpathentry kind="src" path="src/grouper-ws_v2_0"/>
 	<classpathentry kind="src" path="src/grouper-ws_v2_1"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper-ws-non-webapp/servlet.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis/axiom-api-1.2.12.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis/axiom-dom-1.2.12.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis/axiom-impl-1.2.12.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-adb-1.6.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-adb-codegen-1.6.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-codegen-1.6.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-java2wsdl-1.6.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-kernel-1.6.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-transport-http-1.6.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-transport-local-1.6.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-xmlbeans-1.6.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis/commons-fileupload-1.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis/httpcore-4.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis/jaxen-1.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis/mail.txt"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis/mex-1.6.1-impl.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis/neethi-3.0.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis/package.html"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis/woden-api-1.0M9.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis/woden-impl-dom-1.0M9.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis/wsdl4j-1.6.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis/wstx-asl-3.2.9.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis/xmlbeans-2.3.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis/XmlSchema-1.4.7.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/commons-net.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/jdom-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/joda-time-1.5.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/junit.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/mysql-connector-java-5.1.5-bin.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/stax-1.2.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/xom-1.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/jettison-1.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/mysql-connector-java-5.1.5-bin.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/rampart/bcprov-jdk15-132.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/rampart/opensaml-1.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/rampart/rampart-core-1.3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/rampart/rampart-policy-1.3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/rampart/rampart-trust-1.3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/rampart/wss4j-1.5.3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/rampart/xmlsec-1.4.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/wsdl4j-1.6.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/commons-net.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/axiom-api-1.2.7.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/axiom-dom-1.2.7.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/axiom-impl-1.2.7.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-adb-1.4.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-adb-codegen-1.4.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-ant-plugin-1.4.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-clustering-1.4.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-codegen-1.4.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-corba-1.4.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-fastinfoset-1.4.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-java2wsdl-1.4.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-jaxbri-1.4.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-jaxws-1.4.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-jaxws-api-1.4.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-jibx-1.4.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-json-1.4.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-jws-api-1.4.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-kernel-1.4.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-metadata-1.4.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-mtompolicy-1.4.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-saaj-1.4.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-saaj-api-1.4.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-spring-1.4.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-xmlbeans-1.4.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/commons-fileupload-1.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/geronimo-stax-api_1.0_spec-1.0.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/httpcore-4.0-beta1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/httpcore-nio-4.0-beta1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/jalopy-1.5rc3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/jaxb-api-2.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/jaxb-impl-2.1.6.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/jaxb-xjc-2.1.6.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/jettison-1.0-RC2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/mex-1.4.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/neethi-2.0.4.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/soapmonitor-1.4.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/woden-api-1.0M8.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/woden-impl-dom-1.0M8.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/wstx-asl-3.2.4.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/xml-apis-1.3.04.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/xml-resolver-1.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/XmlSchema-1.4.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/junit.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper-ws-non-webapp/servlet.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/rampart/bcprov-jdk15-140.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/rampart/opensaml-2.2.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/rampart/rampart-core-1.6.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/rampart/rampart-policy-1.6.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/rampart/rampart-trust-1.6.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/rampart/wss4j-1.5.12.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/rampart/xmlsec-1.4.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/rampart/xmltooling-1.2.0.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/grouper"/>
 	<classpathentry kind="output" path="webapp/WEB-INF/classes"/>
 </classpath>

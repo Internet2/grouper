@@ -68,7 +68,7 @@ public enum WsRestRequestContentType {
      */
     @Override
     public WsRestResponseContentType calculateResponseContentType() {
-      return null;
+      return WsRestResponseContentType.xhtml;
     }
 
     /**
@@ -125,7 +125,7 @@ public enum WsRestRequestContentType {
           GrouperWsConfig.WS_REST_DEFAULT_RESPONSE_CONTENT_TYPE);
       
       //default to xhtml if not specified
-      configValue = StringUtils.defaultIfEmpty(configValue, "xhtml");
+      configValue = StringUtils.defaultIfEmpty(configValue, "json");
       
       //convert to enum
       return WsRestResponseContentType.valueOfIgnoreCase(configValue, true);

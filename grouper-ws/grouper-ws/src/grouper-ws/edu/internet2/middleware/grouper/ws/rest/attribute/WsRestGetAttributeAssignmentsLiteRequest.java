@@ -29,6 +29,96 @@ import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 public class WsRestGetAttributeAssignmentsLiteRequest implements WsRequestBean {
 
   /**
+   * required if sending theValue, can be:
+   * floating, integer, memberId, string, timestamp
+   */
+  private String attributeDefValueType;
+  
+  /**
+   * required if sending theValue, can be:
+   * floating, integer, memberId, string, timestamp
+   * @return attributeDefValueType
+   */
+  public String getAttributeDefValueType() {
+    return this.attributeDefValueType;
+  }
+
+  /**
+   * required if sending theValue, can be:
+   * floating, integer, memberId, string, timestamp
+   * @param attributeDefValueType1
+   */
+  public void setAttributeDefValueType(String attributeDefValueType1) {
+    this.attributeDefValueType = attributeDefValueType1;
+  }
+
+  /**
+   * null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm
+   */
+  private String attributeDefType;
+  
+  /**
+   * null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm
+   * @return attributeDefValueType
+   */
+  public String getAttributeDefType() {
+    return this.attributeDefType;
+  }
+
+  /**
+   * null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm
+   * @param attributeDefType1
+   */
+  public void setAttributeDefType(String attributeDefType1) {
+    this.attributeDefType = attributeDefType1;
+  }
+
+  /**
+   * value if you are passing in one attributeDefNameLookup
+   */
+  private String theValue;
+
+  /**
+   * T|F if you are finding an assignment that is an assignmentOnAssignment,
+   * then get the assignment which tells you the owner as well
+   */
+  private String includeAssignmentsFromAssignments;
+
+  /**
+   * value if you are passing in one attributeDefNameLookup
+   * @return value
+   */
+  public String getTheValue() {
+    return this.theValue;
+  }
+
+  /**
+   * value if you are passing in one attributeDefNameLookup
+   * @param theValue1
+   */
+  public void setTheValue(String theValue1) {
+    this.theValue = theValue1;
+  }
+
+  /**
+   * T|F if you are finding an assignment that is an assignmentOnAssignment,
+   * then get the assignment which tells you the owner as well
+   * @return if include assignments from assignments
+   */
+  public String getIncludeAssignmentsFromAssignments() {
+    return this.includeAssignmentsFromAssignments;
+  }
+
+  /**
+   * T|F if you are finding an assignment that is an assignmentOnAssignment,
+   * then get the assignment which tells you the owner as well
+   * @param includeAssignmentsFromAssignments1
+   */
+  public void setIncludeAssignmentsFromAssignments(String includeAssignmentsFromAssignments1) {
+    this.includeAssignmentsFromAssignments = includeAssignmentsFromAssignments1;
+  }
+
+  /**
    * @see edu.internet2.middleware.grouper.ws.rest.WsRequestBean#retrieveRestHttpMethod()
    */
   public GrouperRestHttpMethod retrieveRestHttpMethod() {
@@ -736,7 +826,138 @@ public class WsRestGetAttributeAssignmentsLiteRequest implements WsRequestBean {
   public void setEnabled(String enabled1) {
     this.enabled = enabled1;
   }
+
+  /**
+   * if looking for assignments on assignments, this is the assignment the assignment is assigned to
+   */
+  private String wsAssignAssignOwnerAttributeAssignId;
   
   
+  
+  /**
+   * if looking for assignments on assignments, this is the assignment the assignment is assigned to
+   * @return id
+   */
+  public String getWsAssignAssignOwnerAttributeAssignId() {
+    return this.wsAssignAssignOwnerAttributeAssignId;
+  }
+
+  /**
+   * if looking for assignments on assignments, this is the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerAttributeAssignId1
+   */
+  public void setWsAssignAssignOwnerAttributeAssignId(
+      String wsAssignAssignOwnerAttributeAssignId1) {
+    this.wsAssignAssignOwnerAttributeAssignId = wsAssignAssignOwnerAttributeAssignId1;
+  }
+
+  /**
+   * if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to
+   */
+  private String wsAssignAssignOwnerIdOfAttributeDef;
+  
+  /**
+   * if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to
+   * @return id
+   */
+  public String getWsAssignAssignOwnerIdOfAttributeDef() {
+    return this.wsAssignAssignOwnerIdOfAttributeDef;
+  }
+
+  /**
+   * if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerIdOfAttributeDef1
+   */
+  public void setWsAssignAssignOwnerIdOfAttributeDef(
+      String wsAssignAssignOwnerIdOfAttributeDef1) {
+    this.wsAssignAssignOwnerIdOfAttributeDef = wsAssignAssignOwnerIdOfAttributeDef1;
+  }
+
+  /**
+   * if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to
+   */
+  private String wsAssignAssignOwnerNameOfAttributeDef;
+  
+  /**
+   * if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to
+   * @return name
+   */
+  public String getWsAssignAssignOwnerNameOfAttributeDef() {
+    return this.wsAssignAssignOwnerNameOfAttributeDef;
+  }
+
+  /**
+   * if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerNameOfAttributeDef1
+   */
+  public void setWsAssignAssignOwnerNameOfAttributeDef(
+      String wsAssignAssignOwnerNameOfAttributeDef1) {
+    this.wsAssignAssignOwnerNameOfAttributeDef = wsAssignAssignOwnerNameOfAttributeDef1;
+  }
+
+  /**
+   * if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
+   */
+  private String wsAssignAssignOwnerIdOfAttributeDefName;
+
+  /**
+   * if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
+   * @return id
+   */
+  public String getWsAssignAssignOwnerIdOfAttributeDefName() {
+    return this.wsAssignAssignOwnerIdOfAttributeDefName;
+  }
+
+  /**
+   * if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerIdOfAttributeDefName1
+   */
+  public void setWsAssignAssignOwnerIdOfAttributeDefName(
+      String wsAssignAssignOwnerIdOfAttributeDefName1) {
+    this.wsAssignAssignOwnerIdOfAttributeDefName = wsAssignAssignOwnerIdOfAttributeDefName1;
+  }
+
+  /**
+   * if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
+   */
+  private String wsAssignAssignOwnerNameOfAttributeDefName;
+  
+  /**
+   * if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
+   * @return name
+   */
+  public String getWsAssignAssignOwnerNameOfAttributeDefName() {
+    return this.wsAssignAssignOwnerNameOfAttributeDefName;
+  }
+
+  /**
+   * if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerNameOfAttributeDefName1
+   */
+  public void setWsAssignAssignOwnerNameOfAttributeDefName(
+      String wsAssignAssignOwnerNameOfAttributeDefName1) {
+    this.wsAssignAssignOwnerNameOfAttributeDefName = wsAssignAssignOwnerNameOfAttributeDefName1;
+  }
+
+  /**
+   * if looking for assignments on assignments, this is the action of the assignment the assignment is assigned to
+   */
+  private String wsAssignAssignOwnerAction;
+
+  /**
+   * if looking for assignments on assignments, this is the action of the assignment the assignment is assigned to
+   * @return action
+   */
+  public String getWsAssignAssignOwnerAction() {
+    return this.wsAssignAssignOwnerAction;
+  }
+
+  /**
+   * if looking for assignments on assignments, this is the action of the assignment the assignment is assigned to
+   * @param wsAssignAssignOwnerAction1
+   */
+  public void setWsAssignAssignOwnerAction(String wsAssignAssignOwnerAction1) {
+    this.wsAssignAssignOwnerAction = wsAssignAssignOwnerAction1;
+  }
   
 }
