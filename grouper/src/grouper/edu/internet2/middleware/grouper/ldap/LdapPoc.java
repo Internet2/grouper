@@ -26,6 +26,7 @@ import java.util.Map;
 import javax.naming.directory.SearchResult;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
@@ -53,7 +54,7 @@ public class LdapPoc {
     //for (int i=0;i<100;i++) {
     //  manyObjectsListMapAttributeFramework();
     //}
-    manyObjectsListMapAttributeFramework();
+    assignLoaderLdapAttributes();
 
   }
 
@@ -144,11 +145,15 @@ public class LdapPoc {
    */
   public static void assignLoaderLdapAttributes() {
     GrouperSession grouperSession = GrouperSession.startRootSession();
-    Group group = new GroupSave(grouperSession).assignName("someStem:myLdapGroup").assignCreateParentStemsIfNotExist(true).save();
+    Group group = GroupFinder.findByName(grouperSession, "someStem:myLdapGroup", false);
+    if (group != null) {
+      group.delete();
+    }
+    group = new GroupSave(grouperSession).assignName("someStem:myLdapGroup").assignCreateParentStemsIfNotExist(true).save();
     AttributeAssign attributeAssign = group.getAttributeDelegate().assignAttribute(LoaderLdapUtils.grouperLoaderLdapAttributeDefName()).getAttributeAssign();
     attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, LoaderLdapUtils.grouperLoaderLdapAttributeDefName(), false, true);
     attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapTypeName(), "LDAP_SIMPLE");
-    attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapFilterName(), "(|(cn=test:testGroup)(cn=test:ldaptesting:test1))");
+    attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapFilterName(), "(cn=penn:community:employee)");
     attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapQuartzCronName(), "* * * * * ?");
     
     attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSearchDnName(), "ou=groups");
@@ -157,18 +162,6 @@ public class LdapPoc {
     attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), "hasMember");
     attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), "subjectIdentifier");
     attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSearchScopeName(), "ONELEVEL_SCOPE");
-    attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapAndGroupsName(), "school:community:employee");
-    attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapGroupsLikeName(), "anotherStem2:groups:%");
-    attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapErrorUnresolvableName(), "false");
-    attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapGroupDisplayNameExpressionName(), "something:${groupAttribute}");
-    attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapGroupDescriptionExpressionName(), "Loaded gropu from ldap: ${dn}");
-    attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapErrorUnresolvableName(), "false");
-    attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapReadersName(), "anotherStem3:privs:readers");
-    attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapUpdatersName(), "anotherStem3:privs:updaters");
-    attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapAdminsName(), "anotherStem3:privs:admins");
-    attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapViewersName(), "anotherStem3:privs:viewers");
-    attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapOptinsName(), "anotherStem3:privs:optins");
-    attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapOptoutsName(), "anotherStem3:privs:optouts");
 
   }
   

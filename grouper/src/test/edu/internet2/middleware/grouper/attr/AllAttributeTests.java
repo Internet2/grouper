@@ -40,6 +40,7 @@ public class AllAttributeTests {
     suite.addTestSuite(AttributeDefNameSetTest.class);
     suite.addTestSuite(MemberAttributeSecurityTest.class);
     suite.addTestSuite(MembershipAttributeSecurityTest.class);
+    suite.addTestSuite(AttributeDefNameFinderTest.class);
     suite.addTestSuite(AttributeDefNameSaveTest.class);
     suite.addTestSuite(AttributeDefTest.class);
     suite.addTestSuite(AttrAssignAttributeSecurityTest.class);

@@ -98,6 +98,7 @@ public class ServiceTest extends GrouperTest {
     
     // test subject 0 can see the directory and confluence services
     
+    
     //################
     // test subject 1 can view jira
     jiraServiceDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_VIEW, false);

@@ -20,6 +20,8 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
@@ -375,18 +377,21 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
    * @param grouperSession 
    * @param attributeDefId 
    * @param subject 
-   * @param privileges 
+   * @param privileges if privileges is null and filterByServicesCanView is true then set the privileges to the view set 
    * @param queryOptions 
    * @param splitScope 
    * @param attributeAssignType
    * @param attributeDefType 
+   * @param filterByServicesCanView if true then only return services the user can view based on memberships which have the 
+   * service, or folders which have the service, or attribute definitions which have the service,
+   * or the view privilege set
    * @return  attribute def names
    * 
    */
   private Set<AttributeDefName> findAllAttributeNamesSecureHelper(String scope,
       GrouperSession grouperSession, String attributeDefId, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions, boolean splitScope, AttributeAssignType attributeAssignType,
-      AttributeDefType attributeDefType) {
+      AttributeDefType attributeDefType, boolean filterByServicesCanView) {
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
     }
@@ -394,35 +399,41 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       queryOptions.sortAsc("theAttributeDefName.displayNameDb");
     }
   
+    Member member = subject == null ? null : MemberFinder.findBySubject(grouperSession, subject, true);
+    
     StringBuilder sql = new StringBuilder(
         "select distinct theAttributeDefName from AttributeDefName theAttributeDefName, AttributeDef theAttributeDef ");
   
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
   
     StringBuilder whereClause = new StringBuilder(" theAttributeDefName.attributeDefId = theAttributeDef.id ");
+
+    if (filterByServicesCanView) {
+      if (attributeDefType == null) {
+        attributeDefType = AttributeDefType.service;
+      }
+      if (attributeDefType != AttributeDefType.service) {
+        throw new RuntimeException("Why are you filtering by services the user can view but you have the " +
+        		"attributeDefType not equal to AttributeDefType.service????  (or can be null): " + attributeDefType);
+      }
+    }
     
     if (attributeDefType != null) {
-      if (whereClause.length() > 0) {
-        whereClause.append(" and ");
-      }
+      whereClause.append(" and ");
       whereClause.append(" theAttributeDef.attributeDefTypeDb = :theAttributeDefType ");
       byHqlStatic.setString("theAttributeDefType", attributeDefType.name());
     }
 
     if (!StringUtils.isBlank(attributeDefId)) {
       
-      if (whereClause.length() > 0) {
-        whereClause.append(" and ");
-      }
+      whereClause.append(" and ");
       whereClause.append(" theAttributeDefName.attributeDefId = :theAttributeDefId ");
       byHqlStatic.setString("theAttributeDefId", attributeDefId);
       
     }
 
     if (attributeAssignType != null) {
-      if (whereClause.length() > 0) {
-        whereClause.append(" and ");
-      }
+      whereClause.append(" and ");
       switch (attributeAssignType) {
         case any_mem:
           whereClause.append(" theAttributeDef.assignToEffMembershipDb = 'T' ");
@@ -472,9 +483,8 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
 
       String[] scopes = splitScope ? GrouperUtil.splitTrim(scope, " ") : new String[]{scope};
 
-      if (whereClause.length() > 0) {
-        whereClause.append(" and ");
-      }
+      whereClause.append(" and ");
+
       if (GrouperUtil.length(scopes) == 1) {
         whereClause.append(" ( theAttributeDefName.id = :theAttributeDefNameIdScope or ( ");
         byHqlStatic.setString("theAttributeDefNameIdScope", scope);
@@ -504,14 +514,83 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       whereClause.append(" ) ) ");
     }
   
-    //see if we are adding more to the query
-    grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(subject, byHqlStatic,
-        sql, whereClause, "theAttributeDefName.attributeDefId", privileges);
-  
-    if (whereClause.length() > 0) {
-      sql.append(" where ");
-      sql.append(whereClause);
-    }    
+    if (filterByServicesCanView) {
+      
+      if (member == null) {
+        throw new RuntimeException("If filtering by services can view, then pass in a subject who can see the services");
+      }
+      
+      if (privileges == null) {
+
+        //or the view privilege set
+        privileges = AttributeDefPrivilege.VIEW_PRIVILEGES;
+        
+      }
+      
+      //must be a service type
+      
+      
+      whereClause.append(" and ");
+
+      whereClause.append(" ( ");
+      
+      whereClause.append(" ( ");
+
+      //SELECT groupAttributeDefName.id FROM grouper_attribute_def groupAttributeDef, 
+      //grouper_attribute_def_name groupAttributeDefName, grouper_groups groupGroup, 
+      //grouper_memberships_all_v groupMembership, grouper_attribute_assign groupAttributeAssign
+      //WHERE groupAttributeDef.id = groupAttributeDefName.attribute_def_id
+      //AND groupAttributeDef.attribute_def_type = 'service'
+      //AND groupMembership.owner_group_id = groupGroup.id
+      //AND groupMembership.immediate_mship_enabled = 'T'
+      //AND groupMembership.member_id = 'abc'
+      //AND groupAttributeDefName.id = groupAttributeAssign.attribute_def_name_id 
+      //AND groupAttributeAssign.owner_group_id = groupGroup.id
+      //AND groupAttributeAssign.enabled = 'T'
+      whereClause.append(" theAttributeDefName.id in ( ");
+      
+      whereClause.append(" select groupAttributeDefName.id from AttributeDef groupAttributeDef, "
+          + " AttributeDefName groupAttributeDefName, Group groupGroup, " 
+          + " MembershipEntry groupMembership, AttributeAssign groupAttributeAssign "
+          + " where groupAttributeDef.id = groupAttributeDefName.attributeDefId "
+          + " and groupAttributeDef.attributeDefTypeDb = 'service' "
+          + " and groupMembership.ownerGroupId = groupGroup.id "
+          + " and groupMembership.enabledDb = 'T' "
+          + " and groupMembership.memberUuid in (:groupMemberId, :groupAllMemberId) "
+          + " and groupAttributeDefName.id = groupAttributeAssign.attributeDefNameId "
+          + " and groupAttributeAssign.ownerGroupId = groupGroup.id "
+          + " and groupAttributeAssign.enabledDb = 'T' ");
+
+      byHqlStatic.setString("groupMemberId", member.getUuid());
+      byHqlStatic.setString("groupAllMemberId", MemberFinder.internal_findAllMember().getUuid());
+
+      whereClause.append(" ) ");
+      
+      whereClause.append(" ) or ( ");
+      
+      {
+        
+        StringBuilder subResult = new StringBuilder();
+        
+        //see if we are adding more to the query
+        grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(subject, byHqlStatic,
+            sql, subResult, "theAttributeDefName.attributeDefId", privileges);
+        whereClause.append(subResult);
+      }      
+      
+      whereClause.append(" ) ");
+      
+      whereClause.append(" ) ");
+
+    } else {
+
+      //see if we are adding more to the query
+      grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(subject, byHqlStatic,
+          sql, whereClause, "theAttributeDefName.attributeDefId", privileges);
+    }
+    
+    sql.append(" where ");
+    sql.append(whereClause);
     
     if (queryOptions != null) {
       massageSortFields(queryOptions.getQuerySort());
@@ -535,7 +614,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       GrouperSession grouperSession, String attributeDefId, Subject subject,
       Set<Privilege> privileges, QueryOptions queryOptions, AttributeAssignType attributeAssignType,
       AttributeDefType attributeDefType) {
-    return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, subject, privileges, queryOptions, true, attributeAssignType, attributeDefType);
+    return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, subject, privileges, queryOptions, true, attributeAssignType, attributeDefType, false);
   }
 
   /**
@@ -547,8 +626,23 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions,
       AttributeAssignType attributeAssignType, AttributeDefType attributeDefType) {
     return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, 
-        subject, privileges, queryOptions, splitScope, attributeAssignType, attributeDefType);
+        subject, privileges, queryOptions, splitScope, attributeAssignType, attributeDefType, false);
   }
 
+  /**
+   * @see AttributeDefNameDAO#findAllAttributeNamesSecure(String, boolean, GrouperSession, String, Subject, Set, QueryOptions, AttributeAssignType, AttributeDefType, boolean)
+   */
+  @Override
+  public Set<AttributeDefName> findAllAttributeNamesSecure(String scope,
+      boolean splitScope, GrouperSession grouperSession, String attributeDefId,
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions,
+      AttributeAssignType attributeAssignType, AttributeDefType attributeDefType,
+      boolean filterByServicesCanView) {
+    return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, 
+        subject, privileges, queryOptions, splitScope, attributeAssignType, attributeDefType,
+        filterByServicesCanView);
+  }
+
+  
 } 
 

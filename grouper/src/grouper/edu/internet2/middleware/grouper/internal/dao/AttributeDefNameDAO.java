@@ -157,5 +157,27 @@ public interface AttributeDefNameDAO extends GrouperDAO {
       GrouperSession grouperSession, String attributeDefId, 
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, AttributeAssignType attributeAssignType,
       AttributeDefType attributeDefType);
-  
+
+  /**
+   * get all attribute names secure, split the scope by whitespace
+   * @param scope
+   * @param splitScope 
+   * @param attributeDefId optional if filtering by names in a certain attribute definition
+   * @param grouperSession
+   * @param subject
+   * @param privileges
+   * @param queryOptions
+   * @param attributeAssignType
+   * @param attributeDefType
+   * @param filterByServicesCanView if true then only return services the user can view based on memberships which have the 
+   * service, or folders which have the service, or attribute definitions which have the service,
+   * or the view privilege set
+   * @return set of attribute defs
+   * @since v2.2.0
+   */
+  public Set<AttributeDefName> findAllAttributeNamesSecure(String scope, boolean splitScope,
+      GrouperSession grouperSession, String attributeDefId, 
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, AttributeAssignType attributeAssignType,
+      AttributeDefType attributeDefType, boolean filterByServicesCanView);
+
 }

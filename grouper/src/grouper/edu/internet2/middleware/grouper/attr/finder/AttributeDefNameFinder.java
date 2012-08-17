@@ -19,19 +19,171 @@
  */
 package edu.internet2.middleware.grouper.attr.finder;
 
+import java.util.HashSet;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
- * finder methods for attribute def name
+ * finder methods for attribute def name.
+ * the chained API is secure based on the static grouper session
  */
 public class AttributeDefNameFinder {
 
+  /**
+   * scope to look for attribute def names  Wildcards will be appended or percent is the wildcard
+   */
+  private String scope;
+
+  /**
+   * scope to look for attribute def names  Wildcards will be appended or percent is the wildcard
+   * @param theScope
+   * @return this for chaining
+   */
+  public AttributeDefNameFinder assignScope(String theScope) {
+    this.scope = theScope;
+    return this;
+  }
+  
+  /**
+   * find attribute def names based on one attribute definition
+   */
+  private String attributeDefId;
+  
+  /**
+   * find attribute def names based on one attribute definition
+   * @param theAttributeDefId
+   * @return this for chaining
+   */
+  public AttributeDefNameFinder assignAttributeDefId(String theAttributeDefId) {
+    this.attributeDefId = theAttributeDefId;
+    return this;
+  }
+  
+  /**
+   * this is the subject that has certain privileges
+   */
+  private Subject subject;
+  
+  /**
+   * this is the subject that has certain privileges
+   * @param theSubject
+   * @return this for chaining
+   */
+  public AttributeDefNameFinder assignSubject(Subject theSubject) {
+    this.subject = theSubject;
+    return this;
+  }
+  
+  /**
+   * find attribute definition names where the static grouper session has certain privileges on the results
+   */
+  private Set<Privilege> privileges;
+  
+  /**
+   * assign privileges to filter by that the subject has on the attribute definition
+   * @param thePrivileges
+   * @return this for chaining
+   */
+  public AttributeDefNameFinder assignPrivileges(Set<Privilege> thePrivileges) {
+    this.privileges = thePrivileges;
+    return this;
+  }
+
+  /**
+   * add a privilege to filter by that the subject has on the attribute definition
+   * @param privilege should be AttributeDefPrivilege
+   * @return this for chaining
+   */
+  public AttributeDefNameFinder addPrivilege(Privilege privilege) {
+    
+    if (this.privileges == null) {
+      this.privileges = new HashSet<Privilege>();
+    }
+    
+    this.privileges.add(privilege);
+    
+    return this;
+  }
+  
+  /**
+   * if sorting or paging
+   */
+  private QueryOptions queryOptions;
+  
+  /**
+   * if sorting, paging, caching, etc
+   * @param theQueryOptions
+   * @return this for chaining
+   */
+  public AttributeDefNameFinder assignQueryOptions(QueryOptions theQueryOptions) {
+    this.queryOptions = theQueryOptions;
+    return this;
+  }
+  
+  /**
+   * if the scope has spaces in it, then split by whitespace, and find results that contain all of the scope strings
+   */
+  private boolean splitScope;
+  
+  /**
+   * if true then only return services the user can view based on memberships which have the 
+   * service, or folders which have the service, or attribute definitions which have the service,
+   * or the view privilege set
+   */
+  private boolean filterByServicesCanView;
+  
+  /**
+   * if true then only return services the user can view based on memberships which have the 
+   * service, or folders which have the service, or attribute definitions which have the service,
+   * or the view privilege set
+   * @param theFilterByServicesCanView 
+   * @return this for chaining
+   */
+  public AttributeDefNameFinder assignFilterByServicesCanView(boolean theFilterByServicesCanView) {
+    this.filterByServicesCanView = theFilterByServicesCanView;
+    return this;
+  }
+  
+  /**
+   * if the scope has spaces in it, then split by whitespace, and find results that contain all of the scope strings
+   * @param theSplitScope
+   * @return this for chaining
+   */
+  public AttributeDefNameFinder assignSplitScope(boolean theSplitScope) {
+    this.splitScope = theSplitScope;
+    return this;
+  }
+  
+  /**
+   * the type of assignment that the attributes can have
+   */
+  private AttributeAssignType attributeAssignType;
+  
+  /**
+   * the type of assignment that the attributes can have
+   * @param theAttributeAssignType
+   * @return this for chaining
+   */
+  public AttributeDefNameFinder assignAttributeAssignType(AttributeAssignType theAttributeAssignType) {
+    this.attributeAssignType = theAttributeAssignType;
+    return this;
+  }
+  
+  /**
+   * the type of attribute
+   */
+  private AttributeDefType attributeDefType;
+  
   /**
    * find an attributeDefName by id.  This is a secure method, a GrouperSession must be open
    * @param id of attributeDefName
@@ -42,6 +194,19 @@ public class AttributeDefNameFinder {
   public static AttributeDefName findById(String id, boolean exceptionIfNull) {
     AttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(id, exceptionIfNull);
     return attributeDefName;
+  }
+  
+  /**
+   * find all the attribute def names
+   * @return the set of attribute def names or the empty set if none found
+   */
+  public Set<AttributeDefName> findAttributeNames() {
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    return GrouperDAOFactory.getFactory().getAttributeDefName()
+      .findAllAttributeNamesSecure(this.scope, this.splitScope, grouperSession, 
+          this.attributeDefId, this.subject, this.privileges, 
+          this.queryOptions, this.attributeAssignType, this.attributeDefType, this.filterByServicesCanView);
   }
   
   /**
