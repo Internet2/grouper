@@ -3169,7 +3169,7 @@ public class AttributeAssignTest extends GrouperTest {
     //attribute def type
     attributeAssigns = GrouperDAOFactory.getFactory()
     .getAttributeAssign().findStemAttributeAssignments(null, GrouperUtil.toSet(attributeDef.getId()), 
-        null, null, null, true, false, AttributeDefType.domain, AttributeDefValueType.integer, "15");
+        null, null, null, true, false, AttributeDefType.service, AttributeDefValueType.integer, "15");
 
     assertEquals(0, attributeAssigns.size());
     
@@ -3484,7 +3484,7 @@ public class AttributeAssignTest extends GrouperTest {
     //Search for stem, should find it
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findStemAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(stem.getUuid()), 
-          null, true, AttributeDefType.domain, AttributeDefValueType.integer, "15", false, null, null, null, null, false);
+          null, true, AttributeDefType.service, AttributeDefValueType.integer, "15", false, null, null, null, null, false);
     
     //there is nothing assigned directly to the stem
     assertEquals(0, attributeAssigns.size());
@@ -3638,7 +3638,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findStemAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(stem.getUuid()), 
-          null, true, AttributeDefType.domain, null, null, false, null, null, null, null, false);
+          null, true, AttributeDefType.service, null, null, false, null, null, null, null, false);
     assertEquals(0, attributeAssigns.size());
     
     //test subject 0 can read the attribute assignment on assignment
@@ -3894,7 +3894,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findMemberAttributeAssignments(null, GrouperUtil.toSet(attributeDef.getId()), 
-          null, null, null, true, false, AttributeDefType.domain, AttributeDefValueType.floating, "1.5");
+          null, null, null, true, false, AttributeDefType.service, AttributeDefValueType.floating, "1.5");
 
     assertEquals(0, attributeAssigns.size());
   
@@ -4199,7 +4199,7 @@ public class AttributeAssignTest extends GrouperTest {
     //Search for stem, should find it
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findMemberAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(member.getUuid()), 
-          null, true, AttributeDefType.domain, AttributeDefValueType.floating, "1.5", false, null, null, null, null, false);
+          null, true, AttributeDefType.service, AttributeDefValueType.floating, "1.5", false, null, null, null, null, false);
     
     //there is nothing assigned directly to the stem
     assertEquals(0, attributeAssigns.size());
@@ -4622,7 +4622,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     attributeAssigns = GrouperDAOFactory.getFactory()
     .getAttributeAssign().findGroupAttributeAssignments(null, GrouperUtil.toSet(attributeDef.getId()), 
-        null, null, null, true, false, AttributeDefType.domain, AttributeDefValueType.integer, "15");
+        null, null, null, true, false, AttributeDefType.service, AttributeDefValueType.integer, "15");
   
     assertEquals(0, attributeAssigns.size());
   
@@ -5009,7 +5009,7 @@ public class AttributeAssignTest extends GrouperTest {
     //Search for stem, should find it
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), 
-          null, true, AttributeDefType.domain, AttributeDefValueType.string, "15a", false, null, null, null, null, false);
+          null, true, AttributeDefType.service, AttributeDefValueType.string, "15a", false, null, null, null, null, false);
     
     //there is nothing assigned directly to the stem
     assertEquals(0, attributeAssigns.size());
@@ -5163,7 +5163,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(group.getUuid()), 
-          null, true, AttributeDefType.domain, null, null, false, null, null, null, null, false);
+          null, true, AttributeDefType.service, null, null, false, null, null, null, null, false);
     assertEquals(0, attributeAssigns.size());
     
     //test subject 0 can read the attribute assignment on assignment
@@ -5479,7 +5479,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     attributeAssigns = GrouperDAOFactory.getFactory()
     .getAttributeAssign().findAttributeDefAttributeAssignments(null, GrouperUtil.toSet(attributeDef.getId()), 
-        null, null, null, true, false, AttributeDefType.domain, AttributeDefValueType.timestamp, "2010/01/02");
+        null, null, null, true, false, AttributeDefType.service, AttributeDefValueType.timestamp, "2010/01/02");
   
     assertEquals(0, attributeAssigns.size());
   
@@ -5877,7 +5877,7 @@ public class AttributeAssignTest extends GrouperTest {
     //Search for stem, should find it
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findAttributeDefAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(ownerAttributeDef.getUuid()), 
-          null, true, AttributeDefType.domain, AttributeDefValueType.memberId, memberId, false, null, null, null, null, false);
+          null, true, AttributeDefType.service, AttributeDefValueType.memberId, memberId, false, null, null, null, null, false);
     
     //there is nothing assigned directly to the stem
     assertEquals(0, attributeAssigns.size());
@@ -6039,7 +6039,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findAttributeDefAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(ownerAttributeDef.getUuid()), 
-          null, true, AttributeDefType.domain, null, null, false, null, null, null, null, false);
+          null, true, AttributeDefType.service, null, null, false, null, null, null, null, false);
     assertEquals(0, attributeAssigns.size());
     
     //test subject 0 can read the attribute assignment on assignment
@@ -6359,7 +6359,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     attributeAssigns = GrouperDAOFactory.getFactory()
     .getAttributeAssign().findMembershipAttributeAssignments(null, GrouperUtil.toSet(attributeDef.getId()), 
-        null, null, null, true, false, AttributeDefType.domain, AttributeDefValueType.integer, "15");
+        null, null, null, true, false, AttributeDefType.service, AttributeDefValueType.integer, "15");
   
     assertEquals(0, attributeAssigns.size());
   
@@ -6757,7 +6757,7 @@ public class AttributeAssignTest extends GrouperTest {
     //Search for stem, should find it
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findMembershipAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(membership.getImmediateMembershipId()), 
-          null, true, AttributeDefType.domain, AttributeDefValueType.string, "15a", false, null, null, null, null, false);
+          null, true, AttributeDefType.service, AttributeDefValueType.string, "15a", false, null, null, null, null, false);
     
     //there is nothing assigned directly to the stem
     assertEquals(0, attributeAssigns.size());
@@ -6911,7 +6911,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findMembershipAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(membership.getImmediateMembershipId()), 
-          null, true, AttributeDefType.domain, null, null, false, null, null, null, null, false);
+          null, true, AttributeDefType.service, null, null, false, null, null, null, null, false);
     assertEquals(0, attributeAssigns.size());
     
     //test subject 0 can read the attribute assignment on assignment
@@ -7256,7 +7256,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     attributeAssigns = GrouperDAOFactory.getFactory()
     .getAttributeAssign().findAnyMembershipAttributeAssignments(null, GrouperUtil.toSet(attributeDef.getId()), 
-        null, null, null, true, false, AttributeDefType.domain, AttributeDefValueType.integer, "15");
+        null, null, null, true, false, AttributeDefType.service, AttributeDefValueType.integer, "15");
   
     assertEquals(0, attributeAssigns.size());
   
@@ -7674,7 +7674,7 @@ public class AttributeAssignTest extends GrouperTest {
     //Search for stem, should find it
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findAnyMembershipAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(multiKey1), 
-          null, true, AttributeDefType.domain, AttributeDefValueType.string, "15a", false, null, null, null, null, false);
+          null, true, AttributeDefType.service, AttributeDefValueType.string, "15a", false, null, null, null, null, false);
     
     //there is nothing assigned directly to the stem
     assertEquals(0, attributeAssigns.size());
@@ -7828,7 +7828,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findAnyMembershipAttributeAssignmentsOnAssignments(null, null, null, GrouperUtil.toSet(multiKey1), 
-          null, true, AttributeDefType.domain, null, null, false, null, null, null, null, false);
+          null, true, AttributeDefType.service, null, null, false, null, null, null, null, false);
     assertEquals(0, attributeAssigns.size());
     
     //test subject 0 can read the attribute assignment on assignment
