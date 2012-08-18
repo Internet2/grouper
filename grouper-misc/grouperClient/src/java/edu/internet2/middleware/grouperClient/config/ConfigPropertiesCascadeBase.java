@@ -9,8 +9,10 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
@@ -26,6 +28,158 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 public abstract class ConfigPropertiesCascadeBase {
 
   /**
+   * config key of the time in seconds to check config.  -1 means dont check again
+   * @return config key
+   */
+  protected abstract String getSecondsToCheckConfigKey();
+  
+  /**
+   * if there are things that are calculated, clear them out (e.g. if an override is set)
+   */
+  public abstract void clearCachedCalculatedValues();
+  
+  /** override map for properties in thread local to be used in a web server or the like */
+  private static ThreadLocal<Map<Class<? extends ConfigPropertiesCascadeBase>, Map<String, String>>> propertiesThreadLocalOverrideMap 
+    = new ThreadLocal<Map<Class<? extends ConfigPropertiesCascadeBase>, Map<String, String>>>();
+
+  /**
+   * override map for properties in thread local to be used in a web server or the like, based on property class
+   * this is static since the properties class can get reloaded, but these shouldnt
+   * @param configClass 
+   * @return the override map
+   */
+  public Map<String, String> propertiesThreadLocalOverrideMap() {
+    Map<Class<? extends ConfigPropertiesCascadeBase>, Map<String, String>> overrideMap = propertiesThreadLocalOverrideMap.get();
+    if (overrideMap == null) {
+      overrideMap = new HashMap<Class<? extends ConfigPropertiesCascadeBase>, Map<String, String>>();
+      propertiesThreadLocalOverrideMap.set(overrideMap);
+    }
+    Map<String, String> propertiesOverrideMap = overrideMap.get(this.getClass());
+    if (propertiesOverrideMap == null) {
+      propertiesOverrideMap = new HashMap<String, String>();
+      overrideMap.put(this.getClass(), propertiesOverrideMap);
+    }
+    return propertiesOverrideMap;
+  }
+
+  /** override map for properties, for testing, put properties in here, based on config class
+   * this is static since the properties class can get reloaded, but these shouldnt
+   */
+  private static Map<Class<? extends ConfigPropertiesCascadeBase>, Map<String, String>> propertiesOverrideMap 
+    = new LinkedHashMap<Class<? extends ConfigPropertiesCascadeBase>, Map<String, String>>();
+
+  /**
+   * override map for properties for testing
+   * @return the override map
+   */
+  public Map<String, String> propertiesOverrideMap() {
+    Map<String, String> overrideMap = propertiesOverrideMap.get(this.getClass());
+    if (overrideMap == null) {
+      overrideMap = new LinkedHashMap<String, String>();
+      propertiesOverrideMap.put(this.getClass(), overrideMap);
+    }
+    return overrideMap;
+  }
+
+  /** properties from the properties file(s) */
+  private Properties properties = new Properties();
+
+  /**
+   * get the property value as a string
+   * @param key
+   * @param defaultValue
+   * @param required true if required, if doesnt exist, throw exception
+   * @return the property value
+   */
+  public String propertyValueStringRequired(String key) {
+    return propertyValueString(key, null, true);
+  }
+
+  /**
+   * get the property value as a string
+   * @param key
+   * @param defaultValue
+   * @param required true if required, if doesnt exist, throw exception
+   * @return the property value
+   */
+  public String propertyValueString(String key, String defaultValue) {
+    return propertyValueString(key, defaultValue, false);
+  }
+
+  /**
+   * get the property value as a string
+   * @param key
+   * @param defaultValue
+   * @param required true if required, if doesnt exist, throw exception
+   * @return the property value
+   */
+  protected String propertyValueString(String key, String defaultValue, boolean required) {
+    
+    //first check threadlocal map
+    Map<String, String> overrideMap = propertiesThreadLocalOverrideMap();
+
+    String value = overrideMap == null ? null : overrideMap.get(key);
+    if (GrouperClientUtils.isBlank(value)) {
+      
+      overrideMap = propertiesOverrideMap();
+      
+      value = overrideMap == null ? null : overrideMap.get(key);
+    }
+    if (GrouperClientUtils.isBlank(value)) {
+      value = properties.getProperty(key);
+    }
+    value = GrouperClientUtils.trim(value);
+    value = substituteCommonVars(value);
+
+    if (!required && GrouperClientUtils.isBlank(value)) {
+      return defaultValue;
+    }
+
+    //do the validation if this is required
+    if (required && GrouperClientUtils.isBlank(value)) {
+      String error = "Cant find property " + key + " in properties file: " + this.getMainConfigClasspath() + ", it is required";
+      
+      throw new RuntimeException(error);
+    }
+    
+    return value;
+  }
+
+  /**
+   * substitute common vars like $space$ and $newline$
+   * @param string
+   * @return the string
+   */
+  protected static String substituteCommonVars(String string) {
+    if (string == null) {
+      return string;
+    }
+    //short circuit
+    if (string.indexOf('$') < 0) {
+      return string;
+    }
+    //might have $space$
+    string = GrouperClientUtils.replace(string, "$space$", " ");
+    
+    //note, at some point we could be OS specific
+    string = GrouperClientUtils.replace(string, "$newline$", "\n"); 
+    return string;
+  }
+
+  /**
+   * when this config object was created
+   */
+  private long createdTime = System.currentTimeMillis();
+
+  /**
+   * when this config object was created
+   * @return the createdTime
+   */
+  long getCreatedTime() {
+    return this.createdTime;
+  }
+
+  /**
    * when this config object was created or last checked for changes
    */
   private long lastCheckedTime = System.currentTimeMillis();
@@ -34,20 +188,20 @@ public abstract class ConfigPropertiesCascadeBase {
    * when this config object was created or last checked for changes
    * @return created time or last checked
    */
-  protected long getLastCheckedTime() {
+  long getLastCheckedTime() {
     return this.lastCheckedTime;
   }
   
   /**
    * when we build the config object, get the time to check config in seconds
    */
-  private Long timeToCheckConfigSeconds = null;
+  private Integer timeToCheckConfigSeconds = null;
   
   /**
    * when we build the config object, get the time to check config in seconds
    * @return the time to check config foe changes (in seconds)
    */
-  protected Long getTimeToCheckConfigSeconds() {
+  protected Integer getTimeToCheckConfigSeconds() {
     return this.timeToCheckConfigSeconds;
   }
   
@@ -240,21 +394,112 @@ public abstract class ConfigPropertiesCascadeBase {
   }
   
   /**
-   * config file
+   * config files from least specific to more specific
    */
   private List<ConfigFile> configFiles = null;
   
+  /**
+   * get the config object from config files
+   * @return the config object
+   */
+  protected ConfigPropertiesCascadeBase retrieveFromConfigFiles() {
+    
+    //lets get the config hierarchy...
+    //properties from override first
+    Properties mainConfigFile = propertiesFromResourceName(this.getMainConfigClasspath(), false);
+
+    String secondsToCheckConfigString = null;
+    
+    String overrideFullConfig = null;
+    
+    if (mainConfigFile != null) {
+      overrideFullConfig = mainConfigFile.getProperty(this.getHierarchyConfigKey());
+      secondsToCheckConfigString = mainConfigFile.getProperty(this.getSecondsToCheckConfigKey());
+    }
+    
+    //if couldnt find it from the override, get from example
+    if (GrouperClientUtils.isBlank(overrideFullConfig) || GrouperClientUtils.isBlank(secondsToCheckConfigString)) {
+      
+      Properties mainExampleConfigFile = propertiesFromResourceName(this.getMainExampleConfigClasspath(), false);
+      
+      if (mainExampleConfigFile != null) {
+        
+        if (GrouperClientUtils.isBlank(overrideFullConfig)) {
+          overrideFullConfig = mainExampleConfigFile.getProperty(this.getHierarchyConfigKey());
+        }
+        if (GrouperClientUtils.isBlank(secondsToCheckConfigString)) {
+          secondsToCheckConfigString = mainExampleConfigFile.getProperty(this.getSecondsToCheckConfigKey());
+        }
+
+      }
+      
+    }
+
+    //if hasnt found yet, there is a problem
+    if (GrouperClientUtils.isBlank(overrideFullConfig)) {
+      throw new RuntimeException("Cant find the hierarchy config key: " + this.getHierarchyConfigKey() 
+          + " in config files: " + this.getMainConfigClasspath()
+          + " or " + this.getMainExampleConfigClasspath());
+    }
+    
+    //if hasnt found yet, there is a problem
+    if (GrouperClientUtils.isBlank(secondsToCheckConfigString)) {
+      throw new RuntimeException("Cant find the seconds to check config key: " + this.getSecondsToCheckConfigKey() 
+          + " in config files: " + this.getMainConfigClasspath()
+          + " or " + this.getMainExampleConfigClasspath());
+    }
+
+    //make a new return object based on this class
+    ConfigPropertiesCascadeBase result = GrouperClientUtils.newInstance(this.getClass());
+
+    try {
+      result.timeToCheckConfigSeconds = GrouperClientUtils.intValue(secondsToCheckConfigString);
+    } catch (Exception e) {
+      throw new RuntimeException("Invalid integer seconds to check config config value: " + secondsToCheckConfigString
+          + ", key: " + this.getSecondsToCheckConfigKey() 
+          + " in config files: " + this.getMainConfigClasspath()
+          + " or " + this.getMainExampleConfigClasspath());
+      
+    }
+    
+    //ok, we have the config file list...
+    //lets get this into a comma separated list
+    List<String> overrideConfigStringList = GrouperClientUtils.splitTrimToList(overrideFullConfig, ",");
+
+    result.configFiles = new ArrayList<ConfigFile>();
+
+    for (String overrideConfigString : overrideConfigStringList) {
+      
+      ConfigFile configFile = new ConfigFile(overrideConfigString);
+      result.configFiles.add(configFile);
+      
+      //lets append the properties
+      InputStream inputStream = configFile.getConfigFileType().inputStream(configFile.getConfigFileTypeConfig());
+      
+      try {
+        result.properties.load(inputStream);
+      } catch (Exception e) {
+        throw new RuntimeException("Problem loading properties: " + overrideConfigString, e);
+      }
+    }
+    
+    return result;
+    
+  }
+      
   /**
    * see if there is one in cache, if so, use it, if not, get from config files
    * @return the config from file or cache
    */
   protected ConfigPropertiesCascadeBase retrieveFromConfigFileOrCache() {
     ConfigPropertiesCascadeBase configObject = configFileCache.get(this.getClass());
-    boolean calculateConfigFromFiles = configObject == null;
     
     if (configObject == null) {
       
       LOG.debug("Config file has not be created yet, will create now: " + this.getMainConfigClasspath());
+      
+      configObject = retrieveFromConfigFiles();
+      configFileCache.put(this.getClass(), configObject);
       
     } else {
       
@@ -268,16 +513,16 @@ public abstract class ConfigPropertiesCascadeBase {
           //check again in case another thread did it
           if (configObject.needToCheckIfFilesNeedReloading()) {
             
-            calculateConfigFromFiles = configObject.filesNeedReloadingBasedOnContents();
-            
+            if (configObject.filesNeedReloadingBasedOnContents()) {
+              configObject = retrieveFromConfigFiles();
+              configFileCache.put(this.getClass(), configObject);
+            }
           }
         }
-        
       }
-      
-      
     }
-    return null;
+    
+    return configObject;
   }
   
   /**
@@ -290,7 +535,12 @@ public abstract class ConfigPropertiesCascadeBase {
     long lastCheckedTime = this.getLastCheckedTime();
     
     //get the timeToCheckSeconds if different
-    long timeToCheckSeconds = this.getTimeToCheckConfigSeconds();
+    int timeToCheckSeconds = this.getTimeToCheckConfigSeconds();
+    
+    //never reload.  0 means reload all the time?
+    if (timeToCheckSeconds < 0) {
+      return false;
+    }
     
     //see if that much time has passed
     if (System.currentTimeMillis() - lastCheckedTime > timeToCheckSeconds * 1000) {
@@ -327,12 +577,190 @@ public abstract class ConfigPropertiesCascadeBase {
    * get the main config classpath, e.g. grouper.properties
    * @return the classpath of the main config file
    */
-  public abstract String getMainConfigClasspath();
+  protected abstract String getMainConfigClasspath();
+  
+  /**
+   * config key of the hierarchy value
+   * @return the classpath of the main config file
+   */
+  protected abstract String getHierarchyConfigKey();
   
   /**
    * get the example config classpath, e.g. grouper.example.properties
    * @return the classpath of the example config file
    */
-  public abstract String getMainExampleConfigClasspath();
+  protected abstract String getMainExampleConfigClasspath();
+
+  /**
+   * get a boolean and validate from grouper.client.properties
+   * @param key
+   * @param defaultValue
+   * @param required
+   * @return the string
+   */
+  public boolean propertyValueBoolean(String key, boolean defaultValue) {
+    return propertyValueBoolean(key, defaultValue, false);
+  }
+
+
+  /**
+   * get a boolean and validate from the config file
+   * @param key
+   * @param defaultValue
+   * @param required
+   * @return the string
+   */
+  protected boolean propertyValueBoolean(String key, boolean defaultValue, boolean required) {
+    String value = propertyValueString(key, null, false);
+    if (GrouperClientUtils.isBlank(value) && !required) {
+      return defaultValue;
+    }
+    if (GrouperClientUtils.isBlank(value) && required) {
+      throw new RuntimeException("Cant find boolean property " + key + " in properties file: " + this.getMainConfigClasspath() + ", it is required, expecting true or false");
+    }
+    if ("true".equalsIgnoreCase(value)) {
+      return true;
+    }
+    if ("false".equalsIgnoreCase(value)) {
+      return false;
+    }
+    if ("t".equalsIgnoreCase(value)) {
+      return true;
+    }
+    if ("f".equalsIgnoreCase(value)) {
+      return false;
+    }
+    if ("yes".equalsIgnoreCase(value)) {
+      return true;
+    }
+    if ("no".equalsIgnoreCase(value)) {
+      return false;
+    }
+    if ("y".equalsIgnoreCase(value)) {
+      return true;
+    }
+    if ("n".equalsIgnoreCase(value)) {
+      return false;
+    }
+    throw new RuntimeException("Invalid boolean value: '" + value + "' for property: " + key 
+        + " in properties file: " + this.getMainConfigClasspath() + ", expecting true or false");
+    
+  }
+
+  /**
+   * get an int and validate from the config file
+   * @param key
+   * @param defaultValue
+   * @param required
+   * @return the string
+   */
+  protected int propertyValueInt(String key, int defaultValue, boolean required) {
+    String value = propertyValueString(key, null, false);
+    if (GrouperClientUtils.isBlank(value) && !required) {
+      return defaultValue;
+    }
+    if (GrouperClientUtils.isBlank(value) && required) {
+      throw new RuntimeException("Cant find integer property " + key + " in config file: " + this.getMainConfigClasspath() + ", it is required");
+    }
+    try {
+      return GrouperClientUtils.intValue(value);
+    } catch (Exception e) {
+      
+    }
+    throw new RuntimeException("Invalid integer value: '" + value + "' for property: " 
+        + key + " in config file: " + this.getMainConfigClasspath() + " in properties file");
+    
+  }
+
+  /**
+   * get a boolean and validate from grouper.client.properties
+   * @param key
+   * @param defaultValue
+   * @param required
+   * @return the string
+   */
+  public boolean propertyValueBooleanRequired(String key) {
+    
+    return propertyValueBoolean(key, false, true);
+    
+  }
   
+  /**
+   * get a boolean and validate from grouper.client.properties
+   * @param key
+   * @param defaultValue
+   * @param required
+   * @return the string
+   */
+  public int propertyValueIntRequired(String key) {
+    
+    return propertyValueInt(key, -1, true);
+    
+  }
+  
+  /**
+   * get a boolean and validate from grouper.client.properties
+   * @param key
+   * @param defaultValue
+   * @param required
+   * @return the string
+   */
+  public int propertyValueInt(String key, int defaultValue ) {
+
+    return propertyValueInt(key, defaultValue, false);
+  
+  }
+  
+  /**
+   * read properties from a resource, dont modify the properties returned since they are cached
+   * @param resourceName
+   * @param useCache 
+   * @param exceptionIfNotExist 
+   * @param classInJar if not null, then look for the jar where this file is, and look in the same dir
+   * @param callingLog 
+   * @return the properties or null if not exist
+   */
+  protected static Properties propertiesFromResourceName(String resourceName, 
+      boolean exceptionIfNotExist) {
+
+    Properties properties = new Properties();
+
+    URL url = null;
+    
+    try {
+      
+      url = GrouperClientUtils.computeUrl(resourceName, true);
+      
+    } catch (Exception e) {
+      
+      //I guess this ok
+      if (LOG.isInfoEnabled()) {
+         LOG.info("Problem loading config file: " + resourceName, e); 
+      }
+      
+    }
+    
+    if (url == null && exceptionIfNotExist) {
+      throw new RuntimeException("Problem loading config file: " + resourceName);
+    }
+    
+    if (url == null) {
+      return null;
+    }
+    
+    InputStream inputStream = null;
+    try {
+      inputStream = url.openStream();
+      properties.load(inputStream);
+      
+    } catch (Exception e) {
+      
+      //why exception at this point?  not good
+      throw new RuntimeException("Problem loading config file: " + resourceName, e);
+      
+    }
+    return properties;
+  }
+
+
 }

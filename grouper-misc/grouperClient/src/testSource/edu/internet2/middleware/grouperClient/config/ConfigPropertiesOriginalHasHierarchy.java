@@ -6,19 +6,19 @@ package edu.internet2.middleware.grouperClient.config;
  * @author mchyzer
  *
  */
-public class ConfigPropertiesOverrideHasHierarchy extends ConfigPropertiesCascadeBase {
+public class ConfigPropertiesOriginalHasHierarchy extends ConfigPropertiesCascadeBase {
 
   /**
    * this is used to tell engine where the default and example config is...
    */
-  private static ConfigPropertiesOverrideHasHierarchy configSingleton = new ConfigPropertiesOverrideHasHierarchy();
+  private static ConfigPropertiesOriginalHasHierarchy configSingleton = new ConfigPropertiesOriginalHasHierarchy();
   
   /**
    * retrieve a config from the config file or from cache
    * @return the config object
    */
-  public static ConfigPropertiesOverrideHasHierarchy retrieveConfig() {
-    return (ConfigPropertiesOverrideHasHierarchy)configSingleton.retrieveFromConfigFileOrCache();
+  public static ConfigPropertiesOriginalHasHierarchy retrieveConfig() {
+    return (ConfigPropertiesOriginalHasHierarchy)configSingleton.retrieveFromConfigFileOrCache();
   }
 
   /**
@@ -26,7 +26,7 @@ public class ConfigPropertiesOverrideHasHierarchy extends ConfigPropertiesCascad
    */
   @Override
   protected String getMainConfigClasspath() {
-    return "testCascadeConfig.properties";
+    return "testCascadeConfig2.properties";
   }
 
   /**
@@ -34,7 +34,7 @@ public class ConfigPropertiesOverrideHasHierarchy extends ConfigPropertiesCascad
    */
   @Override
   protected String getMainExampleConfigClasspath() {
-    return "testCascadeConfig-example.properties";
+    return "testCascadeConfig-example2.properties";
   }
 
   /**
@@ -50,7 +50,7 @@ public class ConfigPropertiesOverrideHasHierarchy extends ConfigPropertiesCascad
    */
   @Override
   protected String getHierarchyConfigKey() {
-    return "config.hierarchy";
+    return "config.hierarchy2";
   }
 
   /**
@@ -58,7 +58,7 @@ public class ConfigPropertiesOverrideHasHierarchy extends ConfigPropertiesCascad
    */
   @Override
   protected String getSecondsToCheckConfigKey() {
-    return "config.checkConfigEverySeconds";
+    return "config.checkConfigEverySeconds2";
   }
   
   
