@@ -149,7 +149,7 @@ public class GrouperClient {
   /**
    * 
    */
-  static Log log = GrouperClientUtils.retrieveLog(GrouperClient.class);
+  private static Log log = GrouperClientUtils.retrieveLog(GrouperClient.class);
 
   /** ldap operations from config file */
   private static Map<String, GcLdapSearchAttributeConfig> ldapOperations = null;

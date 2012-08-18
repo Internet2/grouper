@@ -6,6 +6,8 @@
 	<classpathentry kind="src" path="src/custom"/>
 	<classpathentry kind="src" path="src/extCustom"/>
 	<classpathentry kind="src" path="src/extMore"/>
+	<classpathentry kind="src" path="src/testConf"/>
+	<classpathentry kind="src" path="src/testSource"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/xstream/jdom-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/xstream/jettison-1.0-RC2.jar"/>
