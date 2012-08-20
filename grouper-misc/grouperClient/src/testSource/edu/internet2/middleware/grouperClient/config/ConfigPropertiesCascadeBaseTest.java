@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouperClient.config;
 
 import java.util.Date;
+import java.util.Set;
 
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
@@ -17,7 +18,7 @@ public class ConfigPropertiesCascadeBaseTest extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ConfigPropertiesCascadeBaseTest("testAutoReload"));
+    TestRunner.run(new ConfigPropertiesCascadeBaseTest("testOverrideHasHierarchy"));
   }
   
   /**
@@ -29,7 +30,7 @@ public class ConfigPropertiesCascadeBaseTest extends TestCase {
   }
 
   /**
-   * 
+   * testCascadeConfig.properties
    */
   public void testOverrideHasHierarchy() {
     
@@ -43,17 +44,98 @@ public class ConfigPropertiesCascadeBaseTest extends TestCase {
     assertEquals("something", ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueStringRequired("test1"));
     assertEquals("somethingElse2", ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueStringRequired("test2"));
     assertEquals("yet another something", ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueStringRequired("test3"));
-    assertNull(ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueString("test4", null));
+    assertEquals("abc", ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueString("test4", "abc"));
+    assertNull(ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueString("test4"));
     try {
       ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueStringRequired("test4");
       fail("Shouldnt get here");
     } catch (Exception e) {
       //good
     }
+    
+    assertEquals(4, ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueIntRequired("someInt"));
+    
+    try {
+      ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueIntRequired("someInt2");
+      fail("Should catch bad type");
+    } catch (Exception e) {
+      //good
+    }
+    
+    try {
+      ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueIntRequired("someInt123");
+      fail("Doesnt exist");
+    } catch (Exception e) {
+      //good
+    }
+    
+    assertEquals(-1, ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueInt("someInt123", -1));
+    assertNull(ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueInt("someInt123"));
+
+    //
+    assertEquals(true, ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueBooleanRequired("someBool"));
+    
+    try {
+      ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueBooleanRequired("someBool2");
+      fail("Should catch bad type");
+    } catch (Exception e) {
+      //good
+    }
+
+    try {
+      ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueBooleanRequired("someBool123");
+      fail("Doesnt exist");
+    } catch (Exception e) {
+      //good
+    }
+    
+    assertEquals(true, ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueBoolean("someBool123", true));
+    assertNull(ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueBoolean("someBool123"));
+    
+    //
+    assertTrue(ConfigPropertiesOverrideHasHierarchy.retrieveConfig().containsKey("someBool"));
+    assertTrue(ConfigPropertiesOverrideHasHierarchy.retrieveConfig().containsKey("someBool2"));
+
+    //test override map
+    ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertiesOverrideMap().put("somethingNotExisting", "this is the value");
+    ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertiesOverrideMap().put("somethingNotExistingNull", null);
+    ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertiesOverrideMap().put("something", "qwer");
+    
+    assertEquals("this is the value", ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueString("somethingNotExisting"));
+    assertEquals("qwer", ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueString("something"));
+    assertTrue(ConfigPropertiesOverrideHasHierarchy.retrieveConfig().containsKey("somethingNotExisting"));
+    assertEquals(null, ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueString("somethingNotExistingNull"));
+    assertTrue(ConfigPropertiesOverrideHasHierarchy.retrieveConfig().containsKey("somethingNotExistingNull"));
+    
+    //test threadlocal override map
+    ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertiesThreadLocalOverrideMap().put("somethingNotExistingAgain", "this is the other value");
+    ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertiesOverrideMap().put("somethingNotExistingAgainNull", null);
+    ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertiesOverrideMap().put("something", "zxcv");
+    
+    assertEquals("this is the other value", ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueString("somethingNotExistingAgain"));
+    assertEquals("zxcv", ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueString("something"));
+    assertTrue(ConfigPropertiesOverrideHasHierarchy.retrieveConfig().containsKey("somethingNotExistingAgain"));
+    assertEquals(null, ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueString("somethingNotExistingAgainNull"));
+    assertTrue(ConfigPropertiesOverrideHasHierarchy.retrieveConfig().containsKey("somethingNotExistingAgainNull"));
+    
+    //propertyNames
+    Set<String> propertyNames = ConfigPropertiesOverrideHasHierarchy.retrieveConfig().getPropertyNames();
+    
+    assertTrue(propertyNames.contains("test1"));
+    assertTrue(propertyNames.contains("test2"));
+    assertFalse(propertyNames.contains("test4"));
+    assertTrue(propertyNames.contains("somethingNotExisting"));
+    assertTrue(propertyNames.contains("somethingNotExistingNull"));
+    assertTrue(propertyNames.contains("somethingNotExistingAgain"));
+    assertTrue(propertyNames.contains("somethingNotExistingAgainNull"));
+    assertTrue(propertyNames.contains("something"));
+    
+    
+    
   }
   
   /**
-   * 
+   * testCascadeConfig2.properties
    */
   public void testOriginalHasHierarchy() {
     

@@ -10,9 +10,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
@@ -69,6 +71,33 @@ public abstract class ConfigPropertiesCascadeBase {
     = new LinkedHashMap<Class<? extends ConfigPropertiesCascadeBase>, Map<String, String>>();
 
   /**
+   * 
+   * @return the set of names
+   */
+  @SuppressWarnings("unchecked")
+  public Set<String> getPropertyNames() {
+    Set<String> result = new LinkedHashSet<String>();
+    
+    for (String propertyName : (Set<String>)(Object)this.properties.keySet()) {
+      result.add(propertyName);
+    }
+
+    Map<String, String> localPropertiesOverrideMap = propertiesOverrideMap();
+    
+    if (localPropertiesOverrideMap != null) {
+      result.addAll(localPropertiesOverrideMap.keySet());
+    }
+
+    localPropertiesOverrideMap = propertiesThreadLocalOverrideMap();
+    
+    if (localPropertiesOverrideMap != null) {
+      result.addAll(localPropertiesOverrideMap.keySet());
+    }
+    
+    return result;
+  }
+
+  /**
    * override map for properties for testing
    * @return the override map
    */
@@ -92,7 +121,7 @@ public abstract class ConfigPropertiesCascadeBase {
    * @return the property value
    */
   public String propertyValueStringRequired(String key) {
-    return propertyValueString(key, null, true);
+    return propertyValueString(key, null, true).getTheValue();
   }
 
   /**
@@ -103,9 +132,81 @@ public abstract class ConfigPropertiesCascadeBase {
    * @return the property value
    */
   public String propertyValueString(String key, String defaultValue) {
-    return propertyValueString(key, defaultValue, false);
+    return propertyValueString(key, defaultValue, false).getTheValue();
   }
 
+  /**
+   * get the property value as a string or null if not there
+   * @param key
+   * @param required true if required, if doesnt exist, throw exception
+   * @return the property value
+   */
+  public String propertyValueString(String key) {
+    return propertyValueString(key, null, false).getTheValue();
+  }
+
+  /**
+   * result of a property value
+   */
+  static class PropertyValueResult {
+
+    
+    /**
+     * 
+     * @param theValue1
+     * @param hasKey1
+     */
+    public PropertyValueResult(String theValue1, boolean hasKey1) {
+      super();
+      this.theValue = theValue1;
+      this.hasKey = hasKey1;
+    }
+
+
+    /** value from lookup */
+    private String theValue;
+    
+    /** if there is a key in the properties file */
+    private boolean hasKey;
+
+    
+    /**
+     * value from lookup
+     * @return the theValue
+     */
+    public String getTheValue() {
+      return this.theValue;
+    }
+
+    
+    /**
+     * value from lookup
+     * @param theValue1 the theValue to set
+     */
+    public void setTheValue(String theValue1) {
+      this.theValue = theValue1;
+    }
+
+    
+    /**
+     * if there is a key in the properties file
+     * @return the hasKey
+     */
+    public boolean isHasKey() {
+      return this.hasKey;
+    }
+
+    
+    /**
+     * if there is a key in the properties file
+     * @param hasKey1 the hasKey to set
+     */
+    public void setHasKey(boolean hasKey1) {
+      this.hasKey = hasKey1;
+    }
+    
+  }
+  
   /**
    * get the property value as a string
    * @param key
@@ -113,36 +214,48 @@ public abstract class ConfigPropertiesCascadeBase {
    * @param required true if required, if doesnt exist, throw exception
    * @return the property value
    */
-  protected String propertyValueString(String key, String defaultValue, boolean required) {
+  protected PropertyValueResult propertyValueString(String key, String defaultValue, boolean required) {
     
     //first check threadlocal map
+    boolean hasKey = false;
     Map<String, String> overrideMap = propertiesThreadLocalOverrideMap();
-
-    String value = overrideMap == null ? null : overrideMap.get(key);
-    if (GrouperClientUtils.isBlank(value)) {
+    
+    hasKey = overrideMap == null ? false : overrideMap.containsKey(key);
+    String value = hasKey ? overrideMap.get(key) : null;
+    if (!hasKey) {
       
       overrideMap = propertiesOverrideMap();
       
-      value = overrideMap == null ? null : overrideMap.get(key);
+      hasKey = overrideMap == null ? null : overrideMap.containsKey(key);
+      value = hasKey ? overrideMap.get(key) : null;
     }
-    if (GrouperClientUtils.isBlank(value)) {
-      value = properties.getProperty(key);
+    if (!hasKey) {
+      hasKey = this.properties.containsKey(key);
+      value = hasKey ? this.properties.getProperty(key) : null;
+    }
+    if (!required && !hasKey) {
+      return new PropertyValueResult(defaultValue, false);
+    }
+    if (required && !hasKey) {
+      String error = "Cant find property: " + key + " in properties file: " + this.getMainConfigClasspath() + ", it is required";
+      
+      throw new RuntimeException(error);
     }
     value = GrouperClientUtils.trim(value);
     value = substituteCommonVars(value);
 
     if (!required && GrouperClientUtils.isBlank(value)) {
-      return defaultValue;
+      return new PropertyValueResult(null, true);
     }
 
     //do the validation if this is required
     if (required && GrouperClientUtils.isBlank(value)) {
-      String error = "Cant find property " + key + " in properties file: " + this.getMainConfigClasspath() + ", it is required";
+      String error = "Property " + key + " in properties file: " + this.getMainConfigClasspath() + ", has a blank value, it is required";
       
       throw new RuntimeException(error);
     }
     
-    return value;
+    return new PropertyValueResult(value, true);
   }
 
   /**
@@ -602,6 +715,28 @@ public abstract class ConfigPropertiesCascadeBase {
     return propertyValueBoolean(key, defaultValue, false);
   }
 
+  /**
+   * if the key is there, whether or not the value is blank
+   * @param key
+   * @return true or false
+   */
+  public boolean containsKey(String key) {
+    
+    return propertyValueString(key, null, false).isHasKey();
+    
+  }
+  
+  /**
+   * get a boolean and validate from grouper.client.properties or null if not there
+   * @param key
+   * @param defaultValue
+   * @param required
+   * @return the boolean or null
+   */
+  public Boolean propertyValueBoolean(String key) {
+    return propertyValueBoolean(key, null, false);
+  }
+
 
   /**
    * get a boolean and validate from the config file
@@ -610,8 +745,8 @@ public abstract class ConfigPropertiesCascadeBase {
    * @param required
    * @return the string
    */
-  protected boolean propertyValueBoolean(String key, boolean defaultValue, boolean required) {
-    String value = propertyValueString(key, null, false);
+  protected Boolean propertyValueBoolean(String key, Boolean defaultValue, boolean required) {
+    String value = propertyValueString(key, null, false).getTheValue();
     if (GrouperClientUtils.isBlank(value) && !required) {
       return defaultValue;
     }
@@ -654,8 +789,8 @@ public abstract class ConfigPropertiesCascadeBase {
    * @param required
    * @return the string
    */
-  protected int propertyValueInt(String key, int defaultValue, boolean required) {
-    String value = propertyValueString(key, null, false);
+  protected Integer propertyValueInt(String key, Integer defaultValue, boolean required) {
+    String value = propertyValueString(key, null, false).getTheValue();
     if (GrouperClientUtils.isBlank(value) && !required) {
       return defaultValue;
     }
@@ -711,6 +846,17 @@ public abstract class ConfigPropertiesCascadeBase {
   
   }
   
+  /**
+   * get a boolean and validate from grouper.client.properties
+   * @param key
+   * @return the int or null if there
+   */
+  public Integer propertyValueInt(String key ) {
+  
+    return propertyValueInt(key, null, false);
+  
+  }
+
   /**
    * read properties from a resource, dont modify the properties returned since they are cached
    * @param resourceName
