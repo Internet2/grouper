@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouperClient.failover.FailoverLogicBean;
 import edu.internet2.middleware.grouperClient.failover.FailoverConfig.FailoverStrategy;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Crypto;
@@ -116,7 +117,7 @@ public class DiscoveryClient {
       GrouperClientLog.assignDebugToConsole(debugMode);
       
       //init if not already
-      GrouperClientUtils.grouperClientProperties();
+      GrouperClientConfig.retrieveConfig().properties();
       
       //see where log file came from
       StringBuilder callingLog = new StringBuilder();
@@ -206,7 +207,7 @@ public class DiscoveryClient {
    */
   public static boolean hasDiscovery() {
     
-    String firstUrl = GrouperClientUtils.propertiesValue("grouperClient.urlOfDiscovery.0", false);
+    String firstUrl = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.urlOfDiscovery.0");
     
     return !GrouperClientUtils.isBlank(firstUrl);
     
@@ -224,7 +225,7 @@ public class DiscoveryClient {
   private static ExpirableCache<String, File> discoveryFileCache() {
     
     if (discoveryFileCache == null) {
-      int cacheDiscoveryFileCacheForSeconds = GrouperClientUtils.propertiesValueInt("grouperClient.cacheDiscoveryPropertiesForSeconds", 120, false);
+      int cacheDiscoveryFileCacheForSeconds = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.cacheDiscoveryPropertiesForSeconds", 120);
       discoveryFileCache = new ExpirableCache<String, File>(cacheDiscoveryFileCacheForSeconds);
     }
     return discoveryFileCache;
@@ -308,7 +309,7 @@ public class DiscoveryClient {
           }
 
           //see if date in range
-          if ((System.currentTimeMillis() - date.getTime()) / 1000 < GrouperClientUtils.propertiesValueInt("grouperClient.cacheDiscoveryPropertiesForSeconds", 120, false)) {
+          if ((System.currentTimeMillis() - date.getTime()) / 1000 < GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.cacheDiscoveryPropertiesForSeconds", 120)) {
             file = discoveryLocalFile;
           }
           
@@ -396,7 +397,7 @@ public class DiscoveryClient {
         List<String> discoveryUrls = new ArrayList<String>();
         
         for (int i=0;i<100;i++) {
-          String discoveryUrl = GrouperClientUtils.propertiesValue("grouperClient.urlOfDiscovery." + i, false);
+          String discoveryUrl = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.urlOfDiscovery." + i);
           if (GrouperClientUtils.isBlank(discoveryUrl)) {
             break;
           }
@@ -628,7 +629,7 @@ public class DiscoveryClient {
         }
 
         //see if invalid SSL
-        String httpsSocketFactoryName = GrouperClientUtils.propertiesValue("grouperClient.https.customSocketFactory", false);
+        String httpsSocketFactoryName = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.https.customSocketFactory");
         
         //is there overhead here?  should only do this once?
         //perhaps give a custom factory
@@ -644,18 +645,18 @@ public class DiscoveryClient {
         DefaultHttpParams.getDefaultParams().setParameter(
             HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
 
-        int soTimeoutMillis = GrouperClientUtils.propertiesValueInt(
-            "grouperClient.discovery.httpSocketTimeoutMillis", 90000, false);
+        int soTimeoutMillis = GrouperClientConfig.retrieveConfig().propertyValueInt(
+            "grouperClient.discovery.httpSocketTimeoutMillis", 90000);
 
         httpClient.getParams().setSoTimeout(soTimeoutMillis);
         httpClient.getParams().setParameter(HttpMethodParams.HEAD_BODY_CHECK_TIMEOUT, soTimeoutMillis);
 
-        int connectionManagerMillis = GrouperClientUtils.propertiesValueInt(
-            "grouperClient.discovery.httpConnectionManagerTimeoutMillis", 90000, false);
+        int connectionManagerMillis = GrouperClientConfig.retrieveConfig().propertyValueInt(
+            "grouperClient.discovery.httpConnectionManagerTimeoutMillis", 90000);
 
         httpClient.getParams().setConnectionManagerTimeout(connectionManagerMillis);
 
-        String user = GrouperClientUtils.propertiesValue("grouperClient.discover.user", false);
+        String user = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.discover.user");
         
         if (logMap != null) {
           logMap.put("user", user);
@@ -665,11 +666,11 @@ public class DiscoveryClient {
         
           httpClient.getParams().setAuthenticationPreemptive(true);
   
-          boolean disableExternalFileLookup = GrouperClientUtils.propertiesValueBoolean(
-              "encrypt.disableExternalFileLookup", false, true);
+          boolean disableExternalFileLookup = GrouperClientConfig.retrieveConfig().propertyValueBooleanRequired(
+              "encrypt.disableExternalFileLookup");
           
           //lets lookup if file
-          String pass = GrouperClientUtils.propertiesValue("grouperClient.discovery.password", false);
+          String pass = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.discovery.password");
           String passFromFile = GrouperClientUtils.readFromFileIfFile(pass, disableExternalFileLookup);
   
           String passPrefix = null;
@@ -685,7 +686,7 @@ public class DiscoveryClient {
             passPrefix = "Discovery pass: reading scalar value from grouper.client.properties";
           }
           
-          if (GrouperClientUtils.propertiesValueBoolean("grouperClient.logging.logMaskedPassword", false, false)) {
+          if (GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClient.logging.logMaskedPassword", false)) {
             if (logMap != null) {
               logMap.put(passPrefix, GrouperClientUtils.repeat("*", pass.length()));
             }

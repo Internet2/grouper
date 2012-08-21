@@ -41,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 import edu.internet2.middleware.grouperClient.failover.FailoverConfig.FailoverStrategy;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache.ExpirableCacheUnit;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
@@ -103,14 +104,14 @@ public class FailoverClient implements Serializable {
       return failoverStateFile;
     }
 
-    String cacheDirectoryName = GrouperClientUtils.propertiesValue("grouperClient.cacheDirectory", false);
+    String cacheDirectoryName = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.cacheDirectory");
     boolean hasCacheDirectory = !GrouperClientUtils.isBlank(cacheDirectoryName);
 
     if (hasCacheDirectory) {
       cacheDirectoryName = GrouperClientUtils.cacheDirectoryName();
     }
 
-    int saveStateEverySeconds = GrouperClientUtils.propertiesValueInt("grouperClient.saveFailoverStateEverySeconds", -1, false);
+    int saveStateEverySeconds = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.saveFailoverStateEverySeconds", -1);
 
     boolean hasSaveStateEverySeconds = saveStateEverySeconds >= 0;
 
@@ -183,7 +184,7 @@ public class FailoverClient implements Serializable {
       try {
 
         //save state to file if necessary
-        int saveStateEverySeconds = GrouperClientUtils.propertiesValueInt("grouperClient.saveFailoverStateEverySeconds", -1, false);
+        int saveStateEverySeconds = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.saveFailoverStateEverySeconds", -1);
         File saveStateFile = fileSaveFailoverClientState();
 
         if (saveStateEverySeconds >= 0) {
@@ -611,7 +612,7 @@ public class FailoverClient implements Serializable {
       } finally {
 
         //save state to file if necessary
-        int saveStateEverySeconds = GrouperClientUtils.propertiesValueInt("grouperClient.saveFailoverStateEverySeconds", -1, false);
+        int saveStateEverySeconds = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.saveFailoverStateEverySeconds", -1);
 
         if (debugMap != null) {
           debugMap.put("saveStateEverySeconds", saveStateEverySeconds);
@@ -708,7 +709,7 @@ public class FailoverClient implements Serializable {
       final Object[] results = new Object[orderedConnections.size()];
       final Boolean[] successes = new Boolean[orderedConnections.size()];
 
-      if (!GrouperClientUtils.propertiesValueBoolean("grouperClient.failoverClientUseThreads", true, false)) {
+      if (!GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClient.failoverClientUseThreads", true)) {
         useThreads = false;
       }
 

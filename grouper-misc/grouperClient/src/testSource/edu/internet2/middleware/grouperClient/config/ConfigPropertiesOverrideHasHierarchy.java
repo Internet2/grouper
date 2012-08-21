@@ -9,16 +9,11 @@ package edu.internet2.middleware.grouperClient.config;
 public class ConfigPropertiesOverrideHasHierarchy extends ConfigPropertiesCascadeBase {
 
   /**
-   * this is used to tell engine where the default and example config is...
-   */
-  private static ConfigPropertiesOverrideHasHierarchy configSingleton = new ConfigPropertiesOverrideHasHierarchy();
-  
-  /**
    * retrieve a config from the config file or from cache
    * @return the config object
    */
   public static ConfigPropertiesOverrideHasHierarchy retrieveConfig() {
-    return (ConfigPropertiesOverrideHasHierarchy)configSingleton.retrieveFromConfigFileOrCache();
+    return retrieveConfig(ConfigPropertiesOverrideHasHierarchy.class);
   }
 
   /**

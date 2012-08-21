@@ -79,7 +79,7 @@ public class GrouperClientLdapUtils {
       //ldapUrl = GrouperClientUtils.propertiesValue("grouperClient.ldap.url", false);
       
       //see if invalid SSL
-      String ldapsSocketFactoryName = GrouperClientUtils.propertiesValue("grouperClient.ldaps.customSocketFactory", false);
+      String ldapsSocketFactoryName = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.ldaps.customSocketFactory");
       
       if (!GrouperClientUtils.isBlank(ldapsSocketFactoryName)) {
         if (ldapUrl.startsWith("ldaps")) {
@@ -98,12 +98,12 @@ public class GrouperClientLdapUtils {
         debugMap.put("LDAP authentication type", "simple");
       }
 
-      String userLabel = GrouperClientUtils.propertiesValue("grouperClient.ldap.user.label", true);
+      String userLabel = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.ldap.user.label");
 
-      ldapUser = GrouperClientUtils.propertiesValue("grouperClient.ldap." + userLabel, true);
+      ldapUser = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.ldap." + userLabel);
   
-      String ldapUserPrefix = GrouperClientUtils.propertiesValue("grouperClient.ldap.user.prefix", true);
-      String ldapUserSuffix = GrouperClientUtils.propertiesValue("grouperClient.ldap.user.suffix", true);
+      String ldapUserPrefix = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.ldap.user.prefix");
+      String ldapUserSuffix = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.ldap.user.suffix");
       
       //put all these together
       ldapUser = ldapUserPrefix + ldapUser + ldapUserSuffix;
@@ -115,11 +115,11 @@ public class GrouperClientLdapUtils {
 
       env.put(Context.SECURITY_PRINCIPAL, ldapUser);
   
-      boolean disableExternalFileLookup = GrouperClientUtils.propertiesValueBoolean(
-          "encrypt.disableExternalFileLookup", false, true);
+      boolean disableExternalFileLookup = GrouperClientConfig.retrieveConfig().propertyValueBooleanRequired(
+          "encrypt.disableExternalFileLookup");
       
       //lets lookup if file
-      ldapPass = GrouperClientUtils.propertiesValue("grouperClient.ldap.password", true);
+      ldapPass = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.ldap.password");
       String ldapPassFromFile = GrouperClientUtils.readFromFileIfFile(ldapPass, disableExternalFileLookup);
 
       String passPrefix = null;
@@ -136,7 +136,7 @@ public class GrouperClientLdapUtils {
         passPrefix = "LDAP pass: reading scalar value from grouper.client.properties";
       }
       
-      if (GrouperClientUtils.propertiesValueBoolean("grouperClient.logging.logMaskedPassword", false, false)) {
+      if (GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClient.logging.logMaskedPassword", false)) {
         if (debugMap != null) {
           debugMap.put("Pass", passPrefix + ": " + GrouperClientUtils.repeat("*", ldapPass.length()));
         }
@@ -367,7 +367,7 @@ public class GrouperClientLdapUtils {
     if (configureEverySeconds == null) {
   
       //configure every x/5 (at least 20 seconds)
-      int cacheForSeconds = GrouperClientUtils.propertiesValueInt("grouperClient.cacheDiscoveryPropertiesForSeconds", 120, false);
+      int cacheForSeconds = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.cacheDiscoveryPropertiesForSeconds", 120);
       configureEverySeconds = cacheForSeconds / 5;
       if (configureEverySeconds < 20) {
         configureEverySeconds = 20;
@@ -390,7 +390,7 @@ public class GrouperClientLdapUtils {
             
             //see if the discovery file has changed...
             String fileName = "grouper.client.discovery.properties";
-            String directoryName = GrouperClientUtils.propertiesValue("grouperClient.discoveryGrouperClientPropertiesDirectory", false);
+            String directoryName = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.discoveryGrouperClientPropertiesDirectory");
             if (!GrouperClientUtils.isBlank(directoryName)) {
               directoryName = GrouperClientUtils.stripLastSlashIfExists(directoryName);
               fileName = directoryName + "/" + fileName;
@@ -444,7 +444,7 @@ public class GrouperClientLdapUtils {
                 //grouperClient.discoveryDefault.ldap.0.url = 
                 List<String> ldapUrls = new ArrayList<String>();
                 for (int i=0;i<100;i++) {
-                  String ldapUrl = GrouperClientUtils.propertiesValue("grouperClient.discoveryDefault.ldap." + i + ".url", false);
+                  String ldapUrl = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.discoveryDefault.ldap." + i + ".url");
                   if (GrouperClientUtils.isBlank(ldapUrl)) {
                     break;
                   }
@@ -461,29 +461,29 @@ public class GrouperClientLdapUtils {
               
               //grouperClient.discoveryDefault.ldap.loadBalancing = active/active
               FailoverStrategy failoverStrategy = FailoverStrategy.valueOfIgnoreCase(
-                  GrouperClientUtils.propertiesValue("grouperClient.discoveryDefault.ldap.loadBalancing", false), false);
+                  GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.discoveryDefault.ldap.loadBalancing"), false);
               if (failoverStrategy != null) {
                 failoverConfig.setFailoverStrategy(failoverStrategy);
               }
               
               //grouperClient.discoveryDefault.ldap.affinitySeconds = 28800
               int affinitySeconds = failoverConfig.getAffinitySeconds();
-              affinitySeconds = GrouperClientUtils.propertiesValueInt("grouperClient.discoveryDefault.ldap.affinitySeconds", affinitySeconds, false);
+              affinitySeconds = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.discoveryDefault.ldap.affinitySeconds", affinitySeconds);
               failoverConfig.setAffinitySeconds(affinitySeconds);
               
               //grouperClient.discoveryDefault.ldap.lowerConnectionPriorityOnErrorForMinutes = 3
               int lowerConnectionPriorityOnErrorForMinutes = failoverConfig.getMinutesToKeepErrors();
-              lowerConnectionPriorityOnErrorForMinutes = GrouperClientUtils.propertiesValueInt("grouperClient.discoveryDefault.ldap.lowerConnectionPriorityOnErrorForMinutes", lowerConnectionPriorityOnErrorForMinutes, false);
+              lowerConnectionPriorityOnErrorForMinutes = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.discoveryDefault.ldap.lowerConnectionPriorityOnErrorForMinutes", lowerConnectionPriorityOnErrorForMinutes);
               failoverConfig.setMinutesToKeepErrors(lowerConnectionPriorityOnErrorForMinutes);
               
               //grouperClient.discoveryDefault.ldap.timeoutSeconds = 30
               int timeoutSeconds = failoverConfig.getTimeoutSeconds();
-              timeoutSeconds = GrouperClientUtils.propertiesValueInt("grouperClient.discoveryDefault.ldap.timeoutSeconds", timeoutSeconds, false);
+              timeoutSeconds = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.discoveryDefault.ldap.timeoutSeconds", timeoutSeconds);
               failoverConfig.setTimeoutSeconds(timeoutSeconds);
               
               //grouperClient.discoveryDefault.ldap.extraTimeoutSeconds = 15
               int extraTimeoutSeconds = failoverConfig.getExtraTimeoutSeconds();
-              extraTimeoutSeconds = GrouperClientUtils.propertiesValueInt("grouperClient.discoveryDefault.ldap.extraTimeoutSeconds", extraTimeoutSeconds, false);
+              extraTimeoutSeconds = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.discoveryDefault.ldap.extraTimeoutSeconds", extraTimeoutSeconds);
               failoverConfig.setExtraTimeoutSeconds(extraTimeoutSeconds);
               
               //if there is a discovery file, then use it
@@ -540,7 +540,7 @@ public class GrouperClientLdapUtils {
                 //#grouperClient.discoveryOverride.ldap.0.url = 
                 List<String> ldapUrls = new ArrayList<String>();
                 for (int i=0;i<100;i++) {
-                  String ldapUrl = GrouperClientUtils.propertiesValue("grouperClient.discoveryOverride.ldap." + i + ".url", false);
+                  String ldapUrl = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.discoveryOverride.ldap." + i + ".url");
                   if (GrouperClientUtils.isBlank(ldapUrl)) {
                     break;
                   }
@@ -556,27 +556,27 @@ public class GrouperClientLdapUtils {
               
               //#grouperClient.discoveryOverride.ldap.loadBalancing = active/active
               failoverStrategy = FailoverStrategy.valueOfIgnoreCase(
-                  GrouperClientUtils.propertiesValue("grouperClient.discoveryOverride.ldap.loadBalancing", false), false);
+                  GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.discoveryOverride.ldap.loadBalancing"), false);
               if (failoverStrategy != null) {
                 failoverConfig.setFailoverStrategy(failoverStrategy);
               }
               
               //#grouperClient.discoveryOverride.ldap.affinitySeconds = 28800
-              affinitySeconds = GrouperClientUtils.propertiesValueInt("grouperClient.discoveryOverride.ldap.affinitySeconds", affinitySeconds, false);
+              affinitySeconds = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.discoveryOverride.ldap.affinitySeconds", affinitySeconds);
               failoverConfig.setAffinitySeconds(affinitySeconds);
               
               //#grouperClient.discoveryOverride.ldap.lowerConnectionPriorityOnErrorForMinutes = 3
-              lowerConnectionPriorityOnErrorForMinutes = GrouperClientUtils.propertiesValueInt("grouperClient.discoveryOverride.ldap.lowerConnectionPriorityOnErrorForMinutes", lowerConnectionPriorityOnErrorForMinutes, false);
+              lowerConnectionPriorityOnErrorForMinutes = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.discoveryOverride.ldap.lowerConnectionPriorityOnErrorForMinutes", lowerConnectionPriorityOnErrorForMinutes);
               failoverConfig.setMinutesToKeepErrors(lowerConnectionPriorityOnErrorForMinutes);
               
               //#grouperClient.discoveryOverride.ldap.timeoutSeconds = 30
-              timeoutSeconds = GrouperClientUtils.propertiesValueInt(
-                  "grouperClient.discoveryOverride.ldap.timeoutSeconds", timeoutSeconds, false);
+              timeoutSeconds = GrouperClientConfig.retrieveConfig().propertyValueInt(
+                  "grouperClient.discoveryOverride.ldap.timeoutSeconds", timeoutSeconds);
               failoverConfig.setTimeoutSeconds(timeoutSeconds);
               
               //#grouperClient.discoveryOverride.ldap.extraTimeoutSeconds = 15
-              extraTimeoutSeconds = GrouperClientUtils.propertiesValueInt(
-                  "grouperClient.discoveryOverride.ldap.extraTimeoutSeconds", extraTimeoutSeconds, false);
+              extraTimeoutSeconds = GrouperClientConfig.retrieveConfig().propertyValueInt(
+                  "grouperClient.discoveryOverride.ldap.extraTimeoutSeconds", extraTimeoutSeconds);
               failoverConfig.setExtraTimeoutSeconds(extraTimeoutSeconds);
   
               if (debugLog != null) {
@@ -596,7 +596,7 @@ public class GrouperClientLdapUtils {
               //if there are no urls, then add the default one
               if (GrouperClientUtils.length(failoverConfig.getConnectionNames()) == 0) {
                 failoverConfig.setConnectionNames(GrouperClientUtils.toList(
-                    GrouperClientUtils.propertiesValue("grouperClient.ldap.url", true)));
+                    GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.ldap.url")));
               }
               failoverConfig.setConnectionType(LDAP_FAILOVER_CONFIG_NAME);
               FailoverClient.initFailoverClient(failoverConfig);

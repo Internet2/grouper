@@ -4834,7 +4834,7 @@ public class GrouperClientCommonUtils  {
    */
   public static void saveStringIntoFile(File file, String contents) {
     try {
-      writeStringToFile(file, contents, GrouperClientUtils.propertiesValue("grouperClient.default.fileEncoding", true));
+      writeStringToFile(file, contents, GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.default.fileEncoding"));
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
@@ -4910,7 +4910,7 @@ public class GrouperClientCommonUtils  {
       return null;
     }
     try {
-      return readFileToString(file, GrouperClientUtils.propertiesValue("grouperClient.default.fileEncoding", true));
+      return readFileToString(file, GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.default.fileEncoding"));
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
@@ -4940,7 +4940,7 @@ public class GrouperClientCommonUtils  {
     StringWriter stringWriter = new StringWriter();
     try {
       inputStream = url.openStream();
-      copy(inputStream, stringWriter, GrouperClientUtils.propertiesValue("grouperClient.default.fileEncoding", true));
+      copy(inputStream, stringWriter, GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.default.fileEncoding"));
     } catch (IOException ioe) {
       throw new RuntimeException("Error reading resource: '" + resourceName + "'", ioe);
     } finally {
@@ -7426,7 +7426,7 @@ public class GrouperClientCommonUtils  {
    */
   public static void copy(InputStream input, Writer output)
           throws IOException {
-      String charsetName = GrouperClientUtils.propertiesValue("grouperClient.default.fileEncoding", true);
+      String charsetName = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.default.fileEncoding");
       InputStreamReader in = new InputStreamReader(input, charsetName);
       copy(in, output);
   }

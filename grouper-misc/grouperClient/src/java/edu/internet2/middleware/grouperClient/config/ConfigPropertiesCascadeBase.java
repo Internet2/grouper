@@ -30,6 +30,50 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 public abstract class ConfigPropertiesCascadeBase {
 
   /**
+   * log object
+   */
+  private static final Log LOG = GrouperClientUtils.retrieveLog(ConfigPropertiesCascadeBase.class);
+
+  /**
+   * this is used to tell engine where the default and example config is...
+   */
+  private static Map<Class<? extends ConfigPropertiesCascadeBase>, ConfigPropertiesCascadeBase> configSingletonFromClass = null;
+    
+  /**
+   * retrieve a config from the config file or from cache
+   * @param <T> class which is the return type of config class
+   * @param configClass 
+   * @return the config object never null
+   */
+  @SuppressWarnings("unchecked")
+  protected static <T extends ConfigPropertiesCascadeBase> T retrieveConfig(Class<T> configClass) {
+    
+    if (configSingletonFromClass == null) {
+      configSingletonFromClass = 
+        new HashMap<Class<? extends ConfigPropertiesCascadeBase>, ConfigPropertiesCascadeBase>();
+    }
+    
+    ConfigPropertiesCascadeBase configPropertiesCascadeBase = (ConfigPropertiesCascadeBase)configSingletonFromClass.get(configClass);
+    if (configPropertiesCascadeBase == null) {
+      configPropertiesCascadeBase = GrouperClientUtils.newInstance(configClass);
+      configSingletonFromClass.put(configClass, configPropertiesCascadeBase);
+      
+    }
+    //from the singleton, get the real config class
+    return (T)configPropertiesCascadeBase.retrieveFromConfigFileOrCache();
+  }
+
+  
+  /**
+   * if its ok to put the config file in the same directory as a jar,
+   * then return a class in the jar here
+   * @return the class or null if not available
+   */
+  protected Class<?> getClassInSiblingJar() {
+    return null;
+  }
+  
+  /**
    * config key of the time in seconds to check config.  -1 means dont check again
    * @return config key
    */
@@ -42,8 +86,8 @@ public abstract class ConfigPropertiesCascadeBase {
   
   /** override map for properties in thread local to be used in a web server or the like */
   private static ThreadLocal<Map<Class<? extends ConfigPropertiesCascadeBase>, Map<String, String>>> propertiesThreadLocalOverrideMap 
-    = new ThreadLocal<Map<Class<? extends ConfigPropertiesCascadeBase>, Map<String, String>>>();
-
+    = null;
+  
   /**
    * override map for properties in thread local to be used in a web server or the like, based on property class
    * this is static since the properties class can get reloaded, but these shouldnt
@@ -51,6 +95,10 @@ public abstract class ConfigPropertiesCascadeBase {
    * @return the override map
    */
   public Map<String, String> propertiesThreadLocalOverrideMap() {
+    if (propertiesThreadLocalOverrideMap == null) {
+      propertiesThreadLocalOverrideMap = new ThreadLocal<Map<Class<? extends ConfigPropertiesCascadeBase>, Map<String, String>>>();
+    }
+
     Map<Class<? extends ConfigPropertiesCascadeBase>, Map<String, String>> overrideMap = propertiesThreadLocalOverrideMap.get();
     if (overrideMap == null) {
       overrideMap = new HashMap<Class<? extends ConfigPropertiesCascadeBase>, Map<String, String>>();
@@ -68,32 +116,17 @@ public abstract class ConfigPropertiesCascadeBase {
    * this is static since the properties class can get reloaded, but these shouldnt
    */
   private static Map<Class<? extends ConfigPropertiesCascadeBase>, Map<String, String>> propertiesOverrideMap 
-    = new LinkedHashMap<Class<? extends ConfigPropertiesCascadeBase>, Map<String, String>>();
+    = null;
 
   /**
    * 
    * @return the set of names
    */
   @SuppressWarnings("unchecked")
-  public Set<String> getPropertyNames() {
+  public Set<String> propertyNames() {    
+    
     Set<String> result = new LinkedHashSet<String>();
-    
-    for (String propertyName : (Set<String>)(Object)this.properties.keySet()) {
-      result.add(propertyName);
-    }
-
-    Map<String, String> localPropertiesOverrideMap = propertiesOverrideMap();
-    
-    if (localPropertiesOverrideMap != null) {
-      result.addAll(localPropertiesOverrideMap.keySet());
-    }
-
-    localPropertiesOverrideMap = propertiesThreadLocalOverrideMap();
-    
-    if (localPropertiesOverrideMap != null) {
-      result.addAll(localPropertiesOverrideMap.keySet());
-    }
-    
+    result.addAll((Set<String>)(Object)this.properties().keySet());
     return result;
   }
 
@@ -102,12 +135,41 @@ public abstract class ConfigPropertiesCascadeBase {
    * @return the override map
    */
   public Map<String, String> propertiesOverrideMap() {
+    if (propertiesOverrideMap == null) {
+      propertiesOverrideMap 
+        = new LinkedHashMap<Class<? extends ConfigPropertiesCascadeBase>, Map<String, String>>();
+    }
     Map<String, String> overrideMap = propertiesOverrideMap.get(this.getClass());
     if (overrideMap == null) {
       overrideMap = new LinkedHashMap<String, String>();
       propertiesOverrideMap.put(this.getClass(), overrideMap);
     }
     return overrideMap;
+  }
+
+  /**
+   * get the properties object for this config file
+   * @return the properties
+   */
+  public Properties properties() {
+    Properties result = new Properties();
+    
+    result.putAll(this.properties);
+
+    Map<String, String> localPropertiesOverrideMap = propertiesOverrideMap();
+    
+    for (String key: localPropertiesOverrideMap.keySet()) {
+      result.put(key, GrouperClientUtils.defaultString(localPropertiesOverrideMap.get(key)));
+    }
+    
+    localPropertiesOverrideMap = propertiesThreadLocalOverrideMap();
+    
+    for (String key: localPropertiesOverrideMap.keySet()) {
+      result.put(key, GrouperClientUtils.defaultString(localPropertiesOverrideMap.get(key)));
+    }
+    
+    return result;
+    
   }
 
   /** properties from the properties file(s) */
@@ -321,14 +383,8 @@ public abstract class ConfigPropertiesCascadeBase {
   /**
    * config file cache
    */
-  private static Map<Class<? extends ConfigPropertiesCascadeBase>, ConfigPropertiesCascadeBase> configFileCache = 
-    new HashMap<Class<? extends ConfigPropertiesCascadeBase>, ConfigPropertiesCascadeBase>();
+  private static Map<Class<? extends ConfigPropertiesCascadeBase>, ConfigPropertiesCascadeBase> configFileCache = null;
   
-  /**
-   * log object
-   */
-  private static final Log LOG = GrouperClientUtils.retrieveLog(ConfigPropertiesCascadeBaseTest.class);
-
   /**
    * config file type
    */
@@ -340,7 +396,8 @@ public abstract class ConfigPropertiesCascadeBase {
     FILE {
 
       @Override
-      public InputStream inputStream(String configFileTypeConfig) {
+      public InputStream inputStream(String configFileTypeConfig,
+          ConfigPropertiesCascadeBase configPropertiesCascadeBase) {
         File file = new File(configFileTypeConfig);
         if (!file.exists() || !file.isFile()) {
           throw new RuntimeException("Cant find config file from filesystem path: " + configFileTypeConfig);
@@ -358,27 +415,53 @@ public abstract class ConfigPropertiesCascadeBase {
      */
     CLASSPATH {
 
+      /**
+       * 
+       */
       @Override
-      public InputStream inputStream(String configFileTypeConfig) {
+      public InputStream inputStream(String configFileTypeConfig,
+          ConfigPropertiesCascadeBase configPropertiesCascadeBase) {
         URL url = GrouperClientUtils.computeUrl(configFileTypeConfig, true);
-        if (url == null) {
-          throw new RuntimeException("Cant find config file from classpath: " + configFileTypeConfig);
+        Exception exception = null;
+        if (url != null) {
+          try {
+            return url.openStream();
+          } catch (Exception e) {
+            exception = e;
+          }
         }
-        try {
-          return url.openStream();
-        } catch (Exception e) {
-          throw new RuntimeException("Problem reading config file from classpath: " + configFileTypeConfig, e);
+        
+        //if we didnt get there yet, lets look for a companion jar
+        Class<?> classInJar = configPropertiesCascadeBase.getClassInSiblingJar();
+        if (classInJar != null) {
+          File jarFile = classInJar == null ? null : GrouperClientUtils.jarFile(classInJar);
+          File parentDir = jarFile == null ? null : jarFile.getParentFile();
+          String fileName = parentDir == null ? null 
+              : (GrouperClientUtils.stripLastSlashIfExists(GrouperClientUtils.fileCanonicalPath(parentDir)) + File.separator + configFileTypeConfig);
+          File configFile = fileName == null ? null 
+              : new File(fileName);
+          
+          //looks like we have a match
+          if (configFile != null && configFile.exists() && configFile.isFile()) {
+            try {
+              return new FileInputStream(configFile);
+            } catch (Exception e) {
+              logError("Cant read config file: " + configFile.getAbsolutePath(), e);
+            }
+          }
         }
-
+        //see if it is next to the jar
+        throw new RuntimeException("Cant find config file from classpath: " + configFileTypeConfig, exception);
       }
     };
 
     /**
      * get the inputstream to read the config 
      * @param configFileTypeConfig
+     * @param configPropertiesCascadeBase add the config object in case
      * @return the input stream to get this config
      */
-    public abstract InputStream inputStream(String configFileTypeConfig);
+    public abstract InputStream inputStream(String configFileTypeConfig, ConfigPropertiesCascadeBase configPropertiesCascadeBase);
 
     /**
      * do a case-insensitive matching
@@ -433,11 +516,12 @@ public abstract class ConfigPropertiesCascadeBase {
 
     /**
      * get the contents from the config file
+     * @param configPropertiesCascadeBase 
      * @return the contents
      */
-    public String retrieveContents() {
+    public String retrieveContents(ConfigPropertiesCascadeBase configPropertiesCascadeBase) {
       try {
-        return GrouperClientUtils.toString(this.configFileType.inputStream(this.configFileTypeConfig), "UTF-8");
+        return GrouperClientUtils.toString(this.configFileType.inputStream(this.configFileTypeConfig, configPropertiesCascadeBase), "UTF-8");
       } catch (Exception e) {
         throw new RuntimeException("Problem reading config: '" + this.originalConfig + "'", e);
       }
@@ -587,7 +671,7 @@ public abstract class ConfigPropertiesCascadeBase {
       result.configFiles.add(configFile);
       
       //lets append the properties
-      InputStream inputStream = configFile.getConfigFileType().inputStream(configFile.getConfigFileTypeConfig());
+      InputStream inputStream = configFile.getConfigFileType().inputStream(configFile.getConfigFileTypeConfig(), this);
       
       try {
         result.properties.load(inputStream);
@@ -599,17 +683,58 @@ public abstract class ConfigPropertiesCascadeBase {
     return result;
     
   }
-      
+    
+  /**
+   * make sure LOG is there, after things are initialized
+   * @param logMessage
+   */
+  protected static void logDebug(String logMessage) {
+    if (LOG != null && LOG.isDebugEnabled()) {
+      LOG.debug(logMessage); 
+    }
+  }
+  
+  /**
+   * make sure LOG is there, after things are initialized
+   * @param logMessage
+   * @param t 
+   */
+  protected static void logInfo(String logMessage, Throwable t) {
+    if (LOG != null && LOG.isInfoEnabled()) {
+      LOG.info(logMessage, t); 
+    }
+  }
+  
+  /**
+   * make sure LOG is there, after things are initialized
+   * @param logMessage
+   * @param t 
+   */
+  protected static void logError(String logMessage, Throwable t) {
+    if (LOG != null) {
+      LOG.error(logMessage, t); 
+    } else {
+      System.err.println("ERROR: " + logMessage);
+      t.printStackTrace();
+    }
+  }
+  
   /**
    * see if there is one in cache, if so, use it, if not, get from config files
    * @return the config from file or cache
    */
   protected ConfigPropertiesCascadeBase retrieveFromConfigFileOrCache() {
+    
+    if (configFileCache == null) {
+      configFileCache = 
+        new HashMap<Class<? extends ConfigPropertiesCascadeBase>, ConfigPropertiesCascadeBase>();
+    }
+    
     ConfigPropertiesCascadeBase configObject = configFileCache.get(this.getClass());
     
     if (configObject == null) {
       
-      LOG.debug("Config file has not be created yet, will create now: " + this.getMainConfigClasspath());
+      logDebug("Config file has not be created yet, will create now: " + this.getMainConfigClasspath());
       
       configObject = retrieveFromConfigFiles();
       configFileCache.put(this.getClass(), configObject);
@@ -671,14 +796,14 @@ public abstract class ConfigPropertiesCascadeBase {
     try {
       //lets look at all the files and see if they have changed...
       for (ConfigFile configFile : this.configFiles) {
-        if (!GrouperClientUtils.equals(configFile.getContents(), configFile.retrieveContents())) {
-          LOG.info("Contents changed for config file, reloading: " + configFile.getOriginalConfig());
+        if (!GrouperClientUtils.equals(configFile.getContents(), configFile.retrieveContents(this))) {
+          logInfo("Contents changed for config file, reloading: " + configFile.getOriginalConfig(), null);
           return true;
         }
       }
     } catch (Exception e) {
       //lets log and return the old one
-      LOG.error("Error checking for changes in configs (will use previous version): " + this.getMainConfigClasspath(), e);
+      logError("Error checking for changes in configs (will use previous version): " + this.getMainConfigClasspath(), e);
     } finally {
       //reset the time so we dont have to check again for a while
       this.lastCheckedTime = System.currentTimeMillis();
@@ -686,6 +811,8 @@ public abstract class ConfigPropertiesCascadeBase {
     return false;
   }
 
+  
+  
   /**
    * get the main config classpath, e.g. grouper.properties
    * @return the classpath of the main config file
@@ -880,9 +1007,7 @@ public abstract class ConfigPropertiesCascadeBase {
     } catch (Exception e) {
       
       //I guess this ok
-      if (LOG.isInfoEnabled()) {
-         LOG.info("Problem loading config file: " + resourceName, e); 
-      }
+      logInfo("Problem loading config file: " + resourceName, e); 
       
     }
     

@@ -47,6 +47,7 @@ import org.quartz.SchedulerFactory;
 import org.quartz.impl.StdSchedulerFactory;
 
 import edu.internet2.middleware.grouperClient.api.GcGetMembers;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResults;
@@ -128,7 +129,7 @@ public class GrouperClientXmppMain {
         port = xmppPort();
         ConnectionConfiguration config = new ConnectionConfiguration(server, port);
 
-        boolean debuggerEnabled = GrouperClientUtils.propertiesValueBoolean("grouperClient.xmpp.debuggerEnabled", false, false);
+        boolean debuggerEnabled = GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClient.xmpp.debuggerEnabled", false);
 
         config.setDebuggerEnabled(debuggerEnabled);
         config.setReconnectionAllowed(true);
@@ -159,14 +160,14 @@ public class GrouperClientXmppMain {
   */
   public static String xmppPass() {
 
-    boolean disableExternalFileLookup = GrouperClientUtils.propertiesValueBoolean(
-        "encrypt.disableExternalFileLookup", false, true);
+    boolean disableExternalFileLookup = GrouperClientConfig.retrieveConfig().propertyValueBooleanRequired(
+        "encrypt.disableExternalFileLookup");
 
     //lets lookup if file
-    String pass = GrouperClientUtils.propertiesValue("grouperClient.xmpp.pass", true);
+    String pass = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.xmpp.pass");
     String passFromFile = GrouperClientUtils.readFromFileIfFile(pass, disableExternalFileLookup);
     
-    if (GrouperClientUtils.propertiesValueBoolean("encrypt.encryptLikeServer", false, false)) {
+    if (GrouperClientConfig.retrieveConfig().propertyValueBoolean("encrypt.encryptLikeServer", false)) {
       if (!GrouperClientUtils.equals(pass, passFromFile)) {
   
         String encryptKey = GrouperClientUtils.encryptKey();
@@ -178,7 +179,7 @@ public class GrouperClientXmppMain {
     }
     if (!GrouperClientUtils.equals(pass, passFromFile)) {
 
-      String encryptKey = GrouperClientUtils.propertiesValue("encrypt.key", true);
+      String encryptKey = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("encrypt.key");
       encryptKey = GrouperClientUtils.readFromFileIfFile(encryptKey, disableExternalFileLookup);
       passFromFile = new Crypto(encryptKey).decrypt(passFromFile);
 
@@ -192,7 +193,7 @@ public class GrouperClientXmppMain {
   * @return port
   */
   public static int xmppPort() {
-    return GrouperClientUtils.propertiesValueInt("grouperClient.xmpp.server.port", 1522, false);
+    return GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.xmpp.server.port", 1522);
   }
 
   /**
@@ -200,7 +201,7 @@ public class GrouperClientXmppMain {
   * @return the resource
   */
   public static String xmppResource() {
-    return GrouperClientUtils.propertiesValue("grouperClient.xmpp.resource", false);
+    return GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.xmpp.resource");
   }
 
   /**
@@ -208,7 +209,7 @@ public class GrouperClientXmppMain {
   * @return xmpp server
   */
   public static String xmppServer() {
-    return GrouperClientUtils.propertiesValue("grouperClient.xmpp.server.host", true);
+    return GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.xmpp.server.host");
   }
 
   /**
@@ -216,7 +217,7 @@ public class GrouperClientXmppMain {
   * @return the user
   */
   public static String xmppUser() {
-    return GrouperClientUtils.propertiesValue("grouperClient.xmpp.user", true);
+    return GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.xmpp.user");
   }
 
   /**
@@ -400,7 +401,7 @@ public class GrouperClientXmppMain {
     if (allowFromJabberIds == null) {
       Set<String> temp = new HashSet<String>();
       
-      String allowFroms = GrouperClientUtils.propertiesValue("grouperClient.xmpp.trustedMessagesFromJabberIds", true);
+      String allowFroms = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.xmpp.trustedMessagesFromJabberIds");
       temp.addAll(GrouperClientUtils.splitTrimToList(allowFroms, ","));
       
       allowFromJabberIds = temp;
@@ -482,7 +483,7 @@ public class GrouperClientXmppMain {
   */
   @SuppressWarnings("unused")
   private static void pocEl() {
-    String outputTemplate = GrouperClientUtils.propertiesValue("grouperClient.xmpp.job.myJobName.fileHandler.iteratorEl", true);
+    String outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.xmpp.job.myJobName.fileHandler.iteratorEl");
     outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
     Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
     GrouperClientXmppSubject xmppSubject = new GrouperClientXmppSubject();
@@ -546,7 +547,7 @@ public class GrouperClientXmppMain {
      //atlassian requires durable jobs...
      jobDetail.setDurability(true);
 
-     boolean uniqueTriggerNames = GrouperClientUtils.propertiesValueBoolean("grouperClient.xmpp.uniqueQuartzTriggerNames", false, false);
+     boolean uniqueTriggerNames = GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClient.xmpp.uniqueQuartzTriggerNames", false);
 
      //in old versions of quartz, the trigger group cannot be null
      String triggerName = "trigger_" + jobName;

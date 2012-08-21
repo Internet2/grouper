@@ -29,7 +29,6 @@ import java.util.logging.SimpleFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import edu.internet2.middleware.grouperClient.discovery.DiscoveryClient;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.Expression;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.ExpressionFactory;
@@ -58,16 +57,16 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
     Log theLog = LogFactory.getLog(theClass);
     
     //if this isnt here, dont configure yet
-    if (isBlank(GrouperClientUtils.propertiesValue("encrypt.disableExternalFileLookup", false))
+    if (isBlank(GrouperClientConfig.retrieveConfig().propertyValueString("encrypt.disableExternalFileLookup"))
         || theClass.equals(GrouperClientCommonUtils.class)) {
       return new GrouperClientLog(theLog);
     }
     
     if (!configuredLogs) {
-      String logLevel = GrouperClientUtils.propertiesValue("grouperClient.logging.logLevel", false);
-      String logFile = GrouperClientUtils.propertiesValue("grouperClient.logging.logFile", false);
-      String grouperClientLogLevel = GrouperClientUtils.propertiesValue(
-          "grouperClient.logging.grouperClientOnly.logLevel", false);
+      String logLevel = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.logging.logLevel");
+      String logFile = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.logging.logFile");
+      String grouperClientLogLevel = GrouperClientConfig.retrieveConfig().propertyValueString(
+          "grouperClient.logging.grouperClientOnly.logLevel");
       
       boolean hasLogLevel = !isBlank(logLevel);
       boolean hasLogFile = !isBlank(logFile);
@@ -135,31 +134,24 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
     
   }
   
-  /** override map for properties */
-  private static Map<String, String> grouperClientOverrideMap = new LinkedHashMap<String, String>();
-  
   /**
    * override map for properties for testing
    * @return the override map
+   * @deprecated use GrouperClientConfig.retrieveConfig().propertiesOverrideMap() instead
    */
+  @Deprecated
   public static Map<String, String> grouperClientOverrideMap() {
-    return grouperClientOverrideMap;
+    return GrouperClientConfig.retrieveConfig().propertiesOverrideMap();
   }
   
   /**
    * grouper client properties
    * @return the properties
+   * @deprecated use GrouperClientConfig.retrieveConfig().properties() instead
    */
+  @Deprecated
   public static Properties grouperClientProperties() {
-    Properties properties = null;
-    try {
-      properties = propertiesFromResourceName(
-        "grouper.client.properties", true, true, GrouperClientCommonUtils.class, null);
-    } catch (Exception e) {
-      throw new RuntimeException("Error accessing file: grouper.client.properties  " +
-          "This properties file needs to be in the same directory as grouperClient.jar, or on your Java classpath", e);
-    }
-    return properties;
+    return GrouperClientConfig.retrieveConfig().properties();
   }
 
   /**
@@ -167,11 +159,14 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
    * @param key 
    * @param required 
    * @return the value
+   * @deprecated use GrouperClientConfig.retrieveConfig().propertyValueString instead
    */
+  @Deprecated
   public static String propertiesValue(String key, boolean required) {
-    return GrouperClientUtils.propertiesValue("grouper.client.properties", 
-        grouperClientProperties(), 
-        GrouperClientUtils.grouperClientOverrideMap(), key, required);
+    if (required) {
+      return GrouperClientConfig.retrieveConfig().propertyValueStringRequired(key);
+    }
+    return GrouperClientConfig.retrieveConfig().propertyValueString(key);
   }
 
 
@@ -181,12 +176,14 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
    * @param defaultValue
    * @param required
    * @return the string
+   * @deprecated use GrouperClientConfig.retrieveConfig().propertyValueBoolean instead
    */
+  @Deprecated
   public static boolean propertiesValueBoolean(String key, boolean defaultValue, boolean required ) {
-    return GrouperClientUtils.propertiesValueBoolean(
-        "grouper.client.properties", grouperClientProperties(), 
-        GrouperClientUtils.grouperClientOverrideMap(), 
-        key, defaultValue, required);
+    if (required) {
+      return GrouperClientConfig.retrieveConfig().propertyValueBooleanRequired(key);
+    }
+    return GrouperClientConfig.retrieveConfig().propertyValueBoolean(key, defaultValue);
   }
 
   /**
@@ -195,12 +192,14 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
    * @param defaultValue
    * @param required
    * @return the string
+   * @deprecated GrouperClientConfig.retrieveConfig().propertyValueInt
    */
+  @Deprecated
   public static int propertiesValueInt(String key, int defaultValue, boolean required ) {
-    return GrouperClientUtils.propertiesValueInt(
-        "grouper.client.properties", grouperClientProperties(), 
-        GrouperClientUtils.grouperClientOverrideMap(), 
-        key, defaultValue, required);
+    if (required) {
+      return GrouperClientConfig.retrieveConfig().propertyValueIntRequired(key);
+    }
+    return GrouperClientConfig.retrieveConfig().propertyValueInt(key, defaultValue);
   }
 
   /**
@@ -288,16 +287,16 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
    * @return the encrypt key
    */
   public static String encryptKey() {
-    String encryptKey = GrouperClientUtils.propertiesValue("encrypt.key", true);
+    String encryptKey = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("encrypt.key");
     
-    boolean disableExternalFileLookup = GrouperClientUtils.propertiesValueBoolean(
-        "encrypt.disableExternalFileLookup", false, true);
+    boolean disableExternalFileLookup = GrouperClientConfig.retrieveConfig().propertyValueBooleanRequired(
+        "encrypt.disableExternalFileLookup");
     
     //lets lookup if file
     encryptKey = GrouperClientUtils.readFromFileIfFile(encryptKey, disableExternalFileLookup);
     
     //the server does this, so if the key is blank, it will still have something there, so be consistent
-    if (GrouperClientUtils.propertiesValueBoolean("encrypt.encryptLikeServer", false, false)) {
+    if (GrouperClientConfig.retrieveConfig().propertyValueBoolean("encrypt.encryptLikeServer", false)) {
       
       encryptKey += "w";
     }
@@ -312,7 +311,7 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
   public static String cacheDirectoryName() {
     
     if (cacheDirectoryName == null) {
-      String directoryName = propertiesValue("grouperClient.cacheDirectory", true);
+      String directoryName = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.cacheDirectory");
       if (GrouperClientCommonUtils.isBlank(directoryName)) {
         throw new RuntimeException("grouperClient.cacheDirectory is required in grouper.client.properties");
       }

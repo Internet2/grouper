@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 
@@ -125,7 +126,7 @@ public class GrouperClientXmppJob {
       Pattern pattern = Pattern.compile("^grouperClient\\.xmpp\\.job\\.(.+)\\.handlerClass$");
       
       //note, the overrides arent included here...
-      Properties properties = GrouperClientUtils.grouperClientProperties();
+      Properties properties = GrouperClientConfig.retrieveConfig().properties();
       for (Object keyObject : properties.keySet()) {
         String key = (String)keyObject;
         Matcher matcher = pattern.matcher(key);

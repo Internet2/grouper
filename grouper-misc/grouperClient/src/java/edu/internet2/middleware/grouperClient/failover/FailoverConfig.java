@@ -18,6 +18,7 @@ package edu.internet2.middleware.grouperClient.failover;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
@@ -105,12 +106,12 @@ public class FailoverConfig {
   public FailoverConfig() {
     
     {
-      int minutesToKeepErrors = GrouperClientUtils.propertiesValueInt("grouperClient.minutesToKeepErrors", 5, false);
+      int minutesToKeepErrors = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.minutesToKeepErrors", 5);
       this.setMinutesToKeepErrors(minutesToKeepErrors);
     }
 
     {
-      int secondsForClassesToLoad = GrouperClientUtils.propertiesValueInt("grouperClient.secondsForClassesToLoad", 20, false);
+      int secondsForClassesToLoad = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.secondsForClassesToLoad", 20);
       this.setSecondsForClassesToLoad(secondsForClassesToLoad);
     }
 

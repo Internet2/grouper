@@ -109,8 +109,8 @@ public class ConfigPropertiesCascadeBaseTest extends TestCase {
     
     //test threadlocal override map
     ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertiesThreadLocalOverrideMap().put("somethingNotExistingAgain", "this is the other value");
-    ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertiesOverrideMap().put("somethingNotExistingAgainNull", null);
-    ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertiesOverrideMap().put("something", "zxcv");
+    ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertiesThreadLocalOverrideMap().put("somethingNotExistingAgainNull", null);
+    ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertiesThreadLocalOverrideMap().put("something", "zxcv");
     
     assertEquals("this is the other value", ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueString("somethingNotExistingAgain"));
     assertEquals("zxcv", ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueString("something"));
@@ -118,8 +118,41 @@ public class ConfigPropertiesCascadeBaseTest extends TestCase {
     assertEquals(null, ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueString("somethingNotExistingAgainNull"));
     assertTrue(ConfigPropertiesOverrideHasHierarchy.retrieveConfig().containsKey("somethingNotExistingAgainNull"));
     
+    final String[] errorMessage = new String[1];
+
+    //try a different thread and dont see those values
+    Thread thread = new Thread(new Runnable() {
+
+      /**
+       * 
+       */
+      @Override
+      public void run() {
+        try {
+          assertNull(ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueString("somethingNotExistingAgain"));
+          assertEquals("qwer", ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueString("something"));
+        } catch (Throwable t) {
+          errorMessage[0] = GrouperClientUtils.getFullStackTrace(t);
+        }
+      }
+      
+    });
+    
+    thread.start();
+    
+    try {
+      thread.join();
+    } catch (Exception e) {
+      
+    }
+
+    if (!GrouperClientUtils.isBlank(errorMessage[0])) {
+      fail(errorMessage[0]);
+    }
+    
+    //wait for the thread to catch up
     //propertyNames
-    Set<String> propertyNames = ConfigPropertiesOverrideHasHierarchy.retrieveConfig().getPropertyNames();
+    Set<String> propertyNames = ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyNames();
     
     assertTrue(propertyNames.contains("test1"));
     assertTrue(propertyNames.contains("test2"));

@@ -30,6 +30,7 @@ import javax.mail.Message.RecipientType;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Morph;
 
@@ -114,21 +115,21 @@ public class GrouperClientEmail {
     try {
       //mail.smtp.server = whatever.school.edu
       //#mail.from.address = noreply@school.edu
-      String theFrom = GrouperClientUtils.defaultIfEmpty(this.from, GrouperClientUtils.propertiesValue("grouperClient.mail.from.address", false));
+      String theFrom = GrouperClientUtils.defaultIfEmpty(this.from, GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.mail.from.address"));
       if (GrouperClientUtils.isBlank(theFrom)) {
         throw new RuntimeException("You need to specify the from email address mail.from.address in grouper.client.properties");
       }
       
-      String smtpServer = GrouperClientUtils.propertiesValue("grouperClient.mail.smtp.server", false);
+      String smtpServer = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.mail.smtp.server");
       if (GrouperClientUtils.isBlank(smtpServer)) {
         throw new RuntimeException("You need to specify the from smtp server mail.smtp.server in grouper.client.properties");
       }
       
-      String subjectPrefix = GrouperClientUtils.defaultString(GrouperClientUtils.propertiesValue("grouperClient.mail.subject.prefix", false));
+      String subjectPrefix = GrouperClientUtils.defaultString(GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.mail.subject.prefix"));
       
-      final String SMTP_USER = GrouperClientUtils.propertiesValue("grouperClient.mail.smtp.user", false); 
+      final String SMTP_USER = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.mail.smtp.user"); 
       
-      String smtpPass = GrouperClientUtils.propertiesValue("grouperClient.mail.smtp.pass", false); 
+      String smtpPass = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.mail.smtp.pass"); 
       
       final String SMTP_PASS = GrouperClientUtils.isBlank(smtpPass) ? null : Morph.decryptIfFile(smtpPass);
       

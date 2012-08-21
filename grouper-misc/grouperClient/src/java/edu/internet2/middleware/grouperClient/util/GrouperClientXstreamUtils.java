@@ -54,8 +54,8 @@ public class GrouperClientXstreamUtils {
    * @return xstream, configured to use
    */
   public static XStream retrieveXstream(Map<String, Class<?>> aliasClassMap) {
-    boolean ignoreExtraneousFields = GrouperClientUtils.propertiesValueBoolean(
-        "grouperClient.webService.ignoreExtraneousXmlFields", true, true);
+    boolean ignoreExtraneousFields = GrouperClientConfig.retrieveConfig().propertyValueBooleanRequired(
+        "grouperClient.webService.ignoreExtraneousXmlFields");
     
     XStream xStream = null;
     
@@ -102,7 +102,7 @@ public class GrouperClientXstreamUtils {
     xStream.autodetectAnnotations(true);
 
     //see if omitting fields
-    String fieldsToOmit = GrouperClientUtils.propertiesValue("grouper.webService.omitXmlProperties", false);
+    String fieldsToOmit = GrouperClientConfig.retrieveConfig().propertyValueString("grouper.webService.omitXmlProperties");
     if (!GrouperClientUtils.isBlank(fieldsToOmit)) {
       List<String> fieldsToOmitList = GrouperClientUtils.splitTrimToList(fieldsToOmit, ",");
       for (String fieldToOmit: fieldsToOmitList) {

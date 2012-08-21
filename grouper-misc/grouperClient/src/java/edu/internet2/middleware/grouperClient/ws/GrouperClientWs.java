@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouperClient.failover.FailoverConfig;
 import edu.internet2.middleware.grouperClient.failover.FailoverLogic;
 import edu.internet2.middleware.grouperClient.failover.FailoverLogicBean;
 import edu.internet2.middleware.grouperClient.failover.FailoverConfig.FailoverStrategy;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientXstreamUtils;
@@ -168,7 +169,7 @@ public class GrouperClientWs {
     if (configureEverySeconds == null) {
       
       //configure every x/5 (at least 20 seconds)
-      int cacheForSeconds = GrouperClientUtils.propertiesValueInt("grouperClient.cacheDiscoveryPropertiesForSeconds", 120, false);
+      int cacheForSeconds = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.cacheDiscoveryPropertiesForSeconds", 120);
       configureEverySeconds = cacheForSeconds / 5;
       if (configureEverySeconds < 20) {
         configureEverySeconds = 20;
@@ -191,7 +192,7 @@ public class GrouperClientWs {
             
             //see if the discovery file has changed...
             String fileName = "grouper.client.discovery.properties";
-            String directoryName = GrouperClientUtils.propertiesValue("grouperClient.discoveryGrouperClientPropertiesDirectory", false);
+            String directoryName = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.discoveryGrouperClientPropertiesDirectory");
             if (!GrouperClientUtils.isBlank(directoryName)) {
               directoryName = GrouperClientUtils.stripLastSlashIfExists(directoryName);
               fileName = directoryName + "/" + fileName;
@@ -245,7 +246,7 @@ public class GrouperClientWs {
                 //grouperClient.discoveryDefault.webService.readWrite.0.url = 
                 List<String> readWriteUrls = new ArrayList<String>();
                 for (int i=0;i<100;i++) {
-                  String readWriteUrl = GrouperClientUtils.propertiesValue("grouperClient.discoveryDefault.webService.readWrite." + i + ".url", false);
+                  String readWriteUrl = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.discoveryDefault.webService.readWrite." + i + ".url");
                   if (GrouperClientUtils.isBlank(readWriteUrl)) {
                     break;
                   }
@@ -265,7 +266,7 @@ public class GrouperClientWs {
                 //grouperClient.discoveryDefault.webService.readOnly.0.url = 
                 List<String> readOnlyUrls = new ArrayList<String>();
                 for (int i=0;i<100;i++) {
-                  String readOnlyUrl = GrouperClientUtils.propertiesValue("grouperClient.discoveryDefault.webService.readOnly." + i + ".url", false);
+                  String readOnlyUrl = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.discoveryDefault.webService.readOnly." + i + ".url");
                   if (GrouperClientUtils.isBlank(readOnlyUrl)) {
                     break;
                   }
@@ -281,33 +282,33 @@ public class GrouperClientWs {
               
               //grouperClient.discoveryDefault.webService.loadBalancing = active/active
               FailoverStrategy failoverStrategy = FailoverStrategy.valueOfIgnoreCase(
-                  GrouperClientUtils.propertiesValue("grouperClient.discoveryDefault.webService.loadBalancing", false), false);
+                  GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.discoveryDefault.webService.loadBalancing"), false);
               if (failoverStrategy != null) {
                 failoverConfig.setFailoverStrategy(failoverStrategy);
               }
               
               //grouperClient.discoveryDefault.webService.preferReadWrite = true
               boolean preferReadWrite = true;
-              preferReadWrite = GrouperClientUtils.propertiesValueBoolean("grouperClient.discoveryDefault.webService.preferReadWrite", preferReadWrite, false);
+              preferReadWrite = GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClient.discoveryDefault.webService.preferReadWrite", preferReadWrite);
               
               //grouperClient.discoveryDefault.webService.affinitySeconds = 28800
               int affinitySeconds = failoverConfig.getAffinitySeconds();
-              affinitySeconds = GrouperClientUtils.propertiesValueInt("grouperClient.discoveryDefault.webService.affinitySeconds", affinitySeconds, false);
+              affinitySeconds = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.discoveryDefault.webService.affinitySeconds", affinitySeconds);
               failoverConfig.setAffinitySeconds(affinitySeconds);
               
               //grouperClient.discoveryDefault.webService.lowerConnectionPriorityOnErrorForMinutes = 3
               int lowerConnectionPriorityOnErrorForMinutes = failoverConfig.getMinutesToKeepErrors();
-              lowerConnectionPriorityOnErrorForMinutes = GrouperClientUtils.propertiesValueInt("grouperClient.discoveryDefault.webService.lowerConnectionPriorityOnErrorForMinutes", lowerConnectionPriorityOnErrorForMinutes, false);
+              lowerConnectionPriorityOnErrorForMinutes = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.discoveryDefault.webService.lowerConnectionPriorityOnErrorForMinutes", lowerConnectionPriorityOnErrorForMinutes);
               failoverConfig.setMinutesToKeepErrors(lowerConnectionPriorityOnErrorForMinutes);
               
               //grouperClient.discoveryDefault.webService.timeoutSeconds = 60
               int timeoutSeconds = failoverConfig.getTimeoutSeconds();
-              timeoutSeconds = GrouperClientUtils.propertiesValueInt("grouperClient.discoveryDefault.webService.timeoutSeconds", timeoutSeconds, false);
+              timeoutSeconds = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.discoveryDefault.webService.timeoutSeconds", timeoutSeconds);
               failoverConfig.setTimeoutSeconds(timeoutSeconds);
               
               //grouperClient.discoveryDefault.webService.extraTimeoutSeconds = 30
               int extraTimeoutSeconds = failoverConfig.getExtraTimeoutSeconds();
-              extraTimeoutSeconds = GrouperClientUtils.propertiesValueInt("grouperClient.discoveryDefault.webService.extraTimeoutSeconds", extraTimeoutSeconds, false);
+              extraTimeoutSeconds = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.discoveryDefault.webService.extraTimeoutSeconds", extraTimeoutSeconds);
               failoverConfig.setExtraTimeoutSeconds(extraTimeoutSeconds);
               
               //if there is a discovery file, then use it
@@ -386,7 +387,7 @@ public class GrouperClientWs {
                 //#grouperClient.discoveryOverride.webService.readWrite.0.url = 
                 List<String> readWriteUrls = new ArrayList<String>();
                 for (int i=0;i<100;i++) {
-                  String readWriteUrl = GrouperClientUtils.propertiesValue("grouperClient.discoveryOverride.webService.readWrite." + i + ".url", false);
+                  String readWriteUrl = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.discoveryOverride.webService.readWrite." + i + ".url");
                   if (GrouperClientUtils.isBlank(readWriteUrl)) {
                     break;
                   }
@@ -406,7 +407,7 @@ public class GrouperClientWs {
                 //#grouperClient.discoveryOverride.webService.readOnly.0.url = 
                 List<String> readOnlyUrls = new ArrayList<String>();
                 for (int i=0;i<100;i++) {
-                  String readOnlyUrl = GrouperClientUtils.propertiesValue("grouperClient.discoveryOverride.webService.readOnly." + i + ".url", false);
+                  String readOnlyUrl = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.discoveryOverride.webService.readOnly." + i + ".url");
                   if (GrouperClientUtils.isBlank(readOnlyUrl)) {
                     break;
                   }
@@ -422,30 +423,30 @@ public class GrouperClientWs {
               
               //#grouperClient.discoveryOverride.webService.loadBalancing = active/active
               failoverStrategy = FailoverStrategy.valueOfIgnoreCase(
-                  GrouperClientUtils.propertiesValue("grouperClient.discoveryOverride.webService.loadBalancing", false), false);
+                  GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.discoveryOverride.webService.loadBalancing"), false);
               if (failoverStrategy != null) {
                 failoverConfig.setFailoverStrategy(failoverStrategy);
               }
               
               //#grouperClient.discoveryOverride.webService.preferReadWrite = true
-              preferReadWrite = GrouperClientUtils.propertiesValueBoolean("grouperClient.discoveryOverride.webService.preferReadWrite", preferReadWrite, false);
+              preferReadWrite = GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClient.discoveryOverride.webService.preferReadWrite", preferReadWrite);
               
               //#grouperClient.discoveryOverride.webService.affinitySeconds = 28800
-              affinitySeconds = GrouperClientUtils.propertiesValueInt("grouperClient.discoveryOverride.webService.affinitySeconds", affinitySeconds, false);
+              affinitySeconds = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.discoveryOverride.webService.affinitySeconds", affinitySeconds);
               failoverConfig.setAffinitySeconds(affinitySeconds);
               
               //#grouperClient.discoveryOverride.webService.lowerConnectionPriorityOnErrorForMinutes = 3
-              lowerConnectionPriorityOnErrorForMinutes = GrouperClientUtils.propertiesValueInt("grouperClient.discoveryOverride.webService.lowerConnectionPriorityOnErrorForMinutes", lowerConnectionPriorityOnErrorForMinutes, false);
+              lowerConnectionPriorityOnErrorForMinutes = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.discoveryOverride.webService.lowerConnectionPriorityOnErrorForMinutes", lowerConnectionPriorityOnErrorForMinutes);
               failoverConfig.setMinutesToKeepErrors(lowerConnectionPriorityOnErrorForMinutes);
               
               //#grouperClient.discoveryOverride.webService.timeoutSeconds = 60
-              timeoutSeconds = GrouperClientUtils.propertiesValueInt(
-                  "grouperClient.discoveryOverride.webService.timeoutSeconds", timeoutSeconds, false);
+              timeoutSeconds = GrouperClientConfig.retrieveConfig().propertyValueInt(
+                  "grouperClient.discoveryOverride.webService.timeoutSeconds", timeoutSeconds);
               failoverConfig.setTimeoutSeconds(timeoutSeconds);
               
               //#grouperClient.discoveryOverride.webService.extraTimeoutSeconds = 30
-              extraTimeoutSeconds = GrouperClientUtils.propertiesValueInt(
-                  "grouperClient.discoveryOverride.webService.extraTimeoutSeconds", extraTimeoutSeconds, false);
+              extraTimeoutSeconds = GrouperClientConfig.retrieveConfig().propertyValueInt(
+                  "grouperClient.discoveryOverride.webService.extraTimeoutSeconds", extraTimeoutSeconds);
               failoverConfig.setExtraTimeoutSeconds(extraTimeoutSeconds);
   
               if (debugLog != null) {
@@ -476,7 +477,7 @@ public class GrouperClientWs {
                 //if there are no urls, then add the default one
                 if (GrouperClientUtils.length(failoverConfigReadWrite.getConnectionNames()) == 0) {
                   failoverConfigReadWrite.setConnectionNames(GrouperClientUtils.toList(
-                      GrouperClientUtils.propertiesValue("grouperClient.webService.url", true)));
+                      GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService.url")));
                 }
                 failoverConfigReadWrite.setConnectionType(READ_WRITE_FAILOVER_CONFIG_NAME);
                 FailoverClient.initFailoverClient(failoverConfigReadWrite);
@@ -498,7 +499,7 @@ public class GrouperClientWs {
                 if (GrouperClientUtils.length(failoverConfigReadOnly.getConnectionNames()) == 0
                     && GrouperClientUtils.length(failoverConfigReadOnly.getConnectionNamesSecondTier()) == 0) {
                   failoverConfigReadOnly.setConnectionNames(GrouperClientUtils.toList(
-                      GrouperClientUtils.propertiesValue("grouperClient.webService.url", true)));
+                      GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService.url")));
                 }
   
                 failoverConfigReadOnly.setConnectionType(READ_ONLY_FAILOVER_CONFIG_NAME);
@@ -594,7 +595,7 @@ public class GrouperClientWs {
     
     GrouperClientWs grouperClientWs = new GrouperClientWs();
     
-    String logDir = GrouperClientUtils.propertiesValue("grouperClient.logging.webService.documentDir", false);
+    String logDir = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.logging.webService.documentDir");
     File requestFile = null;
     File responseFile = null;
     
@@ -653,7 +654,7 @@ public class GrouperClientWs {
       String theResponse = grouperClientWs.response;
       Exception indentException = null;
 
-      boolean isIndent = GrouperClientUtils.propertiesValueBoolean("grouperClient.logging.webService.indent", true, true);
+      boolean isIndent = GrouperClientConfig.retrieveConfig().propertyValueBooleanRequired("grouperClient.logging.webService.indent");
       if (isIndent) {
         try {
           theResponse = GrouperClientUtils.indent(theResponse, true);
@@ -746,7 +747,7 @@ public class GrouperClientWs {
   private static HttpClient httpClient() {
     
     //see if invalid SSL
-    String httpsSocketFactoryName = GrouperClientUtils.propertiesValue("grouperClient.https.customSocketFactory", false);
+    String httpsSocketFactoryName = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.https.customSocketFactory");
     
     //is there overhead here?  should only do this once?
     //perhaps give a custom factory
@@ -764,27 +765,27 @@ public class GrouperClientWs {
 
     httpClient.getParams().setAuthenticationPreemptive(true);
     
-    int soTimeoutMillis = GrouperClientUtils.propertiesValueInt(
-        "grouperClient.webService.httpSocketTimeoutMillis", 90000, true);
+    int soTimeoutMillis = GrouperClientConfig.retrieveConfig().propertyValueIntRequired(
+        "grouperClient.webService.httpSocketTimeoutMillis");
     
     httpClient.getParams().setSoTimeout(soTimeoutMillis);
     httpClient.getParams().setParameter(HttpMethodParams.HEAD_BODY_CHECK_TIMEOUT, soTimeoutMillis);
     
-    int connectionManagerMillis = GrouperClientUtils.propertiesValueInt(
-        "grouperClient.webService.httpConnectionManagerTimeoutMillis", 90000, true);
+    int connectionManagerMillis = GrouperClientConfig.retrieveConfig().propertyValueIntRequired(
+        "grouperClient.webService.httpConnectionManagerTimeoutMillis");
     
     httpClient.getParams().setConnectionManagerTimeout(connectionManagerMillis);
 
-    String userLabel = GrouperClientUtils.propertiesValue("grouperClient.webService.user.label", true);
-    String user = GrouperClientUtils.propertiesValue("grouperClient.webService." + userLabel, true);
+    String userLabel = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService.user.label");
+    String user = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService." + userLabel);
     
     LOG.debug("WebService: connecting as user: '" + user + "'");
     
-    boolean disableExternalFileLookup = GrouperClientUtils.propertiesValueBoolean(
-        "encrypt.disableExternalFileLookup", false, true);
+    boolean disableExternalFileLookup = GrouperClientConfig.retrieveConfig().propertyValueBooleanRequired(
+        "encrypt.disableExternalFileLookup");
     
     //lets lookup if file
-    String wsPass = GrouperClientUtils.propertiesValue("grouperClient.webService.password", true);
+    String wsPass = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService.password");
     String wsPassFromFile = GrouperClientUtils.readFromFileIfFile(wsPass, disableExternalFileLookup);
 
     String passPrefix = null;
@@ -800,7 +801,7 @@ public class GrouperClientWs {
       passPrefix = "WebService pass: reading scalar value from grouper.client.properties";
     }
     
-    if (GrouperClientUtils.propertiesValueBoolean("grouperClient.logging.logMaskedPassword", false, false)) {
+    if (GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClient.logging.logMaskedPassword", false)) {
       LOG.debug(passPrefix + ": " + GrouperClientUtils.repeat("*", wsPass.length()));
     }
 
@@ -822,7 +823,7 @@ public class GrouperClientWs {
     
     url = GrouperClientUtils.stripEnd(url, "/");
     
-    String webServiceVersion = GrouperClientUtils.propertiesValue("grouperClient.webService.client.version", true);
+    String webServiceVersion = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService.client.version");
 
     if (!GrouperClientUtils.isBlank(clientVersion)) {
       webServiceVersion = clientVersion;
@@ -878,7 +879,7 @@ public class GrouperClientWs {
         }
         String theRequestDocument = requestDocument;
         Exception indentException = null;
-        boolean isIndent = GrouperClientUtils.propertiesValueBoolean("grouperClient.logging.webService.indent", true, true);
+        boolean isIndent = GrouperClientConfig.retrieveConfig().propertyValueBooleanRequired("grouperClient.logging.webService.indent");
         if (isIndent) {
           try {
             theRequestDocument = GrouperClientUtils.indent(theRequestDocument, true);
