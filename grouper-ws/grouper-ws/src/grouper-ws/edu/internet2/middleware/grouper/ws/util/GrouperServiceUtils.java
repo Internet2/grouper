@@ -877,7 +877,7 @@ public final class GrouperServiceUtils {
       throw new WsInvalidQueryException(label + " length must be at least 1");
     }
     // see if greater than the max (or default)
-    int maxObjects = GrouperWsConfig.getPropertyInt(configNameOfMax, 1000000);
+    int maxObjects = GrouperWsConfig.retrieveConfig().propertyValueInt(configNameOfMax, 1000000);
     if (objectsLength > maxObjects) {
       throw new WsInvalidQueryException(label + " length must be less than max: "
           + maxObjects + " (sent in " + objectsLength + ")");
@@ -988,8 +988,7 @@ public final class GrouperServiceUtils {
     }
 
     //reduce the attributes into one list
-    String attributeNames = GrouperWsConfig
-        .getPropertyString(GrouperWsConfig.WS_SUBJECT_RESULT_ATTRIBUTE_NAMES);
+    String attributeNames = GrouperWsConfig.retrieveConfig().propertyValueString(GrouperWsConfig.WS_SUBJECT_RESULT_ATTRIBUTE_NAMES);
 
     String[] theAttributes = GrouperUtil.splitTrim(attributeNames, ",");
 
@@ -997,8 +996,7 @@ public final class GrouperServiceUtils {
 
     if (includeSubjectDetailBoolean) {
 
-      attributeNames = GrouperWsConfig
-          .getPropertyString(GrouperWsConfig.WS_SUBJECT_RESULT_DETAIL_ATTRIBUTE_NAMES);
+      attributeNames = GrouperWsConfig.retrieveConfig().propertyValueString(GrouperWsConfig.WS_SUBJECT_RESULT_DETAIL_ATTRIBUTE_NAMES);
       //default for extended is name,description
       attributeNames = GrouperUtil.defaultIfNull(attributeNames, "name, description");
 

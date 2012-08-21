@@ -83,7 +83,7 @@ public class WsHasMemberResult implements ResultMetadataHolder {
       subject = wsSubjectLookup.retrieveSubject();
     } catch (SubjectNotFoundException snfe) {
       //if we should do the old way
-      if (GrouperWsConfig.getPropertyBoolean("ws.hasMember.subjectNotFound.returnsError", false)) {
+      if (GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.hasMember.subjectNotFound.returnsError", false)) {
         throw snfe;
       }
       //this is ok, let the result show
@@ -199,7 +199,7 @@ public class WsHasMemberResult implements ResultMetadataHolder {
      */
     public boolean isSuccess() {
       return this.equals(IS_MEMBER) || this.equals(IS_NOT_MEMBER) 
-      || (!GrouperWsConfig.getPropertyBoolean("ws.hasMember.subjectNotFound.returnsError", false) 
+      || (!GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.hasMember.subjectNotFound.returnsError", false) 
           && this.equals(SUBJECT_NOT_FOUND));
     }
     

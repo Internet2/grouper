@@ -213,8 +213,7 @@ public class GrouperServiceJ2ee implements Filter {
       userIdLoggedIn = sourceSubjectId[1];
     } else {
       //see if there is a default source for all users to web service
-      sourceId = StringUtils.trimToNull(GrouperWsConfig
-          .getPropertyString(GrouperWsConfig.WS_LOGGED_IN_SUBJECT_DEFAULT_SOURCE));
+      sourceId = StringUtils.trimToNull(GrouperWsConfig.retrieveConfig().propertyValueString(GrouperWsConfig.WS_LOGGED_IN_SUBJECT_DEFAULT_SOURCE));
     }
 
     //puts it in the log4j ndc context so userid is logged
@@ -293,7 +292,7 @@ public class GrouperServiceJ2ee implements Filter {
    * @return act as cache minutes
    */
   private static int actAsCacheMinutes() {
-    int actAsTimeoutMinutes = GrouperWsConfig.getPropertyInt(
+    int actAsTimeoutMinutes = GrouperWsConfig.retrieveConfig().propertyValueInt(
         GrouperWsConfig.WS_ACT_AS_CACHE_MINUTES, 5);
     return actAsTimeoutMinutes;
   }
@@ -304,7 +303,7 @@ public class GrouperServiceJ2ee implements Filter {
    */
   private static GrouperCache<MultiKey, Boolean> subjectAllowedCache() {
     if (subjectAllowedCache == null) {
-      int subjectAllowedTimeoutMinutes = GrouperWsConfig.getPropertyInt(
+      int subjectAllowedTimeoutMinutes = GrouperWsConfig.retrieveConfig().propertyValueInt(
           GrouperWsConfig.WS_CLIENT_USER_GROUP_CACHE_MINUTES, 5);
       subjectAllowedCache = new GrouperCache<MultiKey, Boolean>(GrouperServiceJ2ee.class.getName() + "grouperWsAllowedCache", 10000, false, 60*60*24, subjectAllowedTimeoutMinutes*60, false);
 
@@ -354,7 +353,7 @@ public class GrouperServiceJ2ee implements Filter {
     HooksContext.assignSubjectLoggedIn(loggedInSubject);
     
     //make sure allowed
-    String userGroupName = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_CLIENT_USER_GROUP_NAME);
+    String userGroupName = GrouperWsConfig.retrieveConfig().propertyValueString(GrouperWsConfig.WS_CLIENT_USER_GROUP_NAME);
     
     String loggedInSubjectId = loggedInSubject.getId();
     if (!StringUtils.isBlank(userGroupName)) {
@@ -448,8 +447,7 @@ public class GrouperServiceJ2ee implements Filter {
 
     // so there is an actAs specified, lets see if we are allowed to use it
     // first lets get the group you have to be in if you are going to
-    String actAsGroupName = GrouperWsConfig
-        .getPropertyString(GrouperWsConfig.WS_ACT_AS_GROUP);
+    String actAsGroupName = GrouperWsConfig.retrieveConfig().propertyValueString(GrouperWsConfig.WS_ACT_AS_GROUP);
 
     // make sure there is one there
     if (StringUtils.isBlank(actAsGroupName)) {

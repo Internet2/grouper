@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouperClient.GrouperClient;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 
@@ -52,45 +53,45 @@ public class GrouperClientLdapTest extends TestCase {
   @Override
   protected void setUp() {
     
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.operationName.0", "pennnameToPennid");
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.ldapName.0", "ou=pennnames");
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.returningAttributes.0", "pennid");
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.returningAttributeLabels.0", "pennid:$space$");
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.matchingAttributes.0", "pennname");
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.matchingAttributeLabels.0", "pennnameToDecode");
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.resultType.0", "STRING");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.operationName.0", "pennnameToPennid");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.ldapName.0", "ou=pennnames");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.returningAttributes.0", "pennid");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.returningAttributeLabels.0", "pennid:$space$");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.matchingAttributes.0", "pennname");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.matchingAttributeLabels.0", "pennnameToDecode");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.resultType.0", "STRING");
 
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.operationName.1", "pennidToPennname");
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.ldapName.1", "ou=pennnames");
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.matchingAttributes.1", "pennid");
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.matchingAttributeLabels.1", "pennidToDecode");
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.returningAttributes.1", "pennname");
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.returningAttributeLabels.1", "pennname:$space$");
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.resultType.1", "STRING");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.operationName.1", "pennidToPennname");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.ldapName.1", "ou=pennnames");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.matchingAttributes.1", "pennid");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.matchingAttributeLabels.1", "pennidToDecode");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.returningAttributes.1", "pennname");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.returningAttributeLabels.1", "pennname:$space$");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.resultType.1", "STRING");
 
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.operationName.2", "hasMemberLdap");
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.ldapName.2", "ou=groups");
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.matchingAttributes.2", "cn, hasMember");
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.matchingAttributeLabels.2", "groupName, pennnameToCheck");
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.returningAttributes.2", "cn");
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.returningAttributeLabels.2", "hasMember:$space$");
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.resultType.2", "BOOLEAN");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.operationName.2", "hasMemberLdap");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.ldapName.2", "ou=groups");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.matchingAttributes.2", "cn, hasMember");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.matchingAttributeLabels.2", "groupName, pennnameToCheck");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.returningAttributes.2", "cn");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.returningAttributeLabels.2", "hasMember:$space$");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.resultType.2", "BOOLEAN");
 
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.operationName.3", "getMembersLdap");
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.ldapName.3", "ou=groups");
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.matchingAttributes.3", "cn");
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.matchingAttributeLabels.3", "groupName");
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.returningAttributes.3", "hasMember");
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.returningAttributeLabels.3", "");
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.resultType.3", "STRING_LIST");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.operationName.3", "getMembersLdap");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.ldapName.3", "ou=groups");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.matchingAttributes.3", "cn");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.matchingAttributeLabels.3", "groupName");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.returningAttributes.3", "hasMember");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.returningAttributeLabels.3", "");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("ldapSearchAttribute.resultType.3", "STRING_LIST");
 
-    GrouperClientUtils.grouperClientOverrideMap().put("grouperClient.ldap.user.prefix", "uid=");
-    GrouperClientUtils.grouperClientOverrideMap().put("grouperClient.ldap.user.suffix", ",ou=entities,dc=upenn,dc=edu");
-    GrouperClientUtils.grouperClientOverrideMap().put("grouperClient.ldap.user.label", "kerberosPrincipal");
-    GrouperClientUtils.grouperClientOverrideMap().put("grouperClient.output.version", "1.4.0");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.ldap.user.prefix", "uid=");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.ldap.user.suffix", ",ou=entities,dc=upenn,dc=edu");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.ldap.user.label", "kerberosPrincipal");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.output.version", "1.4.0");
 
-    GrouperClientUtils.grouperClientOverrideMap().put("encrypt.key", "sdfklj24lkj34lk34");
-    GrouperClientUtils.grouperClientOverrideMap().put("encrypt.disableExternalFileLookup", "false");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("encrypt.key", "sdfklj24lkj34lk34");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("encrypt.disableExternalFileLookup", "false");
 
   }
 
@@ -100,7 +101,7 @@ public class GrouperClientLdapTest extends TestCase {
   @Override
   protected void tearDown() {
     
-    GrouperClientUtils.grouperClientOverrideMap().clear();
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().clear();
     
   }
 

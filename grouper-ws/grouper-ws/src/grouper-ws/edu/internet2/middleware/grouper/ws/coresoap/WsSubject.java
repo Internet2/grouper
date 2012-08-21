@@ -251,7 +251,7 @@ public class WsSubject implements Comparable<WsSubject> {
     
     int attributesLength = GrouperUtil.length(subjectAttributeNames);
 
-    String subjectAttributesForDecorator = GrouperWsConfig.getPropertyString("ws.subject.attributes.for.decorator");
+    String subjectAttributesForDecorator = GrouperWsConfig.retrieveConfig().propertyValueString("ws.subject.attributes.for.decorator");
     Set<String> subjectAttributesForDecoratorSet = null;
     
     //see if there are any attributes which need to be sent to the subject customizer

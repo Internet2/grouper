@@ -119,7 +119,7 @@ public class GrouperRestServlet extends HttpServlet {
       parameterMap = request.getParameterMap();
 
       //default to xhtml, or whatever is in the config file
-      String configResponseType = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_REST_DEFAULT_RESPONSE_CONTENT_TYPE);
+      String configResponseType = GrouperWsConfig.retrieveConfig().propertyValueString(GrouperWsConfig.WS_REST_DEFAULT_RESPONSE_CONTENT_TYPE);
       wsRestResponseContentType = StringUtils.isBlank(configResponseType) ? wsRestResponseContentType
           : WsRestResponseContentType.valueOfIgnoreCase(configResponseType, true);
       
@@ -243,7 +243,7 @@ public class GrouperRestServlet extends HttpServlet {
       //set the status code
       response.setStatus(wsResponseBean.getResultMetadata().retrieveHttpStatusCode());
 
-      String restCharset = GrouperWsConfig.getPropertyString("ws.restHttpContentTypeCharset");
+      String restCharset = GrouperWsConfig.retrieveConfig().propertyValueString("ws.restHttpContentTypeCharset");
       String responseContentType = wsRestResponseContentType.getContentType();
       
       if (!StringUtils.isBlank(restCharset)) {
@@ -258,7 +258,7 @@ public class GrouperRestServlet extends HttpServlet {
       boolean wrapJsonResponse = false;
 
       //maybe response writer
-      if(wsRestResponseContentType == WsRestResponseContentType.json && GrouperWsConfig.getPropertyBoolean("ws.allowJsonWrapper", true)) {
+      if(wsRestResponseContentType == WsRestResponseContentType.json && GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.allowJsonWrapper", true)) {
         
         String grouperJsonResponseWrapper = GrouperServiceJ2ee.parameterValue(parameterMap, request, "grouperJsonResponseWrapper"); 
         if (!StringUtils.isBlank(grouperJsonResponseWrapper)) {

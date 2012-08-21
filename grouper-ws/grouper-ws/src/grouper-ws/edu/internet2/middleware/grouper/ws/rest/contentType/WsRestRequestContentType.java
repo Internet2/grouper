@@ -121,7 +121,7 @@ public enum WsRestRequestContentType {
     public WsRestResponseContentType calculateResponseContentType() {
       
       //not specified, get from config file
-      String configValue = GrouperWsConfig.getPropertyString(
+      String configValue = GrouperWsConfig.retrieveConfig().propertyValueString(
           GrouperWsConfig.WS_REST_DEFAULT_RESPONSE_CONTENT_TYPE);
       
       //default to xhtml if not specified

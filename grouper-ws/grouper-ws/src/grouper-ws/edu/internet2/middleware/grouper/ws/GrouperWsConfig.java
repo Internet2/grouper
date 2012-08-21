@@ -22,8 +22,9 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.cfg.PropertiesConfiguration;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 
 /**
  * config constants for WS
@@ -31,31 +32,14 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @author mchyzer
  * 
  */
-public final class GrouperWsConfig {
+public final class GrouperWsConfig extends ConfigPropertiesCascadeBase {
 
   /**
-   * no need to construct
+   * retrieve a config from the config file or from cache
+   * @return the config object
    */
-  private GrouperWsConfig() {
-    // no need to construct
-  }
-
-  /**
-   * cache the properties configuration
-   */
-  private static PropertiesConfiguration propertiesConfiguration = null;
-
-  /**
-   * lazy load and cache the properties configuration
-   * 
-   * @return the properties configuration
-   */
-  private static PropertiesConfiguration retrievePropertiesConfiguration() {
-    if (propertiesConfiguration == null) {
-      propertiesConfiguration = new PropertiesConfiguration("/grouper-ws.properties");
-    }
-    return propertiesConfiguration;
-
+  public static GrouperClientConfig retrieveConfig() {
+    return retrieveConfig(GrouperClientConfig.class);
   }
 
   /**
@@ -69,17 +53,21 @@ public final class GrouperWsConfig {
    * @return Value of configuration parameter or an empty string if parameter
    *         is invalid.
    * @since 1.1.0
+   * @deprecated use GrouperWsConfig.retrieveConfig().propertyValueString instead
    */
+  @Deprecated
   public static String getPropertyString(String property) {
-    return retrievePropertiesConfiguration().getProperty(property);
+    return retrieveConfig().propertyValueString(property, "");
   }
 
   /**
    * get all properties
    * @return all properties
+   * @deprecated use GrouperWsConfig.retrieveConfig().properties()
    */
+  @Deprecated
   public static Properties getProperties() {
-    return retrievePropertiesConfiguration().getProperties();
+    return retrieveConfig().properties();
   }
   
   /**
@@ -93,10 +81,11 @@ public final class GrouperWsConfig {
    * @param defaultValue is the value if the property isnt found
    * @return Value of configuration parameter or the default value (will trim the value)
    * @since 1.1.0
+   * @deprecated use GrouperWsConfig.retrieveConfig().propertyValueString instead
    */
+  @Deprecated
   public static String getPropertyString(String property, String defaultValue) {
-    String value = retrievePropertiesConfiguration().getProperty(property);
-    return StringUtils.defaultIfEmpty(StringUtils.trimToEmpty(value), defaultValue);
+    return retrieveConfig().propertyValueString(property, defaultValue);
   }
 
   /**
@@ -106,24 +95,11 @@ public final class GrouperWsConfig {
    * @param defaultValue of the int if not there
    * @return Value of configuration parameter or null if parameter isnt
    *         specified. Exception is thrown if not formatted correcly
-   * @throws NumberFormatException
-   *             if cannot convert the value to an Integer
+   * @deprecated use GrouperWsConfig.retrieveConfig().propertyValueInt instead
    */
-  public static int getPropertyInt(String property, int defaultValue)
-      throws NumberFormatException {
-    String paramString = getPropertyString(property);
-    // see if not there
-    if (StringUtils.isEmpty(paramString)) {
-      return defaultValue;
-    }
-    // if there, convert to int
-    try {
-      int paramInteger = Integer.parseInt(paramString);
-      return paramInteger;
-    } catch (NumberFormatException nfe) {
-      throw new NumberFormatException("Cannot convert the grouper.properties param: "
-          + property + " to an Integer.  Config value is '" + paramString + "' " + nfe);
-    }
+  @Deprecated
+  public static int getPropertyInt(String property, int defaultValue) {
+    return retrieveConfig().propertyValueInt(property, defaultValue);
   }
 
   /**
@@ -134,25 +110,11 @@ public final class GrouperWsConfig {
    * @param defaultValue if the property is not there
    * @return Value of configuration parameter or null if parameter isnt
    *         specified. Exception is thrown if not formatted correcly
-   * @throws NumberFormatException
-   *             if cannot convert the value to an Integer
+   * @deprecated use GrouperWsConfig.retrieveConfig().propertyValueBoolean instead
    */
-  public static boolean getPropertyBoolean(String property, boolean defaultValue)
-      throws NumberFormatException {
-    String paramString = getPropertyString(property);
-    // see if not there
-    if (StringUtils.isEmpty(paramString)) {
-      return defaultValue;
-    }
-    // if there, convert to boolean
-    try {
-      // note, cant be blank at this point, so default value doesnt matter
-      boolean paramBoolean = GrouperUtil.booleanValue(paramString);
-      return paramBoolean;
-    } catch (RuntimeException re) {
-      throw new RuntimeException("Cannot convert the grouper.properties param: "
-          + property + " to a boolean.  Config value is '" + paramString + "' " + re, re);
-    }
+  @Deprecated
+  public static boolean getPropertyBoolean(String property, boolean defaultValue) {
+    return GrouperWsConfig.retrieveConfig().propertyValueBoolean(property, defaultValue);
   }
 
   /**
@@ -366,6 +328,46 @@ public final class GrouperWsConfig {
    * defaults to 30 minutes: 
    */
   public static final String WS_CLIENT_USER_GROUP_CACHE_MINUTES = "ws.client.user.group.cache.minutes";
+
+  /**
+   * @see ConfigPropertiesCascadeBase#clearCachedCalculatedValues
+   */
+  @Override
+  public void clearCachedCalculatedValues() {
+    //nothing to do at this point
+  }
+
+  /**
+   * @see ConfigPropertiesCascadeBase#getHierarchyConfigKey
+   */
+  @Override
+  protected String getHierarchyConfigKey() {
+    return "ws.config.hierarchy";
+  }
+
+  /**
+   * @see ConfigPropertiesCascadeBase#getMainConfigClasspath
+   */
+  @Override
+  protected String getMainConfigClasspath() {
+    return "grouper-ws.properties";
+  }
+
+  /**
+   * @see ConfigPropertiesCascadeBase#getMainExampleConfigClasspath
+   */
+  @Override
+  protected String getMainExampleConfigClasspath() {
+    return "grouper-ws.example.properties";
+  }
+
+  /**
+   * @see ConfigPropertiesCascadeBase#getSecondsToCheckConfigKey
+   */
+  @Override
+  protected String getSecondsToCheckConfigKey() {
+    return "ws.config.secondsBetweenUpdateChecks";
+  }
 
 
 }

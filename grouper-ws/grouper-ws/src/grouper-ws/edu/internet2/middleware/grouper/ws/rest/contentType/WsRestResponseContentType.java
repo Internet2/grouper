@@ -192,7 +192,7 @@ public enum WsRestResponseContentType {
     //note new JsonHierarchicalStreamDriver() doesnt work
     XStream xstream = null;
     
-    boolean ignoreExtraneousFields = GrouperWsConfig.getPropertyBoolean("ws.ignoreExtraneousXmlFieldsRest", false);
+    boolean ignoreExtraneousFields = GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.ignoreExtraneousXmlFieldsRest", false);
     
     if (ignoreExtraneousFields) {
       xstream = new XStream(isJson ? new JettisonMappedXmlDriver() : new XppDriver()) {
@@ -230,7 +230,7 @@ public enum WsRestResponseContentType {
     }
 
     //see if omitting fields
-    String fieldsToOmit = GrouperWsConfig.getPropertyString("ws.omitXmlPropertiesRest");
+    String fieldsToOmit = GrouperWsConfig.retrieveConfig().propertyValueString("ws.omitXmlPropertiesRest");
     if (!GrouperUtil.isBlank(fieldsToOmit)) {
       String[] fieldsToOmitList = GrouperUtil.splitTrim(fieldsToOmit, ",");
       for (String fieldToOmit: fieldsToOmitList) {

@@ -4036,7 +4036,7 @@ public class GrouperServiceLogic {
         int resultSubjectsLengthPreGroup = GrouperUtil.length(resultSubjects);
         if (filteringByGroup && resultSubjectsLengthPreGroup > 0) {
           //we have a list of subjects, lets see if they are too large
-          if (resultSubjectsLengthPreGroup > GrouperWsConfig.getPropertyInt("ws.get.subjects.max.filter.by.group", 1000)) {
+          if (resultSubjectsLengthPreGroup > GrouperWsConfig.retrieveConfig().propertyValueInt("ws.get.subjects.max.filter.by.group", 1000)) {
             throw new TooManyResultsWhenFilteringByGroupException();
           }
           

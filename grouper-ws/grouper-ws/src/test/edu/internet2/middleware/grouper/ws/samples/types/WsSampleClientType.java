@@ -70,7 +70,7 @@ public enum WsSampleClientType {
       */
      @Override
      public File sourceFile(Class<?> clientClass) {
-       String projectDir = GrouperWsConfig.getPropertyString("ws.testing.generated.client.dir");
+       String projectDir = GrouperWsConfig.retrieveConfig().propertyValueString("ws.testing.generated.client.dir");
        File file = new File(projectDir + "/src/" + clientClass.getName().replace('.', '/') + ".java");
        if (!file.exists()) {
          throw new RuntimeException("Source file doesnt exist: " + file.getAbsolutePath());
@@ -131,7 +131,7 @@ public enum WsSampleClientType {
      @Override
      public File sourceFile(Class<?> clientClass) {
        //src\test\edu\internet2\middleware\grouper\ws\samples\rest
-       File file = new File(GrouperWsConfig.getPropertyString("ws.testing.grouper-ws.dir") + 
+       File file = new File(GrouperWsConfig.retrieveConfig().propertyValueString("ws.testing.grouper-ws.dir") + 
            "/src/test/" + clientClass.getName().replace('.', '/') + ".java");
        if (!file.exists()) {
          throw new RuntimeException("Source file doesnt exist: " + file.getAbsolutePath());
@@ -192,7 +192,7 @@ public enum WsSampleClientType {
       */
      @Override
      public File sourceFile(Class<?> clientClass) {
-       String projectDir = GrouperWsConfig.getPropertyString("ws.testing.manual.client.dir");
+       String projectDir = GrouperWsConfig.retrieveConfig().propertyValueString("ws.testing.manual.client.dir");
        File file = new File(projectDir + "/src/java-manual-client/" + clientClass.getName().replace('.', '/') + ".java");
        if (!file.exists()) {
          throw new RuntimeException("Source file doesnt exist: " + file.getAbsolutePath());

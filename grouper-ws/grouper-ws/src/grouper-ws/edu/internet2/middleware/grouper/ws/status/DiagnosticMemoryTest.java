@@ -68,7 +68,7 @@ public class DiagnosticMemoryTest extends DiagnosticTask {
    * @return bytes
    */
   private int bytesToAllocate() {
-    return GrouperWsConfig.getPropertyInt("ws.diagnostics.bytesToAllocate", 100000);
+    return GrouperWsConfig.retrieveConfig().propertyValueInt("ws.diagnostics.bytesToAllocate", 100000);
   }
 
   /**

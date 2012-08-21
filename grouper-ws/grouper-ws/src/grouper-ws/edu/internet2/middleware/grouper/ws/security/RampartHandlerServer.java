@@ -51,7 +51,7 @@ public class RampartHandlerServer implements CallbackHandler {
    */
   @SuppressWarnings("unchecked")
   public static Class<? extends GrouperWssecAuthentication> retrieveRampartCallbackClass() {
-    String className = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_SECURITY_RAMPART_AUTHENTICATION_CLASS);
+    String className = GrouperWsConfig.retrieveConfig().propertyValueString(GrouperWsConfig.WS_SECURITY_RAMPART_AUTHENTICATION_CLASS);
     if (StringUtils.isBlank(className)) {
       return null;
     }

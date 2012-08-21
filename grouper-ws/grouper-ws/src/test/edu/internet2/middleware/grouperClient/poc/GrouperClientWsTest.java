@@ -78,6 +78,7 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 import edu.internet2.middleware.grouperClient.GrouperClient;
 import edu.internet2.middleware.grouperClient.api.GcGetGroups;
 import edu.internet2.middleware.grouperClient.api.GcGroupSave;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GcWebServiceError;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
@@ -114,131 +115,111 @@ public class GrouperClientWsTest extends GrouperTest {
     // dont do this, it deletes types
     // super.setUp();
 
-    String wsUserLabel = GrouperClientUtils.propertiesValue(
-        "grouperClient.webService.user.label", true);
-    String wsUserString = GrouperClientUtils.propertiesValue(
-        "grouperClient.webService." + wsUserLabel, true);
+    String wsUserLabel = GrouperClientConfig.retrieveConfig().propertyValueStringRequired(
+        "grouperClient.webService.user.label");
+    String wsUserString = GrouperClientConfig.retrieveConfig().propertyValueStringRequired(
+        "grouperClient.webService." + wsUserLabel);
 
     RestClientSettings.resetData(wsUserString, false);
 
-    GrouperClientUtils.grouperClientOverrideMap().put("encrypt.key",
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("encrypt.key",
         "sdfklj24lkj34lk34");
-    GrouperClientUtils.grouperClientOverrideMap().put(
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put(
         "encrypt.disableExternalFileLookup", "false");
 
-    GrouperClientUtils
-        .grouperClientOverrideMap()
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap()
         .put(
             "webService.addMember.output",
             "Index ${index}: success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: ${wsSubject.id}$newline$");
-    GrouperClientUtils
-        .grouperClientOverrideMap()
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap()
         .put(
             "webService.getMembers.output",
             "GroupIndex ${groupIndex}: success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: group: ${wsGroup.name}: subjectIndex: ${subjectIndex}: ${wsSubject.id}$newline$");
-    GrouperClientUtils
-        .grouperClientOverrideMap()
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap()
         .put(
             "webService.deleteMember.output",
             "Index ${index}: success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: ${wsSubject.id}$newline$");
-    GrouperClientUtils
-        .grouperClientOverrideMap()
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap()
         .put(
             "webService.hasMember.output",
             "Index ${index}: success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: ${wsSubject.id}: ${hasMember}$newline$");
-    GrouperClientUtils
-        .grouperClientOverrideMap()
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap()
         .put(
             "webService.getGroups.output",
             "SubjectIndex ${subjectIndex}: success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: subject: ${wsSubject.id}: groupIndex: ${groupIndex}: ${wsGroup.name}$newline$");
-    GrouperClientUtils
-        .grouperClientOverrideMap()
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap()
         .put(
             "webService.groupSave.output",
             "Success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: ${wsGroup.name}$newline$");
-    GrouperClientUtils
-        .grouperClientOverrideMap()
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap()
         .put(
             "webService.stemSave.output",
             "Success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: ${wsStem.name}$newline$");
-    GrouperClientUtils
-        .grouperClientOverrideMap()
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap()
         .put(
             "webService.groupDelete.output",
             "Index ${index}: success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: ${wsGroup.name}$newline$");
-    GrouperClientUtils
-        .grouperClientOverrideMap()
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap()
         .put(
             "webService.stemDelete.output",
             "Index ${index}: success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: ${wsStem.name}$newline$");
-    GrouperClientUtils
-        .grouperClientOverrideMap()
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap()
         .put(
             "webService.getGrouperPrivilegesLite.output",
             "Index ${index}: success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: ${objectType}: ${objectName}: subject: ${wsSubject.id}: ${wsGrouperPrivilegeResult.privilegeType}: ${wsGrouperPrivilegeResult.privilegeName}$newline$");
-    GrouperClientUtils
-        .grouperClientOverrideMap()
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap()
         .put(
             "webService.assignGrouperPrivilegesLite.output",
             "Success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: ${objectType}: ${objectName}: subject: ${wsSubject.id}: ${wsAssignGrouperPrivilegesLiteResult.privilegeType}: ${wsAssignGrouperPrivilegesLiteResult.privilegeName}$newline$");
-    GrouperClientUtils
-        .grouperClientOverrideMap()
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap()
         .put(
             "webService.findGroups.output",
             "Index ${index}: name: ${wsGroup.name}, displayName: ${wsGroup.displayName}$newline$");
-    GrouperClientUtils
-        .grouperClientOverrideMap()
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap()
         .put(
             "webService.findStems.output",
             "Index ${index}: name: ${wsStem.name}, displayName: ${wsStem.displayName}$newline$");
-    GrouperClientUtils
-        .grouperClientOverrideMap()
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap()
         .put(
             "webService.memberChangeSubject.output",
             "Success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: oldSubject: ${wsSubjectOld.id}, newSubject: ${wsSubjectNew.id}$newline$");
 
-    GrouperClientUtils
-    .grouperClientOverrideMap()
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap()
     .put(
         "webService.getSubjects.output",
         "Index: ${index}: success: ${success}, code: ${wsSubject.resultCode}, subject: ${wsSubject.id}$newline$");
     
-    GrouperClientUtils
-    .grouperClientOverrideMap()
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap()
     .put(
         "webService.assignAttributeDefNameInheritance.output",
         "Success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}, message: ${resultMetadata.resultMessage}$newline$");
-    GrouperClientUtils
-    .grouperClientOverrideMap()
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap()
     .put(
         "webService.attributeDefNameSave.output",
         "Success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: ${wsAttributeDefName.name}$newline$");
-    GrouperClientUtils
-    .grouperClientOverrideMap()
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap()
     .put(
         "webService.attributeDefNameDelete.output",
         "Index ${index}: success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: ${wsAttributeDefName.name}$newline$");
-    GrouperClientUtils
-    .grouperClientOverrideMap()
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap()
     .put(
         "webService.findAttributeDefNames.output",
         "Index ${index}: name: ${wsAttributeDefName.name}, displayName: ${wsAttributeDefName.displayName}$newline$");
     
-    GrouperClientUtils.grouperClientOverrideMap().put(
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put(
         "grouperClient.alias.subjectIds", "pennIds");
-    GrouperClientUtils.grouperClientOverrideMap().put(
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put(
         "grouperClient.alias.subjectIdentifiers", "pennKeys");
-    GrouperClientUtils.grouperClientOverrideMap().put(
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put(
         "grouperClient.alias.SubjectId", "PennId");
-    GrouperClientUtils.grouperClientOverrideMap().put(
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put(
         "grouperClient.alias.SubjectIdentifier", "PennKey");
-    GrouperClientUtils.grouperClientOverrideMap().put(
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put(
         "grouperClient.alias.subjectId", "pennId");
-    GrouperClientUtils.grouperClientOverrideMap().put(
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put(
         "grouperClient.alias.subjectIdentifier", "pennKey");
 
-    GrouperClientUtils
-        .grouperClientOverrideMap()
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap()
         .put(
             "webService.hasMember.output",
             "Index ${index}: success: ${wsHasMemberResult.resultMetadata.success}: code: ${wsHasMemberResult.resultMetadata.resultCode}: ${wsHasMemberResult.wsSubject.id}: ${hasMember}$newline$");
@@ -262,7 +243,7 @@ public class GrouperClientWsTest extends GrouperTest {
   @Override
   protected void tearDown() {
 
-    GrouperClientUtils.grouperClientOverrideMap().clear();
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().clear();
 
     super.tearDown();
 

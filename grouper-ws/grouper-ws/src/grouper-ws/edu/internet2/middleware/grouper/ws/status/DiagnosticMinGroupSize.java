@@ -234,7 +234,7 @@ public class DiagnosticMinGroupSize extends DiagnosticTask {
    * @return min size minutes
    */
   private static int minSizeMinutesSinceLastSuccess() {
-    return GrouperWsConfig.getPropertyInt(
+    return GrouperWsConfig.retrieveConfig().propertyValueInt(
         "ws.diagnostic.minSizeMinutesSinceLastSuccess", 60);
   }
 
@@ -242,7 +242,7 @@ public class DiagnosticMinGroupSize extends DiagnosticTask {
    * @return min size minutes since failure
    */
   private static int minSizeMinutesSinceLastFailure() {
-    return GrouperWsConfig.getPropertyInt(
+    return GrouperWsConfig.retrieveConfig().propertyValueInt(
         "ws.diagnostic.minSizeMinutesSinceLastFailure", 5);
   }
 

@@ -29,7 +29,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.failover.FailoverConfig.FailoverStrategy;
 import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
-import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 
 /**
  * <pre>
@@ -87,7 +87,7 @@ public class FailoverClientTest extends TestCase {
   @Override
   protected void setUp() throws Exception {
     
-    GrouperClientUtils.grouperClientOverrideMap().clear();
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().clear();
 
     super.setUp();
     
@@ -102,7 +102,7 @@ public class FailoverClientTest extends TestCase {
     this.failoverConfig.setTimeoutSeconds(15);
     this.failoverConfig.setSecondsForClassesToLoad(0);
 
-    GrouperClientUtils.grouperClientOverrideMap().put("grouperClient.saveFailoverStateEverySeconds", "1");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.saveFailoverStateEverySeconds", "1");
     
     //lets delete the cached state file
     GrouperClientCommonUtils.deleteFile(FailoverClient.fileSaveFailoverClientState());
@@ -116,7 +116,7 @@ public class FailoverClientTest extends TestCase {
   @Override
   protected void tearDown() throws Exception {
     super.tearDown();
-    GrouperClientUtils.grouperClientOverrideMap().clear();
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().clear();
     GrouperClientCommonUtils.deleteFile(FailoverClient.fileSaveFailoverClientState());
     FailoverClient.instanceMapFromType = null;
   }

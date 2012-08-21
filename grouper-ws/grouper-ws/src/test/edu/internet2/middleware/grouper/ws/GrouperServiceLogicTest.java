@@ -196,7 +196,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
 
   /** grouper version */
   private static final GrouperVersion GROUPER_VERSION = GrouperVersion.valueOfIgnoreCase(
-      GrouperWsConfig.getPropertyString("ws.testing.version"));
+      GrouperWsConfig.retrieveConfig().propertyValueString("ws.testing.version"));
   
   /**
    * 

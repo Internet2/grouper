@@ -265,12 +265,12 @@ public enum DiagnosticType {
         //do min size groups
         Pattern groupNamePattern = Pattern.compile("^ws\\.diagnostic\\.checkGroupSize\\.(.+)\\.groupName$");
         
-        Properties properties = GrouperWsConfig.getProperties();
+        Properties properties = GrouperWsConfig.retrieveConfig().properties();
         for (String key : (Set<String>)(Object)properties.keySet()) {
           Matcher groupNameMatcher = groupNamePattern.matcher(key);
           if (groupNameMatcher.matches()) {
             String configName = groupNameMatcher.group(1);
-            int minSize = Integer.parseInt(GrouperWsConfig.getPropertyString(
+            int minSize = Integer.parseInt(GrouperWsConfig.retrieveConfig().propertyValueString(
                 "ws.diagnostic.checkGroupSize." + configName + ".minSize"));
             String groupName = properties.getProperty(key);
             diagnosticsTasks.add(new DiagnosticMinGroupSize(groupName, minSize));

@@ -88,11 +88,11 @@ public class DiagnosticLoaderJobTest extends DiagnosticTask {
   protected boolean doTask() {
     
     //we will give it 52 hours... 48 (two days), plus 4 hours to run...
-    int defaultMinutesSinceLastSuccess = GrouperWsConfig.getPropertyInt("ws.diagnostic.defaultMinutesSinceLastSuccess", 60*52);
+    int defaultMinutesSinceLastSuccess = GrouperWsConfig.retrieveConfig().propertyValueInt("ws.diagnostic.defaultMinutesSinceLastSuccess", 60*52);
     
     //change logs should go every minute
     if (this.grouperLoaderType == GrouperLoaderType.CHANGE_LOG) {
-      defaultMinutesSinceLastSuccess = GrouperWsConfig.getPropertyInt("ws.diagnostic.defaultMinutesChangeLog", 30);
+      defaultMinutesSinceLastSuccess = GrouperWsConfig.retrieveConfig().propertyValueInt("ws.diagnostic.defaultMinutesChangeLog", 30);
     }
     
     //default of last success is usually 25 hours, but can be less for change log jobs
@@ -112,7 +112,7 @@ public class DiagnosticLoaderJobTest extends DiagnosticTask {
         
         String jobNameWithoutUuid = diagnosticsName.substring(0, underscoreIndex);
         jobNameWithoutUuid = jobNameWithoutUuid.replaceAll(INVALID_PROPERTIES_REGEX, "_");
-        minutesSinceLastSuccess = GrouperWsConfig.getPropertyInt("ws.diagnostic.minutesSinceLastSuccess." + jobNameWithoutUuid, -1);
+        minutesSinceLastSuccess = GrouperWsConfig.retrieveConfig().propertyValueInt("ws.diagnostic.minutesSinceLastSuccess." + jobNameWithoutUuid, -1);
         
       }
       
@@ -122,7 +122,7 @@ public class DiagnosticLoaderJobTest extends DiagnosticTask {
     if (minutesSinceLastSuccess == -1) {
       String configName = diagnosticsName.replaceAll(INVALID_PROPERTIES_REGEX, "_");
 
-      minutesSinceLastSuccess = GrouperWsConfig.getPropertyInt("ws.diagnostic.minutesSinceLastSuccess." + configName, defaultMinutesSinceLastSuccess);
+      minutesSinceLastSuccess = GrouperWsConfig.retrieveConfig().propertyValueInt("ws.diagnostic.minutesSinceLastSuccess." + configName, defaultMinutesSinceLastSuccess);
     }
       
     

@@ -79,7 +79,7 @@ public abstract class DiagnosticTask {
    */
   protected boolean ignoringDiagnostic() {
     
-    boolean ignoreDiagnostics = GrouperWsConfig.getPropertyBoolean("ws.diagnostic.ignore." + this.retrieveName(), false);
+    boolean ignoreDiagnostics = GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.diagnostic.ignore." + this.retrieveName(), false);
 
     if (ignoreDiagnostics) {
       this.appendSuccessTextLine(this.retrieveNameFriendly() + " ignored in config");
