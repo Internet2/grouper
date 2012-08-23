@@ -819,6 +819,10 @@ public class GrouperUiFilter implements Filter {
         LOG.error("Error checking debugSessionSerialization", e);
       }
       
+      Subject subjectLoggedIn = retrieveSubjectLoggedIn();
+      UiSection uiSection = uiSectionForRequest();
+      ensureUserAllowedInSection(uiSection, subjectLoggedIn);
+      
       filterChain.doFilter(httpServletRequest, response);
       
     } catch (ControllerDone cd) {
