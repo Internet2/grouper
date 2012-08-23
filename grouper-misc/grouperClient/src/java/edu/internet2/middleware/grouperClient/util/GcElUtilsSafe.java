@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -48,6 +49,30 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
  */
 public class GcElUtilsSafe {
 
+  /**
+   * append objects since there is no way to do this in EL
+   * @param objects inputs to append to each other
+   * @return the string appended
+   */
+  public static String append(Object... objects) {
+    
+    if (objects == null) {
+      return null;
+    }
+    
+    if (objects.length == 0) {
+      return stringValue(objects[0]);
+    }
+    
+    StringBuilder result = new StringBuilder();
+    
+    for (Object object : objects) {
+      result.append(stringValue(object));
+    }
+    
+    return result.toString();
+  }
+  
   /**
    * take email addresses from a textarea and turn them into semi separated
    * @param emailAddresses can be whitespace, comma, or semi separated
@@ -2700,7 +2725,7 @@ public class GcElUtilsSafe {
   }
 
   /**
-   * convert a date to the standard string yyyymmdd
+   * convert a date to the standard string yyyy/mm/dd
    * @param date 
    * @return the string value
    */
@@ -2710,9 +2735,23 @@ public class GcElUtilsSafe {
         return null;
       }
 
-      String theString = dateFormat().format(date);
+      //lets see if there is a time component
+      Calendar calendar = new GregorianCalendar();
+      calendar.setTime(date);
+      if (calendar.get(Calendar.HOUR_OF_DAY) == 0
+          && calendar.get(Calendar.MINUTE) == 0
+          && calendar.get(Calendar.SECOND) == 0
+          && calendar.get(Calendar.MILLISECOND) == 0) {
 
-      return theString;
+        String theString = dateFormat2().format(date);
+
+        return theString;
+        
+      }
+      
+      //do a timestamp format
+      return timestampToString(date);
+      
     }
   }
 

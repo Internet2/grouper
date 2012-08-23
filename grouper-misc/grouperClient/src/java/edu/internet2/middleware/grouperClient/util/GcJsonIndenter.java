@@ -354,6 +354,7 @@ public class GcJsonIndenter {
    */
   @Override
   public String toString() {
+    return "[" +  ]
     return ReflectionToStringBuilder.toString(this, ToStringStyle.MULTI_LINE_STYLE);
   }
 }

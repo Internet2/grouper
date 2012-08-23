@@ -31,9 +31,6 @@ import java.util.logging.SimpleFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.Expression;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.JexlContext;
@@ -233,7 +230,7 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
      * @return class
      */
     private static Object retrieveClass(String name) {
-      if (StringUtils.isBlank(name)) {
+      if (isBlank(name)) {
         return null;
       }
       
@@ -322,7 +319,7 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
    */
   public static String substituteExpressionLanguage(String stringToParse, 
       Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent, boolean lenient, boolean logOnNull) {
-    if (StringUtils.isBlank(stringToParse)) {
+    if (isBlank(stringToParse)) {
       return stringToParse;
     }
     String overallResult = null;
@@ -389,7 +386,7 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
           o = e.evaluate(jc);
         } catch (JexlException je) {
           //exception-scrape to see if missing variable
-          if (!lenient && StringUtils.trimToEmpty(je.getMessage()).contains("undefined variable")) {
+          if (!lenient && trimToEmpty(je.getMessage()).contains("undefined variable")) {
             //clean up the message a little bit
             // e.g. edu.internet2.middleware.grouper.util.GrouperUtil.substituteExpressionLanguage@8846![0,6]: 'amount < 50000 && amount2 < 23;' undefined variable amount
             String message = je.getMessage();
@@ -451,7 +448,7 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
         }
         logMessage.append(" with result: '" + overallResult + "'");
         if (exception != null) {
-          logMessage.append(", and exception: " + exception + ", " + ExceptionUtils.getFullStackTrace(exception));
+          logMessage.append(", and exception: " + exception + ", " + getFullStackTrace(exception));
         }
         LOG.debug(logMessage.toString());
       }
