@@ -53,10 +53,6 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Crypto;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.Expression;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.ExpressionFactory;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.JexlContext;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.JexlHelper;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperClientExt.util.JsonUtils;
 import edu.internet2.middleware.grouperClientExt.xmpp.GrouperClientXmppJob.XmppJobEventAction;
@@ -88,15 +84,15 @@ public class GrouperClientXmppMain {
   * @param esbEvent
   * @return true if matches, false if doesnt
   */
-  @SuppressWarnings("unchecked")
   public static boolean matchesFilter(EsbEvent esbEvent, String filterString) {
     try {
-      Expression e = ExpressionFactory.createExpression(filterString);
-      JexlContext jc = JexlHelper.createContext();
-
-      jc.getVars().put("event", esbEvent);
-      jc.getVars().put("grouperClientUtils", new GrouperClientUtils());
-      return (Boolean) e.evaluate(jc);
+      Map<String, Object> variableMap = new HashMap<String, Object>();
+      variableMap.put("event", esbEvent);
+      variableMap.put("grouperClientUtils", new GrouperClientUtils());
+      
+      String elResultString = GrouperClientUtils.substituteExpressionLanguage(filterString, variableMap, true, false, false, true);
+      return GrouperClientUtils.booleanValue(elResultString);
+      
     } catch (Exception e) {
       throw new RuntimeException("Problem seeing if matches filter for sequence: "
           + (esbEvent == null ? null : esbEvent.getSequenceNumber()) + ", '" + filterString + "'", e);
