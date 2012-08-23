@@ -19,9 +19,9 @@
  */
 package edu.internet2.middleware.grouperClient.util;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.ToStringStyle;
 
 
 /**
@@ -354,7 +354,6 @@ public class GcJsonIndenter {
    */
   @Override
   public String toString() {
-    return "[" +  ]
     return ReflectionToStringBuilder.toString(this, ToStringStyle.MULTI_LINE_STYLE);
   }
 }
