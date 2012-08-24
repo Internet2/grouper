@@ -231,6 +231,16 @@ public class GrouperUiFilter implements Filter {
    * @return the subject
    */
   public static Subject retrieveSubjectLoggedIn() {
+    return retrieveSubjectLoggedIn(false);
+  }
+    
+
+  /**
+   * retrieve the subject logged in
+   * @param allowNoUserLoggedIn true if allowed to have no user, false if expecting a user
+   * @return the subject
+   */
+  private static Subject retrieveSubjectLoggedIn(boolean allowNoUserLoggedIn) {
     
     GrouperSession grouperSession = SessionInitialiser.getGrouperSession(retrieveHttpServletRequest().getSession());
     if (grouperSession != null && grouperSession.getSubject() != null) {
@@ -258,6 +268,9 @@ public class GrouperUiFilter implements Filter {
     }
 
     if (StringUtils.isBlank(userIdLoggedIn)) {
+      if (allowNoUserLoggedIn) {
+        return null;
+      }
       throw new RuntimeException("Cant find logged in user");
     }
     
@@ -599,10 +612,14 @@ public class GrouperUiFilter implements Filter {
     
     if (!StringUtils.isBlank(operation)) {
       
+      //anyone can see the menu...
+      if (theClass.equals("Misc") || theClass.equals("MiscMenu")) {
+        return UiSection.ANONYMOUS;
+      }
       if (theClass.startsWith("SimpleAttributeUpdate")) {
         return UiSection.SIMPLE_ATTRIBUTE_UPDATE;
       }
-      if (theClass.equals("Misc") || theClass.startsWith("SimpleMembershipUpdate")) {
+      if (theClass.startsWith("SimpleMembershipUpdate")) {
         return UiSection.SIMPLE_MEMBERSHIP_UPDATE;
       }
       if (theClass.startsWith("SubjectPicker") || theClass.startsWith("AttributeDefNamePicker")) {
@@ -819,9 +836,12 @@ public class GrouperUiFilter implements Filter {
         LOG.error("Error checking debugSessionSerialization", e);
       }
       
-      Subject subjectLoggedIn = retrieveSubjectLoggedIn();
-      UiSection uiSection = uiSectionForRequest();
-      ensureUserAllowedInSection(uiSection, subjectLoggedIn);
+      //this makes sure allowed in section
+      Subject subjectLoggedIn = retrieveSubjectLoggedIn(true);
+      if (subjectLoggedIn != null) {
+        UiSection uiSection = uiSectionForRequest();
+        ensureUserAllowedInSection(uiSection, subjectLoggedIn);
+      }
       
       filterChain.doFilter(httpServletRequest, response);
       
