@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouperClient.config;
 
 import java.util.Date;
+import java.util.Properties;
 import java.util.Set;
 
 import junit.framework.TestCase;
@@ -153,6 +154,7 @@ public class ConfigPropertiesCascadeBaseTest extends TestCase {
     //wait for the thread to catch up
     //propertyNames
     Set<String> propertyNames = ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyNames();
+    Properties properties = ConfigPropertiesOverrideHasHierarchy.retrieveConfig().properties();
     
     assertTrue(propertyNames.contains("test1"));
     assertTrue(propertyNames.contains("test2"));
@@ -163,6 +165,22 @@ public class ConfigPropertiesCascadeBaseTest extends TestCase {
     assertTrue(propertyNames.contains("somethingNotExistingAgainNull"));
     assertTrue(propertyNames.contains("something"));
     
+    //EL properties
+    //some.config.1.elConfig = ${elUtils.append('a', 'b')}
+    assertEquals("ab", ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueString("some.config.1"));
+
+    assertTrue(propertyNames.contains("some.config.1"));
+    assertFalse(propertyNames.contains("some.config.1.elConfig"));
+
+    assertTrue(properties.containsKey("some.config.1"));
+    assertFalse(properties.containsKey("some.config.1.elConfig"));
+
+    assertEquals("ab", properties.get("some.config.1"));
+    
+    //EL static method
+    //some.config.2.elConfig = ${edu.internet2.middleware.grouperClient.config.SomeTestElClass.someMethod('start', ' middle')}
+    
+    assertEquals("start middle something else", ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueString("some.config.2"));
     
     
   }

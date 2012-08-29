@@ -7,7 +7,7 @@
 		</classpath>
 	</taskdef>
     <if><not><available file="conf/grouper-ws.properties" /></not>
-      <then><copy file="conf/grouper-ws.example.properties" 
+      <then><copy file="misc/grouper-ws.example.properties" 
         tofile="conf/grouper-ws.properties" /></then>
     </if> 
 

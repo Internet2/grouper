@@ -22,7 +22,6 @@
 	<classpathentry kind="lib" path="lib/xstream/xpp3_min-1.1.4c.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging/log4j.jar"/>
 	<classpathentry kind="lib" path="lib/xstream/cglib.jar"/>
-	<classpathentry kind="lib" path="lib/xstream/commons-lang.jar"/>
 	<classpathentry kind="lib" path="lib/xstream/dom4j.jar"/>
 	<classpathentry kind="lib" path="lib/xstream/jakarta-oro.jar"/>
 	<classpathentry kind="lib" path="lib/requiresJarIfUse/mailapi.jar"/>
@@ -30,7 +29,6 @@
 	<classpathentry kind="lib" path="lib/xmpp/smack.jar"/>
 	<classpathentry kind="lib" path="lib/xmpp/commons-beanutils.jar"/>
 	<classpathentry kind="lib" path="lib/xmpp/commons-collections.jar"/>
-	<classpathentry kind="lib" path="lib/xmpp/commons-lang.jar"/>
 	<classpathentry kind="lib" path="lib/xmpp/commons-logging.jar"/>
 	<classpathentry kind="lib" path="lib/xmpp/ezmorph.jar"/>
 	<classpathentry kind="lib" path="lib/xmpp/json-lib.jar"/>

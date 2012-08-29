@@ -46,7 +46,7 @@ public class GrouperClientConfig extends ConfigPropertiesCascadeBase {
    */
   @Override
   protected String getMainExampleConfigClasspath() {
-    return "grouper.client.example.properties";
+    return "grouper.client.base.properties";
   }
 
   /**

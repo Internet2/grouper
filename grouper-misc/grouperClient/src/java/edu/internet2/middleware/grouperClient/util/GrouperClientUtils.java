@@ -326,8 +326,10 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
     Exception exception = null;
     try {
       JexlContext jc = allowStaticClasses ? new ElMapContext() : new MapContext();
-      
+
       int index = 0;
+      
+      variableMap = nonNull(variableMap);
       
       for (String key: variableMap.keySet()) {
         jc.set(key, variableMap.get(key));

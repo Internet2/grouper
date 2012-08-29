@@ -29,6 +29,9 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
  */
 public abstract class ConfigPropertiesCascadeBase {
 
+  /** if a key ends with this, then it is an EL property */
+  private static final String EL_CONFIG_SUFFIX = ".elConfig";
+
   /**
    * log object
    */
@@ -126,7 +129,7 @@ public abstract class ConfigPropertiesCascadeBase {
   public Set<String> propertyNames() {    
     
     Set<String> result = new LinkedHashSet<String>();
-    result.addAll((Set<String>)(Object)this.properties().keySet());
+    result.addAll((Set<String>)(Object)this.propertiesHelper(false).keySet());
     return result;
   }
 
@@ -152,20 +155,53 @@ public abstract class ConfigPropertiesCascadeBase {
    * @return the properties
    */
   public Properties properties() {
-    Properties result = new Properties();
+    return propertiesHelper(true);
+  }
+  
+  /**
+   * get the properties object for this config file
+   * @param setValues if we should set the values for the properties.  
+   * if not, the values might not be correct, but this will be more performant
+   * depending on how many EL properties there are
+   * @return the properties
+   */
+  @SuppressWarnings("unchecked")
+  protected Properties propertiesHelper(boolean setValues) {
+    Properties tempResult = new Properties();
     
-    result.putAll(this.properties);
-
+    tempResult.putAll(this.properties);
+    
     Map<String, String> localPropertiesOverrideMap = propertiesOverrideMap();
     
     for (String key: localPropertiesOverrideMap.keySet()) {
-      result.put(key, GrouperClientUtils.defaultString(localPropertiesOverrideMap.get(key)));
+      tempResult.put(key, GrouperClientUtils.defaultString(localPropertiesOverrideMap.get(key)));
     }
     
     localPropertiesOverrideMap = propertiesThreadLocalOverrideMap();
     
     for (String key: localPropertiesOverrideMap.keySet()) {
-      result.put(key, GrouperClientUtils.defaultString(localPropertiesOverrideMap.get(key)));
+      tempResult.put(key, GrouperClientUtils.defaultString(localPropertiesOverrideMap.get(key)));
+    }
+
+    Properties result = new Properties();
+
+    for (String key : (Set<String>)(Object)tempResult.keySet()) {
+      
+      String value = setValues ? this.properties.getProperty(key) : "";
+      
+      //lets look for EL
+      if (key.endsWith(EL_CONFIG_SUFFIX)) {
+        
+        if (setValues) {
+          //process the EL
+          value = GrouperClientUtils.substituteExpressionLanguage(value, null, true, true, true, false);
+        }
+        
+        //change the key name
+        key = key.substring(0, key.length() - EL_CONFIG_SUFFIX.length());
+      }
+      //cant be null, or hashtable exception
+      result.put(key, GrouperClientUtils.defaultString(value));
     }
     
     return result;
@@ -268,7 +304,7 @@ public abstract class ConfigPropertiesCascadeBase {
     }
     
   }
-  
+
   /**
    * get the property value as a string
    * @param key
@@ -277,6 +313,36 @@ public abstract class ConfigPropertiesCascadeBase {
    * @return the property value
    */
   protected PropertyValueResult propertyValueString(String key, String defaultValue, boolean required) {
+    if (key.endsWith(EL_CONFIG_SUFFIX)) {
+      throw new RuntimeException("Why does key end in suffix??? " + EL_CONFIG_SUFFIX + ", " + key);
+    }
+    return propertyValueStringHelper(key, defaultValue, required);
+  }
+
+  /**
+   * get the property value as a string
+   * @param key
+   * @param defaultValue
+   * @param required true if required, if doesnt exist, throw exception
+   * @param considerEl if true then look for EL too, if false then dont considerEl
+   * @return the property value
+   */
+  protected PropertyValueResult propertyValueStringHelper(String key, String defaultValue, boolean required) {
+    
+    //lets look for EL
+    if (!key.endsWith(EL_CONFIG_SUFFIX)) {
+      
+      PropertyValueResult elPropertyValueResult = propertyValueStringHelper(key + EL_CONFIG_SUFFIX, null, false);
+      
+      if (elPropertyValueResult.isHasKey()) {
+        
+        //process the EL
+        String result = GrouperClientUtils.substituteExpressionLanguage(elPropertyValueResult.getTheValue(), null, true, true, true, false);
+        PropertyValueResult propertyValueResult = new PropertyValueResult(result, true);
+        return propertyValueResult;
+      }
+      
+    }
     
     //first check threadlocal map
     boolean hasKey = false;

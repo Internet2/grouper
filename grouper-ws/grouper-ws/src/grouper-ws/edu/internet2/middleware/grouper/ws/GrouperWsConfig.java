@@ -358,7 +358,7 @@ public final class GrouperWsConfig extends ConfigPropertiesCascadeBase {
    */
   @Override
   protected String getMainExampleConfigClasspath() {
-    return "grouper-ws.example.properties";
+    return "grouper-ws.base.properties";
   }
 
   /**

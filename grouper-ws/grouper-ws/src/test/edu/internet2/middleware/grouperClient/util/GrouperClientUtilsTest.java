@@ -52,7 +52,7 @@ public class GrouperClientUtilsTest extends TestCase {
     assertEquals("abc", GrouperClientUtils.substituteExpressionLanguage("abc", substituteMap));
     
     //non existant vars go to null
-    assertEquals("abc null", GrouperClientUtils.substituteExpressionLanguage("abc ${notThere}", substituteMap));
+    assertEquals("abc ", GrouperClientUtils.substituteExpressionLanguage("abc ${notThere}", substituteMap));
 
     assertEquals("abc theString theString", 
         GrouperClientUtils.substituteExpressionLanguage("abc ${string} ${string}", substituteMap));
@@ -62,6 +62,12 @@ public class GrouperClientUtilsTest extends TestCase {
     
     assertEquals("abc theString 9", 
         GrouperClientUtils.substituteExpressionLanguage("abc ${string} ${string.length()}", substituteMap));
-  }
+    
+    assertEquals("ab1c", GrouperClientUtils.substituteExpressionLanguage("${elUtils.append('a', 'b', 1, 'c')}", null));
+
+    assertEquals("a", GrouperClientUtils.substituteExpressionLanguage("${elUtils.append('a')}", null));
+
+    assertEquals("", GrouperClientUtils.substituteExpressionLanguage("${elUtils.append(null)}", null));
+}
   
 }

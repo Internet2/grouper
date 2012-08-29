@@ -27,10 +27,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.Expression;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.ExpressionFactory;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.JexlContext;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.JexlHelper;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.Expression;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.JexlContext;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.JexlEngine;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.MapContext;
 
 
 /**
@@ -44,9 +44,9 @@ public class ScriptingPoc {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) throws Exception {
-    //jexlExample();
-    //jexlSubstituteScript();
-    //jexlGrouperClientSubstitute();
+    jexlExample();
+    jexlSubstituteScript();
+    jexlGrouperClientSubstitute();
   }
 
   /**
@@ -82,14 +82,14 @@ public class ScriptingPoc {
    * @throws Exception
    */
   public static void jexlSubstituteScript() throws Exception {
-    JexlContext jc = JexlHelper.createContext();
+    JexlContext jc = new MapContext();
     List l = new ArrayList();
     l.add("Hello from location 0");
     l.add(new Integer(2));
-    jc.getVars().put("array", l);
+    jc.set("array", l);
 
-    jc.getVars().put("foo", new Foo());
-    jc.getVars().put("number", new Integer(10));
+    jc.set("foo", new Foo());
+    jc.set("number", new Integer(10));
 
     String stringToParse = "Whatever: ${array[0].length()} ${foo.foo} ${number}";
 
@@ -114,7 +114,8 @@ public class ScriptingPoc {
         
         //System.out.println("Script2: " + script2);
         
-        Expression e = ExpressionFactory.createExpression(script2);
+        JexlEngine jexlEngine = new JexlEngine();
+        Expression e = jexlEngine.createExpression(script2);
         
         Object o = e.evaluate(jc);
         //System.out.println("evaluate: " + o);
@@ -141,23 +142,26 @@ public class ScriptingPoc {
     /*
      *  First make a jexlContext and put stuff in it
      */
-    JexlContext jc = JexlHelper.createContext();
+    JexlContext jc = new MapContext();
 
     List l = new ArrayList();
     l.add("Hello from location 0");
     l.add(new Integer(2));
-    jc.getVars().put("array", l);
+    jc.set("array", l);
 
-    Expression e = ExpressionFactory.createExpression("array[1]");
+    JexlEngine jexlEngine = new JexlEngine();
+
+    Expression e = jexlEngine.createExpression("array[1]");
+
     Object o = e.evaluate(jc);
     System.out.println("Object @ location 1 = " + o);
 
-    e = ExpressionFactory.createExpression("array[0].length()");
+    e = jexlEngine.createExpression("array[0].length()");
     o = e.evaluate(jc);
 
     System.out.println("The length of the string at location 0 is : " + o);
     
-    //e = ExpressionFactory.createExpression("Whatever: ${array[0].length()}");
+    //e = jexlEngine.createExpression("Whatever: ${array[0].length()}");
     
     //o = e.evaluate(jc);
     //System.out.println("evaluate: " + o);
@@ -165,41 +169,42 @@ public class ScriptingPoc {
     /*
      *  First make a jexlContext and put stuff in it
      */
-    jc = JexlHelper.createContext();
+    jc = new MapContext();
 
-    jc.getVars().put("foo", new Foo());
-    jc.getVars().put("number", new Integer(10));
+
+    jc.set("foo", new Foo());
+    jc.set("number", new Integer(10));
 
     /*
      *  access a method w/o args
      */
-    e = ExpressionFactory.createExpression("foo.getFoo()");
+    e = jexlEngine.createExpression("foo.getFoo()");
     o = e.evaluate(jc);
     System.out.println("value returned by the method getFoo() is : " + o);
 
-    e = ExpressionFactory.createExpression("foo.foo");
+    e = jexlEngine.createExpression("foo.foo");
     o = e.evaluate(jc);
     System.out.println("value returned by the method foo.foo is : " + o);
 
     /*
      *  access a method w/ args
      */
-    e = ExpressionFactory.createExpression("foo.convert(1)");
+    e = jexlEngine.createExpression("foo.convert(1)");
     o = e.evaluate(jc);
     System.out.println("value of " + e.getExpression() + " is : " + o);
 
-    e = ExpressionFactory.createExpression("foo.convert(1+7)");
+    e = jexlEngine.createExpression("foo.convert(1+7)");
     o = e.evaluate(jc);
     System.out.println("value of " + e.getExpression() + " is : " + o);
 
-    e = ExpressionFactory.createExpression("foo.convert(1+number)");
+    e = jexlEngine.createExpression("foo.convert(1+number)");
     o = e.evaluate(jc);
     System.out.println("value of " + e.getExpression() + " is : " + o);
 
     /*
      * access a property
      */
-    e = ExpressionFactory.createExpression("foo.bar");
+    e = jexlEngine.createExpression("foo.bar");
     o = e.evaluate(jc);
     System.out.println("value returned for the property 'bar' is : " + o);
 

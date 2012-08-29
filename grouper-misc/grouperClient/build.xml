@@ -49,7 +49,7 @@
     <pathconvert targetos="${main.os}" property="main.theExtClasspath" refid="main.extClasspath" />
     
     <if><not><available file="${main.confDir}/grouper.client.properties" /></not>
-      <then><copy file="${main.confDir}/grouper.client.example.properties" 
+      <then><copy file="misc/grouper.client.example.properties" 
         tofile="${main.confDir}/grouper.client.properties" /></then>
     </if> 
 
@@ -104,7 +104,6 @@
         <include name="**/*.java"/>      <!-- source -->
       </fileset>
       <fileset dir="${main.confDir}">
-        <include name="*.example.properties"/>      <!-- sample config -->
         <include name="grouper.client.usage*.txt"/>      <!-- sample config -->
       </fileset>
       <fileset dir="${basedir}">
@@ -137,6 +136,7 @@
     <copy todir="dist/institution/${instName}">    
       <fileset dir="${main.confDir}">
         <include name="grouper.client.properties"/>
+        <include name="grouper.client.base.properties"/>
       </fileset>
       <fileset dir="dist">
         <include name="grouperClient.jar"/>
