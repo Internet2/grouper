@@ -84,6 +84,7 @@ import edu.internet2.middleware.grouper.internal.dao.RoleDAO;
 import edu.internet2.middleware.grouper.internal.dao.RoleSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.RoleSetViewDAO;
 import edu.internet2.middleware.grouper.internal.dao.StemDAO;
+import edu.internet2.middleware.grouper.internal.dao.StemSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.TransactionDAO;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
@@ -523,6 +524,14 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   @Override
   public EntityDAO getEntity() {
     return new Hib3EntityDAO();
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getStemSet()
+   */
+  @Override
+  public StemSetDAO getStemSet() {
+    return new Hib3StemSetDAO();
   }
 } 
 

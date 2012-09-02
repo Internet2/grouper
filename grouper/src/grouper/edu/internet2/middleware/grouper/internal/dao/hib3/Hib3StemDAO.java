@@ -36,6 +36,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,6 +59,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefAssignmentType;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.group.GroupSet;
@@ -79,6 +81,8 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.stem.StemHierarchyType;
+import edu.internet2.middleware.grouper.stem.StemSet;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -225,6 +229,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     HibernateSession.byObjectStatic().save(_child);
     
     createGroupSetsForStem(_child);
+    
+    createStemSetsForStem(_child);
   } 
 
 
@@ -245,7 +251,116 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     }
     
     createGroupSetsForStem(_root);
+    
+    createStemSetsForStem(_root);
   } 
+  
+  /**
+   * @param stem
+   */
+  private void createStemSetsForStem(Stem stem) {
+    
+    List<StemSet> allStemSets = new LinkedList<StemSet>();
+
+    // batch to help performance
+    int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 20);
+    if (batchSize <= 0) {
+      batchSize = 1;
+    }
+    
+    // create self one first
+    StemSet selfStemSet = new StemSet();
+    selfStemSet.setId(GrouperUuid.getUuid());
+    selfStemSet.setDepth(0);
+    selfStemSet.setIfHasStemId(stem.getUuid());
+    selfStemSet.setThenHasStemId(stem.getUuid());
+    selfStemSet.setType(StemHierarchyType.self);
+    selfStemSet.setParentStemSetId(selfStemSet.getId());
+    
+    allStemSets.add(selfStemSet);
+   
+    // now find stems that imply this one..
+    if (stem.getParentUuid() != null) {
+      Set<StemSet> stemSets = GrouperDAOFactory.getFactory().getStemSet().findByThenHasStemId(stem.getParentUuid());
+      allStemSets.addAll(createNonSelfStemSetsForStem(stemSets, stem.getUuid()));
+    }
+    
+    for (int i = 0; i < GrouperUtil.batchNumberOfBatches(allStemSets, batchSize); i++) {
+      List<StemSet> currentBatch = GrouperUtil.batchList(allStemSets, batchSize, i);
+      GrouperDAOFactory.getFactory().getStemSet().saveBatch(currentBatch);
+    }
+  }
+  
+  /**
+   * @param parents
+   * @param stemId
+   * @return new child stemSets
+   */
+  private List<StemSet> createNonSelfStemSetsForStem(Collection<StemSet> parents, String stemId) {
+    
+    List<StemSet> newChildren = new LinkedList<StemSet>();
+    
+    for (StemSet parent : parents) {
+      StemSet childStemSet = new StemSet();
+      childStemSet.setId(GrouperUuid.getUuid());
+      childStemSet.setDepth(parent.getDepth() + 1);
+      childStemSet.setIfHasStemId(parent.getIfHasStemId());
+      childStemSet.setThenHasStemId(stemId);
+      childStemSet.setType(parent.getDepth() == 0 ? StemHierarchyType.immediate : StemHierarchyType.effective);
+      childStemSet.setParentStemSetId(parent.getId());
+      
+      newChildren.add(childStemSet);
+    }
+    
+    return newChildren;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.StemDAO#moveStemSets(java.util.Collection, java.util.Collection, java.lang.String)
+   */
+  public void moveStemSets(Collection<StemSet> newParentSets, Collection<StemSet> oldStemSets, String currentStemId) {
+
+    List<StemSet> allStemSetsForCurrentNode = createNonSelfStemSetsForStem(newParentSets, currentStemId);
+    
+    // batch to help performance
+    int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 20);
+    if (batchSize <= 0) {
+      batchSize = 1;
+    }
+    
+    // add new stem sets
+    for (int i = 0; i < GrouperUtil.batchNumberOfBatches(allStemSetsForCurrentNode, batchSize); i++) {
+      List<StemSet> currentBatch = GrouperUtil.batchList(allStemSetsForCurrentNode, batchSize, i);
+      GrouperDAOFactory.getFactory().getStemSet().saveBatch(currentBatch);
+    }
+    
+    // take care of children, separately for each thenHasStemId
+    Set<StemSet> allOldStemSetChildren = GrouperDAOFactory.getFactory().getStemSet().findAllChildren(oldStemSets, new QueryOptions().sortAsc("thenHasStemId"));
+
+    if (allOldStemSetChildren.size() > 0) {
+      Set<StemSet> oldStemSetChildrenSameThenId = new LinkedHashSet<StemSet>();
+      String lastThenId = null;
+      for (StemSet oldStemSetChild : allOldStemSetChildren) {
+        if (lastThenId != null && !oldStemSetChild.getThenHasStemId().equals(lastThenId)) {
+          moveStemSets(allStemSetsForCurrentNode, oldStemSetChildrenSameThenId, lastThenId);
+
+          oldStemSetChildrenSameThenId.clear();
+        }
+        
+        lastThenId = oldStemSetChild.getThenHasStemId();
+        oldStemSetChildrenSameThenId.add(oldStemSetChild);
+      }
+      
+      if (oldStemSetChildrenSameThenId.size() > 0) {
+        moveStemSets(allStemSetsForCurrentNode, oldStemSetChildrenSameThenId, lastThenId);
+      }
+    }
+    
+    // delete old stem sets
+    for (StemSet stemSetToDelete : oldStemSets) {
+      stemSetToDelete.delete();
+    }
+  }
   
   /**
    * 
@@ -284,6 +399,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     // delete the group set
     GrouperDAOFactory.getFactory().getGroupSet().deleteSelfByOwnerStem(_ns.getUuid());
 
+    // delete stem sets
+    GrouperDAOFactory.getFactory().getStemSet().deleteByThenHasStemId(_ns.getUuid());
+    
     try {
       HibernateSession.byObjectStatic().delete(_ns);
     } catch (GrouperDAOException e) {

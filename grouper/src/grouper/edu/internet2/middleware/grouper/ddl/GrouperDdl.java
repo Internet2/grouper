@@ -84,6 +84,7 @@ import edu.internet2.middleware.grouper.pit.PITMember;
 import edu.internet2.middleware.grouper.pit.PITMembership;
 import edu.internet2.middleware.grouper.pit.PITRoleSet;
 import edu.internet2.middleware.grouper.pit.PITStem;
+import edu.internet2.middleware.grouper.stem.StemSet;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -1949,6 +1950,7 @@ public enum GrouperDdl implements DdlVersionable {
       
       addExternalSubjectTables(ddlVersionBean, database);
 
+      addStemSetTable(ddlVersionBean, database);
     }
 
   }, 
@@ -1989,7 +1991,7 @@ public enum GrouperDdl implements DdlVersionable {
   
   /**
    * <pre>
-   * Grouper 2.2: migrate from attributeDefType domain to service
+   * Grouper 2.2: migrate from attributeDefType domain to service, add stem set table.
    * </pre>
    */
   V27 {
@@ -2006,6 +2008,7 @@ public enum GrouperDdl implements DdlVersionable {
       ddlVersionBean.getAdditionalScripts().append(
           "update grouper_attribute_def set attribute_def_type = 'service' where attribute_def_type = 'domain';\ncommit;\n");
       
+      addStemSetTable(ddlVersionBean, database);
     }
   
   };
@@ -2486,6 +2489,7 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rules_v");
     
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_stems_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_stem_set_v");
         
   }
 
@@ -2895,22 +2899,22 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, 
           PITAttributeAssign.COLUMN_OWNER_GROUP_ID,
-          "if this is an assignment on a group or role or effective membership then this is the foreign key to the grouper_groups table");
+          "if this is an assignment on a group or role or effective membership then this is the foreign key to the grouper_pit_groups table");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, 
           PITAttributeAssign.COLUMN_OWNER_MEMBER_ID, 
-          "if this is an assignment on a member or effective membership, then this is the foreign key to the grouper_members table");
+          "if this is an assignment on a member or effective membership, then this is the foreign key to the grouper_pit_members table");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, 
           PITAttributeAssign.COLUMN_OWNER_MEMBERSHIP_ID, 
-          "if this is an assignment on an immediate membership, then this is the foreign key to the grouper_memberships table");
+          "if this is an assignment on an immediate membership, then this is the foreign key to the grouper_pit_memberships table");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, 
           PITAttributeAssign.COLUMN_OWNER_STEM_ID, 
-          "if this is an assignment on a stem aka folder, then this is the foreign key to the grouper_stems table");
+          "if this is an assignment on a stem aka folder, then this is the foreign key to the grouper_pit_stems table");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, 
@@ -3340,7 +3344,7 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITAttributeDefNameSet.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME_SET,
           PITAttributeDefNameSet.COLUMN_IF_HAS_ATTRIBUTE_DEF_NAME_ID, 
-          "left hand side of this relationship: if it has this uuid of foreign key of grouper_attribute_def_name then it implies the then_has column");
+          "left hand side of this relationship: if it has this uuid of foreign key of grouper_pit_attr_def_name then it implies the then_has column");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITAttributeDefNameSet.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME_SET,
@@ -3350,7 +3354,7 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITAttributeDefNameSet.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME_SET,
           PITAttributeDefNameSet.COLUMN_THEN_HAS_ATTRIBUTE_DEF_NAME_ID, 
-          "right hand side of this relationship: if it has the if_has then it implies this uuid of the foreign key of the grouper_attribute_def_name");
+          "right hand side of this relationship: if it has the if_has then it implies this uuid of the foreign key of the grouper_pit_attr_def_name");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITAttributeDefNameSet.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME_SET,
@@ -3411,7 +3415,7 @@ public enum GrouperDdl implements DdlVersionable {
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITAttributeAssignValue.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN_VALUE,
-          PITAttributeAssignValue.COLUMN_ATTRIBUTE_ASSIGN_ID, "foreign key to the attribute assignment grouper_attribute_assign for this assignment");
+          PITAttributeAssignValue.COLUMN_ATTRIBUTE_ASSIGN_ID, "foreign key to the attribute assignment grouper_pit_attribute_assign for this assignment");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITAttributeAssignValue.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN_VALUE,
@@ -3865,7 +3869,7 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
           PITGroupSet.COLUMN_FIELD_ID, 
-          "uuid foreign key from grouper_fields which is the list of the membership, normally members or the privilege in question");
+          "uuid foreign key from grouper_pit_fields which is the list of the membership, normally members or the privilege in question");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
@@ -3875,17 +3879,17 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
           PITGroupSet.COLUMN_MEMBER_ATTR_DEF_ID, 
-          "foreign key of grouper_attribute_def of the member record");
+          "foreign key of grouper_pit_attribute_def of the member record");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
           PITGroupSet.COLUMN_MEMBER_FIELD_ID, 
-          "uuid foreign key from grouper_fields which is the list of the membership, normally members");
+          "uuid foreign key from grouper_pit_fields which is the list of the membership, normally members");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
           PITGroupSet.COLUMN_MEMBER_GROUP_ID, 
-          "uuid to the grouper_groups table which is the group that is a member of the owner");
+          "uuid to the grouper_pit_groups table which is the group that is a member of the owner");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
@@ -3895,32 +3899,32 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
           PITGroupSet.COLUMN_MEMBER_STEM_ID, 
-          "uuid to the grouper_stems table which is the stem that is implied by the owner");
+          "uuid to the grouper_pit_stems table which is the stem that is implied by the owner");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
           PITGroupSet.COLUMN_OWNER_ATTR_DEF_ID, 
-          "uuid to the grouper_attribute_def table which is the owner of this record, which implies a relationship to the member, if null, it will have (NULL) which helps with some DB vendors");
+          "uuid to the grouper_pit_attribute_def table which is the owner of this record, which implies a relationship to the member, if null, it will have (NULL) which helps with some DB vendors");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
           PITGroupSet.COLUMN_OWNER_GROUP_ID, 
-          "uuid to the grouper_groups table which is the owner of this record, which implies a membership to the member uuid, if null, it will be (NULL) which helps with some DB vendors");
+          "uuid to the grouper_pit_groups table which is the owner of this record, which implies a membership to the member uuid, if null, it will be (NULL) which helps with some DB vendors");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
           PITGroupSet.COLUMN_OWNER_ID, 
-          "whether this is ");
+          "this is the owner id regardless of the type of owner");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
           PITGroupSet.COLUMN_OWNER_STEM_ID, 
-          "uuid to the grouper_stems table which is the owner of this record, which implies a privilege to the member uuid, if null, it will be (NULL) which helps with some DB vendors");
+          "uuid to the grouper_pit_stems table which is the owner of this record, which implies a privilege to the member uuid, if null, it will be (NULL) which helps with some DB vendors");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
           PITGroupSet.COLUMN_PARENT_ID, 
-          "this is the link back to the grouper_group_set table which is the one one hop away and related to this one...");
+          "this is the link back to the grouper_pit_group_set table which is the one one hop away and related to this one...");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
@@ -4025,17 +4029,17 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITRoleSet.TABLE_GROUPER_PIT_ROLE_SET,
           PITRoleSet.COLUMN_IF_HAS_ROLE_ID, 
-          "this is the foreign key uuid in grouper_groups where if the user has this role then they get the permissions assigned to another role then_has");
+          "this is the foreign key uuid in grouper_pit_groups where if the user has this role then they get the permissions assigned to another role then_has");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITRoleSet.TABLE_GROUPER_PIT_ROLE_SET,
           PITRoleSet.COLUMN_PARENT_ROLE_SET_ID, 
-          "this is the foreign key to the uuid in this table grouper_role_set which is the next closest to the underlying assignment");
+          "this is the foreign key to the uuid in this table grouper_pit_role_set which is the next closest to the underlying assignment");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITRoleSet.TABLE_GROUPER_PIT_ROLE_SET,
           PITRoleSet.COLUMN_THEN_HAS_ROLE_ID, 
-          "this is the foreign key uuid in grouper_gropus where if the user has the if_has role then the user gets the permissions assigned to this then_has role");
+          "this is the foreign key uuid in grouper_pit_gropus where if the user has the if_has role then the user gets the permissions assigned to this then_has role");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITRoleSet.TABLE_GROUPER_PIT_ROLE_SET,
@@ -5190,6 +5194,63 @@ public enum GrouperDdl implements DdlVersionable {
 
     }
     
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          StemSet.TABLE_GROUPER_STEM_SET, 
+          "This table holds the relationship between stems by easily indicating all the children of a stem.");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          StemSet.TABLE_GROUPER_STEM_SET, 
+          StemSet.COLUMN_CONTEXT_ID, 
+          "uuid for the audit table");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          StemSet.TABLE_GROUPER_STEM_SET, 
+          StemSet.COLUMN_CREATED_ON, 
+          "millis since 1970 when this row was created");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          StemSet.TABLE_GROUPER_STEM_SET, 
+          StemSet.COLUMN_DEPTH, 
+          "number of hops from one node to another, immediate is one");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          StemSet.TABLE_GROUPER_STEM_SET, 
+          StemSet.COLUMN_ID, 
+          "uuid of this row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          StemSet.TABLE_GROUPER_STEM_SET, 
+          StemSet.COLUMN_IF_HAS_STEM_ID, 
+          "uuid foreign key of left hand side of this relationship. If a stem contains this stem, it also contains the then_has stem.");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          StemSet.TABLE_GROUPER_STEM_SET, 
+          StemSet.COLUMN_LAST_UPDATED, 
+          "millis since 1970 when this was last updated");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          StemSet.TABLE_GROUPER_STEM_SET, 
+          StemSet.COLUMN_PARENT_STEM_SET_ID, 
+          "link back to this table for the parent entry of this stem set");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          StemSet.TABLE_GROUPER_STEM_SET, 
+          StemSet.COLUMN_THEN_HAS_STEM_ID, 
+          "uuid foreign key of the right hand side of this relationship.  If a stem contains the if_has stem, it also contains this stem.");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          StemSet.TABLE_GROUPER_STEM_SET, 
+          StemSet.COLUMN_TYPE, 
+          "from enum StemHierarchyType: self, immediate, effective");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          StemSet.TABLE_GROUPER_STEM_SET, 
+          StemSet.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          "hibernate optimistic locking number for updates and deletes");
+
+    }
+    
     String groupIdCol = "id";
     
     String stemIdCol = "id";
@@ -5501,6 +5562,16 @@ public enum GrouperDdl implements DdlVersionable {
         "fk_pit_attr_action_set_then", PITAttributeAssignAction.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION, 
         PITAttributeAssignActionSet.COLUMN_THEN_HAS_ATTR_ASSN_ACTION_ID, PITAttributeAssignAction.COLUMN_ID);
     
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, StemSet.TABLE_GROUPER_STEM_SET, 
+        "fk_stem_set_parent", StemSet.TABLE_GROUPER_STEM_SET, 
+        StemSet.COLUMN_PARENT_STEM_SET_ID, StemSet.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, StemSet.TABLE_GROUPER_STEM_SET, 
+        "fk_stem_set_if", Stem.TABLE_GROUPER_STEMS, 
+        StemSet.COLUMN_IF_HAS_STEM_ID, Stem.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, StemSet.TABLE_GROUPER_STEM_SET, 
+        "fk_stem_set_then", Stem.TABLE_GROUPER_STEMS, 
+        StemSet.COLUMN_THEN_HAS_STEM_ID, Stem.COLUMN_ID);
     
     
     //now lets add views
@@ -9730,6 +9801,44 @@ public enum GrouperDdl implements DdlVersionable {
         + "from grouper_pit_attribute_assign gpaa, grouper_pit_attr_assn_value gpaav " 
         + "where gpaa.id = gpaav.attribute_assign_id");
     
+    
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_stem_set_v", 
+        "grouper_stem_set_v: shows all stem set relationships",
+        GrouperUtil.toSet("if_has_stem_name", 
+            "then_has_stem_name", 
+            "depth", "type", 
+            "parent_if_has_name", "parent_then_has_name",
+            "id", "if_has_stem_id", "then_has_stem_id",
+            "parent_stem_set_id"),
+        GrouperUtil.toSet("if_has_stem_name: name of the if_has stem", 
+            "then_has_stem_name: name of the then_has stem", 
+            "depth: number of hops in the directed graph",
+            "type: self, immediate, effective",
+            "parent_if_has_name: name of the stem record which is the parent ifHas on effective path (everything but last hop)",
+            "parent_then_has_name: name of the stem record which is the parent thenHas on effective path (everything but last hop)",
+            "id: id of the set record", 
+            "if_has_stem_id: id of the if_has stem",
+            "then_has_stem_id: id of the then_has stem", 
+            "parent_stem_set_id: id of the stem set record which is the parent on effective path (everything but last hop)"
+        ),
+        "select ifHas.name as if_has_stem_name , thenHas.name as then_has_stem_name,   "
+        + "gss.depth,   "
+        + "gss.type, gsParentIfHas.name as parent_if_has_name, gsParentThenHas.name as parent_then_has_name,   "
+        + "gss.id,   "
+        + "ifHas.id as if_has_stem_id, thenHas.id as then_has_stem_id,   "
+        + "gss.parent_stem_set_id  "
+        + "from grouper_stem_set gss,   "
+        + "grouper_stem_set gssParent,   "
+        + "grouper_stems gsParentIfHas,   "
+        + "grouper_stems gsParentThenHas,   "
+        + "grouper_stems ifHas, "
+        +	"grouper_stems thenHas   "
+        + "where  thenHas.id = gss.then_has_stem_id   "
+        + "and ifHas.id = gss.if_has_stem_id   "
+        + "and gss.parent_stem_set_id = gssParent.id   "
+        + "and gsParentIfHas.id = gssParent.if_has_stem_id   "
+        + "and gsParentThenHas.id = gssParent.then_has_stem_id   ");
+    
     {
       
       String attributeRootStem = GrouperConfig.getProperty("grouper.attribute.rootStem");
@@ -13162,5 +13271,56 @@ public enum GrouperDdl implements DdlVersionable {
         //dont worry if exception, the table probably isnt there,and will get initted in good time
       }
     }
+  }
+  
+  /**
+   * @param ddlVersionBean
+   * @param database
+   */
+  private static void addStemSetTable(DdlVersionBean ddlVersionBean, Database database) {
+    Table stemSetTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(
+        database, StemSet.TABLE_GROUPER_STEM_SET);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemSetTable,
+        StemSet.COLUMN_ID, Types.VARCHAR, ID_SIZE, true, true);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemSetTable,
+        StemSet.COLUMN_IF_HAS_STEM_ID, Types.VARCHAR, "40", false, true);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemSetTable,
+        StemSet.COLUMN_THEN_HAS_STEM_ID, Types.VARCHAR, "40", false, true);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemSetTable,
+        StemSet.COLUMN_PARENT_STEM_SET_ID, Types.VARCHAR, "40", false, false);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemSetTable,
+        StemSet.COLUMN_TYPE, Types.VARCHAR, "32", false, true);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemSetTable,
+        StemSet.COLUMN_DEPTH, Types.BIGINT, "10", false, true);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemSetTable,
+        StemSet.COLUMN_CREATED_ON, Types.BIGINT, "20", false, false);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemSetTable,
+        StemSet.COLUMN_LAST_UPDATED, Types.BIGINT, "20", false, false);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemSetTable,
+        StemSet.COLUMN_CONTEXT_ID, Types.VARCHAR, ID_SIZE, false, false);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemSetTable, 
+        StemSet.COLUMN_HIBERNATE_VERSION_NUMBER, Types.BIGINT, "12", false, false);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemSetTable.getName(), 
+        "stem_set_ifhas_idx", false, 
+        StemSet.COLUMN_IF_HAS_STEM_ID);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemSetTable.getName(), 
+        "stem_set_then_idx", false, 
+        StemSet.COLUMN_THEN_HAS_STEM_ID);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemSetTable.getName(), 
+        "stem_set_unq_idx", true, 
+        StemSet.COLUMN_PARENT_STEM_SET_ID, StemSet.COLUMN_IF_HAS_STEM_ID, StemSet.COLUMN_THEN_HAS_STEM_ID);
   }
 }

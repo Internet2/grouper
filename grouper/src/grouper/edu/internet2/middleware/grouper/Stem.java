@@ -85,6 +85,7 @@ import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
+import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -129,6 +130,7 @@ import edu.internet2.middleware.grouper.rules.beans.RulesAttributeDefBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesGroupBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesPrivilegeBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesStemBean;
+import edu.internet2.middleware.grouper.stem.StemSet;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.AddAlternateStemNameValidator;
@@ -154,7 +156,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, 
-    Hib3GrouperVersioned, Comparable<Stem>, XmlImportable<Stem>, AttributeAssignable {
+    Hib3GrouperVersioned, Comparable<Stem>, XmlImportable<Stem>, AttributeAssignable, GrouperSetElement {
 
   /** table for stems table in the db */
   public static final String TABLE_GROUPER_STEMS = "grouper_stems";
@@ -3102,6 +3104,13 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       });
     }
     
+    if (this.dbVersionDifferentFields().contains(FIELD_PARENT_UUID)) {
+      // stem is being moved.  take care of stem sets..
+      Set<StemSet> newParentSets = GrouperDAOFactory.getFactory().getStemSet().findByThenHasStemId(this.parentUuid);
+      Set<StemSet> oldStemSets = GrouperDAOFactory.getFactory().getStemSet().findNonSelfByThenHasStemId(this.uuid);
+      GrouperDAOFactory.getFactory().getStem().moveStemSets(newParentSets, oldStemSets, this.uuid);
+    }
+    
     super.onPostUpdate(hibernateSession);
 
     GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.STEM, 
@@ -4122,7 +4131,19 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       }
     }    
   }
-  
 
+  /**
+   * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetElement#__getId()
+   */
+  public String __getId() {
+    return this.getUuid();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetElement#__getName()
+   */
+  public String __getName() {
+    return this.getName();
+  }
 }
 

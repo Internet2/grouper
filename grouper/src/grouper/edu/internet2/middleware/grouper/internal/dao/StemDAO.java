@@ -46,6 +46,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.stem.StemSet;
 import edu.internet2.middleware.subject.Subject;
 
 /** 
@@ -520,6 +521,12 @@ public interface StemDAO extends GrouperDAO {
       QueryOptions queryOptions, boolean considerAllSubject, 
       String sqlLikeString);
 
+  /**
+   * @param newParentSets
+   * @param oldStemSets
+   * @param currentStemId
+   */
+  public void moveStemSets(Collection<StemSet> newParentSets, Collection<StemSet> oldStemSets, String currentStemId);
 
 } 
 
