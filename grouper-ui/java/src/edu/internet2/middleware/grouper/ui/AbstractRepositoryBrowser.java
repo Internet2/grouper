@@ -194,7 +194,11 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 		isFlatCapable = "true".equals(getProperty("flat-capable"));
 		rootNode = getProperty("root-node");
 		if("".equals(rootNode)){
-			rootNode=mediaBundle.getString("default.browse.stem");
+		  try {
+		    rootNode=mediaBundle.getString("default.browse.stem");
+		  } catch (MissingResourceException mre) {
+		    //thats ok, just ignore
+		  }
 			if(rootNode.startsWith("@"))rootNode="";
 		}
 		hidePreRootNode="true".equals(getProperty("hide-pre-root-node"));

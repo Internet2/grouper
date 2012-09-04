@@ -46,6 +46,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 
@@ -291,8 +292,14 @@ public abstract class LowLevelGrouperCapableAction
 	 */
 	public  String getDefaultRootStemName(HttpSession session) { 
 		
-			Map mediaMap = (Map)session.getAttribute("mediaMap");
-			String defaultStem = (String)mediaMap.get("default.browse.stem");
+			Map mediaMap = (Map)session.getAttribute("mediaNullMap");
+			String defaultStem = null;
+      try {
+        defaultStem = (String)mediaMap.get("default.browse.stem");
+      } catch (MissingResourceException mre) {
+        //thats ok, just ignore
+      }
+
 			if(isEmpty(defaultStem) || defaultStem.startsWith("@")) defaultStem = GrouperHelper.NS_ROOT;
 			return defaultStem;	
 	}

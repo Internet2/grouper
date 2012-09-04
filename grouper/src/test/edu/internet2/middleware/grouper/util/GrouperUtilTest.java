@@ -707,6 +707,12 @@ public class GrouperUtilTest extends GrouperTest {
     nameDb = GrouperUtil.substituteExpressionLanguage("${group.nameDb} ${group.nameDb}", substituteMap);
     assertEquals("someName someName", nameDb);
     
+    nameDb = GrouperUtil.substituteExpressionLanguage("${group.nameDb.endsWith('Name')}", substituteMap);
+    assertEquals("true", nameDb);
+    
+    nameDb = GrouperUtil.substituteExpressionLanguage("${!group.nameDb.endsWith('Name')}", substituteMap);
+    assertEquals("false", nameDb);
+    
     try {
       nameDb = GrouperUtil.substituteExpressionLanguage("${java.lang.System.currentTimeMillis()}", substituteMap);
       fail("Shouldnt get here");

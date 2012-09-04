@@ -35,6 +35,8 @@ package edu.internet2.middleware.grouper.ui.util;
 import java.io.Serializable;
 import java.util.*;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.ui.UIThreadLocal;
 
 /**
@@ -153,7 +155,9 @@ public class ChainedResourceBundle extends ResourceBundle implements
 	 * @see java.util.ResourceBundle#getKeys()
 	 */
 	public Enumeration getKeys() {
-		Set keys = new HashSet();
+
+	  //add in the cache keys
+		Set keys = new HashSet(cache.keySet());
 		ResourceBundle bundle = null;
 		Enumeration bundleKeys;
 		for (int i = 0; i < chain.size(); i++) {

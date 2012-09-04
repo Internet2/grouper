@@ -34,38 +34,6 @@ grouper.role=*
 # re-built 
 web.xml.overwrite=true
 
-# Set to true if you want to give users access to lite ui
-login.ui-lite.show-link=true
-
-# Set to true if you want the admin-ui to link to the lite ui (membership management only)
-ui-lite.link-from-admin-ui=true
-
-#You can override the default browse stem, however, you must ensure that the stem
-#exists by creating it using the Grouper API
-#default.browse.stem=<stem_name>
-
-# For production turn off (false) or restrict to a group
-browser.debug.enable=false
-
-# If debug is on then restrict to named group. Disable if group does not exist
-#browser.debug.group=etc:debuggers
-
-# Enables user to specify arbitrary exsecutable as HTML editor on the server
-# Do not enable unless you absolutely trust users 
-browser.debug.group.enable-html-editor=false
-
-#If you want to save your debug preferences, set debug.prefs.dir to an existing directory 
-#on you system, where the user Tomcat runs as, has write privilege
-#debug.prefs.dir=c:/delete
-
-#If you want a unique ticket to be displayed on the error page,set error.ticket=true
-#error.ticket=true
-
-#Sets value in media.properties. Note that Grouper cannot guarantee that
-#ending the session will log the user out of your authentication system!!!
-#Only set to true if you can genuinely logout.
-logout.link.show=true
-
 #Switches to UI specific log4j.properties
 #use.local.log4j=true
 

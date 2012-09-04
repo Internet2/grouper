@@ -57,6 +57,7 @@ import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ui.util.ChainedResourceBundle;
 import edu.internet2.middleware.grouper.ui.util.DOMHelper;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
 import edu.internet2.middleware.grouper.ui.util.MembershipExporter;
 import edu.internet2.middleware.grouper.ui.util.MembershipImportManager;
@@ -157,7 +158,7 @@ public class SessionInitialiser {
               "resources.grouper.nav", localeObj);
           ResourceBundle grouperMediaBundle = ResourceBundle.getBundle(
               "resources.grouper.media", localeObj);
-
+          
           ChainedResourceBundle chainedBundle = null;
           ChainedResourceBundle chainedMediaBundle = null;
 
@@ -183,7 +184,13 @@ public class SessionInitialiser {
           MapBundleWrapper navBundleWrapperNull = new MapBundleWrapper(chainedBundle, true);
 
           addIncludeExcludeDefaults(chainedBundle, navBundleWrapperNull);
-
+          
+          //add in grouper-ui.properties for media.properties
+          GrouperUiConfig grouperUiConfig = GrouperUiConfig.retrieveConfig();
+          for (String key : grouperUiConfig.propertyNames()) {
+            chainedMediaBundle.addToCache(key, grouperUiConfig.propertyValueString(key, ""));
+          }
+          
           resourceBundles = new BundleBean();
           resourceBundles.setNav(
               new javax.servlet.jsp.jstl.fmt.LocalizationContext(chainedBundle));
@@ -392,7 +399,7 @@ public class SessionInitialiser {
 			}catch(Exception e) {
 				LOG.info("browser.debug.group not set in media.properties");
 			}
-			if(debugGroup!=null && !debugGroup.matches("^@.*?@$") && !attemptedDebuggers) {
+			if(!StringUtils.isBlank(debugGroup) && !debugGroup.matches("^@.*?@$") && !attemptedDebuggers) {
 				try {
 					attemptedDebuggers=true;
 					GrouperSession root = GrouperSession.startRootSession();

@@ -91,6 +91,7 @@ import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -145,8 +146,17 @@ public class GrouperUiFilter implements Filter {
    */
   public static Properties retrieveMediaProperties() {
     //cant find in session, this should be a special case, like during startup
-    Properties propertiesSettings = GrouperUtil
-      .propertiesFromResourceName("resources/grouper/media.properties");
+    Properties propertiesSettings = new Properties();
+    propertiesSettings.putAll(GrouperUtil
+      .propertiesFromResourceName("resources/grouper/media.properties"));
+    
+    //if there is a custom, add it in
+    if (GrouperUtil.computeUrl("resources/custom/media.properties", true) != null) {
+      propertiesSettings.putAll(GrouperUtil
+          .propertiesFromResourceName("resources/custom/media.properties"));
+    }
+    
+    propertiesSettings.putAll(GrouperUiConfig.retrieveConfig().properties());
     return propertiesSettings;
   }
   
