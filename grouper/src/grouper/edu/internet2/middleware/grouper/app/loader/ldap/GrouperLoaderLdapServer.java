@@ -122,7 +122,29 @@ public class GrouperLoaderLdapServer {
   /** if connections expire after a certain amount of time, this is it, in millis, defaults to 300000 (5 minutes) */
   private int expirationTime = -1;
 
-  
+  /** if the ldap server has a max page size, then this will get the results in pages */
+  private int pagedResultsSize = -1;
+
+  /**
+   * if the ldap server has a max page size, then this will get the results in pages
+   * @return page size
+   */
+  public int getPagedResultsSize() {
+
+    return this.pagedResultsSize;
+
+  }
+
+  /**
+   * if the ldap server has a max page size, then this will get the results in pages
+   * @param pagedResultsSize1
+   */
+  public void setPagedResultsSize(int pagedResultsSize1) {
+
+    this.pagedResultsSize = pagedResultsSize1;
+
+  }
+
   
   /**
    * if using sasl, this is authz id

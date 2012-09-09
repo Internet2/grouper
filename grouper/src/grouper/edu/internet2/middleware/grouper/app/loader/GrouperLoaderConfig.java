@@ -354,6 +354,8 @@ public class GrouperLoaderConfig {
     grouperLoaderLdapServer.setValidateOnCheckOut(getPropertyBoolean("ldap." + name + ".validateOnCheckOut", false));
     grouperLoaderLdapServer.setValidatePeriodically(getPropertyBoolean("ldap." + name + ".validatePeriodically", false));
 
+    grouperLoaderLdapServer.setPagedResultsSize(getPropertyInt("ldap." + name + ".pagedResultsSize", -1));
+
     //#validateOnCheckout defaults to true if all other validate methods are false
     if (!grouperLoaderLdapServer.isValidateOnCheckIn() && !grouperLoaderLdapServer.isValidateOnCheckOut() && !grouperLoaderLdapServer.isValidatePeriodically()) {
       grouperLoaderLdapServer.setValidateOnCheckOut(true);

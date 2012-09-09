@@ -121,6 +121,11 @@ public class LdapSession {
             ldapConfig.setTimeout(grouperLoaderLdapServer.getTimeout());
           }
           
+          //#ldap.personLdap.pagedResultsSize
+          if (grouperLoaderLdapServer.getPagedResultsSize() != -1) {
+            ldapConfig.setPagedResultsSize(grouperLoaderLdapServer.getPagedResultsSize());
+          }
+
           //#ldap.personLdap.minPoolSize = 
           if (grouperLoaderLdapServer.getMinPoolSize() != -1) {
             ldapPoolConfig.setMinPoolSize(grouperLoaderLdapServer.getMinPoolSize());
