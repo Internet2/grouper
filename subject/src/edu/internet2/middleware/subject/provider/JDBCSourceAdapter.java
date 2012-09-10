@@ -518,13 +518,13 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
                 }
               }
               
-              //if we made it this far there is a problem
-              throw new InvalidQueryException("Why is this subject not able to be " +
-                  "referenced by id or identifier (do you need to add " +
-                  "identifierAttributes to your sources.xml???) " + SubjectUtils.subjectToString(subject) );
-              
             }
-            
+
+            //if we made it this far there is a problem
+            throw new InvalidQueryException("Why is this subject not able to be " +
+                "referenced by id or identifier (do you need to add " +
+                "identifierAttributes to your sources.xml???) " + SubjectUtils.subjectToString(subject) );
+
           }
           
         }
