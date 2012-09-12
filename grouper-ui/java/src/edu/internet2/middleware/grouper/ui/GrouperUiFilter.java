@@ -93,6 +93,7 @@ import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
+import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -135,6 +136,20 @@ public class GrouperUiFilter implements Filter {
     }
     if (localizationContext != null) {
       return localizationContext.getResourceBundle();
+    }
+    //note, call retrieveMediaProperties() if session properites are null...
+    throw new RuntimeException("Cant find media bundle");
+  }
+  
+  /**
+   * get the media resource bundle from session
+   * @return the media resource bundle
+   */
+  @SuppressWarnings("unchecked")
+  public static Map<String, String> retrieveSessionMediaNullMapResourceBundle() {
+    HttpSession session = retrieveHttpServletRequest().getSession(false);
+    if (session != null) {
+      return (Map<String, String>)session.getAttribute("mediaNullMap");
     }
     //note, call retrieveMediaProperties() if session properites are null...
     throw new RuntimeException("Cant find media bundle");

@@ -154,7 +154,7 @@ public class PrepareGroupSearchFormAction extends LowLevelGrouperCapableAction {
 		DynaActionForm searchForm = (DynaActionForm)form;
 		List browsePath = (List) request.getAttribute("browsePath");
 		String searchDisplayNameOrExtension = GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("search.default.search-in-display-name-or-extension");
-		String searchNameOrExtension = GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("search.default.search-in-name-or-extension");
+		String searchNameOrExtension = GrouperUiFilter.retrieveSessionMediaNullMapResourceBundle().get("search.default.search-in-name-or-extension");
 		String searchInAny=GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("search.default.any");
 		String searchDefault=GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("search.default");
 		searchForm.set("searchInDisplayNameOrExtension",searchDisplayNameOrExtension);
