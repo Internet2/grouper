@@ -23,10 +23,8 @@
 	<classpathentry exported="true" kind="lib" path="lib/axis/commons-fileupload-1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/httpcore-4.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/jaxen-1.1.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/mail.txt"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/mex-1.6.1-impl.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/neethi-3.0.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/package.html"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/woden-api-1.0M9.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/woden-impl-dom-1.0M9.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/wsdl4j-1.6.2.jar"/>
