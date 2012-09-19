@@ -38,6 +38,8 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
 import edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 
 
 /** 
@@ -47,8 +49,15 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @version $Id: GrouperConfig.java,v 1.9 2009-12-16 06:02:30 mchyzer Exp $
  * @since   ?
  */
-public class GrouperConfig {
-  // TODO 20070724 deprecate
+public class GrouperConfig extends ConfigPropertiesCascadeBase {
+
+  /**
+   * retrieve a config from the config file or from cache
+   * @return the config object
+   */
+  public static GrouperClientConfig retrieveConfig() {
+    return retrieveConfig(GrouperClientConfig.class);
+  }
 
 
   /**
@@ -188,6 +197,7 @@ public class GrouperConfig {
    * @since   1.1.0
    */
   public static String getHibernateProperty(String property) {
+    
     return getDefaultTrimmedValueIfNull( getInstance().hib.getProperty(property) );
   }
 
@@ -206,20 +216,25 @@ public class GrouperConfig {
    * <pre class="eg">
    * String wheel = GrouperConfig.getProperty("groups.wheel.group");
    * </pre>
+   * @param property is the property key
    * @return  Value of configuration parameter or an empty string if
    *   parameter is invalid.
    * @since   1.1.0
+   * @deprecated use GrouperConfig.retrieveConfig().propertyValueString instead
    */
+  @Deprecated
   public static String getProperty(String property) {
-    return getDefaultTrimmedValueIfNull( getInstance().api.getProperty(property) );
+    return retrieveConfig().propertyValueString(property, "");
   }
 
   /**
    * Get a Grouper config names
    * @return set of names
+   * @deprecated use GrouperConfig.retrieveConfig().propertyNames() instead
    */
+  @Deprecated
   public static Set<String> getPropertyNames() {
-    return getInstance().api.getPropertyNames();
+    return retrieveConfig().propertyNames();
   }
 
   /**
@@ -228,26 +243,11 @@ public class GrouperConfig {
    * @param propertyName
    * @param defaultValue if the property is blank or missing, return this value
    * @return true or false
+   * @deprecated use GrouperConfig.retrieveConfig().propertyValueBoolean(propertyName, defaultValue) instead
    */
+  @Deprecated
   public static boolean getPropertyBoolean(String propertyName, boolean defaultValue) {
-    String value = getProperty(propertyName);
-    if (StringUtils.isBlank(value)) {
-      return defaultValue;
-    }
-    
-    if ("true".equalsIgnoreCase(value)) {
-      return true;
-    }
-    if ("false".equalsIgnoreCase(value)) {
-      return false;
-    }
-    if ("t".equalsIgnoreCase(value)) {
-      return true;
-    }
-    if ("f".equalsIgnoreCase(value)) {
-      return false;
-    }
-    throw new RuntimeException("Invalid value: '" + value + "' for property: " + propertyName + " in grouper.properties");
+    return GrouperConfig.retrieveConfig().propertyValueBoolean(propertyName, defaultValue);
   }
   
   /**
@@ -255,13 +255,11 @@ public class GrouperConfig {
    * @param propertyName
    * @param defaultValue if the property is blank or missing, return this value
    * @return the int
+   * @deprecated use GrouperConfig.retrieveConfig().propertyValueInt
    */
+  @Deprecated
   public static int getPropertyInt(String propertyName, int defaultValue) {
-    String value = getProperty(propertyName);
-    if (StringUtils.isBlank(value)) {
-      return defaultValue;
-    }
-    return GrouperUtil.intValue(value, defaultValue);
+    return retrieveConfig().propertyValueInt(propertyName, defaultValue);
   }
   
   /**
@@ -289,6 +287,7 @@ public class GrouperConfig {
    * @return int
    */
   public static int getHibernatePropertyInt(String property, int defaultValue) {
+    
     String value = getHibernateProperty(property);
     if (StringUtils.isBlank(value)) {
       return defaultValue;
@@ -313,6 +312,47 @@ public class GrouperConfig {
       return url;
     }
     return url + "/";
+  }
+
+  /**
+   * @see ConfigPropertiesCascadeBase#clearCachedCalculatedValues
+   */
+  @Override
+  public void clearCachedCalculatedValues() {
+    // TODO Auto-generated method stub
+    
+  }
+
+  /**
+   * @see ConfigPropertiesCascadeBase#getHierarchyConfigKey
+   */
+  @Override
+  protected String getHierarchyConfigKey() {
+    return "grouper.config.hierarchy";
+  }
+
+  /**
+   * @see ConfigPropertiesCascadeBase#getMainConfigClasspath
+   */
+  @Override
+  protected String getMainConfigClasspath() {
+    return "grouper.properties";
+  }
+
+  /**
+   * @see ConfigPropertiesCascadeBase#getMainExampleConfigClasspath
+   */
+  @Override
+  protected String getMainExampleConfigClasspath() {
+    return "grouper.base.properties";
+  }
+
+  /**
+   * @see ConfigPropertiesCascadeBase#getSecondsToCheckConfigKey
+   */
+  @Override
+  protected String getSecondsToCheckConfigKey() {
+    return "grouper.config.secondsBetweenUpdateChecks";
   }
   
 } 
