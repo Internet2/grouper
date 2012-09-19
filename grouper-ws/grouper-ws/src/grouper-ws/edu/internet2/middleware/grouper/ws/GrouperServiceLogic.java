@@ -1407,6 +1407,11 @@ public class GrouperServiceLogic {
    *            will be done at a single point in time rather than a range.  If this is specified but 
    *            pointInTimeFrom is not specified, then the point in time query range will be from the 
    *            minimum point in time to the time specified.
+   * @param pageSize page size if paging
+   * @param pageNumber page number 1 indexed if paging
+   * @param sortString must be an hql query field, e.g. 
+   * can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, description
+   * @param ascending or null for ascending, F for descending.  
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -1416,7 +1421,9 @@ public class GrouperServiceLogic {
       WsSubjectLookup actAsSubjectLookup, final Field fieldName,
       boolean includeGroupDetail, 
       boolean includeSubjectDetail, String[] subjectAttributeNames,
-      WsParam[] params, String[] sourceIds, Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
+      WsParam[] params, String[] sourceIds, Timestamp pointInTimeFrom, Timestamp pointInTimeTo,
+      Integer pageSize, Integer pageNumber,
+      String sortString, Boolean ascending) {
   
     WsGetMembersResults wsGetMembersResults = new WsGetMembersResults();
   
@@ -1439,8 +1446,10 @@ public class GrouperServiceLogic {
           + GrouperUtil.toStringForLog(subjectAttributeNames) + "\n, paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100) + 
           "\n, sourceIds: " + GrouperUtil.toStringForLog(sourceIds) + 
-          "\n, pointInTimeFrom: " + pointInTimeFrom + ", pointInTimeTo: " + pointInTimeTo;
-  
+          "\n, pointInTimeFrom: " + pointInTimeFrom + ", pointInTimeTo: " + pointInTimeTo
+          + ", pageSize: " + pageSize + ", pageNumber: " + pageNumber 
+          + ", sortString: " + sortString + ", ascending: " + ascending ;
+
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
   
@@ -1468,7 +1477,42 @@ public class GrouperServiceLogic {
         .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
       wsGetMembersResults.setSubjectAttributeNames(subjectAttributeNamesToRetrieve);
             
+      if ((pageNumber != null) && (pageSize == null) ) {
+        
+        throw new WsInvalidQueryException(
+          "If you pass in pageNumber you need to pass in pageSize");
+      
+      }
+      
       for (WsGroupLookup wsGroupLookup : GrouperUtil.nonNull(wsGroupLookups, WsGroupLookup.class)) {
+        
+        QueryOptions queryOptions = null;
+        if (pageSize != null || pageNumber != null || !StringUtils.isBlank(sortString) || ascending != null) {
+          queryOptions = new QueryOptions();
+          boolean hasPaging = false;
+          if (pageNumber != null || pageSize != null) {
+            //default page number to 1
+            if (pageNumber == null) {
+              pageNumber = 1;
+            }
+            queryOptions.paging(pageSize, pageNumber, false);
+            hasPaging = true;
+          }
+          if (hasPaging || ascending != null || !StringUtils.isBlank(sortString)) {
+            //default sort string to subjectId
+            if (StringUtils.isBlank(sortString)) {
+              sortString = "sourceId,subjectId";
+            }
+            if (ascending == null || ascending) {
+              queryOptions.sortAsc(sortString);
+            } else {
+              queryOptions.sortDesc(sortString);
+            }
+          }
+        }
+
+
+        
         WsGetMembersResult wsGetMembersResult = new WsGetMembersResult();
         results.add(wsGetMembersResult);
         
@@ -1492,7 +1536,7 @@ public class GrouperServiceLogic {
             }
             
             // lets get the members, cant be null
-            Set<Member> members = memberFilter.getMembers(group, fieldName, sources);
+            Set<Member> members = memberFilter.getMembers(group, fieldName, sources, queryOptions);
             Member.resolveSubjects(members, true);
             wsGetMembersResult.assignSubjectResult(members, subjectAttributeNamesToRetrieve, includeSubjectDetail);
           } else {            
@@ -1516,7 +1560,7 @@ public class GrouperServiceLogic {
               wsGetMembersResult.setWsGroup(new WsGroup(pitGroup));
 
               // lets get the members, cant be null
-              Set<Member> members = pitGroup.getMembers(fieldId, pointInTimeFrom, pointInTimeTo, sources, null);
+              Set<Member> members = pitGroup.getMembers(fieldId, pointInTimeFrom, pointInTimeTo, sources, queryOptions);
           
               wsGetMembersResult.assignSubjectResult(members, subjectAttributeNamesToRetrieve, includeSubjectDetail);
               
@@ -1864,6 +1908,11 @@ public class GrouperServiceLogic {
    *            will be done at a single point in time rather than a range.  If this is specified but 
    *            pointInTimeFrom is not specified, then the point in time query range will be from the 
    *            minimum point in time to the time specified.
+   * @param pageSize page size if paging
+   * @param pageNumber page number 1 indexed if paging
+   * @param sortString must be an hql query field, e.g. 
+   * can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, description
+   * @param ascending or null for ascending, F for descending.  
    * @return the members, or no members if none found
    */
   public static WsGetMembersLiteResult getMembersLite(
@@ -1876,7 +1925,9 @@ public class GrouperServiceLogic {
       boolean includeSubjectDetail, String subjectAttributeNames,
       String paramName0, String paramValue0,
       String paramName1, String paramValue1, String sourceIds,
-      Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
+      Timestamp pointInTimeFrom, Timestamp pointInTimeTo,
+      Integer pageSize, Integer pageNumber,
+      String sortString, Boolean ascending) {
   
     // setup the group lookup
     WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
@@ -1897,7 +1948,9 @@ public class GrouperServiceLogic {
     WsGetMembersResults wsGetMembersResults = getMembers(clientVersion, wsGroupLookups,
         memberFilter, actAsSubjectLookup, fieldName, 
         includeGroupDetail, includeSubjectDetail,
-        subjectAttributeArray, params, sourceIdArray, pointInTimeFrom, pointInTimeTo);
+        subjectAttributeArray, params, sourceIdArray, pointInTimeFrom, pointInTimeTo,
+        pageSize, pageNumber,
+        sortString, ascending);
   
     if (usePIT && wsGetMembersResults.getResults() != null && wsGetMembersResults.getResults().length > 1) {
       WsGetMembersResult[] lastResult = { wsGetMembersResults.getResults()[wsGetMembersResults.getResults().length - 1] };

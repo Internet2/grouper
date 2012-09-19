@@ -64,7 +64,6 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
-import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.member.SearchStringEnum;
 import edu.internet2.middleware.grouper.member.SortStringEnum;
@@ -796,31 +795,18 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       
       queryOptions.sortAsc(memberSortStringEnum.getFieldName());
     }
-    
-    // if performing member sorting, verify access and adjust field name
-    if (queryOptions != null && queryOptions.getQuerySort() != null) {
-      List<QuerySortField> querySortFields = queryOptions.getQuerySort().getQuerySortFields();
-      for (QuerySortField querySortField : querySortFields) {
-        String column = querySortField.getColumn();
-        if (column.matches("sortString[0-4]")) {
-          int index = Integer.parseInt(column.substring(10, 11));
-          if (!SortStringEnum.newInstance(index).hasAccess()) {
-            throw new RuntimeException("Not allowed to access " + column);
-          }
-          
-          querySortField.setColumn("m." + column);
-          //sql.append(" and m." + column + " is not null ");
-        }
-      }
+
+    if (queryOptions != null) {
+      Hib3MemberDAO.massageMemberSortFields(queryOptions.getQuerySort());
     }
-    
+
     return byHqlStatic
-    .createQuery(sql.toString())
-    .setCacheable(false)
-        .setCacheRegion(KLASS).options(queryOptions)
-    .setString("owner", ownerId)
-    .setString( "fieldId", f.getUuid() )
-    .listSet(Member.class);
+      .createQuery(sql.toString())
+      .setCacheable(false)
+          .setCacheRegion(KLASS).options(queryOptions)
+      .setString("owner", ownerId)
+      .setString( "fieldId", f.getUuid() )
+      .listSet(Member.class);
 
   } 
   

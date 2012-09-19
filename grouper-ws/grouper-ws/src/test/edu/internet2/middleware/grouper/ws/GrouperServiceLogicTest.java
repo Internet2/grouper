@@ -166,7 +166,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testAssignAttributesBatch"));
+    TestRunner.run(new GrouperServiceLogicTest("testGetMembersPaging"));
   }
 
   /**
@@ -181,16 +181,6 @@ public class GrouperServiceLogicTest extends GrouperTest {
     //help test logins from session opened from resetData
     GrouperServiceUtils.testSession = GrouperSession.staticGrouperSession();
 
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrAdmin", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrOptin", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrOptout", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrRead", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrUpdate", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrView", "false");
-
-    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
-    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
-    
     GrouperWsVersionUtils.assignCurrentClientVersion(GROUPER_VERSION, new StringBuilder());
   }
 
@@ -815,7 +805,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     //valid query
     WsGetMembersResults wsGetMembersResults = GrouperServiceLogic.getMembers(
         GROUPER_VERSION, wsGroupLookups, WsMemberFilter.Immediate, null, 
-        Group.getDefaultList(), true, true, null, null, null, null, null);
+        Group.getDefaultList(), true, true, null, null, null, null, null, null, null, null, null);
 
     assertEquals(wsGetMembersResults.getResultMetadata().getResultMessage(),
         WsGetMembersResultsCode.SUCCESS.name(), 
@@ -860,7 +850,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
       
       WsGetMembersResults wsGetMembersResults = GrouperServiceLogic.getMembers(
           GROUPER_VERSION, wsGroupLookups, WsMemberFilter.All, null, 
-          Group.getDefaultList(), false, true, null, null, null, null, new Timestamp(new Date().getTime()));
+          Group.getDefaultList(), false, true, null, null, null, null, new Timestamp(new Date().getTime()), null, null, null, null);
   
       assertEquals(wsGetMembersResults.getResultMetadata().getResultMessage(),
           WsGetMembersResultsCode.SUCCESS.name(), 
@@ -894,7 +884,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
   
       WsGetMembersResults wsGetMembersResults = GrouperServiceLogic.getMembers(
           GROUPER_VERSION, wsGroupLookups, WsMemberFilter.All, null, 
-          Group.getDefaultList(), false, true, null, null, null, null, new Timestamp(new Date().getTime()));
+          Group.getDefaultList(), false, true, null, null, null, null, new Timestamp(new Date().getTime()), null, null, null, null);
   
       assertEquals(wsGetMembersResults.getResultMetadata().getResultMessage(),
           WsGetMembersResultsCode.SUCCESS.name(), 
@@ -933,7 +923,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
       
       WsGetMembersResults wsGetMembersResults = GrouperServiceLogic.getMembers(
           GROUPER_VERSION, wsGroupLookups, WsMemberFilter.All, null, 
-          Group.getDefaultList(), false, true, null, null, null, null, new Timestamp(new Date().getTime()));
+          Group.getDefaultList(), false, true, null, null, null, null, new Timestamp(new Date().getTime()), null, null, null, null);
   
       assertEquals(wsGetMembersResults.getResultMetadata().getResultMessage(),
           WsGetMembersResultsCode.SUCCESS.name(), 
@@ -985,7 +975,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
       
       WsGetMembersResults wsGetMembersResults = GrouperServiceLogic.getMembers(
           GROUPER_VERSION, wsGroupLookups, WsMemberFilter.All, null, 
-          Group.getDefaultList(), false, true, null, null, null, null, new Timestamp(new Date().getTime()));
+          Group.getDefaultList(), false, true, null, null, null, null, new Timestamp(new Date().getTime()), null, null, null, null);
   
       assertEquals(wsGetMembersResults.getResultMetadata().getResultMessage(),
           WsGetMembersResultsCode.PROBLEM_GETTING_MEMBERS.name(),
@@ -6674,6 +6664,105 @@ public class GrouperServiceLogicTest extends GrouperTest {
     attributeAssign = attributeAssigns.iterator().next();
     assertEquals("hello1", attributeAssign.getAttributeValueDelegate().retrieveValueString(attributeDefName2.getName()));
     assertEquals("hello2", attributeAssign.getAttributeValueDelegate().retrieveValueString(attributeDefName3.getName()));
+    
+  }
+
+  /**
+   * test get members
+   */
+  public void testGetMembersPaging() {
+  
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+  
+    Group group1 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:group1").assignName("test:group1").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+  
+    // add members
+    group1.addMember(SubjectTestHelper.SUBJ0);
+    group1.addMember(SubjectTestHelper.SUBJ1);    
+    group1.addMember(SubjectTestHelper.SUBJ2);    
+    group1.addMember(SubjectTestHelper.SUBJ3);    
+    group1.addMember(SubjectTestHelper.SUBJ4);    
+    group1.addMember(SubjectTestHelper.SUBJ5);    
+    ChangeLogTempToEntity.convertRecords();
+    
+    WsGroupLookup wsGroupLookup = new WsGroupLookup(group1.getName(), group1.getUuid());
+    WsGroupLookup[] wsGroupLookups = new WsGroupLookup[] {wsGroupLookup};
+    
+    //###############################################
+    //valid query
+    WsGetMembersResults wsGetMembersResults = GrouperServiceLogic.getMembers(
+        GROUPER_VERSION, wsGroupLookups, WsMemberFilter.Immediate, null, 
+        Group.getDefaultList(), true, true, null, null, null, null, null, 2, 1, null, null);
+  
+    assertEquals(wsGetMembersResults.getResultMetadata().getResultMessage(),
+        WsGetMembersResultsCode.SUCCESS.name(), 
+        wsGetMembersResults.getResultMetadata().getResultCode());
+    
+    assertEquals(1, GrouperUtil.length(wsGetMembersResults.getResults()));
+    assertEquals(2, GrouperUtil.length(wsGetMembersResults.getResults()[0].getWsSubjects()));
+    
+    WsGroup wsGroup = wsGetMembersResults.getResults()[0].getWsGroup();
+    WsSubject wsSubject = wsGetMembersResults.getResults()[0].getWsSubjects()[0];
+    
+    assertEquals(group1.getUuid(), wsGroup.getUuid());
+    assertEquals(group1.getName(), wsGroup.getName());
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), wsSubject.getId());
+    assertEquals(SubjectTestHelper.SUBJ0.getSourceId(), wsSubject.getSourceId());
+  }
+
+  /**
+   * test get members using point in time
+   */
+  public void testGetMembersPITpaging() {
+  
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+  
+    Group group1 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:group1").assignName("test:group1").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+  
+    // add members
+    group1.addMember(SubjectTestHelper.SUBJ0);
+    group1.addMember(SubjectTestHelper.SUBJ1);    
+    group1.addMember(SubjectTestHelper.SUBJ2);    
+    group1.addMember(SubjectTestHelper.SUBJ3);    
+    group1.addMember(SubjectTestHelper.SUBJ4);    
+    ChangeLogTempToEntity.convertRecords();
+    
+    group1.deleteMember(SubjectTestHelper.SUBJ1);    
+    ChangeLogTempToEntity.convertRecords();
+  
+    //###############################################
+    //valid query
+    {
+      WsGroupLookup wsGroupLookup = new WsGroupLookup(null, group1.getUuid());
+      WsGroupLookup[] wsGroupLookups = new WsGroupLookup[] {wsGroupLookup};
+      
+      WsGetMembersResults wsGetMembersResults = GrouperServiceLogic.getMembers(
+          GROUPER_VERSION, wsGroupLookups, WsMemberFilter.All, null, 
+          Group.getDefaultList(), false, true, null, null, null, null, new Timestamp(new Date().getTime()), 2, 2, null, null);
+  
+      assertEquals(wsGetMembersResults.getResultMetadata().getResultMessage(),
+          WsGetMembersResultsCode.SUCCESS.name(), 
+          wsGetMembersResults.getResultMetadata().getResultCode());
+      
+      assertEquals(1, GrouperUtil.length(wsGetMembersResults.getResults()));
+      assertEquals(2, GrouperUtil.length(wsGetMembersResults.getResults()[0].getWsSubjects()));
+      
+      WsGroup wsGroup = wsGetMembersResults.getResults()[0].getWsGroup();
+      WsSubject wsSubject1 = wsGetMembersResults.getResults()[0].getWsSubjects()[0];
+      WsSubject wsSubject2 = wsGetMembersResults.getResults()[0].getWsSubjects()[1];
+      
+      assertEquals(group1.getUuid(), wsGroup.getUuid());
+      assertEquals(group1.getName(), wsGroup.getName());
+      assertFalse(wsSubject1.getId().equals(wsSubject2.getId()));
+      assertEquals(SubjectTestHelper.SUBJ2.getId(), wsSubject1.getId());
+      assertEquals(SubjectTestHelper.SUBJ3.getId(), wsSubject2.getId());
+      assertEquals(SubjectTestHelper.SUBJ2.getSourceId(), wsSubject1.getSourceId());
+      assertEquals(SubjectTestHelper.SUBJ3.getSourceId(), wsSubject2.getSourceId());
+    }
     
   }
 

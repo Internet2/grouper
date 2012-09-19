@@ -25,6 +25,8 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
 /**
  *
  */
@@ -56,10 +58,10 @@ public class QuerySort {
 
   /**
    * max cols to store
-   * @param maxCols
+   * @param maxCols1
    */
-  public void setMaxCols(int maxCols) {
-    this.maxCols = maxCols;
+  public void setMaxCols(int maxCols1) {
+    this.maxCols = maxCols1;
   }
 
   /**
@@ -86,17 +88,22 @@ public class QuerySort {
    * @param ascending
    */
   public QuerySort(String column, boolean ascending) {
-    this.querySortFields.add(new QuerySortField(column, ascending));
+    String[] columns = GrouperUtil.splitTrim(column, ",");
+    for (int i=0;i<columns.length;i++) {
+      this.querySortFields.add(new QuerySortField(columns[i], ascending));
+    }
   }
 
   /**
-   * 
    * @param column
    * @param ascending
    */
   public void assignSort(String column, boolean ascending) {
     this.querySortFields.clear();
-    this.querySortFields.add(new QuerySortField(column, ascending));
+    String[] columns = GrouperUtil.splitTrim(column, ",");
+    for (int i=0;i<columns.length;i++) {
+      this.querySortFields.add(new QuerySortField(columns[i], ascending));
+    }
   }
   
   /**

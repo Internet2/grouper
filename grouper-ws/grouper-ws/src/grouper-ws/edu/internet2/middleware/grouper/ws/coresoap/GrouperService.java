@@ -359,12 +359,12 @@ public class GrouperService {
       Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
       Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
 
-
-      wsGetMembersLiteResult = GrouperServiceLogic.getMembersLite(grouperWsVersion, 
-          groupName, groupUuid, wsMemberFilter, actAsSubjectId, 
-          actAsSubjectSourceId, actAsSubjectIdentifier, field, includeGroupDetailBoolean, 
-          includeSubjectDetailBoolean, subjectAttributeNames, paramName0, paramValue0, 
-          paramName1, paramValue1, sourceIds, pointInTimeFromTimestamp, pointInTimeToTimestamp);
+//TODO
+//      wsGetMembersLiteResult = GrouperServiceLogic.getMembersLite(grouperWsVersion, 
+//          groupName, groupUuid, wsMemberFilter, actAsSubjectId, 
+//          actAsSubjectSourceId, actAsSubjectIdentifier, field, includeGroupDetailBoolean, 
+//          includeSubjectDetailBoolean, subjectAttributeNames, paramName0, paramValue0, 
+//          paramName1, paramValue1, sourceIds, pointInTimeFromTimestamp, pointInTimeToTimestamp);
     } catch (Exception e) {
       wsGetMembersLiteResult.assignResultCodeException(null, null, e);
     }
@@ -442,10 +442,11 @@ public class GrouperService {
       Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
       Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
   
-      wsGetMembersResults = GrouperServiceLogic.getMembers(grouperWsVersion, wsGroupLookups, 
-          wsMemberFilter, actAsSubjectLookup, field, includeGroupDetailBoolean, 
-          includeSubjectDetailBoolean, subjectAttributeNames, params, sourceIds, 
-          pointInTimeFromTimestamp, pointInTimeToTimestamp);
+      //TODO
+//      wsGetMembersResults = GrouperServiceLogic.getMembers(grouperWsVersion, wsGroupLookups, 
+//          wsMemberFilter, actAsSubjectLookup, field, includeGroupDetailBoolean, 
+//          includeSubjectDetailBoolean, subjectAttributeNames, params, sourceIds, 
+//          pointInTimeFromTimestamp, pointInTimeToTimestamp);
     } catch (Exception e) {
       wsGetMembersResults.assignResultCodeException(null, null, e);
     }
