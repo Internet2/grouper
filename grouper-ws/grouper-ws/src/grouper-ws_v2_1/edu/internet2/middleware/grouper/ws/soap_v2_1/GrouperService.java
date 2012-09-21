@@ -245,6 +245,11 @@ public class GrouperService {
    *            will be done at a single point in time rather than a range.  If this is specified but 
    *            pointInTimeFrom is not specified, then the point in time query range will be from the 
    *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
+   * @param pageSize page size if paging
+   * @param pageNumber page number 1 indexed if paging
+   * @param sortString must be an hql query field, e.g. 
+   * can sort on uuid, subjectId, sourceId, name, description, sortString0, sortString1, sortString2, sortString3, sortString4
+   * @param ascending T or null for ascending, F for descending.  
    * @return the members, or no members if none found
    */
   public WsGetMembersLiteResult getMembersLite(final String clientVersion,
@@ -254,7 +259,8 @@ public class GrouperService {
       String includeSubjectDetail, String subjectAttributeNames,
       String paramName0, String paramValue0,
       String paramName1, String paramValue1, String sourceIds,
-      String pointInTimeFrom, String pointInTimeTo) {
+      String pointInTimeFrom, String pointInTimeTo, String pageSize, String pageNumber,
+      String sortString, String ascending) {
 
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "getMembersLite",
@@ -264,7 +270,8 @@ public class GrouperService {
       includeGroupDetail, 
       includeSubjectDetail, subjectAttributeNames,
       paramName0, paramValue0,
-      paramName1, paramValue1, sourceIds, pointInTimeFrom, pointInTimeTo});
+      paramName1, paramValue1, sourceIds, pointInTimeFrom, pointInTimeTo, pageSize, pageNumber,
+      sortString, ascending});
     
     return (WsGetMembersLiteResult)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
 
@@ -302,6 +309,11 @@ public class GrouperService {
    *            will be done at a single point in time rather than a range.  If this is specified but 
    *            pointInTimeFrom is not specified, then the point in time query range will be from the 
    *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
+   * @param pageSize page size if paging
+   * @param pageNumber page number 1 indexed if paging
+   * @param sortString must be an hql query field, e.g. 
+   * can sort on uuid, subjectId, sourceId, name, description, sortString0, sortString1, sortString2, sortString3, sortString4
+   * @param ascending T or null for ascending, F for descending.  
    * @return the results
    */
   public WsGetMembersResults getMembers(final String clientVersion,
@@ -310,7 +322,8 @@ public class GrouperService {
       String includeGroupDetail, 
       String includeSubjectDetail, String[] subjectAttributeNames,
       WsParam[] params, String[] sourceIds,
-      String pointInTimeFrom, String pointInTimeTo) {
+      String pointInTimeFrom, String pointInTimeTo, String pageSize, String pageNumber,
+      String sortString, String ascending) {
   
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "getMembers",
@@ -323,7 +336,8 @@ public class GrouperService {
       includeSubjectDetail, 
       subjectAttributeNames,
       GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
-      sourceIds, pointInTimeFrom, pointInTimeTo});
+      sourceIds, pointInTimeFrom, pointInTimeTo, pageSize, pageNumber,
+      sortString, ascending});
     
     return (WsGetMembersResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   

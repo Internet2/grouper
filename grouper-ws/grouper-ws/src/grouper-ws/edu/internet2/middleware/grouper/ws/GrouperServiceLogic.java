@@ -1411,7 +1411,7 @@ public class GrouperServiceLogic {
    * @param pageNumber page number 1 indexed if paging
    * @param sortString must be an hql query field, e.g. 
    * can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, description
-   * @param ascending or null for ascending, F for descending.  
+   * @param ascending T or null for ascending, F for descending.  
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -1911,8 +1911,8 @@ public class GrouperServiceLogic {
    * @param pageSize page size if paging
    * @param pageNumber page number 1 indexed if paging
    * @param sortString must be an hql query field, e.g. 
-   * can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, description
-   * @param ascending or null for ascending, F for descending.  
+   * can sort on uuid, subjectId, sourceId, name, description, sortString0, sortString1, sortString2, sortString3, sortString4
+   * @param ascending T or null for ascending, F for descending.  
    * @return the members, or no members if none found
    */
   public static WsGetMembersLiteResult getMembersLite(

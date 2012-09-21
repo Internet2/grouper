@@ -94,6 +94,101 @@ public class WsRestGetMembersLiteRequest implements WsRequestBean {
   private String pointInTimeTo;
   
   /**
+   * page size if paging
+   */
+  private String pageSize;
+      
+  /**
+   * page number 1 indexed if paging
+   */
+  private String pageNumber;
+  
+  /**
+   * sortString must be an hql query field, e.g. 
+   * can sort on uuid, subjectId, sourceId, name, description, sortString0, sortString1, sortString2, sortString3, sortString4
+   */
+  private String sortString;
+  
+  /**
+   * ascending T or null for ascending, F for descending.  
+   */
+  private String ascending;
+  
+  /**
+   * page size if paging
+   * @return page size
+   */
+  public String getPageSize() {
+    return this.pageSize;
+  }
+
+
+  /**
+   * page size if paging
+   * @param pageSize1
+   */
+  public void setPageSize(String pageSize1) {
+    this.pageSize = pageSize1;
+  }
+
+
+  /**
+   * page number 1 indexed if paging
+   * @return page number
+   */
+  public String getPageNumber() {
+    return this.pageNumber;
+  }
+
+
+  /**
+   * page number 1 indexed if paging
+   * @param pageNumber1
+   */
+  public void setPageNumber(String pageNumber1) {
+    this.pageNumber = pageNumber1;
+  }
+
+
+  /**
+   * sortString must be an hql query field, e.g. 
+   * can sort on uuid, subjectId, sourceId, name, description, sortString0, sortString1, sortString2, sortString3, sortString4
+   * @return sort string
+   */
+  public String getSortString() {
+    return this.sortString;
+  }
+
+
+  /**
+   * sortString must be an hql query field, e.g. 
+   * can sort on uuid, subjectId, sourceId, name, description, sortString0, sortString1, sortString2, sortString3, sortString4
+   * @param sortString1
+   */
+  public void setSortString(String sortString1) {
+    this.sortString = sortString1;
+  }
+
+
+  /**
+   * ascending T or null for ascending, F for descending.  
+   * @return ascending
+   */
+  public String getAscending() {
+    return this.ascending;
+  }
+
+
+  /**
+   * ascending T or null for ascending, F for descending.  
+   * @param ascending1
+   */
+  public void setAscending(String ascending1) {
+    this.ascending = ascending1;
+  }
+
+
+  /**
    * sourceids to limit request to, or null for all
    * @return the sourceIds
    */
@@ -112,7 +207,7 @@ public class WsRestGetMembersLiteRequest implements WsRequestBean {
 
   /**
    * 
-   * @return
+   * @return member filter
    */
   public String getMemberFilter() {
     return this.memberFilter;
@@ -347,6 +442,7 @@ public class WsRestGetMembersLiteRequest implements WsRequestBean {
   /**
    * @see edu.internet2.middleware.grouper.ws.rest.WsRequestBean#retrieveRestHttpMethod()
    */
+  @Override
   public GrouperRestHttpMethod retrieveRestHttpMethod() {
     return GrouperRestHttpMethod.GET;
   }

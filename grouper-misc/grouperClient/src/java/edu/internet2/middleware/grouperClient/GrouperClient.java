@@ -2081,8 +2081,32 @@ public class GrouperClient {
     Timestamp pointInTimeFrom = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "pointInTimeFrom");
     Timestamp pointInTimeTo = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "pointInTimeTo");
     
+    Boolean ascending = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "ascending");
+      
+    String sortString = GrouperClientUtils.argMapString(argMap, argMapNotUsed, 
+        "sortString", false);
+     
+    Integer pageNumber = GrouperClientUtils.argMapInteger(argMap, argMapNotUsed, 
+        "pageNumber", false, null);
+     
+    Integer pageSize = GrouperClientUtils.argMapInteger(argMap, argMapNotUsed, 
+        "pageSize", false, null);
+
     GcGetMembers gcGetMembers = new GcGetMembers();        
-  
+
+    if (ascending != null) {
+      gcGetMembers.assignAscending(ascending);
+    }
+    if (pageSize != null) {
+      gcGetMembers.assignPageSize(pageSize);
+    }
+    if (pageNumber != null) {
+      gcGetMembers.assignPageNumber(pageNumber);
+    }
+    if (sortString != null) {
+      gcGetMembers.assignSortString(sortString);
+    }
+    
     String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
     gcGetMembers.assignClientVersion(clientVersion);
 
@@ -2798,7 +2822,7 @@ public class GrouperClient {
     
     gcGetMemberships.assignScope(scope);
 
-    gcGetMemberships.assigStemScope(stemScope);
+    gcGetMemberships.assignStemScope(stemScope);
     
     gcGetMemberships.assignWsStem(wsStemLookup);
     

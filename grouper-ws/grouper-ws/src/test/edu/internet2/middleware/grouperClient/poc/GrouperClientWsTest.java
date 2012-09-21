@@ -99,7 +99,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testAttributeDefNameDelete"));
+    TestRunner.run(new GrouperClientWsTest("testGetMembers"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -5909,6 +5909,61 @@ public class GrouperClientWsTest extends GrouperTest {
           !GrouperClientWs.mostRecentRequest.contains("fieldName"));
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("pageSize"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("pageNumber"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("sortString"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("ascending"));
+
+      // ######################################################
+      // Try sorting, paging
+      
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      ArrayList<String> args = new ArrayList<String>();
+      args.add("--operation=getMembersWs");
+      args.add("--groupNames=aStem:aGroup");
+      args.add("--pageSize=1");
+      args.add("--pageNumber=2");
+      args.add("--sortString=subjectId");
+      args.add("--ascending=true");
+      GrouperClient.main(args.toArray(new String[0]));
+
+      System.out.flush();
+      output = new String(baos.toByteArray());
+      System.setOut(systemOut);
+      
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(1, outputLines.length);
+      
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(outputLines[0], "0", matcher.group(1));
+      assertEquals(outputLines[0], "T", matcher.group(2));
+      assertEquals(outputLines[0], "SUCCESS", matcher.group(3));
+      assertEquals(outputLines[0], "aStem:aGroup", matcher.group(4));
+      assertEquals(outputLines[0], "0", matcher.group(5));
+      subjectId = matcher.group(6);
+      assertTrue(outputLines[0], GrouperClientUtils.equals("test.subject.1",
+          subjectId));
+
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("pageSize"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("pageNumber"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("sortString"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("ascending"));
+
 
       // ######################################################
       // Try point in time
@@ -5916,7 +5971,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
       
-      ArrayList<String> args = new ArrayList<String>();
+      args = new ArrayList<String>();
       args.add("--operation=getMembersWs");
       args.add("--groupNames=aStem:aGroup,aStem:aGroup2");
       args.add("--pointInTimeFrom=" + GrouperClientUtils.timestampToString(pointInTimeFrom));

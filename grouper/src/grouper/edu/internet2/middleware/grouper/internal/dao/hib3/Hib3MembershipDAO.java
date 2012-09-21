@@ -466,8 +466,9 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     if (sources != null && sources.size() > 0) {
       sql.append(" and m.subjectSourceIdDb in ").append(HibUtils.convertSourcesToSqlInString(sources));
     }
-    
-    
+    if (queryOptions != null) {
+      Hib3MemberDAO.massageMemberSortFields(queryOptions.getQuerySort());
+    }
     return HibernateSession.byHqlStatic().options(queryOptions)
       .createQuery(sql.toString())
       .setCacheable(false)
@@ -836,6 +837,9 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       sql.append(" and ms.enabledDb = 'T'");
     }
     
+    if (queryOptions != null) {
+      Hib3MemberDAO.massageMemberSortFields(queryOptions.getQuerySort());
+    }
     return HibernateSession.byHqlStatic()
     .createQuery(sql.toString())
     .setCacheable(false)
@@ -1870,6 +1874,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         sql.append(" and ms.enabledDb = 'T'");
       }
       
+      if (queryOptions != null) {
+        Hib3MemberDAO.massageMemberSortFields(queryOptions.getQuerySort());
+      }
+
       return HibernateSession.byHqlStatic()
         .createQuery(sql.toString())
         .setCacheable(false)
@@ -2310,14 +2318,14 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     
     MembershipType typeInEnum = MembershipType.valueOfIgnoreCase(typeIn, false);
     MembershipType typeNotInEnum = MembershipType.valueOfIgnoreCase(typeNotIn, false);
-    StringBuilder sql = new StringBuilder("select theMember from MembershipEntry as inMembershipEntry, Member as theMember where  "
+    StringBuilder sql = new StringBuilder("select m from MembershipEntry as inMembershipEntry, Member as m where  "
         + " inMembershipEntry.ownerGroupId   = :ownerInGroupId            ");
     
     if (disabledOwnerNull) {
       sql.append(" and inMembershipEntry.disabledTimeDb is null ");
     }
     
-    sql.append(" and inMembershipEntry.memberUuid   = theMember.uuid            "
+    sql.append(" and inMembershipEntry.memberUuid   = m.uuid            "
         + " and  inMembershipEntry.fieldId = '" + Group.getDefaultList().getUuid() + "' ");
 
     if (typeInEnum != null) {
@@ -2330,7 +2338,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         sql.append(" and inMembershipEntry.enabledDb = 'F' ");
       }
     }
-    sql.append(" and  theMember.uuid not in ( select notInMembershipEntry.memberUuid from MembershipEntry as notInMembershipEntry " +
+    sql.append(" and  m.uuid not in ( select notInMembershipEntry.memberUuid from MembershipEntry as notInMembershipEntry " +
             " where notInMembershipEntry.ownerGroupId = :ownerNotInGroupId "
             + " and notInMembershipEntry.fieldId = '" + Group.getDefaultList().getUuid() + "' ");
     if (typeNotInEnum != null) {
@@ -2345,7 +2353,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     }
     sql.append(" ) ");
             
-    
+    if (queryOptions != null) {
+      Hib3MemberDAO.massageMemberSortFields(queryOptions.getQuerySort());
+    }
+
     Set<Member> members = HibernateSession.byHqlStatic()
       .createQuery(sql.toString())
       .setCacheable(false)
@@ -2434,9 +2445,9 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
-    StringBuilder sql = new StringBuilder("select theMember from MembershipEntry as inMembershipEntry, Member as theMember where  "
+    StringBuilder sql = new StringBuilder("select m from MembershipEntry as inMembershipEntry, Member as m where  "
         + " inMembershipEntry.ownerGroupId   = :ownerInGroupId            "
-        + " and inMembershipEntry.memberUuid   = theMember.uuid            "
+        + " and inMembershipEntry.memberUuid   = m.uuid            "
         + " and  inMembershipEntry.fieldId = '" + Group.getDefaultList().getUuid() + "' ");
     if (typeInEnum != null) {
       sql.append(" and  inMembershipEntry.type  " + typeInEnum.queryClause());
@@ -2445,7 +2456,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     sql.append(" and  not exists ( select notInMembershipEntry.memberUuid " +
         " from MembershipEntry as notInMembershipEntry, Group as theStemGroup " +
             " where notInMembershipEntry.ownerGroupId = theStemGroup.uuid "
-            + " and notInMembershipEntry.memberUuid = theMember.uuid "
+            + " and notInMembershipEntry.memberUuid = m.uuid "
             + " and notInMembershipEntry.fieldId = '" + Group.getDefaultList().getUuid() + "' ");
     
     switch (stemScope) {
@@ -2467,7 +2478,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     
     sql.append(" ) ");
             
-    
+    if (queryOptions != null) {
+      Hib3MemberDAO.massageMemberSortFields(queryOptions.getQuerySort());
+    }
+
     Set<Member> members = byHqlStatic
       .createQuery(sql.toString())
       .setCacheable(false)
@@ -2589,6 +2603,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         + " and  ms.memberUuid  = m.uuid   "
         );
 
+    if (queryOptions != null) {
+      Hib3MemberDAO.massageMemberSortFields(queryOptions.getQuerySort());
+    }
+
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
       .setCacheable(true)
       .setCacheRegion(KLASS)
@@ -2629,6 +2647,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         + " and  f.typeString  = 'access'   "
         );
   
+    if (queryOptions != null) {
+      Hib3MemberDAO.massageMemberSortFields(queryOptions.getQuerySort());
+    }
+    
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
       .setCacheable(true)
       .setCacheRegion(KLASS)
