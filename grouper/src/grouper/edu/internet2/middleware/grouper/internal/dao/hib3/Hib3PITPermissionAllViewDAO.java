@@ -149,7 +149,7 @@ public class Hib3PITPermissionAllViewDAO extends Hib3DAO implements PITPermissio
       .setCacheable(false)
       .setCacheRegion(KLASS + ".findPermissions");
 
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findPermissions.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findPermissions.maxResultSize", 30000);
     
     String sqlString = sql.toString();
     

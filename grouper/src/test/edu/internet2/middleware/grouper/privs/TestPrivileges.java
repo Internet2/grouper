@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -179,8 +179,8 @@ public class TestPrivileges extends GrouperTest {
     int baseLineViewSize = m.hasView().size();
     int baseLineReadSize = m.hasRead().size();
     
-    ApiConfig.testConfig.put("groups.create.grant.all.read", "true");
-    ApiConfig.testConfig.put("groups.create.grant.all.view", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "true");
     
     LOG.info("testHasAccessPrivButCannotReadPriv");
     // Setup

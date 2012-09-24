@@ -196,7 +196,7 @@ public enum GrouperDdl implements DdlVersionable {
       } else {
         needsUpgrade = false;
       }
-      boolean dropAttributeBackupTableFromGroupUpgrade = GrouperConfig.getPropertyBoolean(
+      boolean dropAttributeBackupTableFromGroupUpgrade = GrouperConfig.retrieveConfig().propertyValueBoolean(
           "ddlutils.dropAttributeBackupTableFromGroupUpgrade", false);
       
       if (needsUpgrade) {
@@ -326,7 +326,7 @@ public enum GrouperDdl implements DdlVersionable {
         // check if we need to upgrade to use group set
         boolean needsUpgrade = needsMembershipAndGroupSetConversion(database);
         
-        boolean dropMembershipBackupColFromMshipUpgrade = GrouperConfig.getPropertyBoolean(
+        boolean dropMembershipBackupColFromMshipUpgrade = GrouperConfig.retrieveConfig().propertyValueBoolean(
             "ddlutils.dropMembershipBackupColsFromOwnerViaUpgrade", false);
         
           
@@ -780,7 +780,7 @@ public enum GrouperDdl implements DdlVersionable {
         DdlVersionBean ddlVersionBean) {
 
       //if not configured to drop, then leave alone
-      if (!GrouperConfig.getPropertyBoolean("ddlutils.dropBackupFieldNameTypeCols", false)) {
+      if (!GrouperConfig.retrieveConfig().propertyValueBoolean("ddlutils.dropBackupFieldNameTypeCols", false)) {
         return;
       }
 
@@ -1008,7 +1008,7 @@ public enum GrouperDdl implements DdlVersionable {
         DdlVersionBean ddlVersionBean) {
 
       //if not configured to drop, then leave alone
-      if (!GrouperConfig.getPropertyBoolean("ddlutils.dropBackupUuidCols", false)) {
+      if (!GrouperConfig.retrieveConfig().propertyValueBoolean("ddlutils.dropBackupUuidCols", false)) {
         return;
       }
 
@@ -5810,7 +5810,7 @@ public enum GrouperDdl implements DdlVersionable {
 
     {
       //you can turn this off in the config if it doesnt compile or whatnot
-      if (GrouperConfig.getPropertyBoolean("externalSubjects.createView", true)) {
+      if (GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.createView", true)) {
 
         Set<String> columnNames = GrouperUtil.toSet("uuid", "name", 
             "identifier", "description");
@@ -9841,7 +9841,7 @@ public enum GrouperDdl implements DdlVersionable {
     
     {
       
-      String attributeRootStem = GrouperConfig.getProperty("grouper.attribute.rootStem");
+      String attributeRootStem = GrouperConfig.retrieveConfig().propertyValueString("grouper.attribute.rootStem");
 
       if (StringUtils.isBlank(attributeRootStem)) {
         attributeRootStem = "etc:attribute";

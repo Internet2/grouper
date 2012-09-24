@@ -24,6 +24,7 @@ See doc/license.txt in this distribution.
 package edu.internet2.middleware.subject.provider;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
@@ -33,17 +34,24 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.imageio.stream.FileImageInputStream;
 
 import org.apache.commons.digester.Digester;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.xml.sax.SAXException;
 
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.SubjectUtils;
+import edu.internet2.middleware.subject.config.SubjectConfig;
 
 /**
  * Factory to load and get Sources.  Sources are defined
@@ -231,12 +239,28 @@ public class SourceManager {
     digester.addSetNext("sources/source/search", "loadSearch");
 
     digester.addSetNext("sources/source", "loadSource");
-    InputStream is = this.getClass().getResourceAsStream(CONFIG_FILE);
+    
+    
+    InputStream is = sourcesXmlConfig();
     log.debug("Parsing config input stream: " + is);
-    digester.parse(is);
+    try {
+      digester.parse(is);
+    } catch (Exception e) {
+      String sourcesLocation = SubjectConfig.retrieveConfig().propertyValueString("subject.sources.xml.location");
+      throw new RuntimeException("Problem reading sources xml file: " + sourcesLocation, e );
+    }
     is.close();
   }
 
+  /**
+   * input stream
+   * @return the input stream of the config file
+   */
+  public static InputStream sourcesXmlConfig() {
+    String sourcesXmlLocation = SubjectConfig.retrieveConfig().propertyValueStringRequired("subject.sources.xml.location");
+    return GrouperClientUtils.fileOrClasspathInputstream(sourcesXmlLocation, "In the subject.properties, the entry for subject.sources.xml.location");
+  }
+  
   /**
    * Validates sources.xml config file.
    * @param args 

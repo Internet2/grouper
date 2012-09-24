@@ -315,26 +315,26 @@ public class ExternalSubjectConfig {
         if (externalSubjectConfigBean == null) {
           
           externalSubjectConfigBean = new ExternalSubjectConfigBean();
-          externalSubjectConfigBean.descriptionEl = GrouperConfig.getProperty("externalSubjects.desc.el");
-          externalSubjectConfigBean.emailEnabled = GrouperConfig.getPropertyBoolean("externalSubjects.email.enabled", true);
-          externalSubjectConfigBean.emailRequired = GrouperConfig.getPropertyBoolean("externalSubjects.email.required", false);
-          externalSubjectConfigBean.institutionEnabled = GrouperConfig.getPropertyBoolean("externalSubjects.institution.enabled", false);
-          externalSubjectConfigBean.institutionRequired = GrouperConfig.getPropertyBoolean("externalSubjects.institution.required", false);
-          externalSubjectConfigBean.nameRequired = GrouperConfig.getPropertyBoolean("externalSubjects.name.required", false);
+          externalSubjectConfigBean.descriptionEl = GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.desc.el");
+          externalSubjectConfigBean.emailEnabled = GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.email.enabled", true);
+          externalSubjectConfigBean.emailRequired = GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.email.required", false);
+          externalSubjectConfigBean.institutionEnabled = GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.institution.enabled", false);
+          externalSubjectConfigBean.institutionRequired = GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.institution.required", false);
+          externalSubjectConfigBean.nameRequired = GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.name.required", false);
           externalSubjectConfigBean.externalSubjectAttributeConfigBeans = new ArrayList<ExternalSubjectAttributeConfigBean>();
           
-          externalSubjectConfigBean.sortAttributeEl.add(GrouperConfig.getProperty("externalSubjects.sortAttribute0.el"));
-          externalSubjectConfigBean.sortAttributeEl.add(GrouperConfig.getProperty("externalSubjects.sortAttribute1.el"));
-          externalSubjectConfigBean.sortAttributeEl.add(GrouperConfig.getProperty("externalSubjects.sortAttribute2.el"));
-          externalSubjectConfigBean.sortAttributeEl.add(GrouperConfig.getProperty("externalSubjects.sortAttribute3.el"));
-          externalSubjectConfigBean.sortAttributeEl.add(GrouperConfig.getProperty("externalSubjects.sortAttribute4.el"));
-          externalSubjectConfigBean.searchAttributeEl.add(GrouperConfig.getProperty("externalSubjects.searchAttribute0.el"));
-          externalSubjectConfigBean.searchAttributeEl.add(GrouperConfig.getProperty("externalSubjects.searchAttribute1.el"));
-          externalSubjectConfigBean.searchAttributeEl.add(GrouperConfig.getProperty("externalSubjects.searchAttribute2.el"));
-          externalSubjectConfigBean.searchAttributeEl.add(GrouperConfig.getProperty("externalSubjects.searchAttribute3.el"));
-          externalSubjectConfigBean.searchAttributeEl.add(GrouperConfig.getProperty("externalSubjects.searchAttribute4.el"));
+          externalSubjectConfigBean.sortAttributeEl.add(GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.sortAttribute0.el"));
+          externalSubjectConfigBean.sortAttributeEl.add(GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.sortAttribute1.el"));
+          externalSubjectConfigBean.sortAttributeEl.add(GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.sortAttribute2.el"));
+          externalSubjectConfigBean.sortAttributeEl.add(GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.sortAttribute3.el"));
+          externalSubjectConfigBean.sortAttributeEl.add(GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.sortAttribute4.el"));
+          externalSubjectConfigBean.searchAttributeEl.add(GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.searchAttribute0.el"));
+          externalSubjectConfigBean.searchAttributeEl.add(GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.searchAttribute1.el"));
+          externalSubjectConfigBean.searchAttributeEl.add(GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.searchAttribute2.el"));
+          externalSubjectConfigBean.searchAttributeEl.add(GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.searchAttribute3.el"));
+          externalSubjectConfigBean.searchAttributeEl.add(GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.searchAttribute4.el"));
           
-          for (String propertyName : GrouperConfig.getPropertyNames()) {
+          for (String propertyName : GrouperConfig.retrieveConfig().propertyNames()) {
             Matcher matcher = externalSubjectAttributeSystemNamePattern.matcher(propertyName);
             if (matcher.matches()) {
 
@@ -343,12 +343,12 @@ public class ExternalSubjectConfig {
               ExternalSubjectAttributeConfigBean externalSubjectAttributeConfigBean = new ExternalSubjectAttributeConfigBean();
               externalSubjectConfigBean.externalSubjectAttributeConfigBeans.add(externalSubjectAttributeConfigBean);
               
-              externalSubjectAttributeConfigBean.systemName = GrouperConfig.getProperty(propertyName);
+              externalSubjectAttributeConfigBean.systemName = GrouperConfig.retrieveConfig().propertyValueString(propertyName);
 
-              externalSubjectAttributeConfigBean.comment = GrouperConfig.getProperty(
+              externalSubjectAttributeConfigBean.comment = GrouperConfig.retrieveConfig().propertyValueString(
                   "externalSubjects.attributes." + attributeConfigName + ".comment");
 
-              externalSubjectAttributeConfigBean.required = GrouperConfig.getPropertyBoolean(
+              externalSubjectAttributeConfigBean.required = GrouperConfig.retrieveConfig().propertyValueBoolean(
                   "externalSubjects.attributes." + attributeConfigName + ".required", false);              
             }
           }
@@ -376,7 +376,7 @@ public class ExternalSubjectConfig {
           
           autoaddMap = new HashMap<String, ExternalSubjectAutoaddBean>();
           
-          for (String propertyName : GrouperConfig.getPropertyNames()) {
+          for (String propertyName : GrouperConfig.retrieveConfig().propertyNames()) {
             Matcher matcher = externalSubjectAutoaddInviteNamePattern.matcher(propertyName);
             if (matcher.matches()) {
 
@@ -384,13 +384,13 @@ public class ExternalSubjectConfig {
               
               ExternalSubjectAutoaddBean externalSubjectAutoaddBean = new ExternalSubjectAutoaddBean();
               
-              externalSubjectAutoaddBean.externalSubjectInviteName = GrouperConfig.getProperty(propertyName);
+              externalSubjectAutoaddBean.externalSubjectInviteName = GrouperConfig.retrieveConfig().propertyValueString(propertyName);
               
-              externalSubjectAutoaddBean.actions = GrouperConfig.getProperty(
+              externalSubjectAutoaddBean.actions = GrouperConfig.retrieveConfig().propertyValueString(
                   "externalSubjects.autoadd." + inviteConfigName + ".actions");
-              externalSubjectAutoaddBean.groups = GrouperConfig.getProperty(
+              externalSubjectAutoaddBean.groups = GrouperConfig.retrieveConfig().propertyValueString(
                   "externalSubjects.autoadd." + inviteConfigName + ".groups");
-              externalSubjectAutoaddBean.expireAfterDays = GrouperConfig.getPropertyInt(
+              externalSubjectAutoaddBean.expireAfterDays = GrouperConfig.retrieveConfig().propertyValueInt(
                   "externalSubjects.autoadd." + inviteConfigName + ".expireAfterDays", -1);
 
               autoaddMap.put(externalSubjectAutoaddBean.externalSubjectInviteName, externalSubjectAutoaddBean);

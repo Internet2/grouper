@@ -78,9 +78,9 @@ public class SubjectCheckConfig {
    */
   public static void checkConfig() {
     
-    if (!checkConfig("sources.xml")) {
-      return;
-    }
+//    if (!checkConfig("sources.xml")) {
+//      return;
+//    }
     
     //at this point, we have a sources.xml...  now check it out
     Collection<Source> sources = null;

@@ -40,11 +40,10 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.T;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -66,7 +65,7 @@ public class TestGroupTypeFilter extends GrouperTest {
   @Override
   protected void setupConfigs() {
     super.setupConfigs();
-    ApiConfig.testConfig.put("groups.wheel.use", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "false");
 
   }
 

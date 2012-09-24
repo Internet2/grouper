@@ -31,6 +31,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
@@ -76,7 +77,7 @@ public class GroupAttributeNameValidationHook extends GroupHooks {
     }
     
     //see if there are config entries
-    Properties grouperProperties = GrouperUtil.propertiesFromResourceName("grouper.properties");
+    Properties grouperProperties = GrouperConfig.retrieveConfig().properties();
 
     
     //group.attribute.validator.attributeName.0=extension

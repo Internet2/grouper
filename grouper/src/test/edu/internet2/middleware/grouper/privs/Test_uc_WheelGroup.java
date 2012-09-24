@@ -41,7 +41,6 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -132,9 +131,9 @@ public class Test_uc_WheelGroup extends GrouperTest {
     throws  SessionException
   {
     GrouperSession s = GrouperSession.start(this.subjA);
-    ApiConfig.testConfig.put( GrouperConfig.PROP_USE_WHEEL_GROUP, "true" );
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put( GrouperConfig.PROP_USE_WHEEL_GROUP, "true" );
     assertFalse( s.getMember().canAdmin(dev) );
-    ApiConfig.testConfig.put( GrouperConfig.PROP_USE_WHEEL_GROUP, "false" );
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put( GrouperConfig.PROP_USE_WHEEL_GROUP, "false" );
   }
 
 
@@ -162,10 +161,10 @@ public class Test_uc_WheelGroup extends GrouperTest {
     
     // start session and turn on wheel
     GrouperSession s = GrouperSession.start(this.subjA);
-    ApiConfig.testConfig.put( GrouperConfig.PROP_USE_WHEEL_GROUP, "true" );
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put( GrouperConfig.PROP_USE_WHEEL_GROUP, "true" );
     // now should be able to grant admin 
     assertTrue( s.getMember().canAdmin(dev) );
-    ApiConfig.testConfig.put( GrouperConfig.PROP_USE_WHEEL_GROUP, "false" );
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put( GrouperConfig.PROP_USE_WHEEL_GROUP, "false" );
   }
 
   /** 
@@ -186,10 +185,10 @@ public class Test_uc_WheelGroup extends GrouperTest {
 
     // start session and turn on wheel
     GrouperSession s = GrouperSession.start( SubjectFinder.findAllSubject() );
-    ApiConfig.testConfig.put( GrouperConfig.PROP_USE_WHEEL_GROUP, "true" );
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put( GrouperConfig.PROP_USE_WHEEL_GROUP, "true" );
     // now should be able to grant admin 
     assertTrue( s.getMember().canAdmin(dev) );
-    ApiConfig.testConfig.put( GrouperConfig.PROP_USE_WHEEL_GROUP, "false" );
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put( GrouperConfig.PROP_USE_WHEEL_GROUP, "false" );
   }
 
   /**
@@ -206,7 +205,7 @@ public class Test_uc_WheelGroup extends GrouperTest {
             SessionException
   {
     GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
-    ApiConfig.testConfig.put( GrouperConfig.PROP_USE_WHEEL_GROUP, "true" );
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put( GrouperConfig.PROP_USE_WHEEL_GROUP, "true" );
     Member  mA  = MemberFinder.findBySubject(s, subjA, true);
     Group   g   = GroupFinder.findByUuid( s, wheel.getUuid(), true );
     //WheelAccessResolver caches wheel group membership
@@ -218,7 +217,7 @@ public class Test_uc_WheelGroup extends GrouperTest {
     assertTrue( "now has ADMIN", g.hasAdmin(subjA) );
     assertTrue( "now can ADMIN", mA.canAdmin(g) );
 
-    ApiConfig.testConfig.put( GrouperConfig.PROP_USE_WHEEL_GROUP, "false" );
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put( GrouperConfig.PROP_USE_WHEEL_GROUP, "false" );
   } 
   
   /**
@@ -245,11 +244,11 @@ public class Test_uc_WheelGroup extends GrouperTest {
 
     // start session and turn on wheel
     GrouperSession s = GrouperSession.start(this.subjA);
-    ApiConfig.testConfig.put(GrouperConfig.PROP_USE_WHEEL_GROUP, "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(GrouperConfig.PROP_USE_WHEEL_GROUP, "true");
     s.setConsiderIfWheelMember(false);
     // verify no admin privilege
     assertFalse(s.getMember().canAdmin(dev));
-    ApiConfig.testConfig.put(GrouperConfig.PROP_USE_WHEEL_GROUP, "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(GrouperConfig.PROP_USE_WHEEL_GROUP, "false");
   }
   
   /**
@@ -276,11 +275,11 @@ public class Test_uc_WheelGroup extends GrouperTest {
 
     // start session and turn on wheel
     GrouperSession s = GrouperSession.start(this.subjA);
-    ApiConfig.testConfig.put(GrouperConfig.PROP_USE_WHEEL_GROUP, "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(GrouperConfig.PROP_USE_WHEEL_GROUP, "true");
     s.setConsiderIfWheelMember(false);
     // verify no stem privilege
     assertFalse(s.getMember().canStem(dev.getParentStem()));
-    ApiConfig.testConfig.put(GrouperConfig.PROP_USE_WHEEL_GROUP, "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(GrouperConfig.PROP_USE_WHEEL_GROUP, "false");
   }
   
   /**
@@ -308,11 +307,11 @@ public class Test_uc_WheelGroup extends GrouperTest {
 
     // start session and turn on wheel
     GrouperSession s = GrouperSession.start(this.subjA);
-    ApiConfig.testConfig.put(GrouperConfig.PROP_USE_WHEEL_GROUP, "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(GrouperConfig.PROP_USE_WHEEL_GROUP, "true");
     s.setConsiderIfWheelMember(false);
     // verify admin privilege
     assertTrue(s.getMember().canAdmin(dev));
-    ApiConfig.testConfig.put(GrouperConfig.PROP_USE_WHEEL_GROUP, "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(GrouperConfig.PROP_USE_WHEEL_GROUP, "false");
   }
   
   /**
@@ -340,11 +339,11 @@ public class Test_uc_WheelGroup extends GrouperTest {
 
     // start session and turn on wheel
     GrouperSession s = GrouperSession.start(this.subjA);
-    ApiConfig.testConfig.put(GrouperConfig.PROP_USE_WHEEL_GROUP, "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(GrouperConfig.PROP_USE_WHEEL_GROUP, "true");
     s.setConsiderIfWheelMember(false);
     // verify stem privilege
     assertTrue(s.getMember().canStem(dev.getParentStem()));
-    ApiConfig.testConfig.put(GrouperConfig.PROP_USE_WHEEL_GROUP, "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put(GrouperConfig.PROP_USE_WHEEL_GROUP, "false");
   }
   
   

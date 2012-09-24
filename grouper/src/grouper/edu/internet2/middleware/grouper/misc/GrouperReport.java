@@ -135,7 +135,7 @@ public class GrouperReport {
       result.append("OVERALL:\n");
       result.append("----------------\n");
       
-      result.append("environment:           ").append(GrouperConfig.getProperty("grouper.env.name")).append("\n");
+      result.append("environment:           ").append(GrouperConfig.retrieveConfig().propertyValueString("grouper.env.name")).append("\n");
       
       Long membershipCountTotal = HibernateSession.byHqlStatic().createQuery(
         "select count(*) from MembershipEntry").uniqueResult(Long.class);

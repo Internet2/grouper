@@ -46,7 +46,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueResult;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueResult;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeAssignNotAllowed;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
@@ -115,17 +115,17 @@ public class AttributeAssignTest extends GrouperTest {
     this.role.addMember(SubjectTestHelper.SUBJ2, false);
     this.role.addMember(SubjectTestHelper.SUBJ7, false);
 
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrAdmin", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrOptin", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrOptout", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrRead", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrUpdate", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrView", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrAdmin", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrOptin", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrOptout", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrRead", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrUpdate", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrView", "false");
 
-    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
-    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
 
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "-1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "-1");
   }
 
   /**
@@ -856,14 +856,14 @@ public class AttributeAssignTest extends GrouperTest {
     
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
 
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "1");
     
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findGroupAttributeAssignments(GrouperUtil.toSet(attributeAssign.getId()), null, null, null, null, true, false);
 
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
     
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "0");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "0");
     
     try {
       attributeAssigns = GrouperDAOFactory.getFactory()
@@ -873,7 +873,7 @@ public class AttributeAssignTest extends GrouperTest {
       //good
     }
 
-    ApiConfig.testConfig.remove("ws.findAttrAssignments.maxResultSize");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ws.findAttrAssignments.maxResultSize");
     
     //search by not attributeAssignId, should not find it
     attributeAssigns = GrouperDAOFactory.getFactory()
@@ -1171,14 +1171,14 @@ public class AttributeAssignTest extends GrouperTest {
     
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "1");
     
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findStemAttributeAssignments(GrouperUtil.toSet(attributeAssign.getId()), null, null, null, null, true, false);
   
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
     
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "0");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "0");
     
     try {
       attributeAssigns = GrouperDAOFactory.getFactory()
@@ -1188,7 +1188,7 @@ public class AttributeAssignTest extends GrouperTest {
       //good
     }
   
-    ApiConfig.testConfig.remove("ws.findAttrAssignments.maxResultSize");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ws.findAttrAssignments.maxResultSize");
     
     //search by not attributeAssignId, should not find it
     attributeAssigns = GrouperDAOFactory.getFactory()
@@ -1414,14 +1414,14 @@ public class AttributeAssignTest extends GrouperTest {
     
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "1");
     
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findMemberAttributeAssignments(GrouperUtil.toSet(attributeAssign.getId()), null, null, null, null, true, false);
   
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
     
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "0");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "0");
     
     try {
       attributeAssigns = GrouperDAOFactory.getFactory()
@@ -1431,7 +1431,7 @@ public class AttributeAssignTest extends GrouperTest {
       //good
     }
   
-    ApiConfig.testConfig.remove("ws.findAttrAssignments.maxResultSize");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ws.findAttrAssignments.maxResultSize");
     
     //search by not attributeAssignId, should not find it
     attributeAssigns = GrouperDAOFactory.getFactory()
@@ -1673,14 +1673,14 @@ public class AttributeAssignTest extends GrouperTest {
     
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "1");
     
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findAttributeDefAttributeAssignments(GrouperUtil.toSet(attributeAssign.getId()), null, null, null, null, true, false);
   
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
     
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "0");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "0");
     
     try {
       attributeAssigns = GrouperDAOFactory.getFactory()
@@ -1690,7 +1690,7 @@ public class AttributeAssignTest extends GrouperTest {
       //good
     }
   
-    ApiConfig.testConfig.remove("ws.findAttrAssignments.maxResultSize");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ws.findAttrAssignments.maxResultSize");
     
     //search by not attributeAssignId, should not find it
     attributeAssigns = GrouperDAOFactory.getFactory()
@@ -2014,14 +2014,14 @@ public class AttributeAssignTest extends GrouperTest {
     
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "1");
     
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findMembershipAttributeAssignments(GrouperUtil.toSet(attributeAssign.getId()), null, null, null, null, true, false);
   
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
     
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "0");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "0");
     
     try {
       attributeAssigns = GrouperDAOFactory.getFactory()
@@ -2031,7 +2031,7 @@ public class AttributeAssignTest extends GrouperTest {
       //good
     }
   
-    ApiConfig.testConfig.remove("ws.findAttrAssignments.maxResultSize");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ws.findAttrAssignments.maxResultSize");
     
     //search by not attributeAssignId, should not find it
     attributeAssigns = GrouperDAOFactory.getFactory()
@@ -2370,14 +2370,14 @@ public class AttributeAssignTest extends GrouperTest {
     
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "1");
     
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findAnyMembershipAttributeAssignments(GrouperUtil.toSet(attributeAssign.getId()), null, null, null, null, true, false);
   
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
     
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "0");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "0");
     
     try {
       attributeAssigns = GrouperDAOFactory.getFactory()
@@ -2387,7 +2387,7 @@ public class AttributeAssignTest extends GrouperTest {
       //good
     }
   
-    ApiConfig.testConfig.remove("ws.findAttrAssignments.maxResultSize");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ws.findAttrAssignments.maxResultSize");
     
     //search by not attributeAssignId, should not find it
     attributeAssigns = GrouperDAOFactory.getFactory()
@@ -2757,7 +2757,7 @@ public class AttributeAssignTest extends GrouperTest {
     
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "1");
     
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findGroupAttributeAssignments(GrouperUtil.toSet(attributeAssign.getId()), 
@@ -2766,7 +2766,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
     
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "0");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "0");
     
     try {
       attributeAssigns = GrouperDAOFactory.getFactory()
@@ -2778,7 +2778,7 @@ public class AttributeAssignTest extends GrouperTest {
       //good
     }
   
-    ApiConfig.testConfig.remove("ws.findAttrAssignments.maxResultSize");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ws.findAttrAssignments.maxResultSize");
     
     //search by not attributeAssignId, should not find it
     attributeAssigns = GrouperDAOFactory.getFactory()
@@ -3229,7 +3229,7 @@ public class AttributeAssignTest extends GrouperTest {
     
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "1");
     
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findStemAttributeAssignments(GrouperUtil.toSet(attributeAssign.getId()), 
@@ -3237,7 +3237,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
     
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "0");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "0");
     
     try {
       attributeAssigns = GrouperDAOFactory.getFactory()
@@ -3248,7 +3248,7 @@ public class AttributeAssignTest extends GrouperTest {
       //good
     }
   
-    ApiConfig.testConfig.remove("ws.findAttrAssignments.maxResultSize");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ws.findAttrAssignments.maxResultSize");
     
     //search by not attributeAssignId, should not find it
     attributeAssigns = GrouperDAOFactory.getFactory()
@@ -3564,7 +3564,7 @@ public class AttributeAssignTest extends GrouperTest {
     
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssignValue));
   
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "1");
     
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findStemAttributeAssignmentsOnAssignments(GrouperUtil.toSet(attributeAssignValue.getId()), 
@@ -3572,7 +3572,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssignValue));
     
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "0");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "0");
     
     try {
       attributeAssigns = GrouperDAOFactory.getFactory()
@@ -3583,7 +3583,7 @@ public class AttributeAssignTest extends GrouperTest {
       //good
     }
   
-    ApiConfig.testConfig.remove("ws.findAttrAssignments.maxResultSize");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ws.findAttrAssignments.maxResultSize");
     
     //search by not attributeAssignId, should not find it
     attributeAssigns = GrouperDAOFactory.getFactory()
@@ -3946,7 +3946,7 @@ public class AttributeAssignTest extends GrouperTest {
     
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "1");
     
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findMemberAttributeAssignments(GrouperUtil.toSet(attributeAssign.getId()), 
@@ -3954,7 +3954,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
     
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "0");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "0");
     
     try {
       attributeAssigns = GrouperDAOFactory.getFactory()
@@ -3965,7 +3965,7 @@ public class AttributeAssignTest extends GrouperTest {
       //good
     }
   
-    ApiConfig.testConfig.remove("ws.findAttrAssignments.maxResultSize");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ws.findAttrAssignments.maxResultSize");
     
     //search by not attributeAssignId, should not find it
     attributeAssigns = GrouperDAOFactory.getFactory()
@@ -4267,7 +4267,7 @@ public class AttributeAssignTest extends GrouperTest {
     
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssignValue));
   
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "1");
     
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findMemberAttributeAssignmentsOnAssignments(GrouperUtil.toSet(attributeAssignValue.getId()), 
@@ -4275,7 +4275,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssignValue));
     
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "0");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "0");
     
     try {
       attributeAssigns = GrouperDAOFactory.getFactory()
@@ -4286,7 +4286,7 @@ public class AttributeAssignTest extends GrouperTest {
       //good
     }
   
-    ApiConfig.testConfig.remove("ws.findAttrAssignments.maxResultSize");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ws.findAttrAssignments.maxResultSize");
     
     //search by not attributeAssignId, should not find it
     attributeAssigns = GrouperDAOFactory.getFactory()
@@ -4674,7 +4674,7 @@ public class AttributeAssignTest extends GrouperTest {
     
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "1");
     
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findGroupAttributeAssignments(GrouperUtil.toSet(attributeAssign.getId()), 
@@ -4682,7 +4682,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
     
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "0");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "0");
     
     try {
       attributeAssigns = GrouperDAOFactory.getFactory()
@@ -4693,7 +4693,7 @@ public class AttributeAssignTest extends GrouperTest {
       //good
     }
   
-    ApiConfig.testConfig.remove("ws.findAttrAssignments.maxResultSize");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ws.findAttrAssignments.maxResultSize");
     
     //search by not attributeAssignId, should not find it
     attributeAssigns = GrouperDAOFactory.getFactory()
@@ -5089,7 +5089,7 @@ public class AttributeAssignTest extends GrouperTest {
     
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssignValue));
   
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "1");
     
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findGroupAttributeAssignmentsOnAssignments(GrouperUtil.toSet(attributeAssignValue.getId()), 
@@ -5097,7 +5097,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssignValue));
     
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "0");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "0");
     
     try {
       attributeAssigns = GrouperDAOFactory.getFactory()
@@ -5108,7 +5108,7 @@ public class AttributeAssignTest extends GrouperTest {
       //good
     }
   
-    ApiConfig.testConfig.remove("ws.findAttrAssignments.maxResultSize");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ws.findAttrAssignments.maxResultSize");
     
     //search by not attributeAssignId, should not find it
     attributeAssigns = GrouperDAOFactory.getFactory()
@@ -5531,7 +5531,7 @@ public class AttributeAssignTest extends GrouperTest {
     
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "1");
     
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findAttributeDefAttributeAssignments(GrouperUtil.toSet(attributeAssign.getId()), 
@@ -5539,7 +5539,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
     
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "0");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "0");
     
     try {
       attributeAssigns = GrouperDAOFactory.getFactory()
@@ -5550,7 +5550,7 @@ public class AttributeAssignTest extends GrouperTest {
       //good
     }
   
-    ApiConfig.testConfig.remove("ws.findAttrAssignments.maxResultSize");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ws.findAttrAssignments.maxResultSize");
     
     //search by not attributeAssignId, should not find it
     attributeAssigns = GrouperDAOFactory.getFactory()
@@ -5965,7 +5965,7 @@ public class AttributeAssignTest extends GrouperTest {
     
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssignValue));
   
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "1");
     
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findAttributeDefAttributeAssignmentsOnAssignments(GrouperUtil.toSet(attributeAssignValue.getId()), 
@@ -5973,7 +5973,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssignValue));
     
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "0");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "0");
     
     try {
       attributeAssigns = GrouperDAOFactory.getFactory()
@@ -5984,7 +5984,7 @@ public class AttributeAssignTest extends GrouperTest {
       //good
     }
   
-    ApiConfig.testConfig.remove("ws.findAttrAssignments.maxResultSize");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ws.findAttrAssignments.maxResultSize");
     
     //search by not attributeAssignId, should not find it
     attributeAssigns = GrouperDAOFactory.getFactory()
@@ -6411,7 +6411,7 @@ public class AttributeAssignTest extends GrouperTest {
     
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "1");
     
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findMembershipAttributeAssignments(GrouperUtil.toSet(attributeAssign.getId()), 
@@ -6419,7 +6419,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
     
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "0");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "0");
     
     try {
       attributeAssigns = GrouperDAOFactory.getFactory()
@@ -6430,7 +6430,7 @@ public class AttributeAssignTest extends GrouperTest {
       //good
     }
   
-    ApiConfig.testConfig.remove("ws.findAttrAssignments.maxResultSize");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ws.findAttrAssignments.maxResultSize");
     
     //search by not attributeAssignId, should not find it
     attributeAssigns = GrouperDAOFactory.getFactory()
@@ -6837,7 +6837,7 @@ public class AttributeAssignTest extends GrouperTest {
     
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssignValue));
   
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "1");
     
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findMembershipAttributeAssignmentsOnAssignments(GrouperUtil.toSet(attributeAssignValue.getId()), 
@@ -6845,7 +6845,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssignValue));
     
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "0");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "0");
     
     try {
       attributeAssigns = GrouperDAOFactory.getFactory()
@@ -6856,7 +6856,7 @@ public class AttributeAssignTest extends GrouperTest {
       //good
     }
   
-    ApiConfig.testConfig.remove("ws.findAttrAssignments.maxResultSize");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ws.findAttrAssignments.maxResultSize");
     
     //search by not attributeAssignId, should not find it
     attributeAssigns = GrouperDAOFactory.getFactory()
@@ -7308,7 +7308,7 @@ public class AttributeAssignTest extends GrouperTest {
     
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "1");
     
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findAnyMembershipAttributeAssignments(GrouperUtil.toSet(attributeAssign.getId()), 
@@ -7316,7 +7316,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
     
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "0");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "0");
     
     try {
       attributeAssigns = GrouperDAOFactory.getFactory()
@@ -7327,7 +7327,7 @@ public class AttributeAssignTest extends GrouperTest {
       //good
     }
   
-    ApiConfig.testConfig.remove("ws.findAttrAssignments.maxResultSize");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ws.findAttrAssignments.maxResultSize");
     
     //search by not attributeAssignId, should not find it
     attributeAssigns = GrouperDAOFactory.getFactory()
@@ -7754,7 +7754,7 @@ public class AttributeAssignTest extends GrouperTest {
     
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssignValue));
   
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "1");
     
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findAnyMembershipAttributeAssignmentsOnAssignments(GrouperUtil.toSet(attributeAssignValue.getId()), 
@@ -7762,7 +7762,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssignValue));
     
-    ApiConfig.testConfig.put("ws.findAttrAssignments.maxResultSize", "0");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ws.findAttrAssignments.maxResultSize", "0");
     
     try {
       attributeAssigns = GrouperDAOFactory.getFactory()
@@ -7773,7 +7773,7 @@ public class AttributeAssignTest extends GrouperTest {
       //good
     }
   
-    ApiConfig.testConfig.remove("ws.findAttrAssignments.maxResultSize");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ws.findAttrAssignments.maxResultSize");
     
     //search by not attributeAssignId, should not find it
     attributeAssigns = GrouperDAOFactory.getFactory()

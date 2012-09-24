@@ -243,7 +243,7 @@ public enum GrouperHookType implements GrouperHookTypeInterface {
   private static List<Class<?>> retrieveHooksFromConfig(String propertyFileKey) {
     List<Class<?>> hooksClasses = hookTypes.get(propertyFileKey);
     if (hooksClasses == null) {
-      String hooksClassString = GrouperConfig.getProperty(propertyFileKey);
+      String hooksClassString = GrouperConfig.retrieveConfig().propertyValueString(propertyFileKey);
       if (StringUtils.isBlank(hooksClassString)) {
         hooksClasses = EMPTY_LIST;
       } else {

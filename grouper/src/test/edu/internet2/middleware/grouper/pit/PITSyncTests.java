@@ -132,7 +132,7 @@ public class PITSyncTests extends GrouperTest {
     grouperSession     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(grouperSession);
     
-    GrouperLoaderConfig.testConfig.put("changeLog.includeRolesWithPermissionChanges", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.includeRolesWithPermissionChanges", "true");
   }
 
   /**

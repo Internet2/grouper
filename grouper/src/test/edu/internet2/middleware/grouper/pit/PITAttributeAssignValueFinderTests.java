@@ -20,7 +20,6 @@ import java.util.Date;
 import java.util.Set;
 
 import junit.textui.TestRunner;
-
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -28,7 +27,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
@@ -102,10 +101,10 @@ public class PITAttributeAssignValueFinderTests extends GrouperTest {
     
     
     
-    ApiConfig.testConfig.put("grouper.permissions.limits.logic.attrDefName.limitName", attrDefName.getName());
-    ApiConfig.testConfig.put("grouper.permissions.limits.logic.attrDefName.logicClass", PITPermissionLimit.class.getName());
-    ApiConfig.testConfig.put("grouper.permissions.limits.logic.attrDefName2.limitName", attrDefName2.getName());
-    ApiConfig.testConfig.put("grouper.permissions.limits.logic.attrDefName2.logicClass", PITPermissionLimit.class.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.permissions.limits.logic.attrDefName.limitName", attrDefName.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.permissions.limits.logic.attrDefName.logicClass", PITPermissionLimit.class.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.permissions.limits.logic.attrDefName2.limitName", attrDefName2.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.permissions.limits.logic.attrDefName2.logicClass", PITPermissionLimit.class.getName());
     
     //clear the cache
     PermissionLimitUtils.clearLimitLogicMap();

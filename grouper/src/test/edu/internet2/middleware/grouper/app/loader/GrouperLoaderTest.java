@@ -48,7 +48,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -565,11 +565,11 @@ public class GrouperLoaderTest extends GrouperTest {
       GrouperDdlUtils.internal_printDdlUpdateMessage = false;
       this.grouperSession = GrouperSession.startRootSession();
       
-      GrouperLoaderConfig.testConfig.put("groups.create.grant.all.read", "false");
-      GrouperLoaderConfig.testConfig.put("groups.create.grant.all.view", "false");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
 
-      ApiConfig.testConfig.put("grouper.attribute.rootStem", "my:attrRoot");
-      ApiConfig.testConfig.put("grouper.attribute.loader.autoconfigure", "true");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.rootStem", "my:attrRoot");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.loader.autoconfigure", "true");
 
       
       ensureTestgrouperLoaderTables();
@@ -578,7 +578,7 @@ public class GrouperLoaderTest extends GrouperTest {
       HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoaderGroups").executeUpdate();
       
       //override whatever is in the config
-      ApiConfig.testConfig.put("loader.autoadd.typesAttributes", "true");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("loader.autoadd.typesAttributes", "true");
       
       GrouperStartup.initLoaderType();
       

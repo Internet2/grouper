@@ -51,19 +51,19 @@ public class EsbHttpPublisher extends EsbListenerBase {
   public boolean dispatchEvent(String eventJsonString, String consumerName) {
     // TODO Auto-generated method stub
 
-    String urlString = GrouperLoaderConfig.getPropertyString("changeLog.consumer."
+    String urlString = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer."
         + consumerName + ".publisher.url");
-    String username = GrouperLoaderConfig.getPropertyString("changeLog.consumer."
+    String username = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer."
         + consumerName + ".publisher.username", "");
-    String password = GrouperLoaderConfig.getPropertyString("changeLog.consumer."
+    String password = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer."
         + consumerName + ".publisher.password", "");
     if (LOG.isDebugEnabled()) {
       LOG.debug("Consumer name: " + consumerName + " sending "
           + GrouperUtil.indent(eventJsonString, false) + " to " + urlString);
     }
-    int retries = GrouperLoaderConfig.getPropertyInt("changeLog.consumer." + consumerName
+    int retries = GrouperLoaderConfig.retrieveConfig().propertyValueInt("changeLog.consumer." + consumerName
         + ".publisher.retries", 0);
-    int timeout = GrouperLoaderConfig.getPropertyInt("changeLog.consumer." + consumerName
+    int timeout = GrouperLoaderConfig.retrieveConfig().propertyValueInt("changeLog.consumer." + consumerName
         + ".publisher.timeout", 60000);
     PostMethod post = new PostMethod(urlString);
     post.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,

@@ -351,7 +351,7 @@ public class ChangeLogEntry extends GrouperAPI {
    * save (insert) this object
    */
   public void save() {
-    if (isTempObject() || GrouperConfig.getPropertyBoolean("changeLog.enabled", true)) {
+    if (isTempObject() || GrouperConfig.retrieveConfig().propertyValueBoolean("changeLog.enabled", true)) {
       
       GrouperDAOFactory.getFactory().getChangeLogEntry().save(this);
     }
@@ -362,7 +362,7 @@ public class ChangeLogEntry extends GrouperAPI {
    * save (insert) this object
    */
   public void update() {
-    if (isTempObject() || GrouperConfig.getPropertyBoolean("changeLog.enabled", true)) {
+    if (isTempObject() || GrouperConfig.retrieveConfig().propertyValueBoolean("changeLog.enabled", true)) {
       
       GrouperDAOFactory.getFactory().getChangeLogEntry().update(this);
     }

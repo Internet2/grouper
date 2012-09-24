@@ -21,7 +21,7 @@ import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
@@ -65,8 +65,8 @@ public class GroupDeleteTest extends GrouperTest {
    */
   public void testDeleteGroupWithManyMembers() {
     
-    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "false");
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "false");
 
     Group group = top.addChildGroup("group", "group");
     

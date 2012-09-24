@@ -45,7 +45,7 @@ public class ExternalSubjectAttributeStorageController {
 
       //externalSubjects.storage.ExternalSubjectAttributeStorable.class = edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAttributeDbStorage
       String externalSubjectAttributeStorableClassName = StringUtils.defaultIfEmpty(
-          GrouperConfig.getProperty("externalSubjects.storage.ExternalSubjectAttributeStorable.class"), ExternalSubjectAttributeDbStorage.class.getName());
+          GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.storage.ExternalSubjectAttributeStorable.class"), ExternalSubjectAttributeDbStorage.class.getName());
       Class<ExternalSubjectAttributeStorable> externalSubjectAttributeStorableClass = GrouperUtil.forName(externalSubjectAttributeStorableClassName);
       externalSubjectAttributeStorable = GrouperUtil.newInstance(externalSubjectAttributeStorableClass);
       

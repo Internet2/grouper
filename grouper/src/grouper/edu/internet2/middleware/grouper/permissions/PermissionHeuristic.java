@@ -431,7 +431,7 @@ public class PermissionHeuristic {
   static int maxDepth() {
     if (maxDepth == -1) {
       synchronized(PermissionHeuristic.class) {
-        maxDepth = GrouperConfig.getPropertyInt("grouper.max.permission.depth", 30);
+        maxDepth = GrouperConfig.retrieveConfig().propertyValueInt("grouper.max.permission.depth", 30);
       }
     }
     return maxDepth;

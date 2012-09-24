@@ -171,21 +171,21 @@ public class GrouperEmail {
     try {
       //mail.smtp.server = whatever.school.edu
       //#mail.from.address = noreply@school.edu
-      String smtpServer = GrouperConfig.getProperty("mail.smtp.server");
+      String smtpServer = GrouperConfig.retrieveConfig().propertyValueString("mail.smtp.server");
       if (StringUtils.isBlank(smtpServer)) {
         throw new RuntimeException("You need to specify the from smtp server mail.smtp.server in grouper.properties");
       }
       
-      String theFrom = StringUtils.defaultIfEmpty(this.from, GrouperConfig.getProperty("mail.from.address"));
+      String theFrom = StringUtils.defaultIfEmpty(this.from, GrouperConfig.retrieveConfig().propertyValueString("mail.from.address"));
       if (!StringUtils.equals("testing", smtpServer) && StringUtils.isBlank(theFrom)) {
         throw new RuntimeException("You need to specify the from email address mail.from.address in grouper.properties");
       }
       
-      String subjectPrefix = StringUtils.defaultString(GrouperConfig.getProperty("mail.subject.prefix"));
+      String subjectPrefix = StringUtils.defaultString(GrouperConfig.retrieveConfig().propertyValueString("mail.subject.prefix"));
       
-      final String SMTP_USER = GrouperConfig.getProperty("mail.smtp.user"); 
+      final String SMTP_USER = GrouperConfig.retrieveConfig().propertyValueString("mail.smtp.user"); 
       
-      String smtpPass = GrouperConfig.getProperty("mail.smtp.pass"); 
+      String smtpPass = GrouperConfig.retrieveConfig().propertyValueString("mail.smtp.pass"); 
       
       final String SMTP_PASS = StringUtils.isBlank(smtpPass) ? null : Morph.decryptIfFile(smtpPass);
       
@@ -208,7 +208,7 @@ public class GrouperEmail {
         };
       }
       
-      boolean useSsl = GrouperConfig.getPropertyBoolean("mail.smtp.ssl", false);
+      boolean useSsl = GrouperConfig.retrieveConfig().propertyValueBoolean("mail.smtp.ssl", false);
       if (useSsl) {
         
         properties.put("mail.smtp.starttls.enable","true");
@@ -222,7 +222,7 @@ public class GrouperEmail {
       }
       
       //leave blank for default (probably 25), if ssl is true, default is 465, else specify
-      String port = GrouperConfig.getProperty("mail.smtp.port");
+      String port = GrouperConfig.retrieveConfig().propertyValueString("mail.smtp.port");
       if (!StringUtils.isBlank(port)) {
         properties.put("mail.smtp.socketFactory.port", port);
       } else {

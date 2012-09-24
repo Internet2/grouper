@@ -27,7 +27,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
@@ -94,8 +94,8 @@ public class PITMemberTests extends GrouperTest {
   public void testGetGroupsAtPointInTime() {
     Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
     Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
-    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
-    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
     
     Group group1 = edu.addChildGroup("test1", "test1");
     Group group2 = edu.addChildGroup("test2", "test2");
@@ -147,8 +147,8 @@ public class PITMemberTests extends GrouperTest {
   public void testGetGroupsWithFromDate() {
     Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
     Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
-    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
-    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
     
     Group group1 = edu.addChildGroup("test1", "test1");
     Group group2 = edu.addChildGroup("test2", "test2");
@@ -204,8 +204,8 @@ public class PITMemberTests extends GrouperTest {
   public void testGetGroupsWithToDate() {
     Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
     Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
-    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
-    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
     
     Group group1 = edu.addChildGroup("test1", "test1");
     Group group2 = edu.addChildGroup("test2", "test2");
@@ -259,8 +259,8 @@ public class PITMemberTests extends GrouperTest {
    */
   public void testGetGroupsWithScope() {
     Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
-    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
-    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
     
     Stem child = edu.addChildStem("child", "child");
     
@@ -284,8 +284,8 @@ public class PITMemberTests extends GrouperTest {
    */
   public void testGetGroupsWithStemScopeSub() {
     Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
-    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
-    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
     
     Stem child = edu.addChildStem("child", "child");
     
@@ -347,8 +347,8 @@ public class PITMemberTests extends GrouperTest {
    */
   public void testGetGroupsWithStemScopeOne() {
     Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
-    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
-    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
     
     Stem child = edu.addChildStem("child", "child");
     
@@ -410,8 +410,8 @@ public class PITMemberTests extends GrouperTest {
    */
   public void testGetGroupsSort() {
     Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
-    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
-    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
     
     Group group1 = edu.addChildGroup("test1", "test1");
     Group group3 = edu.addChildGroup("test3", "test3");
@@ -466,8 +466,8 @@ public class PITMemberTests extends GrouperTest {
    */
   public void testGetGroupsPaging() {
     Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
-    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
-    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
     
     Group group1 = edu.addChildGroup("test1", "test1");
     Group group3 = edu.addChildGroup("test3", "test3");
@@ -508,8 +508,8 @@ public class PITMemberTests extends GrouperTest {
    */
   public void testGetGroupsReadersField() {
     Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
-    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
-    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
     
     Group group1 = edu.addChildGroup("test1", "test1");
     Group group2 = edu.addChildGroup("test2", "test2");
@@ -533,8 +533,8 @@ public class PITMemberTests extends GrouperTest {
     Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
     Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
     Member member2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, true);
-    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
-    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
     
     Group group1 = edu.addChildGroup("test1", "test1");
     Group group2 = edu.addChildGroup("test2", "test2");

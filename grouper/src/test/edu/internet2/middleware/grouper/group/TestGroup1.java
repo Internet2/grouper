@@ -60,6 +60,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -1403,7 +1404,7 @@ public class TestGroup1 extends GrouperTest {
    * @throws Exception if problem
    */
   public void testStaticSaveGroupTransactions() throws Exception {
-    Properties  properties = GrouperUtil.propertiesFromResourceName(GrouperConfig.HIBERNATE_CF);
+    Properties  properties = GrouperHibernateConfig.retrieveConfig().properties();
     //doesnt work with sql server
     if (((String)properties.get("hibernate.connection.url")).contains(":sqlserver:")) {
       return;

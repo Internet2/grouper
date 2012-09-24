@@ -408,7 +408,7 @@ public class PermissionLimitUtils {
           Matcher matcher = null;
           
           //lets get the sources
-          for (String sourcePropertyName : GrouperConfig.getPropertyNames()) {
+          for (String sourcePropertyName : GrouperConfig.retrieveConfig().propertyNames()) {
             
             matcher = limitRealmPattern.matcher(sourcePropertyName);
             if (matcher.matches()) {
@@ -475,13 +475,13 @@ public class PermissionLimitUtils {
           Matcher matcher = null;
           
           //lets get the sources
-          for (String sourcePropertyName : GrouperConfig.getPropertyNames()) {
+          for (String sourcePropertyName : GrouperConfig.retrieveConfig().propertyNames()) {
             
             matcher = limitNamePattern.matcher(sourcePropertyName);
             if (matcher.matches()) {
               String limitKey = matcher.group(1);
-              String className = GrouperConfig.getProperty("grouper.permissions.limits.logic." + limitKey + ".logicClass");
-              String limitAttributeName = GrouperConfig.getProperty(sourcePropertyName);
+              String className = GrouperConfig.retrieveConfig().propertyValueString("grouper.permissions.limits.logic." + limitKey + ".logicClass");
+              String limitAttributeName = GrouperConfig.retrieveConfig().propertyValueString(sourcePropertyName);
               
               try {
                 Class<PermissionLimitInterface> theClass = GrouperUtil.forName(className);
@@ -534,7 +534,7 @@ public class PermissionLimitUtils {
           limitElClasses = new HashSet<Class<?>>();
 
           //middleware.grouper.rules.MyRuleUtils
-          String customElClasses = GrouperConfig.getProperty("grouper.permissions.limits.el.classes");
+          String customElClasses = GrouperConfig.retrieveConfig().propertyValueString("grouper.permissions.limits.el.classes");
 
           if (!StringUtils.isBlank(customElClasses)) {
             String[] customElClassesArray = GrouperUtil.splitTrim(customElClasses, ",");

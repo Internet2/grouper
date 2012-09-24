@@ -37,7 +37,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.internal.util.Realize;
@@ -88,7 +88,7 @@ public class Test_privs_CachingNamingResolver extends GrouperTest {
                         new NamingWrapper( 
                           GrouperSession.start( SubjectFinder.findRootSubject() ),
                           (NamingAdapter) Realize.instantiate( 
-                            new ApiConfig().getProperty( ApiConfig.NAMING_PRIVILEGE_INTERFACE )
+                              GrouperConfig.retrieveConfig().propertyValueString( GrouperConfig.NAMING_PRIVILEGE_INTERFACE )
                           )
                         )
                       );

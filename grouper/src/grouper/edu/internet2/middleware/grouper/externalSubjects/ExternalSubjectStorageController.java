@@ -45,7 +45,7 @@ public class ExternalSubjectStorageController {
 
       //externalSubjects.storage.ExternalSubjectStorable.class = edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectDbStorage
       String externalSubjectStorableClassName = StringUtils.defaultIfEmpty(
-          GrouperConfig.getProperty("externalSubjects.storage.ExternalSubjectStorable.class"), ExternalSubjectDbStorage.class.getName());
+          GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.storage.ExternalSubjectStorable.class"), ExternalSubjectDbStorage.class.getName());
       Class<ExternalSubjectStorable> externalSubjectStorableClass = GrouperUtil.forName(externalSubjectStorableClassName);
       externalSubjectStorable = GrouperUtil.newInstance(externalSubjectStorableClass);
       

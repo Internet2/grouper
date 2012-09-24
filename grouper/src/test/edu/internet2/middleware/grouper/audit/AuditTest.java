@@ -47,7 +47,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.group.GroupMember;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
@@ -90,7 +90,7 @@ public class AuditTest extends GrouperTest {
   @Override
   protected void setUp() {
     super.setUp();
-    ApiConfig.testConfig.put("grouper.env.name", "testEnv");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.env.name", "testEnv");
     grouperSession     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(grouperSession);
     edu   = StemHelper.addChildStem(root, "edu", "education");
@@ -103,7 +103,7 @@ public class AuditTest extends GrouperTest {
   @Override
   protected void tearDown() {
     super.tearDown();
-    ApiConfig.testConfig.remove("grouper.env.name");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.env.name");
 
   }
 

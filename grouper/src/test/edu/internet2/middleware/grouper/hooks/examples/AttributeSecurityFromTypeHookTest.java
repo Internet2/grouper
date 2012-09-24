@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
@@ -63,8 +63,8 @@ public class AttributeSecurityFromTypeHookTest extends GrouperTest {
    */
   public void testAttributeSecurity() {
     //set some grouper properties
-    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroups.use", "false");
-    ApiConfig.testConfig.put("security.types.posixGroup.wheelOnly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.requireGroups.use", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.types.posixGroup.wheelOnly", "true");
 
     GroupTypeSecurityHook.resetCacheSettings();
     

@@ -631,7 +631,7 @@ public class ClientConfig {
           
           theClientConnectionConfigBeanCache = new HashMap<String, ClientConnectionConfigBean>();
           
-          for (String propertyName : GrouperConfig.getPropertyNames()) {
+          for (String propertyName : GrouperConfig.retrieveConfig().propertyNames()) {
             Matcher matcher = grouperClientConnectionIdPattern.matcher(propertyName);
             if (matcher.matches()) {
 
@@ -644,7 +644,7 @@ public class ClientConfig {
               
               //get the act as subject
               //grouperClient.localhost.localActAsSubject
-              clientConnectionConfigBean.setLocalActAsSubject(GrouperConfig.getProperty(
+              clientConnectionConfigBean.setLocalActAsSubject(GrouperConfig.retrieveConfig().propertyValueString(
                   "grouperClient." + connectionId + ".localActAsSubject"));
               
               clientConnectionConfigBean.setConnectionId(connectionId);
@@ -680,7 +680,7 @@ public class ClientConfig {
           
           theClientGroupConfigBeanCache = new HashMap<String, ClientGroupConfigBean>();
           
-          for (String propertyName : GrouperConfig.getPropertyNames()) {
+          for (String propertyName : GrouperConfig.retrieveConfig().propertyNames()) {
             Matcher matcher = grouperClientGroupConnectionNamePattern.matcher(propertyName);
             if (matcher.matches()) {
 
@@ -692,14 +692,14 @@ public class ClientConfig {
               //# we need to know where our
               //# connection name in grouper client connections above
               //#syncAnotherGrouper.testGroup0.connectionName = someOtherSchool
-              clientGroupConfigBean.setConnectionName(GrouperConfig.getProperty(propertyName));
+              clientGroupConfigBean.setConnectionName(GrouperConfig.retrieveConfig().propertyValueString(propertyName));
               
               clientGroupConfigBean.setConfigId(groupConfigName);
               
               //
               //# incremental  or  push  or   pull  or  incremental_push
               //#syncAnotherGrouper.testGroup0.syncType = incremental_push
-              String syncType = GrouperConfig.getProperty("syncAnotherGrouper." + groupConfigName + ".syncType");
+              String syncType = GrouperConfig.retrieveConfig().propertyValueString("syncAnotherGrouper." + groupConfigName + ".syncType");
               if (StringUtils.isBlank(syncType)) {
                 LOG.error("You need to pass in a sync type: syncAnotherGrouper." + groupConfigName + ".syncType");
               } else {
@@ -709,23 +709,23 @@ public class ClientConfig {
               //
               //# quartz cron  to schedule the pull or push (incremental is automatic as events happen) (e.g. 5am daily)
               //#syncAnotherGrouper.testGroup0.cron =  0 0 5 * * ?
-              clientGroupConfigBean.setCron(GrouperConfig.getProperty("syncAnotherGrouper." + groupConfigName + ".cron"));
+              clientGroupConfigBean.setCron(GrouperConfig.retrieveConfig().propertyValueString("syncAnotherGrouper." + groupConfigName + ".cron"));
               
               //
               //# local group which is being synced
               //#syncAnotherGrouper.testGroup0.local.groupName = test:testGroup
-              String localGroupName = GrouperConfig.getProperty("syncAnotherGrouper." + groupConfigName + ".local.groupName");
+              String localGroupName = GrouperConfig.retrieveConfig().propertyValueString("syncAnotherGrouper." + groupConfigName + ".local.groupName");
               clientGroupConfigBean.setLocalGroupName(localGroupName);
               
               //
               //# remote group at another grouper which is being synced
               //#syncAnotherGrouper.testGroup0.remote.groupName = test2:testGroup2
-              clientGroupConfigBean.setRemoteGroupName(GrouperConfig.getProperty("syncAnotherGrouper." + groupConfigName + ".remote.groupName"));
+              clientGroupConfigBean.setRemoteGroupName(GrouperConfig.retrieveConfig().propertyValueString("syncAnotherGrouper." + groupConfigName + ".remote.groupName"));
               
               
               //# if subjects are external and should be created if not exist
               //#syncAnotherGrouper.testGroup0.addExternalSubjectIfNotFound = true
-              String theAddExternalSubjectIfNotFound = GrouperConfig.getProperty(
+              String theAddExternalSubjectIfNotFound = GrouperConfig.retrieveConfig().propertyValueString(
                   "syncAnotherGrouper." + groupConfigName + ".addExternalSubjectIfNotFound");
               if (!StringUtils.isBlank(theAddExternalSubjectIfNotFound)) {
                 clientGroupConfigBean.setAddExternalSubjectIfNotFound(GrouperUtil.booleanValue(theAddExternalSubjectIfNotFound));
@@ -755,12 +755,12 @@ public class ClientConfig {
     Map<String,ClientConnectionSourceConfigBean> result = new HashMap<String, ClientConnectionSourceConfigBean>();
     
     //lets get the sources
-    for (String sourcePropertyName : GrouperConfig.getPropertyNames()) {
+    for (String sourcePropertyName : GrouperConfig.retrieveConfig().propertyNames()) {
       Matcher sourceMatcher = pattern.matcher(sourcePropertyName);
       if (sourceMatcher.matches()) {
 
         //id of the config
-        String configId = GrouperConfig.getProperty(sourcePropertyName);
+        String configId = GrouperConfig.retrieveConfig().propertyValueString(sourcePropertyName);
         
         
         //this is the ID
@@ -775,37 +775,37 @@ public class ClientConfig {
         //# the part between "grouperClient.localhost.source." and ".id" links up the configs, 
         //# in this case, "jdbc", make sure it has no special chars.  sourceId can be blank if you dont want to specify
         //grouperClient.localhost.source.jdbc.local.sourceId = jdbc
-        String localSourceId = GrouperConfig.getProperty(
+        String localSourceId = GrouperConfig.retrieveConfig().propertyValueString(
             "grouperClient." + connectionId + ".source." + sourceConfigKey + ".local.sourceId");
         
         clientConnectionSourceConfigBean.setLocalSourceId(localSourceId);
         
         //# this is the identifier that goes between them, it is "id" or an attribute name.  subjects without this attribute will not be processed
         //grouperClient.localhost.source.jdbc.local.read.subjectId = identifier
-        clientConnectionSourceConfigBean.setLocalReadSubjectId(GrouperConfig.getProperty(
+        clientConnectionSourceConfigBean.setLocalReadSubjectId(GrouperConfig.retrieveConfig().propertyValueString(
             "grouperClient." + connectionId + ".source." + sourceConfigKey + ".local.read.subjectId"));
 
         
         //# this is the identifier to lookup to add a subject, should be "id" or "identifier" or "idOrIdentifier"
         //grouperClient.localhost.source.jdbc.local.write.subjectId = identifier
-        String localWriteSubjectId = GrouperConfig.getProperty(
+        String localWriteSubjectId = GrouperConfig.retrieveConfig().propertyValueString(
             "grouperClient." + connectionId + ".source." + sourceConfigKey + ".local.write.subjectId");
         clientConnectionSourceConfigBean.setLocalWriteSubjectId(
             GroupSyncWriteIdentifier.valueOfIgnoreCase(localWriteSubjectId, false));
         
         //# sourceId of the remote system, can be blank
         //grouperClient.localhost.source.jdbc.remote.sourceId = jdbc
-        clientConnectionSourceConfigBean.setRemoteSourceId(GrouperConfig.getProperty(
+        clientConnectionSourceConfigBean.setRemoteSourceId(GrouperConfig.retrieveConfig().propertyValueString(
             "grouperClient." + connectionId + ".source." + sourceConfigKey + ".remote.sourceId"));
 
         //# this is the identifier that goes between them, it is "id" or an attribute name.  subjects without this attribute will not be processed
         //grouperClient.localhost.source.jdbc.remote.read.subjectId = 
-        clientConnectionSourceConfigBean.setRemoteReadSubjectId(GrouperConfig.getProperty(
+        clientConnectionSourceConfigBean.setRemoteReadSubjectId(GrouperConfig.retrieveConfig().propertyValueString(
             "grouperClient." + connectionId + ".source." + sourceConfigKey + ".remote.read.subjectId"));
 
         //# this is the identifier to lookup to add a subject, should be "id" or "identifier" or "idOrIdentifier"
         //grouperClient.localhost.source.jdbc.remote.write.subjectId = 
-        String remoteWriteSubjectId = GrouperConfig.getProperty(
+        String remoteWriteSubjectId = GrouperConfig.retrieveConfig().propertyValueString(
             "grouperClient." + connectionId + ".source." + sourceConfigKey + ".remote.write.subjectId");
         clientConnectionSourceConfigBean.setRemoteWriteSubjectId(
             GroupSyncWriteIdentifier.valueOfIgnoreCase(remoteWriteSubjectId, false));

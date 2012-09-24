@@ -48,8 +48,8 @@ public enum SortStringEnum {
     @Override
     public boolean hasAccess() {
 
-      boolean wheelOnly = GrouperConfig.getPropertyBoolean("security.member.sort.string0.wheelOnly", false);
-      String allowOnlyGroupName = GrouperConfig.getProperty("security.member.sort.string0.allowOnlyGroup");
+      boolean wheelOnly = GrouperConfig.retrieveConfig().propertyValueBoolean("security.member.sort.string0.wheelOnly", false);
+      String allowOnlyGroupName = GrouperConfig.retrieveConfig().propertyValueString("security.member.sort.string0.allowOnlyGroup");
       return SortStringEnum.hasAccess(wheelOnly, allowOnlyGroupName);
     }
 
@@ -82,8 +82,8 @@ public enum SortStringEnum {
     @Override
     public boolean hasAccess() {
 
-      boolean wheelOnly = GrouperConfig.getPropertyBoolean("security.member.sort.string1.wheelOnly", false);
-      String allowOnlyGroupName = GrouperConfig.getProperty("security.member.sort.string1.allowOnlyGroup");
+      boolean wheelOnly = GrouperConfig.retrieveConfig().propertyValueBoolean("security.member.sort.string1.wheelOnly", false);
+      String allowOnlyGroupName = GrouperConfig.retrieveConfig().propertyValueString("security.member.sort.string1.allowOnlyGroup");
       return SortStringEnum.hasAccess(wheelOnly, allowOnlyGroupName);
     }
     
@@ -116,8 +116,8 @@ public enum SortStringEnum {
     @Override
     public boolean hasAccess() {
 
-      boolean wheelOnly = GrouperConfig.getPropertyBoolean("security.member.sort.string2.wheelOnly", false);
-      String allowOnlyGroupName = GrouperConfig.getProperty("security.member.sort.string2.allowOnlyGroup");
+      boolean wheelOnly = GrouperConfig.retrieveConfig().propertyValueBoolean("security.member.sort.string2.wheelOnly", false);
+      String allowOnlyGroupName = GrouperConfig.retrieveConfig().propertyValueString("security.member.sort.string2.allowOnlyGroup");
       return SortStringEnum.hasAccess(wheelOnly, allowOnlyGroupName);
     }
     
@@ -150,8 +150,8 @@ public enum SortStringEnum {
     @Override
     public boolean hasAccess() {
 
-      boolean wheelOnly = GrouperConfig.getPropertyBoolean("security.member.sort.string3.wheelOnly", false);
-      String allowOnlyGroupName = GrouperConfig.getProperty("security.member.sort.string3.allowOnlyGroup");
+      boolean wheelOnly = GrouperConfig.retrieveConfig().propertyValueBoolean("security.member.sort.string3.wheelOnly", false);
+      String allowOnlyGroupName = GrouperConfig.retrieveConfig().propertyValueString("security.member.sort.string3.allowOnlyGroup");
       return SortStringEnum.hasAccess(wheelOnly, allowOnlyGroupName);
     }
     
@@ -184,8 +184,8 @@ public enum SortStringEnum {
     @Override
     public boolean hasAccess() {
 
-      boolean wheelOnly = GrouperConfig.getPropertyBoolean("security.member.sort.string4.wheelOnly", false);
-      String allowOnlyGroupName = GrouperConfig.getProperty("security.member.sort.string4.allowOnlyGroup");
+      boolean wheelOnly = GrouperConfig.retrieveConfig().propertyValueBoolean("security.member.sort.string4.wheelOnly", false);
+      String allowOnlyGroupName = GrouperConfig.retrieveConfig().propertyValueString("security.member.sort.string4.allowOnlyGroup");
       return SortStringEnum.hasAccess(wheelOnly, allowOnlyGroupName);
     }
     
@@ -243,7 +243,7 @@ public enum SortStringEnum {
    */
   public static SortStringEnum getDefaultSortString() {
 
-    String defaultIndexOrder = GrouperConfig.getProperty("member.sort.defaultIndexOrder");
+    String defaultIndexOrder = GrouperConfig.retrieveConfig().propertyValueString("member.sort.defaultIndexOrder");
     if (GrouperUtil.isEmpty(defaultIndexOrder)) {
       return null;
     }

@@ -1160,8 +1160,7 @@ public class GrouperUiUtils {
   public static String imageFromSubjectSource(String sourceId) {
     if (subjectImageMap == null) {
       Map<String, String> theSubjectImageMap = new HashMap<String, String>();
-      Properties propertiesSettings = GrouperUtil
-        .propertiesFromResourceName("resources/grouper/media.properties");
+      Properties propertiesSettings = GrouperUiConfig.retrieveConfig().properties();
       
       int index = 0;
       while (true) {
@@ -1229,8 +1228,7 @@ public class GrouperUiUtils {
     if (subjectToScreenEl == null) {
       {
         Map<String, String> theSubjectToScreenEl = new HashMap<String, String>();
-        Properties propertiesSettings = GrouperUtil
-          .propertiesFromResourceName("resources/grouper/media.properties");
+        Properties propertiesSettings = GrouperUiConfig.retrieveConfig().properties();
         
         int index = 0;
         while (true) {
@@ -1253,9 +1251,8 @@ public class GrouperUiUtils {
       }
       {
         Map<String, String> theSubjectToScreenElLong = new HashMap<String, String>();
-        //TODO CH 20120803 this should come from the resource bundle!
-        Properties propertiesSettings = GrouperUtil
-          .propertiesFromResourceName("resources/grouper/media.properties");
+
+        Properties propertiesSettings = GrouperUiConfig.retrieveConfig().properties();
         
         int index = 0;
         while (true) {

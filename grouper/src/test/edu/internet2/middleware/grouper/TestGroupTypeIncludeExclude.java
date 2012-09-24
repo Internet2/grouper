@@ -35,7 +35,6 @@ import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -88,8 +87,8 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
   protected void setUp () {
     try {
       //dont precreate this type
-      ApiConfig.testConfig.put("grouperIncludeExclude.use", "false");
-      ApiConfig.testConfig.put("grouperIncludeExclude.requireGroups.use", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.use", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.requireGroups.use", "false");
       super.setUp();
       
       this.grouperSession = GrouperSession.startRootSession();

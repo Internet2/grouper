@@ -68,6 +68,7 @@ import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.audit.AuditTypeFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeFinder;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
@@ -98,7 +99,7 @@ public class GrouperDdlUtils {
    * @return see if hsql
    */
   public static boolean isHsql() {
-    return isHsql(GrouperConfig.getHibernateProperty("hibernate.connection.url"));
+    return isHsql(GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.url"));
   }
 
   /**
@@ -115,7 +116,7 @@ public class GrouperDdlUtils {
    * @return see if postgres
    */
   public static boolean isPostgres() {
-    return isPostgres(GrouperConfig.getHibernateProperty("hibernate.connection.url"));
+    return isPostgres(GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.url"));
   }
   
   /**
@@ -132,7 +133,7 @@ public class GrouperDdlUtils {
    * @return see if oracle
    */
   public static boolean isOracle() {
-    return isOracle(GrouperConfig.getHibernateProperty("hibernate.connection.url"));
+    return isOracle(GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.url"));
   }
   
   /**
@@ -149,7 +150,7 @@ public class GrouperDdlUtils {
    * @return see if mysql
    */
   public static boolean isMysql() {
-    return isMysql(GrouperConfig.getHibernateProperty("hibernate.connection.url"));
+    return isMysql(GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.url"));
   }
   
   /**
@@ -166,7 +167,7 @@ public class GrouperDdlUtils {
    * @return see if sql server
    */
   public static boolean isSQLServer() {
-    return isSQLServer(GrouperConfig.getHibernateProperty("hibernate.connection.url"));
+    return isSQLServer(GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.url"));
   }
   
   /**
@@ -259,7 +260,7 @@ public class GrouperDdlUtils {
     
     if (cachedPlatform == null || !useCache) {
       
-      String ddlUtilsDbnameOverride = GrouperConfig.getProperty("ddlutils.dbname.override");
+      String ddlUtilsDbnameOverride = GrouperConfig.retrieveConfig().propertyValueString("ddlutils.dbname.override");
   
       //convenience to get the url, user, etc of the grouper db
       GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
@@ -720,13 +721,13 @@ public class GrouperDdlUtils {
       resultString = result.toString();
       
       //if mysql, substitute varchar4000 for text
-      if (isMysql() && !GrouperConfig.getPropertyBoolean("ddlutils.dontSubstituteVarchar4000forTextMysql", false)) {
+      if (isMysql() && !GrouperConfig.retrieveConfig().propertyValueBoolean("ddlutils.dontSubstituteVarchar4000forTextMysql", false)) {
         resultString = StringUtils.replace(resultString, "VARCHAR(4000)", "text");
       }
       
       if (StringUtils.isNotBlank(resultString)) {
   
-        String scriptDirName = GrouperConfig.getProperty("ddlutils.directory.for.scripts");
+        String scriptDirName = GrouperConfig.retrieveConfig().propertyValueString("ddlutils.directory.for.scripts");
         
         File scriptFile = GrouperUtil.newFileUniqueName(scriptDirName, "grouperDdl", ".sql", true);
         GrouperUtil.saveStringIntoFile(scriptFile, resultString);
@@ -802,8 +803,7 @@ public class GrouperDdlUtils {
    * @return the output
    */
   public static String sqlRun(File scriptFile, boolean fromUnitTest, boolean printErrorToStdOut) {
-   Properties properties = GrouperUtil.propertiesFromResourceName(
-       "grouper.hibernate.properties");
+   Properties properties = GrouperHibernateConfig.retrieveConfig().properties();
      
    String user = properties.getProperty("hibernate.connection.username");
    String pass = properties.getProperty("hibernate.connection.password");
@@ -1123,7 +1123,7 @@ public class GrouperDdlUtils {
   
       resultString = result.toString();
       
-      String scriptDirName = GrouperConfig.getProperty("ddlutils.directory.for.scripts");
+      String scriptDirName = GrouperConfig.retrieveConfig().propertyValueString("ddlutils.directory.for.scripts");
       
       File scriptFile = GrouperUtil.newFileUniqueName(scriptDirName, "grouperDdl", ".sql", true);
       GrouperUtil.saveStringIntoFile(scriptFile, resultString);
@@ -1553,7 +1553,7 @@ public class GrouperDdlUtils {
     }
 
     // views are required now
-    // if (GrouperConfig.getPropertyBoolean("ddlutils.disableViews", false)) {
+    // if (GrouperConfig.retrieveConfig().propertyValueBoolean("ddlutils.disableViews", false)) {
     //  return;
     // }
     
@@ -1631,7 +1631,7 @@ public class GrouperDdlUtils {
       String columnName,
       String comment) {
     
-    if (GrouperConfig.getPropertyBoolean("ddlutils.disableComments", false)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("ddlutils.disableComments", false)) {
       return;
     }
 
@@ -1666,7 +1666,7 @@ public class GrouperDdlUtils {
   private static void ddlutilsTableViewCommentHelper(DdlVersionBean ddlVersionBean, String objectName, 
       String comment, boolean tableNotView) {
     
-    if (GrouperConfig.getPropertyBoolean("ddlutils.disableComments", false)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("ddlutils.disableComments", false)) {
       return;
     }
     
@@ -1722,10 +1722,10 @@ public class GrouperDdlUtils {
     if (!objectNames.contains("GrouperOrg")) {
       objectNames.add("GrouperOrg");
     }
-    if (GrouperConfig.getPropertyBoolean("ddlutils.exclude.subject.tables", false)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("ddlutils.exclude.subject.tables", false)) {
       objectNames.remove("Subject");
     }
-    if (!GrouperConfig.getPropertyBoolean("orgs.includePocOrgsTablesInDdl", false)) {
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean("orgs.includePocOrgsTablesInDdl", false)) {
       objectNames.remove("GrouperOrg");
     }
     
@@ -2470,7 +2470,7 @@ public class GrouperDdlUtils {
     
     Platform platform = retrievePlatform(false);
   
-    String ddlUtilsSchemaOverride = StringUtils.trimToEmpty(GrouperConfig.getProperty("ddlutils.schema"));
+    String ddlUtilsSchemaOverride = StringUtils.trimToEmpty(GrouperConfig.retrieveConfig().propertyValueString("ddlutils.schema"));
   
     //in postgres, try public
     String extraSchema = "";

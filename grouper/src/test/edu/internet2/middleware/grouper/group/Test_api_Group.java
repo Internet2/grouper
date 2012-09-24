@@ -57,7 +57,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.entity.Entity;
 import edu.internet2.middleware.grouper.entity.EntitySave;
 import edu.internet2.middleware.grouper.entity.EntityUtils;
@@ -1792,9 +1792,9 @@ public class Test_api_Group extends GrouperTest {
    * @throws Exception
    */
   public void test_option_to_disable_last_membership_change() throws Exception {
-    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "false");
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
     
     R r = R.populateRegistry(0, 0, 2);
     Subject a = r.getSubject("a");
@@ -1841,9 +1841,9 @@ public class Test_api_Group extends GrouperTest {
    * @throws Exception
    */
   public void test_option_to_disable_last_imm_membership_change() throws Exception {
-    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "false");
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
     
     R r = R.populateRegistry(0, 0, 2);
     Subject a = r.getSubject("a");

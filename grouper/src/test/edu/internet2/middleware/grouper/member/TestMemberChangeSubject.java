@@ -38,7 +38,7 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -178,8 +178,8 @@ public class TestMemberChangeSubject extends GrouperTest {
       final Group sysadmingroup = Group.saveGroup(rootGrouperSession, null, 
           null, "etc:sysadmingroup", "sysadmingroup", "sysadmingroup", 
           SaveMode.INSERT, true);
-      ApiConfig.testConfig.put("groups.wheel.use", "true");
-      ApiConfig.testConfig.put("groups.wheel.group", "etc:sysadmingroup");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "true");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.group", "etc:sysadmingroup");
       
       GrouperSession.callbackGrouperSession(rootGrouperSession, new GrouperSessionHandler() {
 

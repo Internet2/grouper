@@ -49,7 +49,7 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.T;
@@ -92,7 +92,7 @@ public class AddMissingGroupSetsTest extends GrouperTest {
    */
   public void testAddMissingGroupSets() throws Exception {
 
-    ApiConfig.testConfig.put("groups.wheel.use", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "false");
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
 

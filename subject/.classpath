@@ -22,5 +22,6 @@
 	<classpathentry kind="lib" path="lib/bcprov-ext-jdk16-141.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk16-141.jar"/>
 	<classpathentry kind="lib" path="lib/vt-ldap.jar"/>
+	<classpathentry kind="lib" path="lib/grouperClient.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

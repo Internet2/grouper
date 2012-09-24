@@ -155,7 +155,7 @@ public abstract class GrouperAPI implements FieldValuable, Serializable, HibGrou
    * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
    */
   public void onPostSave(HibernateSession hibernateSession) {
-    if (GrouperConfig.getPropertyBoolean("resetOnPostSave", true)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("resetOnPostSave", true)) {
       this.dbVersionReset();
     }
   }
@@ -165,7 +165,7 @@ public abstract class GrouperAPI implements FieldValuable, Serializable, HibGrou
    * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
    */
   public void onPostUpdate(HibernateSession hibernateSession) {
-    if (GrouperConfig.getPropertyBoolean("resetOnPostUpdate", true)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("resetOnPostUpdate", true)) {
       this.dbVersionReset();
     }
   }

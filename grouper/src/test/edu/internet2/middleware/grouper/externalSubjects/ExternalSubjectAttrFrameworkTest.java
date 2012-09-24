@@ -31,7 +31,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -75,7 +75,7 @@ public class ExternalSubjectAttrFrameworkTest extends GrouperTest {
   protected void setUp() {
     super.setUp();
     this.grouperSession = GrouperSession.startRootSession();
-    ApiConfig.testConfig.put("grouper.ui.url", "http://whatever/grouper/");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.ui.url", "http://whatever/grouper/");
   }
 
   /**
@@ -92,7 +92,7 @@ public class ExternalSubjectAttrFrameworkTest extends GrouperTest {
    */
   public void testSendInviteOne() {
     
-    ApiConfig.testConfig.put("externalSubjectsInviteExpireAfterDays", "-1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjectsInviteExpireAfterDays", "-1");
     
     try {
       ExternalSubjectInviteBean externalSubjectInviteBean = new ExternalSubjectInviteBean();
@@ -151,7 +151,7 @@ public class ExternalSubjectAttrFrameworkTest extends GrouperTest {
       externalSubjectInviteBean = ExternalSubjectInviteBean.findByUuid(uuid);
       assertNull(externalSubjectInviteBean);
     } finally {
-      ApiConfig.testConfig.remove("externalSubjectsInviteExpireAfterDays");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("externalSubjectsInviteExpireAfterDays");
 
     }
   }
@@ -161,7 +161,7 @@ public class ExternalSubjectAttrFrameworkTest extends GrouperTest {
    */
   public void testSendInviteFinite() {
     
-    ApiConfig.testConfig.put("externalSubjectsInviteExpireAfterDays", "1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjectsInviteExpireAfterDays", "1");
     
     try {
     
@@ -229,7 +229,7 @@ public class ExternalSubjectAttrFrameworkTest extends GrouperTest {
       externalSubjectInviteBean = ExternalSubjectInviteBean.findByUuid(uuid);
       assertNull(externalSubjectInviteBean);
     } finally {
-      ApiConfig.testConfig.remove("externalSubjectsInviteExpireAfterDays");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("externalSubjectsInviteExpireAfterDays");
     }
   }
   

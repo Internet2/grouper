@@ -42,7 +42,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.T;
@@ -81,9 +81,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
   // @since   1.2.0
   public void testGroupModifyAttributesUpdatedAfterAddingImmediateMember() {
 
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
 
     LOG.info("testGroupModifyAttributesUpdatedAfterAddingImmediateMember");
     try {
@@ -119,9 +119,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
   public void testGroupModifyAttributesUpdatedAfterDeletingImmediateMember() {
     LOG.info("testGroupModifyAttributesUpdatedAfterDeletingImmediateMember");
     
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 1, 1);
@@ -158,9 +158,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
   public void testGroupModifyAttributesUpdatedAfterAddingEffectiveMember() {
     LOG.info("testGroupModifyAttributesUpdatedAfterAddingEffectiveMember");
     
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 2, 1);
@@ -199,9 +199,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
   public void testGroupModifyAttributesUpdatedAfterDeletingEffectiveMember() {
     LOG.info("testGroupModifyAttributesUpdatedAfterDeletingEffectiveMember");
     
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 2, 1);
@@ -242,9 +242,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
   public void testGroupModifyAttributesUpdatedAfterUpdatingComplement() {
     LOG.info("testGroupModifyAttributesUpdatedAfterAddingImmediateMember");
     
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 3, 3);
@@ -292,9 +292,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
   public void testGroupModifyAttributesUpdatedAfterGrantingImmediatePriv() {
     LOG.info("testGroupModifyAttributesUpdatedAfterGrantingImmediatePriv");
     
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 1, 1);
@@ -331,9 +331,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
   public void testGroupModifyAttributesUpdatedAfterRevokingImmediatePriv() {
     LOG.info("testGroupModifyAttributesUpdatedAfterRevokingImmediatePriv");
     
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 1, 1);
@@ -371,9 +371,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
   public void testGroupModifyAttributesNotUpdatedAfterGrantingEffectivePriv() {
     LOG.info("testGroupModifyAttributesNotUpdatedAfterGrantingEffectivePriv");
     
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 2, 1);
@@ -412,9 +412,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
   public void testGroupModifyAttributesNotUpdatedAfterRevokingEffectivePriv() {
     LOG.info("testGroupModifyAttributesNotUpdatedAfterRevokingEffectivePriv");
     
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 2, 1);
@@ -453,9 +453,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
   public void testGroupModifyAttributesAfterGrantingEffectivePriv() {
     LOG.info("testGroupModifyAttributesAfterGrantingEffectivePriv");
     
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 2, 1);
@@ -493,9 +493,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
   public void testGroupModifyAttributesAfterRevokingEffectivePriv() {
     LOG.info("testGroupModifyAttributesAfterRevokingEffectivePriv");
     
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 2, 1);
@@ -534,9 +534,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
   public void testGroupModifyAttributesAfterUpdatingAttributes() {
     LOG.info("testGroupModifyAttributesAfterUpdatingAttributes");
     
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 2, 1);
@@ -570,9 +570,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
   public void testGroupModifyAttributesAfterAddingComplementWithNoMembers() {
     LOG.info("testGroupModifyAttributesAfterAddingComplementWithNoMembers");
     
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 3, 3);
@@ -606,9 +606,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
   public void testGroupModifyAttributesAfterAddingComplementWithMembers() {
     LOG.info("testGroupModifyAttributesAfterAddingComplementWithMembers");
     
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 3, 3);
@@ -645,9 +645,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
   public void testGroupModifyAttributesAfterDeletingComplementWithNoMembers() {
     LOG.info("testGroupModifyAttributesAfterDeletingComplementWithNoMembers");
     
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 3, 3);
@@ -682,9 +682,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
   public void testGroupModifyAttributesAfterDeletingComplementWithMembers() {
     LOG.info("testGroupModifyAttributesAfterDeletingComplementWithMembers");
     
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 3, 3);
@@ -718,9 +718,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
   } 
 
   public void testGroupModifyAttributesAfterDisablingMembership() {    
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 5, 3);
@@ -773,9 +773,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
   } 
   
   public void testGroupModifyAttributesAfterDisablingMembership2() {    
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 5, 3);
@@ -829,9 +829,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
   } 
   
   public void testGroupModifyAttributesAfterEnablingMembership() {    
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 5, 3);
@@ -886,9 +886,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
   } 
   
   public void testGroupModifyAttributesAfterEnablingMembership2() {    
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
-    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
       R       r     = R.populateRegistry(1, 5, 3);

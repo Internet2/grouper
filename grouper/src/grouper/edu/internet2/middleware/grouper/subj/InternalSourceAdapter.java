@@ -203,16 +203,16 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
     this.all = null;
     this.root = null;
     
-    sortAttributeEl.add(GrouperConfig.getProperty("internalSubjects.sortAttribute0.el"));
-    sortAttributeEl.add(GrouperConfig.getProperty("internalSubjects.sortAttribute1.el"));
-    sortAttributeEl.add(GrouperConfig.getProperty("internalSubjects.sortAttribute2.el"));
-    sortAttributeEl.add(GrouperConfig.getProperty("internalSubjects.sortAttribute3.el"));
-    sortAttributeEl.add(GrouperConfig.getProperty("internalSubjects.sortAttribute4.el"));
-    searchAttributeEl.add(GrouperConfig.getProperty("internalSubjects.searchAttribute0.el"));
-    searchAttributeEl.add(GrouperConfig.getProperty("internalSubjects.searchAttribute1.el"));
-    searchAttributeEl.add(GrouperConfig.getProperty("internalSubjects.searchAttribute2.el"));
-    searchAttributeEl.add(GrouperConfig.getProperty("internalSubjects.searchAttribute3.el"));
-    searchAttributeEl.add(GrouperConfig.getProperty("internalSubjects.searchAttribute4.el"));
+    sortAttributeEl.add(GrouperConfig.retrieveConfig().propertyValueString("internalSubjects.sortAttribute0.el"));
+    sortAttributeEl.add(GrouperConfig.retrieveConfig().propertyValueString("internalSubjects.sortAttribute1.el"));
+    sortAttributeEl.add(GrouperConfig.retrieveConfig().propertyValueString("internalSubjects.sortAttribute2.el"));
+    sortAttributeEl.add(GrouperConfig.retrieveConfig().propertyValueString("internalSubjects.sortAttribute3.el"));
+    sortAttributeEl.add(GrouperConfig.retrieveConfig().propertyValueString("internalSubjects.sortAttribute4.el"));
+    searchAttributeEl.add(GrouperConfig.retrieveConfig().propertyValueString("internalSubjects.searchAttribute0.el"));
+    searchAttributeEl.add(GrouperConfig.retrieveConfig().propertyValueString("internalSubjects.searchAttribute1.el"));
+    searchAttributeEl.add(GrouperConfig.retrieveConfig().propertyValueString("internalSubjects.searchAttribute2.el"));
+    searchAttributeEl.add(GrouperConfig.retrieveConfig().propertyValueString("internalSubjects.searchAttribute3.el"));
+    searchAttributeEl.add(GrouperConfig.retrieveConfig().propertyValueString("internalSubjects.searchAttribute4.el"));
     
     for (int i = 0; i < sortAttributeEl.size(); i++) {
       if (!GrouperUtil.isEmpty(sortAttributeEl.get(i))) {
@@ -284,7 +284,7 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
   } // private Subject _resolveSubject(qry)
   
   private String getAllName() {
-	  String name = GrouperConfig.getProperty("subject.internal.grouperall.name");
+	  String name = GrouperConfig.retrieveConfig().propertyValueString("subject.internal.grouperall.name");
 	  if(name==null || "".equals(name)) {
 		  name = GrouperConfig.ALL_NAME;
 	  }
@@ -292,7 +292,7 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
   }
   
   private String getRootName() {
-	  String name = GrouperConfig.getProperty("subject.internal.groupersystem.name");
+	  String name = GrouperConfig.retrieveConfig().propertyValueString("subject.internal.groupersystem.name");
 	  if(name==null || "".equals(name)) {
 		  name = GrouperConfig.ROOT_NAME;
 	  }

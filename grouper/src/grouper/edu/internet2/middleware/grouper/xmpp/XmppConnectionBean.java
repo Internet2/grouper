@@ -203,7 +203,7 @@ public class XmppConnectionBean {
    * @return the pass
    */
   public String xmppPass() {
-    String pass = StringUtils.isBlank(this.pass) ? GrouperLoaderConfig.getPropertyString("xmpp.pass", true) : this.pass;
+    String pass = StringUtils.isBlank(this.pass) ? GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("xmpp.pass") : this.pass;
     return Morph.decryptIfFile(pass);
   }
 
@@ -212,7 +212,7 @@ public class XmppConnectionBean {
    * @return port
    */
   public int xmppPort() {
-    return this.port == -1 ? GrouperLoaderConfig.getPropertyInt("xmpp.server.port", 1522) : this.port;
+    return this.port == -1 ? GrouperLoaderConfig.retrieveConfig().propertyValueInt("xmpp.server.port", 1522) : this.port;
   }
 
   /**
@@ -220,7 +220,7 @@ public class XmppConnectionBean {
    * @return the resource
    */
   public String xmppResource() {
-    return StringUtils.isBlank(this.resource) ? GrouperLoaderConfig.getPropertyString("xmpp.resource", false) : this.resource;
+    return StringUtils.isBlank(this.resource) ? GrouperLoaderConfig.retrieveConfig().propertyValueString("xmpp.resource") : this.resource;
   }
 
   /**
@@ -228,7 +228,7 @@ public class XmppConnectionBean {
    * @return xmpp server
    */
   public String xmppServer() {
-    return StringUtils.isBlank(this.server) ? GrouperLoaderConfig.getPropertyString("xmpp.server.host", true) : this.server;
+    return StringUtils.isBlank(this.server) ? GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("xmpp.server.host") : this.server;
   }
 
   /**
@@ -236,7 +236,7 @@ public class XmppConnectionBean {
    * @return the user
    */
   public String xmppUser() {
-    return StringUtils.isBlank(this.user) ? GrouperLoaderConfig.getPropertyString("xmpp.user", true) : this.user;
+    return StringUtils.isBlank(this.user) ? GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("xmpp.user") : this.user;
   }
 
   /**

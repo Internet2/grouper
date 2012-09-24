@@ -630,6 +630,37 @@ public class GrouperClientCommonUtils  {
   }
   
   /**
+   * Construct a class
+   * @param <T> template type
+   * @param theClass
+   * @param allowPrivateConstructor true if should allow private constructors
+   * @return the instance
+   */
+  public static <T> T newInstance(Class<T> theClass, boolean allowPrivateConstructor) {
+    if (!allowPrivateConstructor) {
+      return newInstance(theClass);
+    }
+    try {
+      Constructor<?>[] constructorArray = theClass.getDeclaredConstructors();
+      for (Constructor<?> constructor : constructorArray) {
+         if (constructor.getGenericParameterTypes().length == 0) {
+           if (allowPrivateConstructor) {
+             constructor.setAccessible(true);
+           }
+           return (T)constructor.newInstance();
+         }
+      }
+      //why cant we find a constructor???
+      throw new RuntimeException("Why cant we find a constructor for class: " + theClass);
+    } catch (Throwable e) {
+      if (theClass != null && Modifier.isAbstract(theClass.getModifiers())) {
+        throw new RuntimeException("Problem with class: " + theClass + ", maybe because it is abstract!", e);        
+      }
+      throw new RuntimeException("Problem with class: " + theClass, e);
+    }
+  }
+  
+  /**
    * get the parent stem name from name.  if already a root stem
    * then just return null.  e.g. if the name is a:b:c then
    * the return value is a:b
@@ -9294,6 +9325,51 @@ public class GrouperClientCommonUtils  {
   public static String absolutePath(File file) {
     return file == null ? null : file.getAbsolutePath();
   }
+
+
+  /**
+   * pattern to get the file path or resource location for a file
+   */
+  private static Pattern fileLocationPattern = Pattern.compile("^(file|classpath)\\s*:(.*)$");
+  
+  /**
+   * file or classpath location
+   * @param typeAndLocation
+   * @return the inputstream
+   */
+  public static InputStream fileOrClasspathInputstream(String typeAndLocation, String logHint) {
+    Matcher matcher = fileLocationPattern.matcher(typeAndLocation);
+    if (!matcher.matches()) {
+      throw new RuntimeException(logHint + " must start with file: or classpath:");
+    }
+    String typeString = matcher.group(1);
+    String location = trim(matcher.group(2));
+    
+    if (equals(typeString, "file")) {
+      File file = new File(location);
+      if (!file.exists() || !file.isFile()) {
+        throw new RuntimeException(logHint + " File does not exist: " + file.getAbsolutePath());
+      }
+      try {
+        return new FileInputStream(file);
+      } catch (Exception e) {
+        throw new RuntimeException(logHint + " Problem with file: " + file.getAbsolutePath());
+      }
+    } else if (equals(typeString, "classpath")) {
+      if (!location.startsWith("/")) {
+        location = "/" + location;
+      }
+      try {
+        return GrouperClientCommonUtils.class.getResourceAsStream(location);
+      } catch (Exception e) {
+        throw new RuntimeException(logHint + " Problem with classpath location: " + location);
+      }
+    } else {
+      throw new RuntimeException(logHint + " Not expecting type string: " + typeString);
+    }
+    
+  }
+  
 
 
 }

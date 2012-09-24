@@ -43,7 +43,6 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -94,14 +93,14 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
     }
     
     //see if there are config entries
-    Properties grouperProperties = GrouperUtil.propertiesFromResourceName("grouper.properties");
+    Properties grouperProperties = GrouperConfig.retrieveConfig().properties();
 
-    boolean useIncludeExcludeOverride = StringUtils.equals(ApiConfig.testConfig.get("grouperIncludeExclude.use"), "true");
+    boolean useIncludeExcludeOverride = StringUtils.equals(GrouperConfig.retrieveConfig().propertiesOverrideMap().get("grouperIncludeExclude.use"), "true");
     
     boolean useGrouperIncludeExclude = useIncludeExcludeOverride || GrouperUtil.propertiesValueBoolean(
         grouperProperties, "grouperIncludeExclude.use", false);
 
-    boolean useRequireGroupsOverride = StringUtils.equals(ApiConfig.testConfig.get("grouperIncludeExclude.requireGroups.use"), "true");
+    boolean useRequireGroupsOverride = StringUtils.equals(GrouperConfig.retrieveConfig().propertiesOverrideMap().get("grouperIncludeExclude.requireGroups.use"), "true");
     
     boolean useRequireGroups = useRequireGroupsOverride || GrouperUtil.propertiesValueBoolean(
         grouperProperties, "grouperIncludeExclude.requireGroups.use", false);
@@ -127,13 +126,13 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
     int i=0;
     while (true) {
       String propertyName = "grouperIncludeExclude.requireGroup.name." + i;
-      String propertyValue = GrouperConfig.getProperty(propertyName);
+      String propertyValue = GrouperConfig.retrieveConfig().propertyValueString(propertyName);
       if (StringUtils.isBlank(propertyValue)) {
         break;
       }
       if (StringUtils.equals(attributeName, propertyValue)) {
         //this is the right index, get the group name
-        return GrouperConfig.getProperty("grouperIncludeExclude.requireGroup.group." + i);
+        return GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroup.group." + i);
       }
       i++;
     }
@@ -167,8 +166,8 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
    * @param requireRequireGroups true if only callable from required groups type
    */
   private void groupTypeTupleHelper(HooksGroupTypeTupleBean postInsertBean, @SuppressWarnings("unused") boolean requireRequireGroups) {
-    boolean useGrouperIncludeExclude = GrouperConfig.getPropertyBoolean("grouperIncludeExclude.use", false);
-    boolean useRequireGroups = GrouperConfig.getPropertyBoolean("grouperIncludeExclude.requireGroups.use", false);
+    boolean useGrouperIncludeExclude = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperIncludeExclude.use", false);
+    boolean useRequireGroups = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperIncludeExclude.requireGroups.use", false);
     
     //dont do anything if not using this type
     if (!useGrouperIncludeExclude && !useRequireGroups) {
@@ -180,8 +179,8 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
     String groupUuid = groupTypeTuple.getGroupUuid();
 
     //make sure this is the right type
-    String includeExcludeTypeName = GrouperConfig.getProperty("grouperIncludeExclude.type.name");
-    String requireGroupsTypeName = GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.type.name");
+    String includeExcludeTypeName = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.type.name");
+    String requireGroupsTypeName = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroups.type.name");
 
     //there better be a session now!
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
@@ -205,11 +204,11 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
         //#grouperIncludeExclude.requireGroup.attributeOrType.0 = type
         int i = 0;
         while (true) {
-          String name = GrouperConfig.getProperty("grouperIncludeExclude.requireGroup.name." + i);
+          String name = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroup.name." + i);
           if (StringUtils.isBlank(name)) {
             break;
           }
-          String attributeOrType = GrouperConfig.getProperty("grouperIncludeExclude.requireGroup.attributeOrType." + i);
+          String attributeOrType = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroup.attributeOrType." + i);
           if (StringUtils.equalsIgnoreCase("type", attributeOrType)) {
             GroupType type = GroupTypeFinder.find(name, false);
             if (type != null) {
@@ -269,7 +268,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
     //baseName is name without suffix if applicable
     String baseName = name;
     
-    boolean useGrouperIncludeExclude = GrouperConfig.getPropertyBoolean("grouperIncludeExclude.use", false);
+    boolean useGrouperIncludeExclude = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperIncludeExclude.use", false);
     
     if (useGrouperIncludeExclude) {
       
@@ -283,7 +282,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
         baseName = GrouperUtil.stripSuffix(name, systemOfRecordAndIncludesExtensionSuffix());
       }
     }
-    boolean useRequireGroups = GrouperConfig.getPropertyBoolean("grouperIncludeExclude.requireGroups.use", false);
+    boolean useRequireGroups = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperIncludeExclude.requireGroups.use", false);
     
     //strip off something like _requireGroups15
     if (useRequireGroups) {
@@ -361,7 +360,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
    * regex pattern for require groups
    */
   private static final Pattern requireGroupsPattern = Pattern.compile("(.*)" 
-      + StringUtils.replace(GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.extension.suffix"), "${i}", "") 
+      + StringUtils.replace(GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroups.extension.suffix"), "${i}", "") 
       + "\\d+");
 
   /**
@@ -379,8 +378,8 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
   public static void manageIncludesExcludesAndGroups(GrouperSession grouperSession, Group typedGroup, String summaryForLog) {
     
     //make sure this is the right type
-    String includeExcludeName = GrouperConfig.getProperty("grouperIncludeExclude.type.name");
-    String groupTypeName = GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.type.name");
+    String includeExcludeName = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.type.name");
+    String groupTypeName = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroups.type.name");
 
     //make these sorted so that it is more easily testable
     Set<Group> andGroups = new TreeSet<Group>();
@@ -412,7 +411,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
   
       boolean hasRequireGroupsType = typedGroup.hasType(requireGroupsType);
       
-      String andGroupsAttributeName = GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.attributeName");
+      String andGroupsAttributeName = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroups.attributeName");
       boolean hasAndGroupsAttributeName = StringUtils.isNotBlank(andGroupsAttributeName);
       
       if (hasRequireGroupsType && hasAndGroupsAttributeName) {
@@ -453,14 +452,14 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
       int i=0;
       while (true) {
         
-        String typeName = GrouperConfig.getProperty("grouperIncludeExclude.requireGroup.name." + i);
+        String typeName = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroup.name." + i);
         if (StringUtils.isBlank(typeName)) {
           break;
         }
-        String attributeOrType = GrouperConfig.getProperty("grouperIncludeExclude.requireGroup.attributeOrType." + i);
+        String attributeOrType = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroup.attributeOrType." + i);
         //just check types
         if (StringUtils.equalsIgnoreCase("type", attributeOrType)) {
-          String groupName = GrouperConfig.getProperty("grouperIncludeExclude.requireGroup.group." + i);
+          String groupName = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroup.group." + i);
           
           GroupType type = GroupTypeFinder.find(typeName, true);
           //if the hooked group has this type, then good to go
@@ -487,7 +486,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
    * @return description
    */
   public static String excludeDescription(String overallGroupExtension, String overallGroupDisplayExtension) {
-    String description = GrouperConfig.getProperty("grouperIncludeExclude.exclude.description");
+    String description = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.exclude.description");
     description = StringUtils.replace(description, "${extension}", overallGroupExtension);
     description = StringUtils.replace(description, "${displayExtension}", overallGroupDisplayExtension);
     return description;
@@ -498,7 +497,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
    * @return suffix
    */
   public static String excludeDisplayExtensionSuffix() {
-    String nameSuffix = GrouperConfig.getProperty("grouperIncludeExclude.exclude.displayExtension.suffix");
+    String nameSuffix = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.exclude.displayExtension.suffix");
     return StringUtils.replace(nameSuffix, "${space}", " ");
   }
 
@@ -511,7 +510,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
    * @return suffix
    */
   public static String excludeExtensionSuffix() {
-    String idSuffix = GrouperConfig.getProperty("grouperIncludeExclude.exclude.extension.suffix");
+    String idSuffix = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.exclude.extension.suffix");
     return StringUtils.replace(idSuffix, "${space}", " ");
   }
 
@@ -819,7 +818,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
    * @return suffix
    */
   public static String systemOfRecordExtensionSuffix() {
-    String idSuffix = GrouperConfig.getProperty("grouperIncludeExclude.systemOfRecord.extension.suffix");
+    String idSuffix = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.systemOfRecord.extension.suffix");
     return StringUtils.replace(idSuffix, "${space}", " ");
   }
 
@@ -829,7 +828,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
    * @return true if include/exclude
    */
   public static boolean nameIsIncludeExcludeRequireGroup(String groupName) {
-    boolean useGrouperIncludeExclude = GrouperConfig.getPropertyBoolean("grouperIncludeExclude.use", false);
+    boolean useGrouperIncludeExclude = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperIncludeExclude.use", false);
 
     //check include exclude
     if (useGrouperIncludeExclude) {
@@ -844,7 +843,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
       
     }
     //check 10 require groups
-    boolean useRequireGroups = GrouperConfig.getPropertyBoolean("grouperIncludeExclude.requireGroups.use", false);
+    boolean useRequireGroups = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperIncludeExclude.requireGroups.use", false);
     
     if (useRequireGroups) {
       for (int i=1;i<=10;i++) {
@@ -861,7 +860,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
    * @return suffix
    */
   public static String includeExtensionSuffix() {
-    String idSuffix = GrouperConfig.getProperty("grouperIncludeExclude.include.extension.suffix");
+    String idSuffix = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.include.extension.suffix");
     return StringUtils.replace(idSuffix, "${space}", " ");
   }
   
@@ -870,7 +869,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
    * @return suffix
    */
   public static String includesMinusExcludesExtensionSuffix() {
-    String idSuffix = GrouperConfig.getProperty("grouperIncludeExclude.includesMinusExcludes.extension.suffix");
+    String idSuffix = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.includesMinusExcludes.extension.suffix");
     return StringUtils.replace(idSuffix, "${space}", " ");
   }
 
@@ -879,7 +878,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
    * @return suffix
    */
   public static String systemOfRecordAndIncludesExtensionSuffix() {
-    String idSuffix = GrouperConfig.getProperty("grouperIncludeExclude.systemOfRecordAndIncludes.extension.suffix");
+    String idSuffix = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.systemOfRecordAndIncludes.extension.suffix");
     return StringUtils.replace(idSuffix, "${space}", " ");
   }
   
@@ -888,7 +887,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
    * @return suffix
    */
   public static String systemOfRecordDisplayExtensionSuffix() {
-    String nameSuffix = GrouperConfig.getProperty("grouperIncludeExclude.systemOfRecord.displayExtension.suffix");
+    String nameSuffix = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.systemOfRecord.displayExtension.suffix");
     return StringUtils.replace(nameSuffix, "${space}", " ");
   }
 
@@ -897,7 +896,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
    * @return suffix
    */
   public static String includeDisplayExtensionSuffix() {
-    String nameSuffix = GrouperConfig.getProperty("grouperIncludeExclude.include.displayExtension.suffix");
+    String nameSuffix = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.include.displayExtension.suffix");
     return StringUtils.replace(nameSuffix, "${space}", " ");
   }
 
@@ -906,7 +905,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
    * @return suffix
    */
   public static String includesMinusExcludesDisplayExtensionSuffix() {
-    String nameSuffix = GrouperConfig.getProperty("grouperIncludeExclude.includesMinusExcludes.displayExtension.suffix");
+    String nameSuffix = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.includesMinusExcludes.displayExtension.suffix");
     return StringUtils.replace(nameSuffix, "${space}", " ");
   }
 
@@ -916,7 +915,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
    * @return the extension
    */
   public static String requireGroupsExtensionSuffix(int index) {
-    String nameSuffix = GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.extension.suffix");
+    String nameSuffix = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroups.extension.suffix");
     if (!nameSuffix.contains("${i}")) {
       throw new RuntimeException("grouperIncludeExclude.requireGroups.extension.suffix in grouper.properties must contain ${i}");
     }
@@ -1092,7 +1091,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
    * @return the extension
    */
   public static String requireGroupsDescription(int index, String overallGroupExtension, String overallGroupDisplayExtension) {
-    String description = StringUtils.defaultString(GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.description"));
+    String description = StringUtils.defaultString(GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroups.description"));
     description = description.replace("${i}", Integer.toString(index));
     description = StringUtils.replace(description, "${extension}", overallGroupExtension);
     description = StringUtils.replace(description, "${displayExtension}", overallGroupDisplayExtension);
@@ -1105,7 +1104,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
    * @return the extension
    */
   public static String requireGroupsDisplayExtensionSuffix(int index) {
-    String nameSuffix = StringUtils.defaultString(GrouperConfig.getProperty(
+    String nameSuffix = StringUtils.defaultString(GrouperConfig.retrieveConfig().propertyValueString(
         "grouperIncludeExclude.requireGroups.displayExtension.suffix"));
     nameSuffix = nameSuffix.replace("${i}", Integer.toString(index));
     nameSuffix = StringUtils.replace(nameSuffix, "${space}", " ");
@@ -1117,7 +1116,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
    * @return suffix
    */
   public static String systemOfRecordAndIncludesDisplayExtensionSuffix() {
-    String nameSuffix = GrouperConfig.getProperty("grouperIncludeExclude.systemOfRecordAndIncludes.displayExtension.suffix");
+    String nameSuffix = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.systemOfRecordAndIncludes.displayExtension.suffix");
     return StringUtils.replace(nameSuffix, "${space}", " ");
   }
 
@@ -1128,7 +1127,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
    * @return description
    */
   public static String overallDescription(String overallGroupExtension, String overallGroupDisplayExtension) {
-    String description = GrouperConfig.getProperty("grouperIncludeExclude.overall.description");
+    String description = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.overall.description");
     description = StringUtils.replace(description, "${extension}", overallGroupExtension);
     description = StringUtils.replace(description, "${displayExtension}", overallGroupDisplayExtension);
     return description;
@@ -1141,7 +1140,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
    * @return description
    */
   public static String systemOfRecordAndIncludesDescription(String overallGroupExtension, String overallGroupDisplayExtension) {
-    String description = GrouperConfig.getProperty("grouperIncludeExclude.systemOfRecordAndIncludes.description");
+    String description = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.systemOfRecordAndIncludes.description");
     description = StringUtils.replace(description, "${extension}", overallGroupExtension);
     description = StringUtils.replace(description, "${displayExtension}", overallGroupDisplayExtension);
     return description;
@@ -1154,7 +1153,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
    * @return description
    */
   public static String systemOfRecordDescription(String overallGroupExtension, String overallGroupDisplayExtension) {
-    String description = GrouperConfig.getProperty("grouperIncludeExclude.systemOfRecord.description");
+    String description = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.systemOfRecord.description");
     description = StringUtils.replace(description, "${extension}", overallGroupExtension);
     description = StringUtils.replace(description, "${displayExtension}", overallGroupDisplayExtension);
     return description;
@@ -1167,7 +1166,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
    * @return description
    */
   public static String includeDescription(String overallGroupExtension, String overallGroupDisplayExtension) {
-    String description = GrouperConfig.getProperty("grouperIncludeExclude.include.description");
+    String description = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.include.description");
     description = StringUtils.replace(description, "${extension}", overallGroupExtension);
     description = StringUtils.replace(description, "${displayExtension}", overallGroupDisplayExtension);
     return description;
@@ -1180,7 +1179,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
    * @return description
    */
   public static String includesMinusExcludesDescription(String overallGroupExtension, String overallGroupDisplayExtension) {
-    String description = GrouperConfig.getProperty("grouperIncludeExclude.includesMinusExcludes.description");
+    String description = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.includesMinusExcludes.description");
     description = StringUtils.replace(description, "${extension}", overallGroupExtension);
     description = StringUtils.replace(description, "${displayExtension}", overallGroupDisplayExtension);
     return description;

@@ -36,10 +36,8 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
-import edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
-import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 
 
 /** 
@@ -52,11 +50,18 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 public class GrouperConfig extends ConfigPropertiesCascadeBase {
 
   /**
+   * use the factory
+   */
+  private GrouperConfig() {
+    
+  }
+
+  /**
    * retrieve a config from the config file or from cache
    * @return the config object
    */
-  public static GrouperClientConfig retrieveConfig() {
-    return retrieveConfig(GrouperClientConfig.class);
+  public static GrouperConfig retrieveConfig() {
+    return retrieveConfig(GrouperConfig.class);
   }
 
 
@@ -75,20 +80,6 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
    */
   public static final long   EPOCH                = 0;
   /**
-   * Grouper configuration file.
-   */
-  public static final String GROUPER_CF           = "/grouper.properties";
-
-  /**
-   * Hibernate configuration file.
-   */
-  public static final String HIBERNATE_CF         = "/grouper.hibernate.properties";
-  /**
-   * Optional local configuration file to override contents of <i>GROUPER_CF</i>.
-   * @since   1.2.1
-   */
-  public static final String LOCAL_GROUPER_CF     = "/local.grouper.properties";
-  /**
    * Property containing name of DAO implementation to be used.
    * <p>Grouper will default to <code>DEFAULT_DAO_FACTORY</code> if this property is not set.</p>
    * @since   1.2.0
@@ -106,6 +97,24 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
    * Property determining whether wheel group is to be used.
    */
   public static final String PROP_USE_WHEEL_GROUP = "groups.wheel.use";
+
+  /**
+   * Property name for <code>AccessAdapter</code> implementation.
+   * @since   1.2.1
+   */
+  public static final String ACCESS_PRIVILEGE_INTERFACE = "privileges.access.interface";
+
+  /**
+   * Property name for <code>AttributeDefAdapter</code> implementation.
+   */
+  public static final String ATTRIBUTE_DEF_PRIVILEGE_INTERFACE = "privileges.attributeDef.interface";
+
+  /**
+   * Property name for <code>NamingAdapter</code> implementation.
+   * @since   1.2.1
+   */
+  public static final String NAMING_PRIVILEGE_INTERFACE = "privileges.naming.interface";
+
 
 
   // PROTECTED CLASS CONSTANTS //
@@ -165,20 +174,7 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
 
   /** if tooltips should be substituted in messages */
   public static final String MESSAGES_USE_TOOLTIPS = "messages.use.tooltips";
-  private static  GrouperConfig       cfg;
-  private         ApiConfig           api;
-  private         HibernateDaoConfig  hib;
 
-
-  /**
-   * Default constructor.
-   * @since   ?
-   */
-  private GrouperConfig() {
-    super();
-    this.api   = new ApiConfig();
-    this.hib   = new HibernateDaoConfig();
-  } 
 
   /** 
    * @since   1.2.1
@@ -195,26 +191,18 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
    * @return  Value of configuration parameter or an empty string if
    *   parameter is invalid.
    * @since   1.1.0
+   * @deprecated use GrouperHibernateConfig.retrieveConfig().propertyValueString() instead
    */
+  @Deprecated
   public static String getHibernateProperty(String property) {
     
-    return getDefaultTrimmedValueIfNull( getInstance().hib.getProperty(property) );
-  }
-
-  /**
-   * @since   1.2.1
-   */
-  private static GrouperConfig getInstance() {
-    if (cfg == null) {
-      cfg = new GrouperConfig();
-    }
-    return cfg;
+    return getDefaultTrimmedValueIfNull( GrouperHibernateConfig.retrieveConfig().propertyValueString(property) );
   }
 
   /**
    * Get a Grouper configuration parameter.
    * <pre class="eg">
-   * String wheel = GrouperConfig.getProperty("groups.wheel.group");
+   * String wheel = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.group");
    * </pre>
    * @param property is the property key
    * @return  Value of configuration parameter or an empty string if
@@ -319,8 +307,7 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
    */
   @Override
   public void clearCachedCalculatedValues() {
-    // TODO Auto-generated method stub
-    
+    //nothing to do
   }
 
   /**

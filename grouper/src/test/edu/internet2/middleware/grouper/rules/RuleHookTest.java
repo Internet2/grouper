@@ -27,7 +27,7 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
@@ -93,7 +93,7 @@ public class RuleHookTest extends GrouperTest {
    */
   public void testHookActAs() {
 
-    ApiConfig.testConfig.put("rules.act.as.group", "etc:rulesActAsGroup, etc:rulesActAsGroupA :::: etc:rulesActAsGroupB");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.act.as.group", "etc:rulesActAsGroup, etc:rulesActAsGroupA :::: etc:rulesActAsGroupB");
 
     
     String validReason = null;

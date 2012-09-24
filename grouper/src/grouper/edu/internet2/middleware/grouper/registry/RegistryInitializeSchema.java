@@ -269,7 +269,7 @@ public class RegistryInitializeSchema {
    * @return the inInitSchema
    */
   public static boolean isInstallGrouperData() {
-    return GrouperConfig.getPropertyBoolean("ddlutils.schemaexport.installGrouperData", true);
+    return GrouperConfig.retrieveConfig().propertyValueBoolean("ddlutils.schemaexport.installGrouperData", true);
   }
   
   /**

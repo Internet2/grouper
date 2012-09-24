@@ -350,7 +350,7 @@ public class Bootstrap {
    * @return
    */
   private String wheelGroupName() {
-    String wheelGroupName = GrouperConfig.getProperty("groups.wheel.group");
+    String wheelGroupName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.group");
     
     if (StringUtils.isBlank(wheelGroupName)) {
       throw new RuntimeException("grouper.properties must have an extry for " +

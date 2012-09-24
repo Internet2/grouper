@@ -56,11 +56,11 @@ public class ClientCustomizer {
     String grouperPropertiesPrefix = "grouperClient." + connectionName + ".properties";
     
     //loop through properties in the grouper.properties and see which to move over to the client config
-    for (String propertyName : GrouperConfig.getPropertyNames()) {
+    for (String propertyName : GrouperConfig.retrieveConfig().propertyNames()) {
       if (propertyName.startsWith(grouperPropertiesPrefix)) {
 
         //grouper properties value
-        String value = GrouperConfig.getProperty(propertyName);
+        String value = GrouperConfig.retrieveConfig().propertyValueString(propertyName);
         
         //e.g. grouperClient.localhost.properties.grouperClient.webService.url
         //get the part after the prefix

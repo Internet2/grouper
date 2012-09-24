@@ -35,13 +35,13 @@ import java.io.PrintStream;
 import java.util.Iterator;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
-import edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 
@@ -58,15 +58,6 @@ public class GrouperInfo {
   @SuppressWarnings("unused")
   private static final Log LOG = GrouperUtil.getLog(GrouperInfo.class);
 
-  /**
-   * 
-   */
-  private ApiConfig           api;
-  /**
-   * 
-   */
-  private HibernateDaoConfig  hib;
-
 
   // CONSTRUCTORS //
 
@@ -76,8 +67,7 @@ public class GrouperInfo {
    * @since     1.1.0
    */
   private GrouperInfo(PrintStream thePrintStream, boolean thePrintDbInfo) {
-    this.api  = new ApiConfig();
-    this.hib  = new HibernateDaoConfig();
+
     this.out = thePrintStream;
     this.printSensitiveInfo = thePrintDbInfo;
   } 
@@ -138,17 +128,17 @@ public class GrouperInfo {
    */
   private void _printGrouperInfo() {
     String key = "privileges.access.interface";
-    this._print( key, this.api.getProperty(key) );
+    this._print( key, GrouperConfig.retrieveConfig().propertyValueString(key) );
     key = "privileges.naming.interface";
-    this._print( key, this.api.getProperty(key) );
+    this._print( key, GrouperConfig.retrieveConfig().propertyValueString(key) );
     key = "privileges.access.cache.interface";
-    this._print( key, this.api.getProperty(key) );
+    this._print( key, GrouperConfig.retrieveConfig().propertyValueString(key) );
     key = "privileges.naming.cache.interface";
-    this._print( key, this.api.getProperty(key) );
+    this._print( key, GrouperConfig.retrieveConfig().propertyValueString(key) );
     key = "groups.wheel.use";
-    this._print( key, this.api.getProperty(key) );
+    this._print( key, GrouperConfig.retrieveConfig().propertyValueString(key) );
     key = "groups.wheel.group";
-    this._print( key, this.api.getProperty(key) );
+    this._print( key, GrouperConfig.retrieveConfig().propertyValueString(key) );
   } 
 
   /**
@@ -158,21 +148,21 @@ public class GrouperInfo {
     String key = null;
     if (this.printSensitiveInfo) {
       key = "hibernate.connection.username";
-      this._print( key, this.hib.getProperty(key) );
+      this._print( key, GrouperHibernateConfig.retrieveConfig().propertyValueString(key) );
     }
     key = "hibernate.dialect";
-    this._print( key, this.hib.getProperty(key) );
+    this._print( key, GrouperHibernateConfig.retrieveConfig().propertyValueString(key) );
     
-    String connectionUrl = this.hib.getProperty("hibernate.connection.url");
+    String connectionUrl = GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.url");
     
     key = "hibernate.connection.driver_class";
-    this._print( key, GrouperDdlUtils.convertUrlToDriverClassIfNeeded(connectionUrl, this.hib.getProperty(key)));
+    this._print( key, GrouperDdlUtils.convertUrlToDriverClassIfNeeded(connectionUrl, GrouperHibernateConfig.retrieveConfig().propertyValueString(key)));
     if (this.printSensitiveInfo) {
       key = "hibernate.connection.url";
-      this._print( key, this.hib.getProperty(key) );
+      this._print( key, GrouperHibernateConfig.retrieveConfig().propertyValueString(key) );
     }
     key = "hibernate.cache.provider_class";
-    this._print( key, this.hib.getProperty(key) );
+    this._print( key, GrouperHibernateConfig.retrieveConfig().propertyValueString(key) );
   } 
 
   /**
@@ -198,12 +188,33 @@ public class GrouperInfo {
     }
   } 
 
+
+  /**
+   * @return version timestamp
+   */
+  public static String versionTimestamp() {
+    String buildTimestamp = null;
+    try {
+      buildTimestamp = GrouperCheckConfig.manifestProperty(GrouperInfo.class, new String[]{"Build-Timestamp"});
+    } catch (Exception e) {
+      //its ok, might not be running in jar
+    }
+    Properties properties = GrouperConfig.retrieveConfig().properties();
+    
+    String env = GrouperUtil.propertiesValue(properties, "grouper.env.name");
+    env = StringUtils.defaultIfEmpty(env, "<no label configured>");
+    String grouperStartup = "version: " + GrouperVersion.GROUPER_VERSION 
+      + ", build date: " + buildTimestamp + ", env: " + env;
+    
+    return grouperStartup;
+  }
+
   /**
    * @since   1.2.0
    */
   private void _printSystemInfo() {
     Properties  props = System.getProperties();  
-    this.out.println(ApiConfig.versionTimestamp());
+    this.out.println(versionTimestamp());
     String      key   = "os.name";
     this._print( key, props.getProperty(key, GrouperConfig.EMPTY_STRING) );
     key = "os.arch";

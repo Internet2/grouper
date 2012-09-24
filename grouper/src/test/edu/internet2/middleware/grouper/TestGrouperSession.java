@@ -32,11 +32,9 @@
 
 package edu.internet2.middleware.grouper;
 import junit.textui.TestRunner;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
-import edu.internet2.middleware.grouper.privs.AccessAdapter;
-import edu.internet2.middleware.grouper.privs.NamingAdapter;
 
 
 /**
@@ -71,7 +69,6 @@ public class TestGrouperSession extends GrouperTest {
     TestRunner.run(new TestGrouperSession("test_getAccessClass_notNull"));
   }
   
-  private ApiConfig       cfg;
   private GrouperSession  s;
   private String          prop_valid    = "privileges.access.interface";
   private String          prop_invalid  = "invalid property";
@@ -80,7 +77,6 @@ public class TestGrouperSession extends GrouperTest {
   public void setUp() {
     super.setUp();
     try {
-      this.cfg  = new ApiConfig();
       this.s    = GrouperSession.start( SubjectFinder.findAllSubject() );
     }
     catch (Exception e) {
@@ -99,7 +95,7 @@ public class TestGrouperSession extends GrouperTest {
   }
 
   public void test_getAccessClass_defaultAccessAdapter() {
-    assertEquals( this.cfg.getProperty(ApiConfig.ACCESS_PRIVILEGE_INTERFACE), this.s.getAccessClass() );
+    assertEquals( GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.ACCESS_PRIVILEGE_INTERFACE), this.s.getAccessClass() );
   }
 
   /**
@@ -125,7 +121,7 @@ public class TestGrouperSession extends GrouperTest {
   }
 
   public void test_getNamingClass_defaultAccessAdapter() {
-    assertEquals( this.cfg.getProperty(ApiConfig.NAMING_PRIVILEGE_INTERFACE), this.s.getNamingClass() );
+    assertEquals( GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.NAMING_PRIVILEGE_INTERFACE), this.s.getNamingClass() );
   }
 
 

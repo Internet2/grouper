@@ -2135,7 +2135,7 @@ public class Membership extends GrouperAPI implements
    * Update the last_imm_membership_change for the group that's getting a change to an immediate privilege or membership
    */
   private void updateLastImmediateMembershipChange() {
-    if (GrouperConfig.getPropertyBoolean("groups.updateLastImmediateMembershipTime", false) && this.getOwnerGroupId() != null) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("groups.updateLastImmediateMembershipTime", false) && this.getOwnerGroupId() != null) {
       GrouperDAOFactory.getFactory().getGroup().updateLastImmediateMembershipChange(this.getOwnerGroupId());
     }
   }
@@ -2144,11 +2144,11 @@ public class Membership extends GrouperAPI implements
    * Update the last_membership_change for the group or stem that's getting a new privilege or custom list membership.
    */
   private void updateLastMembershipChangeDuringNonMembersListUpdate() {
-    if (GrouperConfig.getPropertyBoolean("groups.updateLastMembershipTime", false) && this.getOwnerGroupId() != null) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("groups.updateLastMembershipTime", false) && this.getOwnerGroupId() != null) {
       GrouperDAOFactory.getFactory().getGroup().updateLastMembershipChange(this.getOwnerGroupId());
     }
     
-    if (GrouperConfig.getPropertyBoolean("stems.updateLastMembershipTime", false) && this.getOwnerStemId() != null) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("stems.updateLastMembershipTime", false) && this.getOwnerStemId() != null) {
       GrouperDAOFactory.getFactory().getStem().updateLastMembershipChange(this.getOwnerStemId());
     }
   }
@@ -2158,14 +2158,14 @@ public class Membership extends GrouperAPI implements
    * @param groupIds
    */
   protected static void updateLastMembershipChangeDuringMembersListUpdate(Set<String> groupIds) {
-    if (GrouperConfig.getPropertyBoolean("groups.updateLastMembershipTime", false)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("groups.updateLastMembershipTime", false)) {
       Iterator<String> iter = groupIds.iterator();
       while (iter.hasNext()) {
         GrouperDAOFactory.getFactory().getGroup().updateLastMembershipChangeIncludeAncestorGroups(iter.next());
       }
     }
     
-    if (GrouperConfig.getPropertyBoolean("stems.updateLastMembershipTime", false)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("stems.updateLastMembershipTime", false)) {
       Iterator<String> iter = groupIds.iterator();
       while (iter.hasNext()) {
         GrouperDAOFactory.getFactory().getStem().updateLastMembershipChangeIncludeAncestorGroups(iter.next());

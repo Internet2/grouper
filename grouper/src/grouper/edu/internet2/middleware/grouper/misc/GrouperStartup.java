@@ -19,6 +19,9 @@
  */
 package edu.internet2.middleware.grouper.misc;
 
+import java.io.File;
+import java.util.Properties;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
@@ -31,10 +34,8 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
-import edu.internet2.middleware.grouper.entity.EntitySourceAdapter;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAutoSourceAdapter;
@@ -86,6 +87,112 @@ public class GrouperStartup {
    */
   private static boolean finishedStartupSuccessfully = false;
   
+
+  /** print this once */
+  private static boolean printedConfigLocation = false;
+  
+  /**
+   * print where config is read from, to sys out and log warn
+   */
+  private static void printConfigOnce() {
+    
+    if (printedConfigLocation) {
+      return;
+    }
+
+    printedConfigLocation = true;
+
+    Properties properties = GrouperUtil.propertiesFromResourceName("grouper.properties");
+    
+    String displayMessageString = GrouperUtil.propertiesValue(properties, "configuration.display.startup.message");
+    
+    String grouperStartup = "Grouper starting up: " + versionTimestamp();
+    if (!GrouperUtil.booleanValue(displayMessageString, true)) {
+      //just log this to make sure we can
+      try {
+        LOG.warn(grouperStartup);
+      } catch (RuntimeException re) {
+        //this is bad, print to stderr rightaway (though might dupe)
+        System.err.println(GrouperUtil.LOG_ERROR);
+        re.printStackTrace();
+        throw new RuntimeException(GrouperUtil.LOG_ERROR, re);
+      }
+      
+      return;
+    }
+
+    StringBuilder resultString = new StringBuilder();
+    resultString.append(grouperStartup + "\n");
+    File grouperPropertiesFile = GrouperUtil.fileFromResourceName("grouper.properties");
+    String propertiesFileLocation = grouperPropertiesFile == null ? "not found" 
+        : GrouperUtil.fileCanonicalPath(grouperPropertiesFile); 
+    resultString.append("grouper.properties read from: " + propertiesFileLocation + "\n");
+
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.api.readonly", false)) {
+      resultString.append("grouper.api.readonly:         true\n");
+    }
+    
+    resultString.append("Grouper current directory is: " + new File("").getAbsolutePath() + "\n");
+    //get log4j file
+    File log4jFile = GrouperUtil.fileFromResourceName("log4j.properties");
+    String log4jFileLocation = log4jFile == null ? " [cant find log4j.properties]" :
+      GrouperUtil.fileCanonicalPath(log4jFile);
+    resultString.append("log4j.properties read from:   " + log4jFileLocation + "\n");
+    
+    resultString.append(GrouperUtil.logDirPrint());    
+    File hibPropertiesFile = GrouperUtil.fileFromResourceName("grouper.hibernate.properties");
+    String hibPropertiesFileLocation = hibPropertiesFile == null ? " [cant find grouper.hibernate.properties]" :
+      GrouperUtil.fileCanonicalPath(hibPropertiesFile);
+    resultString.append("grouper.hibernate.properties: " + hibPropertiesFileLocation + "\n");
+    
+    Properties grouperHibernateProperties = GrouperUtil.propertiesFromResourceName("grouper.hibernate.properties");
+    String url = StringUtils.trim(grouperHibernateProperties.getProperty("hibernate.connection.url"));
+    String user = StringUtils.trim(grouperHibernateProperties.getProperty("hibernate.connection.username"));
+    resultString.append("grouper.hibernate.properties: " + user + "@" + url + "\n");
+    String sourcesString = "problem with sources";
+    try {
+      sourcesString = SourceManager.getInstance().printConfig();
+    } catch (Exception e) {
+      LOG.error("problem with sources", e);
+    }
+    resultString.append(sourcesString);
+    System.out.println(resultString);
+    try {
+      if (!GrouperUtil.isPrintGrouperLogsToConsole()) {
+        LOG.warn(resultString);
+      } else {
+        //print something to log to make sure we can
+        LOG.warn(grouperStartup);
+      }
+    } catch (RuntimeException re) {
+      //this is bad, print to stderr rightaway (though might dupe)
+      System.err.println(GrouperUtil.LOG_ERROR);
+      re.printStackTrace();
+      throw new RuntimeException(GrouperUtil.LOG_ERROR, re);
+    }
+  }
+
+
+  /**
+   * @return version timestamp
+   */
+  public static String versionTimestamp() {
+    String buildTimestamp = null;
+    try {
+      buildTimestamp = GrouperCheckConfig.manifestProperty(GrouperStartup.class, new String[]{"Build-Timestamp"});
+    } catch (Exception e) {
+      //its ok, might not be running in jar
+    }
+    Properties properties = GrouperUtil.propertiesFromResourceName("grouper.properties");
+    
+    String env = GrouperUtil.propertiesValue(properties, "grouper.env.name");
+    env = StringUtils.defaultIfEmpty(env, "<no label configured>");
+    String grouperStartup = "version: " + GrouperVersion.GROUPER_VERSION 
+      + ", build date: " + buildTimestamp + ", env: " + env;
+    
+    return grouperStartup;
+  }
+
   /**
    * call this when grouper starts up
    * @return false if already started, true if this started it
@@ -97,17 +204,19 @@ public class GrouperStartup {
       }
       started = true;
   
+      printConfigOnce();
+      
       //add in custom sources
       SourceManager.getInstance().loadSource(SubjectFinder.internal_getGSA());
       SourceManager.getInstance().loadSource(InternalSourceAdapter.instance());
       
-      if (GrouperConfig.getPropertyBoolean("externalSubjects.autoCreateSource", true)) {
+      if (GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.autoCreateSource", true)) {
         
         SourceManager.getInstance().loadSource(ExternalSubjectAutoSourceAdapter.instance());
         
       }
       
-//      if (GrouperConfig.getPropertyBoolean("entities.autoCreateSource", true)) {
+//      if (GrouperConfig.retrieveConfig().propertyValueBoolean("entities.autoCreateSource", true)) {
 //        
 //        SourceManager.getInstance().loadSource(EntitySourceAdapter.instance());
 //        
@@ -188,7 +297,7 @@ public class GrouperStartup {
    */
   public static void initMembershipLiteConfigType() {
     
-    if (GrouperConfig.getPropertyBoolean("membershipUpdateLiteTypeAutoCreate", false)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("membershipUpdateLiteTypeAutoCreate", false)) {
       
       GrouperSession grouperSession = null;
 
@@ -231,10 +340,10 @@ public class GrouperStartup {
    * init the loader types and attributes if configured to
    */
   public static void initLoaderType() {
-    String autoadd = ApiConfig.testConfig.get("loader.autoadd.typesAttributes");
+    String autoadd = GrouperConfig.retrieveConfig().propertiesOverrideMap().get("loader.autoadd.typesAttributes");
     if (StringUtils.isBlank(autoadd)) {
       try {
-        autoadd = GrouperLoaderConfig.getPropertyString("loader.autoadd.typesAttributes");
+        autoadd = GrouperLoaderConfig.retrieveConfig().propertyValueString("loader.autoadd.typesAttributes");
       } catch (Exception e) {
         //dont worry if cant get this property
       }
@@ -306,11 +415,11 @@ public class GrouperStartup {
    */
   public static void initIncludeExcludeType() {
     
-    final boolean useGrouperIncludeExclude = GrouperConfig.getPropertyBoolean("grouperIncludeExclude.use", false);
-    final boolean useGrouperRequireGroups = GrouperConfig.getPropertyBoolean("grouperIncludeExclude.requireGroups.use", false);
+    final boolean useGrouperIncludeExclude = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperIncludeExclude.use", false);
+    final boolean useGrouperRequireGroups = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperIncludeExclude.requireGroups.use", false);
     
-    final String includeExcludeGroupTypeName = GrouperConfig.getProperty("grouperIncludeExclude.type.name");
-    final String requireGroupsTypeName = GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.type.name");
+    final String includeExcludeGroupTypeName = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.type.name");
+    final String requireGroupsTypeName = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroups.type.name");
 
     GrouperSession grouperSession = null;
 
@@ -332,7 +441,7 @@ public class GrouperStartup {
                 GroupType.createType(grouperSession, requireGroupsTypeName, false) : null;
 
             //first the requireGroups
-            String attributeName = GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.attributeName");
+            String attributeName = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroups.attributeName");
 
             if (useGrouperRequireGroups && !StringUtils.isBlank(attributeName)) {
               requireGroupsType.addAttribute(grouperSession,attributeName, 
@@ -346,11 +455,11 @@ public class GrouperStartup {
                 String propertyName = "grouperIncludeExclude.requireGroup.name." + i;
                 String attributeOrTypePropertyName = "grouperIncludeExclude.requireGroup.attributeOrType." + i;
 
-                String propertyValue = GrouperConfig.getProperty(propertyName);
+                String propertyValue = GrouperConfig.retrieveConfig().propertyValueString(propertyName);
                 if (StringUtils.isBlank(propertyValue)) {
                   break;
                 }
-                String attributeOrTypeValue = GrouperConfig.getProperty(attributeOrTypePropertyName);
+                String attributeOrTypeValue = GrouperConfig.retrieveConfig().propertyValueString(attributeOrTypePropertyName);
                 boolean attributeOrType = StringUtils.equals("attribute", attributeOrTypeValue);
                 if (attributeOrType) {
                   requireGroupsType.addAttribute(grouperSession, propertyValue, 
@@ -408,7 +517,7 @@ public class GrouperStartup {
         GrouperSession.stopQuietly(grouperSession);
       }
       if (needsInit) {
-        if (GrouperConfig.getPropertyBoolean("registry.autoinit", true)) {
+        if (GrouperConfig.retrieveConfig().propertyValueBoolean("registry.autoinit", true)) {
           try {
             
             RegistryInstall.install();

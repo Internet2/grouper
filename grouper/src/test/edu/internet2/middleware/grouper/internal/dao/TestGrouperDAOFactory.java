@@ -32,11 +32,7 @@
 
 package edu.internet2.middleware.grouper.internal.dao;
 import junit.textui.TestRunner;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
-import edu.internet2.middleware.grouper.internal.util.Realize;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 
@@ -85,40 +81,6 @@ public class TestGrouperDAOFactory extends GrouperTest {
   }
 
 
-  public void test_getFactory_nullConfig() {
-    try {
-      GrouperDAOFactory.getFactory(null);
-      fail("did not throw IllegalArgumentException");
-    }
-    catch (IllegalArgumentException eExpected) {
-      assertTrue("threw expected exception", true);
-    }
-  }
-  /**
-   * 
-   */
-  public void test_getFactory_getInvalidFactory() {
-
-    ApiConfig cfg = new ApiConfig();
-
-    String value = cfg.getProperty(prop);
-    
-    cfg.setProperty(prop, invalid);
-    try {
-      GrouperDAOFactory.getFactory(cfg);
-      fail("did not throw GrouperRuntimeException");
-    }
-    catch (GrouperException eExpected) {
-      assertTrue("threw expected exception", true);
-    } 
-    
-    //make a new one so it goes back
-    cfg = new ApiConfig();
-    
-    assertEquals(value, cfg.getProperty(prop));
-    
-  }
-
   public void test_getFactory_defaultNotNull() {
     assertNotNull( GrouperDAOFactory.getFactory() );  
   } 
@@ -126,16 +88,6 @@ public class TestGrouperDAOFactory extends GrouperTest {
   public void test_getFactory_defaultInstanceOfRightClass() {
     assertTrue( "returned factory is instanceof GrouperDAOFactory", GrouperDAOFactory.getFactory() instanceof GrouperDAOFactory );
   } 
-
-  public void test_getFactory_returnDefaultFactoryWhenNotConfigured() {
-    ApiConfig cfg = new ApiConfig();
-    cfg.setProperty( prop, GrouperConfig.EMPTY_STRING );
-    assertEquals(
-      "returns default factory when not configured", 
-      Realize.instantiate( GrouperConfig.DEFAULT_DAO_FACTORY ).getClass(),
-      GrouperDAOFactory.getFactory(cfg).getClass()
-    );
-  }
 
   public void test_getFactory_factoryIsReused() {
     assertEquals(

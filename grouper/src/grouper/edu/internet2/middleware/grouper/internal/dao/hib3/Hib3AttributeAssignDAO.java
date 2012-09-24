@@ -991,7 +991,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindGroupAttributeAssignments");
 
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findAttrAssignments.maxResultSize", 30000);
     
     //if -1, lets not check
     long size = -1;
@@ -1151,7 +1151,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       .setCacheable(useCache)
       .setCacheRegion(KLASS + ".FindStemAttributeAssignments");
 
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findAttrAssignments.maxResultSize", 30000);
     
     Set<AttributeAssign> results = attributeAssignmentAssignmentRunQuery(
         includeAssignmentsFromAssignments, useCache, byHqlStatic, selectPrefix,
@@ -1275,7 +1275,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindMemberAttributeAssignments");
   
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findAttrAssignments.maxResultSize", 30000);
     
     long size = -1;
     
@@ -1433,7 +1433,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAttributeDefAttributeAssignments");
 
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findAttrAssignments.maxResultSize", 30000);
     
     //if -1, lets not check
     if (maxAssignments >= 0) {
@@ -1596,7 +1596,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindMembershipAttributeAssignments");
   
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findAttrAssignments.maxResultSize", 30000);
     
     long size = -1;
     
@@ -1772,7 +1772,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAnyMembershipAttributeAssignments");
   
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findAttrAssignments.maxResultSize", 30000);
     
     long size = -1;
     
@@ -1850,7 +1850,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(attributeAssignsSize, 100);
 
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findAttrAssignments.maxResultSize", 30000);
     
 
     for (int i=0;i<numberOfBatches; i++) {
@@ -2042,7 +2042,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindGroupAttributeDefNames");
   
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findAttrAssignments.maxResultSize", 30000);
     
     //if -1, lets not check
     long size = -1;
@@ -2193,7 +2193,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindMemberAttributeDefNames");
   
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findAttrAssignments.maxResultSize", 30000);
     
     long size = -1;
     
@@ -2323,7 +2323,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindMembershipAttributeAttributeDefNames");
   
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findAttrAssignments.maxResultSize", 30000);
     
     long size = -1;
     
@@ -2584,7 +2584,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindStemAttributeDefNames");
   
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findAttrAssignments.maxResultSize", 30000);
     
     long size = -1;
     
@@ -2713,7 +2713,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAnyMembershipAttributeDefNames");
   
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findAttrAssignments.maxResultSize", 30000);
     
     long size = -1;
     
@@ -2833,7 +2833,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAttributeDefAttributeDefNames");
   
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findAttrAssignments.maxResultSize", 30000);
     
     //if -1, lets not check
     if (maxAssignments >= 0) {
@@ -3017,7 +3017,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAttributeAssignments");
   
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findAttrAssignments.maxResultSize", 30000);
     
     //if -1, lets not check
     long size = -1;
@@ -3067,7 +3067,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(attributeAssignsSize, 100);
   
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findAttrAssignments.maxResultSize", 30000);
     
     List<AttributeAssign> attributeAssignsList = GrouperUtil.listFromCollection(attributeAssigns);
   
@@ -3250,7 +3250,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindStemAttributeAssignments");
   
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findAttrAssignments.maxResultSize", 30000);
     
     long size = -1;
     
@@ -3329,7 +3329,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(attributeAssignsSize, 100);
   
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findAttrAssignments.maxResultSize", 30000);
     
   
     for (int i=0;i<numberOfBatches; i++) {
@@ -3515,7 +3515,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       .setCacheable(useCache)
       .setCacheRegion(KLASS + ".FindMemberAttributeAssignments");
   
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findAttrAssignments.maxResultSize", 30000);
     
     Set<AttributeAssign> results = attributeAssignmentAssignmentRunQuery(
         includeAssignmentsFromAssignments, useCache, byHqlStatic, selectPrefix,
@@ -3754,7 +3754,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       .setCacheable(useCache)
       .setCacheRegion(KLASS + ".FindGroupAttributeAssignments");
   
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findAttrAssignments.maxResultSize", 30000);
     
     Set<AttributeAssign> results = attributeAssignmentAssignmentRunQuery(
         includeAssignmentsFromAssignments, useCache, byHqlStatic, selectPrefix,
@@ -3876,7 +3876,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       .setCacheable(useCache)
       .setCacheRegion(KLASS + ".FindAttributeDefAttributeAssignments");
   
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findAttrAssignments.maxResultSize", 30000);
     
     Set<AttributeAssign> results = attributeAssignmentAssignmentRunQuery(
         includeAssignmentsFromAssignments, useCache, byHqlStatic, selectPrefix,
@@ -4002,7 +4002,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       .setCacheable(useCache)
       .setCacheRegion(KLASS + ".FindMembershipAttributeAssignments");
   
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findAttrAssignments.maxResultSize", 30000);
     
     Set<AttributeAssign> results = attributeAssignmentAssignmentRunQuery(
         includeAssignmentsFromAssignments, useCache, byHqlStatic, selectPrefix,
@@ -4126,7 +4126,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       .setCacheable(useCache)
       .setCacheRegion(KLASS + ".FindMembershipAttributeAssignments");
   
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findAttrAssignments.maxResultSize", 30000);
     
     Set<AttributeAssign> results = attributeAssignmentAssignmentRunQuery(
         includeAssignmentsFromAssignments, useCache, byHqlStatic, selectPrefix,

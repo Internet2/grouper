@@ -530,7 +530,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
 		return activeSession;
 	}
 
-  	if (!GrouperConfig.getPropertyBoolean("subjects.startRootSessionIfOneIsntStarted", true)) {
+  	if (!GrouperConfig.retrieveConfig().propertyValueBoolean("subjects.startRootSessionIfOneIsntStarted", true)) {
   	  return null;
   	}
   	

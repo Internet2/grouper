@@ -168,7 +168,7 @@ public class HierarchicalOrgLoaderHook extends LoaderHooks {
      */
     public String groupSorName(Map<String, OrgHierarchyNode> allNodes) {
       String name = this.groupName(allNodes);
-      String sorSuffix = GrouperConfig.getProperty("grouperIncludeExclude.systemOfRecord.extension.suffix");
+      String sorSuffix = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.systemOfRecord.extension.suffix");
       sorSuffix = StringUtils.defaultIfEmpty(sorSuffix, "_systemOfRecord");
       String sorName = name + sorSuffix;
       return sorName;
@@ -195,7 +195,7 @@ public class HierarchicalOrgLoaderHook extends LoaderHooks {
       }
       
       //now generate the group name
-      String parentStem = GrouperConfig.getProperty("orgs.parentStemName");
+      String parentStem = GrouperConfig.retrieveConfig().propertyValueString("orgs.parentStemName");
       if (StringUtils.isBlank(parentStem)) {
         parentStem = "poc:orgs";
       }
@@ -238,7 +238,7 @@ public class HierarchicalOrgLoaderHook extends LoaderHooks {
     public String getAllDisplayName() {
       String displayName = this.getOrgDisplayName();
             
-      String includeExcludeDisplaySuffix = GrouperConfig.getProperty("grouperIncludeExclude.systemOfRecord.displayExtension.suffix");
+      String includeExcludeDisplaySuffix = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.systemOfRecord.displayExtension.suffix");
       includeExcludeDisplaySuffix = StringUtils.defaultIfEmpty(includeExcludeDisplaySuffix, "${space}system of record");
       includeExcludeDisplaySuffix = StringUtils.replace(includeExcludeDisplaySuffix, "${space}", " ");
   
@@ -256,7 +256,7 @@ public class HierarchicalOrgLoaderHook extends LoaderHooks {
     public String allSorName(Map<String, OrgHierarchyNode> allNodes) {
       
       
-      String sorSuffix = GrouperConfig.getProperty("grouperIncludeExclude.systemOfRecord.extension.suffix");
+      String sorSuffix = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.systemOfRecord.extension.suffix");
       sorSuffix = StringUtils.defaultIfEmpty(sorSuffix, "_systemOfRecord");
   
       return this.allName(allNodes) + sorSuffix;
@@ -268,7 +268,7 @@ public class HierarchicalOrgLoaderHook extends LoaderHooks {
      */
     public String getAllSorDisplayName() {
       
-      String includeExcludeDisplaySuffix = GrouperConfig.getProperty("grouperIncludeExclude.systemOfRecord.displayExtension.suffix");
+      String includeExcludeDisplaySuffix = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.systemOfRecord.displayExtension.suffix");
       includeExcludeDisplaySuffix = StringUtils.defaultIfEmpty(includeExcludeDisplaySuffix, "${space}system of record");
       includeExcludeDisplaySuffix = StringUtils.replace(includeExcludeDisplaySuffix, "${space}", " ");
   
@@ -311,7 +311,7 @@ public class HierarchicalOrgLoaderHook extends LoaderHooks {
   @Override
   public void loaderPreRun(HooksContext hooksContext, HooksLoaderBean preRunBean) {
     //we want this hook to kick in if the group name is the org group name:
-    String orgsGroupConfigName = GrouperConfig.getProperty("orgs.configGroupName");
+    String orgsGroupConfigName = GrouperConfig.retrieveConfig().propertyValueString("orgs.configGroupName");
     if (StringUtils.isBlank(orgsGroupConfigName)) {
       throw new RuntimeException("Why is the orgs config name not configured in grouper properties? orgs.configGroupName");
     }
@@ -388,7 +388,7 @@ public class HierarchicalOrgLoaderHook extends LoaderHooks {
     String query = "select " + orgsIdCol + ", " + orgsNameCol + ", " + orgsParentIdCol + ", " + orgsDisplayNameCol
       + " from " + orgsTableName;
     
-    String includeExcludeDisplaySuffix = GrouperConfig.getProperty("grouperIncludeExclude.systemOfRecord.displayExtension.suffix");
+    String includeExcludeDisplaySuffix = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.systemOfRecord.displayExtension.suffix");
     includeExcludeDisplaySuffix = StringUtils.defaultIfEmpty(includeExcludeDisplaySuffix, "${space}system of record");
     includeExcludeDisplaySuffix = StringUtils.replace(includeExcludeDisplaySuffix, "${space}", " ");
         
@@ -432,17 +432,17 @@ public class HierarchicalOrgLoaderHook extends LoaderHooks {
    * make sure the org hierarchical table is in sync
    */
   public static void syncUpHierarchicalOrgTable() {
-    String orgsDatabaseName = GrouperConfig.getProperty("orgs.databaseName");
+    String orgsDatabaseName = GrouperConfig.retrieveConfig().propertyValueString("orgs.databaseName");
     GrouperLoaderDb grouperLoaderDb = GrouperLoaderConfig.retrieveDbProfile(orgsDatabaseName);
   
   
-    String orgsTableName = GrouperConfig.getProperty("orgs.orgTableName");
+    String orgsTableName = GrouperConfig.retrieveConfig().propertyValueString("orgs.orgTableName");
     
-    String orgsIdCol = GrouperConfig.getProperty("orgs.orgIdCol");
-    String orgsNameCol = GrouperConfig.getProperty("orgs.orgNameCol");
-    String orgsDisplayNameCol = GrouperConfig.getProperty("orgs.orgDisplayNameCol");
+    String orgsIdCol = GrouperConfig.retrieveConfig().propertyValueString("orgs.orgIdCol");
+    String orgsNameCol = GrouperConfig.retrieveConfig().propertyValueString("orgs.orgNameCol");
+    String orgsDisplayNameCol = GrouperConfig.retrieveConfig().propertyValueString("orgs.orgDisplayNameCol");
     
-    String orgsParentIdCol = GrouperConfig.getProperty("orgs.orgParentIdCol");
+    String orgsParentIdCol = GrouperConfig.retrieveConfig().propertyValueString("orgs.orgParentIdCol");
     
     Map<String, OrgHierarchyNode> allNodes = retrieveAllNodes(grouperLoaderDb, 
         orgsTableName, orgsIdCol, orgsNameCol, orgsParentIdCol, orgsDisplayNameCol);

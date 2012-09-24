@@ -31,12 +31,11 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
-import edu.internet2.middleware.grouper.exception.GrouperException;
-import  edu.internet2.middleware.grouper.GrouperSession;
-import  edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
-import  edu.internet2.middleware.grouper.internal.util.Realize;
+import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
+import edu.internet2.middleware.grouper.internal.util.Realize;
 
 
 /** 
@@ -62,7 +61,7 @@ public class AccessResolverFactory {
     throws  IllegalArgumentException
   {
     return getInstance(
-             session, (AccessAdapter) Realize.instantiate( GrouperConfig.getProperty(ApiConfig.ACCESS_PRIVILEGE_INTERFACE ) )
+             session, (AccessAdapter) Realize.instantiate( GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.ACCESS_PRIVILEGE_INTERFACE ) )
            )
            ;
   }

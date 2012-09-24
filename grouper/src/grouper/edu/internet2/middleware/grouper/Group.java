@@ -2394,7 +2394,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    */
   @SuppressWarnings("unused")
   private String _internal_getAttributeBuiltIn(String attr) {
-    if (GrouperConfig.getPropertyBoolean("groups.allow.attribute.access.1.4", false)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("groups.allow.attribute.access.1.4", false)) {
       
       if (StringUtils.equals(FIELD_NAME, attr)) {
         return this.getName();
@@ -2440,7 +2440,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     }
     //Subject currentSubject = GrouperSession.staticGrouperSession().getSubject();
     
-    //if (GrouperConfig.getPropertyBoolean("groups.allow.attribute.access.1.4", false)) {
+    //if (GrouperConfig.retrieveConfig().propertyValueBoolean("groups.allow.attribute.access.1.4", false)) {
     //
     //  boolean canReadGroup = this.hasRead(currentSubject);
     //  boolean canViewGroup = this.hasView(currentSubject);
@@ -4358,7 +4358,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                 }
               }              
         //      if (_internal_fieldAttribute(attr)) {
-        //        if (GrouperConfig.getPropertyBoolean("groups.allow.attribute.access.1.4", false)) {
+        //        if (GrouperConfig.retrieveConfig().propertyValueBoolean("groups.allow.attribute.access.1.4", false)) {
         //          
         //          if (StringUtils.equals(FIELD_NAME, attr)) {
         //            this.setName(value);
@@ -5140,7 +5140,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   @Deprecated
   public Map<String, String> getAttributesDb() {
 
-//      if (GrouperConfig.getPropertyBoolean("groups.allow.attribute.access.1.4", false)) {
+//      if (GrouperConfig.retrieveConfig().propertyValueBoolean("groups.allow.attribute.access.1.4", false)) {
 //        
 //        String theName = this.getName();
 //        if (!StringUtils.isBlank(theName)) {

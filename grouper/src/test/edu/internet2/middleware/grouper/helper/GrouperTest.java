@@ -53,7 +53,6 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
@@ -108,8 +107,8 @@ public class GrouperTest extends TestCase {
     testing = true;
     
     //I believe this needs to be here before Grouper starts up
-    ApiConfig.testConfig.put("externalSubjects.autoCreateSource", "true");
-    ApiConfig.testConfig.put("externalSubject.sourceId", "grouperExternal");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.autoCreateSource", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubject.sourceId", "grouperExternal");
 
     //let the database release...
     GrouperStartup.startup();
@@ -618,86 +617,86 @@ public class GrouperTest extends TestCase {
     GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.JUNIT, false, true);
     
     //remove any settings in testconfig
-    ApiConfig.testConfig.clear();
-    GrouperLoaderConfig.testConfig.clear();
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().clear();
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().clear();
 
     for (int i=0;i<20;i++) {
-      ApiConfig.testConfig.put("configuration.autocreate.group.name." + i, null);
-      ApiConfig.testConfig.put("configuration.autocreate.group.description." + i, null);
-      ApiConfig.testConfig.put("configuration.autocreate.group.subjects." + i, null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("configuration.autocreate.group.name." + i, null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("configuration.autocreate.group.description." + i, null);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("configuration.autocreate.group.subjects." + i, null);
     }
 
     //set grouper.example.properties stuff...
-    ApiConfig.testConfig.put("groups.create.grant.all.admin", "false");
-    ApiConfig.testConfig.put("groups.create.grant.all.optin", "false");
-    ApiConfig.testConfig.put("groups.create.grant.all.optout", "false");
-    ApiConfig.testConfig.put("groups.create.grant.all.read", "true");
-    ApiConfig.testConfig.put("groups.create.grant.all.update", "false");
-    ApiConfig.testConfig.put("groups.create.grant.all.view", "true");
-    ApiConfig.testConfig.put("stems.create.grant.all.create", "false");
-    ApiConfig.testConfig.put("stems.create.grant.all.stem", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrAdmin", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrOptin", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrOptout", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrRead", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrUpdate", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrView", "false");
-    ApiConfig.testConfig.put("entities.create.grant.all.view", "false");
-    ApiConfig.testConfig.put("groups.wheel.use", "false");
-    ApiConfig.testConfig.put("groups.wheel.group", "etc:sysadmingroup");
-    ApiConfig.testConfig.put("subject.internal.grouperall.name", "EveryEntity");
-    ApiConfig.testConfig.put("subject.internal.groupersystem.name", "GrouperSysAdmin");
-    ApiConfig.testConfig.put("internalSubjects.searchAttribute0.el", "${subject.name},${subject.id}");
-    ApiConfig.testConfig.put("internalSubjects.sortAttribute0.el", "${subject.name}");
-    ApiConfig.testConfig.put("security.types.grouperLoader.wheelOnly", "true");
-    ApiConfig.testConfig.put("security.types.grouperGroupMembershipSettings.wheelOnly", "true");
-    ApiConfig.testConfig.put("security.stem.groupAllowedToMoveStem", null);
-    ApiConfig.testConfig.put("security.stem.groupAllowedToRenameStem", null);
-    ApiConfig.testConfig.put("security.stem.groupAllowedToCopyStem", null);
-    ApiConfig.testConfig.put("member.search.defaultIndexOrder", "0");
-    ApiConfig.testConfig.put("member.sort.defaultIndexOrder", "0");
-    ApiConfig.testConfig.put("grouperIncludeExclude.use", "false");
-    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroups.use", "false");
-    ApiConfig.testConfig.put("subjects.allPage.useThreadForkJoin", "false");
-    ApiConfig.testConfig.put("subjects.idOrIdentifier.useThreadForkJoin", "false");
-    ApiConfig.testConfig.put("subjects.group.useCreatorAndModifierAsSubjectAttributes", "true");
-    ApiConfig.testConfig.put("subjects.customizer.className", null);
-    ApiConfig.testConfig.put("subjects.startRootSessionIfOneIsntStarted", "false");
-    ApiConfig.testConfig.put("hooks.attribute.class", null);
-    ApiConfig.testConfig.put("hooks.attributeDef.class", null);
-    ApiConfig.testConfig.put("hooks.attributeDefName.class", null);
-    ApiConfig.testConfig.put("hooks.attributeAssign.class", null);
-    ApiConfig.testConfig.put("hooks.attributeAssignValue.class", null);
-    ApiConfig.testConfig.put("hooks.group.class", null);
-    ApiConfig.testConfig.put("hooks.lifecycle.class", null);
-    ApiConfig.testConfig.put("hooks.membership.class", null);
-    ApiConfig.testConfig.put("hooks.member.class", null);
-    ApiConfig.testConfig.put("hooks.stem.class", null);
-    ApiConfig.testConfig.put("hooks.composite.class", null);
-    ApiConfig.testConfig.put("hooks.field.class", null);
-    ApiConfig.testConfig.put("hooks.grouperSession.class", null);
-    ApiConfig.testConfig.put("hooks.groupType.class", null);
-    ApiConfig.testConfig.put("hooks.groupTypeTuple.class", null);
-    ApiConfig.testConfig.put("hooks.loader.class", null);
-    ApiConfig.testConfig.put("hooks.externalSubject.class", null);
-    ApiConfig.testConfig.put("rules.act.as.group", null);
-    ApiConfig.testConfig.put("rules.accessToApiInEl.group", null);
-    ApiConfig.testConfig.put("rules.act.as.cache.minutes", "30");
-    ApiConfig.testConfig.put("rules.customElClasses", null);
-    ApiConfig.testConfig.put("rules.allowActAsGrouperSystemForInheritedStemPrivileges", null); 
-    ApiConfig.testConfig.put("rules.emailTemplatesFolder", null);
-    ApiConfig.testConfig.put("group.attribute.validator.attributeName.0", null);
-    ApiConfig.testConfig.put("group.attribute.validator.regex.0", null);
-    ApiConfig.testConfig.put("group.attribute.validator.vetoMessage.0", null);
-    ApiConfig.testConfig.put("changeLog.enabled", "true");
-    ApiConfig.testConfig.put("groups.updateLastImmediateMembershipTime", "false");
-    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "false");
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "false");
-    ApiConfig.testConfig.put("grouper.api.readonly", "false");
-    ApiConfig.testConfig.put("membershipUpdateLiteTypeAutoCreate", "false");
-    ApiConfig.testConfig.put("grouper.attribute.rootStem", "etc:attribute");
-    ApiConfig.testConfig.put("grouper.attribute.loader.autoconfigure", "true");
-    ApiConfig.testConfig.put("grouper.permissions.limits.builtin.createAs.public", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.admin", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.optin", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.optout", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.update", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.create.grant.all.create", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.create.grant.all.stem", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrAdmin", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrOptin", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrOptout", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrRead", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrUpdate", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrView", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("entities.create.grant.all.view", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.group", "etc:sysadmingroup");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subject.internal.grouperall.name", "EveryEntity");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subject.internal.groupersystem.name", "GrouperSysAdmin");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.searchAttribute0.el", "${subject.name},${subject.id}");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.sortAttribute0.el", "${subject.name}");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.types.grouperLoader.wheelOnly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.types.grouperGroupMembershipSettings.wheelOnly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.stem.groupAllowedToMoveStem", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.stem.groupAllowedToRenameStem", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.stem.groupAllowedToCopyStem", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("member.search.defaultIndexOrder", "0");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("member.sort.defaultIndexOrder", "0");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.use", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.requireGroups.use", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subjects.allPage.useThreadForkJoin", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subjects.idOrIdentifier.useThreadForkJoin", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subjects.group.useCreatorAndModifierAsSubjectAttributes", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subjects.customizer.className", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subjects.startRootSessionIfOneIsntStarted", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.attribute.class", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.attributeDef.class", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.attributeDefName.class", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.attributeAssign.class", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.attributeAssignValue.class", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.group.class", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.lifecycle.class", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.membership.class", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.member.class", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.stem.class", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.composite.class", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.field.class", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.grouperSession.class", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.groupType.class", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.groupTypeTuple.class", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.loader.class", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("hooks.externalSubject.class", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.act.as.group", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.accessToApiInEl.group", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.act.as.cache.minutes", "30");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.customElClasses", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.allowActAsGrouperSystemForInheritedStemPrivileges", null); 
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.emailTemplatesFolder", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("group.attribute.validator.attributeName.0", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("group.attribute.validator.regex.0", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("group.attribute.validator.vetoMessage.0", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.enabled", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.api.readonly", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("membershipUpdateLiteTypeAutoCreate", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.rootStem", "etc:attribute");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.loader.autoconfigure", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.permissions.limits.builtin.createAs.public", "true");
 
     setupConfigs();
     
@@ -705,11 +704,11 @@ public class GrouperTest extends TestCase {
     GrouperTest.initGroupsAndAttributes();
 
 
-    GrouperLoaderConfig.testConfig.put("default.subject.source.id", null);
-    ApiConfig.testConfig.put("configuration.autocreate.system.groups", "false");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("default.subject.source.id", null);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("configuration.autocreate.system.groups", "false");
     
     //dont send emails
-    ApiConfig.testConfig.put("mail.smtp.server", "testing");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("mail.smtp.server", "testing");
     
     GrouperEmail.testingEmails().clear();
 
@@ -846,51 +845,51 @@ public class GrouperTest extends TestCase {
    * 
    */
   public void setupTestConfigForIncludeExclude() {
-    ApiConfig.testConfig.put("grouperIncludeExclude.use", "true");
-    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroups.use", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.use", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.requireGroups.use", "true");
   
-    ApiConfig.testConfig.put("grouperIncludeExclude.type.name", "addIncludeExclude");
-    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroups.type.name", "requireInGroups");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.type.name", "addIncludeExclude");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.requireGroups.type.name", "requireInGroups");
   
-    ApiConfig.testConfig.put("grouperIncludeExclude.tooltip", "Select this type to auto-create other groups which facilitate having include and exclude list, and setting up group math so that other groups can be required (e.g. activeEmployee)");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.tooltip", "Select this type to auto-create other groups which facilitate having include and exclude list, and setting up group math so that other groups can be required (e.g. activeEmployee)");
   
-    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroups.attributeName", "requireAlsoInGroups");
-    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroups.tooltip", "Enter in comma separated group path(s).  An entity must be in these groups for it to be in the overall group.  e.g. stem1:stem2:group1, stem1:stem3:group2");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.requireGroups.attributeName", "requireAlsoInGroups");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.requireGroups.tooltip", "Enter in comma separated group path(s).  An entity must be in these groups for it to be in the overall group.  e.g. stem1:stem2:group1, stem1:stem3:group2");
   
-    ApiConfig.testConfig.put("grouperIncludeExclude.systemOfRecord.extension.suffix", "_systemOfRecord");
-    ApiConfig.testConfig.put("grouperIncludeExclude.include.extension.suffix", "_includes");
-    ApiConfig.testConfig.put("grouperIncludeExclude.exclude.extension.suffix", "_excludes");
-    ApiConfig.testConfig.put("grouperIncludeExclude.systemOfRecordAndIncludes.extension.suffix", "_systemOfRecordAndIncludes");
-    ApiConfig.testConfig.put("grouperIncludeExclude.includesMinusExcludes.extension.suffix", "_includesMinusExcludes");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.systemOfRecord.extension.suffix", "_systemOfRecord");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.include.extension.suffix", "_includes");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.exclude.extension.suffix", "_excludes");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.systemOfRecordAndIncludes.extension.suffix", "_systemOfRecordAndIncludes");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.includesMinusExcludes.extension.suffix", "_includesMinusExcludes");
   
-    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroups.extension.suffix", "_requireGroups${i}");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.requireGroups.extension.suffix", "_requireGroups${i}");
   
-    ApiConfig.testConfig.put("grouperIncludeExclude.systemOfRecord.displayExtension.suffix", "${space}system of record");
-    ApiConfig.testConfig.put("grouperIncludeExclude.include.displayExtension.suffix", "${space}includes");
-    ApiConfig.testConfig.put("grouperIncludeExclude.exclude.displayExtension.suffix", "${space}excludes");
-    ApiConfig.testConfig.put("grouperIncludeExclude.systemOfRecordAndIncludes.displayExtension.suffix", "${space}system of record and includes");
-    ApiConfig.testConfig.put("grouperIncludeExclude.includesMinusExcludes.displayExtension.suffix", "${space}includes minus excludes");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.systemOfRecord.displayExtension.suffix", "${space}system of record");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.include.displayExtension.suffix", "${space}includes");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.exclude.displayExtension.suffix", "${space}excludes");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.systemOfRecordAndIncludes.displayExtension.suffix", "${space}system of record and includes");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.includesMinusExcludes.displayExtension.suffix", "${space}includes minus excludes");
   
-    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroups.displayExtension.suffix", "${space}includes minus exludes minus andGroup${i}");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.requireGroups.displayExtension.suffix", "${space}includes minus exludes minus andGroup${i}");
   
-    ApiConfig.testConfig.put("grouperIncludeExclude.overall.description", "Group containing list of ${displayExtension} after adding the includes and subtracting the excludes");
-    ApiConfig.testConfig.put("grouperIncludeExclude.systemOfRecord.description", "Group containing list of ${displayExtension} (generally straight from the system of record) without yet considering manual include or exclude lists");
-    ApiConfig.testConfig.put("grouperIncludeExclude.include.description", "Group containing manual list of includes for group ${displayExtension} which will be added to the system of record list (unless the subject is also in the excludes group)");
-    ApiConfig.testConfig.put("grouperIncludeExclude.exclude.description", "Group containing manual list of excludes for group ${displayExtension} which will not be in the overall group");
-    ApiConfig.testConfig.put("grouperIncludeExclude.systemOfRecordAndIncludes.description", "Internal utility group for group ${displayExtension} which facilitates the group math for the include and exclude lists");
-    ApiConfig.testConfig.put("grouperIncludeExclude.includesMinusExclude.description", "Internal utility group for group ${displayExtension} which facilitates includes, excludes, and required groups (e.g. activeEmployee)");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.overall.description", "Group containing list of ${displayExtension} after adding the includes and subtracting the excludes");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.systemOfRecord.description", "Group containing list of ${displayExtension} (generally straight from the system of record) without yet considering manual include or exclude lists");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.include.description", "Group containing manual list of includes for group ${displayExtension} which will be added to the system of record list (unless the subject is also in the excludes group)");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.exclude.description", "Group containing manual list of excludes for group ${displayExtension} which will not be in the overall group");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.systemOfRecordAndIncludes.description", "Internal utility group for group ${displayExtension} which facilitates the group math for the include and exclude lists");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.includesMinusExclude.description", "Internal utility group for group ${displayExtension} which facilitates includes, excludes, and required groups (e.g. activeEmployee)");
   
-    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroups.description", "Internal utility group for group ${displayExtension} which facilitates includes, excludes, and required groups (e.g. activeEmployee)");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.requireGroups.description", "Internal utility group for group ${displayExtension} which facilitates includes, excludes, and required groups (e.g. activeEmployee)");
   
-    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroup.name.0", "requireActiveEmployee");
-    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroup.attributeOrType.0", "attribute");
-    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroup.group.0", "aStem:activeEmployee");
-    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroup.description.0", "If value is true, members of the overall group must be an active employee (in the aStem:activeEmployee group).  Otherwise, leave this value not filled in.");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.requireGroup.name.0", "requireActiveEmployee");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.requireGroup.attributeOrType.0", "attribute");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.requireGroup.group.0", "aStem:activeEmployee");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.requireGroup.description.0", "If value is true, members of the overall group must be an active employee (in the aStem:activeEmployee group).  Otherwise, leave this value not filled in.");
   
-    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroup.name.1", "requireActiveStudent");
-    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroup.attributeOrType.1", "type");
-    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroup.group.1", "aStem:activeStudent");
-    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroup.description.1", "If value is true, members of the overall group must be an active student (in the aStem:activeStudent group).  Otherwise, leave this value not filled in.");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.requireGroup.name.1", "requireActiveStudent");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.requireGroup.attributeOrType.1", "type");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.requireGroup.group.1", "aStem:activeStudent");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.requireGroup.description.1", "If value is true, members of the overall group must be an active student (in the aStem:activeStudent group).  Otherwise, leave this value not filled in.");
   }
 
   /** see if we are testing */

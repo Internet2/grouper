@@ -20,9 +20,6 @@ package edu.internet2.middleware.grouper.ws;
 
 import java.util.Properties;
 
-import org.apache.commons.lang.StringUtils;
-
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 
@@ -33,6 +30,13 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
  * 
  */
 public final class GrouperWsConfig extends ConfigPropertiesCascadeBase {
+
+  /**
+   * use the factory
+   */
+  private GrouperWsConfig() {
+    
+  }
 
   /**
    * retrieve a config from the config file or from cache

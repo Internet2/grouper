@@ -118,7 +118,7 @@ public class PrivilegeHelper {
 
     //if there are more than 2000, forget it, leave them lazy
     if (!resolveAllAlways 
-        && GrouperUtil.length(privilegesNeedResolved) > GrouperConfig.getPropertyInt("memberLengthAboveWhichDontResolveBatch", 2000)) {
+        && GrouperUtil.length(privilegesNeedResolved) > GrouperConfig.retrieveConfig().propertyValueInt("memberLengthAboveWhichDontResolveBatch", 2000)) {
       return;
     }
     
@@ -796,8 +796,8 @@ public class PrivilegeHelper {
       return false;
     }
     
-    if ( Boolean.valueOf( GrouperConfig.getProperty( GrouperConfig.PROP_USE_WHEEL_GROUP ) ).booleanValue() ) {
-      String name = GrouperConfig.getProperty( GrouperConfig.PROP_WHEEL_GROUP );
+    if ( Boolean.valueOf( GrouperConfig.retrieveConfig().propertyValueString( GrouperConfig.PROP_USE_WHEEL_GROUP ) ).booleanValue() ) {
+      String name = GrouperConfig.retrieveConfig().propertyValueString( GrouperConfig.PROP_WHEEL_GROUP );
       try {
         // goodbye, performance
         Group wheel = GroupFinder.findByName( s.internal_getRootSession(), name, true );
@@ -825,8 +825,8 @@ public class PrivilegeHelper {
       return false;
     }
     
-    if (GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_USE_WHEEL_GROUP, false)) {
-      String name = GrouperConfig.getProperty( GrouperConfig.PROP_WHEEL_GROUP );
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean(GrouperConfig.PROP_USE_WHEEL_GROUP, false)) {
+      String name = GrouperConfig.retrieveConfig().propertyValueString( GrouperConfig.PROP_WHEEL_GROUP );
       try {
         Group wheel = GroupFinder.findByName( GrouperSession.staticGrouperSession().internal_getRootSession(), name, true );
         return wheel.hasMember(subject);
@@ -843,8 +843,7 @@ public class PrivilegeHelper {
    * @return boolean
    */
   public static boolean canMoveStems(Subject subject) {
-    String allowedGroupName = GrouperConfig
-        .getProperty("security.stem.groupAllowedToMoveStem");
+    String allowedGroupName = GrouperConfig.retrieveConfig().propertyValueString("security.stem.groupAllowedToMoveStem");
     if (StringUtils.isNotBlank(allowedGroupName) && !isWheelOrRoot(subject)) {
 
       Group allowedGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession()
@@ -862,8 +861,7 @@ public class PrivilegeHelper {
    * @return boolean
    */
   public static boolean canCopyStems(Subject subject) {
-    String allowedGroupName = GrouperConfig
-        .getProperty("security.stem.groupAllowedToCopyStem");
+    String allowedGroupName = GrouperConfig.retrieveConfig().propertyValueString("security.stem.groupAllowedToCopyStem");
     if (StringUtils.isNotBlank(allowedGroupName) && !isWheelOrRoot(subject)) {
 
       Group allowedGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession()
@@ -881,8 +879,7 @@ public class PrivilegeHelper {
    * @return boolean
    */
   public static boolean canRenameStems(Subject subject) {
-    String allowedGroupName = GrouperConfig
-        .getProperty("security.stem.groupAllowedToRenameStem");
+    String allowedGroupName = GrouperConfig.retrieveConfig().propertyValueString("security.stem.groupAllowedToRenameStem");
     if (StringUtils.isNotBlank(allowedGroupName) && !isWheelOrRoot(subject)) {
 
       Group allowedGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession()

@@ -44,6 +44,7 @@ import org.hibernate.cfg.Configuration;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.hooks.LifecycleHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleHibInitBean;
@@ -104,7 +105,7 @@ public abstract class Hib3DAO {
 
     try {
       // Find the custom configuration file
-      Properties  p   = GrouperUtil.propertiesFromResourceName(GrouperConfig.HIBERNATE_CF);
+      Properties  p   = GrouperHibernateConfig.retrieveConfig().properties();
       
       //unencrypt pass
       if (p.containsKey("hibernate.connection.password")) {
@@ -268,7 +269,7 @@ public abstract class Hib3DAO {
       }
       
       //if versioned, then see if we are disabling
-      boolean optimisiticLocking = GrouperConfig.getPropertyBoolean("dao.optimisticLocking", true);
+      boolean optimisiticLocking = GrouperConfig.retrieveConfig().propertyValueBoolean("dao.optimisticLocking", true);
       
       if (!optimisiticLocking) {
         xml = StringUtils.replace(xml, optimisiticLockVersion, "optimistic-lock=\"none\"");

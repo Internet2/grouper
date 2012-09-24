@@ -333,7 +333,7 @@ public class Hib3PITAttributeAssignDAO extends Hib3DAO implements PITAttributeAs
     
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(attributeAssignsSize, 100);
 
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findAttrAssignments.maxResultSize", 30000);
 
     for (int i = 0; i < numberOfBatches; i++) {
       

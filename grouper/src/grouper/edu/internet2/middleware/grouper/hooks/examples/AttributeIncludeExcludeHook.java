@@ -79,7 +79,7 @@ public class AttributeIncludeExcludeHook extends AttributeHooks {
    * @param summaryForLog summary for log message
    */
   public static void manageIncludesExcludesAndGroups(HooksAttributeBean postInsertBean, String summaryForLog) {
-    boolean useGrouperRequireGroups = GrouperConfig.getPropertyBoolean("grouperIncludeExclude.requireGroups.use", false);
+    boolean useGrouperRequireGroups = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperIncludeExclude.requireGroups.use", false);
     
     if (!useGrouperRequireGroups) {
       return;
@@ -90,7 +90,7 @@ public class AttributeIncludeExcludeHook extends AttributeHooks {
     Field attributeField = FieldFinder.findById(attribute.getFieldId(), true);
     
     //make sure this is the right type
-    String requireGroupsTypeName = GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.type.name");
+    String requireGroupsTypeName = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroups.type.name");
 
     String groupUuid = attribute.getGroupUuid();
 

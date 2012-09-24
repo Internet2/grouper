@@ -417,7 +417,7 @@ public class GrouperLoaderResultset {
           + hib3GrouperLoaderLog.getJobName());
     }
 
-    boolean requireTopStemAsStemFromConfigGroup = GrouperLoaderConfig.getPropertyBoolean(
+    boolean requireTopStemAsStemFromConfigGroup = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
         "loader.ldap.requireTopStemAsStemFromConfigGroup", true);
     
     String groupParentFolderNameTemp = requireTopStemAsStemFromConfigGroup ? (GrouperUtil.parentStemNameFromName(groupName) + ":") : "";
@@ -678,7 +678,7 @@ public class GrouperLoaderResultset {
           + hib3GrouperLoaderLog.getJobName());
     }
 
-    boolean requireTopStemAsStemFromConfigGroup = GrouperLoaderConfig.getPropertyBoolean(
+    boolean requireTopStemAsStemFromConfigGroup = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
         "loader.ldap.requireTopStemAsStemFromConfigGroup", true);
 
     String groupParentFolderNameTemp = requireTopStemAsStemFromConfigGroup ? (GrouperUtil.parentStemNameFromName(overallGroupName) + ":") : "";
@@ -1084,7 +1084,7 @@ public class GrouperLoaderResultset {
       String subjectSourceId = (String) this.getCell(
           GrouperLoaderResultset.SUBJECT_SOURCE_ID_COL, false);
 
-      String defaultSubjectSourceId = GrouperLoaderConfig.getPropertyString(
+      String defaultSubjectSourceId = GrouperLoaderConfig.retrieveConfig().propertyValueString(
           GrouperLoaderConfig.DEFAULT_SUBJECT_SOURCE_ID);
 
       String subjectIdForLog = null;
@@ -1348,8 +1348,8 @@ public class GrouperLoaderResultset {
   private static String defaultLdapFolder() {
     String defaultFolder = "groups:";
     
-    if (GrouperLoaderConfig.properties().containsKey("loader.ldap.defaultGroupFolder")) {
-      defaultFolder = StringUtils.defaultString(GrouperLoaderConfig.getPropertyString("loader.ldap.defaultGroupFolder", false));
+    if (GrouperLoaderConfig.retrieveConfig().properties().containsKey("loader.ldap.defaultGroupFolder")) {
+      defaultFolder = StringUtils.defaultString(GrouperLoaderConfig.retrieveConfig().propertyValueString("loader.ldap.defaultGroupFolder"));
       if (!StringUtils.isBlank(defaultFolder) && !defaultFolder.endsWith(":")) {
         defaultFolder += ":";
       }

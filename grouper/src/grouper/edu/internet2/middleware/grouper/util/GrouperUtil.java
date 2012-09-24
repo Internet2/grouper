@@ -115,6 +115,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.exception.ExpressionLanguageMissingVariableException;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
@@ -969,7 +970,7 @@ public class GrouperUtil {
    */
   public static boolean injectInException(Throwable t, String message) {
     
-    String throwableFieldName = GrouperConfig.getProperty("throwable.data.field.name");
+    String throwableFieldName = GrouperConfig.retrieveConfig().propertyValueString("throwable.data.field.name");
     
     if (isBlank(throwableFieldName)) {
       //this is the field for sun java 1.5
@@ -1001,7 +1002,7 @@ public class GrouperUtil {
   public static boolean findGrouperPropertiesDbMatch(boolean whitelist, String user, String url) {
 
     //lets check the whitelist and blacklist first
-    Properties grouperProperties = propertiesFromResourceName("grouper.properties");
+    Properties grouperProperties = GrouperConfig.retrieveConfig().properties();
 
     //check blacklist
     //db.change.deny.user.0=
@@ -1048,7 +1049,7 @@ public class GrouperUtil {
    */
   public static void promptUserAboutDbChanges(String reason, boolean checkResponse) {
     
-    Properties grouperHibernateProperties = propertiesFromResourceName("grouper.hibernate.properties");
+    Properties grouperHibernateProperties = GrouperHibernateConfig.retrieveConfig().properties();
     
     String url = trim(grouperHibernateProperties.getProperty("hibernate.connection.url"));
     String user = trim(grouperHibernateProperties.getProperty("hibernate.connection.username"));
@@ -9530,98 +9531,6 @@ public class GrouperUtil {
   }
 
   /**
-   * make sure a value exists in properties
-   * @param resourceName
-   * @param key
-   * @return true if ok, false if not
-   */
-  public static boolean propertyValueRequired(String resourceName, String key) {
-    Properties properties = propertiesFromResourceName(resourceName);
-    String value = propertiesValue(properties, key);
-    if (!StringUtils.isBlank(value)) {
-      return true;
-    }
-    String error = "Cant find property " + key + " in resource: " + resourceName + ", it is required";
-    System.err.println("Grouper error: " + error);
-    LOG.error(error);
-    return false;
-  }
-
-  /**
-   * make sure a value is boolean in properties
-   * @param resourceName
-   * @param key
-   * @param required
-   * @return true if ok, false if not
-   */
-  public static boolean propertyValueBoolean(String resourceName, String key, boolean required) {
-    
-    if (required && !propertyValueRequired(resourceName, key)) {
-      return false;
-    }
-  
-    Properties properties = propertiesFromResourceName(resourceName);
-    String value = propertiesValue(properties, key);
-    //maybe ok not there
-    if (!required && StringUtils.isBlank(value)) {
-      return true;
-    }
-    try {
-      booleanValue(value);
-      return true;
-    } catch (Exception e) {
-      
-    }
-    String error = "Expecting true or false property " + key + " in resource: " + resourceName + ", but is '" + value + "'";
-    System.err.println("Grouper error: " + error);
-    LOG.error(error);
-    return false;
-  }
-
-  /**
-   * make sure a property is a class of a certain type
-   * @param resourceName
-   * @param key
-   * @param classType
-   * @param required 
-   * @return true if ok
-   */
-  public static boolean propertyValueClass(String resourceName, 
-      String key, Class<?> classType, boolean required) {
-  
-    if (required && !propertyValueRequired(resourceName, key)) {
-      return false;
-    }
-    Properties properties = propertiesFromResourceName(resourceName);
-    String value = propertiesValue(properties, key);
-  
-    //maybe ok not there
-    if (!required && StringUtils.isBlank(value)) {
-      return true;
-    }
-    
-    String extraError = "";
-    try {
-      
-      
-      Class<?> theClass = forName(value);
-      if (classType.isAssignableFrom(theClass)) {
-        return true;
-      }
-      extraError = " does not derive from class: " + classType.getSimpleName();
-      
-    } catch (Exception e) {
-      extraError = ", " + ExceptionUtils.getFullStackTrace(e);
-    }
-    String error = "Cant process property " + key + " in resource: " + resourceName + ", the current" +
-        " value is '" + value + "', which should be of type: " 
-        + classType.getName() + extraError;
-    System.err.println("Grouper error: " + error);
-    LOG.error(error);
-    return false;
-  }
-  
-  /**
    * <p>Strips any of a set of characters from the start of a String.</p>
    *
    * <p>A <code>null</code> input String returns <code>null</code>.
@@ -11356,7 +11265,7 @@ public class GrouperUtil {
     
     String tmpDir = null;
 
-    tmpDir = GrouperConfig.getProperty("grouper.tmp.dir");
+    tmpDir = GrouperConfig.retrieveConfig().propertyValueString("grouper.tmp.dir");
     if (isBlank(tmpDir)) {
       tmpDir = ORIGINAL_TMP_DIR;
       if (isBlank(tmpDir)) {

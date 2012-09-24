@@ -300,13 +300,13 @@ public class GrouperLoader {
     //schedule the log delete job
     try {
       
-      if (!GrouperLoaderConfig.getPropertyBoolean("changeLog.changeLogTempToChangeLog.enable", false)) {
+      if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.changeLogTempToChangeLog.enable", false)) {
         LOG.warn("grouper-loader.properties key: changeLog.changeLogTempToChangeLog.enable is not " +
           "filled in or false so the change log temp to change log daemon will not run");
         return;
       }
       
-      cronString = GrouperLoaderConfig.getPropertyString("changeLog.changeLogTempToChangeLog.quartz.cron");
+      cronString = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.changeLogTempToChangeLog.quartz.cron");
 
       if (StringUtils.isBlank(cronString)) {
         cronString = "50 * * * * ?";
@@ -365,7 +365,7 @@ public class GrouperLoader {
     //changeLog.consumer.ldappc.quartz.cron
     
     //make sure sequences are ok
-    Map<String, String> consumerMap = GrouperCheckConfig.retrievePropertiesKeys("grouper-loader.properties", 
+    Map<String, String> consumerMap = GrouperLoaderConfig.retrieveConfig().propertiesMap( 
         GrouperCheckConfig.grouperLoaderConsumerPattern);
     
     int index = 0;
@@ -479,7 +479,7 @@ public class GrouperLoader {
     //schedule the job
     try {
       
-      cronString = GrouperLoaderConfig.getPropertyString("daily.report.quartz.cron");
+      cronString = GrouperLoaderConfig.retrieveConfig().propertyValueString("daily.report.quartz.cron");
 
       if (StringUtils.isBlank(cronString)) {
         LOG.warn("grouper-loader.properties key: daily.report.quartz.cron is not " +
@@ -543,13 +543,13 @@ public class GrouperLoader {
     //schedule the job
     try {
 
-      if (!GrouperConfig.getPropertyBoolean("rules.enable", true)) {
+      if (!GrouperConfig.retrieveConfig().propertyValueBoolean("rules.enable", true)) {
         LOG.warn("grouper.properties key: rules.enable is false " +
           "so the rules engine/daemon will not run");
         return;
       }
 
-      cronString = GrouperLoaderConfig.getPropertyString("rules.quartz.cron");
+      cronString = GrouperLoaderConfig.retrieveConfig().propertyValueString("rules.quartz.cron");
 
       if (StringUtils.isBlank(cronString)) {
         LOG.warn("grouper-loader.properties key: rules.quartz.cron is not " +
@@ -615,7 +615,7 @@ public class GrouperLoader {
     //schedule the job
     try {
       
-      cronString = GrouperLoaderConfig.getPropertyString("changeLog.enabledDisabled.quartz.cron");
+      cronString = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.enabledDisabled.quartz.cron");
 
       if (StringUtils.isBlank(cronString)) {
         LOG.warn("grouper-loader.properties key: changeLog.enabledDisabled.quartz.cron is not " +
@@ -679,7 +679,7 @@ public class GrouperLoader {
     //schedule the job
     try {
       
-      cronString = GrouperLoaderConfig.getPropertyString("externalSubjects.calc.fields.cron");
+      cronString = GrouperLoaderConfig.retrieveConfig().propertyValueString("externalSubjects.calc.fields.cron");
 
       if (StringUtils.isBlank(cronString)) {
         LOG.info("grouper.properties key: externalSubjects.calc.fields.cron is not " +
@@ -801,26 +801,26 @@ public class GrouperLoader {
     // String cronString = "15 55 13 * * ?";
     //cronString = cal.getTime().getSeconds() + " " + cal.getTime().getMinutes() + " " + cal.getTime().getHours() + " * * ?"; 
     //System.out.println(cronString);
-    boolean runEsbHttpListener = GrouperLoaderConfig.getPropertyBoolean(
+    boolean runEsbHttpListener = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
         "esb.listeners.http.enable", false);
     if (runEsbHttpListener) {
       LOG.info("Starting experimental HTTP(S) listener");
       try {
-        String port = GrouperLoaderConfig.getPropertyString("esb.listeners.http.port",
+        String port = GrouperLoaderConfig.retrieveConfig().propertyValueString("esb.listeners.http.port",
             "8080");
-        String bindAddress = GrouperLoaderConfig.getPropertyString(
+        String bindAddress = GrouperLoaderConfig.retrieveConfig().propertyValueString(
             "esb.listeners.http.bindaddress", "127.0.0.1");
-        String authConfigFile = GrouperLoaderConfig.getPropertyString(
+        String authConfigFile = GrouperLoaderConfig.retrieveConfig().propertyValueString(
             "esb.listeners.http.authConfigFile", "");
-        String sslKeystore = GrouperLoaderConfig.getPropertyString(
+        String sslKeystore = GrouperLoaderConfig.retrieveConfig().propertyValueString(
             "esb.listeners.http.ssl.keystore", "");
-        String sslKeyPassword = GrouperLoaderConfig.getPropertyString(
+        String sslKeyPassword = GrouperLoaderConfig.retrieveConfig().propertyValueString(
             "esb.listeners.http.ssl.keyPassword", "");
-        String sslTrustStore = GrouperLoaderConfig.getPropertyString(
+        String sslTrustStore = GrouperLoaderConfig.retrieveConfig().propertyValueString(
             "esb.listeners.http.ssl.trustStore", "");
-        String sslTrustPassword = GrouperLoaderConfig.getPropertyString(
+        String sslTrustPassword = GrouperLoaderConfig.retrieveConfig().propertyValueString(
             "esb.listeners.http.ssl.trustPassword", "");
-        String sslPassword = GrouperLoaderConfig.getPropertyString(
+        String sslPassword = GrouperLoaderConfig.retrieveConfig().propertyValueString(
             "esb.listeners.http.ssl.password", "");
         //at this point we have all the attributes and we know the required ones are there, and logged when 
         //forbidden ones are there
@@ -876,32 +876,32 @@ public class GrouperLoader {
       LOG.info("Not starting experimental HTTP(S) listener");
     }
 
-    boolean runEsbHXmppListener = GrouperLoaderConfig.getPropertyBoolean(
+    boolean runEsbHXmppListener = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
         "esb.listeners.xmpp.enable", false);
     if (runEsbHXmppListener) {
       LOG.info("Starting experimental XMPP listener");
       try {
 
-        String server = GrouperLoaderConfig.getPropertyString(
+        String server = GrouperLoaderConfig.retrieveConfig().propertyValueString(
             "esb.listeners.xmpp.server", "");
         if (server.equals("")) {
           LOG.warn("XMPP server must be configured in grouper-loader.properties");
         }
-        String port = GrouperLoaderConfig.getPropertyString("esb.listeners.xmpp.port",
+        String port = GrouperLoaderConfig.retrieveConfig().propertyValueString("esb.listeners.xmpp.port",
             "5222");
-        String username = GrouperLoaderConfig.getPropertyString(
+        String username = GrouperLoaderConfig.retrieveConfig().propertyValueString(
             "esb.listeners.xmpp.username", "");
         if (username.equals("")) {
           LOG.warn("XMPP username must be configured in grouper-loader.properties");
         }
-        String password = GrouperLoaderConfig.getPropertyString(
+        String password = GrouperLoaderConfig.retrieveConfig().propertyValueString(
             "esb.listeners.xmpp.password", "");
         if (password.equals("")) {
           LOG.warn("XMPP password must be configured in grouper-loader.properties");
         }
-        String sendername = GrouperLoaderConfig.getPropertyString(
+        String sendername = GrouperLoaderConfig.retrieveConfig().propertyValueString(
             "esb.listeners.xmpp.sendername", "");
-        String resource = GrouperLoaderConfig.getPropertyString(
+        String resource = GrouperLoaderConfig.retrieveConfig().propertyValueString(
             "esb.listeners.xmpp.resource", "GrouperListener");
         if (server.equals("")) {
           LOG.warn("XMPP sendername must be configured in grouper-loader.properties");
@@ -1175,7 +1175,7 @@ public class GrouperLoader {
     //schedule the job
     try {
       
-      cronString = GrouperLoaderConfig.getPropertyString("changeLog.psp.fullSync.quartzCron");
+      cronString = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.psp.fullSync.quartzCron");
      
       if (StringUtils.isEmpty(cronString)) {
         LOG.warn("Full synchronization provisioning jobs are not scheduled. To schedule full synchronization jobs, " +
@@ -1183,7 +1183,7 @@ public class GrouperLoader {
           return;
       }
       
-      if (StringUtils.isEmpty(GrouperLoaderConfig.getPropertyString("changeLog.psp.fullSync.class"))) {
+      if (StringUtils.isEmpty(GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.psp.fullSync.class"))) {
         LOG.warn("Unable to run a full synchronization provisioning job. " +
             "Set grouper-loader.properties key 'changeLog.psp.fullSync.class' to the name of the class providing a fullSync() method.");
           return;
@@ -1243,19 +1243,19 @@ public class GrouperLoader {
   
     //schedule the job
     try {                  
-      if (StringUtils.isEmpty(GrouperLoaderConfig.getPropertyString("changeLog.psp.fullSync.runAtStartup"))) {
+      if (StringUtils.isEmpty(GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.psp.fullSync.runAtStartup"))) {
         LOG.warn("A full synchronization provisioning job will not run once at startup. To run one full synchronization job at startup, " +
             "set grouper-loader.properties key 'changeLog.psp.fullSync.runAtStartup' to 'true'.");
           return;
       }
     
-      boolean onceOnStartup = GrouperLoaderConfig.getPropertyBoolean("changeLog.psp.fullSync.runAtStartup", false);
+      boolean onceOnStartup = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.psp.fullSync.runAtStartup", false);
       
       if (!onceOnStartup) {
         return;
       }
       
-      if (StringUtils.isEmpty(GrouperLoaderConfig.getPropertyString("changeLog.psp.fullSync.class"))) {
+      if (StringUtils.isEmpty(GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.psp.fullSync.class"))) {
         LOG.warn("Unable to run a full synchronization provisioning job. " +
             "Set grouper-loader.properties key 'changeLog.psp.fullSync.class' to the name of the class providing a fullSync() method.");
           return;

@@ -302,7 +302,7 @@ public class GrouperSubject extends SubjectImpl {
     if (this.loadedModifyCreateSubjects) {
       return;
     }
-    if (GrouperConfig.getPropertyBoolean("subjects.group.useCreatorAndModifierAsSubjectAttributes", true)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("subjects.group.useCreatorAndModifierAsSubjectAttributes", true)) {
     try {
       // Don't bother with any of the create* attrs unless we can find
       // the creating subject

@@ -90,8 +90,7 @@ public class GrouperSystemAttrDefResolver extends AttributeDefResolverDecorator 
       for (Privilege p : privs) {
         //Not happy about the klass but will do for now in the absence of a GrouperSession
         if (!p.equals(AttributeDefPrivilege.ATTR_OPTIN) && !p.equals(AttributeDefPrivilege.ATTR_OPTOUT)) {
-          ap = new AttributeDefPrivilege(attributeDef, subject, subject, p, GrouperConfig
-              .getProperty("privileges.attributeDef.interface"), false, null);
+          ap = new AttributeDefPrivilege(attributeDef, subject, subject, p, GrouperConfig.retrieveConfig().propertyValueString("privileges.attributeDef.interface"), false, null);
           attributeDefPrivs.add(ap);
         }
       }

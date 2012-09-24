@@ -185,7 +185,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     //HibernateSession.bySqlStatic().executeSql("update grouper_types set type_uuid = id");
     //
     ////now convert the data
-    //ApiConfig.testConfig.put("ddlutils.dropBackupUuidCols", "false");
+    //GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ddlutils.dropBackupUuidCols", "false");
     //GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, false, null, false);
     //
     ////that should have created backup cols
@@ -210,7 +210,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     //assertEquals("whatever", groups.getAttributeValue("test1", false, true));
     //
     ////now delete the uuid cols
-    //ApiConfig.testConfig.put("ddlutils.dropBackupUuidCols", "true");
+    //GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ddlutils.dropBackupUuidCols", "true");
     //GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, false, null, false);
     //
     //try {
@@ -230,7 +230,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     //assertEquals("whatever", groups.getAttributeValue("test1", false, true));
     //
     ////get ready for final test from scratch...
-    //ApiConfig.testConfig.remove("ddlutils.dropBackupUuidCols");
+    //GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ddlutils.dropBackupUuidCols");
     //GrouperDdlUtils.everythingRightVersion = true;
     //GrouperDdlUtils.justTesting = false;
     //
@@ -260,7 +260,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     //  });
     //}
     //
-    //ApiConfig.testConfig.put("ddlutils.dropAttributeBackupTableFromGroupUpgrade", "false");
+    //GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ddlutils.dropAttributeBackupTableFromGroupUpgrade", "false");
     //
     ////lets get the first version
     //GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, false, 
@@ -315,7 +315,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     //GrouperTest.initGroupsAndAttributes();
     //
     //
-    //ApiConfig.testConfig.put("ddlutils.dropAttributeBackupTableFromGroupUpgrade", "true");
+    //GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ddlutils.dropAttributeBackupTableFromGroupUpgrade", "true");
     //
     //GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, true, null, false);
     //
@@ -329,7 +329,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     //assertTrue("at this point, hibernate should not be shut off", GrouperDdlUtils.okToUseHibernate());
     //
     ////remove the backup table
-    //ApiConfig.testConfig.remove("ddlutils.dropAttributeBackupTableFromGroupUpgrade");
+    //GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ddlutils.dropAttributeBackupTableFromGroupUpgrade");
   
   }
 
@@ -463,7 +463,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     //});
     //
     ////now convert the data
-    //ApiConfig.testConfig.put("ddlutils.dropBackupFieldNameTypeCols", "false");
+    //GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ddlutils.dropBackupFieldNameTypeCols", "false");
     //GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, false, null, false);
     //
     ////that should have created backup cols
@@ -508,7 +508,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     //assertEquals("whatever", groups.getAttributeValue("test1", false, true));
     //
     ////now delete the uuid cols
-    //ApiConfig.testConfig.put("ddlutils.dropBackupFieldNameTypeCols", "true");
+    //GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ddlutils.dropBackupFieldNameTypeCols", "true");
     //GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, false, null, false);
     //
     //try {
@@ -528,7 +528,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     //assertEquals("whatever", groups.getAttributeValue("test1", false, true));
     //
     ////get ready for final test from scratch...
-    //ApiConfig.testConfig.remove("ddlutils.dropBackupFieldNameTypeCols");
+    //GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("ddlutils.dropBackupFieldNameTypeCols");
     //GrouperDdlUtils.everythingRightVersion = true;
     //GrouperDdlUtils.justTesting = false;
     //

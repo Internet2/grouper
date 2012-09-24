@@ -305,7 +305,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       .setString("searchField", searchFieldLower)
       .listSet(AttributeDefName.class);
 
-    int maxSize = GrouperConfig.getPropertyInt("findAllAttributeDefNames.maxResultSize", 30000);
+    int maxSize = GrouperConfig.retrieveConfig().propertyValueInt("findAllAttributeDefNames.maxResultSize", 30000);
     if (maxSize > -1) {
       if (maxSize < attributeDefNames.size()) {
         throw new AttributeDefNameTooManyResults("Too many results: " 

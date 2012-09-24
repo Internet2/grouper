@@ -45,7 +45,6 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -468,7 +467,7 @@ public class GrouperSession implements Serializable {
    * @return access class
    */
   public String getAccessClass() {
-    return GrouperConfig.getProperty(ApiConfig.ACCESS_PRIVILEGE_INTERFACE); // TODO 20070725 is this necessary?
+    return GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.ACCESS_PRIVILEGE_INTERFACE); // TODO 20070725 is this necessary?
   } 
 
   /**
@@ -479,7 +478,7 @@ public class GrouperSession implements Serializable {
    * @return access class
    */
   public String getAttributeDefClass() {
-    return GrouperConfig.getProperty(ApiConfig.ATTRIBUTE_DEF_PRIVILEGE_INTERFACE); // TODO 20070725 is this necessary?
+    return GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.ATTRIBUTE_DEF_PRIVILEGE_INTERFACE); // TODO 20070725 is this necessary?
   } 
 
   /**
@@ -533,7 +532,7 @@ public class GrouperSession implements Serializable {
    * @return naming class
    */
   public String getNamingClass() {
-    return GrouperConfig.getProperty(ApiConfig.NAMING_PRIVILEGE_INTERFACE); // TODO 20070725 is this necessary?
+    return GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.NAMING_PRIVILEGE_INTERFACE); // TODO 20070725 is this necessary?
   } 
 
   /**

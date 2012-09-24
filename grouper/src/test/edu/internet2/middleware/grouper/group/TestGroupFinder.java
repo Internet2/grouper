@@ -42,15 +42,13 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
-import edu.internet2.middleware.grouper.filter.TestGroupTypeFilter;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -299,7 +297,7 @@ public class TestGroupFinder extends GrouperTest {
   @Override
   protected void setupConfigs() {
     super.setupConfigs();
-    ApiConfig.testConfig.put("groups.wheel.use", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "false");
   
   }
 

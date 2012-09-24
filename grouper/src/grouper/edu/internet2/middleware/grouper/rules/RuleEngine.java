@@ -81,7 +81,7 @@ public class RuleEngine {
    */
   public Set<RuleDefinition> ruleCheckIndexDefinitionsByNameOrId(RuleCheck ruleCheck) {
    
-    if (!GrouperConfig.getPropertyBoolean("rules.enable", true)) {
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean("rules.enable", true)) {
       return null;
     }
 
@@ -94,7 +94,7 @@ public class RuleEngine {
       ruleCheck.setCheckOwnerName(null);
       Set<RuleDefinition> ruleDefinitionsToAdd = GrouperUtil.nonNull(this.getRuleCheckIndex().get(ruleCheck));
       
-      if (LOG.isDebugEnabled() && GrouperConfig.getPropertyBoolean("rules.logWhyRulesDontFire", false)) {
+      if (LOG.isDebugEnabled() && GrouperConfig.retrieveConfig().propertyValueBoolean("rules.logWhyRulesDontFire", false)) {
         
         StringBuilder logMessage = new StringBuilder("Checking rules by id: ");
         logMessage.append(ownerId);
@@ -120,7 +120,7 @@ public class RuleEngine {
       ruleCheck.setCheckOwnerId(null);
       Set<RuleDefinition> ruleDefinitionsToAdd = GrouperUtil.nonNull(this.getRuleCheckIndex().get(ruleCheck));
 
-      if (LOG.isDebugEnabled() && GrouperConfig.getPropertyBoolean("rules.logWhyRulesDontFire", false)) {
+      if (LOG.isDebugEnabled() && GrouperConfig.retrieveConfig().propertyValueBoolean("rules.logWhyRulesDontFire", false)) {
         
         StringBuilder logMessage = new StringBuilder("Checking rules by name: ");
         logMessage.append(ownerName);
@@ -152,7 +152,7 @@ public class RuleEngine {
    */
   public Set<RuleDefinition> ruleCheckIndexDefinitionsByNameOrIdInFolder(RuleCheck ruleCheck) {
    
-    if (!GrouperConfig.getPropertyBoolean("rules.enable", true)) {
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean("rules.enable", true)) {
       return null;
     }
 
@@ -310,7 +310,7 @@ public class RuleEngine {
    */
   public Set<RuleDefinition> ruleCheckIndexDefinitionsByNameOrIdInFolderPickOneArgOptional(RuleCheck ruleCheck) {
   
-    if (!GrouperConfig.getPropertyBoolean("rules.enable", true)) {
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean("rules.enable", true)) {
       return null;
     }
 
@@ -390,7 +390,7 @@ public class RuleEngine {
       return;
     }
 
-    if (!GrouperConfig.getPropertyBoolean("rules.enable", true)) {
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean("rules.enable", true)) {
       return;
     }
     
@@ -587,7 +587,7 @@ public class RuleEngine {
    */
   public static boolean hasAccessToElApi(final Subject subject) {
 
-    final String hasAccessToGroupName = GrouperConfig.getProperty("rules.accessToApiInEl.group");
+    final String hasAccessToGroupName = GrouperConfig.retrieveConfig().propertyValueString("rules.accessToApiInEl.group");
     
     if (StringUtils.isBlank(hasAccessToGroupName)) {
       return false;

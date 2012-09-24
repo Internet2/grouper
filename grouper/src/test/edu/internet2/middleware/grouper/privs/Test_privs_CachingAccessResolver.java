@@ -32,17 +32,12 @@
 
 package edu.internet2.middleware.grouper.privs;
 import junit.textui.TestRunner;
-
-import net.sf.ehcache.Element;
-
-import org.apache.commons.collections.keyvalue.MultiKey;
-
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.internal.util.Realize;
@@ -97,7 +92,7 @@ public class Test_privs_CachingAccessResolver extends GrouperTest {
                         new AccessWrapper( 
                           GrouperSession.start( SubjectFinder.findRootSubject() ),
                           (AccessAdapter) Realize.instantiate( 
-                            new ApiConfig().getProperty( ApiConfig.ACCESS_PRIVILEGE_INTERFACE )
+                              GrouperConfig.retrieveConfig().propertyValueString( GrouperConfig.ACCESS_PRIVILEGE_INTERFACE )
                           )
                         )
                       );

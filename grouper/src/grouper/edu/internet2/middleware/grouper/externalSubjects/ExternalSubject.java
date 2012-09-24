@@ -150,13 +150,13 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
       String emailAddressToNotify, String emailAddressOfInvitee) {
     try {
       
-      String theEmail = GrouperConfig.getProperty("externalSubjectsNotifyInviterEmail");
+      String theEmail = GrouperConfig.retrieveConfig().propertyValueString("externalSubjectsNotifyInviterEmail");
       if (StringUtils.isBlank(theEmail)) {
         theEmail = "Hello,$newline$$newline$This is a notification that user $inviteeIdentifier$ from email address " +
             "$inviteeEmailAddress$ has registered with the identity management service.  They can now use applications " +
             "at this institution.$newline$$newline$Regards.";               
       }
-      String theSubject = GrouperConfig.getProperty("externalSubjectsNotifyInviterSubject");
+      String theSubject = GrouperConfig.retrieveConfig().propertyValueString("externalSubjectsNotifyInviterSubject");
       if (StringUtils.isBlank(theSubject)) {
         theSubject = "$inviteeIdentifier$ has registered";
       }
@@ -627,8 +627,8 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
     }
     
     //figure it out
-    boolean wheelOrRootCanEdit = GrouperConfig.getPropertyBoolean("externalSubjects.wheelOrRootCanEdit", true);
-    final String groupAllowedForEdit = GrouperConfig.getProperty("externalSubjects.groupAllowedForEdit");
+    boolean wheelOrRootCanEdit = GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.wheelOrRootCanEdit", true);
+    final String groupAllowedForEdit = GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.groupAllowedForEdit");
     
     if (wheelOrRootCanEdit) {
       if (PrivilegeHelper.isWheelOrRoot(subject)) {
@@ -774,7 +774,7 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
     substituteMap.put("grouperUtil", new GrouperUtil());
 
     //middleware.grouper.rules.MyRuleUtils
-    String customElClasses = GrouperConfig.getProperty("externalSubjects.customElClasses");
+    String customElClasses = GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.customElClasses");
 
     if (!StringUtils.isBlank(customElClasses)) {
       String[] customElClassesArray = GrouperUtil.splitTrim(customElClasses, ",");
@@ -793,10 +793,10 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
    */
   void changeDynamicFields() {
     
-    boolean manualDescription = GrouperConfig.getPropertyBoolean("externalSubjects.desc.manual", false);
+    boolean manualDescription = GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.desc.manual", false);
     if (!manualDescription) {
       //description
-      String el = GrouperConfig.getProperty("externalSubjects.desc.el");
+      String el = GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.desc.el");
       if (StringUtils.isBlank(el)) {
         throw new RuntimeException("externalSubjects.desc.el is required in the grouper.properties");
       }
@@ -809,7 +809,7 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
     }
     
     //lower search string, take the fieldOrAttribute list,
-    String searchFields = GrouperConfig.getProperty("externalSubjects.searchStringFields");
+    String searchFields = GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.searchStringFields");
     if (StringUtils.isBlank(searchFields)) {
       throw new RuntimeException("externalSubjects.searchStringFields is required in the grouper.properties");
     }
@@ -941,9 +941,9 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
               //externalSubjects.autoaddGroupActions=insert,update
               //#if a number is here, expire the group assignment after a certain number of days
               //externalSubjects.autoaddGroupExpireAfterDays=
-              String actions = GrouperConfig.getProperty("externalSubjects.autoaddGroupActions");
-              String groups = GrouperConfig.getProperty("externalSubjects.autoaddGroups");
-              int expireAfterDays = GrouperConfig.getPropertyInt("externalSubjects.autoaddGroupExpireAfterDays", -1);
+              String actions = GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.autoaddGroupActions");
+              String groups = GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.autoaddGroups");
+              int expireAfterDays = GrouperConfig.retrieveConfig().propertyValueInt("externalSubjects.autoaddGroupExpireAfterDays", -1);
   
               assignGroups(groups, actions, isInsert, expireAfterDays);
   
@@ -992,14 +992,14 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
       throw new RuntimeException("Identifier cannot be blank");
     }
     
-    if (GrouperConfig.getPropertyBoolean("externalSubjects.validateIndentiferLikeEmail", true)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.validateIndentiferLikeEmail", true)) {
       if (!GrouperUtil.validEmail(this.identifier)) {
         throw new RuntimeException("Not allowed to register this identifier, should be something like a@b.c: '" + this.identifier + "'");
       }
     }
      
     for (int i=0;i<100;i++) {
-      String regex = GrouperConfig.getProperty("externalSubjects.regexForInvalidIdentifier." + i);
+      String regex = GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.regexForInvalidIdentifier." + i);
       if (StringUtils.isBlank(regex)) {
         break;
       }
@@ -1085,7 +1085,7 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
    * @return name
    */
   public static String sourceName() {
-    String sourceName = GrouperConfig.getProperty("externalSubject.sourceName");
+    String sourceName = GrouperConfig.retrieveConfig().propertyValueString("externalSubject.sourceName");
     if (StringUtils.isBlank(sourceName)) {
       return "External Users";
     }
@@ -1097,7 +1097,7 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
    * @return id
    */
   public static String sourceId() {
-    String sourceId = GrouperConfig.getProperty("externalSubject.sourceId");
+    String sourceId = GrouperConfig.retrieveConfig().propertyValueString("externalSubject.sourceId");
     if (StringUtils.isBlank(sourceId)) {
       return "grouperExternal";
     }

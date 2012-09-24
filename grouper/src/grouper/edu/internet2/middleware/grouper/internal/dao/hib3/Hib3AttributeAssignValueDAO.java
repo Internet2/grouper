@@ -273,7 +273,7 @@ public class Hib3AttributeAssignValueDAO extends Hib3DAO implements AttributeAss
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindMemberAttributeAssignmentValues");
   
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findAttrAssignments.maxResultSize", 30000);
     
     long size = -1;
     

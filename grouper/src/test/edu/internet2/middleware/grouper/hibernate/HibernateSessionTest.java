@@ -35,13 +35,13 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
-import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -76,7 +76,7 @@ public class HibernateSessionTest extends GrouperTest {
 
     boolean useNestedTransactions = GrouperDdlUtils.isSQLServer() ? false : true;
     if (!useNestedTransactions) {
-      ApiConfig.testConfig.put("ddlutils.use.nestedTransactions", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ddlutils.use.nestedTransactions", "false");
     }
     final GrouperSession grouperSession = GrouperSession.startRootSession();
 
@@ -826,7 +826,7 @@ public class HibernateSessionTest extends GrouperTest {
     Stem edu = StemHelper.addChildStem(root, "edu", "education");
     Group i2 = StemHelper.addChildGroup(edu, "i2", "internet2");
 
-    ApiConfig.testConfig.put("grouper.api.readonly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.api.readonly", "true");
 
     i2 = GroupFinder.findByName(grouperSession, "edu:i2", true);
     
@@ -1020,7 +1020,7 @@ public class HibernateSessionTest extends GrouperTest {
    */
   public void testNoNestedTransactionsAndSavepoints() {
   
-    ApiConfig.testConfig.put("ddlutils.use.nestedTransactions", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ddlutils.use.nestedTransactions", "false");
 
     final GrouperSession grouperSession = GrouperSession.startRootSession();
   

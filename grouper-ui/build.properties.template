@@ -112,7 +112,7 @@ deploy.context.path=/${webapp.name}
 
 ####If you are deploying by war to the webapps dir, then you might consider not having a 
 ####context.xml, it will explode the war with each restart, preventing patching
-should.copy.context.xml.to.metainf=true
+should.copy.context.xml.to.metainf=false
 
 
 ####Name of context xml file - this will be copied to META-INF and possibly to tomcat webapps directory

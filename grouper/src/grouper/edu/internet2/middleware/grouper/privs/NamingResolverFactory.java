@@ -31,12 +31,11 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
-import edu.internet2.middleware.grouper.exception.GrouperException;
-import  edu.internet2.middleware.grouper.GrouperSession;
-import  edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
-import  edu.internet2.middleware.grouper.internal.util.Realize;
+import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
+import edu.internet2.middleware.grouper.internal.util.Realize;
 
 
 /** 
@@ -63,7 +62,7 @@ public class NamingResolverFactory {
     throws  IllegalArgumentException
   {
     return getInstance(
-             session, (NamingAdapter) Realize.instantiate( GrouperConfig.getProperty( ApiConfig.NAMING_PRIVILEGE_INTERFACE ) )
+             session, (NamingAdapter) Realize.instantiate( GrouperConfig.retrieveConfig().propertyValueString( GrouperConfig.NAMING_PRIVILEGE_INTERFACE ) )
            )
            ;
   }

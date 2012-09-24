@@ -95,7 +95,7 @@ public class GrouperContext {
   public static void assignAuditEntryFieldsOuter(AuditEntry auditEntry) {
 
     auditEntry.setCreatedOn(new Timestamp(System.currentTimeMillis()));
-    auditEntry.setEnvName(GrouperConfig.getProperty("grouper.env.name"));
+    auditEntry.setEnvName(GrouperConfig.retrieveConfig().propertyValueString("grouper.env.name"));
     auditEntry.setGrouperVersion(GrouperVersion.GROUPER_VERSION);
     auditEntry.setServerUserName(System.getProperty("user.name"));
     String serverHost = null;
@@ -197,10 +197,10 @@ public class GrouperContext {
     if (grouperContextInner == null) {
       //TODO make these default to true before 1.5
       if (requireContext) {
-        if (GrouperConfig.getPropertyBoolean("audit.requireAuditsForAllActions", false)) {
+        if (GrouperConfig.retrieveConfig().propertyValueBoolean("audit.requireAuditsForAllActions", false)) {
           throw new RuntimeException("No context found");
         }
-        if (GrouperConfig.getPropertyBoolean("audit.logAuditsForMissingActions", false)) {
+        if (GrouperConfig.retrieveConfig().propertyValueBoolean("audit.logAuditsForMissingActions", false)) {
           LOG.warn("No context found here is the stack", new RuntimeException("Not an exception, just need the stack"));
         }
       }

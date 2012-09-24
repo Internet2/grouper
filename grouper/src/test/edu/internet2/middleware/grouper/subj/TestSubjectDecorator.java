@@ -37,7 +37,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -148,7 +148,7 @@ public class TestSubjectDecorator extends GrouperTest {
     studentGroup.addMember(SubjectTestHelper.SUBJ5, true);
 
     //now, configure the subject decorator
-    ApiConfig.testConfig.put("subjects.customizer.className", SubjectCustomizerForDecoratorTestingHideStudentData.class.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subjects.customizer.className", SubjectCustomizerForDecoratorTestingHideStudentData.class.getName());
     SubjectFinder.internalClearSubjectCustomizerCache();
     GrouperSession.stopQuietly(grouperSession);
     
@@ -247,7 +247,7 @@ public class TestSubjectDecorator extends GrouperTest {
     collab2.addMember(SubjectTestHelper.SUBJ5, true);
   
     //now, configure the subject decorator
-    ApiConfig.testConfig.put("subjects.customizer.className", SubjectCustomizerForDecoratorTestingCollabGroup.class.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subjects.customizer.className", SubjectCustomizerForDecoratorTestingCollabGroup.class.getName());
     SubjectFinder.internalClearSubjectCustomizerCache();
     GrouperSession.stopQuietly(grouperSession);
     
@@ -406,7 +406,7 @@ public class TestSubjectDecorator extends GrouperTest {
       //subject 4 is an admin
       
       //assign the customizer
-      ApiConfig.testConfig.put("subjects.customizer.className", SubjectCustomizerForDecoratorExtraAttributes.class.getName());
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subjects.customizer.className", SubjectCustomizerForDecoratorExtraAttributes.class.getName());
       SubjectFinder.internalClearSubjectCustomizerCache();
   
       {

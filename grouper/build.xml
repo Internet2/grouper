@@ -43,19 +43,19 @@
       tofile="${conf.dir}/ehcache.xml" /></then>
   </if> 
   <if><not><available file="${conf.dir}/grouper.properties" /></not>
-    <then><copy file="${conf.dir}/grouper.example.properties" 
+    <then><copy file="misc/grouper.example.properties" 
       tofile="${conf.dir}/grouper.properties" /></then>
   </if> 
   <if><not><available file="${conf.dir}/grouper.client.properties" /></not>
-    <then><copy file="${conf.dir}/grouper.client.example.properties" 
+    <then><copy file="misc/grouper.client.example.properties" 
       tofile="${conf.dir}/grouper.client.properties" /></then>
   </if> 
   <if><not><available file="${conf.dir}/grouper.hibernate.properties" /></not>
-    <then><copy file="${conf.dir}/grouper.hibernate.example.properties" 
+    <then><copy file="misc/grouper.hibernate.example.properties" 
       tofile="${conf.dir}/grouper.hibernate.properties" /></then>
   </if> 
   <if><not><available file="${conf.dir}/grouper-loader.properties" /></not>
-    <then><copy file="${conf.dir}/grouper-loader.example.properties" 
+    <then><copy file="misc/grouper-loader.example.properties" 
       tofile="${conf.dir}/grouper-loader.properties" /></then>
   </if> 
   <if><not><available file="${conf.dir}/log4j.properties" /></not>
@@ -73,6 +73,10 @@
   <if><not><available file="${conf.dir}/sources.xml" /></not>
     <then><copy file="${conf.dir}/sources.example.xml" 
       tofile="${conf.dir}/sources.xml" /></then>
+  </if> 
+  <if><not><available file="${conf.dir}/subject.properties" /></not>
+    <then><copy file="misc/subject.example.properties" 
+      tofile="${conf.dir}/subject.properties" /></then>
   </if> 
   <if><not><available file="${conf.dir}/spy.properties" /></not>
     <then><copy file="${conf.dir}/spy.example.properties" 
@@ -456,11 +460,11 @@
     <!-- keep this in the jar so we know where it is -->
     <copy file="${basedir}/misc/version.properties" 
       tofile="${build.dir.grouper}/grouper.version.properties" />
-    <copy file="${conf.dir}/grouper.example.properties" 
+    <copy file="misc/grouper.example.properties" 
       todir="${build.dir.grouper}" />
-    <copy file="${conf.dir}/grouper.hibernate.example.properties" 
+    <copy file="misc/grouper.hibernate.example.properties" 
       todir="${build.dir.grouper}" />
-    <copy file="${conf.dir}/grouper-loader.example.properties" 
+    <copy file="misc/grouper-loader.example.properties" 
       todir="${build.dir.grouper}" />
     <tstamp>
        <format property="the.timestamp" pattern="yyyy/MM/dd HH:mm:ss" />

@@ -614,7 +614,7 @@ public class LoaderLdapUtils {
           ldapLoaderElClasses = new HashSet<Class<?>>();
 
           //middleware.grouper.rules.MyRuleUtils
-          String customElClasses = GrouperLoaderConfig.getPropertyString("loader.ldap.el.classes", false);
+          String customElClasses = GrouperLoaderConfig.retrieveConfig().propertyValueString("loader.ldap.el.classes");
 
           if (!StringUtils.isBlank(customElClasses)) {
             String[] customElClassesArray = GrouperUtil.splitTrim(customElClasses, ",");

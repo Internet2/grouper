@@ -47,18 +47,18 @@ public class EsbXmppPublisher extends EsbListenerBase {
           + GrouperUtil.indent(eventJsonString, false));
     }
 
-    String recipient = GrouperLoaderConfig.getPropertyString("changeLog.consumer."
+    String recipient = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer."
         + consumerName + ".publisher.recipient", "");
 
-    String xmppServer = GrouperLoaderConfig.getPropertyString("changeLog.consumer."
+    String xmppServer = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer."
         + consumerName + ".publisher.server");
-    int port = GrouperLoaderConfig.getPropertyInt("changeLog.consumer." + consumerName
+    int port = GrouperLoaderConfig.retrieveConfig().propertyValueInt("changeLog.consumer." + consumerName
         + ".publisher.port", -1);
-    String username = GrouperLoaderConfig.getPropertyString("changeLog.consumer."
+    String username = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer."
         + consumerName + ".publisher.username", "");
-    String password = GrouperLoaderConfig.getPropertyString("changeLog.consumer."
+    String password = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer."
         + consumerName + ".publisher.password", "");
-    String resource = GrouperLoaderConfig.getPropertyString("changeLog.consumer."
+    String resource = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer."
         + consumerName + ".publisher.resource", "");
     
     XmppConnectionBean xmppConnectionBean = new XmppConnectionBean(xmppServer, port, username, resource, password);

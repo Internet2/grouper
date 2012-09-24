@@ -25,7 +25,6 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
@@ -111,7 +110,7 @@ public class GroupHooksDbVersionTest extends GrouperTest {
    */
   public void testGroupHooksDbVersion() throws Exception {
     
-    //ApiConfig.testConfig.put("groups.allow.attribute.access.1.4", "true");
+    //GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.allow.attribute.access.1.4", "true");
     
     //try an insert
     Group group = edu.addChildGroup("myGroup", "myGroup");

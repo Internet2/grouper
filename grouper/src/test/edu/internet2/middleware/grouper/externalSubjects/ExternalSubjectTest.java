@@ -33,7 +33,6 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -84,23 +83,23 @@ public class ExternalSubjectTest extends GrouperTest {
   public static void setupHelper() {
     hasJabber = StringUtils.equals(GrouperConfig.getProperty("externalSubjects.attributes.jabber.systemName"), "jabber");
     
-    ApiConfig.testConfig.put("externalSubjects.desc.el", 
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.desc.el", 
         "${grouperUtil.appendIfNotBlankString(externalSubject.name, ' - ', externalSubject.institution)}");
     
-    ApiConfig.testConfig.put("externalSubjects.name.required", "false");
-    ApiConfig.testConfig.put("externalSubjects.email.required", "false");
-    ApiConfig.testConfig.put("externalSubjects.email.enabled", "true");
-    ApiConfig.testConfig.put("externalSubjects.institution.required", "false");
-    ApiConfig.testConfig.put("externalSubjects.institution.enabled", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.name.required", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.email.required", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.email.enabled", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.institution.required", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.institution.enabled", "true");
     if (hasJabber) {
-      ApiConfig.testConfig.put("externalSubjects.attributes.jabber.friendlyName", "Jabber ID");
-      ApiConfig.testConfig.put("externalSubjects.attributes.jabber.systemName", "jabber");
-      ApiConfig.testConfig.put("externalSubjects.attributes.jabber.required", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.attributes.jabber.friendlyName", "Jabber ID");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.attributes.jabber.systemName", "jabber");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.attributes.jabber.required", "false");
     }
-    ApiConfig.testConfig.put("externalSubjects.wheelOrRootCanEdit", "true");
-    ApiConfig.testConfig.remove("externalSubjects.groupAllowedForEdit");
-    ApiConfig.testConfig.put("externalSubjects.validateIndentiferLikeEmail", "true");
-    ApiConfig.testConfig.put("externalSubjects.autoCreateSource", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.wheelOrRootCanEdit", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("externalSubjects.groupAllowedForEdit");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.validateIndentiferLikeEmail", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.autoCreateSource", "true");
     
     SourceManager.getInstance().loadSource(ExternalSubjectAutoSourceAdapter.instance());
   }
@@ -258,8 +257,8 @@ public class ExternalSubjectTest extends GrouperTest {
     //###########################################
     //externalSubjects.wheelOrRootCanEdit = false
     //externalSubjects.groupAllowedForEdit = 
-    ApiConfig.testConfig.put("externalSubjects.wheelOrRootCanEdit", "false");
-    ApiConfig.testConfig.remove("externalSubjects.groupAllowedForEdit");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.wheelOrRootCanEdit", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("externalSubjects.groupAllowedForEdit");
     ExternalSubjectConfig.clearCache();
 
     //no one should be allowed
@@ -307,8 +306,8 @@ public class ExternalSubjectTest extends GrouperTest {
     //###########################################
     //externalSubjects.wheelOrRootCanEdit = true
     //externalSubjects.groupAllowedForEdit = 
-    ApiConfig.testConfig.put("externalSubjects.wheelOrRootCanEdit", "true");
-    ApiConfig.testConfig.remove("externalSubjects.groupAllowedForEdit");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.wheelOrRootCanEdit", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("externalSubjects.groupAllowedForEdit");
     ExternalSubjectConfig.clearCache();
 
     grouperSession = GrouperSession.startRootSession();
@@ -341,8 +340,8 @@ public class ExternalSubjectTest extends GrouperTest {
     //###########################################
     //externalSubjects.wheelOrRootCanEdit = true
     //externalSubjects.groupAllowedForEdit = stem:group
-    ApiConfig.testConfig.put("externalSubjects.wheelOrRootCanEdit", "true");
-    ApiConfig.testConfig.put("externalSubjects.groupAllowedForEdit", "stem:group");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.wheelOrRootCanEdit", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.groupAllowedForEdit", "stem:group");
     
     Group securityGroup = new GroupSave(grouperSession.internal_getRootSession())
       .assignCreateParentStemsIfNotExist(true).assignName("stem:group").save();
@@ -404,7 +403,7 @@ public class ExternalSubjectTest extends GrouperTest {
   
     //###########################################
     //externalSubjects.name.required = false
-    ApiConfig.testConfig.put("externalSubjects.name.required", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.name.required", "false");
     ExternalSubjectConfig.clearCache();
   
     GrouperSession.startRootSession();
@@ -416,7 +415,7 @@ public class ExternalSubjectTest extends GrouperTest {
     
     //###########################################
     //externalSubjects.name.required = true
-    ApiConfig.testConfig.put("externalSubjects.name.required", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.name.required", "true");
     ExternalSubjectConfig.clearCache();
   
     //name is not required
@@ -431,7 +430,7 @@ public class ExternalSubjectTest extends GrouperTest {
     externalSubject.setName("my name");
     //sohuld work now
     externalSubject.store();
-    ApiConfig.testConfig.remove("externalSubjects.name.required");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("externalSubjects.name.required");
     ExternalSubjectConfig.clearCache();
 
   }
@@ -443,7 +442,7 @@ public class ExternalSubjectTest extends GrouperTest {
   
     //###########################################
     //externalSubjects.email.required = true
-    ApiConfig.testConfig.put("externalSubjects.email.required", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.email.required", "true");
     ExternalSubjectConfig.clearCache();
   
     //name is not required
@@ -460,7 +459,7 @@ public class ExternalSubjectTest extends GrouperTest {
     //should work now
     externalSubject.store();
     
-    ApiConfig.testConfig.remove("externalSubjects.email.required");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("externalSubjects.email.required");
     ExternalSubjectConfig.clearCache();
   
   }
@@ -472,7 +471,7 @@ public class ExternalSubjectTest extends GrouperTest {
   
     //###########################################
     //externalSubjects.institution.required = true
-    ApiConfig.testConfig.put("externalSubjects.institution.required", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.institution.required", "true");
     ExternalSubjectConfig.clearCache();
   
     //institution is required
@@ -490,7 +489,7 @@ public class ExternalSubjectTest extends GrouperTest {
     //should work now
     externalSubject.store();
     
-    ApiConfig.testConfig.remove("externalSubjects.institution.required");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("externalSubjects.institution.required");
     ExternalSubjectConfig.clearCache();
     
   
@@ -506,7 +505,7 @@ public class ExternalSubjectTest extends GrouperTest {
     }
     //###########################################
     //externalSubjects.institution.required = true
-    ApiConfig.testConfig.put("externalSubjects.attributes.jabber.required", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.attributes.jabber.required", "true");
     try {
       ExternalSubjectConfig.clearCache();
     
@@ -555,7 +554,7 @@ public class ExternalSubjectTest extends GrouperTest {
             .getFullStackTrace(e).toLowerCase().contains("jabber is a required"));
       }
     } finally {
-      ApiConfig.testConfig.remove("externalSubjects.attributes.jabber.required");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("externalSubjects.attributes.jabber.required");
       ExternalSubjectConfig.clearCache();
       
     }
@@ -569,7 +568,7 @@ public class ExternalSubjectTest extends GrouperTest {
   public void testDynamicDescription() {
 
     //externalSubjects.desc.el = ${grouperUtil.appendIfNotBlankString(externalSubject.name, ' - ', externalSubject.institution)}
-    ApiConfig.testConfig.put("externalSubjects.desc.el", 
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.desc.el", 
         "${grouperUtil.appendIfNotBlankString(externalSubject.getName(), ' - ', externalSubject.getInstitution())}");
     ExternalSubjectConfig.clearCache();
 
@@ -595,7 +594,7 @@ public class ExternalSubjectTest extends GrouperTest {
 
     assertEquals("My Institution", externalSubject.getDescription());
 
-    ApiConfig.testConfig.remove("externalSubjects.desc.el");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("externalSubjects.desc.el");
     ExternalSubjectConfig.clearCache();
 
   }
@@ -607,13 +606,13 @@ public class ExternalSubjectTest extends GrouperTest {
 
     //externalSubjects.searchStringFields = name, institution, identifier, uuid, email, jabber, description
     if (hasJabber) {
-      ApiConfig.testConfig.put("externalSubjects.searchStringFields", 
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.searchStringFields", 
           "name, institution, identifier, uuid, email, jabber, description");
     } else {
-      ApiConfig.testConfig.put("externalSubjects.searchStringFields", 
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.searchStringFields", 
         "name, institution, identifier, uuid, email, description");
     }
-    ApiConfig.testConfig.put("externalSubjects.desc.el", 
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.desc.el", 
       "${grouperUtil.appendIfNotBlankString(externalSubject.getName(), ' - ', externalSubject.getInstitution())}");
     ExternalSubjectConfig.clearCache();
 
@@ -655,8 +654,8 @@ public class ExternalSubjectTest extends GrouperTest {
     assertEquals(1, GrouperUtil.length(subjects));
     assertEquals("My Name", subjects.iterator().next().getName());
     
-    ApiConfig.testConfig.remove("externalSubjects.searchStringFields");
-    ApiConfig.testConfig.remove("externalSubjects.desc.el");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("externalSubjects.searchStringFields");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("externalSubjects.desc.el");
     ExternalSubjectConfig.clearCache();
 
   }
@@ -667,7 +666,7 @@ public class ExternalSubjectTest extends GrouperTest {
   public void testNonDynamicDescription() {
 
     //externalSubjects.desc.manual = true
-    ApiConfig.testConfig.put("externalSubjects.desc.manual", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.desc.manual", "true");
     ExternalSubjectConfig.clearCache();
 
     ExternalSubject externalSubject = new ExternalSubject();
@@ -679,7 +678,7 @@ public class ExternalSubjectTest extends GrouperTest {
 
     assertEquals("My Description", externalSubject.getDescription());
 
-    ApiConfig.testConfig.remove("externalSubjects.desc.manual");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("externalSubjects.desc.manual");
     ExternalSubjectConfig.clearCache();
 
   }
@@ -694,13 +693,13 @@ public class ExternalSubjectTest extends GrouperTest {
     
     //externalSubjects.desc.el = ${grouperUtil.appendIfNotBlankString(externalSubject.name, ' - ', externalSubject.institution)}
     if (hasJabber) {
-      ApiConfig.testConfig.put("externalSubjects.searchStringFields", 
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.searchStringFields", 
         "name, institution, identifier, uuid, email, jabber, description");
     } else {
-      ApiConfig.testConfig.put("externalSubjects.searchStringFields", 
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.searchStringFields", 
         "name, institution, identifier, uuid, email, description");
     }
-    ApiConfig.testConfig.put("externalSubjects.desc.el", 
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("externalSubjects.desc.el", 
       "${grouperUtil.appendIfNotBlankString(externalSubject.getName(), ' - ', externalSubject.getInstitution())}");
     ExternalSubjectConfig.clearCache();
 
@@ -734,8 +733,8 @@ public class ExternalSubjectTest extends GrouperTest {
       assertEquals("my name, my institution, a@idp.b.c, " + externalSubject.getUuid() + ", a@b.c, my name - my institution", externalSubject.getSearchStringLower());
     }
 
-    ApiConfig.testConfig.remove("externalSubjects.searchStringFields");
-    ApiConfig.testConfig.remove("externalSubjects.desc.el");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("externalSubjects.searchStringFields");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("externalSubjects.desc.el");
     ExternalSubjectConfig.clearCache();
 
   }

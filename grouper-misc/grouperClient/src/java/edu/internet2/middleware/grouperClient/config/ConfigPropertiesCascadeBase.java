@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
@@ -58,7 +59,7 @@ public abstract class ConfigPropertiesCascadeBase {
     
     ConfigPropertiesCascadeBase configPropertiesCascadeBase = (ConfigPropertiesCascadeBase)configSingletonFromClass.get(configClass);
     if (configPropertiesCascadeBase == null) {
-      configPropertiesCascadeBase = GrouperClientUtils.newInstance(configClass);
+      configPropertiesCascadeBase = GrouperClientUtils.newInstance(configClass, true);
       configSingletonFromClass.put(configClass, configPropertiesCascadeBase);
       
     }
@@ -713,7 +714,7 @@ public abstract class ConfigPropertiesCascadeBase {
     }
 
     //make a new return object based on this class
-    ConfigPropertiesCascadeBase result = GrouperClientUtils.newInstance(this.getClass());
+    ConfigPropertiesCascadeBase result = GrouperClientUtils.newInstance(this.getClass(), true);
 
     try {
       result.timeToCheckConfigSeconds = GrouperClientUtils.intValue(secondsToCheckConfigString);
@@ -1099,5 +1100,114 @@ public abstract class ConfigPropertiesCascadeBase {
     return properties;
   }
 
+  /**
+   * make sure a value exists in properties
+   * @param resourceName
+   * @param key
+   * @return true if ok, false if not
+   */
+  public boolean assertPropertyValueRequired(String key) {
+    String value = propertyValueString(key);
+    if (!GrouperClientUtils.isBlank(value)) {
+      return true;
+    }
+    String error = "Cant find property " + key + " in resource: " + this.getMainConfigClasspath() + ", it is required";
+    System.err.println("Grouper error: " + error);
+    LOG.error(error);
+    return false;
+  }
+
+  /**
+   * make sure a value is boolean in properties
+   * @param resourceName
+   * @param key
+   * @param required
+   * @return true if ok, false if not
+   */
+  public boolean assertPropertyValueBoolean(String key, boolean required) {
+    
+    if (required && !assertPropertyValueRequired(key)) {
+      return false;
+    }
+  
+    String value = propertyValueString(key);
+    //maybe ok not there
+    if (!required && GrouperClientUtils.isBlank(value)) {
+      return true;
+    }
+    try {
+      GrouperClientUtils.booleanValue(value);
+      return true;
+    } catch (Exception e) {
+      
+    }
+    String error = "Expecting true or false property " + key + " in resource: " + this.getMainConfigClasspath() + ", but is '" + value + "'";
+    System.err.println("Grouper error: " + error);
+    LOG.error(error);
+    return false;
+  }
+
+  /**
+   * make sure a property is a class of a certain type
+   * @param resourceName
+   * @param key
+   * @param classType
+   * @param required 
+   * @return true if ok
+   */
+  public boolean assertPropertyValueClass(
+      String key, Class<?> classType, boolean required) {
+  
+    if (required && !assertPropertyValueRequired(key)) {
+      return false;
+    }
+    String value = propertyValueString(key);
+  
+    //maybe ok not there
+    if (!required && GrouperClientUtils.isBlank(value)) {
+      return true;
+    }
+    
+    String extraError = "";
+    try {
+      
+      
+      Class<?> theClass = GrouperClientUtils.forName(value);
+      if (classType.isAssignableFrom(theClass)) {
+        return true;
+      }
+      extraError = " does not derive from class: " + classType.getSimpleName();
+      
+    } catch (Exception e) {
+      extraError = ", " + GrouperClientUtils.getFullStackTrace(e);
+    }
+    String error = "Cant process property " + key + " in resource: " + this.getMainConfigClasspath() + ", the current" +
+        " value is '" + value + "', which should be of type: " 
+        + classType.getName() + extraError;
+    System.err.println("Grouper error: " + error);
+    LOG.error(error);
+    return false;
+  }
+  
+  /**
+   * find all keys/values with a certain pattern in a properties file.
+   * return the keys.  if none, will return the empty set, not null set
+   * @param resourceName
+   * @param pattern
+   * @return the keys.  if none, will return the empty set, not null set
+   */
+  @SuppressWarnings("unchecked")
+  public Map<String, String> propertiesMap(Pattern pattern) {
+    Properties properties = properties();
+    Map<String, String> result = new LinkedHashMap<String, String>();
+    for (String key: (Set<String>)(Object)properties.keySet()) {
+      if (pattern.matcher(key).matches()) {
+        result.put(key, (String)properties.get(key));
+      }
+    }
+    
+    return result;
+  }
+  
 
 }

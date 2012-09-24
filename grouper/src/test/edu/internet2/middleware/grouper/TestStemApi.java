@@ -44,7 +44,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.entity.Entity;
 import edu.internet2.middleware.grouper.entity.EntityFinder;
 import edu.internet2.middleware.grouper.entity.EntitySave;
@@ -1017,9 +1017,9 @@ public class TestStemApi extends GrouperTest {
     this.admin        = this.etc.addChildGroup("admin", "admin");
     this.wheel        = this.etc.addChildGroup("wheel","wheel");
     
-    ApiConfig.testConfig.put("security.stem.groupAllowedToRenameStem", admin.getName());
-    ApiConfig.testConfig.put("groups.wheel.use", "true");
-    ApiConfig.testConfig.put("groups.wheel.group", wheel.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.stem.groupAllowedToRenameStem", admin.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.group", wheel.getName());
 
     GrouperSession nrs;
     R r = R.populateRegistry(0, 0, 2);
@@ -1056,9 +1056,9 @@ public class TestStemApi extends GrouperTest {
     this.admin        = this.etc.addChildGroup("admin", "admin");
     this.wheel        = this.etc.addChildGroup("wheel","wheel");
     
-    ApiConfig.testConfig.put("security.stem.groupAllowedToRenameStem", admin.getName());
-    ApiConfig.testConfig.put("groups.wheel.use", "true");
-    ApiConfig.testConfig.put("groups.wheel.group", wheel.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.stem.groupAllowedToRenameStem", admin.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.group", wheel.getName());
 
     GrouperSession nrs;
     R r = R.populateRegistry(0, 0, 2);
@@ -1095,9 +1095,9 @@ public class TestStemApi extends GrouperTest {
     this.admin        = this.etc.addChildGroup("admin", "admin");
     this.wheel        = this.etc.addChildGroup("wheel","wheel");
     
-    ApiConfig.testConfig.put("security.stem.groupAllowedToMoveStem", admin.getName());
-    ApiConfig.testConfig.put("groups.wheel.use", "true");
-    ApiConfig.testConfig.put("groups.wheel.group", wheel.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.stem.groupAllowedToMoveStem", admin.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.group", wheel.getName());
 
     GrouperSession nrs;
     R r = R.populateRegistry(0, 0, 2);
@@ -1138,9 +1138,9 @@ public class TestStemApi extends GrouperTest {
     this.admin        = this.etc.addChildGroup("admin", "admin");
     this.wheel        = this.etc.addChildGroup("wheel","wheel");
     
-    ApiConfig.testConfig.put("security.stem.groupAllowedToMoveStem", admin.getName());
-    ApiConfig.testConfig.put("groups.wheel.use", "true");
-    ApiConfig.testConfig.put("groups.wheel.group", wheel.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.stem.groupAllowedToMoveStem", admin.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.group", wheel.getName());
 
     GrouperSession nrs;
     R r = R.populateRegistry(0, 0, 2);
@@ -1181,9 +1181,9 @@ public class TestStemApi extends GrouperTest {
     this.admin        = this.etc.addChildGroup("admin", "admin");
     this.wheel        = this.etc.addChildGroup("wheel","wheel");
     
-    ApiConfig.testConfig.put("security.stem.groupAllowedToMoveStem", admin.getName());
-    ApiConfig.testConfig.put("groups.wheel.use", "true");
-    ApiConfig.testConfig.put("groups.wheel.group", wheel.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.stem.groupAllowedToMoveStem", admin.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.group", wheel.getName());
 
     GrouperSession nrs;
     R r = R.populateRegistry(0, 0, 2);
@@ -2197,9 +2197,9 @@ public class TestStemApi extends GrouperTest {
     this.admin        = this.etc.addChildGroup("admin", "admin");
     this.wheel        = this.etc.addChildGroup("wheel","wheel");
     
-    ApiConfig.testConfig.put("security.stem.groupAllowedToCopyStem", admin.getName());
-    ApiConfig.testConfig.put("groups.wheel.use", "true");
-    ApiConfig.testConfig.put("groups.wheel.group", wheel.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.stem.groupAllowedToCopyStem", admin.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.group", wheel.getName());
 
     GrouperSession nrs;
     R r = R.populateRegistry(0, 0, 11);
@@ -2245,9 +2245,9 @@ public class TestStemApi extends GrouperTest {
     this.admin        = this.etc.addChildGroup("admin", "admin");
     this.wheel        = this.etc.addChildGroup("wheel","wheel");
     
-    ApiConfig.testConfig.put("security.stem.groupAllowedToCopyStem", admin.getName());
-    ApiConfig.testConfig.put("groups.wheel.use", "true");
-    ApiConfig.testConfig.put("groups.wheel.group", wheel.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.stem.groupAllowedToCopyStem", admin.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.group", wheel.getName());
 
     GrouperSession nrs;
     R r = R.populateRegistry(0, 0, 11);
@@ -2283,8 +2283,8 @@ public class TestStemApi extends GrouperTest {
   }
   
   private void stem_copy_setup(R r) throws Exception {
-    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
-    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
     
     Subject a = r.getSubject("a");
     Subject b = r.getSubject("b");
@@ -2382,8 +2382,8 @@ public class TestStemApi extends GrouperTest {
     level2Group1.addCompositeMember(CompositeType.UNION, level2Group2, level2Group3);
     level3Group1.addCompositeMember(CompositeType.UNION, child_group, level3Group2);
     
-    ApiConfig.testConfig.put("groups.create.grant.all.read", "true");
-    ApiConfig.testConfig.put("groups.create.grant.all.view", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "true");
   }
   
   private void verify_copy(R r, Stem newStem, boolean privilegesOfStem,
@@ -2549,8 +2549,8 @@ public class TestStemApi extends GrouperTest {
    * @throws Exception
    */
   public void test_option_to_disable_last_membership_change() throws Exception {
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "false");
-    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
     
     R r = R.populateRegistry(0, 0, 2);
     Subject a = r.getSubject("a");
@@ -2784,7 +2784,7 @@ public class TestStemApi extends GrouperTest {
     assertTrue(true);
     
     // now we're requiring that the user must be a member of a group that's allowed to do renames
-    ApiConfig.testConfig.put("security.stem.groupAllowedToRenameStem", "top:securityGroup");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.stem.groupAllowedToRenameStem", "top:securityGroup");
     
     // subjA is not in the security group
     try {
@@ -2851,7 +2851,7 @@ public class TestStemApi extends GrouperTest {
     }
     
     // done using security group
-    ApiConfig.testConfig.remove("security.stem.groupAllowedToRenameStem");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("security.stem.groupAllowedToRenameStem");
     
     session.stop();
     session = GrouperSession.start(SubjectFinder.findRootSubject());

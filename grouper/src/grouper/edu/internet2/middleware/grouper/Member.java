@@ -159,7 +159,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
 
     //if there are more than 2000, forget it, leave them lazy
     if (!resolveAllAlways 
-        && GrouperUtil.length(membersNeedResolved) > GrouperConfig.getPropertyInt("memberLengthAboveWhichDontResolveBatch", 2000)) {
+        && GrouperUtil.length(membersNeedResolved) > GrouperConfig.retrieveConfig().propertyValueInt("memberLengthAboveWhichDontResolveBatch", 2000)) {
       return;
     }
     

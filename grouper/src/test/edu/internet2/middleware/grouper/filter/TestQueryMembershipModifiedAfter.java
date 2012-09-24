@@ -41,7 +41,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.T;
@@ -81,8 +81,8 @@ public class TestQueryMembershipModifiedAfter extends GrouperTest {
   public void testFindSomething() {
     try {
 
-      ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
-      ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
 
       R r = R.populateRegistry(2, 2, 1);
       Group gA = r.getGroup("a", "a");
@@ -141,8 +141,8 @@ public class TestQueryMembershipModifiedAfter extends GrouperTest {
   public void testFindSomethingScoped() {
     try {
 
-      ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
-      ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.updateLastMembershipTime", "true");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
 
       R r = R.populateRegistry(2, 2, 1);
       Group gA = r.getGroup("a", "a");
@@ -216,7 +216,7 @@ public class TestQueryMembershipModifiedAfter extends GrouperTest {
       T.amount("mships", 0, gq.getMemberships().size());
       T.amount("stems", 0, gq.getStems().size());
       
-      ApiConfig.testConfig.put("groups.updateLastMembershipTime", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "false");
 
       GrouperUtil.sleep(100);
       long now = System.currentTimeMillis();

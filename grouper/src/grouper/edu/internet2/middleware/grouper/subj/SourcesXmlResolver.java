@@ -345,7 +345,7 @@ public class SourcesXmlResolver implements SubjectResolver {
       
       subjects = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjects, null);
       
-      if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
+      if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
         subjects = SubjectHelper.sortSetForSearch(subjects, query);
       }
       return subjects;
@@ -641,7 +641,7 @@ public class SourcesXmlResolver implements SubjectResolver {
       //filter if necessary
       subjects = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjects, null);
       
-      if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
+      if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
         subjects = SubjectHelper.sortSetForSearch(subjects, query, subjectsMatchIdentifier);
         searchPage.setResults(subjects);
       }
@@ -668,7 +668,7 @@ public class SourcesXmlResolver implements SubjectResolver {
   private boolean needsThreads(Set<Source> sources, boolean isSearchPage) {
     
     //default to false since threading doesnt really help
-    boolean useThreadsFromConfig = GrouperConfig.getPropertyBoolean(
+    boolean useThreadsFromConfig = GrouperConfig.retrieveConfig().propertyValueBoolean(
         isSearchPage ? "subjects.allPage.useThreadForkJoin" : "subjects.idOrIdentifier.useThreadForkJoin", false);
     
     if (!useThreadsFromConfig) {
@@ -795,7 +795,7 @@ public class SourcesXmlResolver implements SubjectResolver {
     
     subjects = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjects, stemName);
     
-    if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
       subjects = SubjectHelper.sortSetForSearch(subjects, query);
     }
 
@@ -897,7 +897,7 @@ public class SourcesXmlResolver implements SubjectResolver {
     //filter if necessary
     subjects = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjects, stemName);
     
-    if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
       subjects = SubjectHelper.sortSetForSearch(subjects, query, subjectsMatchIdentifier);
       searchPageResult.setResults(subjects);
     }

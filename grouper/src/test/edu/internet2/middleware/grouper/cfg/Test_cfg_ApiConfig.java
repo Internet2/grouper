@@ -31,8 +31,6 @@
 */
 
 package edu.internet2.middleware.grouper.cfg;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
-import edu.internet2.middleware.grouper.cfg.Configuration;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 
 /**
@@ -45,7 +43,6 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 public class Test_cfg_ApiConfig extends GrouperTest {
 
 
-  Configuration cfg;
   String        prop_invalid  = "this.property.should.not.exist";
   String        prop_valid    = "dao.factory";
 
@@ -53,7 +50,6 @@ public class Test_cfg_ApiConfig extends GrouperTest {
 
   public void setUp() {
     super.setUp();
-    this.cfg = new ApiConfig();
   }
   public void tearDown() {
     super.tearDown();
@@ -62,17 +58,17 @@ public class Test_cfg_ApiConfig extends GrouperTest {
 
 
   public void test_constant_ACCESS_PRIVILEGE_INTERFACE() {
-    assertEquals( "privileges.access.interface", ApiConfig.ACCESS_PRIVILEGE_INTERFACE );
+    assertEquals( "privileges.access.interface", GrouperConfig.ACCESS_PRIVILEGE_INTERFACE );
   }
 
   public void test_constant_NAMING_PRIVILEGE_INTERFACE() {
-    assertEquals( "privileges.naming.interface", ApiConfig.NAMING_PRIVILEGE_INTERFACE );
+    assertEquals( "privileges.naming.interface", GrouperConfig.NAMING_PRIVILEGE_INTERFACE );
   }
 
 
   public void test_getProperty_nullProperty() {
     try {
-      this.cfg.getProperty(null);
+      GrouperConfig.retrieveConfig().propertyValueString(null);
     }
     catch (IllegalArgumentException eExpected) {
       assertTrue("threw expected exception", true);
@@ -80,37 +76,21 @@ public class Test_cfg_ApiConfig extends GrouperTest {
   }
 
   public void test_getProperty_nonExistentProperty() {
-    assertNull( this.cfg.getProperty(this.prop_invalid) );
+    assertNull( GrouperConfig.retrieveConfig().propertyValueString(this.prop_invalid) );
   }
 
   public void test_getProperty_validProperty() {
-    assertNotNull( this.cfg.getProperty(this.prop_valid) );
+    assertNotNull( GrouperConfig.retrieveConfig().propertyValueString(this.prop_valid) );
   }
 
-
-  public void test_setProperty_nullProperty() {
-    try {
-      this.cfg.setProperty(null, null);
-    }
-    catch (IllegalArgumentException eExpected) {
-      assertTrue("threw expected exception", true);
-    }
-  }
-
-  public void test_setProperty_setNull() {
-    try {
-      this.cfg.setProperty(this.prop_valid, null);
-    }
-    catch (IllegalArgumentException eExpected) {
-      assertTrue("threw expected exception", true);
-    }
-  }
 
   public void test_setProperty_settingPropertyReturnsSetValue() {
     try {
       String val = "new value";
-      assertFalse( val.equals( this.cfg.getProperty(this.prop_valid) ) );
-      assertEquals( val, this.cfg.setProperty(this.prop_valid, val) );
+      assertFalse( val.equals( GrouperConfig.retrieveConfig().propertyValueString(this.prop_valid) ) );
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put(this.prop_valid, val);
+      assertEquals( val,  GrouperConfig.retrieveConfig().propertyValueString(this.prop_valid, val) );
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().remove(this.prop_valid);
     }
     catch (IllegalArgumentException eExpected) {
       assertTrue("threw expected exception", true);

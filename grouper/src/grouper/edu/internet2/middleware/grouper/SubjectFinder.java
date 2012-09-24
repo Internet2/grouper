@@ -1154,7 +1154,7 @@ public class SubjectFinder {
    */
   public static RestrictSourceForGroup restrictSourceForGroup(String stemName, String sourceId) {
     
-    if (!GrouperConfig.getPropertyBoolean("rules.enable", true)) {
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean("rules.enable", true)) {
       LOG.debug("rules.enable is false, do not check to see if stem is restricted");
       return new RestrictSourceForGroup(false, null);
     }
@@ -1518,7 +1518,7 @@ public class SubjectFinder {
       
       SubjectCustomizerCacheBean newBean = new SubjectCustomizerCacheBean();
       
-      String subjectCustomizerClassName = GrouperConfig.getProperty("subjects.customizer.className");
+      String subjectCustomizerClassName = GrouperConfig.retrieveConfig().propertyValueString("subjects.customizer.className");
       
       if (!StringUtils.isBlank(subjectCustomizerClassName)) {
         Class<SubjectCustomizer> theClass = GrouperUtil.forName(subjectCustomizerClassName);

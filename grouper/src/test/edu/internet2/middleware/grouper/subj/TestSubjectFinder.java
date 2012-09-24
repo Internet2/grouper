@@ -49,7 +49,7 @@ import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectTest;
@@ -69,7 +69,6 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectTooManyResults;
 import edu.internet2.middleware.subject.provider.JDBCSourceAdapter;
 import edu.internet2.middleware.subject.provider.JDBCSourceAdapter2;
-import edu.internet2.middleware.subject.provider.JNDISourceAdapter;
 import edu.internet2.middleware.subject.provider.JNDISourceAdapterLegacy;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
@@ -159,8 +158,8 @@ public class TestSubjectFinder extends GrouperTest {
    */
   public void testFindByIds() {
     
-    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
-    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
     
     GrouperSession grouperSession = GrouperSession.startRootSession();
         
@@ -1281,8 +1280,8 @@ public class TestSubjectFinder extends GrouperTest {
    */
   public void testFindByIdentifiers() {
     
-    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
-    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
     
     GrouperSession grouperSession = GrouperSession.startRootSession();
         
@@ -1426,8 +1425,8 @@ public class TestSubjectFinder extends GrouperTest {
    */
   public void testFindByIdsOrIdentifiers() {
     
-    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
-    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
     
     GrouperSession grouperSession = GrouperSession.startRootSession();
         

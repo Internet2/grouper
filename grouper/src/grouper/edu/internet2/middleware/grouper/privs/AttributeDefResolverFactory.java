@@ -31,7 +31,6 @@
 package edu.internet2.middleware.grouper.privs;
 
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
@@ -59,8 +58,7 @@ public class AttributeDefResolverFactory {
   public static AttributeDefResolver getInstance(GrouperSession session)
       throws IllegalArgumentException {
     return getInstance(
-        session, (AttributeDefAdapter) Realize.instantiate(GrouperConfig
-        .getProperty(ApiConfig.ATTRIBUTE_DEF_PRIVILEGE_INTERFACE)));
+        session, (AttributeDefAdapter) Realize.instantiate(GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.ATTRIBUTE_DEF_PRIVILEGE_INTERFACE)));
   }
 
   /**

@@ -88,12 +88,12 @@ public class WheelNamingResolver extends NamingResolverDecorator {
 
     // TODO 20070816 this is ugly
     this.useWheel = Boolean.valueOf(
-        GrouperConfig.getProperty(GrouperConfig.PROP_USE_WHEEL_GROUP)).booleanValue();
+        GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.PROP_USE_WHEEL_GROUP)).booleanValue();
     // TODO 20070816 and this is even worse
     if (this.useWheel) {
       String wheelGroupName = "";
       try {
-        wheelGroupName = GrouperConfig.getProperty(GrouperConfig.PROP_WHEEL_GROUP);
+        wheelGroupName = GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.PROP_WHEEL_GROUP);
         this.wheelSession = GrouperSession.start(SubjectFinder.findRootSubject(), false);
         this.wheelGroup = GroupFinder.findByName(
                     //dont replace the current grouper session

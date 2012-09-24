@@ -53,7 +53,7 @@ public class GrouperUuid {
     String uuid = UUID.randomUUID().toString();
     
     //config option to do that
-    if (GrouperConfig.getPropertyBoolean("uuid.use.dashes", false)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("uuid.use.dashes", false)) {
       return uuid;
     }
 

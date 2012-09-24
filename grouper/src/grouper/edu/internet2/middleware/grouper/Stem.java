@@ -2563,7 +2563,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
             UnableToPerformException
   {
     Subject       all = SubjectFinder.findAllSubject();
-    if (GrouperConfig.getProperty(opt).equals(GrouperConfig.BT)) {
+    if (StringUtils.equals(GrouperConfig.retrieveConfig().propertyValueString(opt), GrouperConfig.BT)) {
       StopWatch sw = new StopWatch();
       sw.start();
       if      (o instanceof Group) {

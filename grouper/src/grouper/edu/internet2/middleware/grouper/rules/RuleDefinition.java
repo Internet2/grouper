@@ -452,7 +452,7 @@ public class RuleDefinition {
     if (this.attributeAssignType == null) {
       return false;
     }
-    String attributeTypeAssignIdsToLog = GrouperConfig.getProperty("rules.attributeAssignTypeIdsToLog");
+    String attributeTypeAssignIdsToLog = GrouperConfig.retrieveConfig().propertyValueString("rules.attributeAssignTypeIdsToLog");
 
     //since we are working with uuid's, we can just do a contains to see if it is there
     return StringUtils.defaultString(attributeTypeAssignIdsToLog).contains(this.attributeAssignType.getId());
@@ -504,7 +504,7 @@ public class RuleDefinition {
     }
     
     //middleware.grouper.rules.MyRuleUtils
-    String customElClasses = GrouperConfig.getProperty("rules.customElClasses");
+    String customElClasses = GrouperConfig.retrieveConfig().propertyValueString("rules.customElClasses");
     if (!StringUtils.isBlank(customElClasses)) {
       String[] customElClassesArray = GrouperUtil.splitTrim(customElClasses, ",");
       for (String customElClass : customElClassesArray) {

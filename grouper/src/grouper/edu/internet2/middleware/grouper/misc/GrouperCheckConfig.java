@@ -28,15 +28,14 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.jar.Attributes;
+import java.util.jar.Attributes.Name;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-import java.util.jar.Attributes.Name;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -51,14 +50,15 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.entity.EntityUtils;
@@ -165,8 +165,8 @@ public class GrouperCheckConfig {
     
     //get auto create from config
     if (autoCreate == null) {
-      Properties properties = GrouperUtil.propertiesFromResourceName(GROUPER_PROPERTIES_NAME);
-      autoCreate = GrouperUtil.propertiesValueBoolean(properties, ApiConfig.testConfig, 
+      Properties properties = GrouperConfig.retrieveConfig().properties();
+      autoCreate = GrouperUtil.propertiesValueBoolean(properties, GrouperConfig.retrieveConfig().propertiesOverrideMap(), 
           "configuration.autocreate.system.groups", false);
     }
     
@@ -286,7 +286,7 @@ public class GrouperCheckConfig {
     if (disableConfigCheck == null) {
       //see if we shouldnt do this (but dont use ApiConfig API)
       try {
-        Properties properties = GrouperUtil.propertiesFromResourceName(GROUPER_PROPERTIES_NAME);
+        Properties properties = GrouperConfig.retrieveConfig().properties();
         String detectErrorsKey = "configuration.detect.errors";
         String detectErrors = GrouperUtil.propertiesValue(properties, detectErrorsKey);
         if (!GrouperUtil.booleanValue(detectErrors, true)) {
@@ -325,58 +325,58 @@ public class GrouperCheckConfig {
    * go through each property and check types of values
    */
   private static void checkGrouperConfig() {
-    if (!checkResource(GROUPER_PROPERTIES_NAME)) {
-      return;
-    }
+    //if (!checkResource(GROUPER_PROPERTIES_NAME)) {
+    //  return;
+    //}
 
-    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "privileges.access.interface", 
+    GrouperConfig.retrieveConfig().assertPropertyValueClass("privileges.access.interface", 
         AccessAdapter.class, true);
     
-    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "privileges.naming.interface", 
+    GrouperConfig.retrieveConfig().assertPropertyValueClass("privileges.naming.interface", 
         NamingAdapter.class, true);
     
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "groups.create.grant.all.admin", true);
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "groups.create.grant.all.optin", true);
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "groups.create.grant.all.optout", true);
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "groups.create.grant.all.read", true);
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "groups.create.grant.all.update", true);
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "groups.create.grant.all.view", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("groups.create.grant.all.admin", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("groups.create.grant.all.optin", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("groups.create.grant.all.optout", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("groups.create.grant.all.read", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("groups.create.grant.all.update", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("groups.create.grant.all.view", true);
 
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "stems.create.grant.all.create", true);
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "stems.create.grant.all.stem", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("stems.create.grant.all.create", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("stems.create.grant.all.stem", true);
 
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "groups.wheel.use", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("groups.wheel.use", true);
 
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "registry.autoinit", true);
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "configuration.detect.errors", true);
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "configuration.display.startup.message", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("registry.autoinit", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("configuration.detect.errors", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("configuration.display.startup.message", true);
 
-    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "dao.factory", 
+    GrouperConfig.retrieveConfig().assertPropertyValueClass("dao.factory", 
         GrouperDAOFactory.class, true);
 
-    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.group.class", GroupHooks.class, false);
-    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.lifecycle.class", LifecycleHooks.class, false);
-    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.membership.class", MembershipHooks.class, false);
-    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.member.class", MemberHooks.class, false);
-    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.stem.class", StemHooks.class, false);
-    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.composite.class", CompositeHooks.class, false);
-    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.field.class", FieldHooks.class, false);
-    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.grouperSession.class", GrouperSessionHooks.class, false);
-    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.groupType.class", GroupTypeHooks.class, false);
-    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.groupTypeTuple.class", GroupTypeTupleHooks.class, false);
+    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.group.class", GroupHooks.class, false);
+    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.lifecycle.class", LifecycleHooks.class, false);
+    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.membership.class", MembershipHooks.class, false);
+    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.member.class", MemberHooks.class, false);
+    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.stem.class", StemHooks.class, false);
+    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.composite.class", CompositeHooks.class, false);
+    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.field.class", FieldHooks.class, false);
+    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.grouperSession.class", GrouperSessionHooks.class, false);
+    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.groupType.class", GroupTypeHooks.class, false);
+    GrouperConfig.retrieveConfig().assertPropertyValueClass("hooks.groupTypeTuple.class", GroupTypeTupleHooks.class, false);
 
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.exclude.subject.tables", true);
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.schemaexport.installGrouperData", true);
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.failIfNotRightVersion", true);
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.dropBackupUuidCols", true);
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.dropBackupFieldNameTypeCols", true);
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.dropAttributeBackupTableFromGroupUpgrade", true);
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.disableComments", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("ddlutils.exclude.subject.tables", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("ddlutils.schemaexport.installGrouperData", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("ddlutils.failIfNotRightVersion", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("ddlutils.dropBackupUuidCols", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("ddlutils.dropBackupFieldNameTypeCols", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("ddlutils.dropAttributeBackupTableFromGroupUpgrade", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("ddlutils.disableComments", true);
     
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "grouperIncludeExclude.use", true);
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "grouperIncludeExclude.requireGroups.use", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("grouperIncludeExclude.use", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("grouperIncludeExclude.requireGroups.use", true);
     
-    Properties properties = GrouperUtil.propertiesFromResourceName(GROUPER_PROPERTIES_NAME);
+    Properties properties = GrouperConfig.retrieveConfig().properties();
     String value = GrouperUtil.propertiesValue(properties, "grouperIncludeExclude.requireGroups.extension.suffix");
 
     if (value != null && !value.contains("${i}")) {
@@ -417,7 +417,7 @@ public class GrouperCheckConfig {
       }
       
       //first try to get in the GrouperConfig, just get a property to init stuff
-      GrouperConfig.getProperty("groups.wheel.group");
+      GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.group");
       
       checkGrouperConfigs();
       
@@ -480,15 +480,15 @@ public class GrouperCheckConfig {
         String groupName = null;
         try {
           String groupNameKey = "configuration.autocreate.group.name." + i;
-          groupName = GrouperConfig.getProperty(groupNameKey);
+          groupName = GrouperConfig.retrieveConfig().propertyValueString(groupNameKey);
           
           if (StringUtils.isBlank(groupName)) {
             break;
           }
           
-          String groupDescription = GrouperConfig.getProperty("configuration.autocreate.group.description." + i);
+          String groupDescription = GrouperConfig.retrieveConfig().propertyValueString("configuration.autocreate.group.description." + i);
           String subjectsKey = "configuration.autocreate.group.subjects." + i;
-          String subjects = GrouperConfig.getProperty(subjectsKey);
+          String subjects = GrouperConfig.retrieveConfig().propertyValueString(subjectsKey);
     
           Group[] theGroup = new Group[1];
           //first the group
@@ -525,9 +525,9 @@ public class GrouperCheckConfig {
         }
         i++;
       }
-      boolean useWheel = GrouperConfig.getPropertyBoolean("groups.wheel.use", false);
+      boolean useWheel = GrouperConfig.retrieveConfig().propertyValueBoolean("groups.wheel.use", false);
       if (useWheel) {
-        String wheelName = GrouperConfig.getProperty("groups.wheel.group");
+        String wheelName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.group");
         if (StringUtils.isBlank(wheelName) && wasInCheckConfig) {
           String error = "grouper.properties property groups.wheel.group should not be blank if groups.wheel.use is true";
           System.err.println("Grouper error: " + error);
@@ -540,7 +540,7 @@ public class GrouperCheckConfig {
       
       // security.stem.groupAllowedToMoveStem
       String allowedGroupName = "security.stem.groupAllowedToMoveStem";
-      String groupAllowedToMoveStem = GrouperConfig.getProperty(allowedGroupName);
+      String groupAllowedToMoveStem = GrouperConfig.retrieveConfig().propertyValueString(allowedGroupName);
       if (StringUtils.isNotBlank(groupAllowedToMoveStem)) {
         checkGroup(grouperSession, groupAllowedToMoveStem, wasInCheckConfig, null, wasInCheckConfig, null, 
             null, "grouper.properties key: " + allowedGroupName, null);        
@@ -548,7 +548,7 @@ public class GrouperCheckConfig {
       
       // security.stem.groupAllowedToRenameStem
       allowedGroupName = "security.stem.groupAllowedToRenameStem";
-      String groupAllowedToRenameStem = GrouperConfig.getProperty(allowedGroupName);
+      String groupAllowedToRenameStem = GrouperConfig.retrieveConfig().propertyValueString(allowedGroupName);
       if (StringUtils.isNotBlank(groupAllowedToRenameStem)) {
         checkGroup(grouperSession, groupAllowedToRenameStem, wasInCheckConfig, null, wasInCheckConfig, null, 
             null, "grouper.properties key: " + allowedGroupName, null);        
@@ -556,7 +556,7 @@ public class GrouperCheckConfig {
       
       // security.stem.groupAllowedToCopyStem
       allowedGroupName = "security.stem.groupAllowedToCopyStem";
-      String groupAllowedToCopyStem = GrouperConfig.getProperty(allowedGroupName);
+      String groupAllowedToCopyStem = GrouperConfig.retrieveConfig().propertyValueString(allowedGroupName);
       if (StringUtils.isNotBlank(groupAllowedToCopyStem)) {
         checkGroup(grouperSession, groupAllowedToCopyStem, wasInCheckConfig, null, wasInCheckConfig, null, 
             null, "grouper.properties key: " + allowedGroupName, null);        
@@ -565,14 +565,14 @@ public class GrouperCheckConfig {
       //groups in requireGroups
       i=0;
       while(true) {
-        String groupName = GrouperConfig.getProperty("grouperIncludeExclude.requireGroup.group." + i);
+        String groupName = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroup.group." + i);
         
         if (StringUtils.isBlank(groupName)) {
           break;
         }
         
         String key = "grouperIncludeExclude.requireGroup.description." + i;
-        String description = GrouperConfig.getProperty(key);
+        String description = GrouperConfig.retrieveConfig().propertyValueString(key);
         
         checkGroup(grouperSession, groupName, wasInCheckConfig, null, wasInCheckConfig, null, description, 
           "requireGroup from grouper.properties key: " + key, null);
@@ -637,22 +637,21 @@ public class GrouperCheckConfig {
    * @return the map of settings from grouper.properties
    */
   public static Map<String, String> typeSecuritySettings() {
-    return retrievePropertiesKeys(GROUPER_PROPERTIES_NAME, typeSecurityPattern);
+    return GrouperConfig.retrieveConfig().propertiesMap(typeSecurityPattern);
   }
   
   /**
    * @return the map of settings from grouper.properties
    */
   public static Map<String, String> memberSortSearchSecuritySettings() {
-    return retrievePropertiesKeys(GROUPER_PROPERTIES_NAME, memberSortSearchSecurityPattern);
+    return GrouperConfig.retrieveConfig().propertiesMap(memberSortSearchSecurityPattern);
   }
   
   /**
    * make sure the grouper.hibernate.properties db settings are correct
    */
   public static void checkGrouperDb() {
-    Properties grouperHibernateProperties = GrouperUtil.propertiesFromResourceName(
-        "grouper.hibernate.properties");
+    Properties grouperHibernateProperties = GrouperHibernateConfig.retrieveConfig().properties();
 
     //#com.p6spy.engine.spy.P6SpyDriver, oracle.jdbc.driver.OracleDriver
     String driverClassName = GrouperUtil.propertiesValue(
@@ -699,7 +698,7 @@ public class GrouperCheckConfig {
     boolean isDialectHsql = dialect.toLowerCase().contains("hsql");
     boolean isDialectSqlServer = dialect.toLowerCase().contains("sqlserver");
     
-    if (GrouperConfig.getPropertyBoolean("db.log.driver.mismatch", true)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("db.log.driver.mismatch", true)) {
       if ((isDriverOracle && !isDialectOracle) || (isDriverPostgres && !isDialectPostgres) 
           || (isDriverMysql && !isDialectMysql) || (isDriverHsql && !isDialectHsql)
           || (!isDriverOracle && isDialectOracle) || (!isDriverPostgres && isDialectPostgres) 
@@ -803,8 +802,8 @@ public class GrouperCheckConfig {
    */
   private static void checkConfigProperties() {
 
-    checkConfigProperties(GROUPER_PROPERTIES_NAME, "grouper.example.properties");
-    checkConfigProperties("grouper.hibernate.properties", "grouper.hibernate.example.properties");
+    //checkConfigProperties(GROUPER_PROPERTIES_NAME, "grouper.example.properties");
+    //checkConfigProperties("grouper.hibernate.properties", "grouper.hibernate.example.properties");
     checkConfigProperties("morphString.properties", "morphString.example.properties");
     
     checkGrouperConfigDbChange();
@@ -823,7 +822,7 @@ public class GrouperCheckConfig {
     //db.warehouse.url = jdbc:mysql://localhost:3306/grouper
     //db.warehouse.driver = com.mysql.jdbc.Driver
     //make sure sequences are ok
-    Map<String, String> dbMap = retrievePropertiesKeys("grouper-loader.properties", 
+    Map<String, String> dbMap = GrouperLoaderConfig.retrieveConfig().propertiesMap( 
         grouperLoaderDbPattern);
     while (dbMap.size() > 0) {
       //get one
@@ -896,7 +895,7 @@ public class GrouperCheckConfig {
     //changeLog.consumer.ldappc.quartz.cron
     
     //make sure sequences are ok
-    Map<String, String> consumerMap = retrievePropertiesKeys("grouper-loader.properties", 
+    Map<String, String> consumerMap = GrouperLoaderConfig.retrieveConfig().propertiesMap(
         grouperLoaderConsumerPattern);
     while (consumerMap.size() > 0) {
       //get one
@@ -963,7 +962,7 @@ public class GrouperCheckConfig {
     //#group.attribute.validator.vetoMessage.0=Group ID '$attributeValue$' is invalid since it must contain only alpha-numerics
     
     //make sure sequences are ok
-    Map<String, String> validatorKeys = retrievePropertiesKeys(GROUPER_PROPERTIES_NAME, groupValidatorPattern);
+    Map<String, String> validatorKeys = GrouperConfig.retrieveConfig().propertiesMap(groupValidatorPattern);
     int i=0;
     while (true) {
       boolean foundOne = false;
@@ -996,7 +995,7 @@ public class GrouperCheckConfig {
     //#configuration.autocreate.group.subjects.0 = johnsmith
     
     //make sure sequences are ok
-    Map<String, String> validatorKeys = retrievePropertiesKeys(GROUPER_PROPERTIES_NAME, autocreateGroupsPattern);
+    Map<String, String> validatorKeys = GrouperConfig.retrieveConfig().propertiesMap(autocreateGroupsPattern);
     int i=0;
     while (true) {
       boolean foundOne = false;
@@ -1030,7 +1029,7 @@ public class GrouperCheckConfig {
     //#grouperIncludeExclude.requireGroup.description.0 = If value is true, members of the overall group must be an active employee.  Otherwise, leave this value not filled in.
     
     //make sure sequences are ok
-    Map<String, String> validatorKeys = retrievePropertiesKeys(GROUPER_PROPERTIES_NAME, includeExcludeAndGroupPattern);
+    Map<String, String> validatorKeys = GrouperConfig.retrieveConfig().propertiesMap(includeExcludeAndGroupPattern);
     int i=0;
     while (true) {
       boolean foundOne = false;
@@ -1060,7 +1059,7 @@ public class GrouperCheckConfig {
    */
   private static void checkGrouperConfigDbChange() {
     //make sure sequences are ok
-    Map<String, String> dbChangeKeys = retrievePropertiesKeys(GROUPER_PROPERTIES_NAME, dbChangePattern);
+    Map<String, String> dbChangeKeys = GrouperConfig.retrieveConfig().propertiesMap(dbChangePattern);
     int i=0;
     //db.change.allow.user.0=grouper3
     //db.change.allow.url.0=jdbc:mysql://localhost:3306/grouper3
@@ -1115,32 +1114,6 @@ public class GrouperCheckConfig {
       }
     }
     return foundOne;
-  }
-  
-  /**
-   * find all keys with a certain pattern in a properties file.
-   * return the keys.  if none, will return the empty set, not null set
-   * @param resourceName
-   * @param pattern
-   * @return the keys.  if none, will return the empty set, not null set
-   */
-  public static Map<String, String> retrievePropertiesKeys(String resourceName, Pattern pattern) {
-    Properties properties = GrouperUtil.propertiesFromResourceName(resourceName);
-    Map<String, String> result = new LinkedHashMap<String, String>();
-    for (String key: (Set<String>)(Object)properties.keySet()) {
-      if (pattern.matcher(key).matches()) {
-        result.put(key, (String)properties.get(key));
-      }
-    }
-    
-    //add in api config overrides for testing
-    for (String key: ApiConfig.testConfig.keySet()) {
-      if (pattern.matcher(key).matches()) {
-        result.put(key, ApiConfig.testConfig.get(key));
-      }
-    }
-    
-    return result;
   }
   
   /**
@@ -1566,7 +1539,7 @@ public class GrouperCheckConfig {
    * @return attribute built in stem name
    */
   public static String attributeRootStemName() {
-    String rootStemName = GrouperConfig.getProperty("grouper.attribute.rootStem");
+    String rootStemName = GrouperConfig.retrieveConfig().propertyValueString("grouper.attribute.rootStem");
     if (StringUtils.isBlank(rootStemName)) {
       throw new RuntimeException("If autoconfiguring attributes, you need to configure a root stem");
     }
@@ -1578,7 +1551,7 @@ public class GrouperCheckConfig {
    */
   public static void checkAttributes() {
     
-    boolean autoconfigure = GrouperConfig.getPropertyBoolean("grouper.attribute.loader.autoconfigure", false);
+    boolean autoconfigure = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.attribute.loader.autoconfigure", false);
     if (!autoconfigure) {
       return;
     }
@@ -1755,7 +1728,7 @@ public class GrouperCheckConfig {
         
       }      
 
-      boolean permissionsLimitsPublic = GrouperConfig.getPropertyBoolean("grouper.permissions.limits.builtin.createAs.public", true);
+      boolean permissionsLimitsPublic = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.permissions.limits.builtin.createAs.public", true);
       
       {
         String limitsRootStemName = PermissionLimitUtils.attributeLimitStemName();
@@ -1791,22 +1764,22 @@ public class GrouperCheckConfig {
         
         //add an el
         {
-          String elDisplayExtension = StringUtils.defaultIfEmpty(GrouperConfig.getProperty("grouper.permissions.limits.builtin.displayExtension.limitExpression"), "Expression");
+          String elDisplayExtension = StringUtils.defaultIfEmpty(GrouperConfig.retrieveConfig().propertyValueString("grouper.permissions.limits.builtin.displayExtension.limitExpression"), "Expression");
           checkAttribute(limitsStem, limitDef, PermissionLimitUtils.LIMIT_EL, elDisplayExtension, 
               "An expression language limit has a value of an EL which evaluates to true or false", wasInCheckConfig);
         }
         {
-          String ipOnNetworksDisplayExtension = StringUtils.defaultIfEmpty(GrouperConfig.getProperty("grouper.permissions.limits.builtin.displayExtension.limitIpOnNetworks"), "ipAddress on networks");
+          String ipOnNetworksDisplayExtension = StringUtils.defaultIfEmpty(GrouperConfig.retrieveConfig().propertyValueString("grouper.permissions.limits.builtin.displayExtension.limitIpOnNetworks"), "ipAddress on networks");
           checkAttribute(limitsStem, limitDef, PermissionLimitUtils.LIMIT_IP_ON_NETWORKS, ipOnNetworksDisplayExtension,
               "If the user is on an IP address on the following networks", wasInCheckConfig);
         }
         {
-          String ipOnNetworkRealmDisplayEntension = StringUtils.defaultIfEmpty(GrouperConfig.getProperty("grouper.permissions.limits.builtin.displayExtension.limitIpOnNetworkRealm"), "ipAddress on network realm");
+          String ipOnNetworkRealmDisplayEntension = StringUtils.defaultIfEmpty(GrouperConfig.retrieveConfig().propertyValueString("grouper.permissions.limits.builtin.displayExtension.limitIpOnNetworkRealm"), "ipAddress on network realm");
           checkAttribute(limitsStem, limitDef, PermissionLimitUtils.LIMIT_IP_ON_NETWORK_REALM, ipOnNetworkRealmDisplayEntension,
               "If the user is on an IP address on a centrally configured list of addresses", wasInCheckConfig);
         }
         {
-          String labelsContainDisplayExtension = StringUtils.defaultIfEmpty(GrouperConfig.getProperty("grouper.permissions.limits.builtin.displayExtension.limitLabelsContain"), "labels contains");
+          String labelsContainDisplayExtension = StringUtils.defaultIfEmpty(GrouperConfig.retrieveConfig().propertyValueString("grouper.permissions.limits.builtin.displayExtension.limitLabelsContain"), "labels contains");
           checkAttribute(limitsStem, limitDef, PermissionLimitUtils.LIMIT_LABELS_CONTAIN, labelsContainDisplayExtension,
               "Configure a set of comma separated labels.  The env variable 'labels' should be passed with comma separated " +
               "labels.  If one is there, its ok, if not, then disallowed", wasInCheckConfig);
@@ -1839,12 +1812,12 @@ public class GrouperCheckConfig {
         }
         
         {
-          String limitAmountLessThanDisplayExtension = StringUtils.defaultIfEmpty(GrouperConfig.getProperty("grouper.permissions.limits.builtin.displayExtension.limitAmountLessThan"), "amount less than");
+          String limitAmountLessThanDisplayExtension = StringUtils.defaultIfEmpty(GrouperConfig.retrieveConfig().propertyValueString("grouper.permissions.limits.builtin.displayExtension.limitAmountLessThan"), "amount less than");
           checkAttribute(limitsStem, limitDefInt, PermissionLimitUtils.LIMIT_AMOUNT_LESS_THAN, limitAmountLessThanDisplayExtension, 
               "Make sure the amount is less than the configured value", wasInCheckConfig);
         }
         {
-          String limitAmountLessThanOrEqualToDisplayExtension = StringUtils.defaultIfEmpty(GrouperConfig.getProperty("grouper.permissions.limits.builtin.displayExtension.limitAmountLessThanOrEqual"), "amount less than or equal to");
+          String limitAmountLessThanOrEqualToDisplayExtension = StringUtils.defaultIfEmpty(GrouperConfig.retrieveConfig().propertyValueString("grouper.permissions.limits.builtin.displayExtension.limitAmountLessThanOrEqual"), "amount less than or equal to");
           checkAttribute(limitsStem, limitDefInt, PermissionLimitUtils.LIMIT_AMOUNT_LESS_THAN_OR_EQUAL, limitAmountLessThanOrEqualToDisplayExtension,
               "Make sure the amount is less or equal to the configured value", wasInCheckConfig);
         }
@@ -1877,7 +1850,7 @@ public class GrouperCheckConfig {
         }
         
         {
-          String limitAmountLessThanDisplayExtension = StringUtils.defaultIfEmpty(GrouperConfig.getProperty("grouper.permissions.limits.builtin.displayExtension.limitWeekday9to5"), "Weekday 9 to 5");
+          String limitAmountLessThanDisplayExtension = StringUtils.defaultIfEmpty(GrouperConfig.retrieveConfig().propertyValueString("grouper.permissions.limits.builtin.displayExtension.limitWeekday9to5"), "Weekday 9 to 5");
           //add an weekday 9 to 5
           checkAttribute(limitsStem, limitDefMarker, PermissionLimitUtils.LIMIT_WEEKDAY_9_TO_5, limitAmountLessThanDisplayExtension,
               "Make sure the check for the permission happens between 9am to 5pm on Monday through Friday", wasInCheckConfig);

@@ -90,13 +90,13 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
     super(resolver);
 
     // TODO 20070816 this is ugly
-    String useWheelString = GrouperConfig.getProperty(GrouperConfig.PROP_USE_WHEEL_GROUP);
+    String useWheelString = GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.PROP_USE_WHEEL_GROUP);
     this.useWheel = Boolean.valueOf(useWheelString).booleanValue();
     // TODO 20070816 and this is even worse
     if (this.useWheel) {
       String wheelName = null;
       try {
-        wheelName = GrouperConfig.getProperty(GrouperConfig.PROP_WHEEL_GROUP);
+        wheelName = GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.PROP_WHEEL_GROUP);
         this.wheelSession = GrouperSession.start(SubjectFinder.findRootSubject(), false);
         this.wheelGroup = GroupFinder.findByName(
             this.wheelSession,
@@ -139,7 +139,7 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
         //Not happy about the klass but will do for now in the absence of a GrouperSession
         if (!p.equals(AttributeDefPrivilege.ATTR_OPTIN) && !p.equals(AttributeDefPrivilege.ATTR_OPTOUT)) {
           ap = new AttributeDefPrivilege(attributeDef, subject, SubjectFinder.findRootSubject(),
-              p, GrouperConfig.getProperty("privileges.attributeDef.interface"), false, null);
+              p, GrouperConfig.retrieveConfig().propertyValueString("privileges.attributeDef.interface"), false, null);
           accessPrivs.add(ap);
         }
       }

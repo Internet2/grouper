@@ -59,7 +59,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueOperation;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueResult;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueResult;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
@@ -74,20 +74,25 @@ import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.permissions.PermissionAssignOperation;
-import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
+import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
 import edu.internet2.middleware.grouper.permissions.limits.impl.PermissionLimitElLogic;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult.WsAddMemberResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults.WsAddMemberResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchEntry;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult.WsAssignAttributeBatchResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults.WsAssignAttributeDefNameInheritanceResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesBatchResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesBatchResults.WsAssignAttributesBatchResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssign;
@@ -100,10 +105,14 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameToSave;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults.WsFindAttributeDefNamesResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults.WsGetAttributeAssignmentsResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResults.WsGetGroupsResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResults.WsGetMembersResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetPermissionAssignmentsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDetail;
@@ -111,7 +120,9 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupToSave;
+import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResult.WsHasMemberResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults.WsHasMemberResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipAnyLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsPermissionAssign;
@@ -119,17 +130,6 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsQueryFilter;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubject;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult.WsAddMemberResultCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults.WsAddMemberResultsCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult.WsAssignAttributeBatchResultCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults.WsAssignAttributeDefNameInheritanceResultsCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesBatchResults.WsAssignAttributesBatchResultsCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults.WsFindAttributeDefNamesResultsCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults.WsGetAttributeAssignmentsResultsCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResults.WsGetGroupsResultsCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResults.WsGetMembersResultsCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResult.WsHasMemberResultCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults.WsHasMemberResultsCode;
 import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
 import edu.internet2.middleware.grouper.ws.query.StemScope;
 import edu.internet2.middleware.grouper.ws.query.WsQueryFilterType;
@@ -181,15 +181,15 @@ public class GrouperServiceLogicTest extends GrouperTest {
     //help test logins from session opened from resetData
     GrouperServiceUtils.testSession = GrouperSession.staticGrouperSession();
 
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrAdmin", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrOptin", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrOptout", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrRead", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrUpdate", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrView", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrAdmin", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrOptin", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrOptout", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrRead", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrUpdate", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrView", "false");
 
-    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
-    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
     
     GrouperWsVersionUtils.assignCurrentClientVersion(GROUPER_VERSION, new StringBuilder());
   }
@@ -247,8 +247,8 @@ public class GrouperServiceLogicTest extends GrouperTest {
 
     GrouperServiceUtils.testSession = GrouperSession.startRootSession();
 
-    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
-    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
 
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
@@ -1518,8 +1518,8 @@ public class GrouperServiceLogicTest extends GrouperTest {
     AttributeDefName assignOnAssignDefName = top.addChildAttributeDefName(
         assignOnAssignDef, "assignOnAssignDefName", "assignOnAssignDefName");
 
-    ApiConfig.testConfig.put("grouper.permissions.limits.logic.customEl.limitName", assignOnAssignDefName.getName());
-    ApiConfig.testConfig.put("grouper.permissions.limits.logic.customEl.logicClass", PermissionLimitElLogic.class.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.permissions.limits.logic.customEl.limitName", assignOnAssignDefName.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.permissions.limits.logic.customEl.logicClass", PermissionLimitElLogic.class.getName());
     
     AttributeValueResult attributeValueResult = attributeAssignResult.getAttributeAssign()
       .getAttributeValueDelegate().assignValueString(assignOnAssignDefName.getName(), "amount < 50");
@@ -1985,8 +1985,8 @@ public class GrouperServiceLogicTest extends GrouperTest {
     AttributeDefName assignOnAssignDefName = top.addChildAttributeDefName(
         assignOnAssignDef, "assignOnAssignDefName", "assignOnAssignDefName");
 
-    ApiConfig.testConfig.put("grouper.permissions.limits.logic.customEl.limitName", assignOnAssignDefName.getName());
-    ApiConfig.testConfig.put("grouper.permissions.limits.logic.customEl.logicClass", PermissionLimitElLogic.class.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.permissions.limits.logic.customEl.limitName", assignOnAssignDefName.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.permissions.limits.logic.customEl.logicClass", PermissionLimitElLogic.class.getName());
 
     AttributeValueResult attributeValueResult = attributeAssignResult.getAttributeAssign()
       .getAttributeValueDelegate().assignValueString(assignOnAssignDefName.getName(), "amount < 50");
@@ -4900,8 +4900,8 @@ public class GrouperServiceLogicTest extends GrouperTest {
   
     GrouperServiceUtils.testSession = GrouperSession.startRootSession();
   
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrView", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrRead", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrView", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrRead", "false");
   
     Stem testStem = new StemSave(GrouperServiceUtils.testSession).assignName("test1").save();
     Stem testSubStem = new StemSave(GrouperServiceUtils.testSession).assignName("test1:sub").save();
@@ -5033,8 +5033,8 @@ public class GrouperServiceLogicTest extends GrouperTest {
   
     GrouperServiceUtils.testSession = GrouperSession.startRootSession();
   
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrView", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrRead", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrView", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrRead", "false");
   
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
@@ -5168,8 +5168,8 @@ public class GrouperServiceLogicTest extends GrouperTest {
   
     GrouperServiceUtils.testSession = GrouperSession.startRootSession();
   
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrView", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrRead", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrView", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrRead", "false");
   
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
@@ -5249,8 +5249,8 @@ public class GrouperServiceLogicTest extends GrouperTest {
   
     GrouperServiceUtils.testSession = GrouperSession.startRootSession();
   
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrView", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrRead", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrView", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrRead", "false");
   
     GrouperSession grouperSession = GrouperSession.startRootSession();
     

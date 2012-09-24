@@ -68,7 +68,7 @@ public class ExternalSubjectAttrFramework {
     if (StringUtils.isBlank(emailTemplate)) {
       
       //use a standard one
-      emailTemplate = GrouperConfig.getProperty("externalSubjectsInviteDefaultEmail");
+      emailTemplate = GrouperConfig.retrieveConfig().propertyValueString("externalSubjectsInviteDefaultEmail");
 
     }
 
@@ -82,7 +82,7 @@ public class ExternalSubjectAttrFramework {
 
     String uiUrl = GrouperConfig.getGrouperUiUrl(true);
 
-    emailSubject = StringUtils.isBlank(emailSubject) ? GrouperConfig.getProperty("externalSubjectsInviteDefaultEmailSubject") : emailSubject;
+    emailSubject = StringUtils.isBlank(emailSubject) ? GrouperConfig.retrieveConfig().propertyValueString("externalSubjectsInviteDefaultEmailSubject") : emailSubject;
     
     if (StringUtils.isBlank(emailSubject)) {
       throw new RuntimeException("Email subject cannot be blank.  One must be specified or " +
@@ -145,7 +145,7 @@ public class ExternalSubjectAttrFramework {
    * @return millis that this will expire
    */
   public static long expireMillisAfter1970() {
-    long expireMillisAfter1970 = GrouperConfig.getPropertyInt("externalSubjectsInviteExpireAfterDays", 7);
+    long expireMillisAfter1970 = GrouperConfig.retrieveConfig().propertyValueInt("externalSubjectsInviteExpireAfterDays", 7);
 
     if (expireMillisAfter1970 > 0) {
       

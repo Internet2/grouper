@@ -34,7 +34,6 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig;
@@ -71,76 +70,76 @@ public class GroupSyncDaemonTest extends GrouperTest {
   protected void setUp() {
     super.setUp();
 
-    ApiConfig.testConfig.put("grouperClient.remoteGrouperTest.id", "remoteGrouperTest");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.remoteGrouperTest.id", "remoteGrouperTest");
     
     {
       String url = GrouperConfig.getProperty("junit.test.groupSync.url");
       assertTrue(StringUtils.isNotBlank(url));
       
-      ApiConfig.testConfig.put("grouperClient.remoteGrouperTest.properties.grouperClient.webService.url", url);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.remoteGrouperTest.properties.grouperClient.webService.url", url);
     }
     
     {
       String user = GrouperConfig.getProperty("junit.test.groupSync.user");
       assertTrue(StringUtils.isNotBlank(user));
       
-      ApiConfig.testConfig.put("grouperClient.remoteGrouperTest.properties.grouperClient.webService.login", user);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.remoteGrouperTest.properties.grouperClient.webService.login", user);
     }
     
     {
       String pass = GrouperConfig.getProperty("junit.test.groupSync.password");
       assertTrue(StringUtils.isNotBlank(pass));
       
-      ApiConfig.testConfig.put("grouperClient.remoteGrouperTest.properties.grouperClient.webService.password", pass);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.remoteGrouperTest.properties.grouperClient.webService.password", pass);
     }
 
-    ApiConfig.testConfig.put("grouperClient.remoteGrouperTest.source.externalSubjects.id", "externalSubjects");
-    ApiConfig.testConfig.put("grouperClient.remoteGrouperTest.source.externalSubjects.local.sourceId", "grouperExternal");
-    ApiConfig.testConfig.put("grouperClient.remoteGrouperTest.source.externalSubjects.local.read.subjectId", "identifier");
-    ApiConfig.testConfig.put("grouperClient.remoteGrouperTest.source.externalSubjects.local.write.subjectId", "identifier");
-    ApiConfig.testConfig.put("grouperClient.remoteGrouperTest.source.externalSubjects.remote.sourceId", 
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.remoteGrouperTest.source.externalSubjects.id", "externalSubjects");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.remoteGrouperTest.source.externalSubjects.local.sourceId", "grouperExternal");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.remoteGrouperTest.source.externalSubjects.local.read.subjectId", "identifier");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.remoteGrouperTest.source.externalSubjects.local.write.subjectId", "identifier");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.remoteGrouperTest.source.externalSubjects.remote.sourceId", 
         GrouperConfig.getProperty("junit.test.groupSync.remoteSourceId"));
-    ApiConfig.testConfig.put("grouperClient.remoteGrouperTest.source.externalSubjects.remote.read.subjectId", 
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.remoteGrouperTest.source.externalSubjects.remote.read.subjectId", 
         GrouperConfig.getProperty("junit.test.groupSync.remoteReadSubjectId"));
-    ApiConfig.testConfig.put("grouperClient.remoteGrouperTest.source.externalSubjects.remote.write.subjectId", 
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperClient.remoteGrouperTest.source.externalSubjects.remote.write.subjectId", 
         GrouperConfig.getProperty("junit.test.groupSync.remoteWriteSubjectId"));
 
     //########################## PUSH
-    ApiConfig.testConfig.put("syncAnotherGrouper.unitTest.connectionName", "remoteGrouperTest");
-    ApiConfig.testConfig.put("syncAnotherGrouper.unitTest.syncType", "push");
-    ApiConfig.testConfig.put("syncAnotherGrouper.unitTest.cron", "0 0 5 * * ?");
-    ApiConfig.testConfig.put("syncAnotherGrouper.unitTest.local.groupName", "localGroupSyncTest:localTestPush");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("syncAnotherGrouper.unitTest.connectionName", "remoteGrouperTest");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("syncAnotherGrouper.unitTest.syncType", "push");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("syncAnotherGrouper.unitTest.cron", "0 0 5 * * ?");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("syncAnotherGrouper.unitTest.local.groupName", "localGroupSyncTest:localTestPush");
     
     this.remoteTestFolder = GrouperConfig.getProperty("junit.test.groupSync.folder");
     assertTrue(StringUtils.isNotBlank(this.remoteTestFolder));
     
-    ApiConfig.testConfig.put("syncAnotherGrouper.unitTest.remote.groupName", this.remoteTestFolder + ":" + "remoteTestPush");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("syncAnotherGrouper.unitTest.remote.groupName", this.remoteTestFolder + ":" + "remoteTestPush");
     
     String pushAddExternalSubjectIfNotExist = StringUtils.defaultString(GrouperConfig.getProperty("junit.test.groupSync.pushAddExternalSubjectIfNotExist"), "true");
 
-    ApiConfig.testConfig.put("syncAnotherGrouper.unitTest.addExternalSubjectIfNotFound", pushAddExternalSubjectIfNotExist);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("syncAnotherGrouper.unitTest.addExternalSubjectIfNotFound", pushAddExternalSubjectIfNotExist);
     
     //##########################  PULL
     
-    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPull.connectionName", "remoteGrouperTest");
-    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPull.syncType", "pull");
-    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPull.cron", "0 0 5 * * ?");
-    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPull.local.groupName", "localGroupSyncTest:localTestPull");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("syncAnotherGrouper.unitTestPull.connectionName", "remoteGrouperTest");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("syncAnotherGrouper.unitTestPull.syncType", "pull");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("syncAnotherGrouper.unitTestPull.cron", "0 0 5 * * ?");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("syncAnotherGrouper.unitTestPull.local.groupName", "localGroupSyncTest:localTestPull");
     
-    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPull.remote.groupName", this.remoteTestFolder + ":" + "remoteTestPull");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("syncAnotherGrouper.unitTestPull.remote.groupName", this.remoteTestFolder + ":" + "remoteTestPull");
     
     //note, always true to create subjects
-    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPull.addExternalSubjectIfNotFound", "true");    
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("syncAnotherGrouper.unitTestPull.addExternalSubjectIfNotFound", "true");    
 
     //########################## PUSH INCREMENTAL
-    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPushIncremental.connectionName", "remoteGrouperTest");
-    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPushIncremental.syncType", "incremental_push");
-    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPushIncremental.cron", "0 0 5 * * ?");
-    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPushIncremental.local.groupName", "localGroupSyncTest:localTestPushIncremental");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("syncAnotherGrouper.unitTestPushIncremental.connectionName", "remoteGrouperTest");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("syncAnotherGrouper.unitTestPushIncremental.syncType", "incremental_push");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("syncAnotherGrouper.unitTestPushIncremental.cron", "0 0 5 * * ?");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("syncAnotherGrouper.unitTestPushIncremental.local.groupName", "localGroupSyncTest:localTestPushIncremental");
     
-    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPushIncremental.remote.groupName", this.remoteTestFolder + ":" + "remoteTestPushIncremental");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("syncAnotherGrouper.unitTestPushIncremental.remote.groupName", this.remoteTestFolder + ":" + "remoteTestPushIncremental");
     
-    ApiConfig.testConfig.put("syncAnotherGrouper.unitTestPushIncremental.addExternalSubjectIfNotFound", pushAddExternalSubjectIfNotExist);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("syncAnotherGrouper.unitTestPushIncremental.addExternalSubjectIfNotFound", pushAddExternalSubjectIfNotExist);
     
   }
 

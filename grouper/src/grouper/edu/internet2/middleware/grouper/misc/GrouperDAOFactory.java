@@ -34,7 +34,6 @@ package edu.internet2.middleware.grouper.misc;
 import org.hibernate.Session;
 import org.hibernate.cfg.Configuration;
 
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.internal.dao.AttributeAssignActionDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeAssignActionSetDAO;
@@ -115,7 +114,7 @@ public abstract class GrouperDAOFactory {
    */
   public static GrouperDAOFactory getFactory() {
     if (gdf == null) {
-      gdf = getFactory( new ApiConfig() );
+      gdf = getFactoryHelper( );
     }
     return gdf;
   } 
@@ -129,13 +128,10 @@ public abstract class GrouperDAOFactory {
    * @throws  IllegalArgumentException if <i>cfg</i> is null.
    * @since   1.2.1
    */
-  public static GrouperDAOFactory getFactory(ApiConfig cfg) 
+  private static GrouperDAOFactory getFactoryHelper() 
     throws  IllegalArgumentException
   {
-    if (cfg == null) {
-      throw new IllegalArgumentException("null configuration");
-    }
-    String            klass = cfg.getProperty(GrouperConfig.PROP_DAO_FACTORY);
+    String            klass = GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.PROP_DAO_FACTORY);
     GrouperValidator  v     = NotNullOrEmptyValidator.validate(klass);
     if ( v.isInvalid() ) {
       klass = GrouperConfig.DEFAULT_DAO_FACTORY;

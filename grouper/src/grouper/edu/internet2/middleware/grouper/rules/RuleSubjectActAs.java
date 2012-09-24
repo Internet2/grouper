@@ -207,7 +207,7 @@ public class RuleSubjectActAs {
    * @return act as cache minutes
    */
   private static int actAsCacheMinutes() {
-    int actAsTimeoutMinutes = GrouperConfig.getPropertyInt(
+    int actAsTimeoutMinutes = GrouperConfig.retrieveConfig().propertyValueInt(
         "rules.act.as.cache.minutes", 30);
     return actAsTimeoutMinutes;
   }
@@ -269,7 +269,7 @@ public class RuleSubjectActAs {
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         
         //make sure allowed
-        String actAsGroupName = GrouperConfig.getProperty("rules.act.as.group");
+        String actAsGroupName = GrouperConfig.retrieveConfig().propertyValueString("rules.act.as.group");
         
         if (StringUtils.isBlank(actAsGroupName)) {
           return false;
@@ -364,7 +364,7 @@ public class RuleSubjectActAs {
       return true;
     }
     
-    if (GrouperConfig.getPropertyBoolean("rules.allowActAsGrouperSystemForInheritedStemPrivileges", true)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("rules.allowActAsGrouperSystemForInheritedStemPrivileges", true)) {
 
       try {
         RuleCheckType ruleCheckType = ruleDefinition.getCheck().checkTypeEnum();

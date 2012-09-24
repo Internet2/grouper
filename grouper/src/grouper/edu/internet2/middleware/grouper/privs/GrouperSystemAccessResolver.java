@@ -98,8 +98,7 @@ public class GrouperSystemAccessResolver extends AccessResolverDecorator {
       for (Privilege p : privs) {
         //Not happy about the klass but will do for now in the absence of a GrouperSession
         if (!p.equals(AccessPrivilege.OPTIN) && !p.equals(AccessPrivilege.OPTOUT)) {
-          ap = new AccessPrivilege(group, subject, subject, p, GrouperConfig
-              .getProperty("privileges.access.interface"), false, null);
+          ap = new AccessPrivilege(group, subject, subject, p, GrouperConfig.retrieveConfig().propertyValueString("privileges.access.interface"), false, null);
           accessPrivs.add(ap);
         }
       }

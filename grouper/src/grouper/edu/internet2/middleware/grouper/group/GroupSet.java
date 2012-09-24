@@ -449,7 +449,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
       }
     }
     
-    if (GrouperConfig.getPropertyBoolean("stems.updateLastMembershipTime", false)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("stems.updateLastMembershipTime", false)) {
       StemDAO dao = GrouperDAOFactory.getFactory().getStem();
       Iterator<String> stemIdsIter = stemIds.iterator();
       while (stemIdsIter.hasNext()) {
@@ -457,7 +457,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
       }
     }
     
-    if (GrouperConfig.getPropertyBoolean("groups.updateLastMembershipTime", false)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("groups.updateLastMembershipTime", false)) {
       GroupDAO dao = GrouperDAOFactory.getFactory().getGroup();
       Iterator<String> groupIdsIter = groupIds.iterator();
       while (groupIdsIter.hasNext()) {

@@ -101,7 +101,7 @@ public class LimitElUtils {
     }
 
     String grouperConfigPropertyName = "grouper.permissions.limits.realm." + realmName;
-    String networkIpStrings = GrouperConfig.getProperty(grouperConfigPropertyName);
+    String networkIpStrings = GrouperConfig.retrieveConfig().propertyValueString(grouperConfigPropertyName);
 
     if (StringUtils.isBlank(networkIpStrings)) {
       throw new RuntimeException("You should have a grouper.properties entry for " + grouperConfigPropertyName);

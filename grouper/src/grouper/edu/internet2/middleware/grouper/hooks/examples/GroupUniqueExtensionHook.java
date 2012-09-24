@@ -71,7 +71,7 @@ public class GroupUniqueExtensionHook extends GroupHooks {
     }
     
     //see if we are checking subjects
-    if (GrouperConfig.getPropertyBoolean("groupUniqueExtensionHook.resolveSubjectByIdOrIdentifier", false)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("groupUniqueExtensionHook.resolveSubjectByIdOrIdentifier", false)) {
       
       //resolve by id or identifier
       Subject subject = SubjectFinder.findByIdOrIdentifier(group.getExtension(), false);

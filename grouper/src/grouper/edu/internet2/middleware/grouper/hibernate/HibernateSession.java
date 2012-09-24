@@ -82,7 +82,7 @@ public class HibernateSession {
    * @return true if readonly
    */
   public static boolean isReadonlyMode() {
-    if (GrouperConfig.getPropertyBoolean("grouper.api.readonly", false)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.api.readonly", false)) {
       return true;
     }
     
@@ -125,7 +125,7 @@ public class HibernateSession {
       GrouperTransactionType grouperTransactionType) throws GrouperDAOException {
 
     if (!GrouperDdlUtils.okToUseHibernate()) {
-      if (GrouperConfig.getPropertyBoolean("ddlutils.failIfNotRightVersion", true)) {
+      if (GrouperConfig.retrieveConfig().propertyValueBoolean("ddlutils.failIfNotRightVersion", true)) {
         throw new RuntimeException("Database schema ddl is not up to date, or has issues, check logs and config ddl in grouper.properties and run: gsh -registry -check");
       }
     }
@@ -138,7 +138,7 @@ public class HibernateSession {
     }
     
     //if we arent using nested transactions, then just use parent if there is one...
-    if (!GrouperConfig.getPropertyBoolean("ddlutils.use.nestedTransactions", true) && parentHibernateSession != null) {
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean("ddlutils.use.nestedTransactions", true) && parentHibernateSession != null) {
       grouperTransactionType = parentHibernateSession.getGrouperTransactionType();
       //we dont want new transactions... not sure what happens if none... hmm
       if (grouperTransactionType.isNewAutonomous()) {
@@ -190,7 +190,7 @@ public class HibernateSession {
       if (!this.immediateGrouperTransactionTypeUsed.isReadonly()) {
         this.immediateTransaction = this.immediateSession.beginTransaction();
 
-        String useSavepointsString = GrouperConfig.getProperty("jdbc.useSavePoints");
+        String useSavepointsString = GrouperConfig.retrieveConfig().propertyValueString("jdbc.useSavePoints");
         boolean useSavepoints;
         if (StringUtils.isBlank(useSavepointsString)) {
           useSavepoints = !GrouperDdlUtils.isHsql();
@@ -199,7 +199,7 @@ public class HibernateSession {
         }
         
         if (useSavepoints && (parentHibernateSession != null   // && this.activeHibernateSession().isTransactionActive()  && !this.activeHibernateSession().isReadonly() 
-            || GrouperConfig.getPropertyBoolean("jdbc.useSavePointsOnAllNewTransactions", false))) {
+            || GrouperConfig.retrieveConfig().propertyValueBoolean("jdbc.useSavePointsOnAllNewTransactions", false))) {
           try {
             this.savepoint = this.activeHibernateSession().getSession().connection().setSavepoint();
             savePointCount++;
@@ -442,7 +442,7 @@ public class HibernateSession {
    * make sure not readonly mode
    */
   public static void assertNotGrouperReadonly() {
-    if (GrouperConfig.getPropertyBoolean("grouper.api.readonly", false)) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.api.readonly", false)) {
       throw new GrouperReadonlyException(READONLY_ERROR);
     }
   }

@@ -24,7 +24,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -106,21 +106,21 @@ public class StemAttributeSecurityTest extends GrouperTest {
     @SuppressWarnings("unused")
     Subject subject = SubjectTestHelper.SUBJ0;
 
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrAdmin", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrOptin", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrOptout", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrRead", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrUpdate", "false");
-    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrView", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrAdmin", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrOptin", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrOptout", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrRead", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrUpdate", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrView", "false");
 
-    ApiConfig.testConfig.put("stems.create.grant.all.create", "false");
-    ApiConfig.testConfig.put("stems.create.grant.all.stem", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.create.grant.all.create", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.create.grant.all.stem", "false");
 
     this.etc = new StemSave(this.grouperSession).assignStemNameToEdit("etc").assignName("etc").save();
     this.wheel = etc.addChildGroup("wheel","wheel");
 
-    ApiConfig.testConfig.put("groups.wheel.use", "true");
-    ApiConfig.testConfig.put("groups.wheel.group", wheel.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.group", wheel.getName());
 
     this.attributeDef1 = this.top.addChildAttributeDef("test", AttributeDefType.attr);
     this.attributeDef1.setAssignToStem(true);

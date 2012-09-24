@@ -51,7 +51,6 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -373,7 +372,7 @@ public class RuleTest extends GrouperTest {
   public void testRuleLonghandElCustomClass() {
 
     
-    ApiConfig.testConfig.put("rules.customElClasses", MyRuleUtils.class.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.customElClasses", MyRuleUtils.class.getName());
     
     
     GrouperSession grouperSession = GrouperSession.startRootSession();
@@ -435,7 +434,7 @@ public class RuleTest extends GrouperTest {
    */
   public void testRuleLonghandIfElMoreApi() {
     
-    ApiConfig.testConfig.put("rules.accessToApiInEl.group", "etc:rulesAccessToApi");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.accessToApiInEl.group", "etc:rulesAccessToApi");
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
     Group rulesAccessToApiGroup = new GroupSave(grouperSession).assignName("etc:rulesAccessToApi").save();
@@ -824,8 +823,8 @@ public class RuleTest extends GrouperTest {
   @Override
   protected void setUp() {
     super.setUp();
-    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
-    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
     GrouperSession rootSession = GrouperSession.startRootSession();
     new GroupSave(rootSession).assignCreateParentStemsIfNotExist(true).assignName("etc:rulesActAsGroup").save();
     GrouperSession.stopQuietly(rootSession);
@@ -1969,7 +1968,7 @@ public class RuleTest extends GrouperTest {
    */
   public void testRuleLonghandStemScopeSubCreateGroupAsGrouperSystem() {
     
-    ApiConfig.testConfig.put("rules.allowActAsGrouperSystemForInheritedStemPrivileges", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.allowActAsGrouperSystemForInheritedStemPrivileges", "true");
 
     GrouperSession grouperSession = GrouperSession.startRootSession();
     Stem stem2 = new StemSave(grouperSession).assignName("stem2").assignCreateParentStemsIfNotExist(true).save();
@@ -2076,7 +2075,7 @@ public class RuleTest extends GrouperTest {
    */
   public void testRuleLonghandStemScopeSubCreateStemAsGrouperSystem() {
     
-    ApiConfig.testConfig.put("rules.allowActAsGrouperSystemForInheritedStemPrivileges", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.allowActAsGrouperSystemForInheritedStemPrivileges", "true");
 
     GrouperSession grouperSession = GrouperSession.startRootSession();
     Stem stem2 = new StemSave(grouperSession).assignName("stem2").assignCreateParentStemsIfNotExist(true).save();
@@ -2273,7 +2272,7 @@ public class RuleTest extends GrouperTest {
      */
     public void testRuleLonghandStemScopeSubCreateAttributeDefAsGrouperSystem() {
       
-      ApiConfig.testConfig.put("rules.allowActAsGrouperSystemForInheritedStemPrivileges", "true");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("rules.allowActAsGrouperSystemForInheritedStemPrivileges", "true");
   
       GrouperSession grouperSession = GrouperSession.startRootSession();
       Stem stem2 = new StemSave(grouperSession).assignName("stem2").assignCreateParentStemsIfNotExist(true).save();

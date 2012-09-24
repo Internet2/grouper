@@ -135,7 +135,7 @@ public enum DiagnosticType {
 
       {
         //expand these out
-        Map<String, String> consumerMap = GrouperCheckConfig.retrievePropertiesKeys("grouper-loader.properties", 
+        Map<String, String> consumerMap = GrouperLoaderConfig.retrieveConfig().propertiesMap( 
             GrouperCheckConfig.grouperLoaderConsumerPattern);
         
         for (String consumerKey : consumerMap.keySet()) {

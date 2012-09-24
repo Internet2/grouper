@@ -22,7 +22,6 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
@@ -291,14 +290,14 @@ public class TestMemberAttributes extends GrouperTest {
    * 
    */
   public void testInternalMembersNonDefaultAttributes() {
-    ApiConfig.testConfig.put("internalSubjects.sortAttribute1.el", "test1");
-    ApiConfig.testConfig.put("internalSubjects.sortAttribute2.el", "test2");
-    ApiConfig.testConfig.put("internalSubjects.sortAttribute3.el", "test3");
-    ApiConfig.testConfig.put("internalSubjects.sortAttribute4.el", "test4");
-    ApiConfig.testConfig.put("internalSubjects.searchAttribute1.el", "test5");
-    ApiConfig.testConfig.put("internalSubjects.searchAttribute2.el", "test6");
-    ApiConfig.testConfig.put("internalSubjects.searchAttribute3.el", "test7");
-    ApiConfig.testConfig.put("internalSubjects.searchAttribute4.el", "test8");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.sortAttribute1.el", "test1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.sortAttribute2.el", "test2");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.sortAttribute3.el", "test3");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.sortAttribute4.el", "test4");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.searchAttribute1.el", "test5");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.searchAttribute2.el", "test6");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.searchAttribute3.el", "test7");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("internalSubjects.searchAttribute4.el", "test8");
     InternalSourceAdapter.instance().init();
     ExpirableCache.clearAll();
 
@@ -326,7 +325,7 @@ public class TestMemberAttributes extends GrouperTest {
     assertEquals("test8", member.getSearchString4());
     
     // reset the state
-    ApiConfig.testConfig.clear();
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().clear();
     InternalSourceAdapter.instance().init();
     ExpirableCache.clearAll();
     GrouperCacheUtils.clearAllCaches();
@@ -712,12 +711,12 @@ public class TestMemberAttributes extends GrouperTest {
    * 
    */
   public void testGetDefaultSearchIndex() {
-    ApiConfig.testConfig.put("member.search.defaultIndexOrder", "3,1,4,0,2");
-    ApiConfig.testConfig.put("security.member.search.string0.wheelOnly", "true");
-    ApiConfig.testConfig.put("security.member.search.string1.wheelOnly", "true");
-    ApiConfig.testConfig.put("security.member.search.string2.wheelOnly", "true");
-    ApiConfig.testConfig.put("security.member.search.string3.wheelOnly", "true");
-    ApiConfig.testConfig.put("security.member.search.string4.wheelOnly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("member.search.defaultIndexOrder", "3,1,4,0,2");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.search.string0.wheelOnly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.search.string1.wheelOnly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.search.string2.wheelOnly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.search.string3.wheelOnly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.search.string4.wheelOnly", "true");
 
     Group allowGroup1 = edu.addChildGroup("allowGroup1", "allowGroup1");
     Group allowGroup2 = edu.addChildGroup("allowGroup2", "allowGroup2");
@@ -742,30 +741,30 @@ public class TestMemberAttributes extends GrouperTest {
     assertFalse(SearchStringEnum.SEARCH_STRING_4.hasAccess());
     
     // now verify that subj1 can use index 2
-    ApiConfig.testConfig.put("security.member.search.string2.wheelOnly", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.search.string2.wheelOnly", "false");
     assertEquals(SearchStringEnum.SEARCH_STRING_2, SearchStringEnum.getDefaultSearchString());
 
     // now verify that subj1 can use index 0
-    ApiConfig.testConfig.put("security.member.search.string0.wheelOnly", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.search.string0.wheelOnly", "false");
     assertEquals(SearchStringEnum.SEARCH_STRING_0, SearchStringEnum.getDefaultSearchString());
     
     // now verify that subj1 can use index 4
-    ApiConfig.testConfig.put("security.member.search.string4.wheelOnly", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.search.string4.wheelOnly", "false");
     assertEquals(SearchStringEnum.SEARCH_STRING_4, SearchStringEnum.getDefaultSearchString());
     
     // now verify that subj1 can use index 1
-    ApiConfig.testConfig.put("security.member.search.string1.wheelOnly", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.search.string1.wheelOnly", "false");
     assertEquals(SearchStringEnum.SEARCH_STRING_1, SearchStringEnum.getDefaultSearchString());
     
     // now verify that subj1 can use index 3
-    ApiConfig.testConfig.put("security.member.search.string3.wheelOnly", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.search.string3.wheelOnly", "false");
     assertEquals(SearchStringEnum.SEARCH_STRING_3, SearchStringEnum.getDefaultSearchString());
     
-    ApiConfig.testConfig.put("security.member.search.string0.allowOnlyGroup", "edu:allowGroup1");
-    ApiConfig.testConfig.put("security.member.search.string1.allowOnlyGroup", "edu:allowGroup1");
-    ApiConfig.testConfig.put("security.member.search.string2.allowOnlyGroup", "edu:allowGroup1");
-    ApiConfig.testConfig.put("security.member.search.string3.allowOnlyGroup", "edu:allowGroup2");
-    ApiConfig.testConfig.put("security.member.search.string4.allowOnlyGroup", "edu:allowGroup2");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.search.string0.allowOnlyGroup", "edu:allowGroup1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.search.string1.allowOnlyGroup", "edu:allowGroup1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.search.string2.allowOnlyGroup", "edu:allowGroup1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.search.string3.allowOnlyGroup", "edu:allowGroup2");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.search.string4.allowOnlyGroup", "edu:allowGroup2");
 
     // again, subj1 should have no access
     assertNull(SearchStringEnum.getDefaultSearchString());
@@ -800,23 +799,23 @@ public class TestMemberAttributes extends GrouperTest {
     allowGroup2.deleteMember(SubjectTestHelper.SUBJ0);
     
     // now verify that subj1 can use index 2
-    ApiConfig.testConfig.remove("security.member.search.string2.allowOnlyGroup");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("security.member.search.string2.allowOnlyGroup");
     assertEquals(SearchStringEnum.SEARCH_STRING_2, SearchStringEnum.getDefaultSearchString());
     
     // now verify that subj1 can use index 0
-    ApiConfig.testConfig.remove("security.member.search.string0.allowOnlyGroup");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("security.member.search.string0.allowOnlyGroup");
     assertEquals(SearchStringEnum.SEARCH_STRING_0, SearchStringEnum.getDefaultSearchString());
     
     // now verify that subj1 can use index 4
-    ApiConfig.testConfig.remove("security.member.search.string4.allowOnlyGroup");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("security.member.search.string4.allowOnlyGroup");
     assertEquals(SearchStringEnum.SEARCH_STRING_4, SearchStringEnum.getDefaultSearchString());
     
     // now verify that subj1 can use index 1
-    ApiConfig.testConfig.remove("security.member.search.string1.allowOnlyGroup");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("security.member.search.string1.allowOnlyGroup");
     assertEquals(SearchStringEnum.SEARCH_STRING_1, SearchStringEnum.getDefaultSearchString());
     
     // now verify that subj1 can use index 3
-    ApiConfig.testConfig.remove("security.member.search.string3.allowOnlyGroup");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("security.member.search.string3.allowOnlyGroup");
     assertEquals(SearchStringEnum.SEARCH_STRING_3, SearchStringEnum.getDefaultSearchString());
     
     s.stop();
@@ -826,12 +825,12 @@ public class TestMemberAttributes extends GrouperTest {
    * 
    */
   public void testGetDefaultSortIndex() {
-    ApiConfig.testConfig.put("member.sort.defaultIndexOrder", "3,1,4,0,2");
-    ApiConfig.testConfig.put("security.member.sort.string0.wheelOnly", "true");
-    ApiConfig.testConfig.put("security.member.sort.string1.wheelOnly", "true");
-    ApiConfig.testConfig.put("security.member.sort.string2.wheelOnly", "true");
-    ApiConfig.testConfig.put("security.member.sort.string3.wheelOnly", "true");
-    ApiConfig.testConfig.put("security.member.sort.string4.wheelOnly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("member.sort.defaultIndexOrder", "3,1,4,0,2");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.sort.string0.wheelOnly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.sort.string1.wheelOnly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.sort.string2.wheelOnly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.sort.string3.wheelOnly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.sort.string4.wheelOnly", "true");
 
     Group allowGroup1 = edu.addChildGroup("allowGroup1", "allowGroup1");
     Group allowGroup2 = edu.addChildGroup("allowGroup2", "allowGroup2");
@@ -856,30 +855,30 @@ public class TestMemberAttributes extends GrouperTest {
     assertFalse(SortStringEnum.SORT_STRING_4.hasAccess());
     
     // now verify that subj1 can use index 2
-    ApiConfig.testConfig.put("security.member.sort.string2.wheelOnly", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.sort.string2.wheelOnly", "false");
     assertEquals(SortStringEnum.SORT_STRING_2, SortStringEnum.getDefaultSortString());
 
     // now verify that subj1 can use index 0
-    ApiConfig.testConfig.put("security.member.sort.string0.wheelOnly", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.sort.string0.wheelOnly", "false");
     assertEquals(SortStringEnum.SORT_STRING_0, SortStringEnum.getDefaultSortString());
     
     // now verify that subj1 can use index 4
-    ApiConfig.testConfig.put("security.member.sort.string4.wheelOnly", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.sort.string4.wheelOnly", "false");
     assertEquals(SortStringEnum.SORT_STRING_4, SortStringEnum.getDefaultSortString());
     
     // now verify that subj1 can use index 1
-    ApiConfig.testConfig.put("security.member.sort.string1.wheelOnly", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.sort.string1.wheelOnly", "false");
     assertEquals(SortStringEnum.SORT_STRING_1, SortStringEnum.getDefaultSortString());
     
     // now verify that subj1 can use index 3
-    ApiConfig.testConfig.put("security.member.sort.string3.wheelOnly", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.sort.string3.wheelOnly", "false");
     assertEquals(SortStringEnum.SORT_STRING_3, SortStringEnum.getDefaultSortString());
     
-    ApiConfig.testConfig.put("security.member.sort.string0.allowOnlyGroup", "edu:allowGroup1");
-    ApiConfig.testConfig.put("security.member.sort.string1.allowOnlyGroup", "edu:allowGroup1");
-    ApiConfig.testConfig.put("security.member.sort.string2.allowOnlyGroup", "edu:allowGroup1");
-    ApiConfig.testConfig.put("security.member.sort.string3.allowOnlyGroup", "edu:allowGroup2");
-    ApiConfig.testConfig.put("security.member.sort.string4.allowOnlyGroup", "edu:allowGroup2");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.sort.string0.allowOnlyGroup", "edu:allowGroup1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.sort.string1.allowOnlyGroup", "edu:allowGroup1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.sort.string2.allowOnlyGroup", "edu:allowGroup1");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.sort.string3.allowOnlyGroup", "edu:allowGroup2");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.sort.string4.allowOnlyGroup", "edu:allowGroup2");
 
     // again, subj1 should have no access
     assertNull(SortStringEnum.getDefaultSortString());
@@ -914,23 +913,23 @@ public class TestMemberAttributes extends GrouperTest {
     allowGroup2.deleteMember(SubjectTestHelper.SUBJ0);
     
     // now verify that subj1 can use index 2
-    ApiConfig.testConfig.remove("security.member.sort.string2.allowOnlyGroup");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("security.member.sort.string2.allowOnlyGroup");
     assertEquals(SortStringEnum.SORT_STRING_2, SortStringEnum.getDefaultSortString());
     
     // now verify that subj1 can use index 0
-    ApiConfig.testConfig.remove("security.member.sort.string0.allowOnlyGroup");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("security.member.sort.string0.allowOnlyGroup");
     assertEquals(SortStringEnum.SORT_STRING_0, SortStringEnum.getDefaultSortString());
     
     // now verify that subj1 can use index 4
-    ApiConfig.testConfig.remove("security.member.sort.string4.allowOnlyGroup");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("security.member.sort.string4.allowOnlyGroup");
     assertEquals(SortStringEnum.SORT_STRING_4, SortStringEnum.getDefaultSortString());
     
     // now verify that subj1 can use index 1
-    ApiConfig.testConfig.remove("security.member.sort.string1.allowOnlyGroup");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("security.member.sort.string1.allowOnlyGroup");
     assertEquals(SortStringEnum.SORT_STRING_1, SortStringEnum.getDefaultSortString());
     
     // now verify that subj1 can use index 3
-    ApiConfig.testConfig.remove("security.member.sort.string3.allowOnlyGroup");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("security.member.sort.string3.allowOnlyGroup");
     assertEquals(SortStringEnum.SORT_STRING_3, SortStringEnum.getDefaultSortString());
     
     s.stop();
@@ -970,11 +969,11 @@ public class TestMemberAttributes extends GrouperTest {
         SortStringEnum.getDefaultSortString(), SearchStringEnum.SEARCH_STRING_4, "Someschool test");
     
     // now set restictions
-    ApiConfig.testConfig.put("security.member.search.string0.wheelOnly", "true");
-    ApiConfig.testConfig.put("security.member.search.string1.wheelOnly", "true");
-    ApiConfig.testConfig.put("security.member.search.string2.wheelOnly", "true");
-    ApiConfig.testConfig.put("security.member.search.string3.wheelOnly", "true");
-    ApiConfig.testConfig.put("security.member.search.string4.wheelOnly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.search.string0.wheelOnly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.search.string1.wheelOnly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.search.string2.wheelOnly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.search.string3.wheelOnly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.search.string4.wheelOnly", "true");
     
     // and subj1 cannot use any of the search strings now
     try {
@@ -1060,11 +1059,11 @@ public class TestMemberAttributes extends GrouperTest {
     
     
     // now set restictions
-    ApiConfig.testConfig.put("security.member.sort.string0.wheelOnly", "true");
-    ApiConfig.testConfig.put("security.member.sort.string1.wheelOnly", "true");
-    ApiConfig.testConfig.put("security.member.sort.string2.wheelOnly", "true");
-    ApiConfig.testConfig.put("security.member.sort.string3.wheelOnly", "true");
-    ApiConfig.testConfig.put("security.member.sort.string4.wheelOnly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.sort.string0.wheelOnly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.sort.string1.wheelOnly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.sort.string2.wheelOnly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.sort.string3.wheelOnly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.member.sort.string4.wheelOnly", "true");
     
     // and subj1 cannot use any of the sort strings now
     try {

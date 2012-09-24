@@ -25,8 +25,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
-
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -38,23 +37,23 @@ public class DbMetadataPoc {
   /**
    * 
    */
-  private static final String PASS = GrouperConfig.getHibernateProperty("hibernate.connection.password");
+  private static final String PASS = GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.password");
 
   /**
    * 
    */
-  private static final String URL = GrouperConfig.getHibernateProperty("hibernate.connection.url");
+  private static final String URL = GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.url");
 
   /**
    * 
    */
   private static final String DRIVER = GrouperDdlUtils.convertUrlToDriverClassIfNeeded(URL, 
-      GrouperConfig.getHibernateProperty("hibernate.connection.driver_class"));
+      GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.driver_class"));
 
   /**
    * 
    */
-  private static final String SCHEMA = GrouperConfig.getHibernateProperty("hibernate.connection.username");
+  private static final String SCHEMA = GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.username");
 
   /**
    * @param args

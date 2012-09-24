@@ -25,7 +25,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeSecurityHook;
@@ -94,8 +94,8 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
       
       String wheelGroupName = "etc:wheelGroup";
 
-      ApiConfig.testConfig.put("groups.wheel.use", "true");
-      ApiConfig.testConfig.put("groups.wheel.group", wheelGroupName);
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "true");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.group", wheelGroupName);
 
       this.wheelGroup = Group.saveGroup(this.grouperSession, wheelGroupName, 
           null, wheelGroupName, null, null, null, true);
@@ -150,9 +150,9 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
    */
   public void testGroupAutoCreate() throws Exception {
     
-    ApiConfig.testConfig.put("configuration.autocreate.system.groups", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("configuration.autocreate.system.groups", "true");
     String groupName = "etc:someGroup";
-    ApiConfig.testConfig.put("security.types.groupType.allowOnlyGroup", groupName);
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.types.groupType.allowOnlyGroup", groupName);
     GroupTypeSecurityHook.registerHookIfNecessary(true);
     GroupTypeSecurityHook.resetCacheSettings();
     
@@ -185,8 +185,8 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
    */
   public void testSecurityUserEditTypeNonGroupFail() throws Exception {
 
-    ApiConfig.testConfig.put("security.types.groupType.allowOnlyGroup", this.groupToBeInToEdit.getName());
-    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroups.use", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.types.groupType.allowOnlyGroup", this.groupToBeInToEdit.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.requireGroups.use", "true");
     GroupTypeSecurityHook.registerHookIfNecessary(true);
     GroupTypeSecurityHook.resetCacheSettings();
 
@@ -230,7 +230,7 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
    */
   public void testSecurityUserEditTypeGroupSucceed() throws Exception {
 
-    ApiConfig.testConfig.put("security.types.groupType.allowOnlyGroup", this.groupToBeInToEdit.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.types.groupType.allowOnlyGroup", this.groupToBeInToEdit.getName());
     GroupTypeSecurityHook.registerHookIfNecessary(true);
     GroupTypeSecurityHook.resetCacheSettings();
 
@@ -319,8 +319,8 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
    */
   public void testSecurityUserEditTypeWheelFail() throws Exception {
 
-    ApiConfig.testConfig.put("security.types.groupType.wheelOnly", "true");
-    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroups.use", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.types.groupType.wheelOnly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperIncludeExclude.requireGroups.use", "true");
     GroupTypeSecurityHook.registerHookIfNecessary(true);
     GroupTypeSecurityHook.resetCacheSettings();
 
@@ -362,7 +362,7 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
    */
   public void testSecurityUserEditTypeWheelSucceed() throws Exception {
   
-    ApiConfig.testConfig.put("security.types.groupType.wheelOnly", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.types.groupType.wheelOnly", "true");
     GroupTypeSecurityHook.registerHookIfNecessary(true);
     GroupTypeSecurityHook.resetCacheSettings();
 

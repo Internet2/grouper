@@ -287,7 +287,7 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
         .setCacheable(false)
         .setCacheRegion(KLASS + ".findPermissions").options(queryOptions);
 
-      int maxAssignments = GrouperConfig.getPropertyInt("ws.findPermissions.maxResultSize", 30000);
+      int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findPermissions.maxResultSize", 30000);
       
       String sqlString = sql.toString();
       
@@ -590,7 +590,7 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
       .setCacheable(false)
       .setCacheRegion(KLASS + ".findPermissions");
 
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findPermissions.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findPermissions.maxResultSize", 30000);
     
     String sqlString = sql.toString();
     
@@ -695,7 +695,7 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
       .setCacheable(false)
       .setCacheRegion(KLASS + ".findRolePermissions");
 
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findPermissions.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findPermissions.maxResultSize", 30000);
     
     String sqlString = sql.toString();
     
@@ -857,7 +857,7 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
       .setCacheable(false).options(queryOptions)
       .setCacheRegion(KLASS + ".findRolePermissions");
 
-    int maxAssignments = GrouperConfig.getPropertyInt("ws.findPermissions.maxResultSize", 30000);
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findPermissions.maxResultSize", 30000);
     
     String sqlString = sql.toString();
     

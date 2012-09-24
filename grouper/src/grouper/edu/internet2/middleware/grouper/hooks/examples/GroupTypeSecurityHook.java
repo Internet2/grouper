@@ -270,13 +270,13 @@ public class GroupTypeSecurityHook extends GroupTypeTupleHooks {
     int i=0;
     while (true) {
       String propertyName = "grouperIncludeExclude.requireGroup.name." + i;
-      String propertyValue = GrouperConfig.getProperty(propertyName);
+      String propertyValue = GrouperConfig.retrieveConfig().propertyValueString(propertyName);
       if (StringUtils.isBlank(propertyValue)) {
         break;
       }
       if (StringUtils.equals(attributeName, propertyValue)) {
         //this is the right index, get the group name
-        return GrouperConfig.getProperty("grouperIncludeExclude.requireGroup.group." + i);
+        return GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroup.group." + i);
       }
       i++;
     }

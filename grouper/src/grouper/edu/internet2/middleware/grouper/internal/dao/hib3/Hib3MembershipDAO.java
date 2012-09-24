@@ -664,7 +664,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             .setCacheable(false)
             .setCacheRegion(KLASS);
 
-          int maxMemberships = GrouperConfig.getPropertyInt("ws.getMemberships.maxResultSize", 30000);
+          int maxMemberships = GrouperConfig.retrieveConfig().propertyValueInt("ws.getMemberships.maxResultSize", 30000);
           
           //if -1, lets not check
           if (maxMemberships >= 0) {

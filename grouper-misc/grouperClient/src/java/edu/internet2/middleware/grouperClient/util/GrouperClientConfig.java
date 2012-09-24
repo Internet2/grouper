@@ -10,6 +10,13 @@ import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase
 public class GrouperClientConfig extends ConfigPropertiesCascadeBase {
 
   /**
+   * use the factory
+   */
+  private GrouperClientConfig() {
+    
+  }
+  
+  /**
    * retrieve a config from the config file or from cache
    * @return the config object
    */

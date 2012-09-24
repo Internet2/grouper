@@ -485,12 +485,11 @@ public class EsbConsumer extends ChangeLogConsumerBase {
         if (event.getEventType() != null) {
           // convert to JSON and process
 
-          if (!GrouperLoaderConfig.getPropertyString(
+          if (!GrouperLoaderConfig.retrieveConfig().propertyValueString(
               "changeLog.consumer." + consumerName + ".publisher.addSubjectAttributes",
               "").equals("")) {
             // add subject attributes if configured
-            event = this.addSubjectAttributes(event, GrouperLoaderConfig
-                .getPropertyString("changeLog.consumer." + consumerName
+            event = this.addSubjectAttributes(event, GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer." + consumerName
                     + ".publisher.addSubjectAttributes"));
           }
           // add event to array, only one event supported for now
@@ -501,14 +500,13 @@ public class EsbConsumer extends ChangeLogConsumerBase {
           // add indenting for debugging
           // add subject attributes if configured
 
-          if (GrouperLoaderConfig.getPropertyBoolean("changeLog.consumer." + consumerName
+          if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.consumer." + consumerName
               + ".publisher.debug", false)) {
             eventJsonString = GrouperUtil.indent(eventJsonString, false);
           }
           //System.out.println(eventJsonString);
           if (this.esbPublisherBase == null) {
-            String theClassName = GrouperLoaderConfig
-                .getPropertyString("changeLog.consumer." + consumerName
+            String theClassName = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer." + consumerName
                     + ".publisher.class");
             Class<?> theClass = GrouperUtil.forName(theClassName);
             if (LOG.isDebugEnabled()) {
@@ -517,7 +515,7 @@ public class EsbConsumer extends ChangeLogConsumerBase {
             }
             esbPublisherBase = (EsbListenerBase) GrouperUtil.newInstance(theClass);
           }
-          String elFilter = GrouperLoaderConfig.getPropertyString("changeLog.consumer."
+          String elFilter = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer."
               + consumerName + ".elfilter", "");
           if (!StringUtils.isBlank(elFilter)) {
             if (!matchesFilter(event, elFilter)) {

@@ -89,13 +89,13 @@ public class WheelAccessResolver extends AccessResolverDecorator {
     super(resolver);
 
     // TODO 20070816 this is ugly
-    String useWheelString = GrouperConfig.getProperty(GrouperConfig.PROP_USE_WHEEL_GROUP);
+    String useWheelString = GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.PROP_USE_WHEEL_GROUP);
     this.useWheel = Boolean.valueOf(useWheelString).booleanValue();
     // TODO 20070816 and this is even worse
     if (this.useWheel) {
       String wheelName = null;
       try {
-        wheelName = GrouperConfig.getProperty(GrouperConfig.PROP_WHEEL_GROUP);
+        wheelName = GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.PROP_WHEEL_GROUP);
         this.wheelSession = GrouperSession.start(SubjectFinder.findRootSubject(), false);
         this.wheelGroup = GroupFinder.findByName(
             this.wheelSession,
@@ -138,7 +138,7 @@ public class WheelAccessResolver extends AccessResolverDecorator {
         //Not happy about the klass but will do for now in the absence of a GrouperSession
         if (!p.equals(AccessPrivilege.OPTIN) && !p.equals(AccessPrivilege.OPTOUT)) {
           ap = new AccessPrivilege(group, subject, SubjectFinder.findRootSubject(),
-              p, GrouperConfig.getProperty("privileges.access.interface"), false, null);
+              p, GrouperConfig.retrieveConfig().propertyValueString("privileges.access.interface"), false, null);
           accessPrivs.add(ap);
         }
       }

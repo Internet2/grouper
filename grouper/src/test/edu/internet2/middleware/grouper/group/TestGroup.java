@@ -50,7 +50,7 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.entity.Entity;
 import edu.internet2.middleware.grouper.entity.EntityFinder;
 import edu.internet2.middleware.grouper.entity.EntitySave;
@@ -95,7 +95,7 @@ public class TestGroup extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(new TestGroup("testNoLocking"));
     //TestRunner.run(TestGroup.class);
-    TestRunner.run(new TestGroup("testAttributeDef"));
+    TestRunner.run(new TestGroup("testSetDescription"));
     //TestRunner.run(TestGroup.class);
   }
   
@@ -175,7 +175,7 @@ public class TestGroup extends GrouperTest {
     assertFalse(entity.hasView(SubjectFinder.findAllSubject()));
     
     //make one where default is view
-    ApiConfig.testConfig.put("entities.create.grant.all.view", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("entities.create.grant.all.view", "true");
     try {
       
       Entity entity2 = new EntitySave(s).assignCreateParentStemsIfNotExist(true)
@@ -185,7 +185,7 @@ public class TestGroup extends GrouperTest {
       assertTrue(entity2.hasView(SubjectFinder.findAllSubject()));
       
     } finally {
-      ApiConfig.testConfig.put("entities.create.grant.all.view", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("entities.create.grant.all.view", "false");
     }
 
     entity.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
@@ -272,7 +272,7 @@ public class TestGroup extends GrouperTest {
     
     //lets not assume that hibernate is set a certain way:
     try {
-      ApiConfig.testConfig.put("dao.optimisticLocking", "true");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("dao.optimisticLocking", "true");
       
       //re-init
       Hib3DAO.hibernateInitted = false;
@@ -316,7 +316,7 @@ public class TestGroup extends GrouperTest {
     } finally {
       
       //put hibernate back the way it was
-      ApiConfig.testConfig.clear();
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().clear();
       
       //re-init
       Hib3DAO.hibernateInitted = false;
@@ -333,7 +333,7 @@ public class TestGroup extends GrouperTest {
     
     //lets not assume that hibernate is set a certain way:
     try {
-      ApiConfig.testConfig.put("dao.optimisticLocking", "false");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("dao.optimisticLocking", "false");
       
       //re-init
       Hib3DAO.hibernateInitted = false;
@@ -372,7 +372,7 @@ public class TestGroup extends GrouperTest {
       
       //put hibernate back the way it was
       
-      ApiConfig.testConfig.clear();
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().clear();
       //re-init
       Hib3DAO.hibernateInitted = false;
       Hib3DAO.initHibernateIfNotInitted();

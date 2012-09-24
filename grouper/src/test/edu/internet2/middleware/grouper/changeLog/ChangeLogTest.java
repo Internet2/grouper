@@ -50,7 +50,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
-import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.entity.Entity;
 import edu.internet2.middleware.grouper.entity.EntitySave;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -108,12 +108,12 @@ public class ChangeLogTest extends GrouperTest {
   protected void setUp() {
     super.setUp();
     grouperSession = SessionHelper.getRootSession();
-    ApiConfig.testConfig.put("grouper.env.name", "testEnv");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.env.name", "testEnv");
     grouperSession     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(grouperSession);
     edu   = StemHelper.addChildStem(root, "edu", "education");
     
-    GrouperLoaderConfig.testConfig.put("changeLog.includeRolesWithPermissionChanges", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.includeRolesWithPermissionChanges", "true");
   }
 
   /**
@@ -123,7 +123,7 @@ public class ChangeLogTest extends GrouperTest {
   @Override
   protected void tearDown() {
     super.tearDown();
-    ApiConfig.testConfig.remove("grouper.env.name");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.env.name");
 
   }
   
@@ -7001,7 +7001,7 @@ public class ChangeLogTest extends GrouperTest {
     
     g4.addMember(member1.getSubject());
     
-    GrouperLoaderConfig.testConfig.put("changeLog.includeNonFlattenedMemberships", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.includeNonFlattenedMemberships", "true");
     
     ChangeLogTempToEntity.convertRecords();
 
@@ -7180,7 +7180,7 @@ public class ChangeLogTest extends GrouperTest {
     
     g2.addMember(member1.getSubject());
     
-    GrouperLoaderConfig.testConfig.put("changeLog.includeNonFlattenedPrivileges", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.includeNonFlattenedPrivileges", "true");
     
     ChangeLogTempToEntity.convertRecords();
 
@@ -7348,7 +7348,7 @@ public class ChangeLogTest extends GrouperTest {
     
     g2.addMember(member1.getSubject());
     
-    GrouperLoaderConfig.testConfig.put("changeLog.includeNonFlattenedPrivileges", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.includeNonFlattenedPrivileges", "true");
     
     ChangeLogTempToEntity.convertRecords();
 
@@ -7517,7 +7517,7 @@ public class ChangeLogTest extends GrouperTest {
     
     g2.addMember(member1.getSubject());
     
-    GrouperLoaderConfig.testConfig.put("changeLog.includeNonFlattenedPrivileges", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.includeNonFlattenedPrivileges", "true");
     
     ChangeLogTempToEntity.convertRecords();
 

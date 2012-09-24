@@ -19,8 +19,6 @@
  */
 package edu.internet2.middleware.grouper.app.loader;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
@@ -28,16 +26,17 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.ldap.GrouperLoaderLdapServer;
-import edu.internet2.middleware.grouper.cache.GrouperCache;
-import edu.internet2.middleware.grouper.cfg.PropertiesConfiguration;
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.morphString.Morph;
 
 
 /**
  *
  */
-public class GrouperLoaderConfig {
+public class GrouperLoaderConfig extends ConfigPropertiesCascadeBase  {
 
   /**
    * name of param: loader.retain.db.logs.days
@@ -72,17 +71,12 @@ public class GrouperLoaderConfig {
    *         specified. Exception is thrown if not formatted correcly
    * @throws NumberFormatException
    *             if cannot convert the value to an Integer
+   * @deprecated use GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(property, defaultValue)
    */
+  @Deprecated
   public static boolean getPropertyBoolean(String property, boolean defaultValue)
       throws NumberFormatException {
-    String paramString = getPropertyString(property);
-    // see if not there
-    if (StringUtils.isEmpty(paramString)) {
-      return defaultValue;
-    }
-    // note, cant be blank at this point, so default value doesnt matter
-    boolean paramBoolean = GrouperUtil.booleanValue(paramString);
-    return paramBoolean;
+    return retrieveConfig().propertyValueBoolean(property, defaultValue);
   }
 
   /**
@@ -94,22 +88,12 @@ public class GrouperLoaderConfig {
    *         specified. Exception is thrown if not formatted correcly
    * @throws NumberFormatException
    *             if cannot convert the value to an Integer
+   * @deprecated GrouperLoaderConfig.retrieveConfig().propertyValueInt(property, defaultValue);
    */
+  @Deprecated
   public static int getPropertyInt(String property, int defaultValue)
       throws NumberFormatException {
-    String paramString = getPropertyString(property);
-    // see if not there
-    if (StringUtils.isEmpty(paramString)) {
-      return defaultValue;
-    }
-    // if there, convert to int
-    try {
-      int paramInteger = Integer.parseInt(paramString);
-      return paramInteger;
-    } catch (NumberFormatException nfe) {
-      throw new NumberFormatException("Cannot convert the grouper.properties param: "
-          + property + " to an Integer.  Config value is '" + paramString + "' " + nfe);
-    }
+    return retrieveConfig().propertyValueInt(property, defaultValue);
   }
 
   /**
@@ -122,9 +106,11 @@ public class GrouperLoaderConfig {
    * @param property to lookup
    * @return Value of configuration parameter or an empty string if parameter
    *         is invalid.
+   * @deprecated use GrouperLoaderConfig.retrieveConfig().propertyValueString(property, ""); instead
    */
+  @Deprecated
   public static String getPropertyString(String property) {
-    return getPropertyString(property, "");
+    return retrieveConfig().propertyValueString(property, "");
   }
 
   /**
@@ -139,26 +125,16 @@ public class GrouperLoaderConfig {
    * note if value is not filled in, but name is there, then still exception if required
    * @return Value of configuration parameter or null if parameter
    *         is not there
+   * @deprecated use GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(property)
    */
+  @Deprecated
   public static String getPropertyString(String property, boolean required) {
-    String result = getPropertyString(property, null);
-    if (result == null && required) {
-      throw new RuntimeException("Cant find property: '" + property + "' in config file: grouper-loader.properties");
+    if (required) {
+      return retrieveConfig().propertyValueStringRequired(property);
     }
-    return result;
+    return retrieveConfig().propertyValueString(property);
   }
 
-  /**
-   * get all properties including test properties
-   * @return properties
-   */
-  public static Properties properties() {
-    Properties properties = new Properties();
-    properties.putAll(retrievePropertiesConfiguration().getProperties());
-    properties.putAll(testConfig);
-    return properties;
-  }
-  
   /**
    * Get a Grouper configuration parameter.
    * 
@@ -169,39 +145,11 @@ public class GrouperLoaderConfig {
    * @param property to lookup
    * @param defaultValue is the value if the property isnt found
    * @return Value of configuration parameter or the default value (will trim the value)
+   * @deprecated use retrieveConfig().propertyValueString(property, defaultValue) instead
    */
+  @Deprecated
   public static String getPropertyString(String property, String defaultValue) {
-    String value = null;
-    if (testConfig.containsKey(property)) {
-      value = testConfig.get(property);
-    } else { 
-      value = retrievePropertiesConfiguration().getProperty(property);
-    }
-    return StringUtils.defaultIfEmpty(StringUtils.trimToEmpty(value), defaultValue);
-  }
-
-  /**
-   * config cache.  TODO do this smarter... see if the file has changed before reading again
-   */
-  private static GrouperCache<String, PropertiesConfiguration> configCache = 
-    new GrouperCache<String, PropertiesConfiguration>("grouperLoaderConfigCache", 100, false, 120, 120, false);
-  
-  /** set some test config overrides */
-  public static final Map<String, String> testConfig = new HashMap<String, String>(); 
-
-  /**
-   * lazy load and cache the properties configuration
-   * 
-   * @return the properties configuration
-   */
-  private synchronized static PropertiesConfiguration retrievePropertiesConfiguration() {
-    PropertiesConfiguration propertiesConfiguration = configCache.get("config");
-    if (propertiesConfiguration == null) {
-      propertiesConfiguration = new PropertiesConfiguration("/grouper-loader.properties");
-      configCache.put("config", propertiesConfiguration);
-    }
-    return propertiesConfiguration;
-  
+    return retrieveConfig().propertyValueString(property, defaultValue);
   }
 
   /**
@@ -210,7 +158,7 @@ public class GrouperLoaderConfig {
   private static final Log LOG = GrouperUtil.getLog(GrouperLoaderConfig.class);
 
   /**
-   * no need to construct
+   * no need to construct, use the factory
    */
   private GrouperLoaderConfig() {
     // no need to construct
@@ -239,7 +187,7 @@ public class GrouperLoaderConfig {
     boolean isGrouper = StringUtils.equals(name, GROUPER_DB_NAME);
     String user = null;
 
-    if (isGrouper && StringUtils.isNotBlank(getPropertyString("db." + name + ".user"))) {
+    if (isGrouper && StringUtils.isNotBlank(GrouperLoaderConfig.retrieveConfig().propertyValueString("db." + name + ".user"))) {
       LOG.error("Cant have a database named 'grouper' in " +
           "the grouper-loader.properties.  This is a special name for the " +
           "grouper.hibernate.properties database");
@@ -249,8 +197,7 @@ public class GrouperLoaderConfig {
       
       //the name "hibernate" is a special term, which could be in the grouper-loader.properties, 
       //but defaults to grouper.hibernate.properties
-      Properties properties = GrouperUtil.propertiesFromResourceName(
-        "grouper.hibernate.properties");
+      Properties properties = GrouperHibernateConfig.retrieveConfig().properties();
       
       user = properties.getProperty("hibernate.connection.username");
       pass = properties.getProperty("hibernate.connection.password");
@@ -259,11 +206,11 @@ public class GrouperLoaderConfig {
     } else {      
       
       //first look in grouper-loader.properties:
-      user = getPropertyString("db." + name + ".user");
+      user = GrouperLoaderConfig.retrieveConfig().propertyValueString("db." + name + ".user");
       if (!StringUtils.isBlank(user)) {
-        pass = getPropertyString("db." + name + ".pass");
-        url = getPropertyString("db." + name + ".url");
-        driver = getPropertyString("db." + name + ".driver");
+        pass = GrouperLoaderConfig.retrieveConfig().propertyValueString("db." + name + ".pass");
+        url = GrouperLoaderConfig.retrieveConfig().propertyValueString("db." + name + ".url");
+        driver = GrouperLoaderConfig.retrieveConfig().propertyValueString("db." + name + ".driver");
       
       } else {
         throw new RuntimeException("Cant find the db connection named: '" + name + "' in " +
@@ -297,7 +244,7 @@ public class GrouperLoaderConfig {
       //#It should contain the server and port (optional if not default), and baseDn, 
       //#e.g. ldaps://ldapserver.school.edu:636/dc=school,dc=edu
       //#ldap.personLdap.url = ldaps://ldapserver.school.edu:636/dc=school,dc=edu
-      String url = getPropertyString("ldap." + name + ".url");
+      String url = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + name + ".url");
       
       if (StringUtils.isBlank(url)) {
         throw new RuntimeException("Cant find the ldap connection named: '" + name + "' in " +
@@ -307,7 +254,7 @@ public class GrouperLoaderConfig {
     }
     
     {
-      String user = getPropertyString("ldap." + name + ".user");
+      String user = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + name + ".user");
       //#ldap.personLdap.user = uid=someapp,ou=people,dc=myschool,dc=edu
       if (!StringUtils.isBlank(user)) {
         grouperLoaderLdapServer.setUser(user);
@@ -315,7 +262,7 @@ public class GrouperLoaderConfig {
     }
     
     {
-      String pass = getPropertyString("ldap." + name + ".pass");
+      String pass = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + name + ".pass");
       if (!StringUtils.isBlank(pass)) {
         //might be in external file
         pass = Morph.decryptIfFile(pass);
@@ -333,22 +280,22 @@ public class GrouperLoaderConfig {
     //#optional, if using sasl
     //#ldap.personLdap.saslAuthorizationId = 
     //#ldap.personLdap.saslRealm = 
-    grouperLoaderLdapServer.setSaslAuthorizationId(getPropertyString("ldap." + name + ".saslAuthorizationId"));
-    grouperLoaderLdapServer.setSaslRealm(getPropertyString("ldap." + name + ".saslRealm"));
+    grouperLoaderLdapServer.setSaslAuthorizationId(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + name + ".saslAuthorizationId"));
+    grouperLoaderLdapServer.setSaslRealm(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + name + ".saslRealm"));
     
     //#ldap.personLdap.batchSize = 
-    grouperLoaderLdapServer.setBatchSize(getPropertyInt("ldap." + name + ".batchSize", -1));
+    grouperLoaderLdapServer.setBatchSize(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".batchSize", -1));
         
     //#ldap.personLdap.countLimit = 
-    grouperLoaderLdapServer.setCountLimit(getPropertyInt("ldap." + name + ".countLimit", -1));
+    grouperLoaderLdapServer.setCountLimit(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".countLimit", -1));
     
-    grouperLoaderLdapServer.setTimeLimit(getPropertyInt("ldap." + name + ".timeLimit", -1));
+    grouperLoaderLdapServer.setTimeLimit(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".timeLimit", -1));
 
-    grouperLoaderLdapServer.setTimeout(getPropertyInt("ldap." + name + ".timeout", -1));
+    grouperLoaderLdapServer.setTimeout(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".timeout", -1));
 
-    grouperLoaderLdapServer.setMinPoolSize(getPropertyInt("ldap." + name + ".minPoolSize", -1));
+    grouperLoaderLdapServer.setMinPoolSize(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".minPoolSize", -1));
 
-    grouperLoaderLdapServer.setMaxPoolSize(getPropertyInt("ldap." + name + ".maxPoolSize", -1));
+    grouperLoaderLdapServer.setMaxPoolSize(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".maxPoolSize", -1));
 
     grouperLoaderLdapServer.setValidateOnCheckIn(getPropertyBoolean("ldap." + name + ".validateOnCheckIn", false));
     grouperLoaderLdapServer.setValidateOnCheckOut(getPropertyBoolean("ldap." + name + ".validateOnCheckOut", false));
@@ -360,14 +307,14 @@ public class GrouperLoaderConfig {
     }
     
     //#ldap.personLdap.validateTimerPeriod = 
-    grouperLoaderLdapServer.setValidateTimerPeriod(getPropertyInt("ldap." + name + ".validateTimerPeriod", -1));
+    grouperLoaderLdapServer.setValidateTimerPeriod(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".validateTimerPeriod", -1));
     
     //#ldap.personLdap.pruneTimerPeriod = 
-    grouperLoaderLdapServer.setPruneTimerPeriod(getPropertyInt("ldap." + name + ".pruneTimerPeriod", -1));
+    grouperLoaderLdapServer.setPruneTimerPeriod(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".pruneTimerPeriod", -1));
 
     //#if connections expire after a certain amount of time, this is it, in millis, defaults to 300000 (5 minutes)
     //#ldap.personLdap.expirationTime = 
-    grouperLoaderLdapServer.setExpirationTime(getPropertyInt("ldap." + name + ".expirationTime", -1));
+    grouperLoaderLdapServer.setExpirationTime(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + name + ".expirationTime", -1));
     
     if (LOG.isDebugEnabled()) {
       LOG.debug("LDAP config for server id: " + name + ": " + grouperLoaderLdapServer);
@@ -375,7 +322,53 @@ public class GrouperLoaderConfig {
     
     return grouperLoaderLdapServer;
   }
-  
 
+  /**
+   * retrieve a config from the config file or from cache
+   * @return the config object
+   */
+  public static GrouperClientConfig retrieveConfig() {
+    return retrieveConfig(GrouperClientConfig.class);
+  }
+
+  /**
+   * @see ConfigPropertiesCascadeBase#clearCachedCalculatedValues()
+   */
+  @Override
+  public void clearCachedCalculatedValues() {
+    
+  }
+
+  /**
+   * @see ConfigPropertiesCascadeBase#getHierarchyConfigKey
+   */
+  @Override
+  protected String getHierarchyConfigKey() {
+    return "loader.config.hierarchy";
+  }
+
+  /**
+   * @see ConfigPropertiesCascadeBase#getMainConfigClasspath
+   */
+  @Override
+  protected String getMainConfigClasspath() {
+    return "grouper-loader.properties";
+  }
+
+  /**
+   * @see ConfigPropertiesCascadeBase#getMainExampleConfigClasspath
+   */
+  @Override
+  protected String getMainExampleConfigClasspath() {
+    return "grouper-loader.base.properties";
+  }
+
+  /**
+   * @see ConfigPropertiesCascadeBase#getSecondsToCheckConfigKey
+   */
+  @Override
+  protected String getSecondsToCheckConfigKey() {
+    return "loader.config.secondsBetweenUpdateChecks";
+  }
   
 }

@@ -99,13 +99,13 @@ public class SyncPITTables {
   private StringBuilder report = new StringBuilder();
   
   /** whether or not to send flattened notifications for memberships */
-  private boolean includeFlattenedMemberships = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeFlattenedMemberships", true);
+  private boolean includeFlattenedMemberships = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeFlattenedMemberships", true);
   
   /** whether or not to send flattened notifications for privileges */
-  private boolean includeFlattenedPrivileges = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeFlattenedPrivileges", true);
+  private boolean includeFlattenedPrivileges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeFlattenedPrivileges", true);
   
   /** whether there will be notifications for roles with permission changes */ 
-  private boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeRolesWithPermissionChanges", false);
+  private boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeRolesWithPermissionChanges", false);
   
   /**
    * Whether or not to print out results of what's being done.  Defaults to true.

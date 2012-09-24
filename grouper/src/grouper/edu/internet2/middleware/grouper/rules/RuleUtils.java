@@ -273,7 +273,7 @@ public class RuleUtils {
       }
 
       //see if there is a directory
-      String emailTemplatesFolder = GrouperConfig.getProperty("rules.emailTemplatesFolder");
+      String emailTemplatesFolder = GrouperConfig.retrieveConfig().propertyValueString("rules.emailTemplatesFolder");
       
       //if there is a folder
       if (!StringUtils.isBlank(emailTemplatesFolder)) {

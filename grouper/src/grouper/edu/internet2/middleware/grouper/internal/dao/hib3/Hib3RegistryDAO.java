@@ -49,6 +49,7 @@ import org.apache.ddlutils.platform.SqlBuilder;
 import org.hibernate.HibernateException;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -207,16 +208,14 @@ class Hib3RegistryDAO implements RegistryDAO {
   public void addForeignKeys(Writer writer) throws GrouperDAOException {
 
     try {
-      Hib3DaoConfig config = new Hib3DaoConfig();
-
-      String driverClass = config.getProperty("hibernate.connection.driver_class");
-      String connectionUrl = config.getProperty("hibernate.connection.url");
+      String driverClass = GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
+      String connectionUrl = GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.url");
       
       driverClass = GrouperDdlUtils.convertUrlToDriverClassIfNeeded(connectionUrl, driverClass);
       
       Platform platform = PlatformFactory.createNewPlatformInstance(driverClass, connectionUrl);
-      platform.setUsername(config.getProperty("hibernate.connection.username"));
-      platform.setPassword(config.getProperty("hibernate.connection.password"));
+      platform.setUsername(GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.username"));
+      platform.setPassword(GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.password"));
 
       if (Hib3DAO.class.getResource("Hib3ForeignKeys.xml") == null) {
         throw new RuntimeException("Cannot find resource Hib3ForeignKeys.xml.");
@@ -247,20 +246,19 @@ class Hib3RegistryDAO implements RegistryDAO {
     throws GrouperDAOException {
 
     try {
-      Hib3DaoConfig config = new Hib3DaoConfig();
       
-      String driverClass = config.getProperty("hibernate.connection.driver_class");
-      String connectionUrl = config.getProperty("hibernate.connection.url");
+      String driverClass = GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.driver_class");
+      String connectionUrl = GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.url");
       
       driverClass = GrouperDdlUtils.convertUrlToDriverClassIfNeeded(connectionUrl, driverClass);
       
       Platform platform = PlatformFactory.createNewPlatformInstance(driverClass, connectionUrl);
 
       
-      platform.setUsername(config.getProperty("hibernate.connection.username"));
+      platform.setUsername(GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.username"));
       
       //TODO MCH 20090102: decrypt this password if encrypted... though is this even used anymore???
-      platform.setPassword(config.getProperty("hibernate.connection.password"));
+      platform.setPassword(GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.connection.password"));
 
       if (Hib3DAO.class.getResource("Hib3ForeignKeys.xml") == null) {
         throw new RuntimeException("Cannot find resource Hib3ForeignKeys.xml.");

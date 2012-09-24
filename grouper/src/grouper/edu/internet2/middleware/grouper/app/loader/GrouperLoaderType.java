@@ -197,7 +197,7 @@ public enum GrouperLoaderType {
         if (StringUtils.equals(MAINTENANCE_CLEAN_LOGS, hib3GrouploaderLog.getJobName())) {
           StringBuilder jobMessage = new StringBuilder();
           {
-            int daysToKeepLogs = GrouperLoaderConfig.getPropertyInt(GrouperLoaderConfig.LOADER_RETAIN_DB_LOGS_DAYS, 7);
+            int daysToKeepLogs = GrouperLoaderConfig.retrieveConfig().propertyValueInt(GrouperLoaderConfig.LOADER_RETAIN_DB_LOGS_DAYS, 7);
             if (daysToKeepLogs != -1) {
               //lets get a date
               Calendar calendar = GregorianCalendar.getInstance();
@@ -213,7 +213,7 @@ public enum GrouperLoaderType {
             }
           }
           {
-            int daysToKeepLogs = GrouperLoaderConfig.getPropertyInt("loader.retain.db.change_log_entry.days", 14);
+            int daysToKeepLogs = GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.retain.db.change_log_entry.days", 14);
             if (daysToKeepLogs != -1) {
               //lets get a date
               Calendar calendar = GregorianCalendar.getInstance();
@@ -236,16 +236,16 @@ public enum GrouperLoaderType {
 
 
           //how often to run usdu
-          String usduSchedule = StringUtils.defaultString(GrouperLoaderConfig.getPropertyString(
+          String usduSchedule = StringUtils.defaultString(GrouperLoaderConfig.retrieveConfig().propertyValueString(
               "daily.report.usdu.daysToRun")).toLowerCase();
-          String badMemberSchedule = StringUtils.defaultString(GrouperLoaderConfig.getPropertyString(
+          String badMemberSchedule = StringUtils.defaultString(GrouperLoaderConfig.retrieveConfig().propertyValueString(
               "daily.report.badMembership.daysToRun")).toLowerCase();
           
           boolean isRunUsdu = dayListContainsToday(usduSchedule);
           boolean isRunBadMember = dayListContainsToday(badMemberSchedule);
           
-          String emailTo = GrouperLoaderConfig.getPropertyString("daily.report.emailTo");
-          String reportDirectory = GrouperLoaderConfig.getPropertyString("daily.report.saveInDirectory");
+          String emailTo = GrouperLoaderConfig.retrieveConfig().propertyValueString("daily.report.emailTo");
+          String reportDirectory = GrouperLoaderConfig.retrieveConfig().propertyValueString("daily.report.saveInDirectory");
           
           if (StringUtils.isBlank(emailTo) && StringUtils.isBlank(reportDirectory)) {
             throw new RuntimeException("grouper-loader.properties property daily.report.emailTo " +
@@ -568,7 +568,7 @@ public enum GrouperLoaderType {
                 try {
               //ok, we have the sequence, and the job name, lets get the change log records after that sequence, and give them to the 
               //consumer
-              String theClassName = GrouperLoaderConfig.getPropertyString("changeLog.consumer." + consumerName + ".class");
+              String theClassName = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer." + consumerName + ".class");
                   
                   if (LOG.isDebugEnabled()) {
                     debugMap.put("className", theClassName);
@@ -1026,7 +1026,7 @@ public enum GrouperLoaderType {
       public void runJob(LoaderJobBean loaderJobBean) {        
         LOG.info("Running " + PSP_FULL_SYNC.name());
         GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);        
-        String theClassName = GrouperLoaderConfig.getPropertyString("changeLog.psp.fullSync.class");
+        String theClassName = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.psp.fullSync.class");
         Class<?> theClass = GrouperUtil.forName(theClassName);
         Object theClassInstance = GrouperUtil.newInstance(theClass);
         GrouperUtil.callMethod(theClassInstance, "fullSync");
@@ -1193,7 +1193,7 @@ public enum GrouperLoaderType {
   
             //see if we are deleting group.  It must not be in the group query (if exists), and it 
             //must be configured to do this in the grouper loader properties
-            if (!GrouperUtil.nonNull(groupNamesFromGroupQuery).contains(groupNameEmpty) && GrouperLoaderConfig.getPropertyBoolean(
+            if (!GrouperUtil.nonNull(groupNamesFromGroupQuery).contains(groupNameEmpty) && GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
                 "loader.sqlTable.likeString.removeGroupIfNotUsed", true)) {
   
               //see if we need to log
@@ -1257,7 +1257,7 @@ public enum GrouperLoaderType {
       long groupStartedMillis = System.currentTimeMillis();
       
       //if we are configured to, get the group names in one fell swoop
-      // && GrouperLoaderConfig.getPropertyBoolean(
+      // && GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
       // "loader.getAllGroupListMembershipsAtOnce", false);
       //2010/05/02 I think this didnt pan out as a performance gain...
       boolean getMembershipsAtOnce = false;
@@ -2187,7 +2187,7 @@ public enum GrouperLoaderType {
       //now the currentMembers is full of members to remove, and the grouperLoaderResultset is full
       //of members to add
       //start a transaction
-      boolean useTransactions = GrouperLoaderConfig.getPropertyBoolean("loader.use.transactions", false);
+      boolean useTransactions = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.use.transactions", false);
       
       final int[] TOTAL_COUNT = new int[]{totalCount};
       final Hib3GrouperLoaderLog HIB3_GROUPER_LOADER_LOG = hib3GrouploaderLog;
@@ -3143,7 +3143,7 @@ public enum GrouperLoaderType {
       grouperSession = GrouperSession.startRootSession();
 
       //lets see if there is configuration
-      String attrRootStem = GrouperConfig.getProperty("grouper.attribute.rootStem");
+      String attrRootStem = GrouperConfig.retrieveConfig().propertyValueString("grouper.attribute.rootStem");
       if (StringUtils.isBlank(attrRootStem)) {
         return;
       }
@@ -3250,7 +3250,7 @@ public enum GrouperLoaderType {
       grouperSession = GrouperSession.startRootSession();
 
       //lets see if there is configuration
-      String attrRootStem = GrouperConfig.getProperty("grouper.attribute.rootStem");
+      String attrRootStem = GrouperConfig.retrieveConfig().propertyValueString("grouper.attribute.rootStem");
       if (StringUtils.isBlank(attrRootStem)) {
         return;
       }
