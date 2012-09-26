@@ -24,6 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Types;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -69,6 +70,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.permissions.role.RoleSet;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignAction;
@@ -85,6 +87,8 @@ import edu.internet2.middleware.grouper.pit.PITMembership;
 import edu.internet2.middleware.grouper.pit.PITRoleSet;
 import edu.internet2.middleware.grouper.pit.PITStem;
 import edu.internet2.middleware.grouper.stem.StemSet;
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
+import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -1951,6 +1955,9 @@ public enum GrouperDdl implements DdlVersionable {
       addExternalSubjectTables(ddlVersionBean, database);
 
       addStemSetTable(ddlVersionBean, database);
+      
+      addTableIndices(ddlVersionBean, database, groupsTableNew);
+
     }
 
   }, 
@@ -2009,6 +2016,9 @@ public enum GrouperDdl implements DdlVersionable {
           "update grouper_attribute_def set attribute_def_type = 'service' where attribute_def_type = 'domain';\ncommit;\n");
       
       addStemSetTable(ddlVersionBean, database);
+      
+      addTableIndices(ddlVersionBean, database, false);
+
     }
   
   };
@@ -12616,6 +12626,382 @@ public enum GrouperDdl implements DdlVersionable {
     }
   }
 
+  /** dont do this twice */
+  private static boolean alreadyAddedTableIndices = false;
+  
+  /**
+   * add table indices in v2 or when needed
+   * @param ddlVersionBean
+   * @param database
+   */
+  private static void addTableIndices(DdlVersionBean ddlVersionBean, 
+      Database database, boolean groupTableNew) {
+    
+    //this can happen in step 2 as well as the 2.2 step
+    if (alreadyAddedTableIndices) {
+      return;
+    }
+    
+    alreadyAddedTableIndices = true;
+    
+    boolean tableIndexTableNew = null == GrouperDdlUtils.ddlutilsFindTable(
+        database, TableIndex.TABLE_GROUPER_TABLE_INDEX, false);
+    
+    {
+      Table tableIndexTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(
+          database, TableIndex.TABLE_GROUPER_TABLE_INDEX);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(tableIndexTable,
+          TableIndex.COLUMN_ID, Types.VARCHAR, ID_SIZE, true, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(tableIndexTable,
+          TableIndex.COLUMN_TYPE, Types.VARCHAR, "32", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(tableIndexTable,
+          TableIndex.COLUMN_LAST_INDEX_RESERVED, Types.BIGINT, "20", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(tableIndexTable,
+          TableIndex.COLUMN_CREATED_ON, Types.BIGINT, "20", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(tableIndexTable,
+          TableIndex.COLUMN_LAST_UPDATED, Types.BIGINT, "20", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(tableIndexTable, 
+          TableIndex.COLUMN_HIBERNATE_VERSION_NUMBER, Types.BIGINT, "12", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableIndexTable.getName(), 
+          "table_index_type_idx", true, 
+          TableIndex.COLUMN_TYPE);
+      
+    }
+    //##################### GROUPS
+    {
+      Table groupTable = GrouperDdlUtils.ddlutilsFindTable(database, Group.TABLE_GROUPER_GROUPS, true);
+      
+      //is the column there already?
+      boolean columnIsNew = null == GrouperDdlUtils.ddlutilsFindColumn(groupTable, Group.COLUMN_ID_INDEX, false);
+      
+      //this is required if the group table is new
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, Group.COLUMN_ID_INDEX, 
+          Types.BIGINT, "20", false, groupTableNew); 
+      
+      //unique index on the new col... note, is this allowed in all ds if there is null data there?  hmm...
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS, 
+          "group_id_index_idx", true, 
+         Group.COLUMN_ID_INDEX);
+      
+      //see if we need to add a script on top to massage data
+      if (!groupTableNew && GrouperConfig.retrieveConfig().propertyValueBoolean("ddl.generateIdIndicesInScript", true)) {
+
+        //if the col is in the database then see how many are blank, else see how many rows are in the grouper groups table
+        int idsNeeded = HibernateSession.bySqlStatic().select(Integer.class, 
+            columnIsNew ? "select count(*) from grouper_groups" 
+                : "select count(*) from grouper_groups where id_index is null");
+
+        if (idsNeeded > 0) {
+          
+          //we need the next available index
+          int nextIndex = 0;
+          if (!tableIndexTableNew) {
+            nextIndex = 1 + HibernateSession.bySqlStatic().select(Integer.class, 
+                "select last_index_reserved from grouper_table_index where type = ?", GrouperUtil.toListObject(TableIndexType.group.name()));
+          }
+          
+          //if this doesnt work, we dont have an ID col???
+          try {
+            //lets reserve that many rows and update stuff
+            //TODO if table isnt new then we need to see where the id index is null (and copy to below three too)
+            List<String> groupIds = HibernateSession.bySqlStatic().listSelect(
+                String.class,  "select id from grouper_groups order by id", null);
+            
+            for (int i=0;i<GrouperUtil.length(groupIds); i++) {
+              ddlVersionBean.appendAdditionalScriptUnique(
+                "\nupdate grouper_groups set id_index = " + nextIndex++ + " where id = '" + groupIds.get(i) + "';\n");
+              if (i+1 % 50 == 0) {
+                ddlVersionBean.getAdditionalScripts().append("\ncommit;\n");
+              }
+            }
+            ddlVersionBean.getAdditionalScripts().append("\ncommit;\n");
+
+            //see if there is already a row there
+            boolean isInsert = tableIndexTableNew;
+            if (!isInsert) {
+              isInsert = 0 == HibernateSession.bySqlStatic().select(Integer.class, "select count(*) from grouper_table_index where type = '" 
+                  + TableIndexType.group.name() + "'");
+            }
+            
+            if (isInsert) {
+              //now we need to account for the used indices
+              long now = System.currentTimeMillis();
+              //note: this might be fragile as the structure of the table changes... hmmm
+              ddlVersionBean.appendAdditionalScriptUnique(
+                  "\ninsert into grouper_table_index (id, type, last_index_reserved, created_on, last_updated, hibernate_version_number) " +
+                  "values ('" + GrouperUuid.getUuid() + "', '" + TableIndexType.group.name() + "', " + (nextIndex-1) + ", " 
+                      + now + ", " + now + ", 1);\ncommit;\n");
+              
+            } else {
+              //now we need to account for the used indices
+              ddlVersionBean.appendAdditionalScriptUnique(
+                  "\nupdate grouper_table_index set last_index_reserved = " + (nextIndex-1) + " where type = '" + TableIndexType.group.name() + "';\ncommit;\n");
+              
+            }
+            
+            
+          } catch (Exception e) {
+            LOG.debug("Problem with group ID index generation...  probably not a big deal, will be resolved on GSH startup", e);
+          }
+                
+          
+        }
+      }
+    }
+
+    //############## STEMS ###################
+    {
+      Table stemTable = GrouperDdlUtils.ddlutilsFindTable(database, Stem.TABLE_GROUPER_STEMS, true);
+      
+      //is the column there already?
+      boolean columnIsNew = null == GrouperDdlUtils.ddlutilsFindColumn(stemTable, Stem.COLUMN_ID_INDEX, false);
+      
+      //this is required if the stem table is new
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemTable, Stem.COLUMN_ID_INDEX, 
+          Types.BIGINT, "20", false, groupTableNew); 
+      
+      //unique index on the new col... note, is this allowed in all ds if there is null data there?  hmm...
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Stem.TABLE_GROUPER_STEMS, 
+          "stem_id_index_idx", true, 
+         Stem.COLUMN_ID_INDEX);
+      
+      //see if we need to add a script on top to massage data
+      if (!groupTableNew && GrouperConfig.retrieveConfig().propertyValueBoolean("ddl.generateIdIndicesInScript", true)) {
+
+        //if the col is in the database then see how many are blank, else see how many rows are in the grouper groups table
+        int idsNeeded = HibernateSession.bySqlStatic().select(Integer.class, 
+            columnIsNew ? "select count(*) from grouper_stems" 
+                : "select count(*) from grouper_stems where id_index is null");
+
+        if (idsNeeded > 0) {
+          
+          //we need the next available index
+          int nextIndex = 0;
+          if (!tableIndexTableNew) {
+            nextIndex = 1 + HibernateSession.bySqlStatic().select(Integer.class, 
+                "select last_index_reserved from grouper_table_index where type = ?", GrouperUtil.toListObject(TableIndexType.stem.name()));
+          }
+          
+          //if this doesnt work, we dont have an ID col???
+          try {
+            //lets reserve that many rows and update stuff
+            List<String> stemIds = HibernateSession.bySqlStatic().listSelect(
+                String.class, "select id from grouper_stems order by id", null);
+            
+            for (int i=0;i<GrouperUtil.length(stemIds); i++) {
+              ddlVersionBean.appendAdditionalScriptUnique(
+                "\nupdate grouper_groups set id_index = " + nextIndex++ + " where id = '" + stemIds.get(i) + "';\n");
+              if (i+1 % 50 == 0) {
+                ddlVersionBean.getAdditionalScripts().append("\ncommit;\n");
+              }
+            }
+            ddlVersionBean.getAdditionalScripts().append("\ncommit;\n");
+
+            //see if there is already a row there
+            boolean isInsert = tableIndexTableNew;
+            if (!isInsert) {
+              isInsert = 0 == HibernateSession.bySqlStatic().select(Integer.class, "select count(*) from grouper_table_index where type = '" 
+                  + TableIndexType.group.name() + "'");
+            }
+            
+            if (isInsert) {
+              //now we need to account for the used indices
+              long now = System.currentTimeMillis();
+              //note: this might be fragile as the structure of the table changes... hmmm
+              ddlVersionBean.appendAdditionalScriptUnique(
+                  "\ninsert into grouper_table_index (id, type, last_index_reserved, created_on, last_updated, hibernate_version_number) " +
+                  "values ('" + GrouperUuid.getUuid() + "', '" + TableIndexType.group.name() + "', " + (nextIndex-1) + ", " 
+                      + now + ", " + now + ", 1);\ncommit;\n");
+              
+            } else {
+              //now we need to account for the used indices
+              ddlVersionBean.appendAdditionalScriptUnique(
+                  "\nupdate grouper_table_index set last_index_reserved = " + (nextIndex-1) + " where type = '" + TableIndexType.group.name() + "';\ncommit;\n");
+              
+            }
+            
+            
+          } catch (Exception e) {
+            LOG.debug("Problem with group ID index generation...  probably not a big deal, will be resolved on GSH startup", e);
+          }
+                
+          
+        }
+      }
+    }
+    
+    //################################## ATTRIBUTE DEF
+    {
+      Table groupTable = GrouperDdlUtils.ddlutilsFindTable(database, Group.TABLE_GROUPER_GROUPS, true);
+      
+      //is the column there already?
+      boolean columnIsNew = null == GrouperDdlUtils.ddlutilsFindColumn(groupTable, Group.COLUMN_ID_INDEX, false);
+      
+      //this is required if the group table is new
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, Group.COLUMN_ID_INDEX, 
+          Types.BIGINT, "20", false, groupTableNew); 
+      
+      //unique index on the new col... note, is this allowed in all ds if there is null data there?  hmm...
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS, 
+          "group_id_index_idx", true, 
+         Group.COLUMN_ID_INDEX);
+      
+      //see if we need to add a script on top to massage data
+      if (!groupTableNew && GrouperConfig.retrieveConfig().propertyValueBoolean("ddl.generateIdIndicesInScript", true)) {
+
+        //if the col is in the database then see how many are blank, else see how many rows are in the grouper groups table
+        int idsNeeded = HibernateSession.bySqlStatic().select(Integer.class, 
+            columnIsNew ? "select count(*) from grouper_groups" 
+                : "select count(*) from grouper_groups where id_index is null");
+
+        if (idsNeeded > 0) {
+          
+          //we need the next available index
+          int nextIndex = 0;
+          if (!tableIndexTableNew) {
+            nextIndex = 1 + HibernateSession.bySqlStatic().select(Integer.class, 
+                "select last_index_reserved from grouper_table_index where type = ?", GrouperUtil.toListObject(TableIndexType.group.name()));
+          }
+          
+          //if this doesnt work, we dont have an ID col???
+          try {
+            //lets reserve that many rows and update stuff
+            List<String> groupIds = HibernateSession.bySqlStatic().listSelect(
+                String.class, "select id from grouper_groups order by id", null);
+            
+            for (int i=0;i<GrouperUtil.length(groupIds); i++) {
+              ddlVersionBean.appendAdditionalScriptUnique(
+                "\nupdate grouper_groups set id_index = " + nextIndex++ + " where id = '" + groupIds.get(i) + "';\n");
+              if (i+1 % 50 == 0) {
+                ddlVersionBean.getAdditionalScripts().append("\ncommit;\n");
+              }
+            }
+            ddlVersionBean.getAdditionalScripts().append("\ncommit;\n");
+
+            //see if there is already a row there
+            boolean isInsert = tableIndexTableNew;
+            if (!isInsert) {
+              isInsert = 0 == HibernateSession.bySqlStatic().select(Integer.class, "select count(*) from grouper_table_index where type = '" 
+                  + TableIndexType.group.name() + "'");
+            }
+            
+            if (isInsert) {
+              //now we need to account for the used indices
+              long now = System.currentTimeMillis();
+              //note: this might be fragile as the structure of the table changes... hmmm
+              ddlVersionBean.appendAdditionalScriptUnique(
+                  "\ninsert into grouper_table_index (id, type, last_index_reserved, created_on, last_updated, hibernate_version_number) " +
+                  "values ('" + GrouperUuid.getUuid() + "', '" + TableIndexType.group.name() + "', " + (nextIndex-1) + ", " 
+                      + now + ", " + now + ", 1);\ncommit;\n");
+              
+            } else {
+              //now we need to account for the used indices
+              ddlVersionBean.appendAdditionalScriptUnique(
+                  "\nupdate grouper_table_index set last_index_reserved = " + (nextIndex-1) + " where type = '" + TableIndexType.group.name() + "';\ncommit;\n");
+              
+            }
+            
+            
+          } catch (Exception e) {
+            LOG.debug("Problem with group ID index generation...  probably not a big deal, will be resolved on GSH startup", e);
+          }
+                
+          
+        }
+      }
+    }
+    
+    //############################## ATTRIBUTE DEF NAME
+    {
+      Table groupTable = GrouperDdlUtils.ddlutilsFindTable(database, Group.TABLE_GROUPER_GROUPS, true);
+      
+      //is the column there already?
+      boolean columnIsNew = null == GrouperDdlUtils.ddlutilsFindColumn(groupTable, Group.COLUMN_ID_INDEX, false);
+      
+      //this is required if the group table is new
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, Group.COLUMN_ID_INDEX, 
+          Types.BIGINT, "20", false, groupTableNew); 
+      
+      //unique index on the new col... note, is this allowed in all ds if there is null data there?  hmm...
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS, 
+          "group_id_index_idx", true, 
+         Group.COLUMN_ID_INDEX);
+      
+      //see if we need to add a script on top to massage data
+      if (!groupTableNew && GrouperConfig.retrieveConfig().propertyValueBoolean("ddl.generateIdIndicesInScript", true)) {
+
+        //if the col is in the database then see how many are blank, else see how many rows are in the grouper groups table
+        int idsNeeded = HibernateSession.bySqlStatic().select(Integer.class, 
+            columnIsNew ? "select count(*) from grouper_groups" 
+                : "select count(*) from grouper_groups where id_index is null");
+
+        if (idsNeeded > 0) {
+          
+          //we need the next available index
+          int nextIndex = 0;
+          if (!tableIndexTableNew) {
+            nextIndex = 1 + HibernateSession.bySqlStatic().select(Integer.class, 
+                "select last_index_reserved from grouper_table_index where type = ?", GrouperUtil.toListObject(TableIndexType.group.name()));
+          }
+          
+          //if this doesnt work, we dont have an ID col???
+          try {
+            //lets reserve that many rows and update stuff
+            List<String> groupIds = HibernateSession.bySqlStatic().listSelect(
+                String.class, "select id from grouper_groups order by id", null);
+            
+            for (int i=0;i<GrouperUtil.length(groupIds); i++) {
+              ddlVersionBean.appendAdditionalScriptUnique(
+                "\nupdate grouper_groups set id_index = " + nextIndex++ + " where id = '" + groupIds.get(i) + "';\n");
+              if (i+1 % 50 == 0) {
+                ddlVersionBean.getAdditionalScripts().append("\ncommit;\n");
+              }
+            }
+            ddlVersionBean.getAdditionalScripts().append("\ncommit;\n");
+
+            //see if there is already a row there
+            boolean isInsert = tableIndexTableNew;
+            if (!isInsert) {
+              isInsert = 0 == HibernateSession.bySqlStatic().select(Integer.class, "select count(*) from grouper_table_index where type = '" 
+                  + TableIndexType.group.name() + "'");
+            }
+            
+            if (isInsert) {
+              //now we need to account for the used indices
+              long now = System.currentTimeMillis();
+              //note: this might be fragile as the structure of the table changes... hmmm
+              ddlVersionBean.appendAdditionalScriptUnique(
+                  "\ninsert into grouper_table_index (id, type, last_index_reserved, created_on, last_updated, hibernate_version_number) " +
+                  "values ('" + GrouperUuid.getUuid() + "', '" + TableIndexType.group.name() + "', " + (nextIndex-1) + ", " 
+                      + now + ", " + now + ", 1);\ncommit;\n");
+              
+            } else {
+              //now we need to account for the used indices
+              ddlVersionBean.appendAdditionalScriptUnique(
+                  "\nupdate grouper_table_index set last_index_reserved = " + (nextIndex-1) + " where type = '" + TableIndexType.group.name() + "';\ncommit;\n");
+              
+            }
+            
+            
+          } catch (Exception e) {
+            LOG.debug("Problem with group ID index generation...  probably not a big deal, will be resolved on GSH startup", e);
+          }
+                
+          
+        }
+      }
+    }
+
+    
+  }
+
   /**
    * add privilege management in v2 or when needed
    * @param ddlVersionBean
@@ -13273,6 +13659,7 @@ public enum GrouperDdl implements DdlVersionable {
     }
   }
   
+
   /**
    * @param ddlVersionBean
    * @param database

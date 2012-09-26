@@ -38,6 +38,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -46,6 +47,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.GrouperAccessAdapter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -199,6 +201,9 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable {
   {
     this.group        = group;
     this.isRevokable  = isRevokable;
+    if (!StringUtils.equals(GrouperAccessAdapter.class.getName(), klass)) {
+      throw new RuntimeException("Why is this constructor called with " + klass + ", shouldnt it be: " + GrouperAccessAdapter.class.getName());
+    }
     this.klass        = klass;
     this.name         = priv.toString();
     this.owner        = owner;

@@ -31,6 +31,7 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import edu.internet2.middleware.grouper.GrouperAccessAdapter;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
@@ -61,7 +62,7 @@ public class AccessResolverFactory {
     throws  IllegalArgumentException
   {
     return getInstance(
-             session, (AccessAdapter) Realize.instantiate( GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.ACCESS_PRIVILEGE_INTERFACE ) )
+             session, (AccessAdapter) Realize.instantiate( GrouperAccessAdapter.class.getName() )
            )
            ;
   }

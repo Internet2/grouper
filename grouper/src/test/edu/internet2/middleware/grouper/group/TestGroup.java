@@ -40,13 +40,16 @@ import junit.textui.TestRunner;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -95,7 +98,7 @@ public class TestGroup extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(new TestGroup("testNoLocking"));
     //TestRunner.run(TestGroup.class);
-    TestRunner.run(new TestGroup("testSetDescription"));
+    TestRunner.run(new TestGroup("testGetMembersAccess"));
     //TestRunner.run(TestGroup.class);
   }
   
@@ -127,6 +130,68 @@ public class TestGroup extends GrouperTest {
     LOG.debug("tearDown");
   }
 
+  /**
+   * test that privileges are ok for member list
+   */
+  public void testGetMembersAccess() {
+
+    Group group = new GroupSave(this.s).assignName("someStem:someGroup").assignCreateParentStemsIfNotExist(true).save();
+    Group optinsGroup = new GroupSave(this.s).assignName("someStem:someOptinsGroup").assignCreateParentStemsIfNotExist(true).save();
+    
+    optinsGroup.addMember(SubjectTestHelper.SUBJ2);
+    
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN);
+    group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.UPDATE);
+    group.grantPriv(optinsGroup.toSubject(), AccessPrivilege.OPTIN);
+    
+    Field updatersField = FieldFinder.find("updaters", true);
+    Field optinsField = FieldFinder.find("optins", true);
+    Set<Member> updaters = group.getMembers(updatersField);
+    
+    assertEquals(GrouperUtil.toStringForLog(updaters), 1, GrouperUtil.length(updaters));
+
+    assertEquals(SubjectTestHelper.SUBJ1_ID, updaters.iterator().next().getSubjectId());
+
+    assertTrue(group.hasMember(SubjectTestHelper.SUBJ1, updatersField ));
+    assertTrue(group.hasImmediateMember(SubjectTestHelper.SUBJ1, updatersField ));
+
+    assertTrue(group.hasMember(SubjectTestHelper.SUBJ2, optinsField ));
+    assertTrue(group.hasImmediateMember(optinsGroup.toSubject(), optinsField ));
+    assertTrue(group.hasEffectiveMember(SubjectTestHelper.SUBJ2, optinsField ));
+
+    updaters = MembershipFinder.findMembers(group, updatersField);
+
+    assertEquals(GrouperUtil.toStringForLog(updaters), 1, GrouperUtil.length(updaters));
+
+    assertEquals(SubjectTestHelper.SUBJ1_ID, updaters.iterator().next().getSubjectId());
+
+    Member member1 = MemberFinder.findBySubject(this.s, SubjectTestHelper.SUBJ1, false);
+    Member member2 = MemberFinder.findBySubject(this.s, SubjectTestHelper.SUBJ2, false);
+    Member memberOptinsGroup = optinsGroup.toMember();
+    
+    Set<Group> groups = member1.getGroups(updatersField);
+    
+    assertEquals(1, GrouperUtil.length(groups));
+    assertEquals(group.getName(), groups.iterator().next().getName());
+
+    groups = member2.getGroups(optinsField);
+
+    assertEquals(1, GrouperUtil.length(groups));
+    assertEquals(group.getName(), groups.iterator().next().getName());
+    
+    groups = member1.getImmediateGroups(updatersField);
+    
+    assertEquals(1, GrouperUtil.length(groups));
+    assertEquals(group.getName(), groups.iterator().next().getName());
+    
+    groups = member2.getEffectiveGroups(optinsField);
+    
+    assertEquals(1, GrouperUtil.length(groups));
+    assertEquals(group.getName(), groups.iterator().next().getName());
+    
+    
+  }
+  
   /**
    * 
    */

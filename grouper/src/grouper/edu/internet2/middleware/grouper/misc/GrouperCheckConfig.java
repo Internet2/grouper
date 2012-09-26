@@ -329,12 +329,6 @@ public class GrouperCheckConfig {
     //  return;
     //}
 
-    GrouperConfig.retrieveConfig().assertPropertyValueClass("privileges.access.interface", 
-        AccessAdapter.class, true);
-    
-    GrouperConfig.retrieveConfig().assertPropertyValueClass("privileges.naming.interface", 
-        NamingAdapter.class, true);
-    
     GrouperConfig.retrieveConfig().assertPropertyValueBoolean("groups.create.grant.all.admin", true);
     GrouperConfig.retrieveConfig().assertPropertyValueBoolean("groups.create.grant.all.optin", true);
     GrouperConfig.retrieveConfig().assertPropertyValueBoolean("groups.create.grant.all.optout", true);

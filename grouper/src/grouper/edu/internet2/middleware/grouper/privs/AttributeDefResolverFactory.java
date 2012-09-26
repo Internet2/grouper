@@ -58,7 +58,7 @@ public class AttributeDefResolverFactory {
   public static AttributeDefResolver getInstance(GrouperSession session)
       throws IllegalArgumentException {
     return getInstance(
-        session, (AttributeDefAdapter) Realize.instantiate(GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.ATTRIBUTE_DEF_PRIVILEGE_INTERFACE)));
+        session, (AttributeDefAdapter) Realize.instantiate(GrouperAttributeDefAdapter.class.getName()));
   }
 
   /**

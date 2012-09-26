@@ -34,6 +34,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperAccessAdapter;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -98,7 +99,7 @@ public class GrouperSystemAccessResolver extends AccessResolverDecorator {
       for (Privilege p : privs) {
         //Not happy about the klass but will do for now in the absence of a GrouperSession
         if (!p.equals(AccessPrivilege.OPTIN) && !p.equals(AccessPrivilege.OPTOUT)) {
-          ap = new AccessPrivilege(group, subject, subject, p, GrouperConfig.retrieveConfig().propertyValueString("privileges.access.interface"), false, null);
+          ap = new AccessPrivilege(group, subject, subject, p, GrouperAccessAdapter.class.getName(), false, null);
           accessPrivs.add(ap);
         }
       }

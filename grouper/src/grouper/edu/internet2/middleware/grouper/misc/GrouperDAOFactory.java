@@ -86,6 +86,7 @@ import edu.internet2.middleware.grouper.internal.dao.RoleSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.RoleSetViewDAO;
 import edu.internet2.middleware.grouper.internal.dao.StemDAO;
 import edu.internet2.middleware.grouper.internal.dao.StemSetDAO;
+import edu.internet2.middleware.grouper.internal.dao.TableIndexDAO;
 import edu.internet2.middleware.grouper.internal.dao.TransactionDAO;
 import edu.internet2.middleware.grouper.internal.util.Realize;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
@@ -444,5 +445,10 @@ public abstract class GrouperDAOFactory {
    * @return stem set
    */
   public abstract StemSetDAO getStemSet();
+
+  /**
+   * @return table index
+   */
+  public abstract TableIndexDAO getTableIndex();
 } 
 

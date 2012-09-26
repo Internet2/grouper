@@ -174,6 +174,8 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
   /** column */
   public static final String COLUMN_ID = "id";
 
+  /** unique number for this attribute def */
+  public static final String COLUMN_ID_INDEX = "id_index";
   
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -237,6 +239,9 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
   /** constant for field name for: id */
   public static final String FIELD_ID = "id";
 
+  /** constant for field name for: idIndex */
+  public static final String FIELD_ID_INDEX = "idIndex";
+
   /** constant for field name for: lastUpdatedDb */
   public static final String FIELD_LAST_UPDATED_DB = "lastUpdatedDb";
 
@@ -264,7 +269,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
       FIELD_ASSIGN_TO_MEMBER, FIELD_ASSIGN_TO_MEMBER_ASSN, FIELD_ASSIGN_TO_STEM, FIELD_ASSIGN_TO_STEM_ASSN, 
       FIELD_ATTRIBUTE_DEF_PUBLIC, FIELD_ATTRIBUTE_DEF_TYPE, FIELD_CONTEXT_ID, 
       FIELD_CREATED_ON_DB, FIELD_CREATOR_ID, FIELD_DESCRIPTION, FIELD_EXTENSION, 
-      FIELD_ID, FIELD_LAST_UPDATED_DB, FIELD_MULTI_ASSIGNABLE, FIELD_MULTI_VALUED, 
+      FIELD_ID, FIELD_ID_INDEX, FIELD_LAST_UPDATED_DB, FIELD_MULTI_ASSIGNABLE, FIELD_MULTI_VALUED, 
       FIELD_NAME, FIELD_STEM_ID, FIELD_VALUE_TYPE);
 
   /**
@@ -276,7 +281,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
       FIELD_ASSIGN_TO_MEMBER, FIELD_ASSIGN_TO_MEMBER_ASSN, FIELD_ASSIGN_TO_STEM, FIELD_ASSIGN_TO_STEM_ASSN, 
       FIELD_ATTRIBUTE_DEF_PUBLIC, FIELD_ATTRIBUTE_DEF_TYPE, FIELD_CONTEXT_ID, 
       FIELD_CREATED_ON_DB, FIELD_CREATOR_ID, FIELD_DESCRIPTION, FIELD_EXTENSION, 
-      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_LAST_UPDATED_DB, FIELD_MULTI_ASSIGNABLE, 
+      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_ID_INDEX, FIELD_LAST_UPDATED_DB, FIELD_MULTI_ASSIGNABLE, 
       FIELD_MULTI_VALUED, FIELD_NAME, FIELD_STEM_ID, FIELD_VALUE_TYPE);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
@@ -1083,6 +1088,9 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
    * type of the value,  int, double, string, marker
    */
   private AttributeDefValueType valueType = AttributeDefValueType.marker;
+
+  /** id of the group as a unique integer */
+  private Long idIndex;
   
   /**
    * type of the value,  int, double, string, marker
@@ -1968,6 +1976,24 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
     String thisName = StringUtils.defaultString(this.getName());
     String thatName = StringUtils.defaultString(that.getName());
     return thisName.compareTo(thatName);
+  }
+
+
+  /**
+   * id of the group as a unique integer
+   * @return id
+   */
+  public Long getIdIndex() {
+    return this.idIndex;
+  }
+
+
+  /**
+   * id of the group as a unique integer
+   * @param idIndex1
+   */
+  public void setIdIndex(Long idIndex1) {
+    this.idIndex = idIndex1;
   }
 
   

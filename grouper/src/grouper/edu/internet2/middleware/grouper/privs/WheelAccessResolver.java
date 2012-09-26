@@ -37,6 +37,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperAccessAdapter;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
@@ -138,7 +139,7 @@ public class WheelAccessResolver extends AccessResolverDecorator {
         //Not happy about the klass but will do for now in the absence of a GrouperSession
         if (!p.equals(AccessPrivilege.OPTIN) && !p.equals(AccessPrivilege.OPTOUT)) {
           ap = new AccessPrivilege(group, subject, SubjectFinder.findRootSubject(),
-              p, GrouperConfig.retrieveConfig().propertyValueString("privileges.access.interface"), false, null);
+              p, GrouperAccessAdapter.class.getName(), false, null);
           accessPrivs.add(ap);
         }
       }

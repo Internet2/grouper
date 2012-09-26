@@ -86,6 +86,10 @@ public class AttributeDefWrapper implements AttributeDefResolver {
     this.parameterHelper.notNullGrouperSession(session).notNullAttrDefAdapter(
         attributeDefAdapter);
     this.grouperSession = session;
+    if (!(attributeDefAdapter instanceof GrouperAttributeDefAdapter)) {
+      throw new RuntimeException("Why is AttributeDefAdapter " + (attributeDefAdapter == null ? null : attributeDefAdapter.getClass())
+          + " and not " + GrouperAttributeDefAdapter.class.getName());
+    }
     this.attributeDefAdapter = attributeDefAdapter;
   }
 

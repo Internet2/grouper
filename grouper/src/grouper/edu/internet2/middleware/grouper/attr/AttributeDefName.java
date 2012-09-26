@@ -114,6 +114,8 @@ public class AttributeDefName extends GrouperAPI
   /** column */
   public static final String COLUMN_ID = "id";
 
+  /** unique number for this attributeDefName */
+  public static final String COLUMN_ID_INDEX = "id_index";
 
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -141,6 +143,9 @@ public class AttributeDefName extends GrouperAPI
   /** constant for field name for: id */
   public static final String FIELD_ID = "id";
 
+  /** constant for field name for: idIndex */
+  public static final String FIELD_ID_INDEX = "idIndex";
+
   /** constant for field name for: lastUpdatedDb */
   public static final String FIELD_LAST_UPDATED_DB = "lastUpdatedDb";
 
@@ -155,7 +160,7 @@ public class AttributeDefName extends GrouperAPI
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_ATTRIBUTE_DEF_ID, FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DESCRIPTION, 
-      FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, FIELD_ID, 
+      FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, FIELD_ID, FIELD_ID_INDEX, 
       FIELD_LAST_UPDATED_DB, FIELD_NAME, FIELD_STEM_ID);
 
   /**
@@ -164,7 +169,7 @@ public class AttributeDefName extends GrouperAPI
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_ATTRIBUTE_DEF_ID, FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DB_VERSION, 
       FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, 
-      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_LAST_UPDATED_DB, FIELD_NAME, 
+      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_ID_INDEX, FIELD_LAST_UPDATED_DB, FIELD_NAME, 
       FIELD_STEM_ID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
@@ -681,6 +686,9 @@ public class AttributeDefName extends GrouperAPI
    */
   @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
   private AttributeDefNameSetDelegate attributeDefNameSetDelegate;
+
+  /** id of the group as a unique integer */
+  private Long idIndex;
   
   /**
    * delegate logic about attribute def name sets to this object 
@@ -1105,6 +1113,26 @@ public class AttributeDefName extends GrouperAPI
     String thisName = StringUtils.defaultString(this.getName());
     String thatName = StringUtils.defaultString(that.getName());
     return thisName.compareTo(thatName);
+  }
+
+
+
+  /**
+   * id of the group as a unique integer
+   * @return id
+   */
+  public Long getIdIndex() {
+    return this.idIndex;
+  }
+
+
+
+  /**
+   * id of the group as a unique integer
+   * @param idIndex1
+   */
+  public void setIdIndex(Long idIndex1) {
+    this.idIndex = idIndex1;
   }
   
 }

@@ -33,6 +33,7 @@
 package edu.internet2.middleware.grouper.privs;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperAccessAdapter;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -92,7 +93,7 @@ public class Test_privs_CachingAccessResolver extends GrouperTest {
                         new AccessWrapper( 
                           GrouperSession.start( SubjectFinder.findRootSubject() ),
                           (AccessAdapter) Realize.instantiate( 
-                              GrouperConfig.retrieveConfig().propertyValueString( GrouperConfig.ACCESS_PRIVILEGE_INTERFACE )
+                              GrouperAccessAdapter.class.getName()
                           )
                         )
                       );

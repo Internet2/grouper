@@ -162,6 +162,7 @@
     <property name="lastMembershipChangeDb" column="last_membership_change" update="false"/>
     <property name="alternateNameDb" column="alternate_name"/>
     <property name="contextId" column="context_id"/>
+    <property name="idIndex" column="id_index"/>
 
   </class>
 </hibernate-mapping>

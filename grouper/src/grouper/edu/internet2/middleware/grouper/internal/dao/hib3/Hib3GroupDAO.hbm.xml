@@ -119,5 +119,6 @@
     <property name="contextId" column="context_id"/>
     <property name="alternateNameDb" column="alternate_name"/>
     <property name="typeOfGroupDb" column="type_of_group"/>
+    <property name="idIndex" column="id_index"/>
   </class>
 </hibernate-mapping>

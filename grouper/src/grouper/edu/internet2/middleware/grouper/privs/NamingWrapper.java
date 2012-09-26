@@ -33,6 +33,7 @@
 package edu.internet2.middleware.grouper.privs;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.GrouperNamingAdapter;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
@@ -103,6 +104,11 @@ public class NamingWrapper implements NamingResolver {
     throws  IllegalArgumentException
   {
     this.param  = new ParameterHelper();
+    
+    if (!(naming instanceof GrouperNamingAdapter)) {
+      throw new RuntimeException("Why is NamingAdapter " + (naming == null ? null : naming.getClass()) + " and not " + GrouperNamingAdapter.class.getName());
+    }
+    
     this.param.notNullGrouperSession(session).notNullNamingAdapter(naming);
     this.s      = session;
     this.naming = naming;

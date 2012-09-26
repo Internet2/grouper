@@ -97,26 +97,7 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
    * Property determining whether wheel group is to be used.
    */
   public static final String PROP_USE_WHEEL_GROUP = "groups.wheel.use";
-
-  /**
-   * Property name for <code>AccessAdapter</code> implementation.
-   * @since   1.2.1
-   */
-  public static final String ACCESS_PRIVILEGE_INTERFACE = "privileges.access.interface";
-
-  /**
-   * Property name for <code>AttributeDefAdapter</code> implementation.
-   */
-  public static final String ATTRIBUTE_DEF_PRIVILEGE_INTERFACE = "privileges.attributeDef.interface";
-
-  /**
-   * Property name for <code>NamingAdapter</code> implementation.
-   * @since   1.2.1
-   */
-  public static final String NAMING_PRIVILEGE_INTERFACE = "privileges.naming.interface";
-
-
-
+ 
   // PROTECTED CLASS CONSTANTS //
   public static final String ALL           = "GrouperAll";
   public static final String ALL_NAME           = "EveryEntity";

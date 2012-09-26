@@ -127,11 +127,7 @@ public class GrouperInfo {
    * @since   1.2.0
    */
   private void _printGrouperInfo() {
-    String key = "privileges.access.interface";
-    this._print( key, GrouperConfig.retrieveConfig().propertyValueString(key) );
-    key = "privileges.naming.interface";
-    this._print( key, GrouperConfig.retrieveConfig().propertyValueString(key) );
-    key = "privileges.access.cache.interface";
+    String key = "privileges.access.cache.interface";
     this._print( key, GrouperConfig.retrieveConfig().propertyValueString(key) );
     key = "privileges.naming.cache.interface";
     this._print( key, GrouperConfig.retrieveConfig().propertyValueString(key) );

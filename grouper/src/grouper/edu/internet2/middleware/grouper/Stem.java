@@ -179,6 +179,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   /** id col in db */
   public static final String COLUMN_ID = "id";
 
+  /** unique number for this stem */
+  public static final String COLUMN_ID_INDEX = "id_index";
+
   /** id col in db */
   public static final String COLUMN_CREATE_TIME = "create_time";
 
@@ -252,6 +255,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   /** constant for field name for: extension */
   public static final String FIELD_EXTENSION = "extension";
 
+  /** constant for field name for: idIndex */
+  public static final String FIELD_ID_INDEX = "idIndex";
+
   /** constant for field name for: modifierUUID */
   public static final String FIELD_MODIFIER_UUID = "modifierUUID";
 
@@ -275,7 +281,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DESCRIPTION, 
-      FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, FIELD_MODIFIER_UUID, 
+      FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, FIELD_ID_INDEX, 
+      FIELD_MODIFIER_UUID, 
       FIELD_MODIFY_TIME, FIELD_NAME, FIELD_PARENT_UUID, 
       FIELD_UUID, FIELD_LAST_MEMBERSHIP_CHANGE_DB, FIELD_ALTERNATE_NAME_DB);
 
@@ -285,7 +292,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DB_VERSION, 
       FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, 
-      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_MODIFIER_UUID, FIELD_MODIFY_TIME, 
+      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID_INDEX, FIELD_MODIFIER_UUID, FIELD_MODIFY_TIME, 
       FIELD_NAME, FIELD_PARENT_UUID, FIELD_UUID, FIELD_LAST_MEMBERSHIP_CHANGE_DB,
       FIELD_ALTERNATE_NAME_DB);
 
@@ -3703,6 +3710,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * when the last member has changed, used by hibernate
    */
   private Long lastMembershipChangeDb;
+
+  /** id of the group as a unique integer */
+  private Long idIndex;
   
   /**
    * when the last member has changed, used by hibernate
@@ -4144,6 +4154,24 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    */
   public String __getName() {
     return this.getName();
+  }
+
+
+  /**
+   * id of the group as a unique integer
+   * @return id
+   */
+  public Long getIdIndex() {
+    return this.idIndex;
+  }
+
+
+  /**
+   * id of the group as a unique integer
+   * @param idIndex1
+   */
+  public void setIdIndex(Long idIndex1) {
+    this.idIndex = idIndex1;
   }
 }
 

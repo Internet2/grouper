@@ -11,7 +11,7 @@
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0 
+    http://www.apache.org/licenses/LICENSE-2.0
 
   Unless required by applicable law or agreed to in writing, software
   distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,13 +20,13 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3AttributeDefNameDAO.hbm.xml,v 1.1 2009-06-24 06:22:24 mchyzer Exp $ -->
+<!-- $Id$ -->
 
-<hibernate-mapping package="edu.internet2.middleware.grouper.attr">
+<hibernate-mapping package="edu.internet2.middleware.grouper.tableIndex" default-lazy="false">
 
   <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
     based on the grouper.properties, so dont remove that attribute  -->
-  <class name="AttributeDefName" table="grouper_attribute_def_name" optimistic-lock="version">
+  <class name="TableIndex" table="grouper_table_index" optimistic-lock="version">
 
     <cache usage="read-write"/>
 
@@ -39,17 +39,9 @@
     <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
     <version name="hibernateVersionNumber" column="hibernate_version_number" type="long"/>
 
-    <property name="attributeDefId" column="attribute_def_id"/>
-    <property name="contextId" column="context_id"/>
+    <property name="lastIndexReserved" column="last_index_reserved"/>
+    <property name="typeDb" column="type"/>
     <property name="createdOnDb" column="created_on"/>
-    <property name="description" column="description"/>
-    <property name="displayExtensionDb" column="display_extension"/>
-    <property name="displayNameDb" column="display_name"/>
-    <property name="extensionDb" column="extension"/>
     <property name="lastUpdatedDb" column="last_updated"/>
-    <property name="nameDb" column="name"/>
-    <property name="stemId" column="stem_id"/>
-    <property name="idIndex" column="id_index"/>
   </class>
 </hibernate-mapping>
-

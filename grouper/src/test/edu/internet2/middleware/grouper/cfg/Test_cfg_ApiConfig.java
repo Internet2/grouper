@@ -57,15 +57,6 @@ public class Test_cfg_ApiConfig extends GrouperTest {
 
 
 
-  public void test_constant_ACCESS_PRIVILEGE_INTERFACE() {
-    assertEquals( "privileges.access.interface", GrouperConfig.ACCESS_PRIVILEGE_INTERFACE );
-  }
-
-  public void test_constant_NAMING_PRIVILEGE_INTERFACE() {
-    assertEquals( "privileges.naming.interface", GrouperConfig.NAMING_PRIVILEGE_INTERFACE );
-  }
-
-
   public void test_getProperty_nullProperty() {
     try {
       GrouperConfig.retrieveConfig().propertyValueString(null);

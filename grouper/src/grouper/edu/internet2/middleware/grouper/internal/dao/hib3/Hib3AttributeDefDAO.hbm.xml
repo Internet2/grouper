@@ -66,6 +66,7 @@
     <property name="nameDb" column="name"/>
     <property name="stemId" column="stem_id"/>
     <property name="valueTypeDb" column="value_type"/>
+    <property name="idIndex" column="id_index"/>
   </class>
 </hibernate-mapping>
 

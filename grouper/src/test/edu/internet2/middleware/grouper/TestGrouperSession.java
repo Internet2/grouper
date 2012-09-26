@@ -95,7 +95,7 @@ public class TestGrouperSession extends GrouperTest {
   }
 
   public void test_getAccessClass_defaultAccessAdapter() {
-    assertEquals( GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.ACCESS_PRIVILEGE_INTERFACE), this.s.getAccessClass() );
+    assertEquals( GrouperAccessAdapter.class.getName(), this.s.getAccessClass() );
   }
 
   /**
@@ -121,7 +121,7 @@ public class TestGrouperSession extends GrouperTest {
   }
 
   public void test_getNamingClass_defaultAccessAdapter() {
-    assertEquals( GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.NAMING_PRIVILEGE_INTERFACE), this.s.getNamingClass() );
+    assertEquals( GrouperNamingAdapter.class.getName(), this.s.getNamingClass() );
   }
 
 

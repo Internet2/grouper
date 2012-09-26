@@ -32,6 +32,7 @@
 
 package edu.internet2.middleware.grouper.privs;
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.GrouperNamingAdapter;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -88,7 +89,7 @@ public class Test_privs_CachingNamingResolver extends GrouperTest {
                         new NamingWrapper( 
                           GrouperSession.start( SubjectFinder.findRootSubject() ),
                           (NamingAdapter) Realize.instantiate( 
-                              GrouperConfig.retrieveConfig().propertyValueString( GrouperConfig.NAMING_PRIVILEGE_INTERFACE )
+                              GrouperNamingAdapter.class.getName()
                           )
                         )
                       );

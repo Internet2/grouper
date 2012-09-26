@@ -237,6 +237,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   /** if this is a group or role */
   public static final String COLUMN_TYPE_OF_GROUP = "type_of_group";
   
+  /** unique number for this group */
+  public static final String COLUMN_ID_INDEX = "id_index";
+  
   /**
    * if this is a composite group, get the composite object for this group
    * @return the composite group
@@ -447,6 +450,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   /** extension of group, e.g. students */
   private String extension;
   
+  /** id of the group as a unique integer */
+  private Long idIndex;
+  
   /** displayExtension of group, e.g. All Students */
   private String displayExtension;
   
@@ -500,6 +506,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   /** constant for field name for: extension */
   public static final String FIELD_EXTENSION = "extension";
   
+  /** constant for field name for: idIndex */
+  public static final String FIELD_ID_INDEX = "idIndex";
+  
   /** constant for field name for: lastMembershipChangeDb */
   public static final String FIELD_LAST_MEMBERSHIP_CHANGE_DB = "lastMembershipChangeDb";
 
@@ -531,6 +540,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DESCRIPTION, 
       FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, FIELD_MODIFIER_UUID, 
       FIELD_MODIFY_TIME, FIELD_NAME, FIELD_PARENT_UUID, FIELD_TYPE_OF_GROUP, FIELD_UUID, 
+      FIELD_ID_INDEX,
       FIELD_ALTERNATE_NAME_DB, FIELD_LAST_MEMBERSHIP_CHANGE_DB, FIELD_LAST_IMMEDIATE_MEMBERSHIP_CHANGE_DB);
 
   /**
@@ -539,7 +549,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DB_VERSION, 
       FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, 
-      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_MODIFIER_UUID, FIELD_MODIFY_TIME, FIELD_NAME, 
+      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID_INDEX, FIELD_MODIFIER_UUID, FIELD_MODIFY_TIME, FIELD_NAME, 
       FIELD_PARENT_UUID, FIELD_TYPE_OF_GROUP, FIELD_UUID, FIELD_LAST_MEMBERSHIP_CHANGE_DB, 
       FIELD_ALTERNATE_NAME_DB, FIELD_LAST_IMMEDIATE_MEMBERSHIP_CHANGE_DB);
 
@@ -6374,6 +6384,22 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    */
   public String getId() {
     return this.getUuid();
+  }
+
+  /**
+   * id of the group as a unique integer
+   * @return id
+   */
+  public Long getIdIndex() {
+    return this.idIndex;
+  }
+
+  /**
+   * id of the group as a unique integer
+   * @param idIndex1
+   */
+  public void setIdIndex(Long idIndex1) {
+    this.idIndex = idIndex1;
   }
 
   /**

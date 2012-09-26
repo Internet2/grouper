@@ -62,6 +62,7 @@ import edu.internet2.middleware.grouper.privs.AccessResolver;
 import edu.internet2.middleware.grouper.privs.AccessResolverFactory;
 import edu.internet2.middleware.grouper.privs.AttributeDefResolver;
 import edu.internet2.middleware.grouper.privs.AttributeDefResolverFactory;
+import edu.internet2.middleware.grouper.privs.GrouperAttributeDefAdapter;
 import edu.internet2.middleware.grouper.privs.NamingAdapter;
 import edu.internet2.middleware.grouper.privs.NamingResolver;
 import edu.internet2.middleware.grouper.privs.NamingResolverFactory;
@@ -467,7 +468,7 @@ public class GrouperSession implements Serializable {
    * @return access class
    */
   public String getAccessClass() {
-    return GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.ACCESS_PRIVILEGE_INTERFACE); // TODO 20070725 is this necessary?
+    return GrouperAccessAdapter.class.getName(); 
   } 
 
   /**
@@ -478,7 +479,7 @@ public class GrouperSession implements Serializable {
    * @return access class
    */
   public String getAttributeDefClass() {
-    return GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.ATTRIBUTE_DEF_PRIVILEGE_INTERFACE); // TODO 20070725 is this necessary?
+    return GrouperAttributeDefAdapter.class.getName();
   } 
 
   /**
@@ -532,7 +533,7 @@ public class GrouperSession implements Serializable {
    * @return naming class
    */
   public String getNamingClass() {
-    return GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.NAMING_PRIVILEGE_INTERFACE); // TODO 20070725 is this necessary?
+    return GrouperNamingAdapter.class.getName(); 
   } 
 
   /**
