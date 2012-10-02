@@ -166,7 +166,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testGetAttributeAssignmentsMembershipBatch"));
+    TestRunner.run(new GrouperServiceLogicTest("testAssignAttributesBatchImmMembership"));
   }
 
   /**
@@ -6837,6 +6837,91 @@ public class GrouperServiceLogicTest extends GrouperTest {
     
   
   }
+
+  /**
+     * test assign attributes batch immediate memberships
+     */
+    public void testAssignAttributesBatchImmMembership() {
+      GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+      
+      AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignDefName");
+      
+      final AttributeDef attributeDef = attributeDefName.getAttributeDef();
+      
+      attributeDef.setValueType(AttributeDefValueType.integer);
+      attributeDef.setMultiValued(false);
+      attributeDef.setMultiAssignable(false);
+      attributeDef.setAssignToGroup(false);
+      attributeDef.setAssignToImmMembership(true);
+      attributeDef.store();
+            
+      Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignGroupNameToEdit("test:groupTestAttrAssign").assignName("test:groupTestAttrAssign").assignCreateParentStemsIfNotExist(true)
+        .assignDescription("description").save();
+    
+      group.addMember(SubjectTestHelper.SUBJ0);
+      
+      Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ0, true);
+      Membership membership = group.getMemberships(FieldFinder.find("members", true), GrouperUtil.toSet(member)).iterator().next();
+      
+      group.addMember(SubjectTestHelper.SUBJ1);
+      
+      Member member1 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ1, true);
+      Membership membership1 = group.getMemberships(FieldFinder.find("members", true), GrouperUtil.toSet(member1)).iterator().next();
+      
+      GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+      
+      WsAssignAttributeBatchEntry wsAssignAttributeBatchEntry = new WsAssignAttributeBatchEntry();
+      wsAssignAttributeBatchEntry.setWsOwnerMembershipLookup(new WsMembershipLookup(membership.getUuid()));
+      wsAssignAttributeBatchEntry.setWsAttributeDefNameLookup(new WsAttributeDefNameLookup(attributeDefName.getName(),null));
+      wsAssignAttributeBatchEntry.setAttributeAssignOperation(AttributeAssignOperation.assign_attr.name());
+      wsAssignAttributeBatchEntry.setAttributeAssignValueOperation(AttributeAssignValueOperation.assign_value.name());
+      wsAssignAttributeBatchEntry.setAttributeAssignType(AttributeAssignType.imm_mem.name());
+      WsAttributeAssignValue wsAttributeAssignValue = new WsAttributeAssignValue();
+      wsAttributeAssignValue.setValueSystem("3");
+      wsAssignAttributeBatchEntry.setValues(new WsAttributeAssignValue[]{wsAttributeAssignValue});
+      
+      WsAssignAttributeBatchEntry wsAssignAttributeBatchEntry1 = new WsAssignAttributeBatchEntry();
+      wsAssignAttributeBatchEntry1.setWsOwnerMembershipLookup(new WsMembershipLookup(membership1.getUuid()));
+      wsAssignAttributeBatchEntry1.setWsAttributeDefNameLookup(new WsAttributeDefNameLookup(attributeDefName.getName(),null));
+      wsAssignAttributeBatchEntry1.setAttributeAssignOperation(AttributeAssignOperation.assign_attr.name());
+      wsAssignAttributeBatchEntry1.setAttributeAssignValueOperation(AttributeAssignValueOperation.assign_value.name());
+      wsAssignAttributeBatchEntry1.setAttributeAssignType(AttributeAssignType.imm_mem.name());
+      WsAttributeAssignValue wsAttributeAssignValue1 = new WsAttributeAssignValue();
+      wsAttributeAssignValue1.setValueSystem("5");
+      wsAssignAttributeBatchEntry1.setValues(new WsAttributeAssignValue[]{wsAttributeAssignValue1});
+      
+      WsAssignAttributeBatchEntry[] wsAssignAttributeBatchEntries = new WsAssignAttributeBatchEntry[] {wsAssignAttributeBatchEntry, wsAssignAttributeBatchEntry1};
+      
+      WsAssignAttributesBatchResults wsAssignAttributesBatchResults = GrouperServiceLogic.assignAttributesBatch(
+          GROUPER_VERSION, 
+          wsAssignAttributeBatchEntries, null, false, null, null, false, null);
+
+      GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+
+      assertEquals("assign an existing attribute is ok", WsAssignAttributesBatchResultsCode.SUCCESS.name(), 
+          wsAssignAttributesBatchResults.getResultMetadata().getResultCode());
+  
+      assertEquals(new Long(3), membership.getAttributeValueDelegate().retrieveValueInteger(attributeDefName.getName()));
+      assertEquals(new Long(5), membership1.getAttributeValueDelegate().retrieveValueInteger(attributeDefName.getName()));
+      
+      assertEquals(2, GrouperUtil.length(wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()));
+
+      AttributeAssign attributeAssign = membership.getAttributeDelegate().retrieveAssignments(attributeDefName).iterator().next();
+      AttributeAssign attributeAssign1 = membership1.getAttributeDelegate().retrieveAssignments(attributeDefName).iterator().next();
+      
+      for (int i=0;i<2;i++) {
+        WsAssignAttributeBatchResult wsAssignAttributeBatchResult = wsAssignAttributesBatchResults.getWsAssignAttributeBatchResultArray()[i];
+        assertEquals("T", wsAssignAttributeBatchResult.getChanged());
+        assertEquals("T", wsAssignAttributeBatchResult.getValuesChanged());
+        assertTrue(StringUtils.equals(attributeAssign.getId(), wsAssignAttributeBatchResult.getWsAttributeAssigns()[0].getId())
+            || StringUtils.equals(attributeAssign1.getId(), wsAssignAttributeBatchResult.getWsAttributeAssigns()[0].getId()));
+      }
+      
+  
+  
+      
+    }
 
   
 }
