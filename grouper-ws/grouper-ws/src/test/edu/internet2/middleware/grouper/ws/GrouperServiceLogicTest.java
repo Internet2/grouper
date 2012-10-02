@@ -166,7 +166,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testGetMembersPaging"));
+    TestRunner.run(new GrouperServiceLogicTest("testGetAttributeAssignmentsMembershipBatch"));
   }
 
   /**
@@ -6764,6 +6764,78 @@ public class GrouperServiceLogicTest extends GrouperTest {
       assertEquals(SubjectTestHelper.SUBJ3.getSourceId(), wsSubject2.getSourceId());
     }
     
+  }
+
+  /**
+   * test membership attribute read
+   */
+  public void testGetAttributeAssignmentsMembershipBatch() {
+  
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignDefName");
+    
+    final AttributeDef attributeDef = attributeDefName.getAttributeDef();
+    
+    attributeDef.setAssignToGroup(false);
+    attributeDef.setAssignToImmMembership(true);
+    attributeDef.store();
+    
+    Group group1 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:membershipTestAttrAssign").assignName("test:membershipTestAttrAssign").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+  
+    group1.addMember(SubjectTestHelper.SUBJ0);
+    
+    Membership membership = group1.getMemberships(FieldFinder.find("members", true)).iterator().next();
+      
+    
+    AttributeAssignResult attributeAssignResult = membership.getAttributeDelegate().assignAttribute(attributeDefName);
+    AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
+  
+    group1.addMember(SubjectTestHelper.SUBJ1);
+    
+    Member member1 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ1, true);
+    Membership membership1 = group1.getMemberships(FieldFinder.find("members", true), GrouperUtil.toSet(member1)).iterator().next();
+    
+    attributeAssignResult = membership1.getAttributeDelegate().assignAttribute(attributeDefName);
+    AttributeAssign attributeAssign1 = attributeAssignResult.getAttributeAssign();
+
+    group1.addMember(SubjectTestHelper.SUBJ2);
+    Member member2 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ2, true);
+    
+    Membership membership2 = group1.getMemberships(FieldFinder.find("members", true), GrouperUtil.toSet(member2)).iterator().next();
+
+    //###############################################
+    //valid query
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    WsGetAttributeAssignmentsResults wsGetAttributeAssignmentsResults = GrouperServiceLogic.getAttributeAssignments(
+        GROUPER_VERSION, AttributeAssignType.imm_mem, null, null, null, 
+        null, null, null, 
+        new WsMembershipLookup[]{new WsMembershipLookup(membership.getUuid()), new WsMembershipLookup(membership1.getUuid()), 
+            new WsMembershipLookup(membership2.getUuid())}, 
+        null, null, null, false, null, false, null, false, null, null, null, null, false, null, null, null, null, null);
+  
+    assertEquals(wsGetAttributeAssignmentsResults.getResultMetadata().getResultMessage(),
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsGetAttributeAssignmentsResults.getResultMetadata().getResultCode());
+    
+    assertEquals(2, GrouperUtil.length(wsGetAttributeAssignmentsResults.getWsAttributeAssigns()));
+    
+    for (int i=0;i<2;i++) {
+      
+      WsAttributeAssign wsAttributeAssign = wsGetAttributeAssignmentsResults.getWsAttributeAssigns()[1];
+      
+      assertTrue(StringUtils.equals(attributeAssign.getId(), wsAttributeAssign.getId())
+          || StringUtils.equals(attributeAssign1.getId(), wsAttributeAssign.getId()));
+    
+      assertTrue(StringUtils.equals(membership.getImmediateMembershipId(), wsGetAttributeAssignmentsResults.getWsMemberships()[i].getImmediateMembershipId())
+          || StringUtils.equals(membership1.getImmediateMembershipId(), wsGetAttributeAssignmentsResults.getWsMemberships()[i].getImmediateMembershipId()));
+      assertTrue(StringUtils.equals(membership.getUuid(), wsGetAttributeAssignmentsResults.getWsMemberships()[i].getMembershipId())
+          || StringUtils.equals(membership1.getUuid(), wsGetAttributeAssignmentsResults.getWsMemberships()[i].getMembershipId()));
+      
+      
+    }
+    
+  
   }
 
   
