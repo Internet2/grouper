@@ -31,12 +31,15 @@ public class VootPerson {
       Set<String> emails = subject.getAttributeValues(emailAttributeName);
       
       if (GrouperUtil.length(emails) > 0) {
-        int i=0;
-        this.emails = new VootEmail[emails.size()];
-        for (String email : emails) {
-          this.emails[i] = new VootEmail();
-          this.emails[i].setType("email");
-          this.emails[i].setValue(email);
+        //maybe first is blank
+        if (GrouperUtil.length(emails) != 1 || !StringUtils.isBlank(emails.iterator().next())) {
+          int i=0;
+          this.emails = new VootEmail[emails.size()];
+          for (String email : emails) {
+            this.emails[i] = new VootEmail();
+            this.emails[i].setType("email");
+            this.emails[i].setValue(email);
+          }
         }
       }
     }

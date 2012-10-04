@@ -5,11 +5,13 @@ package edu.internet2.middleware.grouperVoot;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
@@ -18,7 +20,19 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hibernate.HqlQuery;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperVoot.beans.VootGetGroupsResponse;
 import edu.internet2.middleware.grouperVoot.beans.VootGetMembersResponse;
@@ -34,6 +48,115 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class VootLogic {
 
+  /**
+   * Helper for find by approximate name queries
+   * 
+   * This isnt in 2.0.0
+   * @param name
+   * @param scope
+   * @param currentNames
+   * @param alternateNames
+   * @param queryOptions 
+   * @param typeOfGroups
+   * @return set
+   * @throws GrouperDAOException
+   * @throws IllegalStateException
+   */
+  private static Set<Group> findAllByApproximateNameSecureHelper(final String name, final String scope,
+      final boolean currentNames, final boolean alternateNames, final QueryOptions queryOptions, final Set<TypeOfGroup> typeOfGroups)
+      throws GrouperDAOException {
+    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+        new HibernateHandler() {
+  
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+
+            StringBuilder hql = new StringBuilder("select distinct theGroup from Group theGroup ");
+      
+            ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+          
+            GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+            
+            //see if we are adding more to the query
+            boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
+                grouperSession.getSubject(), byHqlStatic, 
+                hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+          
+            if (!changedQuery) {
+              hql.append(" where ");
+            } else {
+              hql.append(" and ");
+            }
+            String lowerName = StringUtils.defaultString(name).toLowerCase();
+            hql.append(" ( ");
+            if (currentNames) {
+              hql.append(" lower(theGroup.nameDb) like :theName or lower(theGroup.displayNameDb) like :theDisplayName ");
+              byHqlStatic.setString("theName", "%" + lowerName + "%");
+              byHqlStatic.setString("theDisplayName", "%" + lowerName + "%");
+            } 
+  
+            if (alternateNames) {
+              if (currentNames) {
+                hql.append(" or ");
+              }
+              hql.append(" theGroup.alternateNameDb like :theAlternateName ");
+              byHqlStatic.setString("theAlternateName", "%" + lowerName + "%");
+            }
+            
+            hql.append(" ) ");
+            
+            if (scope != null) {
+              hql.append(" and theGroup.nameDb like :theStemScope ");
+              byHqlStatic.setString("theStemScope", scope + "%");
+            }
+
+            //add in the typeOfGroups part
+            appendHqlQuery("theGroup", typeOfGroups, hql, byHqlStatic);
+            
+            byHqlStatic.setCacheable(false);
+
+            //reset sorting
+            if (queryOptions != null) {
+                            
+              byHqlStatic.options(queryOptions);
+            }
+            
+            byHqlStatic.createQuery(hql.toString());
+            Set<Group> groups = byHqlStatic.listSet(Group.class);
+            
+            return groups;
+          }
+    });
+    return resultGroups;
+  }
+
+  /**
+   * note: this isnt in 2.0.0
+   * @param groupAlias is the alias in the group hql query e.g. theGroup
+   * @param typeOfGroups the set of TypeOfGroup or null for all
+   * @param hql query so far
+   * @param hqlQuery object to append the stored params to
+   */
+  private static void appendHqlQuery(String groupAlias, Set<TypeOfGroup> typeOfGroups, StringBuilder hql, HqlQuery hqlQuery) {
+    if (GrouperUtil.length(typeOfGroups) > 0) {
+      if (hql.indexOf(" where ") > 0) {
+        hql.append(" and ");
+      } else {
+        hql.append(" where ");
+      }
+      hql.append(groupAlias).append(".typeOfGroupDb in ( ");
+      Set<String> typeOfGroupStrings = new LinkedHashSet<String>();
+      for (TypeOfGroup typeOfGroup : typeOfGroups) {
+        typeOfGroupStrings.add(typeOfGroup.name());
+      }
+      hql.append(HibUtils.convertToInClause(typeOfGroupStrings, hqlQuery));
+      hql.append(" ) ");
+    }
+
+  }
+
+  
   /**
    * get the members for a group based on a group
    * @param vootGroup
@@ -205,8 +328,9 @@ public class VootLogic {
   public static VootGetGroupsResponse getGroups() {
     
     VootGetGroupsResponse vootGetGroupsResponse = new VootGetGroupsResponse();
-
-    Set<Group> groups = GrouperDAOFactory.getFactory().getGroup().findAllByApproximateNameSecure("%", null, null, null);
+    
+    //this isnt in 2.0.0
+    Set<Group> groups = findAllByApproximateNameSecureHelper("%", null, true, true, null, null);
     
     if (GrouperUtil.length(groups) == 0) {
       vootGetGroupsResponse.assignPaging(null);
