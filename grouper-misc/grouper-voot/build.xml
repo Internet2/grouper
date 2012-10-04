@@ -1,0 +1,133 @@
+
+<project name="grouperVoot" default="build" basedir=".">
+
+  <!-- ant contrib allows conditionals in ant scripts -->
+  <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+    <classpath>
+      <pathelement location="${basedir}/lib/ant/ant-contrib.jar" />
+    </classpath>
+  </taskdef>
+
+  <!-- 
+  provides all environment variables as Ant properties prefixed by "env.". 
+  For example, CLASSPATH would be accessible in Ant as ${env.CLASSPATH}. 
+  -->
+  <property environment="env" />
+  
+  <if><not><available file="build.properties" /></not>
+    <then><copy file="build.example.properties" tofile="build.properties" /></then>
+  </if> 
+  
+  <available file="build.properties" property="build.properties.exists" value="true"/>
+
+  <fail message="Couldnt detect build.properties file, copy the build.example.properties to build.properties in the project base dir, and customize" unless="build.properties.exists" />
+  <property file="build.properties" />
+  
+  <target name="build" description="full build" depends="init,clean,compile,jarPrepare,jar">
+  </target>
+
+  <target name="init">
+    <tstamp />
+
+    <property file="${basedir}/misc/version.properties"/>
+
+    <property name="main.binDir" value="dist/bin" />
+    <property name="main.outputDir" value="dist" />
+    <property name="main.sourceDir" value="src" />
+    <property name="main.appName" value="grouperVoot" />
+    <property name="main.jarFile" value="${main.outputDir}/${main.appName}.jar" />
+
+    <path id="main.classpath">
+      <fileset dir="${grouper.dir}/lib/grouper">
+        <include name="**/*.jar" />
+      </fileset>
+      <fileset dir="${grouper.dir}/dist/lib">
+        <include name="grouper.jar" />
+      </fileset>
+      <fileset dir="${grouperWs.dir}/lib/grouper-ws">
+        <include name="**/*.jar" />
+      </fileset>
+      <fileset dir="${grouperWs.dir}/lib/grouper-ws-non-webapp">
+        <include name="**/*.jar" />
+      </fileset>
+      <fileset dir="${grouperWs.dir}/build/dist">
+        <include name="grouper-ws.jar" />
+      </fileset>
+    </path>
+
+    <condition property="main.os" value="windows">
+      <os family="windows" />
+    </condition>
+    <condition property="main.os" value="unix">
+      <os family="unix" />
+    </condition>
+
+    <pathconvert targetos="${main.os}" property="main.theClasspath" refid="main.classpath" />
+    
+  </target>
+
+  <target name="clean">
+    <mkdir dir="${main.binDir}" />
+    <delete dir="${main.binDir}" />
+    <mkdir dir="${main.binDir}" />
+
+  </target> 
+  
+  <target name="compile">
+    <mkdir dir="${main.outputDir}" />
+    <mkdir dir="${main.binDir}" />
+
+    <javac  target="1.6"
+      srcdir="${main.sourceDir}" destdir="${main.binDir}" classpath="${main.theClasspath}" debug="true" />
+  </target>
+
+  <target name="jarPrepare">
+    <mkdir dir="${main.binDir}" />
+
+    <copy todir="${main.binDir}">
+      <fileset dir="${main.sourceDir}">
+        <include name="**/*.java"/>      <!-- source -->
+        <include name="**/*.txt"/>      <!-- txt -->
+        <include name="**/*.html"/>      <!-- html -->
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="jar">
+    <tstamp>
+        <format property="the.timestamp" pattern="yyyy/MM/dd HH:mm:ss" />
+    </tstamp>
+    <jar jarfile="${main.jarFile}" duplicate="fail">
+      <fileset dir="misc">
+        <include name="META-INF/*" />
+      </fileset>
+      <fileset dir="${main.binDir}" />
+      <manifest>
+        <attribute name="Built-By"                value="${user.name}"/>
+        <attribute name="Implementation-Vendor"   value="Internet2"/>
+        <attribute name="Implementation-Title"    value="${main.appName}"/>
+        <attribute name="Implementation-Version"  value="${version}"/>
+        <attribute name="Implementation-URL"      value="https://spaces.internet2.edu/display/Grouper/Grouper+voot+connector"/>
+        <attribute name="Build-Timestamp"         value="${the.timestamp}"/>
+      </manifest>
+     </jar>
+    <echo message="Output is: dist/${main.appName}.jar" />
+   </target>
+  
+  <target name="distBinary" description="build tar gz on internet2 box" depends="init,clean,compile,jarPrepare,jar">
+    <property name="binName" value="${main.appName}.binary-${version}" />
+    <mkdir dir="dist/binary/${binName}"/>
+    <copy todir="dist/binary/${binName}">    
+      <fileset dir="dist">
+        <include name="${main.appName}.jar"/>
+      </fileset>
+    </copy>
+    <tar destfile="dist/${binName}.tar.gz" compression="gzip">
+      <tarfileset dir="dist/binary" >
+        <include name="${binName}/**"/>
+      </tarfileset>
+    </tar>            
+  </target>
+
+  
+</project>
