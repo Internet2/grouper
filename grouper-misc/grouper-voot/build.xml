@@ -121,6 +121,9 @@
       <fileset dir="dist">
         <include name="${main.appName}.jar"/>
       </fileset>
+      <fileset dir="misc">
+        <include name="BINARY-README.txt"/>
+      </fileset>
     </copy>
     <tar destfile="dist/${binName}.tar.gz" compression="gzip">
       <tarfileset dir="dist/binary" >
