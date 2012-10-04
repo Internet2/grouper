@@ -65,6 +65,12 @@ https://grouper.whatever.com/grouperWs/voot/groups?indentResponse=true
 https://grouper.whatever.com/grouperWs/voot/people/@me?indentResponse=true
 https://grouper.whatever.com/grouperWs/voot/people/@me/aStem:aGroup2?indentResponse=true
 
+This is running on the Grouper demo server e.g. here:
+
+https://grouperdemo.internet2.edu/grouper-ws_v2_0_0/voot/groups/@me?indentResponse=true
+https://grouperdemo.internet2.edu/grouper-ws_v2_0_0/voot/groups?indentResponse=true
+https://grouperdemo.internet2.edu/grouper-ws_v2_0_0/voot/people/@me?indentResponse=true
+https://grouperdemo.internet2.edu/grouper-ws_v2_0_0/voot/people/@me/aStem:aGroup2?indentResponse=true
 
 
 
