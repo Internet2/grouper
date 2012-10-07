@@ -22,7 +22,6 @@ package edu.internet2.middleware.grouperClient.util;
 import java.util.List;
 import java.util.Map;
 
-import edu.internet2.middleware.grouperClient.examples.PersonXstreamExample;
 import edu.internet2.middleware.grouperClient.ws.WsRestClassLookup;
 import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.XStream;
 import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.io.xml.DomDriver;
@@ -38,7 +37,7 @@ public class GrouperClientXstreamUtils {
   /**
    * logger
    */
-  static Log log = GrouperClientUtils.retrieveLog(PersonXstreamExample.class);
+  static Log log = GrouperClientUtils.retrieveLog(GrouperClientXstreamUtils.class);
 
   /**
    * get xstream with all client aliases intact

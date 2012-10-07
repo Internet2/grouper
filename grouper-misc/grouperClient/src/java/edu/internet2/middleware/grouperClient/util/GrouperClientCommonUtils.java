@@ -5521,10 +5521,10 @@ public class GrouperClientCommonUtils  {
       return string;
     }
     //might have $space$
-    string = GrouperClientUtils.replace(string, "$space$", " ");
+    string = replace(string, "$space$", " ");
     
     //note, at some point we could be OS specific
-    string = GrouperClientUtils.replace(string, "$newline$", "\n"); 
+    string = replace(string, "$newline$", "\n"); 
     return string;
   }
   
@@ -7402,12 +7402,12 @@ public class GrouperClientCommonUtils  {
     File file = new File(argString);
     try {
       //do this by regex, since we dont know what platform we are on
-      String listString = GrouperClientUtils.readFileIntoString(file);
+      String listString = readFileIntoString(file);
       String[] array = listString.split("\\s+");
       List<String> list = new ArrayList<String>();
       for (String string : array) {
         //dont know if any here will be blank or whatnot
-        if (!GrouperClientUtils.isBlank(string)) {
+        if (!isBlank(string)) {
           //should already be trimmed, but just in case
           list.add(trim(string));
         }
@@ -7415,7 +7415,7 @@ public class GrouperClientCommonUtils  {
       return list;
     } catch (Exception e) {
       throw new RuntimeException("Error reading file: '" 
-          + GrouperClientUtils.fileCanonicalPath(file) + "' from command line arg: " + key, e );
+          + fileCanonicalPath(file) + "' from command line arg: " + key, e );
     }
   }
   
@@ -7740,7 +7740,7 @@ public class GrouperClientCommonUtils  {
 
     String value = propertiesValue(properties, threadLocalMap, overrideMap, key);
 
-    if (!GrouperClientUtils.isBlank(value)) {
+    if (!isBlank(value)) {
       return true;
     }
     String error = "Cant find property " + key + " in resource: " + resourceName + ", it is required";
@@ -7777,7 +7777,7 @@ public class GrouperClientCommonUtils  {
 
     String value = propertiesValue(properties, threadLocalMap, overrideMap, key);
     //maybe ok not there
-    if (!required && GrouperClientUtils.isBlank(value)) {
+    if (!required && isBlank(value)) {
       return true;
     }
     try {
@@ -7819,7 +7819,7 @@ public class GrouperClientCommonUtils  {
     
     String value = propertiesValue(properties, threadLocalMap, overrideMap, key);
     //maybe ok not there
-    if (!required && GrouperClientUtils.isBlank(value)) {
+    if (!required && isBlank(value)) {
       return true;
     }
     try {
@@ -7858,7 +7858,7 @@ public class GrouperClientCommonUtils  {
     String value = propertiesValue(properties, overrideMap, key);
   
     //maybe ok not there
-    if (!required && GrouperClientUtils.isBlank(value)) {
+    if (!required && isBlank(value)) {
       return true;
     }
     
@@ -8999,8 +8999,8 @@ public class GrouperClientCommonUtils  {
       outputGobbler = new StreamGobbler<Object>(process.getInputStream(), ".out", command);
       errorGobbler = new StreamGobbler<Object>(process.getErrorStream(), ".err", command);
 
-      Future<Object> futureOutput = GrouperClientUtils.retrieveExecutorService().submit(outputGobbler);
-      Future<Object> futureError = GrouperClientUtils.retrieveExecutorService().submit(errorGobbler);
+      Future<Object> futureOutput = retrieveExecutorService().submit(outputGobbler);
+      Future<Object> futureError = retrieveExecutorService().submit(errorGobbler);
       
       try {
         process.waitFor();
