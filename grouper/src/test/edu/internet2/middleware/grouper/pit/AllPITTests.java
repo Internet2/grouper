@@ -41,6 +41,7 @@ public class AllPITTests {
     suite.addTestSuite(PITGroupTests.class);
     suite.addTestSuite(PITMemberTests.class);
     suite.addTestSuite(PITSyncTests.class);
+    suite.addTestSuite(PITAttributeAssignFinderTests.class);
     return suite;
   }
 }

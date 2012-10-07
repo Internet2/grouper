@@ -174,4 +174,11 @@ public interface PITAttributeAssignDAO extends GrouperDAO {
    * @return active point in time attribute assigns that should be inactive
    */
   public Set<PITAttributeAssign> findMissingInactivePITAttributeAssigns();
+  
+  /**
+   * @param pitGroupId
+   * @param pitAttributeDefNameId
+   * @return set of PITAttributeAssign
+   */
+  public Set<PITAttributeAssign> findByOwnerPITGroupIdAndPITAttributeDefNameId(String pitGroupId, String pitAttributeDefNameId);
 }
