@@ -217,6 +217,12 @@ public class GrouperServiceJ2ee implements Filter {
           .getPropertyString(GrouperWsConfig.WS_LOGGED_IN_SUBJECT_DEFAULT_SOURCE));
     }
 
+    String subjectIdPrefix = GrouperWsConfig
+        .getPropertyString("ws.security.prependToUserIdForSubjectLookup");
+    if (!StringUtils.isBlank(subjectIdPrefix)) {
+      userIdLoggedIn = subjectIdPrefix + userIdLoggedIn;
+    }
+    
     //puts it in the log4j ndc context so userid is logged
     if (NDC.getDepth() == 0) {
       StringBuilder ndcBuilder = new StringBuilder("< ");
