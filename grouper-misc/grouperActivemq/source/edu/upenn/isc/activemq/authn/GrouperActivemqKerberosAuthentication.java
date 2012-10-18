@@ -90,7 +90,7 @@ public class GrouperActivemqKerberosAuthentication {
 //    }
     
     for (int i=0;i<10;i++) {
-      System.out.println(authenticateKerberosHelper("mchyzer", "fcmpp9THfcmpp9TH"));
+      System.out.println(authenticateKerberosHelper("mchyzer", "READFROMFILE"));
     }
     
   }
@@ -152,180 +152,64 @@ public class GrouperActivemqKerberosAuthentication {
     return result;
   }
   
-  /**
-   * map from kerberos address to an object which can synchronized on
-   */
-  private static Map<String, Object> synchronizedObjects = new HashMap<String, Object>();
-
-  /**
-   * see if a user and pass are correct with kerberos
-   * @param principal
-   * @param password
-   * @return true for ok, false for not
-   */
-  private static boolean authenticateKerberosHelper(final String principal, final String password) {
-    String addresses = GrouperActivemqConfig.retrieveConfig().propertyValueString("kerberos.kdc.address");
-    if (GrouperClientUtils.isBlank(addresses)) {
-      throw new RuntimeException("Why is kerberos kdc address blank???");
-    }
-    
-    if (!addresses.contains(",")) {
-      //dont use with failover client so we dont have that dependency
-      return authenticateKerberosHelper(principal, password, addresses);
-    } 
-
-
-    initFailoverClient(addresses);
-    
-    //we need to rotate through and call with failover client
-    String result = null;
-    try {
-      result = FailoverClient.failoverLogic(GROUPER_FAILOVER_CLIENT_KERB_NAME, new FailoverLogic<String>() {
-        
-        /**
-         * @see FailoverLogic#logic
-         */
-        @Override
-        public String logic(FailoverLogicBean failoverLogicBean) {
-          boolean authenticated = authenticateKerberosHelper(principal, password, failoverLogicBean.getConnectionName());
-          if (!authenticated) {
-            throw new RuntimeException("Not authenticated");
-          }
-          return "" + authenticated;
-        }
-      });
-    } catch(Exception e) {
-      //since all tries throw exception even if bad password, just assume bad password at this point
-      LOG.warn("error", e);
-      return false;
-    }
-    return GrouperClientUtils.booleanValue(result, false);
-    
-  }
-
-
-  /**
-   * init failover client, note, it does this each time since the address list can change
-   * @param addresses
-   */
-  private static void initFailoverClient(String addresses) {
-    FailoverConfig failoverConfig = new FailoverConfig();
-     
-    //if there are no errors in connections, then use the same connection for 30 minutes
-    failoverConfig.setAffinitySeconds(2400);
-     
-    List<String> addressList = GrouperClientUtils.splitTrimToList(addresses, ",");
-    
-    //if there are no errors in connections, it will use the 1st tier connection names before the 2nd tier
-    //note that this configuration example will only work for readonly queries, if it is a readwrite query,
-    //then there would not be any readonlyConnections available
-    failoverConfig.setConnectionNames(addressList);
-     
-    //this is a label to identify this "pool" of connections
-    failoverConfig.setConnectionType(GROUPER_FAILOVER_CLIENT_KERB_NAME);
-     
-    //if there are no errors in connections, and if there is no affinity, this is the strategy to pick which connection
-    //active/active will pick one at random from the 1st tier connections, active/standby will use the connections in order
-    failoverConfig.setFailoverStrategy(FailoverStrategy.activeStandby);
-     
-    //this is how long it will try on connection and wait for a response until giving up and trying another connection
-    failoverConfig.setTimeoutSeconds(100);
-     
-    //after you have cycled through all the connections you can wait a little longer for one of the connections to finish
-    failoverConfig.setExtraTimeoutSeconds(10);
-     
-    //this is how much time to remember that a connection had errors.  If an error hasnt occurred in a certain amount of time,
-    //it will be forgotten
-    failoverConfig.setMinutesToKeepErrors(5);
-     
-    //if you have a lot of hibernate mapped classes or something, it will give a buffer for the first X seconds for the JVM
-    //to load and initialize
-    failoverConfig.setSecondsForClassesToLoad(20);
-     
-    //register this configuration
-    FailoverClient.initFailoverClient(failoverConfig);
-  }
 
   
   /**
    * see if a user and pass are correct with kerberos
    * @param principal
    * @param password
-   * @param address kdc address, e.g. kerberos1.upenn.edu
    * @return true for ok, false for not
    */
-  private static boolean authenticateKerberosHelper(String principal, String password, String address) {
+  private static boolean authenticateKerberosHelper(String principal, String password) {
 
-    if (GrouperClientUtils.isBlank(address)) {
-      throw new RuntimeException("Why is kerberos kdc address blank???");
+    // Obtain a LoginContext, needed for authentication. Tell it 
+    // to use the LoginModule implementation specified by the 
+    // entry named "JaasSample" in the JAAS login configuration 
+    // file and to also use the specified CallbackHandler.
+
+    File jaasConf = GrouperClientUtils.fileFromResourceName("jaas.conf");
+
+    if (jaasConf == null) {
+      throw new RuntimeException("Cant find jaas.conf!");
     }
-    
-    //translate from map so that we dont get no instances of strings
-    Object synchronizedObject = synchronizedObjects.get(address);
-    
-    if (synchronizedObject == null) {
-      synchronized (GrouperActivemqKerberosAuthentication.class) {
-        synchronizedObject = synchronizedObjects.get(address);
-        
-        if (synchronizedObject == null) {
-          synchronizedObject = new Object();
-          synchronizedObjects.put(address, synchronizedObject);
-        }
-      }
-    }
-    
-    //synchronize on the address object since we are dealing with system properties
-    synchronized (synchronizedObject) {
-      // Obtain a LoginContext, needed for authentication. Tell it 
-      // to use the LoginModule implementation specified by the 
-      // entry named "JaasSample" in the JAAS login configuration 
-      // file and to also use the specified CallbackHandler.
 
-      File jaasConf = GrouperClientUtils.fileFromResourceName("jaas.conf");
-
-      if (jaasConf == null) {
-        throw new RuntimeException("Cant find jaas.conf!");
-      }
-
-      System.setProperty("java.security.krb5.realm", GrouperActivemqConfig.retrieveConfig()
-          .propertyValueString("kerberos.realm"));
-      System.setProperty("java.security.krb5.kdc", address);
-      System.setProperty("java.security.auth.login.config", jaasConf.getAbsolutePath());
-      //System.setProperty("sun.security.krb5.debug", "true");
+    System.setProperty("java.security.krb5.realm", GrouperActivemqConfig.retrieveConfig()
+        .propertyValueString("kerberos.realm"));
+    System.setProperty("java.security.krb5.kdc", GrouperActivemqConfig.retrieveConfig().propertyValueString("kerberos.kdc.address"));
+    System.setProperty("java.security.auth.login.config", jaasConf.getAbsolutePath());
+    //System.setProperty("sun.security.krb5.debug", "true");
+    
+    LoginContext lc = null;
+    try {
+      lc = new LoginContext("JaasSample", new GrouperActivemqKerberosHandler(principal, password));
       
-      LoginContext lc = null;
-      try {
-        lc = new LoginContext("JaasSample_" + address, new GrouperActivemqKerberosHandler(principal, password));
-        
 
-      } catch (LoginException le) {
-        LOG.error("Cannot create LoginContext. ", le);
-        return false;
-      } catch (SecurityException se) {
-        LOG.error("Cannot create LoginContext. " , se);
-        return false;
-      }
-
-      try {
-
-        // attempt authentication
-        lc.login();
-
-        try {
-          lc.logout();
-        } catch (Exception e) {
-          LOG.warn(e);
-        }
-        return true;
-      } catch (LoginException le) {
-        
-        LOG.warn(le);
-      }
-
+    } catch (LoginException le) {
+      LOG.error("Cannot create LoginContext. ", le);
       return false;
-      
+    } catch (SecurityException se) {
+      LOG.error("Cannot create LoginContext. " , se);
+      return false;
     }
-  }
 
+    try {
+
+      // attempt authentication
+      lc.login();
+
+      try {
+        lc.logout();
+      } catch (Exception e) {
+        LOG.warn(e);
+      }
+      return true;
+    } catch (LoginException le) {
+      
+      LOG.warn(le);
+    }
+
+    return false;
+    
+  }
   
 }
