@@ -360,6 +360,14 @@ public class EntityFinderTest extends GrouperTest {
     
     assertEquals(1, GrouperUtil.length(subjects)); 
     
+    subject = SubjectFinder.findByIdentifierAndSource("test:some/weird:id2", "g:gsa", false);
+    
+    assertNull(subject); 
+    
+    subject = SubjectFinder.findByIdentifierAndSource("test:some/weird:id2", "grouperEntities", false);
+    
+    assertNotNull(subject); 
+    
     subject = subjects.iterator().next();
     
     assertEquals("test:some/weird:id2", subject.getAttributeValue("entityIdAttribute"));
