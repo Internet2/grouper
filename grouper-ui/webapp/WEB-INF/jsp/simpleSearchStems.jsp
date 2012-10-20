@@ -11,7 +11,7 @@
 <grouper:subtitle key="stems.heading.search">
 	<a class="subtitleLink underlined" href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=true"><grouper:message key="find.action.select.stems-advanced-search"/></a>
 </grouper:subtitle>
-<div class="sectionBody>	
+<div class="sectionBody">	
     <html:form action="/searchStems" styleId="SearchFormBean" method="post">
     <html:hidden property="searchInNameOrExtension"/>
     <html:hidden property="searchInDisplayNameOrExtension"/>
