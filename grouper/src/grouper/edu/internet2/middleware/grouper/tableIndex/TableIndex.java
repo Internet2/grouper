@@ -16,17 +16,12 @@
 package edu.internet2.middleware.grouper.tableIndex;
 
 import java.sql.Timestamp;
-import java.util.Collection;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
-import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.grouperSet.GrouperSet;
-import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -40,7 +35,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @author mchyzer
  */
 @SuppressWarnings("serial")
-public class TableIndex extends GrouperAPI implements Hib3GrouperVersioned, GrouperSet {
+public class TableIndex extends GrouperAPI implements Hib3GrouperVersioned {
   
   /**
    * 
@@ -351,51 +346,6 @@ public class TableIndex extends GrouperAPI implements Hib3GrouperVersioned, Grou
     Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
         DB_VERSION_FIELDS, null);
     return result;
-  }
-  @Override
-  public String __getId() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  @Override
-  public String __getIfHasElementId() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  @Override
-  public GrouperSetElement __getIfHasElement() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  @Override
-  public GrouperSetElement __getThenHasElement() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  @Override
-  public String __getThenHasElementId() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  @Override
-  public int __getDepth() {
-    // TODO Auto-generated method stub
-    return 0;
-  }
-  @Override
-  public void __setParentGrouperSetId(String grouperSetId) {
-    // TODO Auto-generated method stub
-    
-  }
-  @Override
-  public String __getParentGrouperSetId() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  @Override
-  public GrouperSet __getParentGrouperSet() {
-    // TODO Auto-generated method stub
-    return null;
   }
   @Override
   public GrouperAPI clone() {

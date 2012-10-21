@@ -48,6 +48,7 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -112,7 +113,11 @@ public class RegistryInstall {
         throwable = throwable.getCause();
       }
       String msg = "unable to initialize registry: " + throwable.getMessage();
-      LOG.fatal(msg, throwable);
+      if (GrouperStartup.logErrorStatic) {
+        LOG.fatal(msg, throwable);
+      } else {
+        LOG.debug(msg, throwable);
+      }
       throw new GrouperException(msg, throwable);
     }
     GrouperCacheUtils.clearAllCaches();

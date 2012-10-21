@@ -16,7 +16,7 @@ public enum TableIndexType {
   attributeDef,
   
   /** index assigned to an attribute name */
-  attributeName;
+  attributeDefName;
 
   /**
    * do a case-insensitive matching

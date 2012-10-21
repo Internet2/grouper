@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2012 Internet2
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,7 +14,7 @@
  * limitations under the License.
  ******************************************************************************/
 /**
- * 
+ *
  */
 package edu.internet2.middleware.grouper.util;
 
@@ -129,7 +129,7 @@ import edu.internet2.middleware.subject.util.ExpirableCache;
 
 /**
  * utility methods for grouper.  Generally these are static methods.
- * 
+ *
  * @author mchyzer
  *
  */
@@ -155,15 +155,15 @@ public class GrouperUtil {
     emailAddresses = GrouperUtil.join(GrouperUtil.splitTrim(emailAddresses, " "), ";");
     return emailAddresses;
   }
-  
-  /** 
+
+  /**
    * pattern as simple validation for email.  need text, @ sign, then text, dot, and text.
    * granted this could be better, but this is a first step
    */
   private static Pattern emailPattern = Pattern.compile("^[^@]+@[^.]+\\..+$");
-  
+
   /**
-   * 
+   *
    * @param email
    * @return true if valid, false if not
    */
@@ -171,7 +171,7 @@ public class GrouperUtil {
     Matcher matcher = emailPattern.matcher(email);
     return matcher.matches();
   }
-  
+
   /**
    * see if a subject has an attribute
    * @param subject
@@ -185,7 +185,7 @@ public class GrouperUtil {
     String attributeValue = subject.getAttributeValue(attributeName);
     return !isBlank(attributeValue);
   }
-  
+
   /**
    * see if a sql like string matches a real string.
    * e.g. if the input is a:b:%, and the input is: a:b:test:that, then it returns true
@@ -194,24 +194,24 @@ public class GrouperUtil {
    * @return true if matches, false if not
    */
   public static boolean matchSqlString(String sqlMatcher, String testText) {
-    
+
     //first do slashes
     String regexString = StringUtils.replace(sqlMatcher, "\\", "\\\\");
-    
+
     //then do everything else
-    regexString = replace(regexString, 
+    regexString = replace(regexString,
         new String[]{"$",   "^",   "*",   "(",   ")",   "+",   "[",   "{",   "]",   "}",   "|",   "\"", ".",   "?"},
-        new String[]{"\\$", "\\^", "\\*", "\\(", "\\)", "\\+", "\\[", "\\{", "\\]", "\\}", "\\|", "\"", "\\.", "\\?", }); 
-    
+        new String[]{"\\$", "\\^", "\\*", "\\(", "\\)", "\\+", "\\[", "\\{", "\\]", "\\}", "\\|", "\"", "\\.", "\\?", });
+
     //then do the underscores and percents
     regexString = StringUtils.replace(regexString, "_", ".");
     regexString = "^" + StringUtils.replace(regexString, "%", ".*") + "$";
-    
+
     Pattern pattern = Pattern.compile(regexString, Pattern.DOTALL);
     Matcher matcher = pattern.matcher(testText);
     return matcher.matches();
   }
-  
+
   /**
    * shorten a set if it is too long
    * @param <T>
@@ -220,30 +220,30 @@ public class GrouperUtil {
    * @return the new set
    */
   public static <T> Set<T> setShorten(Set<T> theSet, int maxSize) {
-    
+
     if (length(theSet) < maxSize) {
       return theSet;
     }
-    
+
     //truncate the list
     Set<T> newList = new LinkedHashSet<T>();
     int i=0;
 
     //TODO test this logic
     for (T t : theSet) {
-      
+
       if (i>=maxSize) {
         break;
       }
-      
+
       newList.add(t);
       i++;
     }
     return newList;
   }
-  
+
   /**
-   * 
+   *
    * @param number e.g. 12345678
    * @return the string, e.g. 12,345,678
    */
@@ -254,7 +254,7 @@ public class GrouperUtil {
     DecimalFormat df = new DecimalFormat();
     return df.format(number);
   }
-  
+
   /**
    * compare null safe
    * @param first
@@ -273,7 +273,7 @@ public class GrouperUtil {
     }
     return first.compareTo(second);
   }
-  
+
   /**
    * e.g. ('g:gsa', 'jdbc')
    * @param sources is comma separated source id's
@@ -284,15 +284,15 @@ public class GrouperUtil {
       return null;
     }
     String[] sourceStrings = splitTrim(sources, ",");
-        
+
     Set<Source> sourceSet = new HashSet<Source>();
     for (String source : sourceStrings) {
       sourceSet.add(SourceManager.getInstance().getSource(source));
     }
-    
+
     return sourceSet;
   }
-  
+
 
   /**
    * e.g. ['g:gsa', 'jdbc']
@@ -309,10 +309,10 @@ public class GrouperUtil {
         sourceSet.add(SourceManager.getInstance().getSource(source));
       }
     }
-    
+
     return sourceSet;
   }
-  
+
   /**
    * e.g. ('g:gsa', 'jdbc')
    * @param sources
@@ -323,7 +323,7 @@ public class GrouperUtil {
   public static String convertSourcesToSqlInString(Set<Source> sources) {
     return HibUtils.convertSourcesToSqlInString(sources);
   }
-  
+
   /**
    * turn some strings into a map
    * @param strings
@@ -341,10 +341,10 @@ public class GrouperUtil {
     }
     return map;
   }
-  
+
   /**
    * turn some strings into a map
-   * @param stringObjects is an array of String,Object,String,Object etc where the 
+   * @param stringObjects is an array of String,Object,String,Object etc where the
    * Strings are the key, and the Object is the value
    * @return the map (never null)
    */
@@ -361,7 +361,7 @@ public class GrouperUtil {
     }
     return map;
   }
-  
+
   /**
    * convert millis to friendly string
    * @param duration
@@ -373,50 +373,50 @@ public class GrouperUtil {
     }
     return convertMillisToFriendlyString(new Long(duration.intValue()));
   }
-  
+
   /**
    * convert millis to friendly string
    * @param duration
    * @return the friendly string
    */
   public static String convertMillisToFriendlyString(Long duration) {
-    
+
     if (duration == null) {
       return "";
     }
-    
+
     if (duration < 1000) {
       return duration + "ms";
     }
-    
+
     long ms = duration % 1000;
     duration = duration / 1000;
     long s = duration % 60;
     duration = duration / 60;
-    
+
     if (duration == 0) {
       return s + "s, " + ms + "ms";
     }
-    
+
     long m = duration % 60;
     duration = duration / 60;
-    
+
     if (duration == 0) {
       return m + "m, " + s + "s, " + ms + "ms";
     }
-    
+
     long h = duration % 24;
     duration = duration / 24;
 
     if (duration == 0) {
       return h + "h, " + m + "m, " + s + "s, " + ms + "ms";
     }
-    
+
     long d = duration;
-    
+
     return d + "d, " + h + "h, " + m + "m, " + s + "s, " + ms + "ms";
   }
-  
+
   /**
    * Delete a file, throw exception if cannot
    * @param file
@@ -457,23 +457,23 @@ public class GrouperUtil {
     }
     return null;
   }
-  
+
   /**
    * append and maybe put a separator in there
    * @param result
    * @param separatorIfResultNotEmpty
    * @param stringToAppend
    */
-  public static void append(StringBuilder result, 
+  public static void append(StringBuilder result,
       String separatorIfResultNotEmpty, String stringToAppend) {
     if (result.length() != 0) {
       result.append(separatorIfResultNotEmpty);
     }
     result.append(stringToAppend);
   }
-  
+
   /**
-   * 
+   *
    */
   public static final String LOG_ERROR = "Error trying to make parent dirs for logger or logging first statement, check to make " +
                 "sure you have proper file permissions, and that your servlet container is giving " +
@@ -494,14 +494,14 @@ public class GrouperUtil {
    * The number of bytes in a gigabyte.
    */
   public static final long ONE_GB = ONE_KB * ONE_MB;
-  
+
   /**
    * Grouper home dir
    */
   static String grouperHome;
-  
+
   static {
-    
+
     String theGrouperHome = System.getProperty("grouper.home");
     if (isBlank(theGrouperHome)) {
       grouperHome = new File("").getAbsolutePath();
@@ -509,7 +509,7 @@ public class GrouperUtil {
       grouperHome = theGrouperHome;
     }
   }
-  
+
 
   /**
    * Returns a human-readable version of the file size (original is in
@@ -543,13 +543,13 @@ public class GrouperUtil {
     logDirsCreateIfNotDone();
     return LogFactory.getLog(theClass);
   }
-  
+
   /**
    * see if created log dirs
    */
   private static boolean logDirsCreated = false;
-  
-   
+
+
   /**
    * auto-create log dirs if not done yet
    */
@@ -558,7 +558,7 @@ public class GrouperUtil {
       return;
     }
     logDirsCreated = true;
-    
+
     String location = "log4j.properties";
     Properties properties = propertiesFromResourceName(location);
     Set<String> keySet = (Set<String>)(Object)properties.keySet();
@@ -570,7 +570,7 @@ public class GrouperUtil {
           if(fileName.startsWith("${grouper.home}")) {
             if(grouperHome==null) {
             throw new IllegalStateException("The System property grouper.home is referenced in log4j configuration " +
-                "however, it is not set.");  
+                "however, it is not set.");
             }
             if (!grouperHome.endsWith("/") && !grouperHome.endsWith("\\")) {
               fileName = grouperHome + File.separator + fileName.substring(15);
@@ -587,7 +587,7 @@ public class GrouperUtil {
             //create the parent
             mkdirs(parent);
             System.out.println("Grouper note: auto-created parent dir of log file: " + fileCanonicalPath(parent));
-            
+
           }
 
         } catch (RuntimeException re) {
@@ -599,7 +599,7 @@ public class GrouperUtil {
       }
     }
   }
-  
+
   /**
    * find a next exception in the stack and log it
    * @param log logger
@@ -628,9 +628,9 @@ public class GrouperUtil {
     if (cause != null) {
       logErrorNextException(log, cause, timeToLive-1);
     }
-    
+
   }
-  
+
   /**
    * see if options have a specific option by int bits
    * @param options
@@ -640,10 +640,10 @@ public class GrouperUtil {
   public static boolean hasOption(int options, int option) {
     return (options & option) > 0;
   }
-  
+
   /** keep a cache of db change whitelists */
   private static Set<MultiKey> dbChangeWhitelist = new HashSet<MultiKey>();
-  
+
   /**
    * store if we are writing default logs to console
    */
@@ -651,7 +651,7 @@ public class GrouperUtil {
 
   /**
    * if the grouper logs go to the console or not
-   * @return if 
+   * @return if
    */
   public static boolean isPrintGrouperLogsToConsole() {
     if (printGrouperLogsToConsole == null) {
@@ -659,7 +659,7 @@ public class GrouperUtil {
     }
     return printGrouperLogsToConsole;
   }
-  
+
   /**
    * get canonical path of file
    * @param file
@@ -672,14 +672,14 @@ public class GrouperUtil {
       throw new RuntimeException("Problem with file: " + file.getAbsolutePath(), ioe);
     }
   }
-  
+
   /**
    * log dir message
    */
   private static String logDirMessage = null;
-  
+
   /**
-   * print the log dir to the console so the logs are easy to find 
+   * print the log dir to the console so the logs are easy to find
    * @return the log dir message
    */
   public static String logDirPrint() {
@@ -693,8 +693,8 @@ public class GrouperUtil {
     Log rootLogger = LogFactory.getLog("edu.internet2.middleware.grouper");
     StringBuilder rootLoggerAppender = new StringBuilder();
     boolean writesLogs = false;
-    
-    
+
+
     if (rootLogger instanceof Log4JLogger) {
       Category log4jLogger = ((Log4JLogger)rootLogger).getLogger();
       int timeToLive = 30;
@@ -720,7 +720,7 @@ public class GrouperUtil {
         }
         currentAppenderLogger = currentAppenderLogger.getParent();
       }
-      
+
       for (Appender appender : allAppenders) {
         writesLogs = true;
         if (appender instanceof ConsoleAppender) {
@@ -767,8 +767,8 @@ public class GrouperUtil {
         } else if (rootLogger.isFatalEnabled()) {
           logLevel = "FATAL";
         }
-        resultMessage.append("Grouper is logging to file:   " + rootLoggerAppender + "at min level " 
-            + logLevel + " for package: edu.internet2.middleware.grouper, based on log4j.properties\n"); 
+        resultMessage.append("Grouper is logging to file:   " + rootLoggerAppender + "at min level "
+            + logLevel + " for package: edu.internet2.middleware.grouper, based on log4j.properties\n");
       }
     } else {
       resultMessage.append("Grouper logs are not using log4j: " + (rootLogger == null ? null : rootLogger.getClass()) + "\n");
@@ -776,7 +776,7 @@ public class GrouperUtil {
     logDirMessage = resultMessage.toString();
     return logDirMessage;
   }
-  
+
   /**
    * return the suffix after a char.  If the char doesnt exist, just return the string
    * @param input string
@@ -804,32 +804,32 @@ public class GrouperUtil {
    * @return the oracle underscore name based on the java name
    */
   public static String oracleStandardNameFromJava(String javaName) {
-  
+
     StringBuilder result = new StringBuilder();
-  
+
     if ((javaName == null) || (0 == "".compareTo(javaName))) {
       return javaName;
     }
-  
+
     //if package is specified, only look at class name
     javaName = suffixAfterChar(javaName, '.');
-  
+
     //dont check the first char
     result.append(javaName.charAt(0));
-  
+
     char currChar;
-  
+
     boolean previousCap = false;
-    
+
     //loop through the string, looking for uppercase
     for (int i = 1; i < javaName.length(); i++) {
       currChar = javaName.charAt(i);
-  
+
       //if uppcase append an underscore
       if (!previousCap && (currChar >= 'A') && (currChar <= 'Z')) {
         result.append("_");
       }
-  
+
       result.append(currChar);
       if ((currChar >= 'A') && (currChar <= 'Z')) {
         previousCap = true;
@@ -837,17 +837,17 @@ public class GrouperUtil {
         previousCap = false;
       }
     }
-  
+
     //this is in upper-case
     return result.toString().toUpperCase();
   }
 
-  
+
   /**
-   * see if two maps are the equivalent (based on number of entries, 
+   * see if two maps are the equivalent (based on number of entries,
    * and the equals() method of the keys and values)
-   * @param <K> 
-   * @param <V> 
+   * @param <K>
+   * @param <V>
    * @param first
    * @param second
    * @return true if equal
@@ -857,19 +857,19 @@ public class GrouperUtil {
     mapDifferences(first, second, keysMismatch, null);
     //if any keys mismatch, then not equal
     return keysMismatch.size() == 0;
-    
+
   }
-  
+
   /**
    * empty map
    */
   private static final Map EMPTY_MAP = Collections.unmodifiableMap(new HashMap());
-  
+
   /**
-   * see if two maps are the equivalent (based on number of entries, 
+   * see if two maps are the equivalent (based on number of entries,
    * and the equals() method of the keys and values)
-   * @param <K> 
-   * @param <V> 
+   * @param <K>
+   * @param <V>
    * @param first map to check diffs
    * @param second map to check diffs
    * @param differences set of keys (with prefix) of the diffs
@@ -895,7 +895,7 @@ public class GrouperUtil {
     if (firstSize == 0 && secondSize == 0) {
       return;
     }
-   
+
     for (K key : first.keySet()) {
 
       if (second.containsKey(key)) {
@@ -914,7 +914,7 @@ public class GrouperUtil {
       differences.add(isNotBlank(prefix) ? (K)(prefix + key) : key);
     }
   }
-  
+
   /**
    * sleep, if interrupted, throw runtime
    * @param millis
@@ -926,9 +926,9 @@ public class GrouperUtil {
       throw new RuntimeException(ie);
     }
   }
-  
+
   /**
-   * 
+   *
    * @param seconds
    */
   public static void sleepWithStdoutCountdown(int seconds) {
@@ -937,7 +937,7 @@ public class GrouperUtil {
       sleep(1000);
     }
   }
-  
+
   /**
    * encrypt a message to SHA
    * @param plaintext
@@ -961,7 +961,7 @@ public class GrouperUtil {
     //String hash = (new BASE64Encoder()).encode(raw); //step 5
     return hash; //step 6
   }
-  
+
   /**
    * If we can, inject this into the exception, else return false
    * @param t
@@ -969,9 +969,9 @@ public class GrouperUtil {
    * @return true if success, false if not
    */
   public static boolean injectInException(Throwable t, String message) {
-    
+
     String throwableFieldName = GrouperConfig.retrieveConfig().propertyValueString("throwable.data.field.name");
-    
+
     if (isBlank(throwableFieldName)) {
       //this is the field for sun java 1.5
       throwableFieldName = "detailMessage";
@@ -989,9 +989,9 @@ public class GrouperUtil {
       //dont worry about what the problem is, return false so the caller can log
       return false;
     }
-    
+
   }
-  
+
   /**
    * see if there is a grouper properties db match
    * @param whitelist true if whitelist, false if blacklist
@@ -1017,7 +1017,7 @@ public class GrouperUtil {
           "db.change." + typeString + ".user." + index));
       String currentUrl = trim(grouperProperties.getProperty(
           "db.change." + typeString + ".url." + index));
-      
+
       //if we are done checking
       if (isBlank(currentUser) || isBlank(currentUrl)) {
         break;
@@ -1029,34 +1029,34 @@ public class GrouperUtil {
     }
     return false;
   }
-  
+
   /** prompt key for schema export */
   public static String PROMPT_KEY_SCHEMA_EXPORT_ALL_TABLES = "schemaexport all tables";
-  
+
   /** prompt key for reset data */
   public static String PROMPT_KEY_RESET_DATA = "delete all grouper data";
-  
+
   /** dont prompt while testing etc, but make sure there has been at least one prompt */
   public static boolean stopPromptingUser = false;
-  
+
   /** if string is not in here, echo to screen */
   private static Set<String> stopPromptingUserPrintlns = new HashSet<String>();
-  
+
   /**
    * prompt the user about db changes
    * @param reason e.g. delete all tables
    * @param checkResponse true if the response from the user should be checked, or just display the prompt
    */
   public static void promptUserAboutDbChanges(String reason, boolean checkResponse) {
-    
+
     Properties grouperHibernateProperties = GrouperHibernateConfig.retrieveConfig().properties();
-    
+
     String url = trim(grouperHibernateProperties.getProperty("hibernate.connection.url"));
     String user = trim(grouperHibernateProperties.getProperty("hibernate.connection.username"));
-    
+
     promptUserAboutChanges(reason, checkResponse, "db", url, user);
   }
-  
+
   /**
    * prompt the user about db changes
    * @param reason e.g. delete all tables
@@ -1066,16 +1066,16 @@ public class GrouperUtil {
    * @param user user for db
    */
   public static void promptUserAboutChanges(String reason, boolean checkResponse, String dbType, String url, String user) {
-    
+
     MultiKey cacheKey = stopPromptingUser ? new MultiKey(url, user) : new MultiKey(reason, url, user);
-    
+
     //if already ok'ed this question in the jre instance, then we are all set
     if (dbChangeWhitelist.contains(cacheKey)) {
       //maybe stop due to testing and at least one
       if (stopPromptingUser) {
         String message = dbType + " prompting has been disabled (e.g. due to testing), so this user '"
             + user + "' and url '" + url + "' are allowed for: " + reason;
-        if (!stopPromptingUserPrintlns.contains(message)) { 
+        if (!stopPromptingUserPrintlns.contains(message)) {
           System.out.println(message);
         }
         stopPromptingUserPrintlns.add(message);
@@ -1084,11 +1084,11 @@ public class GrouperUtil {
       return;
     }
 
-    
+
     //this might be set from junit ant task
     String allow = System.getProperty("grouper.allow.db.changes");
     if (equals("true", allow)) {
-      System.out.println("System property grouper.allow.db.changes is true which allows " + dbType + " changes to user '" 
+      System.out.println("System property grouper.allow.db.changes is true which allows " + dbType + " changes to user '"
           + user + "' and url '" + url + "'");
       //all good, add to cache so we dont have to repeatedly tell user
       dbChangeWhitelist.add(cacheKey);
@@ -1102,7 +1102,7 @@ public class GrouperUtil {
       System.exit(1);
 
     }
-    
+
     //check whitelist
     if (findGrouperPropertiesDbMatch(true, user, url)) {
       System.out.println("This " + dbType + " user '" + user + "' and url '" + url + "' are allowed to be " +
@@ -1111,13 +1111,13 @@ public class GrouperUtil {
         System.out.println("Unfortunately this is checked from ant so you have to type 'y' anyways...");
       }
     } else {
-    
+
       BufferedReader stdin = null;
       String message = null; // Creates a variable called message for input
-  
+
       try {
         stdin = new BufferedReader(new InputStreamReader(System.in));
-        
+
         //CH 20080506: THIS DOESNT WORK!
         //make sure there is nothing already on stdin
         //int available = System.in.available();
@@ -1127,7 +1127,7 @@ public class GrouperUtil {
         //if (available > 0) {
         //  stdin.read(new char[available]);
         //}
-        
+
         //ask user if ok
         System.out.println("(note, might need to type in your response multiple times (Java stdin is flaky))");
         System.out.println("(note, you can whitelist or blacklist " + dbType + " urls and users in the grouper.properties)");
@@ -1146,7 +1146,7 @@ public class GrouperUtil {
             if (equalsIgnoreCase(message, "y") || equalsIgnoreCase(message, "n")) {
               break;
             }
-            System.out.println("Didn't receive 'y' or 'n', received '" + message + "'...");       
+            System.out.println("Didn't receive 'y' or 'n', received '" + message + "'...");
             System.out.println(prompt);
             System.out.flush(); // empties buffer, before you input text
           }
@@ -1165,7 +1165,7 @@ public class GrouperUtil {
         System.out.println("Didn't receive 'y', received '" + message + "', OK, exiting");
         System.exit(1);
       }
-    }    
+    }
     //all good, add to cache so we dont have to repeatedly ask user
     dbChangeWhitelist.add(cacheKey);
     System.out.println("Continuing...");
@@ -1175,7 +1175,7 @@ public class GrouperUtil {
    * get a unique string identifier based on the current time,
    * this is not globally unique, just unique for as long as this
    * server is running...
-   * 
+   *
    * @return String
    */
   public static String uniqueId() {
@@ -1189,14 +1189,14 @@ public class GrouperUtil {
 
   /**
    * get a file name from a resource name
-   * 
+   *
    * @param resourceName
    *          is the classpath location
-   * 
+   *
    * @return the file path on the system
    */
   public static File fileFromResourceName(String resourceName) {
-    
+
     URL url = computeUrl(resourceName, true);
 
     if (url == null) {
@@ -1212,7 +1212,7 @@ public class GrouperUtil {
       throw new RuntimeException(uee);
     }
   }
-  
+
 
   /**
    * compute a url of a resource
@@ -1228,7 +1228,7 @@ public class GrouperUtil {
 
     try {
       //CH 20081012: sometimes it starts with slash and it shouldnt...
-      String newResourceName = resourceName.startsWith("/") 
+      String newResourceName = resourceName.startsWith("/")
         ? resourceName.substring(1) : resourceName;
       url = cl.getResource(newResourceName);
     } catch (NullPointerException npe) {
@@ -1287,7 +1287,7 @@ public class GrouperUtil {
     }
     return array == null ? ((T[])Array.newInstance(theClass, 0)) : array;
   }
-  
+
   /**
    * strip the suffix off
    * @param string
@@ -1303,17 +1303,17 @@ public class GrouperUtil {
     }
     return string;
   }
-  
+
   /**
    * get the prefix or suffix of a string based on a separator
-   * 
+   *
    * @param startString
    *          is the string to start with
    * @param separator
    *          is the separator to split on
    * @param isPrefix
    *          if thre prefix or suffix should be returned
-   * 
+   *
    * @return the prefix or suffix, if the separator isnt there, return the
    *         original string
    */
@@ -1353,10 +1353,10 @@ public class GrouperUtil {
    * this is for logging or documentations purposes only and should
    * not be used for a production use (since it is not 100% tested
    * or compliant with all constructs like xml CDATA
-   * 
+   *
    * For xml, assumes elements either have text or sub elements, not both.
    * No cdata, nothing fancy.
-   * 
+   *
    * If the input is &lt;a&gt;&lt;b&gt;&lt;c&gt;hey&lt;/c&gt;&lt;d&gt;&lt;e&gt;there&lt;/e&gt;&lt;/d&gt;&lt;/b&gt;&lt;/a&gt;
    * It would output:
    * &lt;a&gt;
@@ -1367,7 +1367,7 @@ public class GrouperUtil {
    *     &lt;/d&gt;
    *   &lt;/b&gt;
    * &lt;/a&gt;
-   * 
+   *
    * For , if the input is: {"a":{"b\"b":{"c\\":"d"},"e":"f","g":["h":"i"]}}
    * It would output:
    * {
@@ -1381,8 +1381,8 @@ public class GrouperUtil {
    *     ]
    *   }
    * }
-   * 
-   * 
+   *
+   *
    * <pre>
    * @param string
    * @param failIfTypeNotFound
@@ -1406,38 +1406,51 @@ public class GrouperUtil {
     }
     throw new RuntimeException("Cant find type of string: " + string);
   }
-  
+
   /**
    * convert an object to json.
    * @param object
    * @return the string of json
    */
   public static String jsonConvertTo(Object object) {
+    return jsonConvertTo(object, true);
+  }
+
+  /**
+   * convert an object to json.
+   * @param object
+   * @return the string of json
+   */
+  public static String jsonConvertTo(Object object, boolean includeObjectNameWrapper) {
+
     if (object == null) {
       throw new NullPointerException();
     }
 //    Gson gson = new GsonBuilder().create();
 //    String json = gson.toJson(object);
 
-//    JSONObject jsonObject = net.sf.json.JSONObject.fromObject( object );  
+//    JSONObject jsonObject = net.sf.json.JSONObject.fromObject( object );
 //    String json = jsonObject.toString();
 
-    JsonConfig jsonConfig = new JsonConfig();  
-    jsonConfig.setJsonPropertyFilter( new PropertyFilter(){  
-       public boolean apply( Object source, String name, Object value ) {  
+    JsonConfig jsonConfig = new JsonConfig();
+    jsonConfig.setJsonPropertyFilter( new PropertyFilter(){
+       public boolean apply( Object source, String name, Object value ) {
          //json-lib cannot handle maps where the key is not a string
          if( value != null && value instanceof Map ){
            Map map = (Map)value;
            if (map.size() > 0 && !(map.keySet().iterator().next() instanceof String)) {
              return true;
            }
-         }  
-         return value == null; 
-       }  
-    });  
-    JSONObject jsonObject = JSONObject.fromObject( object, jsonConfig );  
+         }
+         return value == null;
+       }
+    });
+    JSONObject jsonObject = JSONObject.fromObject( object, jsonConfig );
     String json = jsonObject.toString();
-    
+
+    if (!includeObjectNameWrapper) {
+      return json;
+    }
     return "{\"" + object.getClass().getSimpleName() + "\":" + json + "}";
   }
   /**
@@ -1446,33 +1459,34 @@ public class GrouperUtil {
    * @return the string of json
    */
   public static String jsonConvertToNoWrap(Object object) {
+	  //TODO call the other jsonConvertTo() method
 	    if (object == null) {
 	      throw new NullPointerException();
 	    }
 
-	    JsonConfig jsonConfig = new JsonConfig();  
-	    jsonConfig.setJsonPropertyFilter( new PropertyFilter(){  
-	       public boolean apply( Object source, String name, Object value ) {  
+	    JsonConfig jsonConfig = new JsonConfig();
+	    jsonConfig.setJsonPropertyFilter( new PropertyFilter(){
+	       public boolean apply( Object source, String name, Object value ) {
 	         //json-lib cannot handle maps where the key is not a string
 	         if( value != null && value instanceof Map ){
 	           Map map = (Map)value;
 	           if (map.size() > 0 && !(map.keySet().iterator().next() instanceof String)) {
 	             return true;
 	           }
-	         }  
-           return value == null; 
-	       }  
-	    });  
-	    JSONObject jsonObject = JSONObject.fromObject( object, jsonConfig );  
+	         }
+           return value == null;
+	       }
+	    });
+	    JSONObject jsonObject = JSONObject.fromObject( object, jsonConfig );
 	    String json = jsonObject.toString();
-	    
+
 	    return json;
 	  }
-  
+
   /**
    * convert an object to json.  note this wraps the gson with the object simple name so it can be revived
    * @param object
-   * @param writer 
+   * @param writer
    */
   public static void jsonConvertTo(Object object, Writer writer) {
     String json = jsonConvertTo(object);
@@ -1506,18 +1520,18 @@ public class GrouperUtil {
    *    ]
    *  }
    * }
-   * 
+   *
    * ^\s*          front of string and optional space
    * \{\s*         open bracket and optional space
    * \"([^"]+)\"   quote, simple name of class, quote
    * \s*:\s*       optional space, colon, optional space
    * \{(.*)}$      open bracket, the class info, close bracket, end of string
-   * 
-   * 
+   *
+   *
    * </pre>
    */
   private static Pattern jsonPattern = Pattern.compile("^\\s*\\{\\s*\\\"([^\"]+)\\\"\\s*:\\s*(.*)}$", Pattern.DOTALL);
-  
+
   /**
    * convert an object from json.  note this works well if there are no collections, just real types, arrays, etc.
    * @param conversionMap is the class simple name to class of objects which are allowed to be brought back.
@@ -1526,18 +1540,18 @@ public class GrouperUtil {
    * @return the object
    */
   public static Object jsonConvertFrom(Map<String, Class<?>> conversionMap, String json) {
-    
+
     //gson does not put the type of the object in the json, but we need that.  so when we convert,
     //put the type in there.  So we need to extract the type out when unmarshaling
     Matcher matcher = jsonPattern.matcher(json);
-    
+
     if (!matcher.matches()) {
       throw new RuntimeException("Cant match this json, should start with simple class name: " + json);
     }
-    
+
     String simpleClassName = matcher.group(1);
     String jsonBody = matcher.group(2);
-    
+
     Class<?> theClass = conversionMap.get(simpleClassName);
     if (theClass == null) {
       throw new RuntimeException("Not allowed to unmarshal json: " + simpleClassName + ", " + json);
@@ -1545,7 +1559,7 @@ public class GrouperUtil {
 //    Gson gson = new GsonBuilder().create();
 //    Object object = gson.fromJson(jsonBody, theClass);
     JSONObject jsonObject = JSONObject.fromObject( jsonBody );
-    Object object = JSONObject.toBean( jsonObject, theClass );  
+    Object object = JSONObject.toBean( jsonObject, theClass );
 
     return object;
   }
@@ -1558,9 +1572,9 @@ public class GrouperUtil {
    */
   public static Object jsonConvertFrom (String json, Class<?> theClass) {
 	  	JSONObject jsonObject = JSONObject.fromObject( json );
-	    Object object = JSONObject.toBean( jsonObject, theClass );  
+	    Object object = JSONObject.toBean( jsonObject, theClass );
 	    return object;
-	  
+
   }
   /**
    * get the extension from name.  if name is a:b:c, name is c
@@ -1578,22 +1592,22 @@ public class GrouperUtil {
     String extension = name.substring(lastColonIndex+1);
     return extension;
   }
-  
+
   /**
    * <pre>Returns the class object.</pre>
    * @param origClassName is fully qualified
    * @return the class
    */
   public static Class forName(String origClassName) {
-        
+
     try {
       return Class.forName(origClassName);
     } catch (Throwable t) {
       throw new RuntimeException("Problem loading class: " + origClassName, t);
     }
-    
+
   }
-  
+
   /**
    * Construct a class
    * @param <T> template type
@@ -1605,12 +1619,12 @@ public class GrouperUtil {
       return theClass.newInstance();
     } catch (Throwable e) {
       if (theClass != null && Modifier.isAbstract(theClass.getModifiers())) {
-        throw new RuntimeException("Problem with class: " + theClass + ", maybe because it is abstract!", e);        
+        throw new RuntimeException("Problem with class: " + theClass + ", maybe because it is abstract!", e);
       }
       throw new RuntimeException("Problem with class: " + theClass, e);
     }
   }
-  
+
   /**
    * get the parent stem name from name.  if already a root stem
    * then just return null.  e.g. if the name is a:b:c then
@@ -1630,16 +1644,16 @@ public class GrouperUtil {
    * @return the parent stem name or null if none
    */
   public static String parentStemNameFromName(String name, boolean nullForRoot) {
-    
+
     //null safe
     if (GrouperUtil.isBlank(name)) {
       return name;
     }
-    
+
     int lastColonIndex = name.lastIndexOf(':');
     if (lastColonIndex == -1) {
-      
-      if (nullForRoot) { 
+
+      if (nullForRoot) {
       return null;
       }
       return ":";
@@ -1648,7 +1662,7 @@ public class GrouperUtil {
     return parentStemName;
 
   }
-  
+
   /**
    * return the string or the other if the first is blank
    * @param string
@@ -1658,7 +1672,7 @@ public class GrouperUtil {
   public static String defaultIfBlank(String string, String defaultStringIfBlank) {
     return isBlank(string) ? defaultStringIfBlank : string;
   }
-  
+
   /**
    * genericized method to see if first is null, if so then return second, else first.
    * @param <T>
@@ -1669,7 +1683,7 @@ public class GrouperUtil {
   public static <T> T defaultIfNull(T theValue, T defaultIfTheValueIsNull) {
     return theValue != null ? theValue : defaultIfTheValueIsNull;
   }
-  
+
   /**
    * add each element of listToAdd if it is not already in list
    * @param <T>
@@ -1688,17 +1702,17 @@ public class GrouperUtil {
     }
   }
 
-  
+
   /**
    * print out various types of objects
-   * 
+   *
    * @param object
    * @param maxChars is where it should stop when figuring out object.  note, result might be longer than max...
    * need to abbreviate when back
    * @param result is where to append to
    */
   private static void toStringForLogHelper(Object object, int maxChars, StringBuilder result) {
-    
+
     try {
       if (object == null) {
         result.append("null");
@@ -1751,29 +1765,29 @@ public class GrouperUtil {
    * @return the string representation or null if null
    */
   public static String toStringFields(Object object, Set<String> fieldNames) {
-    
+
     if (object == null) {
       return null;
     }
-    
+
     StringBuilder result = new StringBuilder(object.getClass().getSimpleName() + ": ");
-    
+
     //loop through fields
     for (String fieldName : nonNull(fieldNames)) {
-      
+
       Object value = fieldValue(object, fieldName);
       if (value != null) {
         result.append(fieldName).append(": '").append(value).append("', ");
       }
-      
+
     }
-    
+
     //take off last comma (assume there was at least one field)
     result.delete(result.length()-2, result.length());
     return result.toString();
-    
+
   }
-  
+
   /**
    * convert a set to a string (comma separate)
    * @param collection
@@ -1796,7 +1810,7 @@ public class GrouperUtil {
       result.append(object);
     }
     return result.toString();
-    
+
   }
   /**
    * convert a set to a string (comma separate)
@@ -1806,7 +1820,7 @@ public class GrouperUtil {
   public static String setToString(Set set) {
     return collectionToString(set);
   }
-  
+
   /**
    * convert a set to a string (comma separate)
    * @param map
@@ -1844,7 +1858,7 @@ public class GrouperUtil {
 
   /**
    * print out various types of objects
-   * 
+   *
    * @param object
    * @return the string value
    */
@@ -1856,7 +1870,7 @@ public class GrouperUtil {
 
   /**
    * print out various types of objects
-   * 
+   *
    * @param object
    * @param maxChars is the max chars that should be returned (abbreviate if longer), or -1 for any amount
    * @return the string value
@@ -1902,7 +1916,7 @@ public class GrouperUtil {
   /**
    * if the groups are: a:b:c:d and a:d:r, then return the strings:
    * :, a, a:b, a:b:c, a:d
-   * 
+   *
    * @param groups
    * @return the set of stem names
    */
@@ -1917,11 +1931,11 @@ public class GrouperUtil {
     }
     return result;
   }
-  
+
   /**
    * if the groups are: a:b:c:d, then return the strings:
    * :, a, a:b, a:b:c
-   * 
+   *
    * @param objectName
    * @return the set of stem names
    */
@@ -1937,7 +1951,7 @@ public class GrouperUtil {
       }
       result.add(currentName);
     }
-    Collections.reverse(result); 
+    Collections.reverse(result);
     return new LinkedHashSet(result);
   }
 
@@ -2012,12 +2026,12 @@ public class GrouperUtil {
   /**
    * split a string based on a separator into an array, and trim each entry (see
    * the Commons Util trim() for more details)
-   * 
+   *
    * @param input
    *          is the delimited input to split and trim
    * @param separator
    *          is what to split on
-   * 
+   *
    * @return the array of items after split and trimmed, or null if input is null.  will be trimmed to empty
    */
   public static String[] splitTrim(String input, String separator) {
@@ -2027,12 +2041,12 @@ public class GrouperUtil {
   /**
    * split a string based on a separator into an array, and trim each entry (see
    * the Commons Util trim() for more details)
-   * 
+   *
    * @param input
    *          is the delimited input to split and trim
    * @param separator
    *          is what to split on
-   * 
+   *
    * @return the list of items after split and trimmed, or null if input is null.  will be trimmed to empty
    */
   public static List<String> splitTrimToList(String input, String separator) {
@@ -2046,12 +2060,12 @@ public class GrouperUtil {
   /**
    * split a string based on a separator into an array, and trim each entry (see
    * the Commons Util trim() for more details)
-   * 
+   *
    * @param input
    *          is the delimited input to split and trim
    * @param separator
    *          is what to split on
-   * 
+   *
    * @return the set of items after split and trimmed, or null if input is null.  will be trimmed to empty
    */
   public static Set<String> splitTrimToSet(String input, String separator) {
@@ -2065,7 +2079,7 @@ public class GrouperUtil {
   /**
    * split a string based on a separator into an array, and trim each entry (see
    * the Commons Util trim() for more details)
-   * 
+   *
    * @param input
    *          is the delimited input to split and trim
    * @param separator
@@ -2079,7 +2093,7 @@ public class GrouperUtil {
     }
 
     //first split
-    String[] items = treatAdjacentSeparatorsAsOne ? splitByWholeSeparator(input, separator) : 
+    String[] items = treatAdjacentSeparatorsAsOne ? splitByWholeSeparator(input, separator) :
       split(input, separator);
 
     //then trim
@@ -2105,7 +2119,7 @@ public class GrouperUtil {
     }
     return result;
   }
-  
+
   /**
    * unescape url chars (e.g. a space is %20)
    * @param string input
@@ -2130,7 +2144,7 @@ public class GrouperUtil {
   public static <T> List<T> nonNull(List<T> list) {
     return list == null ? new ArrayList<T>() : list;
   }
-  
+
   /**
    * make sure a collection is non null.  If null, then return an empty list
    * @param <T>
@@ -2140,7 +2154,7 @@ public class GrouperUtil {
   public static <T> Collection<T> nonNull(Collection<T> list) {
     return list == null ? new ArrayList<T>() : list;
   }
-  
+
   /**
    * make sure a list is non null.  If null, then return an empty set
    * @param <T>
@@ -2150,10 +2164,10 @@ public class GrouperUtil {
   public static <T> Set<T> nonNull(Set<T> set) {
     return set == null ? new HashSet<T>() : set;
   }
-  
+
   /**
    * make sure it is non null, if null, then give new map
-   * 
+   *
    * @param <K> key of map
    * @param <V> value of map
    * @param map is map
@@ -2166,7 +2180,7 @@ public class GrouperUtil {
   /**
    * return a list of objects from varargs.  Though if there is one
    * object, and it is a list, return it.
-   * 
+   *
    * @param <T>
    *            template type of the objects
    * @param objects
@@ -2179,18 +2193,18 @@ public class GrouperUtil {
     if (objects.length == 1 && objects[0] instanceof List) {
       return (List<T>)objects[0];
     }
-    
+
     List<T> result = new ArrayList<T>();
     for (T object : objects) {
       result.add(object);
     }
     return result;
   }
-  
+
   /**
    * return a list of objects from varargs.  Though if there is one
    * object, and it is a list, return it.
-   * 
+   *
    * @param <T>
    *            template type of the objects
    * @param objects
@@ -2216,12 +2230,12 @@ public class GrouperUtil {
   public static List<Class<?>> toListClasses(Class<?>... classes) {
     return toList(classes);
   }
-  
 
-  
+
+
   /**
    * return a set of objects from varargs.
-   * 
+   *
    * @param <T> template type of the objects
    * @param objects
    * @return the set
@@ -2239,7 +2253,7 @@ public class GrouperUtil {
 
   /**
    * return a set of string
-   * 
+   *
    * @param <T> template type of the objects
    * @param object
    * @return the set
@@ -2333,7 +2347,7 @@ public class GrouperUtil {
 
   /**
    * If false, throw an assertException, and give a reason
-   * 
+   *
    * @param isTrue
    * @param reason
    */
@@ -2348,7 +2362,7 @@ public class GrouperUtil {
    * use the field cache, expire every day (just to be sure no leaks)
    */
   private static GrouperCache<String, Set<Field>> fieldSetCache = null;
-  
+
   /**
    * lazy load
    * @return field set cache
@@ -2364,13 +2378,13 @@ public class GrouperUtil {
     }
     return fieldSetCache;
   }
-    
+
 
   /**
    * make a cache with max size to cache declared methods
    */
   private static GrouperCache<Class, Method[]> declaredMethodsCache = null;
-  
+
   /**
    * lazy load
    * @return declared method cache
@@ -2386,14 +2400,14 @@ public class GrouperUtil {
     }
     return declaredMethodsCache;
   }
-  
-    
+
+
 
   /**
-   * use the field cache, expire every day (just to be sure no leaks) 
+   * use the field cache, expire every day (just to be sure no leaks)
    */
   private static GrouperCache<String, Set<Method>> getterSetCache = null;
-    
+
 
   /**
    * lazy load
@@ -2410,14 +2424,14 @@ public class GrouperUtil {
     }
     return getterSetCache;
   }
-  
-    
+
+
 
   /**
-   * use the field cache, expire every day (just to be sure no leaks) 
+   * use the field cache, expire every day (just to be sure no leaks)
    */
   private static GrouperCache<String, Set<Method>> setterSetCache = null;
-    
+
 
   /**
    * lazy load
@@ -2434,8 +2448,8 @@ public class GrouperUtil {
     }
     return setterSetCache;
   }
-  
-  
+
+
   /**
    * Field lastId.
    */
@@ -2443,10 +2457,10 @@ public class GrouperUtil {
       .toCharArray();
 
   /**
-   * cache the properties read from resource 
+   * cache the properties read from resource
    */
   private static ExpirableCache<String, Properties> resourcePropertiesCache = null;
-  
+
   /**
    * lazy load this since it prevents the class from loading
    * @return the cache
@@ -2459,7 +2473,7 @@ public class GrouperUtil {
           //resourcePropertiesCache = new GrouperCache<String, Properties>(
           //  GrouperUtil.class.getName() + ".resourcePropertiesCache", 200, false, 300, 300, false);
           resourcePropertiesCache = new ExpirableCache<String, Properties>(5);
-          
+
         }
       }
     }
@@ -2468,7 +2482,7 @@ public class GrouperUtil {
 
   /**
    * assign data to a field
-   * 
+   *
    * @param theClass
    *            the class which has the method
    * @param invokeOn
@@ -2501,7 +2515,7 @@ public class GrouperUtil {
   /**
    * assign data to a field. Will find the field in superclasses, will
    * typecast, and will override security (private, protected, etc)
-   * 
+   *
    * @param theClass
    *            the class which has the method
    * @param invokeOn
@@ -2522,7 +2536,7 @@ public class GrouperUtil {
 
   /**
    * assign data to a field
-   * 
+   *
    * @param field
    *            is the field to assign to
    * @param invokeOn
@@ -2541,7 +2555,7 @@ public class GrouperUtil {
       Class fieldType = field.getType();
       // typecast
       if (typeCast) {
-        dataToAssign = 
+        dataToAssign =
                  typeCast(dataToAssign, fieldType,
                  true, true);
       }
@@ -2559,7 +2573,7 @@ public class GrouperUtil {
 
   /**
    * null safe iterator getter if the type if collection
-   * 
+   *
    * @param collection
    * @return the iterator
    */
@@ -2577,7 +2591,7 @@ public class GrouperUtil {
 
   /**
    * Null safe array length or map
-   * 
+   *
    * @param arrayOrCollection
    * @return the length of the array (0 for null)
    */
@@ -2601,7 +2615,7 @@ public class GrouperUtil {
   /**
    * If array, get the element based on index, if Collection, get it based on
    * iterator.
-   * 
+   *
    * @param arrayOrCollection
    * @param iterator
    * @param index
@@ -2628,19 +2642,19 @@ public class GrouperUtil {
 
   /**
    * Remove the iterator or index
-   * 
+   *
    * @param arrayOrCollection
    * @param index
    * @return the object list or new array
    */
-  public static Object remove(Object arrayOrCollection, 
+  public static Object remove(Object arrayOrCollection,
       int index) {
     return remove(arrayOrCollection, null, index);
   }
-  
+
   /**
    * Remove the iterator or index
-   * 
+   *
    * @param arrayOrCollection
    * @param iterator
    * @param index
@@ -2648,7 +2662,7 @@ public class GrouperUtil {
    */
   public static Object remove(Object arrayOrCollection, Iterator iterator,
       int index) {
-    
+
     //if theres an iterator, just use that
     if (iterator != null) {
       iterator.remove();
@@ -2697,13 +2711,13 @@ public class GrouperUtil {
       }
       return result.toString();
     }
-    
+
     throw new RuntimeException("Not implemented: " + className(object));
   }
-  
+
   /**
    * null safe classname method, max out at 20
-   * 
+   *
    * @param object
    * @return the classname
    */
@@ -2712,7 +2726,7 @@ public class GrouperUtil {
       return null;
     }
     StringBuffer result = new StringBuffer();
-    
+
     Iterator iterator = iterator(object);
     int length = length(object);
     for (int i = 0; i < length && i < 20; i++) {
@@ -2726,7 +2740,7 @@ public class GrouperUtil {
 
   /**
    * null safe classname method, gets the unenhanced name
-   * 
+   *
    * @param object
    * @return the classname
    */
@@ -2737,7 +2751,7 @@ public class GrouperUtil {
 
   /**
    * if a class is enhanced, get the unenhanced version
-   * 
+   *
    * @param theClass
    * @return the unenhanced version
    */
@@ -2747,11 +2761,11 @@ public class GrouperUtil {
 //      while (Enhancer.isEnhanced(theClass)) {
 //        theClass = theClass.getSuperclass();
 //      }
-      
+
       while (ProxyObject.class.isAssignableFrom(theClass)) {
         theClass = theClass.getSuperclass();
       }
-      
+
       return theClass;
     } catch (Exception e) {
       throw new RuntimeException("Problem unenhancing " + theClass, e);
@@ -2760,7 +2774,7 @@ public class GrouperUtil {
 
   /**
    * assign data to a field
-   * 
+   *
    * @param field
    *            is the field to assign to
    * @param invokeOn
@@ -2784,13 +2798,13 @@ public class GrouperUtil {
       Annotation annotation = field
           .getAnnotation(annotationWithValueOverride);
       if (annotation != null) {
-        
+
          // type of the value, or String if not specific Class
           // typeOfAnnotationValue = typeCast ? field.getType() :
           // String.class; dataToAssign =
           // AnnotationUtils.retrieveAnnotationValue(
           // typeOfAnnotationValue, annotation, "value");
-        
+
         throw new RuntimeException("Not supported");
       }
     }
@@ -2800,7 +2814,7 @@ public class GrouperUtil {
   /**
    * assign data to a field. Will find the field in superclasses, will
    * typecast, and will override security (private, protected, etc)
-   * 
+   *
    * @param invokeOn
    *            to call on or null for static
    * @param fieldName
@@ -2816,7 +2830,7 @@ public class GrouperUtil {
 
   /**
    * get a field object for a class, potentially in superclasses
-   * 
+   *
    * @param theClass
    * @param fieldName
    * @param callOnSupers
@@ -2851,7 +2865,7 @@ public class GrouperUtil {
   /**
    * return a set of Strings for a class and type. This is not for any
    * supertypes, only for the type at hand. includes final fields
-   * 
+   *
    * @param theClass
    * @param fieldType
    *            or null for all
@@ -2864,7 +2878,7 @@ public class GrouperUtil {
     return fieldNamesHelper(theClass, theClass, fieldType, true, true,
         includeStaticFields, null, true);
   }
-  
+
   /**
    * put in english how an object changed
    * @param theOld
@@ -2875,9 +2889,9 @@ public class GrouperUtil {
   public static String dbVersionDescribeDifferences(Object theOld, Object theNew, Set<String> differentFieldNames) {
 
     StringBuilder result = new StringBuilder(theOld == null ? "Old state unknown, new state is: " : "Fields changed: ");
-    
+
     int length = length(differentFieldNames);
-    
+
     if (length == 0) {
       result.append("none");
       return result.toString();
@@ -2910,7 +2924,7 @@ public class GrouperUtil {
 
   /**
    * get all field names from a class, including superclasses (if specified)
-   * 
+   *
    * @param theClass
    *            to look for fields in
    * @param superclassToStopAt
@@ -2938,7 +2952,7 @@ public class GrouperUtil {
   /**
    * get all field names from a class, including superclasses (if specified).
    * ignore a certain marker annotation
-   * 
+   *
    * @param theClass
    *            to look for fields in
    * @param superclassToStopAt
@@ -2971,7 +2985,7 @@ public class GrouperUtil {
    * get all field names from a class, including superclasses (if specified)
    * (up to and including the specified superclass). ignore a certain marker
    * annotation. Dont get static or final field, and get fields of all types
-   * 
+   *
    * @param theClass
    *            to look for fields in
    * @param superclassToStopAt
@@ -2990,7 +3004,7 @@ public class GrouperUtil {
 
   /**
    * get all field names from a class, including superclasses (if specified)
-   * 
+   *
    * @param theClass
    *            to look for fields in
    * @param superclassToStopAt
@@ -3031,7 +3045,7 @@ public class GrouperUtil {
 
   /**
    * get all fields from a class, including superclasses (if specified)
-   * 
+   *
    * @param theClass
    *            to look for fields in
    * @param superclassToStopAt
@@ -3068,7 +3082,7 @@ public class GrouperUtil {
    * and including the specified superclass). ignore a certain marker
    * annotation, or only include it. Dont get static or final field, and get
    * fields of all types
-   * 
+   *
    * @param theClass
    *            to look for fields in
    * @param superclassToStopAt
@@ -3091,7 +3105,7 @@ public class GrouperUtil {
 
   /**
    * get all fields from a class, including superclasses (if specified)
-   * 
+   *
    * @param theClass
    *            to look for fields in
    * @param superclassToStopAt
@@ -3155,15 +3169,15 @@ public class GrouperUtil {
    * @param mapPrefix is the prefix for maps which are compared (e.g. attribute__)
    * @return the set of fields which are different.  never returns null
    */
-  public static Set<String> compareObjectFields(Object first, Object second, 
+  public static Set<String> compareObjectFields(Object first, Object second,
       Set<String> fieldsToCompare, String mapPrefix) {
-    
+
     Set<String> differentFields = new LinkedHashSet<String>();
-    
+
     if (first == second) {
       return differentFields;
     }
-    
+
     //if either null, then all fields are different
     if (first == null || second == null) {
       differentFields.addAll(fieldsToCompare);
@@ -3173,7 +3187,7 @@ public class GrouperUtil {
       try {
         Object firstValue = fieldValue(first, fieldName);
         Object secondValue = fieldValue(second, fieldName);
-        
+
         if (firstValue == secondValue) {
           continue;
         }
@@ -3200,17 +3214,17 @@ public class GrouperUtil {
           differentFields.add(fieldName);
           continue;
         }
-        
+
       } catch (RuntimeException re) {
-        throw new RuntimeException("Problem comparing field " + fieldName 
+        throw new RuntimeException("Problem comparing field " + fieldName
             + " on objects: " + className(first) + ", " + className(second));
       }
-      
-      
+
+
     }
     return differentFields;
   }
-  
+
   /**
    * clone an object, assign primitives, Strings, maps of string attributes.  Clone GrouperCloneable fields.
    * @param <T> template
@@ -3219,67 +3233,67 @@ public class GrouperUtil {
    * @return the cloned object or null if input is null
    */
   public static <T> T clone(T object, Set<String> fieldsToClone) {
-    
+
     //make a return object
     T result = (T)newInstance(object.getClass());
-    
+
     cloneFields(object, result, fieldsToClone);
-    
+
     return result;
   }
-  
+
   /**
    * clone an object, assign primitives, Strings, maps of string attributes.  Clone GrouperCloneable fields.
    * @param <T> template
    * @param object
-   * @param result 
+   * @param result
    * @param fieldsToClone
    */
   public static <T> void cloneFields(T object, T result,
       Set<String> fieldsToClone) {
-    
+
     if (object == result) {
       return;
     }
-    
+
     //if either null, then all fields are different
     if (object == null || result == null) {
       throw new RuntimeException("Cant copy from or to null: " + className(object) + ", " + className(result));
     }
-    
+
     Class<?> fieldValueClass = null;
-    
+
     for (String fieldName : nonNull(fieldsToClone)) {
       try {
-        
+
         Object fieldValue = fieldValue(object, fieldName);
         fieldValueClass = fieldValue == null ? null : fieldValue.getClass();
-        
+
         Object fieldValueToAssign = cloneValue(fieldValue);
-        
+
         //assign the field to the clone
         assignField(result, fieldName, fieldValueToAssign);
-        
+
       } catch (RuntimeException re) {
-        throw new RuntimeException("Problem cloning field: " + object.getClass() 
+        throw new RuntimeException("Problem cloning field: " + object.getClass()
               + ", " + fieldName + ", " + fieldValueClass, re);
       }
     }
   }
-  
+
   /**
    * helper method to clone the value of a field.  just returns the same
-   * reference for primitives and immutables.  Will subclone GrouperCloneables, 
+   * reference for primitives and immutables.  Will subclone GrouperCloneables,
    * and will throw exception if not expecting the type.  Will clone sets, lists, maps.
    * @param <T> template
-   * 
+   *
    * @param value
    * @return the cloned value
    */
   public static <T> T cloneValue(T value) {
 
     Object clonedValue = value;
-    
+
     if (value == null || value instanceof String || value instanceof Class<?>
         || value instanceof Enum<?>
         || value.getClass().isPrimitive() || value instanceof Number
@@ -3290,10 +3304,10 @@ public class GrouperUtil {
       //for strings, and immutable classes, just assign
       //nothing to do, just assign the value
     } else if (value instanceof GrouperCloneable) {
-      
+
       //lets clone the object
       clonedValue = ((GrouperCloneable)value).clone();
-      
+
     } else if (value instanceof Map) {
       clonedValue = new LinkedHashMap();
       Map mapValue = (Map)value;
@@ -3320,29 +3334,29 @@ public class GrouperUtil {
       for (int i=0;i<Array.getLength(value);i++) {
         Array.set(clonedValue, i, cloneValue(Array.get(value, i)));
       }
-      
+
     } else {
 
       //this means lets add support for a new type of object
       throw new RuntimeException("Unexpected class in clone method: " + value.getClass());
-    
+
     }
     return (T)clonedValue;
   }
-  
+
   /**
    * simple method to get method names
    * @param theClass
-   * @param superclassToStopAt 
-   * @param includeSuperclassToStopAt 
-   * @param includeStaticMethods 
+   * @param superclassToStopAt
+   * @param includeSuperclassToStopAt
+   * @param includeStaticMethods
    * @return the set of method names
    */
-  public static Set<String> methodNames(Class<?> theClass, Class<?> superclassToStopAt, 
+  public static Set<String> methodNames(Class<?> theClass, Class<?> superclassToStopAt,
       boolean includeSuperclassToStopAt, boolean includeStaticMethods) {
 
     Set<Method> methods = new LinkedHashSet<Method>();
-    methodsHelper(theClass, superclassToStopAt, includeSuperclassToStopAt, includeStaticMethods, 
+    methodsHelper(theClass, superclassToStopAt, includeSuperclassToStopAt, includeStaticMethods,
         null, false, methods);
     Set<String> methodNames = new HashSet<String>();
     for (Method method : methods) {
@@ -3355,47 +3369,47 @@ public class GrouperUtil {
    * simple method to get method names
    * @param theClass
    * @param methodName
-   * @param superclassToStopAt 
-   * @param includeSuperclassToStopAt 
-   * @param includeStaticMethods 
-   * @param exceptionIfNotFound 
+   * @param superclassToStopAt
+   * @param includeSuperclassToStopAt
+   * @param includeStaticMethods
+   * @param exceptionIfNotFound
    * @return the set of method names
    */
-  public static Method methodByName(Class<?> theClass, String methodName, Class<?> superclassToStopAt, 
+  public static Method methodByName(Class<?> theClass, String methodName, Class<?> superclassToStopAt,
       boolean includeSuperclassToStopAt, boolean includeStaticMethods, boolean exceptionIfNotFound) {
 
     Set<Method> methods = new LinkedHashSet<Method>();
-    methodsByNameHelper(theClass, methodName, superclassToStopAt, 
-        includeSuperclassToStopAt, includeStaticMethods, 
+    methodsByNameHelper(theClass, methodName, superclassToStopAt,
+        includeSuperclassToStopAt, includeStaticMethods,
         null, false, methods);
     if (methods.size() > 1) {
       throw new RuntimeException("There are more than one method with name " + methodName + " in class: " + theClass);
     }
-    
+
     if (methods.size() == 1) {
       return methods.iterator().next();
     }
-    
+
     if (exceptionIfNotFound) {
       throw new RuntimeException("Could not find method " + methodName + " in class: " + theClass);
     }
-    
+
     return null;
   }
 
   /**
    * get the set of methods
    * @param theClass
-   * @param superclassToStopAt 
-   * @param includeSuperclassToStopAt 
+   * @param superclassToStopAt
+   * @param includeSuperclassToStopAt
    * @param includeStaticMethods
-   * @param markerAnnotation 
-   * @param includeAnnotation 
+   * @param markerAnnotation
+   * @param includeAnnotation
    * @param methodSet
    */
-  public static void methodsHelper(Class<?> theClass, Class<?> superclassToStopAt, 
+  public static void methodsHelper(Class<?> theClass, Class<?> superclassToStopAt,
       boolean includeSuperclassToStopAt,
-      boolean includeStaticMethods, Class<? extends Annotation> markerAnnotation, 
+      boolean includeStaticMethods, Class<? extends Annotation> markerAnnotation,
       boolean includeAnnotation, Set<Method> methodSet) {
     theClass = unenhanceClass(theClass);
     Method[] methods = theClass.getDeclaredMethods();
@@ -3430,35 +3444,35 @@ public class GrouperUtil {
     methodsHelper(superclass, superclassToStopAt,
         includeSuperclassToStopAt, includeStaticMethods,
         markerAnnotation, includeAnnotation, methodSet);
-    
+
   }
-  
+
   /**
    * get the set of methods
    * @param theClass
-   * @param methodName 
+   * @param methodName
    * @param paramTypesOrArrayOrList
    *            types of the params
-   * @param superclassToStopAt 
-   * @param includeSuperclassToStopAt 
+   * @param superclassToStopAt
+   * @param includeSuperclassToStopAt
    * @param isStaticOrInstance true if static
-   * @param markerAnnotation 
-   * @param includeAnnotation 
+   * @param markerAnnotation
+   * @param includeAnnotation
    * @return the method or null if not found
-   *            
+   *
    */
-  public static Method method(Class<?> theClass, 
+  public static Method method(Class<?> theClass,
       String methodName, Object paramTypesOrArrayOrList,
-      Class<?> superclassToStopAt, 
+      Class<?> superclassToStopAt,
       boolean includeSuperclassToStopAt,
-      boolean isStaticOrInstance, Class<? extends Annotation> markerAnnotation, 
+      boolean isStaticOrInstance, Class<? extends Annotation> markerAnnotation,
       boolean includeAnnotation) {
     theClass = unenhanceClass(theClass);
 
     Class[] paramTypesArray = (Class[]) toArray(paramTypesOrArrayOrList);
 
     Method method = null;
-    
+
     try {
       method = theClass.getDeclaredMethod(methodName, paramTypesArray);
     } catch (NoSuchMethodException nsme) {
@@ -3466,7 +3480,7 @@ public class GrouperUtil {
     } catch (Exception e) {
       throw new RuntimeException("Problem retrieving method: " + theClass.getSimpleName() + ", " + methodName, e);
     }
-    
+
     if (method != null) {
       //we found a method, make sure it is valid
       // if not static, then return null (dont worry about superclass)
@@ -3495,10 +3509,10 @@ public class GrouperUtil {
     return method(superclass, methodName, paramTypesArray, superclassToStopAt,
         includeSuperclassToStopAt, isStaticOrInstance, markerAnnotation, includeAnnotation);
   }
-  
+
   /**
    * get all field names from a class, including superclasses (if specified)
-   * 
+   *
    * @param theClass
    *            to look for fields in
    * @param superclassToStopAt
@@ -3573,7 +3587,7 @@ public class GrouperUtil {
 
   /**
    * find out a field value
-   * 
+   *
    * @param theClass
    *            the class which has the method
    * @param invokeOn
@@ -3594,7 +3608,7 @@ public class GrouperUtil {
     if (considerFieldValuable && (invokeOn instanceof FieldValuable)) {
       return ((FieldValuable)invokeOn).fieldValue(fieldName);
     }
-    
+
     Field field = null;
 
     // only if the method exists, try to execute
@@ -3624,10 +3638,10 @@ public class GrouperUtil {
     public Object fieldValue(String fieldName);
 
   }
-  
+
   /**
    * get the value of a field, override security if needbe
-   * 
+   *
    * @param field
    * @param invokeOn
    * @return the value of the field
@@ -3638,7 +3652,7 @@ public class GrouperUtil {
 
   /**
    * get the value of a field
-   * 
+   *
    * @param field
    * @param invokeOn
    * @param overrideSecurity
@@ -3646,7 +3660,7 @@ public class GrouperUtil {
    */
   public static Object fieldValue(Field field, Object invokeOn,
       boolean overrideSecurity) {
-    
+
     if (overrideSecurity) {
       field.setAccessible(true);
     }
@@ -3662,7 +3676,7 @@ public class GrouperUtil {
 
   /**
    * find out a field value (invoke on supers, override security)
-   * 
+   *
    * @param invokeOn
    *            to call on or null for static
    * @param fieldName
@@ -3675,7 +3689,7 @@ public class GrouperUtil {
 
   /**
    * get the decalred methods for a class, perhaps from cache
-   * 
+   *
    * @param theClass
    * @return the declared methods
    */
@@ -3692,7 +3706,7 @@ public class GrouperUtil {
   /**
    * helper method for calling a method with no params (could be in
    * superclass)
-   * 
+   *
    * @param theClass
    *            the class which has the method
    * @param invokeOn
@@ -3708,7 +3722,7 @@ public class GrouperUtil {
 
   /**
    * helper method for calling a method (could be in superclass)
-   * 
+   *
    * @param theClass
    *            the class which has the method
    * @param invokeOn
@@ -3730,7 +3744,7 @@ public class GrouperUtil {
 
   /**
    * helper method for calling a method
-   * 
+   *
    * @param theClass
    *            the class which has the method
    * @param invokeOn
@@ -3764,15 +3778,15 @@ public class GrouperUtil {
   public static <T> T construct(Class<T> theClass, Class[] types, Object[] args) {
     try {
       Constructor<T> constructor = theClass.getConstructor(types);
-      
+
       return constructor.newInstance(args);
-      
+
     } catch (Exception e) {
       throw new RuntimeException("Having trouble with constructor for class: " + theClass.getSimpleName()
           + " and args: " + classesString(types), e);
      }
   }
-  
+
   /**
    * <pre>
    * turn a list into map
@@ -3785,7 +3799,7 @@ public class GrouperUtil {
    * @param keyPropertyName name of the javabeans property for the key in the map
    * @return the ordered set or the empty set if not found (never null)
    */
-  public static <K, V> Map<K, V> listToMap(List<V> list, @SuppressWarnings("unused") final Class<K> keyClass, 
+  public static <K, V> Map<K, V> listToMap(List<V> list, @SuppressWarnings("unused") final Class<K> keyClass,
       @SuppressWarnings("unused") final Class<V> valueClass, String keyPropertyName)  {
     Map<K,V> result = new LinkedHashMap<K, V>();
     for (V value : nonNull(list)) {
@@ -3797,7 +3811,7 @@ public class GrouperUtil {
 
   /**
    * helper method for calling a method
-   * 
+   *
    * @param theClass
    *            the class which has the method
    * @param invokeOn
@@ -3820,9 +3834,9 @@ public class GrouperUtil {
       boolean overrideSecurity) {
     try {
       Method method = null;
-  
+
       Class[] paramTypesArray = (Class[]) toArray(paramTypesOrArrayOrList);
-  
+
       try {
         method = theClass.getDeclaredMethod(methodName, paramTypesArray);
         if (overrideSecurity) {
@@ -3844,7 +3858,7 @@ public class GrouperUtil {
         throw new RuntimeException("Problem calling method " + methodName
             + " on " + theClass.getName(), e);
       }
-  
+
       return invokeMethod(method, invokeOn, paramsOrListOrArray);
     } catch (RuntimeException re) {
       String message = "Problem calling method " + methodName
@@ -3855,13 +3869,13 @@ public class GrouperUtil {
       throw new RuntimeException(message, re);
     }
   }
-  
+
   /** pass this in the invokeOn to signify no params */
   private static final Object NO_PARAMS = new Object();
-  
+
   /**
    * Safely invoke a reflection method that takes no args
-   * 
+   *
    * @param method
    *            to invoke
    * @param invokeOn
@@ -3874,7 +3888,7 @@ public class GrouperUtil {
 
   /**
    * Safely invoke a reflection method
-   * 
+   *
    * @param method
    *            to invoke
    * @param invokeOn
@@ -3918,7 +3932,7 @@ public class GrouperUtil {
   /**
    * Convert a list to an array with the type of the first element e.g. if it
    * is a list of Person objects, then the array is Person[]
-   * 
+   *
    * @param objectOrArrayOrCollection
    *            is a list
    * @return the array of objects with type of the first element in the list
@@ -3969,7 +3983,7 @@ public class GrouperUtil {
   /**
    * helper method for calling a static method up the stack. method takes no
    * args (could be in superclass)
-   * 
+   *
    * @param theClass
    *            the class which has the method
    * @param methodName
@@ -3982,7 +3996,7 @@ public class GrouperUtil {
 
   /**
    * helper method for calling a static method with no params
-   * 
+   *
    * @param theClass
    *            the class which has the method
    * @param methodName
@@ -3998,7 +4012,7 @@ public class GrouperUtil {
 
   /**
    * helper method for calling a static method up the stack
-   * 
+   *
    * @param theClass
    *            the class which has the method
    * @param methodName
@@ -4018,7 +4032,7 @@ public class GrouperUtil {
   /**
    * helper method for calling a method with no params (could be in
    * superclass), will override security
-   * 
+   *
    * @param invokeOn
    *            instance to invoke on
    * @param methodName
@@ -4036,7 +4050,7 @@ public class GrouperUtil {
   /**
    * replace a string or strings from a string, and put the output in a string
    * buffer. This does not recurse
-   * 
+   *
    * @param text
    *            string to look in
    * @param searchFor
@@ -4054,7 +4068,7 @@ public class GrouperUtil {
   /**
    * replace a string or strings from a string, and put the output in a string
    * buffer
-   * 
+   *
    * @param text
    *            string to look in
    * @param searchFor
@@ -4074,7 +4088,7 @@ public class GrouperUtil {
   /**
    * replace a string or strings from a string, and put the output in a string
    * buffer
-   * 
+   *
    * @param text
    *            string to look in
    * @param searchFor
@@ -4097,11 +4111,11 @@ public class GrouperUtil {
    * <p>
    * Replaces all occurrences of a String within another String.
    * </p>
-   * 
+   *
    * <p>
    * A <code>null</code> reference passed to this method is a no-op.
    * </p>
-   * 
+   *
    * <pre>
    * replace(null, *, *)        = null
    * replace(&quot;&quot;, *, *)          = &quot;&quot;
@@ -4112,7 +4126,7 @@ public class GrouperUtil {
    * replace(&quot;aba&quot;, &quot;a&quot;, &quot;&quot;)    = &quot;b&quot;
    * replace(&quot;aba&quot;, &quot;a&quot;, &quot;z&quot;)   = &quot;zbz&quot;
    * </pre>
-   * 
+   *
    * @see #replace(String text, String repl, String with, int max)
    * @param text
    *            text to search and replace in, may be null
@@ -4132,11 +4146,11 @@ public class GrouperUtil {
    * Replaces a String with another String inside a larger String, for the
    * first <code>max</code> values of the search String.
    * </p>
-   * 
+   *
    * <p>
    * A <code>null</code> reference passed to this method is a no-op.
    * </p>
-   * 
+   *
    * <pre>
    * replace(null, *, *, *)         = null
    * replace(&quot;&quot;, *, *, *)           = &quot;&quot;
@@ -4151,7 +4165,7 @@ public class GrouperUtil {
    * replace(&quot;abaa&quot;, &quot;a&quot;, &quot;z&quot;, 2)   = &quot;zbza&quot;
    * replace(&quot;abaa&quot;, &quot;a&quot;, &quot;z&quot;, -1)  = &quot;zbzz&quot;
    * </pre>
-   * 
+   *
    * @param text
    *            text to search and replace in, may be null
    * @param repl
@@ -4187,7 +4201,7 @@ public class GrouperUtil {
    * <p>
    * Checks if a String is empty ("") or null.
    * </p>
-   * 
+   *
    * <pre>
    * isEmpty(null)      = true
    * isEmpty(&quot;&quot;)        = true
@@ -4195,12 +4209,12 @@ public class GrouperUtil {
    * isEmpty(&quot;bob&quot;)     = false
    * isEmpty(&quot;  bob  &quot;) = false
    * </pre>
-   * 
+   *
    * <p>
    * NOTE: This method changed in Lang version 2.0. It no longer trims the
    * String. That functionality is available in isBlank().
    * </p>
-   * 
+   *
    * @param str
    *            the String to check, may be null
    * @return <code>true</code> if the String is empty or null
@@ -4212,7 +4226,7 @@ public class GrouperUtil {
   /**
    * replace a string or strings from a string, and put the output in a string
    * buffer. This does not recurse
-   * 
+   *
    * @param outBuffer
    *            stringbuffer to write to
    * @param text
@@ -4230,7 +4244,7 @@ public class GrouperUtil {
   /**
    * replace a string or strings from a string, and put the output in a string
    * buffer
-   * 
+   *
    * @param outBuffer
    *            stringbuffer to write to
    * @param text
@@ -4252,7 +4266,7 @@ public class GrouperUtil {
    * replace a string with other strings, and either write to outWriter, or
    * StringBuffer, and if StringBuffer potentially return a string. If
    * outBuffer and outWriter are null, then return the String
-   * 
+   *
    * @param outBuffer
    *            stringbuffer to write to, or null to not
    * @param outWriter
@@ -4311,7 +4325,7 @@ public class GrouperUtil {
   /**
    * replace a string or strings from a string, and put the output in a string
    * buffer. This does not recurse
-   * 
+   *
    * @param outWriter
    *            writer to write to
    * @param text
@@ -4329,7 +4343,7 @@ public class GrouperUtil {
   /**
    * replace a string or strings from a string, and put the output in a string
    * buffer
-   * 
+   *
    * @param outWriter
    *            writer to write to
    * @param text
@@ -4351,7 +4365,7 @@ public class GrouperUtil {
    * replace a string with other strings, and either write to outWriter, or
    * StringBuffer, and if StringBuffer potentially return a string. If
    * outBuffer and outWriter are null, then return the String
-   * 
+   *
    * @param outBuffer
    *            stringbuffer to write to, or null to not
    * @param outWriter
@@ -4416,10 +4430,10 @@ public class GrouperUtil {
 
         // index of replace array that will replace the search string
         // found
-        
+
 
         resultPacked = findNextIndexHelper(searchForLength, searchFor,
-            replaceWith, 
+            replaceWith,
             noMoreMatchesForReplIndex, text, 0);
 
         inputIndex = unpackInt(resultPacked, true);
@@ -4479,7 +4493,7 @@ public class GrouperUtil {
         start = inputIndex + searchString.length();
 
         resultPacked = findNextIndexHelper(searchForLength, searchFor,
-            replaceWith, 
+            replaceWith,
             noMoreMatchesForReplIndex, text, start);
         inputIndex = unpackInt(resultPacked, true);
         replaceIndex = unpackInt(resultPacked, false);
@@ -4516,7 +4530,7 @@ public class GrouperUtil {
    * give a best guess on buffer increase for String[] replace get a good
    * guess on the size of the result buffer so it doesnt have to double if it
    * goes over a bit
-   * 
+   *
    * @param text
    * @param repl
    * @param with
@@ -4548,7 +4562,7 @@ public class GrouperUtil {
 
   /**
    * Helper method to find the next match in an array of strings replace
-   * 
+   *
    * @param searchForLength
    * @param searchFor
    * @param replaceWith
@@ -4598,7 +4612,7 @@ public class GrouperUtil {
   /**
    * pack two ints into a long. Note: the first is held in the left bits, the
    * second is held in the right bits
-   * 
+   *
    * @param first
    *            is first int
    * @param second
@@ -4614,7 +4628,7 @@ public class GrouperUtil {
 
   /**
    * take a long
-   * 
+   *
    * @param theLong
    *            to unpack
    * @param isFirst
@@ -4636,7 +4650,7 @@ public class GrouperUtil {
   /**
    * append a substring to a stringbuffer. removes dependency on substring
    * which creates objects
-   * 
+   *
    * @param buf
    *            stringbuffer
    * @param string
@@ -4658,7 +4672,7 @@ public class GrouperUtil {
   /**
    * Get a specific index of an array or collection (note for collections and
    * iterating, it is more efficient to get an iterator and iterate
-   * 
+   *
    * @param arrayOrCollection
    * @param index
    * @return the object at that index
@@ -4713,7 +4727,7 @@ public class GrouperUtil {
     result.delete(result.length()-2, result.length());
     return result.toString();
   }
-  
+
   /**
    * fail safe toString for Exception blocks, and include the stack
    * if there is a problem with toString()
@@ -4724,7 +4738,7 @@ public class GrouperUtil {
     if (object == null) {
       return null;
     }
-    
+
     try {
       //give size and type if collection
       if (object instanceof Collection) {
@@ -4734,11 +4748,11 @@ public class GrouperUtil {
           return "Empty " + object.getClass().getSimpleName();
         }
         Object first = collection.iterator().next();
-        return object.getClass().getSimpleName() + " of size " 
-          + collectionSize + " with first type: " + 
+        return object.getClass().getSimpleName() + " of size "
+          + collectionSize + " with first type: " +
           (first == null ? null : first.getClass());
       }
-    
+
       return object.toString();
     } catch (Exception e) {
       return "<<exception>> " + object.getClass() + ":\n" + getFullStackTrace(e) + "\n";
@@ -4747,7 +4761,7 @@ public class GrouperUtil {
 
   /**
    * get the boolean value for an object, cant be null or blank
-   * 
+   *
    * @param object
    * @return the boolean
    */
@@ -4779,16 +4793,16 @@ public class GrouperUtil {
       throw new RuntimeException(
           "Invalid string to boolean conversion: '" + string
               + "' expecting true|false or t|f or yes|no or y|n case insensitive");
-  
+
     }
     throw new RuntimeException("Cant convert object to boolean: "
         + object.getClass());
-  
+
   }
 
   /**
    * get the boolean value for an object
-   * 
+   *
    * @param object
    * @param defaultBoolean
    *            if object is null or empty
@@ -4803,7 +4817,7 @@ public class GrouperUtil {
 
   /**
    * get the Boolean value for an object
-   * 
+   *
    * @param object
    * @return the Boolean or null if null or empty
    */
@@ -4816,7 +4830,7 @@ public class GrouperUtil {
 
   /**
    * is an object null or blank
-   * 
+   *
    * @param object
    * @return true if null or blank
    */
@@ -4829,7 +4843,7 @@ public class GrouperUtil {
       return true;
     }
     return false;
-  
+
   }
 
   /**
@@ -4840,7 +4854,7 @@ public class GrouperUtil {
    * @param throwExceptionIfNotFound will throw runtime exception if not found
    * @return the getter object or null if not found (or exception if param is set)
    */
-  public static Method getter(Class theClass, String fieldName, boolean callOnSupers, 
+  public static Method getter(Class theClass, String fieldName, boolean callOnSupers,
       boolean throwExceptionIfNotFound) {
     String getterName = getterNameFromPropertyName(fieldName);
     return getterHelper(theClass, fieldName, getterName, callOnSupers, throwExceptionIfNotFound);
@@ -4855,7 +4869,7 @@ public class GrouperUtil {
    * @param throwExceptionIfNotFound will throw runtime exception if not found
    * @return the setter object or null if not found (or exception if param is set)
    */
-  public static Method getterHelper(Class theClass, String fieldName, String getterName, 
+  public static Method getterHelper(Class theClass, String fieldName, String getterName,
       boolean callOnSupers, boolean throwExceptionIfNotFound) {
     Method[] methods = retrieveDeclaredMethods(theClass);
     if (methods != null) {
@@ -4868,7 +4882,7 @@ public class GrouperUtil {
     //if method not found
     //if traversing up, and not Object, and not instance method
     if (callOnSupers && !theClass.equals(Object.class)) {
-      return getterHelper(theClass.getSuperclass(), fieldName, getterName, 
+      return getterHelper(theClass.getSuperclass(), fieldName, getterName,
           callOnSupers, throwExceptionIfNotFound);
     }
     //maybe throw an exception
@@ -4883,14 +4897,14 @@ public class GrouperUtil {
   /**
    * generate getBb from bb
    * @param propertyName
-   * @return the getter 
+   * @return the getter
    */
   public static String getterNameFromPropertyName(String propertyName) {
     return "get" + capitalize(propertyName);
   }
 
   /**
-   * get all getters from a class, including superclasses (if specified) (up to and including the specified superclass).  
+   * get all getters from a class, including superclasses (if specified) (up to and including the specified superclass).
    * ignore a certain marker annotation, or only include it.
    * Dont get static or final getters, and get getters of all types
    * @param theClass to look for fields in
@@ -4903,7 +4917,7 @@ public class GrouperUtil {
   @SuppressWarnings("unchecked")
   public static Set<Method> getters(Class theClass, Class superclassToStopAt,
       Class<? extends Annotation> markerAnnotation, Boolean includeAnnotation) {
-    return gettersHelper(theClass, superclassToStopAt, null, true, 
+    return gettersHelper(theClass, superclassToStopAt, null, true,
         markerAnnotation, includeAnnotation);
   }
 
@@ -4920,10 +4934,10 @@ public class GrouperUtil {
    */
   @SuppressWarnings("unchecked")
   static Set<Method> gettersHelper(Class theClass, Class superclassToStopAt, Class<?> fieldType,
-      boolean includeSuperclassToStopAt, 
+      boolean includeSuperclassToStopAt,
       Class<? extends Annotation> markerAnnotation, Boolean includeAnnotation) {
     //MAKE SURE IF ANY MORE PARAMS ARE ADDED, THE CACHE KEY IS CHANGED!
-    
+
     Set<Method> getterSet = null;
     String cacheKey = theClass + CACHE_SEPARATOR + superclassToStopAt + CACHE_SEPARATOR + fieldType + CACHE_SEPARATOR
       + includeSuperclassToStopAt + CACHE_SEPARATOR + markerAnnotation + CACHE_SEPARATOR + includeAnnotation;
@@ -4931,16 +4945,16 @@ public class GrouperUtil {
     if (getterSet != null) {
       return getterSet;
     }
-    
+
     getterSet = new LinkedHashSet<Method>();
-    gettersHelper(theClass, superclassToStopAt, fieldType, includeSuperclassToStopAt, 
+    gettersHelper(theClass, superclassToStopAt, fieldType, includeSuperclassToStopAt,
         markerAnnotation, getterSet, includeAnnotation);
-  
+
     //add to cache
     getterSetCache().put(cacheKey, getterSet);
-    
+
     return getterSet;
-    
+
   }
 
   /**
@@ -4956,7 +4970,7 @@ public class GrouperUtil {
    */
   @SuppressWarnings("unchecked")
   private static void gettersHelper(Class theClass, Class superclassToStopAt, Class<?> propertyType,
-      boolean includeSuperclassToStopAt,  
+      boolean includeSuperclassToStopAt,
       Class<? extends Annotation> markerAnnotation, Set<Method> getterSet, Boolean includeAnnotation) {
     theClass = unenhanceClass(theClass);
     Method[] methods = retrieveDeclaredMethods(theClass);
@@ -4975,7 +4989,7 @@ public class GrouperUtil {
         if (propertyType != null && !propertyType.isAssignableFrom(method.getReturnType())) {
           continue;
         }
-        
+
         //go for it
         getterSet.add(method);
       }
@@ -4989,53 +5003,53 @@ public class GrouperUtil {
       return;
     }
     //recurse
-    gettersHelper(superclass, superclassToStopAt, propertyType, 
+    gettersHelper(superclass, superclassToStopAt, propertyType,
         includeSuperclassToStopAt, markerAnnotation, getterSet,
         includeAnnotation);
   }
 
   /**
-   * if the method name starts with get, and takes no args, and returns something, 
+   * if the method name starts with get, and takes no args, and returns something,
    * then getter
-   * @param method 
+   * @param method
    * @return true if getter
    */
   public static boolean isGetter(Method method) {
-    
+
     //must start with get
     String methodName = method.getName();
     if (!methodName.startsWith("get") && !methodName.startsWith("is")) {
       return false;
     }
-  
+
     //must not be void
     if (method.getReturnType() == Void.TYPE) {
       return false;
     }
-    
+
     //must not take args
     if (length(method.getParameterTypes()) != 0) {
       return false;
     }
-    
+
     //must not be static
     if (Modifier.isStatic(method.getModifiers())) {
       return false;
     }
-    
+
     return true;
   }
 
   /**
-   * assign data to a setter.  Will find the field in superclasses, will typecast, 
+   * assign data to a setter.  Will find the field in superclasses, will typecast,
    * and will override security (private, protected, etc)
    * @param invokeOn to call on or null for static
    * @param fieldName method name to call
-   * @param dataToAssign data  
+   * @param dataToAssign data
    * @param typeCast will typecast if true
    * @throws PropertyDoesNotExistUnchecked if not there
    */
-  public static void assignSetter(Object invokeOn, 
+  public static void assignSetter(Object invokeOn,
       String fieldName, Object dataToAssign, boolean typeCast) {
     Class invokeOnClass = invokeOn.getClass();
     try {
@@ -5052,33 +5066,33 @@ public class GrouperUtil {
   }
 
   /**
-   * if the method name starts with get, and takes no args, and returns something, 
+   * if the method name starts with get, and takes no args, and returns something,
    * then getter
-   * @param method 
+   * @param method
    * @return true if getter
    */
   public static boolean isSetter(Method method) {
-    
+
     //must start with get
     if (!method.getName().startsWith("set")) {
       return false;
     }
-  
+
     //must be void
     if (method.getReturnType() != Void.TYPE) {
       return false;
     }
-    
+
     //must take one arg
     if (length(method.getParameterTypes()) != 1) {
       return false;
     }
-    
+
     //must not be static
     if (Modifier.isStatic(method.getModifiers())) {
       return false;
     }
-    
+
     return true;
   }
 
@@ -5090,7 +5104,7 @@ public class GrouperUtil {
    * @param throwExceptionIfNotFound will throw runtime exception if not found
    * @return the setter object or null if not found (or exception if param is set)
    */
-  public static Method setter(Class theClass, String fieldName, boolean callOnSupers, 
+  public static Method setter(Class theClass, String fieldName, boolean callOnSupers,
       boolean throwExceptionIfNotFound) {
     String setterName = setterNameFromPropertyName(fieldName);
     return setterHelper(theClass, fieldName, setterName, callOnSupers, throwExceptionIfNotFound);
@@ -5105,7 +5119,7 @@ public class GrouperUtil {
    * @param throwExceptionIfNotFound will throw runtime exception if not found
    * @return the setter object or null if not found (or exception if param is set)
    */
-  public static Method setterHelper(Class theClass, String fieldName, String setterName, 
+  public static Method setterHelper(Class theClass, String fieldName, String setterName,
       boolean callOnSupers, boolean throwExceptionIfNotFound) {
     Method[] methods = retrieveDeclaredMethods(theClass);
     if (methods != null) {
@@ -5118,7 +5132,7 @@ public class GrouperUtil {
     //if method not found
     //if traversing up, and not Object, and not instance method
     if (callOnSupers && !theClass.equals(Object.class)) {
-      return setterHelper(theClass.getSuperclass(), fieldName, setterName, 
+      return setterHelper(theClass.getSuperclass(), fieldName, setterName,
           callOnSupers, throwExceptionIfNotFound);
     }
     //maybe throw an exception
@@ -5133,7 +5147,7 @@ public class GrouperUtil {
   /**
    * generate setBb from bb
    * @param propertyName
-   * @return the setter 
+   * @return the setter
    */
   public static String setterNameFromPropertyName(String propertyName) {
     return "set" + capitalize(propertyName);
@@ -5152,9 +5166,9 @@ public class GrouperUtil {
    */
   @SuppressWarnings("unchecked")
   public static Set<Method> setters(Class theClass, Class superclassToStopAt, Class<?> fieldType,
-      boolean includeSuperclassToStopAt, 
+      boolean includeSuperclassToStopAt,
       Class<? extends Annotation> markerAnnotation, boolean includeAnnotation) {
-    return settersHelper(theClass, superclassToStopAt, fieldType, 
+    return settersHelper(theClass, superclassToStopAt, fieldType,
         includeSuperclassToStopAt, markerAnnotation, includeAnnotation);
   }
 
@@ -5171,10 +5185,10 @@ public class GrouperUtil {
    */
   @SuppressWarnings("unchecked")
   static Set<Method> settersHelper(Class theClass, Class superclassToStopAt, Class<?> fieldType,
-      boolean includeSuperclassToStopAt, 
+      boolean includeSuperclassToStopAt,
       Class<? extends Annotation> markerAnnotation, boolean includeAnnotation) {
     //MAKE SURE IF ANY MORE PARAMS ARE ADDED, THE CACHE KEY IS CHANGED!
-    
+
     Set<Method> setterSet = null;
     String cacheKey = theClass + CACHE_SEPARATOR + superclassToStopAt + CACHE_SEPARATOR + fieldType + CACHE_SEPARATOR
       + includeSuperclassToStopAt + CACHE_SEPARATOR + markerAnnotation + CACHE_SEPARATOR + includeAnnotation;
@@ -5182,16 +5196,16 @@ public class GrouperUtil {
     if (setterSet != null) {
       return setterSet;
     }
-    
+
     setterSet = new LinkedHashSet<Method>();
-    settersHelper(theClass, superclassToStopAt, fieldType, includeSuperclassToStopAt, 
+    settersHelper(theClass, superclassToStopAt, fieldType, includeSuperclassToStopAt,
         markerAnnotation, setterSet, includeAnnotation);
-  
+
     //add to cache
     setterSetCache().put(cacheKey, setterSet);
-    
+
     return setterSet;
-    
+
   }
 
   /**
@@ -5207,7 +5221,7 @@ public class GrouperUtil {
    */
   @SuppressWarnings("unchecked")
   private static void settersHelper(Class theClass, Class superclassToStopAt, Class<?> propertyType,
-      boolean includeSuperclassToStopAt,  
+      boolean includeSuperclassToStopAt,
       Class<? extends Annotation> markerAnnotation, Set<Method> setterSet, Boolean includeAnnotation) {
     theClass = unenhanceClass(theClass);
     Method[] methods = retrieveDeclaredMethods(theClass);
@@ -5226,7 +5240,7 @@ public class GrouperUtil {
         if (propertyType != null && !propertyType.isAssignableFrom(method.getParameterTypes()[0])) {
           continue;
         }
-        
+
         //go for it
         setterSet.add(method);
       }
@@ -5240,7 +5254,7 @@ public class GrouperUtil {
       return;
     }
     //recurse
-    settersHelper(superclass, superclassToStopAt, propertyType, 
+    settersHelper(superclass, superclassToStopAt, propertyType,
         includeSuperclassToStopAt, markerAnnotation, setterSet,
         includeAnnotation);
   }
@@ -5255,7 +5269,7 @@ public class GrouperUtil {
     boolean isGetter = methodName.startsWith("get");
     boolean isSetter = methodName.startsWith("set");
     boolean isIsser = methodName.startsWith("is");
-    int expectedLength = isIsser ? 2 : 3; 
+    int expectedLength = isIsser ? 2 : 3;
     int length = methodName.length();
     if ((!(isGetter || isSetter || isIsser)) || (length <= expectedLength)) {
       throw new RuntimeException("Not a getter or setter: " + methodName);
@@ -5278,24 +5292,24 @@ public class GrouperUtil {
    * @param fieldType
    * @return the list
    */
-  public static <T> List<T> propertyList(Collection<?> collection, 
+  public static <T> List<T> propertyList(Collection<?> collection,
       String propertyName, @SuppressWarnings("unused") Class<T> fieldType) {
-    
+
     if (collection == null) {
       return null;
     }
-    
+
     List<T> list = new ArrayList<T>();
-    
+
     for (Object object : collection) {
       T value = (T)propertyValue(object, propertyName);
       list.add(value);
     }
-    
+
     return list;
-    
+
   }
-      
+
 
   /**
    * use reflection to get a property type based on getter or setter or field
@@ -5336,12 +5350,12 @@ public class GrouperUtil {
    * <pre>
    * make a new file in the name prefix dir.  If parent dir name is c:\temp
    * and namePrefix is grouperDdl and nameSuffix is sql, then the file will be:
-   * 
+   *
    * c:\temp\grouperDdl_20080721_13_45_43_123.sql
-   *  
+   *
    * If the file exists, it will make a new filename, and create the empty file, and return it
    * </pre>
-   *  
+   *
    * @param parentDirName can be blank for current dir
    * @param namePrefix the part before the date part
    * @param nameSuffix the last part of file name (can contain dot or will be the extension
@@ -5355,7 +5369,7 @@ public class GrouperUtil {
       if (!parentDirName.endsWith("/") && !parentDirName.endsWith("\\")) {
         parentDirName += File.separator;
       }
-      
+
       //make sure it exists and is a dir
       File parentDir = new File(parentDirName);
       if (!parentDir.exists()) {
@@ -5365,9 +5379,9 @@ public class GrouperUtil {
       } else {
         if (!parentDir.isDirectory()) {
           throw new RuntimeException("Parent dir is not a directory: " + parentDir.getAbsolutePath());
-        } 
+        }
       }
-      
+
     } else {
       //make it empty string so it will concatenate well
       parentDirName = "";
@@ -5376,7 +5390,7 @@ public class GrouperUtil {
     if (!nameSuffix.contains(".")) {
       nameSuffix = "." + nameSuffix;
     }
-    
+
     String fileName = parentDirName + namePrefix + "_" + fileNameFormat.format(new Date()) + nameSuffix;
     int dotLocation = fileName.lastIndexOf('.');
     String fileNamePre = fileName.substring(0,dotLocation);
@@ -5384,22 +5398,22 @@ public class GrouperUtil {
     File theFile = new File(fileName);
 
     int i;
-    
+
     for (i=0;i<1000;i++) {
-      
+
       if (!theFile.exists()) {
         break;
       }
-      
+
       fileName = fileNamePre + "_" + i + fileNamePost;
       theFile = new File(fileName);
-      
+
     }
-    
+
     if (i>=1000) {
       throw new RuntimeException("Cant find filename to create: " + fileName);
     }
-    
+
     if (createFile) {
       try {
         if (!theFile.createNewFile()) {
@@ -5432,7 +5446,7 @@ public class GrouperUtil {
   private static final String TIMESTAMP_XML_FORMAT = "yyyy/MM/dd HH:mm:ss.SSS";
 
   /**
-   * date object to a string: 
+   * date object to a string:
    * @param date
    * @return the long or null if the date was null or blank
    */
@@ -5445,7 +5459,7 @@ public class GrouperUtil {
   }
 
   /**
-   * date object to a string: 
+   * date object to a string:
    * @param theDate
    * @return the long or null if the date was null or blank
    */
@@ -5458,19 +5472,19 @@ public class GrouperUtil {
 
   /**
    * <pre>
-   * Convert an object to a java.util.Date.  allows, dates, null, blank, 
+   * Convert an object to a java.util.Date.  allows, dates, null, blank,
    * yyyymmdd or yyyymmdd hh24:mm:ss
    * or yyyy/MM/dd HH:mm:ss.SSS
    * </pre>
    * @param inputObject
    *          is the String or Date to convert
-   * 
+   *
    * @return the Date
    */
   public static Date dateValue(Object inputObject) {
     if (inputObject == null) {
       return null;
-    } 
+    }
 
     if (inputObject instanceof java.util.Date) {
       return (Date)inputObject;
@@ -5485,7 +5499,7 @@ public class GrouperUtil {
 
       try {
         if (input.length() == 8) {
-          
+
           return dateFormat().parse(input);
         }
         if (!contains(input, '.')) {
@@ -5516,7 +5530,7 @@ public class GrouperUtil {
         throw new RuntimeException(errorStart + toStringForLog(input));
       }
     }
-    
+
     throw new RuntimeException("Cannot convert Object to date : " + toStringForLog(inputObject));
   }
 
@@ -5524,32 +5538,32 @@ public class GrouperUtil {
    * match regex pattern yyyy-mm-dd or yyyy/mm/dd
    */
   private static Pattern datePattern_yyyy_mm_dd = Pattern.compile("^(\\d{4})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})$");
-  
+
   /**
    * match regex pattern dd-mon-yyyy or dd/mon/yyyy
    */
   private static Pattern datePattern_dd_mon_yyyy = Pattern.compile("^(\\d{1,2})[^\\d]+([a-zA-Z]{3,15})[^\\d]+(\\d{4})$");
-  
+
   /**
    * match regex pattern yyyy-mm-dd hh:mm:ss or yyyy/mm/dd hh:mm:ss
    */
   private static Pattern datePattern_yyyy_mm_dd_hhmmss = Pattern.compile("^(\\d{4})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})$");
-  
+
   /**
    * match regex pattern dd-mon-yyyy hh:mm:ss or dd/mon/yyyy hh:mm:ss
    */
   private static Pattern datePattern_dd_mon_yyyy_hhmmss = Pattern.compile("^(\\d{1,2})[^\\d]+([a-zA-Z]{3,15})[^\\d]+(\\d{4})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})$");
-  
+
   /**
    * match regex pattern yyyy-mm-dd hh:mm:ss.SSS or yyyy/mm/dd hh:mm:ss.SSS
    */
   private static Pattern datePattern_yyyy_mm_dd_hhmmss_SSS = Pattern.compile("^(\\d{4})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,3})$");
-  
+
   /**
    * match regex pattern dd-mon-yyyy hh:mm:ss.SSS or dd/mon/yyyy hh:mm:ss.SSS
    */
   private static Pattern datePattern_dd_mon_yyyy_hhmmss_SSS = Pattern.compile("^(\\d{1,2})[^\\d]+([a-zA-Z]{3,15})[^\\d]+(\\d{4})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,3})$");
-  
+
   /**
    * take as input:
    * yyyy/mm/dd
@@ -5563,13 +5577,13 @@ public class GrouperUtil {
    * @return the date
    */
   public static Date stringToDate2(String input) {
-    
+
     if (isBlank(input)) {
       return null;
     }
     input = input.trim();
     Matcher matcher = null;
-    
+
     int month = 0;
     int day = 0;
     int year = 0;
@@ -5577,7 +5591,7 @@ public class GrouperUtil {
     int minute = 0;
     int second = 0;
     int milli = 0;
-    
+
     boolean foundMatch = false;
 
     //yyyy/mm/dd
@@ -5590,7 +5604,7 @@ public class GrouperUtil {
         foundMatch = true;
       }
     }
-    
+
     //dd-mon-yyyy
     if (!foundMatch) {
       matcher = datePattern_dd_mon_yyyy.matcher(input);
@@ -5601,7 +5615,7 @@ public class GrouperUtil {
         foundMatch = true;
       }
     }
-    
+
     //yyyy/mm/dd hh:mm:ss
     if (!foundMatch) {
       matcher = datePattern_yyyy_mm_dd_hhmmss.matcher(input);
@@ -5613,9 +5627,9 @@ public class GrouperUtil {
         minute = intValue(matcher.group(5));
         second = intValue(matcher.group(6));
         foundMatch = true;
-      }      
+      }
     }
-    
+
     //dd-mon-yyyy hh:mm:ss
     if (!foundMatch) {
       matcher = datePattern_dd_mon_yyyy_hhmmss.matcher(input);
@@ -5629,7 +5643,7 @@ public class GrouperUtil {
         foundMatch = true;
       }
     }
-    
+
     //yyyy/mm/dd hh:mm:ss.SSS
     if (!foundMatch) {
       matcher = datePattern_yyyy_mm_dd_hhmmss_SSS.matcher(input);
@@ -5642,9 +5656,9 @@ public class GrouperUtil {
         second = intValue(matcher.group(6));
         milli = intValue(matcher.group(7));
         foundMatch = true;
-      }      
+      }
     }
-    
+
     //dd-mon-yyyy hh:mm:ss.SSS
     if (!foundMatch) {
       matcher = datePattern_dd_mon_yyyy_hhmmss_SSS.matcher(input);
@@ -5659,7 +5673,7 @@ public class GrouperUtil {
         foundMatch = true;
       }
     }
-    
+
     Calendar calendar = Calendar.getInstance();
     calendar.set(Calendar.YEAR, year);
     calendar.set(Calendar.MONTH, month-1);
@@ -5670,7 +5684,7 @@ public class GrouperUtil {
     calendar.set(Calendar.MILLISECOND, milli);
     return calendar.getTime();
   }
-  
+
   /**
    * convert a month string to an int (1 indexed).
    * e.g. if input is feb or Feb or february or February return 2
@@ -5678,63 +5692,63 @@ public class GrouperUtil {
    * @return the month
    */
   public static int monthInt(String mon) {
-    
+
     if (!isBlank(mon)) {
       mon = mon.toLowerCase();
-      
+
       if (equals(mon, "jan") || equals(mon, "january")) {
         return 1;
       }
-      
+
       if (equals(mon, "feb") || equals(mon, "february")) {
         return 2;
       }
-      
+
       if (equals(mon, "mar") || equals(mon, "march")) {
         return 3;
       }
-      
+
       if (equals(mon, "apr") || equals(mon, "april")) {
         return 4;
       }
-      
+
       if (equals(mon, "may")) {
         return 5;
       }
-      
+
       if (equals(mon, "jun") || equals(mon, "june")) {
         return 6;
       }
-      
+
       if (equals(mon, "jul") || equals(mon, "july")) {
         return 7;
       }
-      
+
       if (equals(mon, "aug") || equals(mon, "august")) {
         return 8;
       }
-      
+
       if (equals(mon, "sep") || equals(mon, "september")) {
         return 9;
       }
-      
+
       if (equals(mon, "oct") || equals(mon, "october")) {
         return 10;
       }
-      
+
       if (equals(mon, "nov") || equals(mon, "november")) {
         return 11;
       }
-      
+
       if (equals(mon, "dec") || equals(mon, "december")) {
         return 12;
       }
-      
+
     }
-    
+
     throw new RuntimeException("Invalid month: " + mon);
   }
-  
+
   /**
    * See if the input is null or if string, if it is empty or blank (whitespace)
    * @param input
@@ -5759,13 +5773,13 @@ public class GrouperUtil {
    * @return the object of that instance converted into something else
    */
   @SuppressWarnings("unchecked")
-  public static <T> T typeCast(Object value, Class<T> theClass, 
+  public static <T> T typeCast(Object value, Class<T> theClass,
       boolean convertNullToDefaultPrimitive, boolean useNewInstanceHooks) {
-    
+
     if (Object.class.equals(theClass)) {
       return (T)value;
     }
-    
+
     if (value==null) {
       if (convertNullToDefaultPrimitive && theClass.isPrimitive()) {
         if ( theClass == boolean.class ) {
@@ -5779,11 +5793,11 @@ public class GrouperUtil {
       }
       return null;
     }
-  
+
     if (theClass.isInstance(value)) {
       return (T)value;
     }
-    
+
     //if array, get the base class
     if (theClass.isArray() && theClass.getComponentType() != null) {
       theClass = (Class<T>)theClass.getComponentType();
@@ -5826,7 +5840,7 @@ public class GrouperUtil {
         //note, we could typecast this to fit whatever is there... right now this is used for annotation
         try {
           Constructor constructor = theClass.getConstructor(new Class[] {String.class} );
-          resultValue = constructor.newInstance(new Object[] {stringValue} );            
+          resultValue = constructor.newInstance(new Object[] {stringValue} );
         } catch (Exception e) {
           throw new RuntimeException("Cant find constructor with string for class: " + theClass);
         }
@@ -5834,21 +5848,21 @@ public class GrouperUtil {
     } else {
       throw new RuntimeException("Cannot convert from type: " + value.getClass() + " to type: " + theClass);
     }
-  
+
     return (T)resultValue;
   }
-  
+
   /**
    * see if a class is a scalar (not bean, not array or list, etc)
    * @param type
    * @return true if scalar
    */
   public static boolean isScalar(Class<?> type) {
-    
+
     if (type.isArray()) {
       return false;
     }
-    
+
     //definitely all primitives
     if (type.isPrimitive()) {
       return true;
@@ -5874,13 +5888,13 @@ public class GrouperUtil {
     //appears not to be a scalar
     return false;
   }
-  
-  
+
+
   /**
    * <pre>
    * Convert a string or object to a timestamp (could be string, date, timestamp, etc)
    * yyyymmdd
-   * or 
+   * or
    * yyyy/MM/dd
    * or
    * yyyy/MM/dd HH:mm:ss
@@ -5888,11 +5902,11 @@ public class GrouperUtil {
    * yyyy/MM/dd HH:mm:ss.SSS
    * or
    * yyyy/MM/dd HH:mm:ss.SSSSSS
-   * 
+   *
    * </pre>
-   * 
+   *
    * @param input
-   * @return the timestamp 
+   * @return the timestamp
    * @throws RuntimeException if invalid format
    */
   public static Timestamp toTimestamp(Object input) {
@@ -5915,10 +5929,10 @@ public class GrouperUtil {
 
   /**
    * convert an object to a string
-   * 
+   *
    * @param input
    *          is the object to convert
-   * 
+   *
    * @return the String conversion of the object
    */
   public static String stringValue(Object input) {
@@ -5991,7 +6005,7 @@ public class GrouperUtil {
 
   /**
    * convert a date to the standard string yyyymmdd
-   * @param date 
+   * @param date
    * @return the string value
    */
   public static String stringValue(java.util.Date date) {
@@ -5999,9 +6013,9 @@ public class GrouperUtil {
       if (date == null) {
         return null;
       }
-  
+
       String theString = dateFormat().format(date);
-  
+
       return theString;
     }
   }
@@ -6024,20 +6038,20 @@ public class GrouperUtil {
     }
     //maybe already a timestamp
     if (date instanceof Timestamp) {
-      return (Timestamp)date; 
+      return (Timestamp)date;
     }
     return new Timestamp(date.getTime());
   }
 
   /**
-   * return a date based on input, null safe.  Allow any of the three 
+   * return a date based on input, null safe.  Allow any of the three
    * formats:
    * yyyyMMdd
    * yyyy/MM/dd
    * yyyy/MM/dd HH:mm:ss
    * yyyy/MM/dd HH:mm:ss.SSS
    * yyyy/MM/dd HH:mm:ss.SSSSSS
-   * 
+   *
    * @param input
    * @return the millis, -1 for null
    */
@@ -6054,11 +6068,11 @@ public class GrouperUtil {
         input = "20991231";
       }
       if (input.length() == 8) {
-        
+
         return dateFormat().parse(input);
       }
       if (input.length() == 10) {
-        
+
         return dateFormat2().parse(input);
       }
       if (!contains(input, '.')) {
@@ -6094,7 +6108,7 @@ public class GrouperUtil {
    * start of error parsing messages
    */
   private static final String errorStart = "Invalid timestamp, please use any of the formats: "
-    + DATE_FORMAT + ", " + TIMESTAMP_FORMAT 
+    + DATE_FORMAT + ", " + TIMESTAMP_FORMAT
     + ", " + DATE_MINUTES_SECONDS_FORMAT + ": ";
 
   /**
@@ -6145,32 +6159,32 @@ public class GrouperUtil {
 
   /**
    * get the Double value of an object
-   * 
+   *
    * @param input
    *          is a number or String
-   * @param allowNullBlank used to default to false, if true, return null if nul inputted 
-   * 
+   * @param allowNullBlank used to default to false, if true, return null if nul inputted
+   *
    * @return the Double equivalent
    */
   public static Double doubleObjectValue(Object input, boolean allowNullBlank) {
-  
+
     if (input instanceof Double) {
       return (Double) input;
-    } 
-    
+    }
+
     if (allowNullBlank && isBlank(input)) {
       return null;
     }
-    
+
     return Double.valueOf(doubleValue(input));
   }
 
   /**
    * get the double value of an object
-   * 
+   *
    * @param input
    *          is a number or String
-   * 
+   *
    * @return the double equivalent
    */
   public static double doubleValue(Object input) {
@@ -6185,45 +6199,45 @@ public class GrouperUtil {
   }
 
   /**
-   * get the double value of an object, do not throw an 
+   * get the double value of an object, do not throw an
    * exception if there is an
    * error
-   * 
+   *
    * @param input
    *          is a number or String
-   * 
+   *
    * @return the double equivalent
    */
   public static double doubleValueNoError(Object input) {
-    if (input == null || (input instanceof String 
+    if (input == null || (input instanceof String
         && isBlank((String)input))) {
       return NOT_FOUND;
     }
-  
+
     try {
       return doubleValue(input);
     } catch (Exception e) {
       //no need to log here
     }
-  
+
     return NOT_FOUND;
   }
 
   /**
    * get the Float value of an object
-   * 
+   *
    * @param input
    *          is a number or String
    * @param allowNullBlank true if allow null or blank
-   * 
+   *
    * @return the Float equivalent
    */
   public static Float floatObjectValue(Object input, boolean allowNullBlank) {
-  
+
     if (input instanceof Float) {
       return (Float) input;
-    } 
-  
+    }
+
     if (allowNullBlank && isBlank(input)) {
       return null;
     }
@@ -6232,10 +6246,10 @@ public class GrouperUtil {
 
   /**
    * get the float value of an object
-   * 
+   *
    * @param input
    *          is a number or String
-   * 
+   *
    * @return the float equivalent
    */
   public static float floatValue(Object input) {
@@ -6252,14 +6266,14 @@ public class GrouperUtil {
   /**
    * get the float value of an object, do not throw an exception if there is an
    * error
-   * 
+   *
    * @param input
    *          is a number or String
-   * 
+   *
    * @return the float equivalent
    */
   public static float floatValueNoError(Object input) {
-    if (input == null || (input instanceof String 
+    if (input == null || (input instanceof String
         && isBlank((String)input))) {
       return NOT_FOUND;
     }
@@ -6268,29 +6282,29 @@ public class GrouperUtil {
     } catch (Exception e) {
       LOG.error(e);
     }
-  
+
     return NOT_FOUND;
   }
 
   /**
    * get the Integer value of an object
-   * 
+   *
    * @param input
    *          is a number or String
    * @param allowNullBlank true if convert null or blank to null
-   * 
+   *
    * @return the Integer equivalent
    */
   public static Integer intObjectValue(Object input, boolean allowNullBlank) {
-  
+
     if (input instanceof Integer) {
       return (Integer) input;
-    } 
-  
+    }
+
     if (allowNullBlank && isBlank(input)) {
       return null;
     }
-    
+
     return Integer.valueOf(intValue(input));
   }
 
@@ -6326,14 +6340,14 @@ public class GrouperUtil {
   /**
    * get the int value of an object, do not throw an exception if there is an
    * error
-   * 
+   *
    * @param input
    *          is a number or String
-   * 
+   *
    * @return the int equivalent
    */
   public static int intValueNoError(Object input) {
-    if (input == null || (input instanceof String 
+    if (input == null || (input instanceof String
         && isBlank((String)input))) {
       return NOT_FOUND;
     }
@@ -6342,7 +6356,7 @@ public class GrouperUtil {
     } catch (Exception e) {
       //no need to log here
     }
-  
+
     return NOT_FOUND;
   }
 
@@ -6350,7 +6364,7 @@ public class GrouperUtil {
   public static final int NOT_FOUND = -999999999;
 
   /**
-   * logger 
+   * logger
    */
   private static final Log LOG = getLog(GrouperUtil.class);
 
@@ -6361,23 +6375,23 @@ public class GrouperUtil {
 
   /**
    * get the Long value of an object
-   * 
+   *
    * @param input
    *          is a number or String
    * @param allowNullBlank true if null or blank converts to null
-   * 
+   *
    * @return the Long equivalent
    */
   public static Long longObjectValue(Object input, boolean allowNullBlank) {
-  
+
     if (input instanceof Long) {
       return (Long) input;
-    } 
-  
+    }
+
     if (allowNullBlank && isBlank(input)) {
       return null;
-    } 
-    
+    }
+
     return Long.valueOf(longValue(input));
   }
 
@@ -6413,14 +6427,14 @@ public class GrouperUtil {
   /**
    * get the long value of an object, do not throw an exception if there is an
    * error
-   * 
+   *
    * @param input
    *          is a number or String
-   * 
+   *
    * @return the long equivalent
    */
   public static long longValueNoError(Object input) {
-    if (input == null || (input instanceof String 
+    if (input == null || (input instanceof String
         && isBlank((String)input))) {
       return NOT_FOUND;
     }
@@ -6429,28 +6443,28 @@ public class GrouperUtil {
     } catch (Exception e) {
       //no need to log here
     }
-  
+
     return NOT_FOUND;
   }
 
   /**
    * get the Short value of an object.  converts null or blank to null
-   * 
+   *
    * @param input
    *          is a number or String
-   * 
+   *
    * @return the Long equivalent
    */
   public static Short shortObjectValue(Object input) {
-  
+
     if (input instanceof Short) {
       return (Short) input;
     }
-  
+
     if (isBlank(input)) {
       return null;
-    } 
-    
+    }
+
     return Short.valueOf(shortValue(input));
   }
 
@@ -6519,7 +6533,7 @@ public class GrouperUtil {
 
   /**
    * save a string into a file, file does not have to exist
-   * 
+   *
    * @param file
    *          is the file to save to
    * @param contents
@@ -6535,7 +6549,7 @@ public class GrouperUtil {
 
   /**
    * save a string into a file, file does not have to exist
-   * 
+   *
    * @param file
    *          is the file to save to
    * @param contents
@@ -6544,7 +6558,7 @@ public class GrouperUtil {
    * @param ignoreWhitespace true to ignore whitespace
    * @return true if contents were saved (thus different if param set)
    */
-  public static boolean saveStringIntoFile(File file, String contents, 
+  public static boolean saveStringIntoFile(File file, String contents,
       boolean onlyIfDifferentContents, boolean ignoreWhitespace) {
     if (onlyIfDifferentContents && file.exists()) {
       String fileContents = readFileIntoString(file);
@@ -6553,12 +6567,12 @@ public class GrouperUtil {
         compressedContents = replaceWhitespaceWithSpace(compressedContents);
         fileContents = replaceWhitespaceWithSpace(fileContents);
       }
-      
+
       //they are the same, dont worry about it
       if (equals(fileContents, compressedContents)) {
         return false;
       }
-  
+
     }
     saveStringIntoFile(file, contents);
     return true;
@@ -6594,11 +6608,11 @@ public class GrouperUtil {
   /**
    * @param file
    *          is the file to read into a string
-   * 
+   *
    * @return String
    */
   public static String readFileIntoString(File file) {
-  
+
     if (file == null) {
       return null;
     }
@@ -6612,7 +6626,7 @@ public class GrouperUtil {
   /**
    * @param resourceName is the string resource from classpath to read (e.g. grouper.properties)
    * @param allowNull is true if its ok if the resource is null or if it is not found or blank or whatever.
-   * 
+   *
    * @return String or null if allowed or RuntimeException if not allowed
    */
   public static String readResourceIntoString(String resourceName, boolean allowNull) {
@@ -6628,7 +6642,7 @@ public class GrouperUtil {
     if (url == null && allowNull) {
       return null;
     }
-    
+
     InputStream inputStream = null;
     StringWriter stringWriter = new StringWriter();
     try {
@@ -6688,7 +6702,7 @@ public class GrouperUtil {
     if (input == null) {
       return;
     }
-  
+
     try {
       input.close();
     } catch (IOException ioe) {
@@ -6704,7 +6718,7 @@ public class GrouperUtil {
     if (output == null) {
       return;
     }
-  
+
     try {
       output.close();
     } catch (IOException ioe) {
@@ -6721,7 +6735,7 @@ public class GrouperUtil {
     if (input == null) {
       return;
     }
-  
+
     try {
       input.close();
     } catch (IOException ioe) {
@@ -6808,10 +6822,10 @@ public class GrouperUtil {
   /**
    * this method takes a long (less than 62) and converts it to a 1 character
    * string (a-z, A-Z, 0-9)
-   * 
+   *
    * @param theLong
    *          is the long (less than 62) to convert to a 1 character string
-   * 
+   *
    * @return a one character string
    */
   public static String convertLongToChar(long theLong) {
@@ -6830,10 +6844,10 @@ public class GrouperUtil {
   /**
    * this method takes a long (less than 36) and converts it to a 1 character
    * string (A-Z, 0-9)
-   * 
+   *
    * @param theLong
    *          is the long (less than 36) to convert to a 1 character string
-   * 
+   *
    * @return a one character string
    */
   public static String convertLongToCharSmall(long theLong) {
@@ -6850,99 +6864,99 @@ public class GrouperUtil {
   /**
    * convert a long to a string by converting it to base 62 (26 lower, 26 upper,
    * 10 digits)
-   * 
+   *
    * @param theLong
    *          is the long to convert
-   * 
+   *
    * @return the String conversion of this
    */
   public static String convertLongToString(long theLong) {
     long quotient = theLong / 62;
     long remainder = theLong % 62;
-  
+
     if (quotient == 0) {
       return convertLongToChar(remainder);
     }
     StringBuffer result = new StringBuffer();
     result.append(convertLongToString(quotient));
     result.append(convertLongToChar(remainder));
-  
+
     return result.toString();
   }
 
   /**
    * convert a long to a string by converting it to base 36 (26 upper, 10
    * digits)
-   * 
+   *
    * @param theLong
    *          is the long to convert
-   * 
+   *
    * @return the String conversion of this
    */
   public static String convertLongToStringSmall(long theLong) {
     long quotient = theLong / 36;
     long remainder = theLong % 36;
-  
+
     if (quotient == 0) {
       return convertLongToCharSmall(remainder);
     }
     StringBuffer result = new StringBuffer();
     result.append(convertLongToStringSmall(quotient));
     result.append(convertLongToCharSmall(remainder));
-  
+
     return result.toString();
   }
 
   /**
    * increment a character (A-Z then 0-9)
-   * 
+   *
    * @param theChar
-   * 
+   *
    * @return the value
    */
   public static char incrementChar(char theChar) {
     if (theChar == 'Z') {
       return '0';
     }
-  
+
     if (theChar == '9') {
       return 'A';
     }
-  
+
     return ++theChar;
   }
 
   /**
    * Increment a string with A-Z and 0-9 (no lower case so case insensitive apps
    * like windows IE will still work)
-   * 
+   *
    * @param string
-   * 
+   *
    * @return the value
    */
   public static char[] incrementStringInt(char[] string) {
     if (string == null) {
       return string;
     }
-  
+
     //loop through the string backwards
     int i = 0;
-  
+
     for (i = string.length - 1; i >= 0; i--) {
       char inc = string[i];
       inc = incrementChar(inc);
       string[i] = inc;
-  
+
       if (inc != 'A') {
         break;
       }
     }
-  
+
     //if we are at 0, then it means we hit AAAAAAA (or more)
     if (i < 0) {
       return ("A" + new String(string)).toCharArray();
     }
-  
+
     return string;
   }
 
@@ -6959,7 +6973,7 @@ public class GrouperUtil {
    * cache properties
    */
   private static GrouperCache<File, Properties> propertiesFromFileCache = null;
-  
+
   /**
    * properties from File cache
    * @return cache
@@ -7001,7 +7015,7 @@ public class GrouperUtil {
    * cache properties
    */
   private static GrouperCache<String, Properties> propertiesFromUrlFailsafeCache = null;
-  
+
   /**
    * properties from url failsafe cache
    * @return cache
@@ -7020,27 +7034,27 @@ public class GrouperUtil {
 
   /** variable for testing */
   static int propertiesFromUrlHttpCount = 0;
-  
+
   /** variable for testing */
   static int propertiesFromUrlFailsafeGetCount = 0;
-  
+
   /** variable for testing */
   static boolean propertiesFromUrlFailForTest = false;
-  
+
   /**
    * this will get the properties from an external url.  It will cache these (failsafe),
    * and will escape them based on grouper's properties escaper (configurable)
    * @param urlString e.g. http://localhost:8090/grouper/test.properties
    * @param useCache if should cache for 2 minutes
    * @param useFailSafeCache if should use this cache for 1 day if the url cant connect
-   * @param grouperHtmlFilter 
+   * @param grouperHtmlFilter
    * @return the properties
    */
-  public static Properties propertiesFromUrl(String urlString, boolean useCache, 
+  public static Properties propertiesFromUrl(String urlString, boolean useCache,
       boolean useFailSafeCache, GrouperHtmlFilter grouperHtmlFilter) {
-    
+
     Properties properties = null;
-    
+
     if (useCache) {
       properties = propertiesFromUrlCache().get(urlString);
       if (properties != null) {
@@ -7051,7 +7065,7 @@ public class GrouperUtil {
         return properties;
       }
     }
-    
+
     InputStream inputStream = null;
     try {
       if (propertiesFromUrlFailForTest) {
@@ -7063,10 +7077,10 @@ public class GrouperUtil {
       properties = new Properties();
       inputStream = url.openConnection().getInputStream();
       properties.load(inputStream);
-      
+
       //for testing
       propertiesFromUrlHttpCount++;
-      
+
       if (grouperHtmlFilter != null) {
         for (Object key : properties.keySet()) {
           String value = (String)properties.get(key);
@@ -7083,12 +7097,12 @@ public class GrouperUtil {
       String error = "Problem with url: " + urlString;
       //always log since could have security problems with throwing exceptions
       LOG.error(error, e);
-      
+
       error = "Problem with url: " + StringUtils.abbreviate(urlString, 19);
-      
+
       if (!useFailSafeCache || properties == null) {
         throw new RuntimeException(error, e);
-      } 
+      }
       //just log if got from failsafe
       if (useCache) {
         propertiesFromUrlCache().put(urlString, properties);
@@ -7128,9 +7142,9 @@ public class GrouperUtil {
         return properties;
       }
     }
-    
+
     FileInputStream fileInputStream = null;
-    
+
     try {
       fileInputStream = new FileInputStream(file);
       properties = new Properties();
@@ -7138,31 +7152,31 @@ public class GrouperUtil {
     } catch (IOException ioe) {
       throw new RuntimeException("Problem with file: " + file, ioe);
     } finally {
-      
+
       GrouperUtil.closeQuietly(fileInputStream);
-      
+
     }
-    
+
     if (useCache) {
-      propertiesFromFileCache().put(file, properties);      
+      propertiesFromFileCache().put(file, properties);
     }
     return properties;
   }
-  
+
   /**
    * read properties from a resource, dont modify the properties returned since they are cached
    * @param resourceName
-   * @param useCache 
-   * @param exceptionIfNotExist 
+   * @param useCache
+   * @param exceptionIfNotExist
    * @return the properties or null if not exist
    */
-  public synchronized static Properties propertiesFromResourceName(String resourceName, boolean useCache, 
+  public synchronized static Properties propertiesFromResourceName(String resourceName, boolean useCache,
       boolean exceptionIfNotExist) {
 
     Properties properties = resourcePropertiesCache() == null ? null : resourcePropertiesCache().get(resourceName);
-    
+
     if (resourcePropertiesCache() == null || !useCache || resourcePropertiesCache().get(resourceName) == null) {
-  
+
       properties = new Properties();
 
       URL url = computeUrl(resourceName, true);
@@ -7185,7 +7199,7 @@ public class GrouperUtil {
     }
     //Hack; Gary 7th Nov 2008
     fixHibernateConnectionUrl(properties);
-    
+
     return properties;
   }
 
@@ -7193,32 +7207,32 @@ public class GrouperUtil {
    * do a case-insensitive matching
    * @param theEnumClass class of the enum
    * @param <E> generic type
-   * 
+   *
    * @param string
    * @param exceptionOnNotFound true if exception should be thrown on not found
    * @return the enum or null or exception if not found
    * @throws RuntimeException if there is a problem
    */
-  public static <E extends Enum<?>> E enumValueOfIgnoreCase(Class<E> theEnumClass, String string, 
+  public static <E extends Enum<?>> E enumValueOfIgnoreCase(Class<E> theEnumClass, String string,
       boolean exceptionOnNotFound) throws RuntimeException {
     return enumValueOfIgnoreCase(theEnumClass, string, exceptionOnNotFound, true);
   }
-    
+
 
   /**
    * do a case-insensitive matching
    * @param theEnumClass class of the enum
    * @param <E> generic type
-   * 
+   *
    * @param string
    * @param exceptionOnNotFound true if exception should be thrown on not found
    * @param exceptionIfInvalid if there is a string, but it is invalid, if should throw exception
    * @return the enum or null or exception if not found
    * @throws RuntimeException if there is a problem
    */
-  public static <E extends Enum<?>> E enumValueOfIgnoreCase(Class<E> theEnumClass, String string, 
+  public static <E extends Enum<?>> E enumValueOfIgnoreCase(Class<E> theEnumClass, String string,
       boolean exceptionOnNotFound, boolean exceptionIfInvalid) throws RuntimeException {
-    
+
     if (!exceptionOnNotFound && isBlank(string)) {
       return null;
     }
@@ -7237,7 +7251,7 @@ public class GrouperUtil {
       error.append(e.name()).append(", ");
     }
     throw new RuntimeException(error.toString());
-  
+
   }
 
   /**
@@ -7305,28 +7319,28 @@ public class GrouperUtil {
     }
     return trim(value);
   }
-  
+
   /**
    * get a boolean property, or the default if cant find
    * @param properties
    * @param propertyName
-   * @param defaultValue 
+   * @param defaultValue
    * @return the boolean
    */
   public static boolean propertiesValueBoolean(Properties properties,
       String propertyName, boolean defaultValue) {
     return propertiesValueBoolean(properties, null, propertyName, defaultValue);
   }
-  
+
   /**
    * get a boolean property, or the default if cant find
    * @param properties
    * @param overrideMap for testing to override properties
    * @param propertyName
-   * @param defaultValue 
+   * @param defaultValue
    * @return the boolean
    */
-  public static boolean propertiesValueBoolean(Properties properties, 
+  public static boolean propertiesValueBoolean(Properties properties,
       Map<String, String> overrideMap, String propertyName, boolean defaultValue) {
     return propertiesValueBoolean(properties, overrideMap, null, propertyName, defaultValue);
   }
@@ -7337,18 +7351,18 @@ public class GrouperUtil {
    * @param overrideMap for testing or threadlocal to override properties
    * @param overrideMap2 for testing or threadlocal to override properties
    * @param propertyName
-   * @param defaultValue 
+   * @param defaultValue
    * @return the boolean
    */
-  public static boolean propertiesValueBoolean(Properties properties, 
+  public static boolean propertiesValueBoolean(Properties properties,
       Map<String, String> overrideMap, Map<String, String> overrideMap2, String propertyName, boolean defaultValue) {
-    
-      
+
+
     String value = propertiesValue(properties, overrideMap, overrideMap2, propertyName);
     if (isBlank(value)) {
       return defaultValue;
     }
-    
+
     if ("true".equalsIgnoreCase(value)) {
       return true;
     }
@@ -7364,7 +7378,7 @@ public class GrouperUtil {
     throw new RuntimeException("Invalid boolean value: '" + value + "' for property: " + propertyName + " in properties file");
 
   }
-  
+
   /**
    * close a connection null safe and dont throw exception
    * @param connection
@@ -7429,21 +7443,21 @@ public class GrouperUtil {
    * @return the hostname
    */
   public static String hostname() {
-  
+
     if (isBlank(hostname)) {
-  
+
       //get the hostname
       hostname = "unknown";
       try {
         InetAddress addr = InetAddress.getLocalHost();
-  
+
         // Get hostname
         hostname = addr.getHostName();
       } catch (Exception e) {
         LOG.error("Cant find servers hostname: ", e);
       }
     }
-  
+
     return hostname;
   }
 
@@ -7527,24 +7541,24 @@ public class GrouperUtil {
     }
     //see what real length is
     int utfLength = input.length();
-    
+
     //see if not worth checking
     if (utfLength * 2 < requiredLength) {
       return input;
     }
-    
+
     //count how many non asciis
     int asciiLength = 0;
     for (int i=0;i<utfLength;i++) {
-      
+
       asciiLength++;
-      
+
       //keep count of non ascii chars
       if (!isAscii(input.charAt(i))) {
         asciiLength++;
       }
-      
-      //see if we are over 
+
+      //see if we are over
       if (asciiLength > requiredLength) {
         //do not include the current char
         return input.substring(0,i);
@@ -7574,7 +7588,7 @@ public class GrouperUtil {
   /**
    * if the input is a file, read string from file.  if not, or if disabled from grouper.properties, return the input
    * @param in
-   * @param disableExternalFileLookup 
+   * @param disableExternalFileLookup
    * @return the result
    */
   public static String readFromFileIfFile(String in, boolean disableExternalFileLookup) {
@@ -7585,7 +7599,7 @@ public class GrouperUtil {
     } else {
       theIn = replace(theIn, "/", "\\");
     }
-    
+
     //see if it is a file reference
     if (theIn.indexOf(File.separatorChar) != -1 && disableExternalFileLookup) {
       //read the contents of the file into a string
@@ -7593,7 +7607,7 @@ public class GrouperUtil {
       return theIn;
     }
     return in;
-  
+
   }
 
   /**
@@ -7612,9 +7626,9 @@ public class GrouperUtil {
       throw new RuntimeException("Should be a directory but is not: " + dir);
     }
   }
-  
+
   /**
-   * 
+   *
    * @param inPath
    * @return string
    */
@@ -7626,14 +7640,14 @@ public class GrouperUtil {
     if(!grouperHome.matches(".*?(\\\\|/)$")) {
       sep = File.separator;
     }
-    
+
     String outPath=grouperHome + sep + inPath;
-    
+
     return outPath;
   }
-  
+
   /**
-   * 
+   *
    * @param props
    */
   static void fixHibernateConnectionUrl(Properties props) {
@@ -7701,7 +7715,7 @@ public class GrouperUtil {
   }
 
   /**
-   * 
+   *
    * @param str
    * @return true if not blank
    */
@@ -8071,7 +8085,7 @@ public class GrouperUtil {
   //-----------------------------------------------------------------------
   /**
    * <p>Splits the provided text into an array, using whitespace as the
-   * separator, preserving all tokens, including empty tokens created by 
+   * separator, preserving all tokens, including empty tokens created by
    * adjacent separators. This is an alternative to using StringTokenizer.
    * Whitespace is defined by {@link Character#isWhitespace(char)}.</p>
    *
@@ -8134,7 +8148,7 @@ public class GrouperUtil {
   }
 
   /**
-   * Performs the logic for the <code>split</code> and 
+   * Performs the logic for the <code>split</code> and
    * <code>splitPreserveAllTokens</code> methods that do not return a
    * maximum array length.
    *
@@ -8181,7 +8195,7 @@ public class GrouperUtil {
   }
 
   /**
-   * <p>Splits the provided text into an array, separators specified, 
+   * <p>Splits the provided text into an array, separators specified,
    * preserving all tokens, including empty tokens created by adjacent
    * separators. This is an alternative to using StringTokenizer.</p>
    *
@@ -8219,7 +8233,7 @@ public class GrouperUtil {
 
   /**
    * <p>Splits the provided text into an array with a maximum length,
-   * separators specified, preserving all tokens, including empty tokens 
+   * separators specified, preserving all tokens, including empty tokens
    * created by adjacent separators.</p>
    *
    * <p>The separator is not included in the returned String array.
@@ -8258,8 +8272,8 @@ public class GrouperUtil {
   }
 
   /**
-   * Performs the logic for the <code>split</code> and 
-   * <code>splitPreserveAllTokens</code> methods that return a maximum array 
+   * Performs the logic for the <code>split</code> and
+   * <code>splitPreserveAllTokens</code> methods that return a maximum array
    * length.
    *
    * @param str  the String to parse, may be <code>null</code>
@@ -8673,7 +8687,7 @@ public class GrouperUtil {
     }
     return str.indexOf(searchStr) >= 0;
   }
-  
+
   /**
    * An empty immutable <code>String</code> array.
    */
@@ -8727,18 +8741,18 @@ public class GrouperUtil {
       }
       return sw.getBuffer().toString();
   }
-  
+
   /** true or false for if we know if this is a class or not */
   private static Map<String, Boolean> jexlKnowsIfClass = new HashMap<String, Boolean>();
-  
+
   /** class object for this string */
   private static Map<String, Class<?>> jexlClass = new HashMap<String, Class<?>>();
-  
+
   /** pattern to see if class or not */
   private static Pattern jexlClassPattern = Pattern.compile("^[a-zA-Z0-9_.]*\\.[A-Z][a-zA-Z0-9_]*$");
 
   /**
-   * 
+   *
    */
   private static class GrouperMapContext extends MapContext {
 
@@ -8751,20 +8765,20 @@ public class GrouperUtil {
       if (isBlank(name)) {
         return null;
       }
-      
+
       //see if fully qualified class
-      
+
       Boolean knowsIfClass = jexlKnowsIfClass.get(name);
-      
+
       //see if knows answer
       if (knowsIfClass != null) {
         //return class or null
         return jexlClass.get(name);
       }
-      
+
       //see if valid class
       if (jexlClassPattern.matcher(name).matches()) {
-        
+
         jexlKnowsIfClass.put(name, true);
         //try to load
         try {
@@ -8777,18 +8791,18 @@ public class GrouperUtil {
         }
       }
       return null;
-      
+
     }
-    
+
     /**
      * @see org.apache.commons.jexl2.MapContext#get(java.lang.String)
      */
     @Override
     public Object get(String name) {
-      
-      //see if registered      
+
+      //see if registered
       Object object = super.get(name);
-      
+
       if (object != null) {
         return object;
       }
@@ -8804,16 +8818,16 @@ public class GrouperUtil {
       if (superHas) {
         return true;
       }
-      
+
       return retrieveClass(name) != null;
-      
+
     }
-    
-    
-    
-    
+
+
+
+
   }
-  
+
   /**
    * substitute an EL for objects
    * @param stringToParse
@@ -8836,7 +8850,7 @@ public class GrouperUtil {
    */
   @SuppressWarnings("unchecked")
   @Deprecated
-  public static String substituteExpressionLanguage(String stringToParse, 
+  public static String substituteExpressionLanguage(String stringToParse,
       Map<String, Object> variableMap, boolean allowStaticClasses) {
     return substituteExpressionLanguage(stringToParse, variableMap, allowStaticClasses, false);
   }
@@ -8850,7 +8864,7 @@ public class GrouperUtil {
    * @return the string
    */
   @SuppressWarnings("unchecked")
-  public static String substituteExpressionLanguage(String stringToParse, 
+  public static String substituteExpressionLanguage(String stringToParse,
       Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent) {
     return substituteExpressionLanguage(stringToParse, variableMap, allowStaticClasses, silent, false);
   }
@@ -8866,7 +8880,7 @@ public class GrouperUtil {
    * @return the string
    */
   @SuppressWarnings("unchecked")
-  public static String substituteExpressionLanguage(String stringToParse, 
+  public static String substituteExpressionLanguage(String stringToParse,
       Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent, boolean lenient) {
     if (GrouperUtil.isBlank(stringToParse)) {
       return stringToParse;
@@ -8875,32 +8889,32 @@ public class GrouperUtil {
     Exception exception = null;
     try {
       JexlContext jc = allowStaticClasses ? new GrouperMapContext() : new MapContext();
-        
-      
-      
+
+
+
       int index = 0;
-      
+
       for (String key: variableMap.keySet()) {
         jc.set(key, variableMap.get(key));
       }
-      
+
       //allow utility methods
       jc.set("grouperUtil", new GrouperUtilElSafe());
       //if you add another one here, add it in the logs below
-      
+
       // matching ${ exp }   (non-greedy)
       Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
       Matcher matcher = pattern.matcher(stringToParse);
-      
+
       StringBuilder result = new StringBuilder();
-  
+
       //loop through and find each script
       while(matcher.find()) {
         result.append(stringToParse.substring(index, matcher.start()));
-        
+
         //here is the script inside the curlies
         String script = matcher.group(1);
-        
+
         index = matcher.end();
 
         if (script.contains("{")) {
@@ -8923,8 +8937,8 @@ public class GrouperUtil {
             }
           }
         }
-        
-        
+
+
         JexlEngine jexlEngine = new JexlEngine();
         jexlEngine.setSilent(silent);
         jexlEngine.setLenient(lenient);
@@ -8933,7 +8947,7 @@ public class GrouperUtil {
 
         //this is the result of the evaluation
         Object o = null;
-        
+
         try {
           o = e.evaluate(jc);
         } catch (JexlException je) {
@@ -8953,24 +8967,24 @@ public class GrouperUtil {
           }
           throw je;
         }
-          
+
         if (o == null) {
           LOG.warn("expression returned null: " + script + ", in pattern: '" + stringToParse + "', available variables are: "
               + GrouperUtil.toStringForLog(variableMap.keySet()));
         }
-        
+
         if (o instanceof RuntimeException) {
           throw (RuntimeException)o;
         }
-        
+
         result.append(o);
-        
+
       }
-      
+
       result.append(stringToParse.substring(index, stringToParse.length()));
       overallResult = result.toString();
       return overallResult;
-      
+
     } catch (HookVeto hv) {
       exception = hv;
       throw hv;
@@ -9009,7 +9023,7 @@ public class GrouperUtil {
   /**
    * <p>Returns the list of <code>Throwable</code> objects in the
    * exception chain.</p>
-   * 
+   *
    * <p>A throwable without cause will return an array containing
    * one element - the input throwable.
    * A throwable with one cause will return an array containing
@@ -9027,7 +9041,7 @@ public class GrouperUtil {
       }
       return (Throwable[]) list.toArray(new Throwable[list.size()]);
   }
-  
+
   /**
    * <p>The names of methods commonly used to access a wrapped exception.</p>
    */
@@ -9048,7 +9062,7 @@ public class GrouperUtil {
 
   /**
    * <p>Checks whether this <code>Throwable</code> class can store a cause.</p>
-   * 
+   *
    * <p>This method does <b>not</b> check whether it actually does store a cause.<p>
    *
    * @param throwable  the <code>Throwable</code> to examine, may be null
@@ -9107,12 +9121,12 @@ public class GrouperUtil {
       }
       THROWABLE_CAUSE_METHOD = getCauseMethod;
   }
-  
+
   /**
    * <p>Checks if the Throwable class has a <code>getCause</code> method.</p>
-   * 
+   *
    * <p>This is true for JDK 1.4 and above.</p>
-   * 
+   *
    * @return true if Throwable is nestable
    * @since 2.0
    */
@@ -9122,8 +9136,8 @@ public class GrouperUtil {
 
   /**
    * <p>Introspects the <code>Throwable</code> to obtain the cause.</p>
-   * 
-   * <p>The method searches for methods with specific names that return a 
+   *
+   * <p>The method searches for methods with specific names that return a
    * <code>Throwable</code> object. This will pick up most wrapping exceptions,
    * including those from JDK 1.4, and
    * {@link org.apache.commons.lang.exception.NestableException NestableException}.</p>
@@ -9139,10 +9153,10 @@ public class GrouperUtil {
    *  <li><code>getCausedByException()</code></li>
    *  <li><code>getNested()</code></li>
    * </ul>
-   * 
+   *
    * <p>In the absence of any such method, the object is inspected for a
    * <code>detail</code> field assignable to a <code>Throwable</code>.</p>
-   * 
+   *
    * <p>If none of the above is found, returns <code>null</code>.</p>
    *
    * @param throwable  the throwable to introspect for a cause, may be null
@@ -9156,13 +9170,13 @@ public class GrouperUtil {
 
   /**
    * <p>Introspects the <code>Throwable</code> to obtain the cause.</p>
-   * 
+   *
    * <ol>
    * <li>Try known exception types.</li>
    * <li>Try the supplied array of method names.</li>
    * <li>Try the field 'detail'.</li>
    * </ol>
-   * 
+   *
    * <p>A <code>null</code> set of method names means use the default set.
    * A <code>null</code> in the set of method names will be ignored.</p>
    *
@@ -9200,7 +9214,7 @@ public class GrouperUtil {
 
   /**
    * <p>Finds a <code>Throwable</code> by method name.</p>
-   * 
+   *
    * @param throwable  the exception to examine
    * @param methodName  the name of the method to find and invoke
    * @return the wrapped exception, or <code>null</code> if not found
@@ -9226,7 +9240,7 @@ public class GrouperUtil {
 
   /**
    * <p>Finds a <code>Throwable</code> by field name.</p>
-   * 
+   *
    * @param throwable  the exception to examine
    * @param fieldName  the name of the attribute to examine
    * @return the wrapped exception, or <code>null</code> if not found
@@ -9251,7 +9265,7 @@ public class GrouperUtil {
 
   /**
    * <p>Finds a <code>Throwable</code> for known types.</p>
-   * 
+   *
    * <p>Uses <code>instanceof</code> checks to examine the exception,
    * looking for well known types which could contain chained or
    * wrapped exceptions.</p>
@@ -9275,7 +9289,7 @@ public class GrouperUtil {
    * An empty immutable <code>Object</code> array.
    */
   public static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
-  
+
   /**
    * Copy bytes from an <code>InputStream</code> to chars on a
    * <code>Writer</code> using the default character encoding of the platform.
@@ -9313,15 +9327,15 @@ public class GrouperUtil {
       resourcePath = resourcePath.replace('.', '/') + ".class";
       URL url = computeUrl(resourcePath, true);
       String urlPath = url.toString();
-      
+
       if (urlPath.startsWith("jar:")) {
         urlPath = urlPath.substring(4);
       }
       if (urlPath.startsWith("file:")) {
         urlPath = urlPath.substring(5);
       }
-      urlPath = prefixOrSuffix(urlPath, "!", true); 
-  
+      urlPath = prefixOrSuffix(urlPath, "!", true);
+
       File file = new File(urlPath);
       if (urlPath.endsWith(".jar") && file.exists() && file.isFile()) {
         return file;
@@ -9337,9 +9351,9 @@ public class GrouperUtil {
 
   /**
    * strip the last slash (/ or \) from a string if it exists
-   * 
+   *
    * @param input
-   * 
+   *
    * @return input - the last / or \
    */
   public static String stripLastSlashIfExists(String input) {
@@ -9368,17 +9382,17 @@ public class GrouperUtil {
     if (dontMask) {
 
       System.out.print(prompt);
-      //  open up standard input 
-      BufferedReader br = new BufferedReader(new InputStreamReader(System.in)); 
+      //  open up standard input
+      BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-      //  read the username from the command-line; need to use try/catch with the 
-      //  readLine() method 
-      try { 
-         passwordString = br.readLine(); 
-      } catch (IOException ioe) { 
+      //  read the username from the command-line; need to use try/catch with the
+      //  readLine() method
+      try {
+         passwordString = br.readLine();
+      } catch (IOException ioe) {
          System.out.println("IO error! " + getFullStackTrace(ioe));
-         System.exit(1); 
-      } 
+         System.exit(1);
+      }
 
     } else {
       char password[] = null;
@@ -9388,16 +9402,16 @@ public class GrouperUtil {
         ioe.printStackTrace();
       }
       passwordString = String.valueOf(password);
-    } 
+    }
     return passwordString;
-    
+
   }
 
   /**
    * @param in stream to be used (e.g. System.in)
    * @param prompt The prompt to display to the user.
    * @return The password as entered by the user.
-   * @throws IOException 
+   * @throws IOException
    */
   public static final char[] retrievePasswordFromStdin(InputStream in, String prompt) throws IOException {
     MaskingThread maskingthread = new MaskingThread(prompt);
@@ -9461,7 +9475,7 @@ public class GrouperUtil {
     /** stop */
     private volatile boolean stop;
 
-    /** echo char, this doesnt work correctly, so make a space so people dont notice...  
+    /** echo char, this doesnt work correctly, so make a space so people dont notice...
      * prints out too many */
     private char echochar = ' ';
 
@@ -9514,12 +9528,12 @@ public class GrouperUtil {
   private static class DaemonThreadFactory implements ThreadFactory {
 
     /**
-     * 
+     *
      */
     private ThreadFactory threadFactory = Executors.defaultThreadFactory();
 
     /**
-     * 
+     *
      */
     @Override
     public Thread newThread(Runnable r) {
@@ -10117,7 +10131,7 @@ public class GrouperUtil {
     }
     return str.substring(pos + separator.length());
   }
-  
+
   /**
    * wait for input
    */
@@ -10142,7 +10156,7 @@ public class GrouperUtil {
    * @param propertyValues
    * @return the object(s) or empty list if cant find
    */
-  public static <T> T retrieveByProperties(Collection<T> collection, 
+  public static <T> T retrieveByProperties(Collection<T> collection,
       List<String> propertyNames, List<Object> propertyValues) {
     List<T> list = retrieveListByProperties(collection, propertyNames, propertyValues);
     return listPopOne(list);
@@ -10156,7 +10170,7 @@ public class GrouperUtil {
    * @param propertyValue
    * @return the object(s) or empty list if cant find
    */
-  public static <T> T retrieveByProperty(Collection<T> collection, 
+  public static <T> T retrieveByProperty(Collection<T> collection,
       String propertyName, Object propertyValue) {
     List<T> list = retrieveListByProperty(collection, propertyName, propertyValue);
     return listPopOne(list);
@@ -10167,13 +10181,13 @@ public class GrouperUtil {
    * So if the following stems exist:
    *   i2
    *   i2:test
-   *   
+   *
    * And you run getFirstParentStemOfName("i2:test:mystem:mygroup"),
    * you will get back the stem for i2:test.
-   * 
+   *
    * If you run getFirstParentStemOfName("test1:test2"),
    * you will get back the root stem.
-   * 
+   *
    * @param name
    * @return Stem
    */
@@ -10202,15 +10216,15 @@ public class GrouperUtil {
    * @param propertyValues
    * @return the object(s) or empty list if cant find
    */
-  public static <T> List<T> retrieveListByProperties(Collection<T> collection, 
+  public static <T> List<T> retrieveListByProperties(Collection<T> collection,
       List<String> propertyNames, List<Object> propertyValues) {
-    
+
     int fieldNameLength = propertyNames.size();
-    
+
     List<T> result = new ArrayList<T>();
-    
+
     assertion(fieldNameLength == propertyValues.size(), "Problem: " + fieldNameLength + " != " + propertyValues.size());
-  
+
     OUTER: for (T object : collection) {
       //loop through fields and values
       for (int i=0;i<fieldNameLength;i++) {
@@ -10221,7 +10235,7 @@ public class GrouperUtil {
       }
       //if we got this far, then its a match
       result.add(object);
-      
+
     }
     //if we havent found one, we done
     return result;
@@ -10231,15 +10245,15 @@ public class GrouperUtil {
    * find an object (or objects) in a collection based on fields
    * @param <T>
    * @param collection
-   * @param propertyName 
-   * @param propertyValue 
+   * @param propertyName
+   * @param propertyValue
    * @return the object(s) or empty list if cant find
    */
-  public static <T> List<T> retrieveListByProperty(Collection<T> collection, 
+  public static <T> List<T> retrieveListByProperty(Collection<T> collection,
       String propertyName, Object propertyValue) {
-    
+
     List<T> result = new ArrayList<T>();
-    
+
     OUTER: for (T object : collection) {
       if (object == null) {
         continue;
@@ -10250,7 +10264,7 @@ public class GrouperUtil {
       }
       //if we got this far, then its a match
       result.add(object);
-      
+
     }
     //if we havent found one, we done
     return result;
@@ -10273,7 +10287,7 @@ public class GrouperUtil {
     throw new RuntimeException("More than one object of type " + className(list.get(0))
         + " was returned when only one was expected. (size:" + size +")" );
   }
-  
+
   /**
    * Return the zero element of the set, if it exists, null if the list is empty.
    * If there is more than one element in the list, an exception is thrown.
@@ -10291,7 +10305,7 @@ public class GrouperUtil {
     throw new RuntimeException("More than one object of type " + className(set.iterator().next())
         + " was returned when only one was expected. (size:" + size +")" );
   }
-  
+
   /**
    * Return the zero element of the list, if it exists, null if the list is empty.
    * If there is more than one element in the list, an exception is thrown.
@@ -10311,7 +10325,7 @@ public class GrouperUtil {
     }
     return collection.iterator().next();
   }
-  
+
   /** array for converting HTML to string */
   private static final String[] XML_SEARCH_NO_SINGLE = new String[]{"&","<",">","\""};
 
@@ -10319,11 +10333,11 @@ public class GrouperUtil {
   private static final String[] XML_REPLACE_NO_SINGLE = new String[]{"&amp;","&lt;","&gt;","&quot;"};
   /**
    * Convert an XML string to HTML to display on the screen
-   * 
+   *
    * @param input
    *          is the XML to convert
    * @param isEscape true to escape chars, false to unescape
-   * 
+   *
    * @return the HTML converted string
    */
   public static String xmlEscape(String input, boolean isEscape) {
@@ -10334,7 +10348,7 @@ public class GrouperUtil {
   }
 
   /**
-   * 
+   *
    * @param writer
    * @param attributeName
    * @param attributeValue
@@ -10358,17 +10372,17 @@ public class GrouperUtil {
    * @param stringSubstituteMap
    * @return if altered or not
    */
-  public static boolean substituteStrings(Map<String, String> stringSubstituteMap, 
+  public static boolean substituteStrings(Map<String, String> stringSubstituteMap,
       Object object) {
-  
+
     Set<String> fieldNames = GrouperUtil.stringFieldNames(object.getClass());
-  
+
     boolean altered = false;
-    
+
     //go through all the fields in the object
     for (String fieldName : fieldNames) {
       String value = (String)fieldValue(object, fieldName);
-  
+
       //see if the value is a member id which has not been exported
       if (!StringUtils.isBlank(value) && stringSubstituteMap.containsKey(value)) {
         //assign the substitution
@@ -10389,13 +10403,13 @@ public class GrouperUtil {
    * @return the set of field names
    */
   public static Set<String> stringFieldNames(Class<?> theClass) {
-    
+
     if (!stringFieldNames.containsKey(theClass)) {
       stringFieldNames.put(theClass, fieldNames(theClass, String.class, false));
     }
     return stringFieldNames.get(theClass);
   }
-  
+
     /**
    * if theString is not blank, apppend it to the result, and if appending,
    * @param result to append to
@@ -10403,7 +10417,7 @@ public class GrouperUtil {
    * @param theStringOrArrayOrList is a string, array, list, or set of strings
    * @return true if something appended, false if not
    */
-  public static boolean appendIfNotBlank(StringBuilder result, 
+  public static boolean appendIfNotBlank(StringBuilder result,
       Object theStringOrArrayOrList) {
     return appendIfNotBlank(result, null, theStringOrArrayOrList, null);
   }
@@ -10418,10 +10432,10 @@ public class GrouperUtil {
    * @return the resulting string or blank if nothing
    */
   public static String appendIfNotBlankString(String string, String separator, String suffix) {
-    
+
     string = StringUtils.trimToEmpty(string);
     suffix = StringUtils.trimToEmpty(suffix);
-    
+
     boolean stringIsBlank = StringUtils.isBlank(string);
     boolean suffixIsBlank = StringUtils.isBlank(suffix);
 
@@ -10432,15 +10446,15 @@ public class GrouperUtil {
     if (stringIsBlank) {
       return suffix;
     }
-    
+
     if (suffixIsBlank) {
       return string;
     }
 
     return string + separator + suffix;
-    
+
   }
-  
+
   /**
    * if theString is not Blank, apppend it to the result, and if appending,
    * add a prefix (if not null)
@@ -10449,7 +10463,7 @@ public class GrouperUtil {
    * @param theStringOrArrayOrList is a string, array, list, or set of strings
    * @return true if something appended, false if not
    */
-  public static boolean appendIfNotBlank(StringBuilder result, 
+  public static boolean appendIfNotBlank(StringBuilder result,
       String prefix, Object theStringOrArrayOrList) {
     return appendIfNotBlank(result, prefix, theStringOrArrayOrList, null);
   }
@@ -10463,7 +10477,7 @@ public class GrouperUtil {
    * @param suffix
    * @return true if anything appended, false if not
    */
-  public static boolean appendIfNotBlank(StringBuilder result, 
+  public static boolean appendIfNotBlank(StringBuilder result,
       String prefix, Object theStringOrArrayOrList, String suffix) {
     return appendIfNotBlank(result, prefix, null, theStringOrArrayOrList, suffix);
   }
@@ -10478,22 +10492,22 @@ public class GrouperUtil {
    * @param suffix
    * @return true if anything appended, false if not
    */
-  public static boolean appendIfNotBlank(StringBuilder result, 
+  public static boolean appendIfNotBlank(StringBuilder result,
       String prefix, String prefixIfNotBlank, Object theStringOrArrayOrList, String suffix) {
     int length = length(theStringOrArrayOrList);
     Iterator iterator = iterator(theStringOrArrayOrList);
     boolean appendedAnything = false;
-    
+
     //these could be appending spaces, so only check to see if they are empty
     boolean hasPrefix = !StringUtils.isEmpty(prefix);
     boolean hasPrefixIfNotBlank = !StringUtils.isEmpty(prefixIfNotBlank);
     boolean hasSuffix = !StringUtils.isEmpty(suffix);
     for (int i=0;i<length;i++) {
       String  current = (String) next(theStringOrArrayOrList, iterator, i);
-      
+
       //only append if not empty
       if (!StringUtils.isBlank(current)) {
-        
+
         //keeping track if anything changed
         appendedAnything = true;
         if (hasPrefix) {
@@ -10518,7 +10532,7 @@ public class GrouperUtil {
      * @param theStringOrArrayOrList is a string, array, list, or set of strings
      * @return true if something appended, false if not
      */
-    public static boolean appendIfNotEmpty(StringBuilder result, 
+    public static boolean appendIfNotEmpty(StringBuilder result,
         Object theStringOrArrayOrList) {
       return appendIfNotEmpty(result, null, theStringOrArrayOrList, null);
   }
@@ -10531,7 +10545,7 @@ public class GrouperUtil {
    * @param theStringOrArrayOrList is a string, array, list, or set of strings
    * @return true if something appended, false if not
    */
-  public static boolean appendIfNotEmpty(StringBuilder result, 
+  public static boolean appendIfNotEmpty(StringBuilder result,
       String prefix, Object theStringOrArrayOrList) {
     return appendIfNotEmpty(result, prefix, theStringOrArrayOrList, null);
   }
@@ -10545,7 +10559,7 @@ public class GrouperUtil {
    * @param suffix
    * @return true if anything appended, false if not
    */
-  public static boolean appendIfNotEmpty(StringBuilder result, 
+  public static boolean appendIfNotEmpty(StringBuilder result,
       String prefix, Object theStringOrArrayOrList, String suffix) {
     return appendIfNotEmpty(result, prefix, null, theStringOrArrayOrList, suffix);
   }
@@ -10560,7 +10574,7 @@ public class GrouperUtil {
    * @param suffix
    * @return true if anything appended, false if not
    */
-  public static boolean appendIfNotEmpty(StringBuilder result, 
+  public static boolean appendIfNotEmpty(StringBuilder result,
       String prefix, String prefixIfNotEmpty, Object theStringOrArrayOrList, String suffix) {
     int length = length(theStringOrArrayOrList);
     Iterator iterator = iterator(theStringOrArrayOrList);
@@ -10570,10 +10584,10 @@ public class GrouperUtil {
     boolean hasSuffix = !StringUtils.isEmpty(suffix);
     for (int i=0;i<length;i++) {
       String  current = (String) next(theStringOrArrayOrList, iterator, i);
-      
+
       //only append if not empty
       if (!StringUtils.isEmpty(current)) {
-        
+
         //keeping track if anything changed
         appendedAnything = true;
         if (hasPrefix) {
@@ -10590,15 +10604,15 @@ public class GrouperUtil {
     }
     return appendedAnything;
   }
- 
+
   /**
    * <p>Find the index of the given object in the array.</p>
    *
    * <p>This method returns <code>-1</code> if <code>null</code> array input.</p>
-   * 
+   *
    * @param array  the array to search through for the object, may be <code>null</code>
    * @param objectToFind  the object to find, may be <code>null</code>
-   * @return the index of the object within the array, 
+   * @return the index of the object within the array,
    *  <code>-1</code> if not found or <code>null</code> array input
    */
   public static int indexOf(Object[] array, Object objectToFind) {
@@ -10609,7 +10623,7 @@ public class GrouperUtil {
    * <p>Checks if the object is in the given array.</p>
    *
    * <p>The method returns <code>false</code> if a <code>null</code> array is passed in.</p>
-   * 
+   *
    * @param array  the array to search through
    * @param objectToFind  the object to find
    * @return <code>true</code> if the array contains the object
@@ -10625,7 +10639,7 @@ public class GrouperUtil {
    *
    * <p>A negative startIndex is treated as zero. A startIndex larger than the array
    * length will return <code>-1</code>.</p>
-   * 
+   *
    * @param array  the array to search through for the object, may be <code>null</code>
    * @param objectToFind  the object to find, may be <code>null</code>
    * @param startIndex  the index to start searching at
@@ -10672,15 +10686,15 @@ public class GrouperUtil {
     throw new RuntimeException("More than one object of type " + className(array[0])
         + " was returned when only one was expected. (size:" + size +")" );
   }
-  
+
   /**
-   * Note, this is 
+   * Note, this is
    * web service format string
    */
   private static final String WS_DATE_FORMAT = "yyyy/MM/dd HH:mm:ss.SSS";
 
   /**
-   * Note, this is 
+   * Note, this is
    * web service format string
    */
   private static final String WS_DATE_FORMAT2 = "yyyy/MM/dd_HH:mm:ss.SSS";
@@ -10688,7 +10702,7 @@ public class GrouperUtil {
   /**
    * convert a date to a string using the standard web service pattern
    * yyyy/MM/dd HH:mm:ss.SSS Note that HH is 0-23
-   * 
+   *
    * @param date
    * @return the string, or null if the date is null
    */
@@ -10703,7 +10717,7 @@ public class GrouperUtil {
   /**
    * convert a string to a date using the standard web service pattern Note
    * that HH is 0-23
-   * 
+   *
    * @param dateString
    * @return the string, or null if the date was null
    */
@@ -10733,7 +10747,7 @@ public class GrouperUtil {
     if (values == null || values.length == 0) {
       return null;
     }
-    
+
     Long maxValue = null;
     for (int i = 0; i < values.length; i++) {
       if (values[i] != null) {
@@ -10742,7 +10756,7 @@ public class GrouperUtil {
         }
       }
     }
-    
+
     return maxValue;
   }
 
@@ -10754,7 +10768,7 @@ public class GrouperUtil {
     if (values == null || values.length == 0) {
       return null;
     }
-    
+
     Long minValue = null;
     for (int i = 0; i < values.length; i++) {
       if (values[i] != null) {
@@ -10763,13 +10777,13 @@ public class GrouperUtil {
         }
       }
     }
-    
+
     return minValue;
   }
 
   /**
    * override map for properties in thread local to be used in a web server or the like, based on property file name
-   * @param propertiesFileName 
+   * @param propertiesFileName
    * @return the override map
    */
   public static Map<String, String> propertiesThreadLocalOverrideMap(String propertiesFileName) {
@@ -10791,7 +10805,7 @@ public class GrouperUtil {
    * start, optional space, open paren, stuff inside, close parent, optional space, not space, optional space
    */
   private static Pattern typeCastTypePattern = Pattern.compile("^\\s*\\((.+)\\)\\s*([^\\s]+)\\s*$");
-  
+
   /**
    * process a string / string map and convert the values to a string/object map.
    * @param limitEnvVars if processing limits, pass in a map of limits.  The name is the
@@ -10803,17 +10817,17 @@ public class GrouperUtil {
    * @return the map of string to object
    */
   public static Map<String, Object> typeCastStringStringMap(Map<String, Object> limitEnvVars) {
-    
+
     Map<String, Object> result = new LinkedHashMap<String, Object>();
-    
+
     if (GrouperUtil.length(limitEnvVars) == 0) {
       return result;
     }
-    
+
     Matcher matcher = null;
-    
+
     for (String key : limitEnvVars.keySet()) {
-      
+
       Object value = limitEnvVars.get(key);
       matcher = typeCastTypePattern.matcher(key);
       if (value instanceof String && matcher.matches()) {
@@ -10844,16 +10858,16 @@ public class GrouperUtil {
           throw new RuntimeException("Cannot convert value to " + key + ", " + type + ", " + valueOriginal, re);
         }
       }
-      
+
       result.put(key, value);
-      
+
     }
     return result;
   }
 
   /**
    * see if an ip address is on a network
-   * 
+   *
    * @param ipString
    *          is the ip address to check
    * @param networkIpString
@@ -10870,16 +10884,16 @@ public class GrouperUtil {
     }
     int ip = ipInt(ipString);
     int networkIp = ipInt(networkIpString);
-  
+
     ip = ipReadyForAnd(ip, mask);
     networkIp = ipReadyForAnd(networkIp, mask);
-  
+
     return ip == networkIp;
   }
 
   /**
    * see if an ip address is on a network
-   * 
+   *
    * @param ipString
    *          is the ip address to check
    * @param networkIpStrings
@@ -10887,31 +10901,31 @@ public class GrouperUtil {
    * @return boolean
    */
   public static boolean ipOnNetworks(String ipString, String networkIpStrings) {
-    
+
     String[] networkIpStringsArray = splitTrim(networkIpStrings, ",");
-    
+
     //check each one
     for (String networkIpString : networkIpStringsArray) {
-      
+
       if (!contains(networkIpString, "/")) {
         throw new RuntimeException("String must contain slash and CIDR network bits, e.g. 1.2.3.4/14");
       }
       //get network part:
       String network = prefixOrSuffix(networkIpString, "/", true);
       network = trim(network);
-      
+
       String mask = prefixOrSuffix(networkIpString, "/", false);
       mask = trim(mask);
       int maskInt = -1;
-      
+
       maskInt = Integer.parseInt(mask);
-      
+
       //if on the network, then all good
       if (ipOnNetwork(ipString, network, maskInt)) {
         return true;
       }
-      
-      
+
+
     }
     return false;
   }
@@ -10938,35 +10952,35 @@ public class GrouperUtil {
     int block2;
     int block3;
     int block4;
-  
+
     try {
       int periodIndex = ip.indexOf('.');
       String blockString = ip.substring(0, periodIndex);
       block1 = Integer.parseInt(blockString);
-  
+
       //split it up for 2^24 since it does the math wrong if you dont
       int mathPow = (int) Math.pow(2, 24);
       block1 *= mathPow;
-  
+
       int oldPeriodIndex = periodIndex;
-  
+
       periodIndex = ip.indexOf('.', periodIndex + 1);
       blockString = ip.substring(oldPeriodIndex + 1, periodIndex);
       block2 = Integer.parseInt(blockString);
       block2 *= Math.pow(2, 16);
       oldPeriodIndex = periodIndex;
-  
+
       periodIndex = ip.indexOf('.', periodIndex + 1);
       blockString = ip.substring(oldPeriodIndex + 1, periodIndex);
       block3 = Integer.parseInt(blockString);
       block3 *= Math.pow(2, 8);
-  
+
       blockString = ip.substring(periodIndex + 1, ip.length());
       block4 = Integer.parseInt(blockString);
     } catch (NumberFormatException nfe) {
       throw new RuntimeException("Could not parse the ipaddress: " + ip);
     }
-  
+
     return block1 + block2 + block3 + block4;
   }
 
@@ -10974,16 +10988,16 @@ public class GrouperUtil {
    * get the set of methods
    * @param theClass
    * @param methodName
-   * @param superclassToStopAt 
-   * @param includeSuperclassToStopAt 
+   * @param superclassToStopAt
+   * @param includeSuperclassToStopAt
    * @param includeStaticMethods
-   * @param markerAnnotation 
-   * @param includeAnnotation 
+   * @param markerAnnotation
+   * @param includeAnnotation
    * @param methodSet
    */
-  public static void methodsByNameHelper(Class<?> theClass, String methodName, Class<?> superclassToStopAt, 
+  public static void methodsByNameHelper(Class<?> theClass, String methodName, Class<?> superclassToStopAt,
       boolean includeSuperclassToStopAt,
-      boolean includeStaticMethods, Class<? extends Annotation> markerAnnotation, 
+      boolean includeStaticMethods, Class<? extends Annotation> markerAnnotation,
       boolean includeAnnotation, Set<Method> methodSet) {
     theClass = unenhanceClass(theClass);
     Method[] methods = theClass.getDeclaredMethods();
@@ -11020,7 +11034,7 @@ public class GrouperUtil {
     methodsByNameHelper(superclass, methodName, superclassToStopAt,
         includeSuperclassToStopAt, includeStaticMethods,
         markerAnnotation, includeAnnotation, methodSet);
-    
+
   }
 
   /**
@@ -11033,42 +11047,42 @@ public class GrouperUtil {
    */
   public static Object callMethodWithMoreParams(Object instance, Class<?> theType, String methodName, Object[] params) {
     Method method = methodByName(theType, methodName, Object.class, false, instance == null ? true : false, true);
-    
+
     int paramsSize = length(params);
-    
+
     Class<?>[] methodParamTypes = method.getParameterTypes();
-    
+
     int methodParamsSize = length(methodParamTypes);
     if (methodParamsSize < paramsSize) {
-      throw new RuntimeException("Problem marshaling between Grouper versions... why is method params " 
+      throw new RuntimeException("Problem marshaling between Grouper versions... why is method params "
           + methodParamsSize + " less than args? " + paramsSize + " for method: " + method);
     }
-    
+
     //lets see if the params match up, as many as there are
     for (int i=0;i<paramsSize;i++) {
       Class<?> methodParamClass = methodParamTypes[i];
-      
+
       //make sure assignable
       if (methodParamTypes[i].isPrimitive() && params[i] == null) {
         throw new RuntimeException("Trying to call method: " + methodName + " on class: " + (instance == null ? null : instance.getClass())
             + " and arg index: " + i + " is null: but should be a primitive: " + methodParamTypes[i].getName());
       }
-        
-      if (params[i] != null && !(methodParamTypes[i].isAssignableFrom(params[i].getClass()))) {  
+
+      if (params[i] != null && !(methodParamTypes[i].isAssignableFrom(params[i].getClass()))) {
         throw new RuntimeException("Trying to call method: " + methodName + " on class: " + (instance == null ? null : instance.getClass())
             + " and arg index: " + i + " is of type: " + methodParamClass + ", but trying to pass: " + params[i].getClass());
       }
-      
+
     }
-    
+
     Object[] methodArgs = new Object[methodParamsSize];
-    
+
     //copy the args, the rest are null
     if (paramsSize > 0) {
       System.arraycopy(params, 0, methodArgs, 0, params.length);
-      
+
     }
-    
+
     //we are all good, just pass null for the extra methods
     try {
       return method.invoke(instance, methodArgs);
@@ -11095,12 +11109,12 @@ public class GrouperUtil {
    * @return the object in the new version or null if input null or new version not found
    */
   public static Object changeToVersionHelper(Object input, String newPackage, int timeToLive) {
-    
-    
+
+
     if (input == null) {
       return null;
     }
-  
+
     //if we are a string, or stringbuilder or whatever, just return it
     if (!input.getClass().isArray() && StringUtils.equals("java.lang", input.getClass().getPackage().getName())) {
       //lets clone, not sure why...
@@ -11109,12 +11123,12 @@ public class GrouperUtil {
       }
       return input;
     }
-    
+
     //lets get the input class
     Class inputClass = input.getClass();
-    
+
     int interestingLogFields = 0;
-    
+
     //if we are an array of strings, clone and return it
     int inputArrayLength = inputClass.isArray() ? length(input) : -1;
     if (inputClass.isArray() && String.class.equals(inputClass.getComponentType())) {
@@ -11123,29 +11137,29 @@ public class GrouperUtil {
       System.arraycopy(input, 0, result, 0, result.length);
       return result;
     }
-    
+
     //why would be have a java lang array at this point?
     if (input.getClass().getName().startsWith("java.lang") && input.getClass().isArray()) {
       throw new RuntimeException("Not expecting class: " + input.getClass());
     }
-    
+
     StringBuilder logMessage = LOG.isDebugEnabled() ? new StringBuilder() : null;
-    
+
     if (logMessage != null) {
       logMessage.append("class: ").append(inputClass.getSimpleName()).append(", ");
     }
-    
+
     if (timeToLive-- < 0) {
       throw new RuntimeException("Circular reference!");
     }
-    
+
     //new class
     try {
-  
+
       Object result = null;
-  
+
       Class<?> outputClass = null;
-      String outputClassName = newPackage + "." + (inputClass.isArray() ? 
+      String outputClassName = newPackage + "." + (inputClass.isArray() ?
           inputClass.getComponentType().getSimpleName() : inputClass.getSimpleName());
       try {
         outputClass = forName(outputClassName);
@@ -11160,41 +11174,41 @@ public class GrouperUtil {
         //let this be handled below
         throw re;
       }
-  
-  
-  
+
+
+
       //if we are an array of objects, do that
       if (inputClass.isArray()) {
         Object array = Array.newInstance(outputClass, inputArrayLength);
         for (int i=0;i<inputArrayLength;i++) {
-          
+
           Object inputElement = Array.get(input, i);
           Object outputElement = changeToVersionHelper(inputElement, newPackage, timeToLive);
           Array.set(array, i, outputElement);
-          
+
         }
         return array;
       }
-      
-      
+
+
       //get instance
       result = newInstance(outputClass);
-  
+
       //get all fields in the input
       Set<Field> inputFields = fields(inputClass, Object.class, null, false, false, false, null, false);
       Set<Field> outputFields = fields(outputClass, Object.class, null, false, false, false, null, false);
-      
+
       Map<String, Field> inputFieldMap = new HashMap<String, Field>();
-      
+
       for (Field field : nonNull(inputFields)) {
         inputFieldMap.put(field.getName(), field);
       }
-      
+
       //see which ones match
       for (Field outputField : nonNull(outputFields)) {
-        
+
         Field inputField = inputFieldMap.get(outputField.getName());
-        
+
         if (inputField == null) {
           if (logMessage != null) {
             interestingLogFields++;
@@ -11204,17 +11218,17 @@ public class GrouperUtil {
         }
         //take it out of the map so we know which ones are left
         inputFieldMap.remove(inputField.getName());
-        
+
         Object inputFieldObject = fieldValue(inputField, input);
-        
+
         //lets convert that field
         Object outputFieldObject = changeToVersionHelper(inputFieldObject, newPackage, timeToLive);
-        
+
         //this is ok
         if (outputFieldObject == null) {
           continue;
         }
-        
+
         try {
           assignField(outputField, result, outputFieldObject, true, false);
         } catch (RuntimeException re) {
@@ -11229,12 +11243,12 @@ public class GrouperUtil {
           logMessage.append("field not found output: ").append(inputFieldName).append(", ");
           interestingLogFields++;
         }
-        
+
         if (interestingLogFields > 0) {
           LOG.debug(logMessage.toString());
         }
-      }    
-      
+      }
+
       return result;
     } catch (RuntimeException re) {
       if (logMessage != null) {
@@ -11243,26 +11257,26 @@ public class GrouperUtil {
       }
       throw re;
     }
-    
+
   }
 
   /**
-   * 
+   *
    */
   public static final String JAVA_IO_TMPDIR = "java.io.tmpdir";
-  
+
   /** original tmp dir */
   private static final String ORIGINAL_TMP_DIR = System.getProperty(JAVA_IO_TMPDIR);
 
   /** log it once */
   private static boolean loggedTempDir = false;
-  
+
   /**
    * return the temp dir, either what is in the java env var, or something in the grouper conf
    * @return the temp dir
    */
   public static String tmpDir() {
-    
+
     String tmpDir = null;
 
     tmpDir = GrouperConfig.retrieveConfig().propertyValueString("grouper.tmp.dir");
@@ -11282,7 +11296,7 @@ public class GrouperUtil {
     }
     return tmpDir;
   }
- 
+
   /**
    * null safe convert collection to list
    * @param <T>
@@ -11299,11 +11313,11 @@ public class GrouperUtil {
   private static ExecutorService executorService = Executors.newCachedThreadPool(new DaemonThreadFactory());
 
   /**
-   * 
+   *
    * @return executor service
    */
   public static ExecutorService retrieveExecutorService() {
     return executorService;
   }
-  
+
 }
