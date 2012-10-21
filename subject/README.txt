@@ -1,6 +1,6 @@
 
-The *Subject* API is a technology developed jointly by the Signet and Grouper
-Projects to integrate a java application with a site's existing Identity
+The *Subject* API is a technology developed by the Grouper
+Project to integrate a java application with a site's existing Identity
 Management operations. It enables any type of object whose identity is being
 managed - person, group, application, computer, etc - to be presented to that
 application without requiring the application to be specifically designed for
@@ -55,10 +55,10 @@ Removes generated build, test, distribution and javadoc files.
 
 # Reporting Problems
 
-TBD
+https://bugs.internet2.edu/jira/browse/GRP
 
 ---
 
 # Getting Subject
 
-Read-only anonymous access to the Subject SVN repository
+Grouper download site

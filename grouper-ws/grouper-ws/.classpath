@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src/grouper-ws"/>
-	<classpathentry kind="src" path="GROUPER_V2_1_CLIENT_SOURCE"/>
-	<classpathentry kind="src" path="GROUPER_V2_1_SOURCE"/>
 	<classpathentry kind="src" path="GROUPER_V2_1_CONF"/>
+	<classpathentry kind="src" path="GROUPER_V2_1_SOURCE"/>
 	<classpathentry kind="src" path="conf"/>
 	<classpathentry kind="src" path="src/test"/>
 	<classpathentry kind="src" path="src/grouper-ws_v2_0"/>

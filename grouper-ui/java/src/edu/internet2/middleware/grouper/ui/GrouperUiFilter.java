@@ -357,6 +357,9 @@ public class GrouperUiFilter implements Filter {
     
     //see if member of login group
     String groupToRequire = TagUtils.mediaResourceString(mediaKeyOfGroup);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("mediaKeyOfGroup: " + mediaKeyOfGroup + ", groupToRequire: " + groupToRequire + ", subject: " + GrouperUtil.subjectToString(subjectLoggedIn));
+    }
     if (!StringUtils.isBlank(groupToRequire)) {
       
       GrouperSession grouperSession = null;

@@ -16,11 +16,6 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>GROUPER_V2_1_CLIENT_SOURCE</name>
-			<type>2</type>
-			<locationURI>GROUPER_V2_1_CLIENT_SOURCE</locationURI>
-		</link>
-		<link>
 			<name>GROUPER_V2_1_CONF</name>
 			<type>2</type>
 			<locationURI>GROUPER_V2_1_CONF</locationURI>
@@ -31,4 +26,14 @@
 			<locationURI>GROUPER_V2_1_SOURCE</locationURI>
 		</link>
 	</linkedResources>
+	<variableList>
+		<variable>
+			<name>GROUPER_V2_1_CONF</name>
+			<value>file:/C:/mchyzer/grouper/v2_1/GROUPER_ALL_SVN/grouper/conf</value>
+		</variable>
+		<variable>
+			<name>GROUPER_V2_1_SOURCE</name>
+			<value>file:/C:/mchyzer/grouper/v2_1/GROUPER_ALL_SVN/grouper/src/grouper</value>
+		</variable>
+	</variableList>
 </projectDescription>
