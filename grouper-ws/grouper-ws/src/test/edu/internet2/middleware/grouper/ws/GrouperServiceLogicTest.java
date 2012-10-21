@@ -166,7 +166,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testAssignAttributesBatchImmMembership"));
+    TestRunner.run(new GrouperServiceLogicTest("testGetAttributeAssignmentsGroup"));
   }
 
   /**
@@ -2611,7 +2611,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         null, null, null, 
         null, null, null, false, null, false, null, false, null, null, null, null, false, null, null, null, null, null);
 
-    assertEquals(WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
+    assertEquals(WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
         wsGetAttributeAssignmentsResults.getResultMetadata().getResultCode());
     
     assertEquals(0, GrouperUtil.length(wsGetAttributeAssignmentsResults.getWsAttributeAssigns()));

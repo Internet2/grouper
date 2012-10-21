@@ -13,13 +13,13 @@ Run an "ant dist", and run tomcat based on the dist directory.
 ################### For developers who checked out the SVN grouper-ui project
 
 This project depends on grouper.  
-Checkout Grouper source as project name "grouper_trunk" 
-(I suggest in the same folder as grouper-ui_trunk).
+Checkout Grouper source as project name "grouper" 
+(I suggest in the same folder as grouper-ui).
 
 There are some variables which must exist in Eclipse to point to Grouper.
 In eclipse, right click on the project, properties, java build path, 
 source tab, link source button.  Click the variables button, and 
-link GROUPER_TRUNK_SOURCE with grouper trunk src/grouper, and 
+link GROUPER_TRUNK_SOURCE with grouper trunk (or whatever branch) src/grouper, and 
 GROUPER_TRUNK_CONF with grouper trunk conf dir.  Eclipse might complain
 that those are on the classpath, thats ok, get out of it.  Then
 to kick eclipse to recognize them, right click on the project and close and

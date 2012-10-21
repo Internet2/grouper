@@ -96,7 +96,7 @@ public class TestSubjectFinder extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(TestSubjectFinder.class);
-    TestRunner.run(new TestSubjectFinder("testFindAll"));
+    TestRunner.run(new TestSubjectFinder("testFindByIds"));
   }
   
   /**

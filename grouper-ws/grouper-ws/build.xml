@@ -99,7 +99,7 @@
         <isset property="grouper.file.exists" />
       </not>      
       <then>
-        <fail message="Cant find grouper.jar from build.properties entry grouper.jar.name: ${grouper.jar.name}!" /> 
+        <fail message="Cant find grouper.jar from build.properties entry grouper.jar.name: ${grouper.jar.name}!  Maybe the grouper.dir directory is not set correctly, or maybe grouper is not built..." /> 
       </then>
     </if>
   
