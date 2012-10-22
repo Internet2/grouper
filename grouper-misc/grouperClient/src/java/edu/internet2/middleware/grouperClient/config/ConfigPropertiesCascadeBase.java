@@ -57,7 +57,7 @@ public abstract class ConfigPropertiesCascadeBase {
         new HashMap<Class<? extends ConfigPropertiesCascadeBase>, ConfigPropertiesCascadeBase>();
     }
     
-    ConfigPropertiesCascadeBase configPropertiesCascadeBase = (ConfigPropertiesCascadeBase)configSingletonFromClass.get(configClass);
+    ConfigPropertiesCascadeBase configPropertiesCascadeBase = configSingletonFromClass.get(configClass);
     if (configPropertiesCascadeBase == null) {
       configPropertiesCascadeBase = GrouperClientUtils.newInstance(configClass, true);
       configSingletonFromClass.put(configClass, configPropertiesCascadeBase);
@@ -95,7 +95,6 @@ public abstract class ConfigPropertiesCascadeBase {
   /**
    * override map for properties in thread local to be used in a web server or the like, based on property class
    * this is static since the properties class can get reloaded, but these shouldnt
-   * @param configClass 
    * @return the override map
    */
   public Map<String, String> propertiesThreadLocalOverrideMap() {
@@ -108,12 +107,12 @@ public abstract class ConfigPropertiesCascadeBase {
       overrideMap = new HashMap<Class<? extends ConfigPropertiesCascadeBase>, Map<String, String>>();
       propertiesThreadLocalOverrideMap.set(overrideMap);
     }
-    Map<String, String> propertiesOverrideMap = overrideMap.get(this.getClass());
-    if (propertiesOverrideMap == null) {
-      propertiesOverrideMap = new HashMap<String, String>();
-      overrideMap.put(this.getClass(), propertiesOverrideMap);
+    Map<String, String> propertiesOverrideMapLocal = overrideMap.get(this.getClass());
+    if (propertiesOverrideMapLocal == null) {
+      propertiesOverrideMapLocal = new HashMap<String, String>();
+      overrideMap.put(this.getClass(), propertiesOverrideMapLocal);
     }
-    return propertiesOverrideMap;
+    return propertiesOverrideMapLocal;
   }
 
   /** override map for properties, for testing, put properties in here, based on config class
@@ -215,8 +214,6 @@ public abstract class ConfigPropertiesCascadeBase {
   /**
    * get the property value as a string
    * @param key
-   * @param defaultValue
-   * @param required true if required, if doesnt exist, throw exception
    * @return the property value
    */
   public String propertyValueStringRequired(String key) {
@@ -227,7 +224,6 @@ public abstract class ConfigPropertiesCascadeBase {
    * get the property value as a string
    * @param key
    * @param defaultValue
-   * @param required true if required, if doesnt exist, throw exception
    * @return the property value
    */
   public String propertyValueString(String key, String defaultValue) {
@@ -237,7 +233,6 @@ public abstract class ConfigPropertiesCascadeBase {
   /**
    * get the property value as a string or null if not there
    * @param key
-   * @param required true if required, if doesnt exist, throw exception
    * @return the property value
    */
   public String propertyValueString(String key) {
@@ -325,7 +320,6 @@ public abstract class ConfigPropertiesCascadeBase {
    * @param key
    * @param defaultValue
    * @param required true if required, if doesnt exist, throw exception
-   * @param considerEl if true then look for EL too, if false then dont considerEl
    * @return the property value
    */
   protected PropertyValueResult propertyValueStringHelper(String key, String defaultValue, boolean required) {
@@ -837,7 +831,7 @@ public abstract class ConfigPropertiesCascadeBase {
   protected boolean needToCheckIfFilesNeedReloading() {
     
     //get the time that this was created
-    long lastCheckedTime = this.getLastCheckedTime();
+    long lastCheckedTimeLocal = this.getLastCheckedTime();
     
     //get the timeToCheckSeconds if different
     int timeToCheckSeconds = this.getTimeToCheckConfigSeconds();
@@ -848,7 +842,7 @@ public abstract class ConfigPropertiesCascadeBase {
     }
     
     //see if that much time has passed
-    if (System.currentTimeMillis() - lastCheckedTime > timeToCheckSeconds * 1000) {
+    if (System.currentTimeMillis() - lastCheckedTimeLocal > timeToCheckSeconds * 1000) {
       return true;
     }
     return false;
@@ -902,7 +896,6 @@ public abstract class ConfigPropertiesCascadeBase {
    * get a boolean and validate from grouper.client.properties
    * @param key
    * @param defaultValue
-   * @param required
    * @return the string
    */
   public boolean propertyValueBoolean(String key, boolean defaultValue) {
@@ -923,8 +916,6 @@ public abstract class ConfigPropertiesCascadeBase {
   /**
    * get a boolean and validate from grouper.client.properties or null if not there
    * @param key
-   * @param defaultValue
-   * @param required
    * @return the boolean or null
    */
   public Boolean propertyValueBoolean(String key) {
@@ -1004,8 +995,6 @@ public abstract class ConfigPropertiesCascadeBase {
   /**
    * get a boolean and validate from grouper.client.properties
    * @param key
-   * @param defaultValue
-   * @param required
    * @return the string
    */
   public boolean propertyValueBooleanRequired(String key) {
@@ -1017,8 +1006,6 @@ public abstract class ConfigPropertiesCascadeBase {
   /**
    * get a boolean and validate from grouper.client.properties
    * @param key
-   * @param defaultValue
-   * @param required
    * @return the string
    */
   public int propertyValueIntRequired(String key) {
@@ -1031,7 +1018,6 @@ public abstract class ConfigPropertiesCascadeBase {
    * get a boolean and validate from grouper.client.properties
    * @param key
    * @param defaultValue
-   * @param required
    * @return the string
    */
   public int propertyValueInt(String key, int defaultValue ) {
@@ -1054,10 +1040,7 @@ public abstract class ConfigPropertiesCascadeBase {
   /**
    * read properties from a resource, dont modify the properties returned since they are cached
    * @param resourceName
-   * @param useCache 
    * @param exceptionIfNotExist 
-   * @param classInJar if not null, then look for the jar where this file is, and look in the same dir
-   * @param callingLog 
    * @return the properties or null if not exist
    */
   protected static Properties propertiesFromResourceName(String resourceName, 
@@ -1102,7 +1085,6 @@ public abstract class ConfigPropertiesCascadeBase {
 
   /**
    * make sure a value exists in properties
-   * @param resourceName
    * @param key
    * @return true if ok, false if not
    */
@@ -1119,7 +1101,6 @@ public abstract class ConfigPropertiesCascadeBase {
 
   /**
    * make sure a value is boolean in properties
-   * @param resourceName
    * @param key
    * @param required
    * @return true if ok, false if not
@@ -1149,7 +1130,6 @@ public abstract class ConfigPropertiesCascadeBase {
 
   /**
    * make sure a property is a class of a certain type
-   * @param resourceName
    * @param key
    * @param classType
    * @param required 
@@ -1192,17 +1172,15 @@ public abstract class ConfigPropertiesCascadeBase {
   /**
    * find all keys/values with a certain pattern in a properties file.
    * return the keys.  if none, will return the empty set, not null set
-   * @param resourceName
    * @param pattern
    * @return the keys.  if none, will return the empty set, not null set
    */
   @SuppressWarnings("unchecked")
   public Map<String, String> propertiesMap(Pattern pattern) {
-    Properties properties = properties();
     Map<String, String> result = new LinkedHashMap<String, String>();
-    for (String key: (Set<String>)(Object)properties.keySet()) {
+    for (String key: (Set<String>)(Object)this.properties.keySet()) {
       if (pattern.matcher(key).matches()) {
-        result.put(key, (String)properties.get(key));
+        result.put(key, (String)this.properties.get(key));
       }
     }
     
