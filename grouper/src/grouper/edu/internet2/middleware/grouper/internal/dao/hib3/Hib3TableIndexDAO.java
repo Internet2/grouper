@@ -86,10 +86,10 @@ public class Hib3TableIndexDAO extends Hib3DAO implements TableIndexDAO {
    * @see TableIndexDAO#findByType(String)
    */
   @Override
-  public TableIndex findByType(String type) {
+  public TableIndex findByType(TableIndexType type) {
     TableIndex tableIndex = HibernateSession.byHqlStatic()
         .createQuery("from TableIndex where typeDb = :theType")
-        .setString("theType", type).uniqueResult(TableIndex.class);
+        .setString("theType", type.name()).uniqueResult(TableIndex.class);
     return tableIndex;
   }
 
@@ -119,7 +119,7 @@ public class Hib3TableIndexDAO extends Hib3DAO implements TableIndexDAO {
               throws GrouperDAOException {
             
             //lets get the table index... see if it exists
-            TableIndex localTableIndex = findByType(tableIndexType.name());
+            TableIndex localTableIndex = findByType(tableIndexType);
             if (localTableIndex == null) {
               localTableIndex = new TableIndex();
               

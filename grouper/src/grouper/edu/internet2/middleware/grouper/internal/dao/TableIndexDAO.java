@@ -48,7 +48,7 @@ public interface TableIndexDAO extends GrouperDAO {
    * @param type
    * @return the table index
    */
-  public TableIndex findByType(String type);
+  public TableIndex findByType(TableIndexType tableIndexType);
 
   /**
    * reserve a certain amount of indices

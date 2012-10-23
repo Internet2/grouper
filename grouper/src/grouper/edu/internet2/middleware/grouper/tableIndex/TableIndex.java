@@ -16,12 +16,19 @@
 package edu.internet2.middleware.grouper.tableIndex;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -347,9 +354,78 @@ public class TableIndex extends GrouperAPI implements Hib3GrouperVersioned {
         DB_VERSION_FIELDS, null);
     return result;
   }
+  
+  /**
+   * 
+   */
   @Override
   public GrouperAPI clone() {
-    // TODO Auto-generated method stub
-    return null;
+    return GrouperUtil.clone(this, CLONE_FIELDS);
   }
+
+  /**
+   * map of types to the list of ids which are available
+   */
+  private static Map<TableIndexType, List<Long>> reservedIds = new HashMap<TableIndexType, List<Long>>();
+  
+  /**
+   * get an id for this type of object, if needed, increment the index in the database
+   * @param tableIndexType
+   * @return the id that can be used for the type of object
+   */
+  public static long reserveId(TableIndexType tableIndexType) {
+    
+    synchronized (tableIndexType) {
+      
+      List<Long> longList = reservedIds.get(tableIndexType);
+      
+      if (longList == null) {
+        longList = new ArrayList<Long>();
+        reservedIds.put(tableIndexType, longList);
+      }
+      
+      //see if there is one which is reserved
+      for (int i=0;i<longList.size();i++) {
+        Long id = longList.get(i);
+        if (id != null) {
+          longList.set(i, null);
+          return id;
+        }
+      }
+      
+      //ok, we need to reserve some more...
+      
+      String contextId = GrouperContext.retrieveContextId(false);
+      
+      int idsToReserve = GrouperConfig.retrieveConfig().propertyValueInt("grouper.tableIndex.reserveIdsDefault", 10);
+      
+      GrouperEngineBuiltin grouperEngineBuiltin = GrouperEngineBuiltin.valueOfIgnoreCase(contextId, false);
+      
+      if (grouperEngineBuiltin != null) {
+        switch(grouperEngineBuiltin) {
+          case GSH:
+            idsToReserve = GrouperConfig.retrieveConfig().propertyValueInt("grouper.tableIndex.reserveIdsGsh", 1);
+            break;
+          case LOADER:
+            idsToReserve = GrouperConfig.retrieveConfig().propertyValueInt("grouper.tableIndex.reserveIdsLoader", 10);
+            break;
+          case WS:
+            idsToReserve = GrouperConfig.retrieveConfig().propertyValueInt("grouper.tableIndex.reserveIdsWs", 10);
+            break;
+          case UI:
+            idsToReserve = GrouperConfig.retrieveConfig().propertyValueInt("grouper.tableIndex.reserveIdsUi", 10);
+            break;
+          default:
+            //nothing
+        }
+      }
+          
+      TableIndex tableIndex = GrouperDAOFactory.getFactory().getTableIndex().reserveIds(tableIndexType,idsToReserve);
+      //TODO fix this
+      return tableIndex.getLastIndexReserved();
+      
+    }
+    
+  }
+  
 }

@@ -19,6 +19,10 @@
  */
 package edu.internet2.middleware.grouper.audit;
 
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
 
 
 /**
@@ -70,4 +74,27 @@ public enum GrouperEngineBuiltin implements GrouperEngineIdentifier {
   public String getGrouperEngine() {
     return this.grouperEngine;
   }
+  
+  /**
+   * do a case-insensitive matching
+   * 
+   * @param string
+   * @param exceptionOnNull will not allow null or blank entries
+   * @return the enum or null or exception if not found
+   */
+  public static GrouperEngineBuiltin valueOfIgnoreCase(String string, boolean exceptionOnNull) {
+    
+    //check the string
+    for (GrouperEngineBuiltin grouperEngineBuiltin : values()) {
+      if (StringUtils.equalsIgnoreCase(string, grouperEngineBuiltin.grouperEngine)) {
+        return grouperEngineBuiltin;
+      }
+    }
+    
+    return GrouperUtil.enumValueOfIgnoreCase(GrouperEngineBuiltin.class, 
+        string, exceptionOnNull);
+
+  }
+
+  
 }

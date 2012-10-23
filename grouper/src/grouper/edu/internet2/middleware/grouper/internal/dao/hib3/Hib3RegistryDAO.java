@@ -145,6 +145,7 @@ class Hib3RegistryDAO implements RegistryDAO {
               throws GrouperDAOException {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
+            Hib3TableIndexDAO.reset(hibernateSession);
             Hib3RoleSetDAO.reset(hibernateSession);
             Hib3AttributeAssignValueDAO.reset(hibernateSession);
             Hib3AttributeAssignActionSetDAO.reset(hibernateSession);
