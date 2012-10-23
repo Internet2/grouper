@@ -34,9 +34,6 @@ package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.int
 
 import java.util.Map;
 
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.AbstractExecutor;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.Introspector;
-
  /**
  * Specialized executor to get a property from a Map.
   * @since 2.0

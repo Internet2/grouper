@@ -35,8 +35,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlContext;
-
 /**
  * <p>A JEXL Script.</p>
  * <p>A script is some valid JEXL syntax to be executed with

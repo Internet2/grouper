@@ -17,8 +17,6 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=false,NODE_PREFIX=AST,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser;
 
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.Node;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.ParserVisitor;
 
 /* All AST nodes must implement this interface.  It provides basic
    machinery for constructing the parent and child relationships

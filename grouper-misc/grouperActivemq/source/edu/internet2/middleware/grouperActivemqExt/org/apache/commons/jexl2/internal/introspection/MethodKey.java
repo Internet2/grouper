@@ -31,15 +31,12 @@
  */
 package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.introspection;
 
-import java.util.List;
-import java.util.LinkedList;
-import java.util.Iterator;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.introspection.ClassMap;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.introspection.MethodKey;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A method key usable by the introspector cache.

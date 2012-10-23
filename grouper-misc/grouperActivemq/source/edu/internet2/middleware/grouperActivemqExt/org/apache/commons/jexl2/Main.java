@@ -36,13 +36,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.Expression;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlContext;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlEngine;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlException;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.MapContext;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.Script;
-
 /**
  * Test application for JEXL.
  *

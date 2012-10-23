@@ -32,26 +32,13 @@
 package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal;
 
 import java.lang.ref.SoftReference;
-import java.lang.reflect.Method;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
-
-import org.apache.commons.logging.Log;
-
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.AbstractExecutor;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.BooleanGetExecutor;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.DuckGetExecutor;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.DuckSetExecutor;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.ListGetExecutor;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.ListSetExecutor;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.MapGetExecutor;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.MapSetExecutor;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.MethodExecutor;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.PropertyGetExecutor;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.PropertySetExecutor;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.introspection.IntrospectorBase;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.introspection.MethodKey;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 /**
  *  Default introspection services.

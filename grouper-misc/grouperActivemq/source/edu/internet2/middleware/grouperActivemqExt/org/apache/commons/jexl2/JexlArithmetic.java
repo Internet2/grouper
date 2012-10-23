@@ -37,9 +37,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlEngine;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlException;
-
 /**
  * Perform arithmetic.
  * <p>

@@ -4,14 +4,57 @@
  */
 package edu.internet2.middleware.grouperActivemq.config;
 
-
-
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Grouper activemq config
  */
 public class GrouperActivemqConfig extends ConfigPropertiesCascadeBase {
 
+  /**
+   * subject source to login attribute name
+   */
+  private Map<String, String> subjectSourceToLoginAttributeName = null;
+  
+  /**
+   * subject source map from grouper activemq config
+   * @return the map
+   */
+  public Map<String, String> subjectSourceToLoginAttributeName() {
+    if (this.subjectSourceToLoginAttributeName == null) {
+     
+      synchronized(this) {
+        
+        if (this.subjectSourceToLoginAttributeName == null) {
+          
+          Map<String, String> tempSubjectSourceToLoginAttributeName = new HashMap<String, String>();
+          
+          //grouperActivemq.subjectSource.0.sourceId = pennperson
+          //grouperActivemq.subjectSource.0.subjectAttributeForLogin
+          
+          for (int i=0;i<100;i++) {
+            if (this.containsKey("grouperActivemq.subjectSource." + i + ".sourceId")) {
+              
+              String sourceId = this.propertyValueString("grouperActivemq.subjectSource." + i + ".sourceId");
+              String subjectAttributeForLogin = this.propertyValueStringRequired("grouperActivemq.subjectSource." + i + ".subjectAttributeForLogin");
+              
+              tempSubjectSourceToLoginAttributeName.put(sourceId, subjectAttributeForLogin);
+              
+            }
+            
+          }
+          
+          this.subjectSourceToLoginAttributeName = tempSubjectSourceToLoginAttributeName;
+          
+        }
+        
+      }
+      
+    }
+    return this.subjectSourceToLoginAttributeName;
+  }
+  
   /**
    * 
    */
@@ -31,7 +74,7 @@ public class GrouperActivemqConfig extends ConfigPropertiesCascadeBase {
    */
   @Override
   public void clearCachedCalculatedValues() {
-    
+    this.subjectSourceToLoginAttributeName = null;
   }
 
   /**

@@ -33,9 +33,6 @@ package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.int
 
 import java.lang.reflect.InvocationTargetException;
 
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.AbstractExecutor;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.Introspector;
-
 /**
  * Specialized executor to set a property of an object.
  * <p>Duck as in duck-typing for an interface like:

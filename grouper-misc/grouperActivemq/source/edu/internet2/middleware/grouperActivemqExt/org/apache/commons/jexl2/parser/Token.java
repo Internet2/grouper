@@ -17,7 +17,6 @@
 /* JavaCCOptions:TOKEN_EXTENDS=,KEEP_LINE_COL=null,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser;
 
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.Token;
 
 /**
  * Describes the input token stream.

@@ -32,9 +32,6 @@
 
 package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2;
 
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.Expression;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlContext;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlException;
 
 
 /**

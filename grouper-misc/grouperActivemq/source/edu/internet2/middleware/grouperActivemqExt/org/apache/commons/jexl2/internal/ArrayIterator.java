@@ -32,9 +32,9 @@
 
 package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal;
 
+import java.lang.reflect.Array;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.lang.reflect.Array;
 
 /**
  *  <p>

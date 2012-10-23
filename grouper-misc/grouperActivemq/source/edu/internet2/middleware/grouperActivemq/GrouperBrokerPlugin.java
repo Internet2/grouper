@@ -17,6 +17,7 @@ package edu.internet2.middleware.grouperActivemq;
 import org.apache.activemq.broker.Broker;
 import org.apache.activemq.broker.BrokerPlugin;
 
+
 /**
  * An authorization ActiveMQ plugin where each operation on a destination is checked
  * against Grouper permissions

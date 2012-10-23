@@ -33,8 +33,7 @@
 package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal;
 import java.lang.reflect.InvocationTargetException;
 
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.AbstractExecutor;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.Introspector;
+import com.sun.xml.internal.ws.api.PropertySet;
 /**
  * Specialized executor to set a property in an object.
  * @since 2.0

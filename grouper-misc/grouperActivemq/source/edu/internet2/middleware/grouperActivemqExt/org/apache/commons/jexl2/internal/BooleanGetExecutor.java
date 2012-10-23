@@ -32,10 +32,6 @@
 
 package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal;
 import java.lang.reflect.InvocationTargetException;
-
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.AbstractExecutor;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.Introspector;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.PropertyGetExecutor;
 /**
  * Specialized executor to get a boolean property from an object.
  * @since 2.0

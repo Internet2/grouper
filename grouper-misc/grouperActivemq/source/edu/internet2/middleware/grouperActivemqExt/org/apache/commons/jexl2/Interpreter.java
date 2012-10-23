@@ -39,16 +39,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-
-
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.Interpreter;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlArithmetic;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlContext;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlEngine;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlException;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.NamespaceResolver;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.Script;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.introspection.JexlMethod;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.introspection.JexlPropertyGet;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.introspection.JexlPropertySet;
@@ -108,6 +98,7 @@ import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.pars
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.Node;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.ParserVisitor;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.SimpleNode;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 /**
  * An interpreter of JEXL syntax.

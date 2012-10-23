@@ -34,16 +34,13 @@ package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.int
 import java.beans.IntrospectionException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.InvocationTargetException;
-
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlException;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlInfo;
@@ -52,10 +49,7 @@ import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.inte
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.EnumerationIterator;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.Introspector;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.introspection.MethodKey;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.introspection.JexlMethod;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.introspection.JexlPropertyGet;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.introspection.JexlPropertySet;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.introspection.Uberspect;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 /**
  * Implementation of Uberspect to provide the default introspective
