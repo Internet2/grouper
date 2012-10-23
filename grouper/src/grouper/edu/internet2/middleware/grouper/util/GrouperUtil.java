@@ -7515,6 +7515,22 @@ public class GrouperUtil {
   }
 
   /**
+   * non ascii char length
+   */
+  private static int nonAsciiCharLength = -1;
+  
+  /**
+   * non ascii char length for the database
+   * @return length
+   */
+  private static int nonAsciiCharLength() {
+    if (nonAsciiCharLength == -1) {
+      nonAsciiCharLength = GrouperConfig.getPropertyInt("grouper.nonAsciiCharDbBytesLength", 3);
+    }
+    return nonAsciiCharLength;
+  }
+  
+  /**
    * find the length of ascii chars (non ascii are counted as two)
    * @param input is the string to operate on
    * @param requiredLength length we need the string to be
@@ -7540,7 +7556,7 @@ public class GrouperUtil {
       
       //keep count of non ascii chars
       if (!isAscii(input.charAt(i))) {
-        asciiLength++;
+        asciiLength+=(nonAsciiCharLength()-1);
       }
       
       //see if we are over 

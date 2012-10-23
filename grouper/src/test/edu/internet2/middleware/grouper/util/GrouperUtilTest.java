@@ -59,7 +59,7 @@ public class GrouperUtilTest extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("testSubstituteExpressionLanguage"));
+    TestRunner.run(new GrouperUtilTest("testTruncateAscii"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
   }
@@ -74,6 +74,15 @@ public class GrouperUtilTest extends GrouperTest {
     
   }
 
+  /**
+   * 
+   */
+  public void testTruncateAscii() {
+
+    String testString = "H13_FRA2007, Questions d’histoire de la litérature";
+    System.out.println(GrouperUtil.truncateAscii(testString, 50));
+  }
+  
   /**
    * 
    */
