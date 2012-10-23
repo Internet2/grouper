@@ -31,9 +31,6 @@
  */
 package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser;
 
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.JexlNode;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.Parser;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.ParserVisitor;
 
 /**
  * @deprecated Only for use in maintaining binary compatibility - should not actually be used - will be removed in 3.0

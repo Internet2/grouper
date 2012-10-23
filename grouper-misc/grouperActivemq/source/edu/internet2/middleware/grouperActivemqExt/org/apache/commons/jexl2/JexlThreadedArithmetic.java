@@ -33,9 +33,6 @@ package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2;
 
 import java.math.MathContext;
 
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlArithmetic;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlEngine;
-
 /**
  * A derived arithmetic that allows different threads to operate with
  * different strict/lenient/math modes using the same JexlEngine.

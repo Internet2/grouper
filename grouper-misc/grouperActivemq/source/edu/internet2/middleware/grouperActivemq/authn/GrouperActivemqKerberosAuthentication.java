@@ -24,13 +24,13 @@ import java.io.File;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouperActivemq.config.GrouperActivemqConfig;
 import edu.internet2.middleware.grouperActivemq.utils.GrouperActivemqUtils;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -47,11 +47,6 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
  * </pre>
  */
 public class GrouperActivemqKerberosAuthentication {
-
-  /**
-   * 
-   */
-  private static final String GROUPER_FAILOVER_CLIENT_KERB_NAME = "grouperActivemqKerberos";
 
   /**
    * 
@@ -81,7 +76,7 @@ public class GrouperActivemqKerberosAuthentication {
     
     for (int i=0;i<10;i++) {
       System.out.println(authenticateKerberosHelper(
-          "fastGrouperAppTest/medley.isc-seo.upenn.edu", "READFROMFILE"));
+          "penngroups_activemq_test/medley.isc-seo.upenn.edu", "k4hrbf3smer8"));
     }
     
   }
@@ -157,18 +152,27 @@ public class GrouperActivemqKerberosAuthentication {
     // to use the LoginModule implementation specified by the 
     // entry named "JaasSample" in the JAAS login configuration 
     // file and to also use the specified CallbackHandler.
-
-    File jaasConf = GrouperClientUtils.fileFromResourceName("jaas.conf");
-
-    if (jaasConf == null) {
-      throw new RuntimeException("Cant find jaas.conf!");
+    
+    {
+      File jaasConf = GrouperClientUtils.fileFromResourceName("jaas.conf");
+  
+      if (jaasConf == null) {
+        throw new RuntimeException("Cant find jaas.conf!");
+      }
+      System.setProperty("java.security.auth.login.config", jaasConf.getAbsolutePath());
     }
-
-    System.setProperty("java.security.krb5.realm", GrouperActivemqConfig.retrieveConfig()
-        .propertyValueString("kerberos.realm"));
-    System.setProperty("java.security.krb5.kdc", GrouperActivemqConfig.retrieveConfig().propertyValueString("kerberos.kdc.address"));
-    System.setProperty("java.security.auth.login.config", jaasConf.getAbsolutePath());
-    //System.setProperty("sun.security.krb5.debug", "true");
+    
+    {
+      File krb5confFile = GrouperClientUtils.fileFromResourceName("krb5.conf");
+  
+      if (krb5confFile == null) {
+        throw new RuntimeException("Cant find krb5.conf!");
+      }
+  
+      System.setProperty("java.security.krb5.conf", krb5confFile.getAbsolutePath());
+    }
+    
+    System.setProperty("sun.security.krb5.debug", "true");
     
     LoginContext lc = null;
     try {

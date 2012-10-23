@@ -34,8 +34,6 @@ package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlContext;
-
 /**
  * Wraps a map in a context.
  * <p>Each entry in the map is considered a variable name, value pair.</p>

@@ -31,6 +31,8 @@
  */
 package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.introspection;
 
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -38,11 +40,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.logging.Log;
-
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.introspection.MethodKey;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.introspection.MethodMap;
 
 /**
  * A cache of introspection information for a specific class instance.

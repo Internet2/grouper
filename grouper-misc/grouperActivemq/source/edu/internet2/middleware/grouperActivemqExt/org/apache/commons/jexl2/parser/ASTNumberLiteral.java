@@ -34,10 +34,6 @@ package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.par
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.JexlNode;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.Parser;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.ParserVisitor;
-
 public class ASTNumberLiteral extends JexlNode implements JexlNode.Literal<Number> {
     /** The type literal value. */
     Number literal = null;

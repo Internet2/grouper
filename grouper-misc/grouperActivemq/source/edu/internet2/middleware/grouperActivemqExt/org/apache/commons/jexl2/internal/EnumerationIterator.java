@@ -33,8 +33,8 @@
 package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal;
 
 
-import java.util.Iterator;
 import java.util.Enumeration;
+import java.util.Iterator;
 
 /**
  * An Iterator wrapper for an Enumeration.

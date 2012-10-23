@@ -17,9 +17,6 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=false,NODE_PREFIX=AST,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser;
 
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.JexlNode;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.Parser;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.ParserVisitor;
 
 public
 class ASTBitwiseXorNode extends JexlNode {

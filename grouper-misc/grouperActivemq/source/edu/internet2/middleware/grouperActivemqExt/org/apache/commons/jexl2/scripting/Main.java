@@ -39,8 +39,6 @@ import java.io.InputStreamReader;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.scripting.JexlScriptEngineFactory;
-
 /**
  * Test application for JexlScriptEngine (JSR-223 implementation).
  * @since 2.0

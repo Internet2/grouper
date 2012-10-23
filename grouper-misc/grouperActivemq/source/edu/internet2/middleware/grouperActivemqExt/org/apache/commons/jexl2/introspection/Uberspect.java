@@ -36,9 +36,6 @@ import java.lang.reflect.Constructor;
 import java.util.Iterator;
 
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlInfo;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.introspection.JexlMethod;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.introspection.JexlPropertyGet;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.introspection.JexlPropertySet;
 
 /**
  * 'Federated' introspection/reflection interface to allow the introspection

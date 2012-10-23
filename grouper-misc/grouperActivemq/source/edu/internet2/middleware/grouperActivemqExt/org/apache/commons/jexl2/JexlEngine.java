@@ -36,36 +36,20 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.io.Reader;
+import java.io.StringReader;
+import java.lang.ref.SoftReference;
 import java.net.URL;
 import java.net.URLConnection;
-import java.lang.ref.SoftReference;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.Set;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.DebugInfo;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.Debugger;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.Expression;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.ExpressionImpl;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.Interpreter;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlArithmetic;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlContext;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlEngine;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlException;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlInfo;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlThreadedArithmetic;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.Script;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.UnifiedJEXL;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.introspection.JexlMethod;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.introspection.Uberspect;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.introspection.UberspectImpl;
@@ -77,6 +61,8 @@ import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.pars
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.ParseException;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.Parser;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.TokenMgrError;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
 
 /**
  * <p>

@@ -31,19 +31,16 @@
  */
 package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.introspection;
 
-import java.lang.reflect.Method;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.util.Map;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.apache.commons.logging.Log;
-
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.introspection.ClassMap;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.introspection.MethodKey;
+import java.util.Map;
 
 /**
  * This basic function of this class is to return a Method object for a

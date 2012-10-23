@@ -34,10 +34,6 @@ package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.par
 import java.util.Collections;
 import java.util.Map;
 
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.JexlNode;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.Parser;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.ParserVisitor;
-
 public final class ASTMapLiteral extends JexlNode implements JexlNode.Literal<Object> {
     /** The type literal value. */
     Map<?,?> map = null;

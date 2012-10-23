@@ -31,11 +31,8 @@
  */
 
 package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal;
-import java.util.List;
 import java.lang.reflect.Array;
-
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.AbstractExecutor;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.Introspector;
+import java.util.List;
 /**
  * Specialized executor to set a property in a List or array.
  * @since 2.0

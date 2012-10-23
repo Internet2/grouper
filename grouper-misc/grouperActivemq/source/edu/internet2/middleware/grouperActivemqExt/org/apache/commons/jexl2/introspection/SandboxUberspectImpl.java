@@ -31,14 +31,8 @@
  */
 package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.introspection;
 
-import org.apache.commons.logging.Log;
-
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlInfo;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.introspection.JexlMethod;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.introspection.JexlPropertyGet;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.introspection.JexlPropertySet;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.introspection.Sandbox;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.introspection.UberspectImpl;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 /**
  * An uberspect that controls usage of properties, methods and contructors through a sandbox.

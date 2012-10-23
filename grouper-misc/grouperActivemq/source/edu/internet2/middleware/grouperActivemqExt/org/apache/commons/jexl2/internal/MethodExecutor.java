@@ -34,10 +34,6 @@ package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.int
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.AbstractExecutor;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.ArrayListWrapper;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.Introspector;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.MethodExecutor;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.introspection.MethodKey;
 
 /**

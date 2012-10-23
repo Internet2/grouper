@@ -41,7 +41,6 @@ import javax.script.ScriptEngineFactory;
 
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlEngine;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.StringParser;
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.scripting.JexlScriptEngine;
 
 /**
  * Implements the Jexl ScriptEngineFactory for JSF-223.

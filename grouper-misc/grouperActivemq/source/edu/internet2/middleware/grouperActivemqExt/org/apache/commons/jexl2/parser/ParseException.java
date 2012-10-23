@@ -31,7 +31,6 @@
  */
 package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser;
 
-import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.Token;
 
 /**
  * This exception is thrown when parse errors are encountered.
