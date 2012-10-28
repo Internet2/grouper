@@ -2,10 +2,12 @@
 <classpath>
 	<classpathentry kind="src" path="source"/>
 	<classpathentry kind="src" path="conf"/>
+	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/grouperClient.jar"/>
 	<classpathentry kind="lib" path="lib/quartz.jar"/>
 	<classpathentry kind="lib" path="lib/smack.jar"/>
 	<classpathentry kind="lib" path="lib/activemq-core-5.7.0.jar"/>
+	<classpathentry kind="lib" path="lib/junit.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
