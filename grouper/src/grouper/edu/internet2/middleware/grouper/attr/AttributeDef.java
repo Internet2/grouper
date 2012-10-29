@@ -2021,7 +2021,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
     synchronized (TableIndexType.attributeDef) {
 
       //ok, if the index is not in use (not, it could be reserved... hmmm)
-      AttributeDef tempAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByIdIndex(theIdIndex, false);
+      AttributeDef tempAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByIdIndex(theIdIndex, false, null);
       if (tempAttributeDef == null) {
         
         this.setIdIndex(theIdIndex);

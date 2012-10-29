@@ -32,10 +32,11 @@
 
 package edu.internet2.middleware.grouper;
 import junit.framework.Assert;
-import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
@@ -52,6 +53,14 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class TestStemFinder extends GrouperTest {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestStemFinder("testFindByIdIndex"));
+  }
+  
   // Private Class Constants
   private static final Log LOG = GrouperUtil.getLog(TestStemFinder.class);
 
@@ -70,6 +79,32 @@ public class TestStemFinder extends GrouperTest {
   protected void tearDown () {
     LOG.debug("tearDown");
   }
+
+  /**
+   * 
+   */
+  public void testFindByIdIndex() {
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemHelper.findRootStem(s);
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "educational");
+
+    Stem found = StemFinder.findByIdIndex(edu.getIdIndex(), true, null);
+    
+    assertEquals(found.getName(), edu.getName());
+    
+    found = StemFinder.findByIdIndex(12345656L, false, null);
+    
+    assertNull(found);
+    
+    try {
+      StemFinder.findByIdIndex(12345678L, true, null);
+      fail("shouldnt get here");
+    } catch (StemNotFoundException gnfe) {
+      //good
+    }
+    
+    
+  } // public void testFindByIdIndex()
 
 
   // Tests

@@ -657,7 +657,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
    * not a secure method, find by id index
    */
   @Override
-  public AttributeDefName findByIdIndex(Long idIndex, boolean exceptionIfNotFound)
+  public AttributeDefName findByIdIndex(Long idIndex, boolean exceptionIfNotFound, QueryOptions queryOptions)
       throws AttributeDefNameNotFoundException {
     
     StringBuilder hql = new StringBuilder("select theAttributeDefName from AttributeDefName as theAttributeDefName where (theAttributeDefName.idIndex = :theIdIndex)");
@@ -667,6 +667,26 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
     byHqlStatic.createQuery(hql.toString());
     
     AttributeDefName attributeDefName = byHqlStatic.setLong("theIdIndex", idIndex).uniqueResult(AttributeDefName.class);
+
+    //handle exceptions out of data access method...
+    if (attributeDefName == null && exceptionIfNotFound) {
+      throw new AttributeDefNameNotFoundException("Cannot find AttributeDefName with idIndex: '" + idIndex + "'");
+    }
+    return attributeDefName;
+    
+  }
+
+
+  /**
+   * secure method, find by id index
+   */
+  @Override
+  public AttributeDefName findByIdIndexSecure(Long idIndex, boolean exceptionIfNotFound, QueryOptions queryOptions)
+      throws AttributeDefNameNotFoundException {
+    
+    AttributeDefName attributeDefName = findByIdIndex(idIndex, exceptionIfNotFound, queryOptions);
+    
+    attributeDefName = filterSecurity(attributeDefName);
 
     //handle exceptions out of data access method...
     if (attributeDefName == null && exceptionIfNotFound) {

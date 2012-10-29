@@ -311,6 +311,15 @@ public interface GroupDAO extends GrouperDAO {
     throws GroupNotFoundException;
 
   /**
+   * find a group by id index
+   * @param idIndex id index to find
+   * @param exceptionIfNotFound true if exception should be thrown if not found
+   * @param queryOptions query options
+   * @return the gorup or null or exception
+   */
+  Group findByIdIndexSecure(Long idIndex, boolean exceptionIfNotFound, QueryOptions queryOptions) throws GroupNotFoundException;
+  
+  /**
    * @since   1.2.0
    */
   Group findByName(String name, boolean exceptionIfNotFound, QueryOptions queryOptions) 

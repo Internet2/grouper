@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -49,6 +50,8 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -272,6 +275,52 @@ public class TestGroupFinder extends GrouperTest {
     }
   } // public void testFindByName()
 
+  /**
+   * 
+   */
+  public void testFindByIdIndex() {
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemHelper.findRootStem(s);
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "educational");
+    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+
+    i2.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    i2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW);
+    i2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    
+    GrouperSession.stopQuietly(s);
+    
+    s = GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    Group found = GroupFinder.findByIdIndexSecure(i2.getIdIndex(), true, null);
+    
+    assertEquals(found.getName(), i2.getName());
+    
+    GrouperSession.stopQuietly(s);
+    
+    s = GrouperSession.start(SubjectTestHelper.SUBJ1);
+    
+    found = GroupFinder.findByIdIndexSecure(i2.getIdIndex(), false, null);
+    
+    assertNull(found);
+    
+    try {
+      GroupFinder.findByIdIndexSecure(i2.getIdIndex(), true, null);
+      fail("shouldnt get here");
+    } catch (GroupNotFoundException gnfe) {
+      //good
+    }
+    
+    try {
+      GroupFinder.findByIdIndexSecure(123456789L, true, null);
+      fail("shouldnt get here");
+    } catch (GroupNotFoundException gnfe) {
+      //good
+    }
+    
+    
+  } // public void testFindByIdIndex()
+
   // Tests
   
   public void testFindByUuid() {
@@ -306,7 +355,8 @@ public class TestGroupFinder extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(TestGroupFinder.class);
+    //TestRunner.run(TestGroupFinder.class);
+    TestRunner.run(new TestGroupFinder("testFindByIdIndex"));
   }
 
 } // public class TestGroupFinder_FindByAttribute

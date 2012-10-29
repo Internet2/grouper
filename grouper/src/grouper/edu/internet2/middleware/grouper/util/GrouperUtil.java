@@ -5951,6 +5951,9 @@ public class GrouperUtil {
       return stringValue((Date) input);
     }
 
+    if (input instanceof Integer || input instanceof Long) {
+      return input.toString();
+    }
     if (input instanceof Number) {
       DecimalFormat decimalFormat = new DecimalFormat(
           "###################.###############");

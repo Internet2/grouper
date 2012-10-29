@@ -570,11 +570,11 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
    * not a secure method, find by id index
    */
   @Override
-  public AttributeDef findByIdIndex(Long idIndex, boolean exceptionIfNotFound)
+  public AttributeDef findByIdIndex(Long idIndex, boolean exceptionIfNotFound, QueryOptions queryOptions)
       throws AttributeDefNotFoundException {
     
     StringBuilder hql = new StringBuilder("select theAttributeDef from AttributeDef as theAttributeDef where (theAttributeDef.idIndex = :theIdIndex)");
-    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic().options(queryOptions)
       .setCacheable(true).setCacheRegion(KLASS + ".FindByIdIndex");
     
     byHqlStatic.createQuery(hql.toString());
@@ -588,6 +588,28 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     return attributeDef;
     
   }
+
+
+  /**
+   * secure method, find by id index
+   */
+  @Override
+  public AttributeDef findByIdIndexSecure(Long idIndex, boolean exceptionIfNotFound, QueryOptions queryOptions)
+      throws AttributeDefNotFoundException {
+    
+    AttributeDef attributeDef = findByIdIndex(idIndex, exceptionIfNotFound, queryOptions);
+
+    //make sure grouper session can view the attribute def
+    attributeDef = filterSecurity(attributeDef);
+
+    //handle exceptions out of data access method...
+    if (attributeDef == null && exceptionIfNotFound) {
+      throw new AttributeDefNotFoundException("Cannot find AttributeDef with idIndex: '" + idIndex + "'");
+    }
+    return attributeDef;
+    
+  }
+
 
 } 
 

@@ -27,6 +27,27 @@ package edu.internet2.middleware.grouperClient.ws.beans;
  */
 public class WsAttributeDefName {
 
+  /**
+   * integer ID for object
+   */
+  private String idIndex;
+  
+  /**
+   * integer ID for object
+   * @return the id
+   */
+  public String getIdIndex() {
+    return this.idIndex;
+  }
+
+  /**
+   * integer ID for object
+   * @param idIndex1
+   */
+  public void setIdIndex(String idIndex1) {
+    this.idIndex = idIndex1;
+  }
+
   /** extension of attributeDefName, the part to the right of last colon in name */
   private String extension;
 

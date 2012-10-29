@@ -39,6 +39,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
@@ -409,6 +410,20 @@ public class StemFinder {
     }
     return GrouperDAOFactory.getFactory().getStem().findByName(name, exceptionIfNull);
   } // public static StemDTO internal_findByName(name)
+
+  /**
+   * Find a stem within the registry by ID index.
+   * @param idIndex id index of stem to find.
+   * @param exceptionIfNotFound true if exception if not found
+   * @param queryOptions 
+   * @return  A {@link Stem}
+   * @throws StemNotFoundException if not found an exceptionIfNotFound is true
+   */
+  public static Stem findByIdIndex(Long idIndex, boolean exceptionIfNotFound,  QueryOptions queryOptions) 
+      throws StemNotFoundException {
+    Stem s = GrouperDAOFactory.getFactory().getStem().findByIdIndex(idIndex, exceptionIfNotFound, queryOptions);
+    return s;
+  }
 
 }
 

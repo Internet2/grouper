@@ -21,7 +21,9 @@ package edu.internet2.middleware.grouper.ws.coresoap;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 
 /**
  * Result for finding a stem
@@ -30,6 +32,27 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * 
  */
 public class WsStem implements Comparable<WsStem> {
+
+  /**
+   * integer ID for object
+   */
+  private String idIndex;
+  
+  /**
+   * integer ID for object
+   * @return the id
+   */
+  public String getIdIndex() {
+    return this.idIndex;
+  }
+
+  /**
+   * integer ID for object
+   * @param idIndex1
+   */
+  public void setIdIndex(String idIndex1) {
+    this.idIndex = idIndex1;
+  }
 
   /** extension is the right part of the name */
   private String extension;
@@ -57,6 +80,12 @@ public class WsStem implements Comparable<WsStem> {
     this.setUuid(stem.getUuid());
     this.setExtension(stem.getExtension());
     this.setDisplayExtension(stem.getDisplayExtension());
+    //if greater then 2.2 then set id index
+    if (GrouperWsVersionUtils.retrieveCurrentClientVersion()
+        .greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("v2_2_000"))) {
+      this.setIdIndex(stem.getIdIndex() == null ? null : stem.getIdIndex().toString());
+    }
+
   }
 
   /**

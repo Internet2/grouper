@@ -21,13 +21,11 @@ package edu.internet2.middleware.grouper.internal.dao;
 
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
-import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.subject.Subject;
 
@@ -114,10 +112,21 @@ public interface AttributeDefNameDAO extends GrouperDAO {
 
   /**
    * @since   2.2
-   *
+   * @param idIndex
+   * @param exceptionIfNotFound
+   * @param queryOptions
    */
-  AttributeDefName findByIdIndex(Long idIndex, boolean exceptionIfNotFound) 
-    throws GroupNotFoundException;
+  AttributeDefName findByIdIndex(Long idIndex, boolean exceptionIfNotFound, QueryOptions queryOptions) 
+    throws AttributeDefNameNotFoundException;
+
+  /**
+   * @since   2.2
+   * @param idIndex
+   * @param exceptionIfNotFound
+   * @param queryOptions
+   */
+  AttributeDefName findByIdIndexSecure(Long idIndex, boolean exceptionIfNotFound, QueryOptions queryOptions) 
+    throws AttributeDefNameNotFoundException;
 
   /**
    * save the update properties which are auto saved when business method is called

@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResult.WsGetMembersResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteResult.WsGroupDeleteResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
@@ -51,6 +52,27 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  * @author mchyzer
  */
 public class WsGroupLookup {
+
+  /**
+   * integer ID for object
+   */
+  private String idIndex;
+  
+  /**
+   * integer ID for object
+   * @return the id
+   */
+  public String getIdIndex() {
+    return this.idIndex;
+  }
+
+  /**
+   * integer ID for object
+   * @param idIndex1
+   */
+  public void setIdIndex(String idIndex1) {
+    this.idIndex = idIndex1;
+  }
 
   /**
    * convert group lookups to group ids
@@ -168,7 +190,7 @@ public class WsGroupLookup {
    */
   public boolean blank() {
     return StringUtils.isBlank(this.groupName) && StringUtils.isBlank(this.uuid)
-      && this.group == null && this.groupFindResult == null;
+      && this.group == null && this.groupFindResult == null && StringUtils.isBlank(this.idIndex);
   }
 
   
@@ -177,7 +199,8 @@ public class WsGroupLookup {
    * @return true if it has data
    */
   public boolean hasData() {
-    return !StringUtils.isBlank(this.groupName) || !StringUtils.isBlank(this.uuid);
+    return !StringUtils.isBlank(this.groupName) || !StringUtils.isBlank(this.uuid)
+        || !StringUtils.isBlank(this.idIndex);
   }
   
   /**
@@ -385,6 +408,9 @@ public class WsGroupLookup {
     if (!StringUtils.isBlank(this.uuid)) {
       return "id: " + this.uuid;
     }
+    if (!StringUtils.isBlank(this.idIndex)) {
+      return "idIndex: " + this.idIndex;
+    }
     return "blank";
   }
 
@@ -419,8 +445,10 @@ public class WsGroupLookup {
 
       boolean hasName = !StringUtils.isBlank(this.groupName);
 
+      boolean hasIdIndex = !StringUtils.isBlank(this.idIndex);
+
       //must have a name or uuid
-      if (!hasUuid && !hasName) {
+      if (!hasUuid && !hasName && !hasIdIndex) {
         this.groupFindResult = GroupFindResult.INVALID_QUERY;
         if (!StringUtils.isEmpty(invalidQueryReason)) {
           throw new WsInvalidQueryException("Invalid group query for '"
@@ -454,7 +482,12 @@ public class WsGroupLookup {
 
       } else if (hasUuid) {
         this.group = GroupFinder.findByUuid(grouperSession, this.uuid, true, new QueryOptions().secondLevelCache(false));
+      } else if (hasIdIndex) {
+        this.group = GroupFinder.findByIdIndexSecure(GrouperUtil.longValue(this.idIndex), true, new QueryOptions().secondLevelCache(false));
       }
+      
+      //make sure everything matches...
+      //TODO
 
     } catch (GroupNotFoundException gnf) {
       this.groupFindResult = GroupFindResult.GROUP_NOT_FOUND;
@@ -598,6 +631,17 @@ public class WsGroupLookup {
   public WsGroupLookup(String groupName1, String uuid1) {
     this.uuid = uuid1;
     this.setGroupName(groupName1);
+  }
+
+  /**
+   * @param groupName1 
+   * @param uuid1
+   * @param idIndex1
+   */
+  public WsGroupLookup(String groupName1, String uuid1, String idIndex1) {
+    this.uuid = uuid1;
+    this.setGroupName(groupName1);
+    this.idIndex = idIndex1;
   }
 
 }

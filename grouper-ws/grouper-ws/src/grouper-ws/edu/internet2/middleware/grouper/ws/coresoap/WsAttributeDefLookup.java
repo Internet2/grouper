@@ -50,12 +50,33 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 public class WsAttributeDefLookup {
 
   /**
+   * integer ID for object
+   */
+  private String idIndex;
+  
+  /**
+   * integer ID for object
+   * @return the id
+   */
+  public String getIdIndex() {
+    return this.idIndex;
+  }
+
+  /**
+   * integer ID for object
+   * @param idIndex1
+   */
+  public void setIdIndex(String idIndex1) {
+    this.idIndex = idIndex1;
+  }
+
+  /**
    * see if blank
    * @return true if blank
    */
   public boolean blank() {
     return StringUtils.isBlank(this.name) && StringUtils.isBlank(this.uuid)
-      && this.attributeDef == null && this.attributeDefFindResult == null;
+      && this.attributeDef == null && this.attributeDefFindResult == null && StringUtils.isBlank(this.idIndex);
   }
 
   
@@ -64,7 +85,8 @@ public class WsAttributeDefLookup {
    * @return true if it has data
    */
   public boolean hasData() {
-    return !StringUtils.isBlank(this.name) || !StringUtils.isBlank(this.uuid);
+    return !StringUtils.isBlank(this.name) || !StringUtils.isBlank(this.uuid)
+        || !StringUtils.isBlank(this.idIndex);
   }
   
   /**
@@ -181,8 +203,10 @@ public class WsAttributeDefLookup {
 
       boolean hasName = !StringUtils.isBlank(this.name);
 
+      boolean hasIdIndex = !StringUtils.isBlank(this.idIndex);
+
       //must have a name or uuid
-      if (!hasUuid && !hasName) {
+      if (!hasUuid && !hasName && !hasIdIndex) {
         this.attributeDefFindResult = AttributeDefFindResult.INVALID_QUERY;
         if (!StringUtils.isEmpty(invalidQueryReason)) {
           throw new WsInvalidQueryException("Invalid attributeDef query for '"
@@ -472,6 +496,9 @@ public class WsAttributeDefLookup {
     if (!StringUtils.isBlank(this.uuid)) {
       return "id: " + this.uuid;
     }
+    if (!StringUtils.isBlank(this.idIndex)) {
+      return "idIndex: " + this.idIndex;
+    }
     return "blank";
   }
 
@@ -489,6 +516,17 @@ public class WsAttributeDefLookup {
   public WsAttributeDefLookup(String name1, String uuid1) {
     this.uuid = uuid1;
     this.setName(name1);
+  }
+
+  /**
+   * @param name1 
+   * @param uuid1
+   * @param idIndex1
+   */
+  public WsAttributeDefLookup(String name1, String uuid1, String idIndex1) {
+    this.uuid = uuid1;
+    this.setName(name1);
+    this.idIndex = idIndex1;
   }
 
 }

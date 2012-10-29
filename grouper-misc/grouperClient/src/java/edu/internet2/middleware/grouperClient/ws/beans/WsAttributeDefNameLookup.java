@@ -29,6 +29,27 @@ package edu.internet2.middleware.grouperClient.ws.beans;
 public class WsAttributeDefNameLookup {
 
   /**
+   * integer ID for object
+   */
+  private String idIndex;
+  
+  /**
+   * integer ID for object
+   * @return the id
+   */
+  public String getIdIndex() {
+    return this.idIndex;
+  }
+
+  /**
+   * integer ID for object
+   * @param idIndex1
+   */
+  public void setIdIndex(String idIndex1) {
+    this.idIndex = idIndex1;
+  }
+
+  /**
    * 
    */
   public WsAttributeDefNameLookup() {
@@ -41,6 +62,18 @@ public class WsAttributeDefNameLookup {
    */
   public WsAttributeDefNameLookup(String name1, String uuid1) {
     super();
+    this.uuid = uuid1;
+    this.name = name1;
+  }
+
+  /**
+   * @param name1
+   * @param uuid1
+   * @param idIndex1
+   */
+  public WsAttributeDefNameLookup(String name1, String uuid1, String idIndex1) {
+    super();
+    this.idIndex = idIndex1;
     this.uuid = uuid1;
     this.name = name1;
   }

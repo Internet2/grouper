@@ -2684,5 +2684,56 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     return group;
     
   }
+
+  /**
+   * @see GroupDAO#findByIdIndexSecure(Long, boolean, QueryOptions)
+   */
+  @Override
+  public Group findByIdIndexSecure(Long idIndex, boolean exceptionIfNotFound,
+      QueryOptions queryOptions) throws GroupNotFoundException {
+
+    StringBuilder hql = new StringBuilder("select theGroup from Group as theGroup");
+
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    ByHqlStatic byHql = HibernateSession.byHqlStatic();
+
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
+          grouperSession.getSubject(), byHql, 
+          hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+    
+    if (!changedQuery) {
+      hql.append(" where ");
+    } else {
+      hql.append(" and ");
+    }
+
+
+    hql.append(" (theGroup.idIndex = :theIdIndex)" );
+    byHql.setCacheable(true).setCacheRegion(KLASS + ".FindByIdIndexSecure");
+    
+    Group group = byHql.createQuery(hql.toString()).setLong("theIdIndex", idIndex)
+        .options(queryOptions)
+        .uniqueResult(Group.class);
+
+    if (group != null) {
+      //if the hql didnt filter, this will
+      Set<Group> filteredGroups = grouperSession.getAccessResolver()
+        .postHqlFilterGroups(GrouperUtil.toSet(group), grouperSession.getSubject(), AccessPrivilege.VIEW_PRIVILEGES);
+      if (GrouperUtil.length(filteredGroups) == 0) {
+        group = null;
+      }
+    }
+    
+    //handle exceptions out of data access method...
+    if (group == null && exceptionIfNotFound) {
+      throw new GroupNotFoundException("Cannot find group with idIndex: '" + idIndex + "'");
+    }
+    return group;
+    
+    
+    
+  }
 } 
 

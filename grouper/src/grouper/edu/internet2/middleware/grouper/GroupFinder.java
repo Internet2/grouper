@@ -439,5 +439,21 @@ public class GroupFinder {
     return null;
   } 
 
+  /**
+   * Find a group within the registry by ID index.
+   * @param idIndex id index of group to find.
+   * @param exceptionIfNotFound true if exception if not found
+   * @param queryOptions 
+   * @return  A {@link Group}
+   * @throws GroupNotFoundException if not found an exceptionIfNotFound is true
+   */
+  public static Group findByIdIndexSecure(Long idIndex, boolean exceptionIfNotFound,  QueryOptions queryOptions) 
+      throws GroupNotFoundException {
+    //note, no need for GrouperSession inverse of control
+    GrouperSession.validate(GrouperSession.staticGrouperSession());
+    Group g = GrouperDAOFactory.getFactory().getGroup().findByIdIndexSecure(idIndex, exceptionIfNotFound, queryOptions);
+    return g;
+  } 
+
 }
 

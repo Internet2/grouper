@@ -23,10 +23,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
+import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -209,6 +211,22 @@ public class AttributeDefNameFinder {
           this.queryOptions, this.attributeAssignType, this.attributeDefType, this.filterByServicesCanView);
   }
   
+  /**
+   * Find an attributeDefName within the registry by ID index.
+   * @param idIndex id index of attributeDefName to find.
+   * @param exceptionIfNotFound true if exception if not found
+   * @param queryOptions 
+   * @return  A {@link AttributeDefName}
+   * @throws AttributeDefNameNotFoundException if not found an exceptionIfNotFound is true
+   */
+  public static AttributeDefName findByIdIndexSecure(Long idIndex, boolean exceptionIfNotFound,  QueryOptions queryOptions) 
+      throws AttributeDefNameNotFoundException {
+    //note, no need for GrouperSession inverse of control
+    GrouperSession.validate(GrouperSession.staticGrouperSession());
+    AttributeDefName a = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdIndexSecure(idIndex, exceptionIfNotFound, queryOptions);
+    return a;
+  }
+
   /**
    * find an attributeDefName by name.  This is a secure method, a GrouperSession must be open
    * @param name of attributeDefName

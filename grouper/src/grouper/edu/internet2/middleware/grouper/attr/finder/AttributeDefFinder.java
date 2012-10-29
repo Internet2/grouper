@@ -19,6 +19,7 @@
  */
 package edu.internet2.middleware.grouper.attr.finder;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -100,6 +101,22 @@ public class AttributeDefFinder {
    */
   public static AttributeDef findByName(String name, boolean exceptionIfNull) {
     return GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(name, exceptionIfNull);
+  }
+
+  /**
+   * Find an attributeDef within the registry by ID index.
+   * @param idIndex id index of attributeDef to find.
+   * @param exceptionIfNotFound true if exception if not found
+   * @param queryOptions 
+   * @return  A {@link AttributeDef}
+   * @throws AttributeDefNotFoundException if not found an exceptionIfNotFound is true
+   */
+  public static AttributeDef findByIdIndexSecure(Long idIndex, boolean exceptionIfNotFound,  QueryOptions queryOptions) 
+      throws AttributeDefNotFoundException {
+    //note, no need for GrouperSession inverse of control
+    GrouperSession.validate(GrouperSession.staticGrouperSession());
+    AttributeDef a = GrouperDAOFactory.getFactory().getAttributeDef().findByIdIndexSecure(idIndex, exceptionIfNotFound, queryOptions);
+    return a;
   }
   
   

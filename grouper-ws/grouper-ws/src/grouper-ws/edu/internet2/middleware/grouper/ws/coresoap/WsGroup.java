@@ -139,6 +139,27 @@ public class WsGroup implements Comparable<WsGroup> {
   private WsGroupDetail detail;
 
   /**
+   * integer ID for object
+   */
+  private String idIndex;
+  
+  /**
+   * integer ID for object
+   * @return the id
+   */
+  public String getIdIndex() {
+    return this.idIndex;
+  }
+
+  /**
+   * integer ID for object
+   * @param idIndex1
+   */
+  public void setIdIndex(String idIndex1) {
+    this.idIndex = idIndex1;
+  }
+
+  /**
    * no arg constructor
    */
   public WsGroup() {
@@ -161,6 +182,12 @@ public class WsGroup implements Comparable<WsGroup> {
       this.setExtension(group.getExtension());
       this.setDisplayExtension(group.getDisplayExtension());
 
+      //if greater then 2.2 then set id index
+      if (GrouperWsVersionUtils.retrieveCurrentClientVersion()
+          .greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("v2_2_000"))) {
+        this.setIdIndex(group.getIdIndex() == null ? null : group.getIdIndex().toString());
+      }
+      
       //if greater then 2.1 then set type of group
       if (GrouperWsVersionUtils.retrieveCurrentClientVersion()
           .greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("v2_1_000"))) {
@@ -309,6 +336,7 @@ public class WsGroup implements Comparable<WsGroup> {
   /**
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
+  @Override
   public int compareTo(WsGroup o2) {
     if (this == o2) {
       return 0;

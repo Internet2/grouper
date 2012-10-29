@@ -46,12 +46,33 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 public class WsStemLookup {
 
   /**
+   * integer ID for object
+   */
+  private String idIndex;
+  
+  /**
+   * integer ID for object
+   * @return the id
+   */
+  public String getIdIndex() {
+    return this.idIndex;
+  }
+
+  /**
+   * integer ID for object
+   * @param idIndex1
+   */
+  public void setIdIndex(String idIndex1) {
+    this.idIndex = idIndex1;
+  }
+
+  /**
    * see if blank
    * @return true if blank
    */
   public boolean blank() {
     return StringUtils.isBlank(this.stemName) && StringUtils.isBlank(this.uuid)
-      && this.stem == null && this.stemFindResult == null;
+      && this.stem == null && this.stemFindResult == null && StringUtils.isBlank(this.idIndex);
   }
   
   /**
@@ -59,7 +80,8 @@ public class WsStemLookup {
    * @return true if it has data
    */
   public boolean hasData() {
-    return !StringUtils.isBlank(this.stemName) || !StringUtils.isBlank(this.uuid);
+    return !StringUtils.isBlank(this.stemName) || !StringUtils.isBlank(this.uuid)
+        || !StringUtils.isBlank(this.idIndex);
   }
   
 
@@ -196,8 +218,10 @@ public class WsStemLookup {
 
       boolean hasName = !StringUtils.isBlank(this.stemName);
 
+      boolean hasIdIndex = !StringUtils.isBlank(this.idIndex);
+
       //maybe nothing and thats ok
-      if (!exceptionOnNull && !hasUuid && !hasName) {
+      if (!exceptionOnNull && !hasUuid && !hasName && !hasIdIndex) {
         return;
       }
 
@@ -332,6 +356,9 @@ public class WsStemLookup {
     if (!StringUtils.isBlank(this.uuid)) {
       return "id: " + this.uuid;
     }
+    if (!StringUtils.isBlank(this.idIndex)) {
+      return "idIndex: " + this.idIndex;
+    }
     return "blank";
   }
 
@@ -349,6 +376,17 @@ public class WsStemLookup {
   public WsStemLookup(String stemName1, String uuid1) {
     this.uuid = uuid1;
     this.setStemName(stemName1);
+  }
+
+  /**
+   * @param stemName1 
+   * @param uuid1
+   * @param idIndex1
+   */
+  public WsStemLookup(String stemName1, String uuid1, String idIndex1) {
+    this.uuid = uuid1;
+    this.setStemName(stemName1);
+    this.idIndex = idIndex1;
   }
 
 }

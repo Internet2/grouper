@@ -43,7 +43,6 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -293,10 +292,13 @@ public interface StemDAO extends GrouperDAO {
     throws  GrouperDAOException;
 
   /**
+   * find by id index
    * @since   2.2
-   *
+   * @param idIndex
+   * @param exceptionIfNotFound
+   * @param queryOptions
    */
-  Stem findByIdIndex(Long idIndex, boolean exceptionIfNotFound) 
+  Stem findByIdIndex(Long idIndex, boolean exceptionIfNotFound, QueryOptions queryOptions) 
     throws StemNotFoundException;
 
   /**

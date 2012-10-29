@@ -24,10 +24,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.pit.PITAttributeDef;
 import edu.internet2.middleware.grouper.pit.PITAttributeDefName;
 import edu.internet2.middleware.grouper.pit.finder.PITAttributeDefFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 
 /**
  * Result of one attribute def name being retrieved.  The number of
@@ -36,6 +38,27 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @author mchyzer
  */
 public class WsAttributeDefName implements Comparable<WsAttributeDefName> {
+
+  /**
+   * integer ID for object
+   */
+  private String idIndex;
+  
+  /**
+   * integer ID for object
+   * @return the id
+   */
+  public String getIdIndex() {
+    return this.idIndex;
+  }
+
+  /**
+   * integer ID for object
+   * @param idIndex1
+   */
+  public void setIdIndex(String idIndex1) {
+    this.idIndex = idIndex1;
+  }
 
   /**
    * make sure this is an explicit toString
@@ -155,12 +178,24 @@ public class WsAttributeDefName implements Comparable<WsAttributeDefName> {
       this.setAttributeDefId(theAttributeDefName.getAttributeDefId());
       this.setAttributeDefName(theAttributeDefName.getAttributeDef().getName());
       
+      //if greater then 2.2 then set id index
+      if (GrouperWsVersionUtils.retrieveCurrentClientVersion()
+          .greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("v2_2_000"))) {
+        this.setIdIndex(theAttributeDefName.getIdIndex() == null ? null : theAttributeDefName.getIdIndex().toString());
+      }
+
     } else {
       if (wsAttributeDefNameLookup != null) {
         //no attributeDefName, set the look values so the caller can keep things in sync
         this.setName(wsAttributeDefNameLookup.getName());
         this.setUuid(wsAttributeDefNameLookup.getUuid());
         this.setExtension(GrouperUtil.extensionFromName(wsAttributeDefNameLookup.getName()));
+        //if greater then 2.2 then set id index
+        if (GrouperWsVersionUtils.retrieveCurrentClientVersion()
+            .greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("v2_2_000"))) {
+          this.setIdIndex(wsAttributeDefNameLookup.getIdIndex() == null ? null : wsAttributeDefNameLookup.getIdIndex().toString());
+        }
+
       }
     }
   }

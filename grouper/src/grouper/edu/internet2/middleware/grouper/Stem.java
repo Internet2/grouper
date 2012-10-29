@@ -3968,7 +3968,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     synchronized (TableIndexType.stem) {
 
       //ok, if the index is not in use (not, it could be reserved... hmmm)
-      Stem tempStem = GrouperDAOFactory.getFactory().getStem().findByIdIndex(theIdIndex, false);
+      Stem tempStem = GrouperDAOFactory.getFactory().getStem().findByIdIndex(theIdIndex, false, null);
       if (tempStem == null) {
         
         this.setIdIndex(theIdIndex);

@@ -1889,14 +1889,15 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
 
   /**
    * not a secure method, find by id index
+   * @see StemDAO#findByIdIndex(Long, boolean, QueryOptions)
    */
   @Override
-  public Stem findByIdIndex(Long idIndex, boolean exceptionIfNotFound)
+  public Stem findByIdIndex(Long idIndex, boolean exceptionIfNotFound, QueryOptions queryOptions)
       throws GroupNotFoundException {
     
     StringBuilder hql = new StringBuilder("select theStem from Stem as theStem where (theStem.idIndex = :theIdIndex)");
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
-      .setCacheable(true).setCacheRegion(KLASS + ".FindByIdIndex");
+      .setCacheable(true).setCacheRegion(KLASS + ".FindByIdIndex").options(queryOptions);
     
     byHqlStatic.createQuery(hql.toString());
     

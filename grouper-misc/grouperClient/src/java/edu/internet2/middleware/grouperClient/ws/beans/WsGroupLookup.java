@@ -30,6 +30,27 @@ package edu.internet2.middleware.grouperClient.ws.beans;
 public class WsGroupLookup {
 
   /**
+   * integer ID for object
+   */
+  private String idIndex;
+  
+  /**
+   * integer ID for object
+   * @return the id
+   */
+  public String getIdIndex() {
+    return this.idIndex;
+  }
+
+  /**
+   * integer ID for object
+   * @param idIndex1
+   */
+  public void setIdIndex(String idIndex1) {
+    this.idIndex = idIndex1;
+  }
+
+  /**
    * uuid of the group to find
    */
   private String uuid;
@@ -84,6 +105,18 @@ public class WsGroupLookup {
   public WsGroupLookup(String theGroupName, String groupUuid) {
     this.groupName = theGroupName;
     this.uuid = groupUuid;
+  }
+
+  /**
+   * construct with fields
+   * @param theGroupName
+   * @param groupUuid
+   * @param groupIdIndex
+   */
+  public WsGroupLookup(String theGroupName, String groupUuid, String groupIdIndex) {
+    this.groupName = theGroupName;
+    this.uuid = groupUuid;
+    this.idIndex = groupIdIndex;
   }
   
 }

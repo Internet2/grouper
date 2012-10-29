@@ -29,6 +29,27 @@ package edu.internet2.middleware.grouperClient.ws.beans;
 public class WsStemLookup {
 
   /**
+   * integer ID for object
+   */
+  private String idIndex;
+  
+  /**
+   * integer ID for object
+   * @return the id
+   */
+  public String getIdIndex() {
+    return this.idIndex;
+  }
+
+  /**
+   * integer ID for object
+   * @param idIndex1
+   */
+  public void setIdIndex(String idIndex1) {
+    this.idIndex = idIndex1;
+  }
+
+  /**
    * uuid of the stem to find
    */
   private String uuid;
@@ -83,5 +104,17 @@ public class WsStemLookup {
   public WsStemLookup(String theStemName, String stemUuid) {
     this.stemName = theStemName;
     this.uuid = stemUuid;
+  }
+
+  /**
+   * construct with fields
+   * @param theIdIndex
+   * @param theStemName
+   * @param stemUuid
+   */
+  public WsStemLookup(String theStemName, String stemUuid, String theIdIndex) {
+    this.stemName = theStemName;
+    this.uuid = stemUuid;
+    this.idIndex = theIdIndex;
   }
 }

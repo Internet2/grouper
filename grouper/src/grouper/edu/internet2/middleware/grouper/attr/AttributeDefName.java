@@ -1161,7 +1161,7 @@ public class AttributeDefName extends GrouperAPI
     synchronized (TableIndexType.attributeDefName) {
 
       //ok, if the index is not in use (not, it could be reserved... hmmm)
-      AttributeDefName tempAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdIndex(theIdIndex, false);
+      AttributeDefName tempAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdIndex(theIdIndex, false, null);
       if (tempAttributeDefName == null) {
         
         this.setIdIndex(theIdIndex);

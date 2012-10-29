@@ -26,6 +26,27 @@ package edu.internet2.middleware.grouperClient.ws.beans;
  */
 public class WsStem {
 
+  /**
+   * integer ID for object
+   */
+  private String idIndex;
+  
+  /**
+   * integer ID for object
+   * @return the id
+   */
+  public String getIdIndex() {
+    return this.idIndex;
+  }
+
+  /**
+   * integer ID for object
+   * @param idIndex1
+   */
+  public void setIdIndex(String idIndex1) {
+    this.idIndex = idIndex1;
+  }
+
   /** extension is the right part of the name */
   private String extension;
 

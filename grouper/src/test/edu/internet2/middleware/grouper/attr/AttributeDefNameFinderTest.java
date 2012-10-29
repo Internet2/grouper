@@ -13,6 +13,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -42,7 +43,7 @@ public class AttributeDefNameFinderTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefNameFinderTest("testFinder"));
+    TestRunner.run(new AttributeDefNameFinderTest("testFindByIdIndexSecure"));
   }
   
   /**
@@ -60,6 +61,57 @@ public class AttributeDefNameFinderTest extends GrouperTest {
     super(name);
   }
 
+  /**
+   * test id index
+   */
+  public void testFindByIdIndexSecure() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    AttributeDef attributeDef = new AttributeDefSave(grouperSession).assignName("test:attributeDef")
+      .assignAttributeDefType(AttributeDefType.attr).assignCreateParentStemsIfNotExist(true).save();
+    
+    AttributeDefName attributeDefName = new AttributeDefNameSave(grouperSession, attributeDef)
+      .assignCreateParentStemsIfNotExist(true)
+      .assignName("test:attributeDefName").save();
+    
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_VIEW, false);
+    attributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_VIEW, false);
+    attributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    AttributeDefName found = AttributeDefNameFinder.findByIdIndexSecure(attributeDefName.getIdIndex(), true, null);
+    
+    assertEquals(found.getName(), attributeDefName.getName());
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+    
+    found = AttributeDefNameFinder.findByIdIndexSecure(attributeDefName.getIdIndex(), false, null);
+    
+    assertNull(found);
+    
+    try {
+      AttributeDefNameFinder.findByIdIndexSecure(attributeDefName.getIdIndex(), true, null);
+      fail("shouldnt get here");
+    } catch (AttributeDefNameNotFoundException gnfe) {
+      //good
+    }
+    
+    try {
+      AttributeDefNameFinder.findByIdIndexSecure(123456789L, true, null);
+      fail("shouldnt get here");
+    } catch (AttributeDefNameNotFoundException gnfe) {
+      //good
+    }
+
+    
+  }
+  
   /**
    * make sure update properties are detected correctly
    */
