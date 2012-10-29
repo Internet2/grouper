@@ -335,7 +335,7 @@ public class XmlExportAttributeDefScope {
                 
                 xmlImportMain.incrementCurrentCount();
               } catch (RuntimeException re) {
-                LOG.error("Problem importing group: " + XmlExportUtils.toString(row), re);
+                LOG.error("Problem importing attributeDefScope: " + XmlExportUtils.toString(row), re);
                 throw re;
               }
             }

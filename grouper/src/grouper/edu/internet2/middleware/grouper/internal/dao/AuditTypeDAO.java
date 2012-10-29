@@ -72,6 +72,20 @@ public interface AuditTypeDAO extends GrouperDAO {
   AuditType findByUuidOrName(String id, String auditCategory, String actionName, boolean exceptionIfNull);
 
   /**
+   * @param id 
+   * @param auditCategory 
+   * @param actionName 
+   * @param exceptionIfNull 
+   * @param queryOptions
+   * @return the stem or null
+   * @throws GrouperDAOException 
+   * @throws GroupNotFoundException 
+   * @since   1.6.0
+   */
+  AuditType findByUuidOrName(String id, String auditCategory, String actionName, boolean exceptionIfNull,
+      QueryOptions queryOptions);
+
+  /**
    * save the update properties which are auto saved when business method is called
    * @param auditType
    */

@@ -51,6 +51,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -236,11 +237,20 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
    */
   public GroupType findByUuidOrName(String uuid, String name, boolean exceptionIfNull)
       throws GrouperDAOException {
+    return findByUuidOrName(uuid, name, exceptionIfNull, null);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO#findByUuidOrName(java.lang.String, java.lang.String, boolean, QueryOptions)
+   */
+  public GroupType findByUuidOrName(String uuid, String name, boolean exceptionIfNull, QueryOptions queryOptions)
+      throws GrouperDAOException {
     try {
       GroupType groupType = HibernateSession.byHqlStatic()
         .createQuery("from GroupType as theGroupType where theGroupType.uuid = :uuid or theGroupType.name = :name")
         .setCacheable(true)
         .setCacheRegion(KLASS + ".FindByUuidOrName")
+        .options(queryOptions)
         .setString("uuid", uuid)
         .setString("name", name)
         .uniqueResult(GroupType.class);

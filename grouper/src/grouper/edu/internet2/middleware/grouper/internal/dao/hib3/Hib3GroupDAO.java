@@ -2138,11 +2138,20 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    */
   public Group findByUuidOrName(String uuid, String name, boolean exceptionIfNull)
       throws GrouperDAOException, GroupNotFoundException {
+    return findByUuidOrName(uuid, name, exceptionIfNull, null);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#findByUuidOrName(java.lang.String, java.lang.String, boolean, QueryOptions)
+   */
+  public Group findByUuidOrName(String uuid, String name, boolean exceptionIfNull, QueryOptions queryOptions)
+      throws GrouperDAOException, GroupNotFoundException {
     try {
       Group group = HibernateSession.byHqlStatic()
         .createQuery("from Group as theGroup where theGroup.uuid = :uuid or theGroup.nameDb = :name")
         .setCacheable(true)
         .setCacheRegion(KLASS + ".FindByUuidOrName")
+        .options(queryOptions)
         .setString("uuid", uuid)
         .setString("name", name)
         .uniqueResult(Group.class);

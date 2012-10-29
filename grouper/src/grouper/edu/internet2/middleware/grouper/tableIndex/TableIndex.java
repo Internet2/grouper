@@ -399,6 +399,24 @@ public class TableIndex extends GrouperAPI implements Hib3GrouperVersioned {
   private static Map<TableIndexType, List<Long>> reservedIds = new HashMap<TableIndexType, List<Long>>();
 
   /**
+   * clear reserved id in case an existing one was used
+   * @param tableIndexType
+   */
+  public static void clearReservedId(TableIndexType tableIndexType, long id) {
+    synchronized(tableIndexType) {
+      List<Long> longList = reservedIds.get(tableIndexType);
+      if (longList != null) {
+        for (int i=0;i<longList.size();i++) {
+          Long theLong = longList.get(i);
+          if (GrouperUtil.equals(theLong, id)) {
+            longList.set(i, null);
+          }
+        }
+      }
+    }
+  }
+  
+  /**
    * get an id for this type of object, if needed, increment the index in the database
    * @param tableIndexType
    * @return the id that can be used for the type of object

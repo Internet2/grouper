@@ -55,6 +55,7 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksFieldBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -799,7 +800,8 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlRetrieveByIdOrKey()
    */
   public Field xmlRetrieveByIdOrKey() {
-    return GrouperDAOFactory.getFactory().getField().findByUuidOrName(this.uuid, this.name, this.groupTypeUuid, false);
+    return GrouperDAOFactory.getFactory().getField().findByUuidOrName(this.uuid, this.name, this.groupTypeUuid, false,
+        new QueryOptions().secondLevelCache(false));
   }
 
   /**

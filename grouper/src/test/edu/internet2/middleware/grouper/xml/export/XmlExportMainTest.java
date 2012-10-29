@@ -95,7 +95,7 @@ public class XmlExportMainTest extends GrouperTest {
 
     //TestRunner.run(XmlExportMainTest.class);
 
-    TestRunner.run(new XmlExportMainTest("testConvertToXmlStem"));
+    TestRunner.run(new XmlExportMainTest("testConvertToXml"));
     
   }
   
@@ -186,6 +186,8 @@ public class XmlExportMainTest extends GrouperTest {
     
     String xml = stringWriter.toString();
     
+    System.out.println(xml);
+    
     assertTrue(xml, xml.contains("<members>"));
     assertTrue(xml, xml.contains("<XmlExportMember>"));
     
@@ -193,6 +195,7 @@ public class XmlExportMainTest extends GrouperTest {
     assertTrue(xml, xml.contains("<XmlExportStem>"));
 
     assertTrue(xml, xml.contains("<groups>"));
+    assertTrue(xml, xml.contains("<idIndex>"));
     assertTrue(xml, xml.contains("<XmlExportGroup>"));
       
     assertTrue(xml, xml.contains("<groupTypes>"));

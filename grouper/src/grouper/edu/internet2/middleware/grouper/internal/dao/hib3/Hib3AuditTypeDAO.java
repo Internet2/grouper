@@ -23,6 +23,7 @@ import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AuditTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 
 /**
@@ -104,12 +105,21 @@ public class Hib3AuditTypeDAO extends Hib3DAO implements AuditTypeDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.AuditTypeDAO#findByUuidOrName(java.lang.String, java.lang.String, java.lang.String, boolean)
    */
   public AuditType findByUuidOrName(String id, String auditCategory, String actionName, boolean exceptionIfNull) {
+    return findByUuidOrName(id, auditCategory, actionName, exceptionIfNull, null);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AuditTypeDAO#findByUuidOrName(java.lang.String, java.lang.String, java.lang.String, boolean, QueryOptions)
+   */
+  public AuditType findByUuidOrName(String id, String auditCategory, String actionName, boolean exceptionIfNull,
+      QueryOptions queryOptions) {
     try {
       AuditType auditType = HibernateSession.byHqlStatic()
         .createQuery("from AuditType as theAuditType where theAuditType.id = :theId or " +
         		"(theAuditType.auditCategory = :theAuditCategory and theAuditType.actionName = :theActionName)")
         .setCacheable(true)
         .setCacheRegion(KLASS + ".FindByUuidOrName")
+        .options(queryOptions)
         .setString("theId", id)
         .setString("theAuditCategory", auditCategory)
         .setString("theActionName", actionName)

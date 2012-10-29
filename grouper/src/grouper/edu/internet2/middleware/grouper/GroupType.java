@@ -66,6 +66,7 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.Quote;
@@ -1259,7 +1260,8 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlRetrieveByIdOrKey()
    */
   public GroupType xmlRetrieveByIdOrKey() {
-    return GrouperDAOFactory.getFactory().getGroupType().findByUuidOrName(this.uuid, this.name, false);
+    return GrouperDAOFactory.getFactory().getGroupType().findByUuidOrName(this.uuid, this.name, false, 
+        new QueryOptions().secondLevelCache(false));
   }
 
   /**

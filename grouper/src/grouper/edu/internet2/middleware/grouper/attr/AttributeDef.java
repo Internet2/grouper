@@ -1615,7 +1615,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlRetrieveByIdOrKey()
    */
   public AttributeDef xmlRetrieveByIdOrKey() {
-    return GrouperDAOFactory.getFactory().getAttributeDef().findByUuidOrName(this.id, this.name, false);
+    return GrouperDAOFactory.getFactory().getAttributeDef().findByUuidOrName(this.id, this.name, false, new QueryOptions().secondLevelCache(false));
   }
 
 
@@ -2017,29 +2017,33 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
     TableIndex.assertCanAssignIdIndex();
 
     boolean needsSave = false;
-    //ok, if the index is not in use (not, it could be reserved... hmmm)
-    AttributeDef tempAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByIdIndex(theIdIndex, false);
-    if (tempAttributeDef == null) {
-      
-      this.setIdIndex(theIdIndex);
-      needsSave = true;
-      
-      //do a new session so we don hold on too long
-      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+    
+    synchronized (TableIndexType.attributeDef) {
+
+      //ok, if the index is not in use (not, it could be reserved... hmmm)
+      AttributeDef tempAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByIdIndex(theIdIndex, false);
+      if (tempAttributeDef == null) {
         
-        @Override
-        public Object callback(HibernateHandlerBean hibernateHandlerBean)
-            throws GrouperDAOException {
-          //now we might need to increment the index
-          TableIndex tableIndex = GrouperDAOFactory.getFactory().getTableIndex().findByType(TableIndexType.attributeDef);
-          if (tableIndex != null && tableIndex.getLastIndexReserved() < theIdIndex) {
-            tableIndex.setLastIndexReserved(theIdIndex);
-            tableIndex.saveOrUpdate();
+        this.setIdIndex(theIdIndex);
+        TableIndex.clearReservedId(TableIndexType.attributeDef, theIdIndex);
+        needsSave = true;
+        
+        //do a new session so we don hold on too long
+        HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+          
+          @Override
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            //now we might need to increment the index
+            TableIndex tableIndex = GrouperDAOFactory.getFactory().getTableIndex().findByType(TableIndexType.attributeDef);
+            if (tableIndex != null && tableIndex.getLastIndexReserved() < theIdIndex) {
+              tableIndex.setLastIndexReserved(theIdIndex);
+              tableIndex.saveOrUpdate();
+            }
+            return null;
           }
-          return null;
-        }
-      });
-      
+        });
+      }      
     }
     return needsSave;
   }

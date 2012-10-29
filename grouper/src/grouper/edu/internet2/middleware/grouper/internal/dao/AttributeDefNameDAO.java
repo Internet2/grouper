@@ -102,6 +102,17 @@ public interface AttributeDefNameDAO extends GrouperDAO {
   public AttributeDefName findByUuidOrName(String id, String name, boolean exceptionIfNotFound);
 
   /**
+   * find a record by uuid or name
+   * @param id
+   * @param name
+   * @param exceptionIfNotFound
+   * @param queryOptions
+   * @return the attribute def name
+   */
+  public AttributeDefName findByUuidOrName(String id, String name, boolean exceptionIfNotFound, 
+      QueryOptions queryOptions);
+
+  /**
    * @since   2.2
    *
    */

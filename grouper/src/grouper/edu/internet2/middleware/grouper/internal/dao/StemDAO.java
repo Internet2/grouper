@@ -395,6 +395,18 @@ public interface StemDAO extends GrouperDAO {
   Stem findByUuidOrName(String uuid, String name, boolean exceptionIfNull) throws GrouperDAOException, StemNotFoundException;
 
   /**
+   * @param uuid 
+   * @param name 
+   * @param exceptionIfNull 
+   * @param queryOptions
+   * @return the stem or null
+   * @throws GrouperDAOException 
+   * @throws StemNotFoundException 
+   * @since   1.6.0
+   */
+  Stem findByUuidOrName(String uuid, String name, boolean exceptionIfNull, QueryOptions queryOptions) throws GrouperDAOException, StemNotFoundException;
+
+  /**
    * @since   1.2.0
    */
   Stem findByUuid(String uuid, boolean exceptionIfNull) throws GrouperDAOException, StemNotFoundException;

@@ -1584,6 +1584,14 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
    */
   public Stem findByUuidOrName(String uuid, String name, boolean exceptionIfNull)
       throws GrouperDAOException, StemNotFoundException {
+    return findByUuidOrName(uuid, name, exceptionIfNull, null);
+  }
+    
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.StemDAO#findByUuidOrName(java.lang.String, java.lang.String, boolean, QueryOptions)
+   */
+  public Stem findByUuidOrName(String uuid, String name, boolean exceptionIfNull, QueryOptions queryOptions)
+      throws GrouperDAOException, StemNotFoundException {
     
     if (StringUtils.equals(name, ":") || StringUtils.isBlank(name)) {
       return StemFinder.findRootStem(GrouperSession.staticGrouperSession());
@@ -1594,6 +1602,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         .createQuery("from Stem as ns where ns.uuid = :uuid or ns.nameDb = :name")
         .setCacheable(true)
         .setCacheRegion(KLASS + ".FindByUuidOrName")
+        .options(queryOptions)
         .setString("uuid", uuid)
         .setString("name", name)
         .uniqueResult(Stem.class);

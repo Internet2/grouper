@@ -53,6 +53,7 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksCompositeBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.membership.MembershipType;
@@ -828,7 +829,8 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlRetrieveByIdOrKey()
    */
   public Composite xmlRetrieveByIdOrKey() {
-    return GrouperDAOFactory.getFactory().getComposite().findByUuidOrName(this.uuid, this.factorOwnerUUID, this.leftFactorUUID, this.rightFactorUUID, this.type, false);
+    return GrouperDAOFactory.getFactory().getComposite().findByUuidOrName(this.uuid, this.factorOwnerUUID, this.leftFactorUUID, this.rightFactorUUID, this.type, false,
+        new QueryOptions().secondLevelCache(false));
   }
 
   /**

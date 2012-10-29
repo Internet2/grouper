@@ -48,6 +48,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -199,11 +200,20 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
    */
   public Field findByUuidOrName(String uuid, String name, String groupTypeUuid,
       boolean exceptionIfNull) throws GrouperDAOException {
+    return findByUuidOrName(uuid, name, groupTypeUuid, exceptionIfNull, null);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.FieldDAO#findByUuidOrName(java.lang.String, java.lang.String, java.lang.String, boolean, QueryOptions)
+   */
+  public Field findByUuidOrName(String uuid, String name, String groupTypeUuid,
+      boolean exceptionIfNull, QueryOptions queryOptions) throws GrouperDAOException {
     try {
       Field field = HibernateSession.byHqlStatic()
         .createQuery("from Field as theField where theField.uuid = :uuid or (theField.name = :name and theField.groupTypeUuid = :theGroupTypeUuid)")
         .setCacheable(true)
         .setCacheRegion(KLASS + ".FindByUuidOrName")
+        .options(queryOptions)
         .setString("uuid", uuid)
         .setString("name", name)
         .setString("theGroupTypeUuid", groupTypeUuid)

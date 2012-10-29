@@ -140,6 +140,17 @@ public interface GroupTypeDAO extends GrouperDAO {
   GroupType findByUuidOrName(String uuid, String name, boolean exceptionIfNull) throws GrouperDAOException;
 
   /**
+   * @param uuid 
+   * @param name 
+   * @param exceptionIfNull 
+   * @param queryOptions
+   * @return the stem or null
+   * @throws GrouperDAOException 
+   * @since   1.6.0
+   */
+  GroupType findByUuidOrName(String uuid, String name, boolean exceptionIfNull, QueryOptions queryOptions) throws GrouperDAOException;
+
+  /**
    * update in db
    * @param groupType
    * @throws GrouperDAOException

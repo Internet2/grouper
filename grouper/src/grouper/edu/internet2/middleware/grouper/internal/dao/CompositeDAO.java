@@ -135,6 +135,20 @@ public interface CompositeDAO extends GrouperDAO {
       String rightFactorUUID, String type, boolean exceptionIfNull);
 
   /**
+   * find a composite by name or uuid
+   * @param uuid
+   * @param factorOwnerUUID
+   * @param leftFactorUUID
+   * @param rightFactorUUID
+   * @param type
+   * @param exceptionIfNull
+   * @param queryOptions
+   * @return the composite or null
+   */
+  public Composite findByUuidOrName(String uuid, String factorOwnerUUID, String leftFactorUUID, 
+      String rightFactorUUID, String type, boolean exceptionIfNull, QueryOptions queryOptions);
+
+  /**
    * save the update properties which are auto saved when business method is called
    * @param composite
    */

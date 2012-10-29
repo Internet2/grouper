@@ -204,10 +204,19 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
    */
   public AttributeDefName findByUuidOrName(String id, String name,
       boolean exceptionIfNotFound) {
+    return findByUuidOrName(id, name, exceptionIfNotFound, null);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO#findByUuidOrName(java.lang.String, java.lang.String, boolean, QueryOptions)
+   */
+  public AttributeDefName findByUuidOrName(String id, String name,
+      boolean exceptionIfNotFound, QueryOptions queryOptions) {
     try {
       AttributeDefName attributeDefName = HibernateSession.byHqlStatic()
         .createQuery("from AttributeDefName as theAttributeDefName where theAttributeDefName.id = :theId or theAttributeDefName.nameDb = :theName")
         .setCacheable(true)
+        .options(queryOptions)
         .setCacheRegion(KLASS + ".FindByUuidOrName")
         .setString("theId", id)
         .setString("theName", name)

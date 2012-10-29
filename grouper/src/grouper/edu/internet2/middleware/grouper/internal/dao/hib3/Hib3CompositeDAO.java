@@ -50,6 +50,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateMisc;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 
 /**
  * Basic Hibernate <code>Composite</code> DAO interface.
@@ -251,6 +252,14 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
    */
   public Composite findByUuidOrName(String uuid, String factorOwnerUUID,
       String leftFactorUUID, String rightFactorUUID, String type, boolean exceptionIfNull) {
+    return findByUuidOrName(uuid, factorOwnerUUID, leftFactorUUID, rightFactorUUID, type, exceptionIfNull, null);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.CompositeDAO#findByUuidOrName(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, boolean, QueryOptions)
+   */
+  public Composite findByUuidOrName(String uuid, String factorOwnerUUID,
+      String leftFactorUUID, String rightFactorUUID, String type, boolean exceptionIfNull, QueryOptions queryOptions) {
     try {
       Composite composite = HibernateSession.byHqlStatic()
         .createQuery("from Composite as theComposite where theComposite.uuid = :theUuid or " +
@@ -258,6 +267,7 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
         		" and theComposite.factorOwnerUuid = :theOwnerUuid and theComposite.typeDb = :theType)")
         .setCacheable(true)
         .setCacheRegion(KLASS + ".FindByUuidOrName")
+        .options(queryOptions)
         .setString("theUuid", uuid)
         .setString("theLeftUuid", leftFactorUUID)
         .setString("theRightUuid", rightFactorUUID)

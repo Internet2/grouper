@@ -734,7 +734,7 @@ public class XmlExportAttributeDef {
                 
                 xmlImportMain.incrementCurrentCount();
               } catch (RuntimeException re) {
-                LOG.error("Problem importing group: " + XmlExportUtils.toString(row), re);
+                LOG.error("Problem importing attributeDef: " + XmlExportUtils.toString(row), re);
                 throw re;
               }
             }

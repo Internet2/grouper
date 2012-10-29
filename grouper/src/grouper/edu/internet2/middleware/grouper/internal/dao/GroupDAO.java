@@ -700,6 +700,19 @@ public interface GroupDAO extends GrouperDAO {
   Group findByUuidOrName(String uuid, String name, boolean exceptionIfNull) throws GrouperDAOException, GroupNotFoundException;
 
   /**
+   * @param uuid 
+   * @param name 
+   * @param exceptionIfNull 
+   * @param queryOptions
+   * @return the stem or null
+   * @throws GrouperDAOException 
+   * @throws GroupNotFoundException 
+   * @since   1.6.0
+   */
+  Group findByUuidOrName(String uuid, String name, boolean exceptionIfNull,
+      QueryOptions queryOptions) throws GrouperDAOException, GroupNotFoundException;
+
+  /**
    * save the update properties which are auto saved when business method is called
    * @param group
    */

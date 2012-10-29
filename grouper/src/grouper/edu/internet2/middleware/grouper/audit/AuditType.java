@@ -30,6 +30,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
@@ -792,7 +793,8 @@ public class AuditType extends GrouperAPI implements Hib3GrouperVersioned, XmlIm
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlRetrieveByIdOrKey()
    */
   public XmlImportable<AuditType> xmlRetrieveByIdOrKey() {
-    return GrouperDAOFactory.getFactory().getAuditType().findByUuidOrName(this.id, this.auditCategory, this.actionName, false);
+    return GrouperDAOFactory.getFactory().getAuditType().findByUuidOrName(this.id, this.auditCategory, this.actionName, false,
+        new QueryOptions().secondLevelCache(false));
   }
 
   /**

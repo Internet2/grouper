@@ -121,6 +121,19 @@ public interface FieldDAO extends GrouperDAO {
   Field findByUuidOrName(String uuid, String name, String groupTypeUuid, boolean exceptionIfNull) throws GrouperDAOException;
 
   /**
+   * @param uuid 
+   * @param name 
+   * @param groupTypeUuid 
+   * @param exceptionIfNull 
+   * @param queryOptions
+   * @return the field or null
+   * @throws GrouperDAOException 
+   * @since   1.6.0
+   */
+  Field findByUuidOrName(String uuid, String name, String groupTypeUuid, boolean exceptionIfNull,
+      QueryOptions queryOptions) throws GrouperDAOException;
+
+  /**
    * save the update properties which are auto saved when business method is called
    * @param field
    */
