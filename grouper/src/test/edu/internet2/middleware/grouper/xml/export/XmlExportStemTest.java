@@ -95,6 +95,7 @@ public class XmlExportStemTest extends GrouperTest {
     xmlExportStem.setDisplayName("displayName");
     xmlExportStem.setExtension("extension");
     xmlExportStem.setHibernateVersionNumber(3L);
+    xmlExportStem.setIdIndex(12345L);
     xmlExportStem.setLastMembershipChange(4L);
     xmlExportStem.setModifierId("modifierId");
     xmlExportStem.setModifierTime("modifierTime");
@@ -144,6 +145,7 @@ public class XmlExportStemTest extends GrouperTest {
     assertEquals("displayName", stem.getDisplayName());
     assertEquals("extension", stem.getExtension());
     assertEquals(new Long(3L), stem.getHibernateVersionNumber());
+    assertEquals(new Long(12345L), stem.getIdIndex());
     assertEquals(new Long(4L), stem.getLastMembershipChangeDb());
     assertEquals("modifierId", stem.getModifierUuid());
     assertEquals(6L, stem.getModifyTimeLong());

@@ -453,6 +453,7 @@ public class AttributeDefTest extends GrouperTest {
     attributeDef.setExtensionDb("extension");
     attributeDef.setHibernateVersionNumber(5L);
     attributeDef.setId("id");
+    attributeDef.setIdIndex(12345L);
     attributeDef.setLastUpdatedDb(3L);
     attributeDef.setMultiAssignable(true);
     attributeDef.setMultiValued(true);

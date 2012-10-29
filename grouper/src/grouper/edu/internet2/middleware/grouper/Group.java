@@ -149,6 +149,8 @@ import edu.internet2.middleware.grouper.rules.beans.RulesMembershipBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesPrivilegeBean;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.LazySubject;
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
+import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.AddAlternateGroupNameValidator;
 import edu.internet2.middleware.grouper.validator.AddCompositeMemberValidator;
@@ -5566,6 +5568,10 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     
     this.internal_setModifiedIfNeeded();
     
+    if (this.idIndex == null) {
+      this.idIndex = TableIndex.reserveId(TableIndexType.group);
+    }
+    
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
         GroupHooks.METHOD_GROUP_PRE_INSERT, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_PRE_INSERT, false, false);
@@ -5887,7 +5893,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @param isIncludeExcludes 
    * @param andGroups groups (like activeEmployee) which the user must also be in
    */
-  public void manageIncludesExcludesRequiredGroups(@SuppressWarnings("unused") GrouperSession grouperSession, boolean isIncludeExcludes, Set<Group> andGroups) {
+  public void manageIncludesExcludesRequiredGroups(GrouperSession grouperSession, boolean isIncludeExcludes, Set<Group> andGroups) {
     
     GroupTypeTupleIncludeExcludeHook.manageIncludesExcludesAndGroups(this, isIncludeExcludes, andGroups,
         "from manageIncludesExclude() method in Group class: " + this.getExtension());
@@ -6845,6 +6851,43 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   }
 
   /**
+   * assign different id index
+   * @param theIdIndex
+   * @return if it was changed
+   */
+  public boolean assignIdIndex(final long theIdIndex) {
+    
+    TableIndex.assertCanAssignIdIndex();
+
+    boolean needsSave = false;
+    //ok, if the index is not in use (not, it could be reserved... hmmm)
+    Group tempGroup = GrouperDAOFactory.getFactory().getGroup().findByIdIndex(theIdIndex, false);
+    if (tempGroup == null) {
+      
+      this.setIdIndex(theIdIndex);
+      needsSave = true;
+      
+      //do a new session so we don hold on too long
+      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+        
+        @Override
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+          //now we might need to increment the index
+          TableIndex tableIndex = GrouperDAOFactory.getFactory().getTableIndex().findByType(TableIndexType.group);
+          if (tableIndex != null && tableIndex.getLastIndexReserved() < theIdIndex) {
+            tableIndex.setLastIndexReserved(theIdIndex);
+            tableIndex.saveOrUpdate();
+          }
+          return null;
+        }
+      });
+      
+    }
+    return needsSave;
+  }
+  
+  /**
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
    */
   public Group xmlSaveBusinessProperties(Group existingRecord) {
@@ -6858,6 +6901,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
         existingRecord = (Group)parent.internal_addChildRole(this.extension, this.displayExtension, this.uuid);
       } else {
         throw new RuntimeException("Not expecting type of group: " + this.getTypeOfGroup());
+      }
+      if (this.idIndex != null) {
+        existingRecord.assignIdIndex(this.idIndex);
       }
     }
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
@@ -6893,6 +6939,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     xmlExportGroup.setDisplayName(this.getDisplayName());
     xmlExportGroup.setExtension(this.getExtension());
     xmlExportGroup.setHibernateVersionNumber(this.getHibernateVersionNumber());
+    xmlExportGroup.setIdIndex(this.getIdIndex());
     //TODO make string
     xmlExportGroup.setModifierId(this.getModifierUuid());
     xmlExportGroup.setModifierTime(GrouperUtil.dateStringValue(this.getModifyTime()));

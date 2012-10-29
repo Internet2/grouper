@@ -26,22 +26,19 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
-import edu.internet2.middleware.grouper.exception.GroupAddException;
-import edu.internet2.middleware.grouper.exception.GroupModifyException;
-import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
-import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -50,6 +47,20 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class AttributeDefSave {
   
+  /** id index */
+  private Long idIndex;
+  
+  /**
+   * assign id_index
+   * @param theIdIndex
+   * @return this for chaining
+   */
+  public AttributeDefSave assignIdIndex(Long theIdIndex) {
+    this.idIndex = theIdIndex;
+    return this;
+  }
+
+
   /**
    * create a new attribute def save
    * @param theGrouperSession
@@ -529,6 +540,20 @@ public class AttributeDefSave {
                   }
                 }
                 
+                if (AttributeDefSave.this.idIndex != null) {
+                  if (AttributeDefSave.this.saveResultType == SaveResultType.INSERT) {
+
+                    if (theAttributeDef.assignIdIndex(AttributeDefSave.this.idIndex)) {
+                      needsSave = true;
+                    }
+
+                  } else {
+                    //maybe they are equal...
+                    throw new RuntimeException("Cannot update idIndex for an already created AttributeDef: " + idIndex + ", " + theAttributeDef.getName());
+                  }
+                }
+
+
                 //now compare and put all attributes (then store if needed)
                 //null throws exception? hmmm.  remove attribute if blank
                 if (!StringUtils.equals(StringUtils.defaultString(theAttributeDef.getDescription()), 

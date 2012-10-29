@@ -132,6 +132,8 @@ import edu.internet2.middleware.grouper.rules.beans.RulesPrivilegeBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesStemBean;
 import edu.internet2.middleware.grouper.stem.StemSet;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
+import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.AddAlternateStemNameValidator;
 import edu.internet2.middleware.grouper.validator.AddAttributeDefNameValidator;
@@ -3157,6 +3159,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
     
+    if (this.idIndex == null) {
+      this.idIndex = TableIndex.reserveId(TableIndexType.stem);
+    }
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.STEM, 
         StemHooks.METHOD_STEM_PRE_INSERT, HooksStemBean.class, 
         this, Stem.class, VetoTypeGrouper.STEM_PRE_INSERT, false, false);
@@ -3947,6 +3953,43 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     return GrouperDAOFactory.getFactory().getStem().findByUuidOrName(this.uuid, this.name, false);
   }
 
+  /**
+   * assign different id index
+   * @param theIdIndex
+   * @return if it was changed
+   */
+  public boolean assignIdIndex(final long theIdIndex) {
+    
+    TableIndex.assertCanAssignIdIndex();
+
+    boolean needsSave = false;
+    //ok, if the index is not in use (not, it could be reserved... hmmm)
+    Stem tempStem = GrouperDAOFactory.getFactory().getStem().findByIdIndex(theIdIndex, false);
+    if (tempStem == null) {
+      
+      this.setIdIndex(theIdIndex);
+      needsSave = true;
+      
+      //do a new session so we don hold on too long
+      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+        
+        @Override
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+          //now we might need to increment the index
+          TableIndex tableIndex = GrouperDAOFactory.getFactory().getTableIndex().findByType(TableIndexType.stem);
+          if (tableIndex != null && tableIndex.getLastIndexReserved() < theIdIndex) {
+            tableIndex.setLastIndexReserved(theIdIndex);
+            tableIndex.saveOrUpdate();
+          }
+          return null;
+        }
+      });
+      
+    }
+    return needsSave;
+  }
+
 
   /**
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
@@ -3960,6 +4003,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       }
       Stem parent = this.getParentStem();
       existingRecord = parent.internal_addChildStem(GrouperSession.staticGrouperSession(), this.extension, this.displayExtension, this.uuid, false);
+
+      if (this.idIndex != null) {
+        existingRecord.assignIdIndex(this.idIndex);
+      }
     }
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
     //if its an insert or update, then do the rest of the fields
@@ -3986,10 +4033,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     if (grouperVersion == null) {
       throw new RuntimeException();
     }
-    
-    if (grouperVersion == null) {
-      throw new RuntimeException();
-    }
+
     XmlExportStem xmlExportStem = new XmlExportStem();
     
     xmlExportStem.setAlternateName(this.getAlternateNameDb());
@@ -4001,6 +4045,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     xmlExportStem.setDisplayName(this.getDisplayNameDb());
     xmlExportStem.setExtension(this.getExtensionDb());
     xmlExportStem.setHibernateVersionNumber(this.getHibernateVersionNumber());
+    xmlExportStem.setIdIndex(this.getIdIndex());
     //TODO make string
     xmlExportStem.setLastMembershipChange(this.getLastMembershipChangeDb());
     xmlExportStem.setModifierId(this.getModifierUuid());

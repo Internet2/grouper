@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.audit.GrouperEngineIdentifier;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -143,6 +144,14 @@ public class GrouperContext {
     }
   }
   
+  /**
+   * 
+   * @return the grouper enginge
+   */
+  public GrouperEngineBuiltin getGrouperEngine() {
+    return GrouperEngineBuiltin.valueOfIgnoreCase(this.grouperEngine, false);
+  }
+
   /**
    * assign fields in audit entry
    * @param auditEntry

@@ -54,6 +54,26 @@ import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
  */
 public class XmlExportAttributeDef {
 
+
+  /** idIndex */
+  private Long idIndex;
+
+  /**
+   * 
+   * @return id index
+   */
+  public Long getIdIndex() {
+    return this.idIndex;
+  }
+
+  /**
+   * id index
+   * @param idIndex1
+   */
+  public void setIdIndex(Long idIndex1) {
+    this.idIndex = idIndex1;
+  }
+
   /**
    * 
    */
@@ -636,6 +656,7 @@ public class XmlExportAttributeDef {
     attributeDef.setDescription(this.description);
     attributeDef.setExtensionDb(this.extension);
     attributeDef.setHibernateVersionNumber(this.hibernateVersionNumber);
+    attributeDef.setIdIndex(this.idIndex);
     attributeDef.setLastUpdatedDb(GrouperUtil.dateLongValue(this.modifierTime));
     attributeDef.setMultiAssignable(GrouperUtil.booleanValue(this.multiAssignable, false));
     attributeDef.setMultiValued(GrouperUtil.booleanValue(this.multiValued, false));

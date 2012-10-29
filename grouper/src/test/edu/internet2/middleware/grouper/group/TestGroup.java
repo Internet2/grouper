@@ -817,6 +817,7 @@ public class TestGroup extends GrouperTest {
     group.setDisplayNameDb("displayName");
     group.setExtensionDb("extension");
     group.setHibernateVersionNumber(3L);
+    group.setIdIndex(12345L);
     group.setLastMembershipChangeDb(4L);
     group.setModifierUuid("modifierId");
     group.setModifyTimeLong(6L);

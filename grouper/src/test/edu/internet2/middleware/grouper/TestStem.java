@@ -2019,6 +2019,7 @@ public class TestStem extends GrouperTest {
     stem.setDisplayNameDb("displayName");
     stem.setExtensionDb("extension");
     stem.setHibernateVersionNumber(3L);
+    stem.setIdIndex(12345L);
     stem.setLastMembershipChangeDb(4L);
     stem.setModifierUuid("modifierId");
     stem.setModifyTimeLong(6L);

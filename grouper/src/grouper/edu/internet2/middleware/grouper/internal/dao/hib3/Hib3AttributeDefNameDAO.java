@@ -643,6 +643,29 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
         filterByServicesCanView);
   }
 
-  
+
+  /**
+   * not a secure method, find by id index
+   */
+  @Override
+  public AttributeDefName findByIdIndex(Long idIndex, boolean exceptionIfNotFound)
+      throws AttributeDefNameNotFoundException {
+    
+    StringBuilder hql = new StringBuilder("select theAttributeDefName from AttributeDefName as theAttributeDefName where (theAttributeDefName.idIndex = :theIdIndex)");
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
+      .setCacheable(true).setCacheRegion(KLASS + ".FindByIdIndex");
+    
+    byHqlStatic.createQuery(hql.toString());
+    
+    AttributeDefName attributeDefName = byHqlStatic.setLong("theIdIndex", idIndex).uniqueResult(AttributeDefName.class);
+
+    //handle exceptions out of data access method...
+    if (attributeDefName == null && exceptionIfNotFound) {
+      throw new AttributeDefNameNotFoundException("Cannot find AttributeDefName with idIndex: '" + idIndex + "'");
+    }
+    return attributeDefName;
+    
+  }
+
 } 
 

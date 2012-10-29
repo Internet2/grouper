@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.subject.Subject;
 
@@ -119,6 +120,13 @@ public interface AttributeDefDAO extends GrouperDAO {
    */
   public void delete(AttributeDef attributeDef);
   
+  /**
+   * @since   2.2
+   *
+   */
+  AttributeDef findByIdIndex(Long idIndex, boolean exceptionIfNotFound) 
+    throws GroupNotFoundException;
+
   /**
    * search for an attribute def by id or name
    * @param id

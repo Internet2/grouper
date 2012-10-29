@@ -102,7 +102,7 @@ public class XmlExportGroup {
 
   /** hibernateVersionNumber */
   private long hibernateVersionNumber;
-
+  
   /** contextId */
   private String contextId;
 
@@ -257,6 +257,25 @@ public class XmlExportGroup {
     return this.modifierId;
   }
 
+  /** idIndex */
+  private Long idIndex;
+
+  /**
+   * 
+   * @return id index
+   */
+  public Long getIdIndex() {
+    return this.idIndex;
+  }
+
+  /**
+   * id index
+   * @param idIndex1
+   */
+  public void setIdIndex(Long idIndex1) {
+    this.idIndex = idIndex1;
+  }
+
   /**
    * modifierId
    * @param modifierId1
@@ -377,6 +396,7 @@ public class XmlExportGroup {
     group.setDisplayNameDb(this.displayName);
     group.setExtensionDb(this.extension);
     group.setHibernateVersionNumber(this.hibernateVersionNumber);
+    group.setIdIndex(this.idIndex);
     group.setModifierUuid(this.modifierId);
     group.setModifyTimeLong(GrouperUtil.dateLongValue(this.modifierTime));
     group.setNameDb(this.name);

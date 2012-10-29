@@ -108,6 +108,7 @@ public class XmlExportAttributeDefTest extends GrouperTest {
     xmlExportAttributeDef.setDescription("description");
     xmlExportAttributeDef.setExtension("extension");
     xmlExportAttributeDef.setHibernateVersionNumber(3L);
+    xmlExportAttributeDef.setIdIndex(12345L);
     xmlExportAttributeDef.setModifierTime("modifierTime");
     xmlExportAttributeDef.setMultiAssignable("multiAssignable");
     xmlExportAttributeDef.setMultiValued("multiValued");
@@ -140,6 +141,7 @@ public class XmlExportAttributeDefTest extends GrouperTest {
     assertEquals("description", xmlExportAttributeDef.getDescription());
     assertEquals("extension", xmlExportAttributeDef.getExtension());
     assertEquals(3L, xmlExportAttributeDef.getHibernateVersionNumber());
+    assertEquals(12345L, xmlExportAttributeDef.getIdIndex().longValue());
     assertEquals("modifierTime", xmlExportAttributeDef.getModifierTime());
     assertEquals("multiAssignable", xmlExportAttributeDef.getMultiAssignable());
     assertEquals("multiValued", xmlExportAttributeDef.getMultiValued());
@@ -180,6 +182,7 @@ public class XmlExportAttributeDefTest extends GrouperTest {
     assertEquals("description", attributeDef.getDescription());
     assertEquals("extension", attributeDef.getExtension());
     assertEquals(new Long(5L), attributeDef.getHibernateVersionNumber());
+    assertEquals(new Long(12345L), attributeDef.getIdIndex());
     assertEquals(new Long(3L), attributeDef.getLastUpdatedDb());
     assertEquals(true, attributeDef.isMultiAssignable());
     assertEquals(true, attributeDef.isMultiValued());

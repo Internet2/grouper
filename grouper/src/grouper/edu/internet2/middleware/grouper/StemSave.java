@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -41,6 +42,20 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class StemSave {
   
+  /** id index */
+  private Long idIndex;
+  
+  /**
+   * assign id_index
+   * @param theIdIndex
+   * @return this for chaining
+   */
+  public StemSave assignIdIndex(Long theIdIndex) {
+    this.idIndex = theIdIndex;
+    return this;
+  }
+
+
   /**
    * create a new stem save
    * @param theGrouperSession
@@ -344,6 +359,21 @@ public class StemSave {
                   }
                 }
 
+                if (StemSave.this.idIndex != null) {
+                  if (StemSave.this.saveResultType == SaveResultType.INSERT) {
+
+                    if (theStem.assignIdIndex(StemSave.this.idIndex)) {
+                      needsSave = true;
+                    }
+                    
+                  } else {
+                    //maybe they are equal...
+                    throw new RuntimeException("Cannot update idIndex for an already created stem: " + StemSave.this.idIndex + ", " + theStem.getName());
+                  }
+                }
+
+
+                
                 //now compare and put all attributes (then store if needed)
                 if (!StringUtils.equals(StringUtils.defaultString(theStem.getDescription()), 
                     StringUtils.defaultString(StringUtils.trim(StemSave.this.description)))) {

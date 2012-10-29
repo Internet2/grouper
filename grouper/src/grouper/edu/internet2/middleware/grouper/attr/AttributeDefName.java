@@ -64,6 +64,8 @@ import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
+import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.export.XmlExportAttributeDefName;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
@@ -184,6 +186,7 @@ public class AttributeDefName extends GrouperAPI
    * make sure this attribute def can admin from grouper session
    */
   public void assertCanAdminAttributeDefStatic() {
+    
     Subject subject = GrouperSession.staticGrouperSession().getSubject();
     MultiKey cacheKey = new MultiKey(this.attributeDefId, subject.getSourceId(), subject.getId());
     Boolean result = canAdminAttributeDef.get(cacheKey);
@@ -820,6 +823,9 @@ public class AttributeDefName extends GrouperAPI
       Stem parent = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.stemId, true);
       existingRecord = parent.internal_addChildAttributeDefName(GrouperSession.staticGrouperSession(), 
           this.getAttributeDef(), this.extension, this.displayExtension, this.id, this.description);
+      if (this.idIndex != null) {
+        existingRecord.assignIdIndex(this.idIndex);
+      }
     }
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
     //if its an insert or update, then do the rest of the fields
@@ -853,6 +859,7 @@ public class AttributeDefName extends GrouperAPI
     xmlExportAttributeDefName.setDisplayName(this.getDisplayName());
     xmlExportAttributeDefName.setExtension(this.getExtension());
     xmlExportAttributeDefName.setHibernateVersionNumber(this.getHibernateVersionNumber());
+    xmlExportAttributeDefName.setIdIndex(this.getIdIndex());
     xmlExportAttributeDefName.setModifierTime(GrouperUtil.dateStringValue(this.getLastUpdatedDb()));
     xmlExportAttributeDefName.setName(this.getName());
     xmlExportAttributeDefName.setParentStem(this.getStemId());
@@ -1020,7 +1027,11 @@ public class AttributeDefName extends GrouperAPI
     if (this.createdOnDb == null) {
       this.createdOnDb = System.currentTimeMillis();
     }
-    
+
+    if (this.idIndex == null) {
+      this.idIndex = TableIndex.reserveId(TableIndexType.attributeDefName);
+    }
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_DEF_NAME, 
         AttributeDefNameHooks.METHOD_ATTRIBUTE_DEF_NAME_PRE_INSERT, HooksAttributeDefNameBean.class, 
         this, AttributeDefName.class, VetoTypeGrouper.ATTRIBUTE_DEF_NAME_PRE_INSERT, false, false);
@@ -1135,4 +1146,41 @@ public class AttributeDefName extends GrouperAPI
     this.idIndex = idIndex1;
   }
   
+  /**
+   * assign different id index
+   * @param theIdIndex
+   * @return if it was changed
+   */
+  public boolean assignIdIndex(final long theIdIndex) {
+
+    TableIndex.assertCanAssignIdIndex();
+
+    boolean needsSave = false;
+    //ok, if the index is not in use (not, it could be reserved... hmmm)
+    AttributeDefName tempAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdIndex(theIdIndex, false);
+    if (tempAttributeDefName == null) {
+      
+      this.setIdIndex(theIdIndex);
+      needsSave = true;
+      
+      //do a new session so we don hold on too long
+      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+        
+        @Override
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+          //now we might need to increment the index
+          TableIndex tableIndex = GrouperDAOFactory.getFactory().getTableIndex().findByType(TableIndexType.attributeDefName);
+          if (tableIndex != null && tableIndex.getLastIndexReserved() < theIdIndex) {
+            tableIndex.setLastIndexReserved(theIdIndex);
+            tableIndex.saveOrUpdate();
+          }
+          return null;
+        }
+      });
+      
+    }
+    return needsSave;
+  }
+
 }

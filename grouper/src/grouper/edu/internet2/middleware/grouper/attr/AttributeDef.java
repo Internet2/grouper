@@ -70,6 +70,8 @@ import edu.internet2.middleware.grouper.misc.Owner;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
+import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.export.XmlExportAttributeDef;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
@@ -1626,6 +1628,9 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
       Stem parent = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.stemId, true);
       existingRecord = parent.internal_addChildAttributeDef(GrouperSession.staticGrouperSession(), 
           this.extension, this.id, this.attributeDefType, this.description);
+      if (this.idIndex != null) {
+        existingRecord.assignIdIndex(this.idIndex);
+      }
     }
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
     //if its an insert or update, then do the rest of the fields
@@ -1674,6 +1679,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
     xmlExportAttributeDef.setDescription(this.getDescription());
     xmlExportAttributeDef.setExtension(this.getExtension());
     xmlExportAttributeDef.setHibernateVersionNumber(this.getHibernateVersionNumber());
+    xmlExportAttributeDef.setIdIndex(this.getIdIndex());
     xmlExportAttributeDef.setModifierTime(GrouperUtil.dateStringValue(this.getLastUpdatedDb()));
     xmlExportAttributeDef.setMultiAssignable(this.getMultiAssignableDb());
     xmlExportAttributeDef.setMultiValued(this.getMultiValuedDb());
@@ -1915,6 +1921,10 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
       this.createdOnDb = System.currentTimeMillis();
     }
     
+    if (this.idIndex == null) {
+      this.idIndex = TableIndex.reserveId(TableIndexType.attributeDef);
+    }
+    
     //change log into temp table
     new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_DEF_ADD, 
         ChangeLogLabels.ATTRIBUTE_DEF_ADD.id.name(), this.getUuid(), 
@@ -1994,6 +2004,44 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
    */
   public void setIdIndex(Long idIndex1) {
     this.idIndex = idIndex1;
+  }
+
+
+  /**
+   * assign different id index
+   * @param theIdIndex
+   * @return if it was changed
+   */
+  public boolean assignIdIndex(final long theIdIndex) {
+    
+    TableIndex.assertCanAssignIdIndex();
+
+    boolean needsSave = false;
+    //ok, if the index is not in use (not, it could be reserved... hmmm)
+    AttributeDef tempAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findByIdIndex(theIdIndex, false);
+    if (tempAttributeDef == null) {
+      
+      this.setIdIndex(theIdIndex);
+      needsSave = true;
+      
+      //do a new session so we don hold on too long
+      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+        
+        @Override
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+          //now we might need to increment the index
+          TableIndex tableIndex = GrouperDAOFactory.getFactory().getTableIndex().findByType(TableIndexType.attributeDef);
+          if (tableIndex != null && tableIndex.getLastIndexReserved() < theIdIndex) {
+            tableIndex.setLastIndexReserved(theIdIndex);
+            tableIndex.saveOrUpdate();
+          }
+          return null;
+        }
+      });
+      
+    }
+    return needsSave;
   }
 
   

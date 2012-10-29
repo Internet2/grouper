@@ -54,6 +54,26 @@ import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
  */
 public class XmlExportStem {
 
+
+  /** idIndex */
+  private Long idIndex;
+
+  /**
+   * 
+   * @return id index
+   */
+  public Long getIdIndex() {
+    return this.idIndex;
+  }
+
+  /**
+   * id index
+   * @param idIndex1
+   */
+  public void setIdIndex(Long idIndex1) {
+    this.idIndex = idIndex1;
+  }
+
   /**
    * 
    */
@@ -377,6 +397,7 @@ public class XmlExportStem {
     stem.setDisplayNameDb(this.displayName);
     stem.setExtensionDb(this.extension);
     stem.setHibernateVersionNumber(this.hibernateVersionNumber);
+    stem.setIdIndex(this.idIndex);
     stem.setLastMembershipChangeDb(this.lastMembershipChange);
     stem.setModifierUuid(this.modifierId);
     stem.setModifyTimeLong(GrouperUtil.dateLongValue(this.modifierTime));

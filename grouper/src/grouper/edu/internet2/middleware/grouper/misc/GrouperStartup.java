@@ -20,6 +20,7 @@
 package edu.internet2.middleware.grouper.misc;
 
 import java.io.File;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
@@ -39,12 +40,15 @@ import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAutoSourceAdapter;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryInstall;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
+import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperToStringStyle;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
@@ -261,6 +265,9 @@ public class GrouperStartup {
       // verify member search and sort config
       verifyMemberSortAndSearchConfig();
       
+      // verify id indexes
+      verifyTableIdIndexes();
+      
       finishedStartupSuccessfully = true;
       
       return true;
@@ -288,6 +295,34 @@ public class GrouperStartup {
       
       if (source.getSearchAttributes() == null || source.getSearchAttributes().size() == 0) {
         throw new RuntimeException("At least one search column should be specified for source " + source.getId());
+      }
+    }
+  }
+  
+  /**
+   * verify that table id indexes
+   */
+  public static void verifyTableIdIndexes() {
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.tableIndex.verifyOnStartup", true)) {
+      return;
+    }
+        
+    //lets see if there are any nulls
+    for (TableIndexType tableIndexType : TableIndexType.values()) {
+      
+      List<String> ids = HibernateSession.bySqlStatic().listSelect(
+          String.class, "select id from " + tableIndexType.tableName() + " where id_index is null order by id" , null);
+
+      if (GrouperUtil.length(ids) > 0) {
+        LOG.error("Found " + GrouperUtil.length(ids) + " " + tableIndexType.name() + " records with null id_index... correcting... please wait...");
+        for (int i=0;i<GrouperUtil.length(ids); i++) {
+          HibernateSession.bySqlStatic().executeSql("update " + tableIndexType.tableName() 
+              + " set id_index = ? where id = ?", GrouperUtil.toListObject(TableIndex.reserveId(tableIndexType), ids.get(i)));
+          if (i+1 % 1000 == 0) {
+            LOG.warn("Updated " + (i-1) + "/" + GrouperUtil.length(ids) + " " + tableIndexType + " id_index records...");
+          }
+        }
+        LOG.warn("Finished " + GrouperUtil.length(ids) + " " + tableIndexType + " id_index records...");
       }
     }
   }

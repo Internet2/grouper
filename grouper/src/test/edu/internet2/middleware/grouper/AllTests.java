@@ -67,6 +67,7 @@ import edu.internet2.middleware.grouper.rules.AllRulesTests;
 import edu.internet2.middleware.grouper.service.AllServiceTests;
 import edu.internet2.middleware.grouper.stress.AllStressTests;
 import edu.internet2.middleware.grouper.subj.AllSubjectTests;
+import edu.internet2.middleware.grouper.tableIndex.AllTableIndexTests;
 import edu.internet2.middleware.grouper.util.AllUtilTests;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.AllValidatorTests;
@@ -244,6 +245,7 @@ public class AllTests extends GrouperTest {
     }
     
     suite.addTest(AllSubjectTests.suite());
+    suite.addTest(AllTableIndexTests.suite());
     suite.addTest(AllUtilTests.suite());
     suite.addTest(AllValidatorTests.suite());
     suite.addTest(AllXmlTests.suite());

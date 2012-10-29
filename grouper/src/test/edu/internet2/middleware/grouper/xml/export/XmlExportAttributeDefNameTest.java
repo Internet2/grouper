@@ -93,6 +93,7 @@ public class XmlExportAttributeDefNameTest extends GrouperTest {
     xmlExportAttributeDefName.setDisplayName("displayName");
     xmlExportAttributeDefName.setExtension("extension");
     xmlExportAttributeDefName.setHibernateVersionNumber(3L);
+    xmlExportAttributeDefName.setIdIndex(12345L);
     xmlExportAttributeDefName.setModifierTime("modifierTime");
     xmlExportAttributeDefName.setName("name");
     xmlExportAttributeDefName.setParentStem("parentStem");
@@ -110,6 +111,7 @@ public class XmlExportAttributeDefNameTest extends GrouperTest {
     assertEquals("displayName", xmlExportAttributeDefName.getDisplayName());
     assertEquals("extension", xmlExportAttributeDefName.getExtension());
     assertEquals(3L, xmlExportAttributeDefName.getHibernateVersionNumber());
+    assertEquals(12345L, xmlExportAttributeDefName.getIdIndex().longValue());
     assertEquals("modifierTime", xmlExportAttributeDefName.getModifierTime());
     assertEquals("name", xmlExportAttributeDefName.getName());
     assertEquals("parentStem", xmlExportAttributeDefName.getParentStem());
@@ -130,6 +132,7 @@ public class XmlExportAttributeDefNameTest extends GrouperTest {
     attributeDefName.setDisplayNameDb("displayName");
     attributeDefName.setExtensionDb("extension");
     attributeDefName.setHibernateVersionNumber(3L);
+    attributeDefName.setIdIndex(12345L);
     attributeDefName.setLastUpdatedDb(6L);
     attributeDefName.setNameDb("name");
     attributeDefName.setStemId("parentUuid");
@@ -148,6 +151,7 @@ public class XmlExportAttributeDefNameTest extends GrouperTest {
     assertEquals("displayName", attributeDefName.getDisplayName());
     assertEquals("extension", attributeDefName.getExtension());
     assertEquals(new Long(3L), attributeDefName.getHibernateVersionNumber());
+    assertEquals(new Long(12345L), attributeDefName.getIdIndex());
     assertEquals(new Long(6L), attributeDefName.getLastUpdatedDb());
     assertEquals("name", attributeDefName.getName());
     assertEquals("parentUuid", attributeDefName.getStemId());

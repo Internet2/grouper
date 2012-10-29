@@ -2652,5 +2652,28 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     
     return groups;
   }
+
+  /**
+   * not a secure method, find by id index
+   */
+  @Override
+  public Group findByIdIndex(Long idIndex, boolean exceptionIfNotFound)
+      throws GroupNotFoundException {
+    
+    StringBuilder hql = new StringBuilder("select theGroup from Group as theGroup where (theGroup.idIndex = :theIdIndex)");
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
+      .setCacheable(true).setCacheRegion(KLASS + ".FindByIdIndex");
+    
+    byHqlStatic.createQuery(hql.toString());
+    
+    Group group = byHqlStatic.setLong("theIdIndex", idIndex).uniqueResult(Group.class);
+
+    //handle exceptions out of data access method...
+    if (group == null && exceptionIfNotFound) {
+      throw new GroupNotFoundException("Cannot find group with idIndex: '" + idIndex + "'");
+    }
+    return group;
+    
+  }
 } 
 

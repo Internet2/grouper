@@ -24,15 +24,21 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Keep track of last index for groups, stems, attribute definitions, and attribute names
@@ -43,6 +49,27 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 @SuppressWarnings("serial")
 public class TableIndex extends GrouperAPI implements Hib3GrouperVersioned {
+
+  /**
+   * make sure the current user can assign id index
+   */
+  public static void assertCanAssignIdIndex() {
+    String allowedGroupName = GrouperConfig.retrieveConfig().propertyValueString("grouper.tableIndex.groupWhoCanAssignIdIndex");
+    if (StringUtils.isNotBlank(allowedGroupName)) {
+      
+      Subject subject = GrouperSession.staticGrouperSession().getSubject();
+      
+      
+      if (!PrivilegeHelper.isWheelOrRoot(subject)) {
+
+        Group allowedGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession()
+            .internal_getRootSession(), allowedGroupName, false);
+        if (allowedGroup == null || !allowedGroup.hasMember(subject)) {
+          throw new RuntimeException("Cannot assign ID index! " + GrouperUtil.subjectToString(subject) + " since not in group: " + allowedGroupName);
+        }
+      }
+    }
+  }
   
   /**
    * 
@@ -305,6 +332,9 @@ public class TableIndex extends GrouperAPI implements Hib3GrouperVersioned {
 
   /** last index reserved, stored in JVM */
   private long lastIndexReserved = 0;
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(TableIndex.class);
   
   /**
    * last index reserved, stored in JVM
@@ -367,7 +397,7 @@ public class TableIndex extends GrouperAPI implements Hib3GrouperVersioned {
    * map of types to the list of ids which are available
    */
   private static Map<TableIndexType, List<Long>> reservedIds = new HashMap<TableIndexType, List<Long>>();
-  
+
   /**
    * get an id for this type of object, if needed, increment the index in the database
    * @param tableIndexType
@@ -375,7 +405,25 @@ public class TableIndex extends GrouperAPI implements Hib3GrouperVersioned {
    */
   public static long reserveId(TableIndexType tableIndexType) {
     
+    long id = reserveIdHelper(tableIndexType);
+    
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Reserved idIndex: " + id + ", for type: " + tableIndexType);
+    }
+
+    return id;
+  }
+
+  /**
+   * get an id for this type of object, if needed, increment the index in the database
+   * @param tableIndexType
+   * @return the id that can be used for the type of object
+   */
+  private static long reserveIdHelper(TableIndexType tableIndexType) {
+    
     synchronized (tableIndexType) {
+      
+      Long result = null;
       
       List<Long> longList = reservedIds.get(tableIndexType);
       
@@ -384,22 +432,17 @@ public class TableIndex extends GrouperAPI implements Hib3GrouperVersioned {
         reservedIds.put(tableIndexType, longList);
       }
       
-      //see if there is one which is reserved
-      for (int i=0;i<longList.size();i++) {
-        Long id = longList.get(i);
-        if (id != null) {
-          longList.set(i, null);
-          return id;
-        }
+      result = reserveOneFromList(longList);
+      
+      if (result != null) {
+        return result;
       }
       
       //ok, we need to reserve some more...
-      
-      String contextId = GrouperContext.retrieveContextId(false);
-      
       int idsToReserve = GrouperConfig.retrieveConfig().propertyValueInt("grouper.tableIndex.reserveIdsDefault", 10);
+      GrouperContext grouperContext = GrouperContext.retrieveDefaultContext();
       
-      GrouperEngineBuiltin grouperEngineBuiltin = GrouperEngineBuiltin.valueOfIgnoreCase(contextId, false);
+      GrouperEngineBuiltin grouperEngineBuiltin = grouperContext == null ? null : grouperContext.getGrouperEngine();
       
       if (grouperEngineBuiltin != null) {
         switch(grouperEngineBuiltin) {
@@ -421,11 +464,33 @@ public class TableIndex extends GrouperAPI implements Hib3GrouperVersioned {
       }
           
       TableIndex tableIndex = GrouperDAOFactory.getFactory().getTableIndex().reserveIds(tableIndexType,idsToReserve);
-      //TODO fix this
-      return tableIndex.getLastIndexReserved();
       
+      //last index reserved
+      long lastIndexReserved = tableIndex.getLastIndexReserved();
+      longList.clear();
+      for (long currentIdIndex=(lastIndexReserved-idsToReserve) + 1; currentIdIndex<=lastIndexReserved; currentIdIndex++) {
+        longList.add(currentIdIndex);
+      }
+      
+      result = reserveOneFromList(longList);
+      
+      if (result == null) {
+        throw new NullPointerException("Cannot reserve table index for: " + tableIndexType);
+      }
+      return result;
     }
     
+  }
+  private static Long reserveOneFromList(List<Long> longList) {
+    //see if there is one which is reserved
+    for (int i=0;i<longList.size();i++) {
+      Long id = longList.get(i);
+      if (id != null) {
+        longList.set(i, null);
+        return id;
+      }
+    }
+    return null;
   }
   
 }

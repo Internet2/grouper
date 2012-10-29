@@ -32,12 +32,20 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
 import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
+import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -134,6 +142,19 @@ public class GroupSave {
    */
   public GroupSave assignDescription(String theDescription) {
     this.description = theDescription;
+    return this;
+  }
+
+  /** id index */
+  private Long idIndex;
+  
+  /**
+   * assign id_index
+   * @param theIdIndex
+   * @return this for chaining
+   */
+  public GroupSave assignIdIndex(Long theIdIndex) {
+    this.idIndex = theIdIndex;
     return this;
   }
 
@@ -384,6 +405,7 @@ public class GroupSave {
                   } else {
                     throw new RuntimeException("Not expecting type of group: " + typeOfGroup);
                   }
+                  
                 } else {
                   //check if different so it doesnt make unneeded queries
                   if (!StringUtils.equals(theGroup.getExtension(), extensionNew)) {
@@ -407,7 +429,20 @@ public class GroupSave {
                     needsSave = true;
                   }
                 }
-                
+
+                if (GroupSave.this.idIndex != null) {
+                  if (GroupSave.this.saveResultType == SaveResultType.INSERT) {
+                    
+                    if (theGroup.assignIdIndex(GroupSave.this.idIndex)) {
+                      needsSave = true;
+                    }
+                    
+                  } else {
+                    //maybe they are equal...
+                    throw new RuntimeException("Cannot update idIndex for an already created group: " + GroupSave.this.idIndex + ", " + theGroup.getName());
+                  }
+                }
+
                 //now compare and put all attributes (then store if needed)
                 //null throws exception? hmmm.  remove attribute if blank
                 if (!StringUtils.equals(StringUtils.defaultString(theGroup.getDescription()), 

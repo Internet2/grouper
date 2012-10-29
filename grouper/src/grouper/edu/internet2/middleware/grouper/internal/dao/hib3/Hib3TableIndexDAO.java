@@ -15,19 +15,22 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.TableIndexDAO;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -96,17 +99,40 @@ public class Hib3TableIndexDAO extends Hib3DAO implements TableIndexDAO {
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(Hib3TableIndexDAO.class);
 
+  public static long testingNumberOfTimesReservedIndexes = 0;
+  
   /**
    * @see TableIndexDAO#reserveIds(TableIndexType, int)
    */
   @Override
   public TableIndex reserveIds(final TableIndexType tableIndexType, final int numberOfIndicesToReserve) {
+    TableIndex tableIndex = reserveIdsHelper(tableIndexType, numberOfIndicesToReserve);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Reserved from DB: " + numberOfIndicesToReserve + " indexes, for type: " 
+          + tableIndexType + ", lastIndexReserved: " + tableIndex.getLastIndexReserved());
+    }
+    return tableIndex;
+  }
+  
+  /** if we checked table index on startup once */
+  private static Map<TableIndexType, Boolean> checkedTableIndexOnce = new HashMap<TableIndexType, Boolean>();
+  
+  /**
+   * @see TableIndexDAO#reserveIds(TableIndexType, int)
+   * @param tableIndexType
+   * @param numberOfIndicesToReserve
+   */
+  private TableIndex reserveIdsHelper(final TableIndexType tableIndexType, final int numberOfIndicesToReserve) {
     
-    //try 20 times, if not successful keep trying
-    int numberOfTries = GrouperConfig.retrieveConfig().propertyValueInt("grouper.tableIndex.numberOfTries", 20);
+    //try 50 times, if not successful keep trying
+    int numberOfTries = GrouperConfig.retrieveConfig().propertyValueInt("grouper.tableIndex.numberOfTries", 50);
 
+    Exception lastException = null;
+    
     for (int i=0;i<numberOfTries;i++) {
       try {
+        
+        testingNumberOfTimesReservedIndexes++;
         
         //lets do an autonomous transaction
         TableIndex tableIndex = (TableIndex)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
@@ -120,23 +146,76 @@ public class Hib3TableIndexDAO extends Hib3DAO implements TableIndexDAO {
             
             //lets get the table index... see if it exists
             TableIndex localTableIndex = findByType(tableIndexType);
+            int minIndex = GrouperConfig.retrieveConfig().propertyValueInt("idIndex." + tableIndexType + ".minIndex", 10000);
+
             if (localTableIndex == null) {
               localTableIndex = new TableIndex();
+                            
               
-              //TODO get the largest from the table
+              int lastReservedIndex = (minIndex + numberOfIndicesToReserve) -1;
               
-              localTableIndex.setLastIndexReserved(numberOfIndicesToReserve);
+              //max in table
+              int rowCount = HibernateSession.bySqlStatic().select(Integer.class, "select count(*) from " + tableIndexType.tableName());
+              if (rowCount > 0) {
+                int maxInTable = numberOfIndicesToReserve + GrouperUtil.defaultIfNull(
+                    HibernateSession.bySqlStatic().select(Integer.class, "select max(id_index) from " + tableIndexType.tableName()), 0);
+                if (maxInTable > lastReservedIndex) {
+                  lastReservedIndex = maxInTable;
+                  if (LOG.isDebugEnabled()) {
+                    LOG.debug("Table has rows, but and max is " + (maxInTable-numberOfIndicesToReserve) + " so last reserved will be that instead of: " + lastReservedIndex);
+                  }
+                } else {
+                  if (LOG.isDebugEnabled()) {
+                    LOG.debug("Table has rows, but its max is " + (maxInTable-numberOfIndicesToReserve) + " and reserved will be: " + lastReservedIndex);
+                  }
+                }
+              }
+              localTableIndex.setLastIndexReserved(lastReservedIndex);
+              localTableIndex.setId(GrouperUuid.getUuid());
+              localTableIndex.setType(tableIndexType);
+              
               saveOrUpdate(localTableIndex);
+              hibernateHandlerBean.getHibernateSession().commit(GrouperCommitType.COMMIT_NOW);
               return localTableIndex;
             }
-            localTableIndex.setLastIndexReserved(localTableIndex.getLastIndexReserved() + numberOfIndicesToReserve);
+            
+            long nextIndex = localTableIndex.getLastIndexReserved();
+            if (nextIndex < minIndex) {
+              nextIndex = minIndex;
+            }
+            
+            //check once, make sure the index is at least the max in the table
+            Boolean checkedOnce = checkedTableIndexOnce.get(tableIndexType);
+            if (checkedOnce == null || !checkedOnce) {
+              if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.tableIndex.verifyOnStartup", true)) {
+              
+                
+                //max in table
+                int rowCount = HibernateSession.bySqlStatic().select(Integer.class, "select count(*) from " + tableIndexType.tableName());
+                if (rowCount > 0) {
+                  int maxInTable = numberOfIndicesToReserve + GrouperUtil.defaultIfNull(HibernateSession.bySqlStatic().select(Integer.class, 
+                      "select max(id_index) from " + tableIndexType.tableName()), 0);
+                  if (maxInTable > nextIndex) {
+                    nextIndex = maxInTable;
+                  }
+                }
+                
+              }
+
+              checkedTableIndexOnce.put(tableIndexType, true);
+              
+            }
+            
+            localTableIndex.setLastIndexReserved(nextIndex + numberOfIndicesToReserve);
             saveOrUpdate(localTableIndex);
+            hibernateHandlerBean.getHibernateSession().commit(GrouperCommitType.COMMIT_NOW);
             return localTableIndex;
           }
         });
 
         return tableIndex;
       } catch (Exception e) {
+        lastException = e;
         if (LOG.isDebugEnabled()) {
           LOG.debug("Problem finiding table index for " + tableIndexType.name(), e);
         }
@@ -144,7 +223,7 @@ public class Hib3TableIndexDAO extends Hib3DAO implements TableIndexDAO {
         GrouperUtil.sleep(new Random().nextInt(1000));
       }
     }
-    throw new RuntimeException("Cant find next available index for " + tableIndexType + "...");
+    throw new RuntimeException("Cant find next available index for " + tableIndexType + "...", lastException);
   }
 
 }

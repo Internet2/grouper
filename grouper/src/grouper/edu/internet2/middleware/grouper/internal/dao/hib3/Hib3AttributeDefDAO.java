@@ -556,5 +556,28 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
   }
 
 
+  /**
+   * not a secure method, find by id index
+   */
+  @Override
+  public AttributeDef findByIdIndex(Long idIndex, boolean exceptionIfNotFound)
+      throws AttributeDefNotFoundException {
+    
+    StringBuilder hql = new StringBuilder("select theAttributeDef from AttributeDef as theAttributeDef where (theAttributeDef.idIndex = :theIdIndex)");
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
+      .setCacheable(true).setCacheRegion(KLASS + ".FindByIdIndex");
+    
+    byHqlStatic.createQuery(hql.toString());
+    
+    AttributeDef attributeDef = byHqlStatic.setLong("theIdIndex", idIndex).uniqueResult(AttributeDef.class);
+
+    //handle exceptions out of data access method...
+    if (attributeDef == null && exceptionIfNotFound) {
+      throw new AttributeDefNotFoundException("Cannot find AttributeDef with idIndex: '" + idIndex + "'");
+    }
+    return attributeDef;
+    
+  }
+
 } 
 
