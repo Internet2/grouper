@@ -55,6 +55,12 @@ public interface Role extends GrouperSetElement, Comparable {
   public String getId();
   
   /**
+   * id index of role
+   * @return idIndex
+   */
+  public Long getIdIndex();
+  
+  /**
    * name of role
    * @return name
    */

@@ -94,8 +94,10 @@ public class GcFindStems {
   private WsSubjectLookup actAsSubject;
   /** stem names to query */
   private Set<String> stemNames = new LinkedHashSet<String>();
-  /** stem names to query */
+  /** stem uuids to query */
   private Set<String> stemUuids = new LinkedHashSet<String>();
+  /** stem id indexes to query */
+  private Set<Long> stemIdIndexes = new LinkedHashSet<Long>();
 
   /**
    * assign the act as subject if any
@@ -112,8 +114,9 @@ public class GcFindStems {
    */
   private void validate() {
     if (this.wsStemQueryFilter == null && GrouperClientUtils.length(this.stemUuids) == 0 
-        && GrouperClientUtils.length(this.stemNames) == 0) {
-      throw new RuntimeException("Need to pass in a stem query filter, or stemNames or stemUuids: " + this);
+        && GrouperClientUtils.length(this.stemNames) == 0
+        && GrouperClientUtils.length(this.stemIdIndexes) == 0) {
+      throw new RuntimeException("Need to pass in a stem query filter, or stemNames or stemUuids or stemIdIndexes: " + this);
     }
 
   }
@@ -148,6 +151,9 @@ public class GcFindStems {
       }
       for (String stemUuid : this.stemUuids) {
         stemLookups.add(new WsStemLookup(null, stemUuid));
+      }
+      for (Long stemIdIndex : this.stemIdIndexes) {
+        stemLookups.add(new WsStemLookup(null, null, stemIdIndex.toString()));
       }
       findStems.setWsStemLookups(GrouperClientUtils.toArray(stemLookups, WsStemLookup.class));
 
@@ -184,6 +190,16 @@ public class GcFindStems {
    */
   public GcFindStems addStemUuid(String theStemUuid) {
     this.stemUuids.add(theStemUuid);
+    return this;
+  }
+
+  /**
+   * set the stem id index
+   * @param theStemIdIndex
+   * @return this for chaining
+   */
+  public GcFindStems addStemIdIndex(Long theStemIdIndex) {
+    this.stemIdIndexes.add(theStemIdIndex);
     return this;
   }
   

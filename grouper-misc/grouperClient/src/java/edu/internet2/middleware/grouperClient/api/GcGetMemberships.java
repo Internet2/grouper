@@ -78,8 +78,11 @@ public class GcGetMemberships {
   /** group names to query */
   private Set<String> groupNames = new LinkedHashSet<String>();
   
-  /** group names to query */
+  /** group uuids to query */
   private Set<String> groupUuids = new LinkedHashSet<String>();
+  
+  /** group id indexes to query */
+  private Set<Long> groupIdIndexes = new LinkedHashSet<Long>();
   
   /**
    * set the group name
@@ -88,6 +91,16 @@ public class GcGetMemberships {
    */
   public GcGetMemberships addGroupName(String theGroupName) {
     this.groupNames.add(theGroupName);
+    return this;
+  }
+  
+  /**
+   * set the group id index
+   * @param theGroupIdIndex
+   * @return this for chaining
+   */
+  public GcGetMemberships addGroupIdIndex(Long theGroupIdIndex) {
+    this.groupIdIndexes.add(theGroupIdIndex);
     return this;
   }
   
@@ -167,9 +180,10 @@ public class GcGetMemberships {
   private void validate() {
     if (GrouperClientUtils.length(this.groupNames) == 0
         && GrouperClientUtils.length(this.groupUuids) == 0
+        && GrouperClientUtils.length(this.groupIdIndexes) == 0
         && GrouperClientUtils.length(this.membershipIds) == 0
         && GrouperClientUtils.length(this.wsSubjectLookups) == 0) {
-      throw new RuntimeException("Group name or uuid or subject lookup or membership id is required: " + this);
+      throw new RuntimeException("Group name or uuid or id index or subject lookup or membership id is required: " + this);
     }
   }
   
@@ -297,6 +311,9 @@ public class GcGetMemberships {
       }
       for (String groupUuid : this.groupUuids) {
         groupLookups.add(new WsGroupLookup(null, groupUuid));
+      }
+      for (Long groupIdIndex : this.groupIdIndexes) {
+        groupLookups.add(new WsGroupLookup(null, null, groupIdIndex.toString()));
       }
       
       if (GrouperClientUtils.length(groupLookups) > 0) {

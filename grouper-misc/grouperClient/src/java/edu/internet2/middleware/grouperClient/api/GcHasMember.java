@@ -59,6 +59,9 @@ public class GcHasMember {
   /** group uuid to add member to */
   private String groupUuid;
   
+  /** group idIndex to add member to */
+  private Long groupIdIndex;
+  
   /**
    * set the group name
    * @param theGroupName
@@ -76,6 +79,16 @@ public class GcHasMember {
    */
   public GcHasMember assignGroupUuid(String theGroupUuid) {
     this.groupUuid = theGroupUuid;
+    return this;
+  }
+  
+  /**
+   * set the group id index
+   * @param theGroupIdIndex
+   * @return this for chaining
+   */
+  public GcHasMember assignGroupIdIndex(Long theGroupIdIndex) {
+    this.groupIdIndex = theGroupIdIndex;
     return this;
   }
   
@@ -154,12 +167,9 @@ public class GcHasMember {
    */
   private void validate() {
     if (GrouperClientUtils.isBlank(this.groupName)
-        && GrouperClientUtils.isBlank(this.groupUuid)) {
+        && GrouperClientUtils.isBlank(this.groupUuid)
+        && GrouperClientUtils.isBlank(this.groupIdIndex)) {
       throw new RuntimeException("Group name or uuid is required: " + this);
-    }
-    if (GrouperClientUtils.isNotBlank(this.groupName)
-        && GrouperClientUtils.isNotBlank(this.groupUuid)) {
-      throw new RuntimeException("Group name and uuid cannot both be filled in at once : " + this);
     }
     if (GrouperClientUtils.length(this.subjectLookups) == 0) {
       throw new RuntimeException("Need at least one subject to add to group: " + this);
@@ -314,6 +324,9 @@ public class GcHasMember {
       }
       if (!GrouperClientUtils.isBlank(this.groupUuid)) {
         wsGroupLookup.setUuid(this.groupUuid);
+      }
+      if (!GrouperClientUtils.isBlank(this.groupIdIndex)) {
+        wsGroupLookup.setIdIndex(this.groupIdIndex.toString());
       }
       
       hasMember.setWsGroupLookup(wsGroupLookup);

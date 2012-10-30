@@ -82,6 +82,11 @@ public class GcGetAttributeAssignments {
   private Set<String> assignAssignOwnerUuidsOfAttributeDefs = new LinkedHashSet<String>();
   
   /**
+   * if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to
+   */
+  private Set<Long> assignAssignOwnerIdIndexesOfAttributeDefs = new LinkedHashSet<Long>();
+  
+  /**
    * if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
    */
   private Set<String> assignAssignOwnerNamesOfAttributeDefNames = new LinkedHashSet<String>();
@@ -90,6 +95,11 @@ public class GcGetAttributeAssignments {
    * if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
    */
   private Set<String> assignAssignOwnerUuidsOfAttributeDefNames = new LinkedHashSet<String>();
+   
+  /**
+   * if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to
+   */
+  private Set<Long> assignAssignOwnerIdIndexesOfAttributeDefNames = new LinkedHashSet<Long>();
    
   /**
    * if looking for assignments on assignments, this are the actions of the assignment the assignment is assigned to
@@ -274,6 +284,26 @@ public class GcGetAttributeAssignments {
     return this;
   }
   
+  /**
+   * 
+   * @param assignAssignOwnerIdIndexOfAttributeDefName
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignments addAssignAssignOwnerIdIndexOfAttributeDefName(Long assignAssignOwnerIdIndexOfAttributeDefName) {
+    this.assignAssignOwnerIdIndexesOfAttributeDefNames.add(assignAssignOwnerIdIndexOfAttributeDefName);
+    return this;
+  }
+  
+  /**
+   * 
+   * @param assignAssignOwnerIdIndexOfAttributeDef
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignments addAssignAssignOwnerIdIndexOfAttributeDef(Long assignAssignOwnerIdIndexOfAttributeDef) {
+    this.assignAssignOwnerIdIndexesOfAttributeDefs.add(assignAssignOwnerIdIndexOfAttributeDef);
+    return this;
+  }
+  
   
   /**
    * assign client version
@@ -291,6 +321,9 @@ public class GcGetAttributeAssignments {
   /** group uuids to query */
   private Set<String> ownerGroupUuids = new LinkedHashSet<String>();
   
+  /** group idIndexes to query */
+  private Set<Long> ownerGroupIdIndexes = new LinkedHashSet<Long>();
+  
   /**
    * set the group name
    * @param theGroupName
@@ -298,6 +331,16 @@ public class GcGetAttributeAssignments {
    */
   public GcGetAttributeAssignments addOwnerGroupName(String theGroupName) {
     this.ownerGroupNames.add(theGroupName);
+    return this;
+  }
+  
+  /**
+   * set the group id index
+   * @param theGroupIdIndex
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignments addOwnerGroupIdIndex(Long theGroupIdIndex) {
+    this.ownerGroupIdIndexes.add(theGroupIdIndex);
     return this;
   }
   
@@ -382,11 +425,17 @@ public class GcGetAttributeAssignments {
   /** stem uuids to query */
   private Set<String> ownerStemUuids = new LinkedHashSet<String>();
 
+  /** stem id indexes to query */
+  private Set<Long> ownerStemIdIndexes = new LinkedHashSet<Long>();
+
   /** attribute def names to query */
   private Set<String> ownerAttributeDefNames = new LinkedHashSet<String>();
 
   /** attribute def uuids to query */
   private Set<String> ownerAttributeDefUuids = new LinkedHashSet<String>();
+
+  /** attribute def id indexes to query */
+  private Set<Long> ownerAttributeDefIdIndexes = new LinkedHashSet<Long>();
 
   /** owner membership any lookup */
   private Set<WsMembershipAnyLookup> ownerMembershipAnyLookups = new LinkedHashSet<WsMembershipAnyLookup>();
@@ -403,11 +452,17 @@ public class GcGetAttributeAssignments {
   /** attributeDef uuids to query */
   private Set<String> attributeDefUuids = new LinkedHashSet<String>();
 
+  /** attributeDef id indexes to query */
+  private Set<Long> attributeDefIdIndexes = new LinkedHashSet<Long>();
+
   /** attributeDefName names to query */
   private Set<String> attributeDefNameNames = new LinkedHashSet<String>();
 
   /** attributeDefName uuids to query */
   private Set<String> attributeDefNameUuids = new LinkedHashSet<String>();
+  
+  /** attributeDefName id indexes to query */
+  private Set<Long> attributeDefNameIdIndexes = new LinkedHashSet<Long>();
   
   
   
@@ -503,6 +558,9 @@ public class GcGetAttributeAssignments {
         for (String attributeDefUuid : this.attributeDefUuids) {
           attributeDefLookups.add(new WsAttributeDefLookup(null, attributeDefUuid));
         }
+        for (Long attributeDefIdIndex : this.attributeDefIdIndexes) {
+          attributeDefLookups.add(new WsAttributeDefLookup(null, null, attributeDefIdIndex.toString()));
+        }
         if (GrouperClientUtils.length(attributeDefLookups) > 0) {
           getAttributeAssignments.setWsAttributeDefLookups(GrouperClientUtils.toArray(attributeDefLookups, WsAttributeDefLookup.class));
         }
@@ -518,6 +576,9 @@ public class GcGetAttributeAssignments {
         for (String attributeDefNameUuid : this.attributeDefNameUuids) {
           attributeDefNameLookups.add(new WsAttributeDefNameLookup(null, attributeDefNameUuid));
         }
+        for (Long attributeDefNameIdIndex : this.attributeDefNameIdIndexes) {
+          attributeDefNameLookups.add(new WsAttributeDefNameLookup(null, null, attributeDefNameIdIndex.toString()));
+        }
         if (GrouperClientUtils.length(attributeDefNameLookups) > 0) {
           getAttributeAssignments.setWsAttributeDefNameLookups(GrouperClientUtils.toArray(attributeDefNameLookups, WsAttributeDefNameLookup.class));
         }
@@ -532,6 +593,9 @@ public class GcGetAttributeAssignments {
       for (String ownerGroupUuid : this.ownerGroupUuids) {
         ownerGroupLookups.add(new WsGroupLookup(null, ownerGroupUuid));
       }
+      for (Long ownerGroupIdIndex : this.ownerGroupIdIndexes) {
+        ownerGroupLookups.add(new WsGroupLookup(null, null, ownerGroupIdIndex.toString()));
+      }
       if (GrouperClientUtils.length(ownerGroupLookups) > 0) {
         getAttributeAssignments.setWsOwnerGroupLookups(GrouperClientUtils.toArray(ownerGroupLookups, WsGroupLookup.class));
       }
@@ -544,6 +608,9 @@ public class GcGetAttributeAssignments {
       }
       for (String ownerStemUuid : this.ownerStemUuids) {
         ownerStemLookups.add(new WsStemLookup(null, ownerStemUuid));
+      }
+      for (Long ownerStemIdIndex : this.ownerStemIdIndexes) {
+        ownerStemLookups.add(new WsStemLookup(null, null, ownerStemIdIndex.toString()));
       }
       if (GrouperClientUtils.length(ownerStemLookups) > 0) {
         getAttributeAssignments.setWsOwnerStemLookups(GrouperClientUtils.toArray(ownerStemLookups, WsStemLookup.class));
@@ -572,6 +639,9 @@ public class GcGetAttributeAssignments {
       }
       for (String ownerAttributeDefUuid : this.ownerAttributeDefUuids) {
         ownerAttributeDefLookups.add(new WsAttributeDefLookup(null, ownerAttributeDefUuid));
+      }
+      for (Long ownerAttributeDefIdIndex : this.ownerAttributeDefIdIndexes) {
+        ownerAttributeDefLookups.add(new WsAttributeDefLookup(null, null, ownerAttributeDefIdIndex.toString()));
       }
       if (GrouperClientUtils.length(ownerAttributeDefLookups) > 0) {
         getAttributeAssignments.setWsOwnerAttributeDefLookups(GrouperClientUtils.toArray(ownerAttributeDefLookups, WsAttributeDefLookup.class));
@@ -629,6 +699,9 @@ public class GcGetAttributeAssignments {
         for (String assignAssignOwnerUuidOfAttributeDef : this.assignAssignOwnerUuidsOfAttributeDefs) {
           ownerAssignAssignOwnerAttributeDefLookups.add(new WsAttributeDefLookup(null, assignAssignOwnerUuidOfAttributeDef));
         }
+        for (Long assignAssignOwnerIdIndexOfAttributeDef : this.assignAssignOwnerIdIndexesOfAttributeDefs) {
+          ownerAssignAssignOwnerAttributeDefLookups.add(new WsAttributeDefLookup(null, null, assignAssignOwnerIdIndexOfAttributeDef.toString()));
+        }
         if (GrouperClientUtils.length(ownerAssignAssignOwnerAttributeDefLookups) > 0) {
           getAttributeAssignments.setWsAssignAssignOwnerAttributeDefLookups(GrouperClientUtils.toArray(ownerAssignAssignOwnerAttributeDefLookups, WsAttributeDefLookup.class));
         }
@@ -647,6 +720,9 @@ public class GcGetAttributeAssignments {
         }
         for (String assignAssignOwnerUuidOfAttributeDefName : this.assignAssignOwnerUuidsOfAttributeDefNames) {
           ownerAssignAssignOwnerAttributeDefNameLookups.add(new WsAttributeDefNameLookup(null, assignAssignOwnerUuidOfAttributeDefName));
+        }
+        for (Long assignAssignOwnerIdIndexOfAttributeDefName : this.assignAssignOwnerIdIndexesOfAttributeDefNames) {
+          ownerAssignAssignOwnerAttributeDefNameLookups.add(new WsAttributeDefNameLookup(null, null, assignAssignOwnerIdIndexOfAttributeDefName.toString()));
         }
         if (GrouperClientUtils.length(ownerAssignAssignOwnerAttributeDefNameLookups) > 0) {
           getAttributeAssignments.setWsAssignAssignOwnerAttributeDefNameLookups(GrouperClientUtils.toArray(ownerAssignAssignOwnerAttributeDefNameLookups, WsAttributeDefNameLookup.class));
@@ -717,6 +793,16 @@ public class GcGetAttributeAssignments {
   }
 
   /**
+   * set the stem id index
+   * @param theStemIdIndex
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignments addOwnerStemIdIndex(Long theStemIdIndex) {
+    this.ownerStemIdIndexes.add(theStemIdIndex);
+    return this;
+  }
+
+  /**
    * set the attribute def name
    * @param theAttributeDefName
    * @return this for chaining
@@ -733,6 +819,16 @@ public class GcGetAttributeAssignments {
    */
   public GcGetAttributeAssignments addOwnerAttributeDefUuid(String theAttributeDefUuid) {
     this.ownerAttributeDefUuids.add(theAttributeDefUuid);
+    return this;
+  }
+
+  /**
+   * set the attribute def uuid
+   * @param theAttributeDefIdIndex
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignments addOwnerAttributeDefIdIndex(Long theAttributeDefIdIndex) {
+    this.ownerAttributeDefIdIndexes.add(theAttributeDefIdIndex);
     return this;
   }
 
@@ -757,6 +853,16 @@ public class GcGetAttributeAssignments {
   }
 
   /**
+   * set the attributedef id index
+   * @param theAttributeDefIdIndex
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignments addAttributeDefIdIndex(Long theAttributeDefIdIndex) {
+    this.attributeDefIdIndexes.add(theAttributeDefIdIndex);
+    return this;
+  }
+
+  /**
    * set the attributeDefName name
    * @param theAttributeDefNameName
    * @return this for chaining
@@ -776,4 +882,14 @@ public class GcGetAttributeAssignments {
     return this;
   }
   
+
+  /**
+   * set the attributeDefName id index
+   * @param theAttributeDefNameIdIndex
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignments addAttributeDefNameIdIndex(Long theAttributeDefNameIdIndex) {
+    this.attributeDefNameIdIndexes.add(theAttributeDefNameIdIndex);
+    return this;
+  }
 }

@@ -108,17 +108,23 @@ public class GcFindGroups {
    */
   private void validate() {
     if (this.queryFilter == null && GrouperClientUtils.length(this.groupUuids) == 0 
-        && GrouperClientUtils.length(this.groupNames) == 0) {
-      throw new RuntimeException("Need to pass in a query filter, or groupNames or groupUuids: " + this);
+        && GrouperClientUtils.length(this.groupNames) == 0
+        && GrouperClientUtils.length(this.groupIdIndexes) == 0) {
+      throw new RuntimeException("Need to pass in a query filter, or groupNames or groupUuids or groupIdIndexes: " + this);
     }
   }
   
   /** if the group detail should be sent back */
   private Boolean includeGroupDetail;
+
   /** group names to query */
   private Set<String> groupNames = new LinkedHashSet<String>();
+  
   /** group names to query */
   private Set<String> groupUuids = new LinkedHashSet<String>();
+  
+  /** group names to query */
+  private Set<Long> groupIdIndexes = new LinkedHashSet<Long>();
   
   /**
    * assign if the group detail should be included
@@ -165,6 +171,9 @@ public class GcFindGroups {
       for (String groupUuid : this.groupUuids) {
         groupLookups.add(new WsGroupLookup(null, groupUuid));
       }
+      for (Long groupIdIndex : this.groupIdIndexes) {
+        groupLookups.add(new WsGroupLookup(null, null, groupIdIndex.toString()));
+      }
       findGroups.setWsGroupLookups(GrouperClientUtils.toArray(groupLookups, WsGroupLookup.class));
 
       
@@ -201,6 +210,16 @@ public class GcFindGroups {
    */
   public GcFindGroups addGroupUuid(String theGroupUuid) {
     this.groupUuids.add(theGroupUuid);
+    return this;
+  }
+
+  /**
+   * set the group id index
+   * @param theGroupIdIndex
+   * @return this for chaining
+   */
+  public GcFindGroups addGroupIdIndex(Long theGroupIdIndex) {
+    this.groupIdIndexes.add(theGroupIdIndex);
     return this;
   }
   
