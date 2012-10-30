@@ -18,6 +18,8 @@ package edu.internet2.middleware.grouper.ws;
 
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
 /**
@@ -86,7 +88,11 @@ public final class GrouperWsConfig extends ConfigPropertiesCascadeBase {
    */
   @Deprecated
   public static String getPropertyString(String property, String defaultValue) {
-    return retrieveConfig().propertyValueString(property, defaultValue);
+    String value = retrieveConfig().propertyValueString(property, defaultValue);
+    if (StringUtils.isBlank(value)) {
+      return defaultValue;
+    }
+    return value;
   }
 
   /**

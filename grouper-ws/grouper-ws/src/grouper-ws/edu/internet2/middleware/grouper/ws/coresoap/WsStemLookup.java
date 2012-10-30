@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteResult.WsStemDeleteResultCode;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
@@ -95,6 +96,21 @@ public class WsStemLookup {
 
   /** result of stem find */
   public static enum StemFindResult {
+
+    /** uuid doesnt match name or id index etc */
+    STEM_UUID_NAME_IDINDEX_DONT_MATCH {
+
+      /**
+       * convert this code to a delete code
+       * @return the code
+       */
+      @Override
+      public WsStemDeleteResultCode convertToDeleteCode() {
+        return WsStemDeleteResultCode.STEM_UUID_NAME_IDINDEX_DONT_MATCH;
+      }
+
+    },
+
 
     /** found the stem */
     SUCCESS {
@@ -226,21 +242,36 @@ public class WsStemLookup {
       }
 
       //must have a name or uuid
-      if (!hasUuid && !hasName) {
+      if (!hasUuid && !hasName && !hasIdIndex) {
         this.stemFindResult = StemFindResult.INVALID_QUERY;
         String logMessage = "Invalid query: " + this;
         LOG.warn(logMessage);
-        //TODO remove:
-        System.out.println(logMessage);
         return;
       }
 
+      Stem theStem = null;
+      
       if (hasName) {
-        this.stem = StemFinder.findByName(grouperSession, this.stemName, true, new QueryOptions().secondLevelCache(false));
+        theStem = StemFinder.findByName(grouperSession, this.stemName, true, new QueryOptions().secondLevelCache(false));
       } else if (hasUuid) {
-        this.stem = StemFinder.findByUuid(grouperSession, this.uuid, true, new QueryOptions().secondLevelCache(false));
+        theStem = StemFinder.findByUuid(grouperSession, this.uuid, true, new QueryOptions().secondLevelCache(false));
+      } else if (hasIdIndex) {
+        theStem = StemFinder.findByIdIndex(GrouperUtil.longValue(this.idIndex), true, new QueryOptions().secondLevelCache(false));
       }
 
+      //make sure matches
+      if ((hasUuid && !StringUtils.equals(this.uuid, theStem.getUuid()))
+          || (hasName && !StringUtils.equals(this.stemName, theStem.getName()))
+          || (hasIdIndex && !GrouperUtil.equals(GrouperUtil.longValue(this.idIndex), theStem.getIdIndex()))){
+        this.stemFindResult = StemFindResult.STEM_UUID_NAME_IDINDEX_DONT_MATCH;
+        String error = "Stem name '" + this.stemName + "', uuid '" + this.uuid
+            + "', idIndex: " + this.idIndex + " do not match";
+        String logMessage = "Invalid query: " + error + ", " + this;
+        LOG.warn(logMessage);
+      }
+      
+      this.stem = theStem;
+      
     } catch (StemNotFoundException gnf) {
       this.stemFindResult = StemFindResult.STEM_NOT_FOUND;
     }

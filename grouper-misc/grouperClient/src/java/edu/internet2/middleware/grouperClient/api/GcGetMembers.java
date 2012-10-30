@@ -56,7 +56,7 @@ public class GcGetMembers {
   /** group names to query */
   private Set<String> groupNames = new LinkedHashSet<String>();
   
-  /** group names to query */
+  /** group uuids to query */
   private Set<String> groupUuids = new LinkedHashSet<String>();
   
   /**
@@ -66,6 +66,19 @@ public class GcGetMembers {
    */
   public GcGetMembers addGroupName(String theGroupName) {
     this.groupNames.add(theGroupName);
+    return this;
+  }
+  
+  /** group id indexes to query */
+  private Set<Long> groupIdIndexes = new LinkedHashSet<Long>();
+  
+  /**
+   * set the group id index
+   * @param theGroupIdIndex
+   * @return this for chaining
+   */
+  public GcGetMembers addGroupIdIndex(Long theGroupIdIndex) {
+    this.groupIdIndexes.add(theGroupIdIndex);
     return this;
   }
   
@@ -134,8 +147,9 @@ public class GcGetMembers {
    */
   private void validate() {
     if (GrouperClientUtils.length(this.groupNames) == 0
-        && GrouperClientUtils.length(this.groupUuids) == 0) {
-      throw new RuntimeException("Group name or uuid is required: " + this);
+        && GrouperClientUtils.length(this.groupUuids) == 0
+        && GrouperClientUtils.length(this.groupIdIndexes) == 0) {
+      throw new RuntimeException("Group name or uuid or id index is required: " + this);
     }
     
     if (pointInTimeFrom != null || pointInTimeTo != null) {
@@ -290,6 +304,9 @@ public class GcGetMembers {
       }
       for (String groupUuid : this.groupUuids) {
         groupLookups.add(new WsGroupLookup(null, groupUuid));
+      }
+      for (Long groupIdIndex : this.groupIdIndexes) {
+        groupLookups.add(new WsGroupLookup(null, null, groupIdIndex.toString()));
       }
       getMembers.setWsGroupLookups(GrouperClientUtils.toArray(groupLookups, WsGroupLookup.class));
       

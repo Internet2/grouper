@@ -73,6 +73,20 @@ public class WsStemDeleteResult implements ResultMetadataHolder {
    */
   public static enum WsStemDeleteResultCode {
 
+    /**
+     * if the uuid, name, idIndex do not match
+     */
+    STEM_UUID_NAME_IDINDEX_DONT_MATCH {
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsStemDeleteLiteResultCode
+       */
+      @Override
+      public WsStemDeleteLiteResultCode convertToLiteCode() {
+        return WsStemDeleteLiteResultCode.INVALID_QUERY;
+      }
+    },
+    
     /** if transactional call, and rolled back, otherwise success */
     TRANSACTION_ROLLED_BACK {
 
@@ -210,6 +224,7 @@ public class WsStemDeleteResult implements ResultMetadataHolder {
   /**
    * @return the resultMetadata
    */
+  @Override
   public WsResultMeta getResultMetadata() {
     return this.resultMetadata;
   }

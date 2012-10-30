@@ -54,6 +54,12 @@ public class Hib3TableIndexDAO extends Hib3DAO implements TableIndexDAO {
   static void reset(HibernateSession hibernateSession) {
     
     hibernateSession.byHql().createQuery("delete from TableIndex").executeUpdate();
+    
+    for (TableIndexType tableIndexType : TableIndexType.values()) {
+      TableIndex.clearReservedIds(tableIndexType);
+    }
+    
+    clearCheckedTableIndexOnce();
   }
 
   /**
@@ -116,6 +122,13 @@ public class Hib3TableIndexDAO extends Hib3DAO implements TableIndexDAO {
   
   /** if we checked table index on startup once */
   private static Map<TableIndexType, Boolean> checkedTableIndexOnce = new HashMap<TableIndexType, Boolean>();
+  
+  /**
+   * clear that we have checked the table
+   */
+  private static void clearCheckedTableIndexOnce() {
+    checkedTableIndexOnce.clear();
+  }
   
   /**
    * @see TableIndexDAO#reserveIds(TableIndexType, int)

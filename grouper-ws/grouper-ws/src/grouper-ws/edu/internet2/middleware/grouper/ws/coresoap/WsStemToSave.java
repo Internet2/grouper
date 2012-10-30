@@ -158,6 +158,10 @@ public class WsStemToSave {
     stemSave.assignSaveMode(theSaveMode);
     stemSave.assignCreateParentStemsIfNotExist(GrouperUtil.booleanValue(this.getCreateParentStemsIfNotExist(), false));
     
+    if (!StringUtils.isBlank(this.getWsStem().getIdIndex())) {
+      stemSave.assignIdIndex(GrouperUtil.longValue(this.getWsStem().getIdIndex()));
+    }
+
     Stem stem = stemSave.save();
     
     this.saveResultType = stemSave.getSaveResultType();

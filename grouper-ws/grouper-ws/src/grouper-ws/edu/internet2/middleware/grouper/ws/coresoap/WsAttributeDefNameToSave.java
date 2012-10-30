@@ -233,7 +233,11 @@ public class WsAttributeDefNameToSave {
     attributeDefNameSave.assignDescription(this.getWsAttributeDefName().getDescription());
     attributeDefNameSave.assignSaveMode(theSaveMode);
     attributeDefNameSave.assignCreateParentStemsIfNotExist(GrouperUtil.booleanValue(this.getCreateParentStemsIfNotExist(), false));
-    
+
+    if (!StringUtils.isBlank(this.getWsAttributeDefName().getIdIndex())) {
+      attributeDefNameSave.assignIdIndex(GrouperUtil.longValue(this.getWsAttributeDefName().getIdIndex()));
+    }
+
     attributeDefName = attributeDefNameSave.save();
     
     this.saveResultType = attributeDefNameSave.getSaveResultType();

@@ -182,6 +182,7 @@ public class WsGroupLookup {
   public WsGroupLookup(WsGroup wsGroup) {
     this.groupName = wsGroup.getName();
     this.uuid = wsGroup.getUuid();
+    this.idIndex = wsGroup.getIdIndex();
   }
   
   /**
@@ -458,37 +459,37 @@ public class WsGroupLookup {
         LOG.warn(logMessage);
       }
 
+      Group theGroup = null;
+      
       if (hasName) {
         
-        //TODO make this more efficient
-        Group theGroup = GroupFinder.findByName(grouperSession, this.groupName, 
+        theGroup = GroupFinder.findByName(grouperSession, this.groupName, 
             true, new QueryOptions().secondLevelCache(false));
 
-        //make sure uuid matches 
-        if (hasUuid && !StringUtils.equals(this.uuid, theGroup.getUuid())) {
-          this.groupFindResult = GroupFindResult.GROUP_UUID_DOESNT_MATCH_NAME;
-          String error = "Group name '" + this.groupName + "' and uuid '" + this.uuid
-              + "' do not match";
-          if (!StringUtils.isEmpty(invalidQueryReason)) {
-            throw new WsInvalidQueryException(error + " for '" + invalidQueryReason
-                + "', " + this);
-          }
-          String logMessage = "Invalid query: " + this;
-          LOG.warn(logMessage);
-        }
-
-        //success
-        this.group = theGroup;
-
       } else if (hasUuid) {
-        this.group = GroupFinder.findByUuid(grouperSession, this.uuid, true, new QueryOptions().secondLevelCache(false));
+        theGroup = GroupFinder.findByUuid(grouperSession, this.uuid, true, new QueryOptions().secondLevelCache(false));
       } else if (hasIdIndex) {
-        this.group = GroupFinder.findByIdIndexSecure(GrouperUtil.longValue(this.idIndex), true, new QueryOptions().secondLevelCache(false));
+        theGroup = GroupFinder.findByIdIndexSecure(
+            GrouperUtil.longValue(this.idIndex), true, new QueryOptions().secondLevelCache(false));
       }
-      
-      //make sure everything matches...
-      //TODO
 
+      //make sure matches
+      if ((hasUuid && !StringUtils.equals(this.uuid, theGroup.getUuid()))
+          || (hasName && !StringUtils.equals(this.groupName, theGroup.getName()))
+          || (hasIdIndex && !GrouperUtil.equals(GrouperUtil.longValue(this.idIndex), theGroup.getIdIndex()))){
+        this.groupFindResult = GroupFindResult.GROUP_UUID_DOESNT_MATCH_NAME;
+        String error = "Group name '" + this.groupName + "', uuid '" + this.uuid
+            + "', idIndex: " + this.idIndex + " do not match";
+        if (!StringUtils.isEmpty(invalidQueryReason)) {
+          throw new WsInvalidQueryException(error + " for '" + invalidQueryReason
+              + "', " + this);
+        }
+        String logMessage = "Invalid query: " + this;
+        LOG.warn(logMessage);
+      }
+
+      this.group = theGroup;
+      
     } catch (GroupNotFoundException gnf) {
       this.groupFindResult = GroupFindResult.GROUP_NOT_FOUND;
       if (!StringUtils.isBlank(invalidQueryReason)) {
@@ -523,9 +524,19 @@ public class WsGroupLookup {
 
       boolean hasName = !StringUtils.isBlank(this.groupName);
 
+      boolean hasIdIndex = !StringUtils.isBlank(this.idIndex);
+
       //must have a name or uuid
       if (!hasUuid && !hasName) {
+
         this.groupFindResult = GroupFindResult.INVALID_QUERY;
+        if (hasIdIndex) {
+
+          throw new WsInvalidQueryException("Invalid point in time group query for '"
+              + invalidQueryReason + "', cant use idIndex on point in time " + this);
+          
+        }
+        
         if (!StringUtils.isEmpty(invalidQueryReason)) {
           throw new WsInvalidQueryException("Invalid point in time group query for '"
               + invalidQueryReason + "', " + this);

@@ -80,7 +80,7 @@ public class GcAddMember {
   }
   
   /**
-   * set the group name
+   * set the group uuid
    * @param theGroupUuid
    * @return this for chaining
    */
@@ -88,6 +88,21 @@ public class GcAddMember {
     this.groupUuid = theGroupUuid;
     return this;
   }
+  
+  /**
+   * set the group id index
+   * @param theGroupIdIndex
+   * @return this for chaining
+   */
+  public GcAddMember assignGroupIdIndex(Long theGroupIdIndex) {
+    this.groupIdIndex = theGroupIdIndex;
+    return this;
+  }
+
+  /**
+   * if referring to the group by id index
+   */
+  private Long groupIdIndex = null;
   
   /** subject lookups */
   private List<WsSubjectLookup> subjectLookups = new ArrayList<WsSubjectLookup>();
@@ -176,11 +191,8 @@ public class GcAddMember {
    * validate this call
    */
   private void validate() {
-    if (GrouperClientUtils.isBlank(this.groupName) && GrouperClientUtils.isBlank(this.groupUuid)) {
-      throw new RuntimeException("Group name or uuid is required: " + this);
-    }
-    if (GrouperClientUtils.isNotBlank(this.groupName) && GrouperClientUtils.isNotBlank(this.groupUuid)) {
-      throw new RuntimeException("Group name and uuid cannot both be filled in at once: " + this);
+    if (GrouperClientUtils.isBlank(this.groupName) && GrouperClientUtils.isBlank(this.groupUuid) && GrouperClientUtils.isBlank(this.groupIdIndex)) {
+      throw new RuntimeException("Group name or uuid or idIndex is required: " + this);
     }
     //if we arent replacing, we need a subject to add.  if replacing, we might be removing all
     if (GrouperClientUtils.length(this.subjectLookups) == 0 && (this.replaceAllExisting == null || this.replaceAllExisting == false)) {
@@ -322,6 +334,7 @@ public class GcAddMember {
       WsGroupLookup wsGroupLookup = new WsGroupLookup();
       wsGroupLookup.setGroupName(this.groupName);
       wsGroupLookup.setUuid(this.groupUuid);
+      wsGroupLookup.setIdIndex(this.groupIdIndex == null ? null : this.groupIdIndex.toString());
       
       addMember.setWsGroupLookup(wsGroupLookup);
       

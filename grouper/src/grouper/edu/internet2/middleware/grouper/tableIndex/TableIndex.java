@@ -415,7 +415,23 @@ public class TableIndex extends GrouperAPI implements Hib3GrouperVersioned {
       }
     }
   }
-  
+
+
+  /**
+   * clear all ids
+   * @param tableIndexType
+   */
+  public static void clearReservedIds(TableIndexType tableIndexType) {
+    synchronized(tableIndexType) {
+      List<Long> longList = reservedIds.get(tableIndexType);
+      if (longList != null) {
+        for (int i=0;i<longList.size();i++) {
+          longList.set(i, null);
+        }
+      }
+    }
+  }
+
   /**
    * get an id for this type of object, if needed, increment the index in the database
    * @param tableIndexType

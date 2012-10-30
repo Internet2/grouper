@@ -19,7 +19,7 @@ public class ConfigPropertiesCascadeBaseTest extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ConfigPropertiesCascadeBaseTest("testOverrideHasHierarchy"));
+    TestRunner.run(new ConfigPropertiesCascadeBaseTest("testOriginalHasHierarchy"));
   }
   
   /**
@@ -206,6 +206,9 @@ public class ConfigPropertiesCascadeBaseTest extends TestCase {
     } catch (Exception e) {
       //good
     }
+    
+    assertEquals("somethingNotThere", ConfigPropertiesOriginalHasHierarchy.retrieveConfig().propertyValueString("somethingWhateversdfsdf", "somethingNotThere"));
+    
   }
   
   /**

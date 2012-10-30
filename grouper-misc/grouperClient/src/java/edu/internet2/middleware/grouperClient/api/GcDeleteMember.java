@@ -69,6 +69,19 @@ public class GcDeleteMember {
     return this;
   }
   
+  /** group id index to delete member from */
+  private Long groupIdIndex;
+  
+  /**
+   * set the group id index
+   * @param theGroupIndex
+   * @return this for chaining
+   */
+  public GcDeleteMember assignGroupIdIndex(Long theGroupIdIndex) {
+    this.groupIdIndex = theGroupIdIndex;
+    return this;
+  }
+  
   /** subject lookups */
   private List<WsSubjectLookup> subjectLookups = new ArrayList<WsSubjectLookup>();
 
@@ -143,11 +156,8 @@ public class GcDeleteMember {
    * validate this call
    */
   private void validate() {
-    if (GrouperClientUtils.isBlank(this.groupName) && GrouperClientUtils.isBlank(this.groupUuid)) {
-      throw new RuntimeException("Group name or uuid is required: " + this);
-    }
-    if (GrouperClientUtils.isNotBlank(this.groupName) && GrouperClientUtils.isNotBlank(this.groupUuid)) {
-      throw new RuntimeException("Group name and uuid cannot both be filled in: " + this);
+    if (GrouperClientUtils.isBlank(this.groupName) && GrouperClientUtils.isBlank(this.groupUuid) && GrouperClientUtils.isBlank(this.groupIdIndex)) {
+      throw new RuntimeException("Group name or uuid od id index is required: " + this);
     }
     if (GrouperClientUtils.length(this.subjectLookups) == 0) {
       throw new RuntimeException("Need at least one subject to add to group: " + this);
@@ -250,6 +260,7 @@ public class GcDeleteMember {
       WsGroupLookup wsGroupLookup = new WsGroupLookup();
       wsGroupLookup.setGroupName(this.groupName);
       wsGroupLookup.setUuid(this.groupUuid);
+      wsGroupLookup.setIdIndex(this.groupIdIndex == null ? null : this.groupIdIndex.toString());
       
       deleteMember.setWsGroupLookup(wsGroupLookup);
       

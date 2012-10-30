@@ -107,6 +107,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameToSave;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults.WsFindAttributeDefNamesResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults.WsGetAttributeAssignmentsResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResults;
@@ -127,6 +128,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipAnyLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsPermissionAssign;
 import edu.internet2.middleware.grouper.ws.coresoap.WsQueryFilter;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStem;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubject;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
@@ -166,7 +168,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testGetGroups"));
+    TestRunner.run(new GrouperServiceLogicTest("testFindAttributeDefNames"));
   }
 
   /**
@@ -322,6 +324,16 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertGroupSetsAndOrder(GrouperUtil.toSet(testEntity, testRole, testEntity2, testRole2), wsGroups);    
     
     assertTrue(StringUtils.isBlank(wsGroups[0].getTypeOfGroup()));
+    
+    //try again with previous version
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsQueryFilter.assignGrouperSession(null);
+
+    wsGroups = GrouperServiceLogic.findGroups(
+        GROUPER_VERSION, null, null, false, null, new WsGroupLookup[]{new WsGroupLookup(null, null, testRole.getIdIndex().toString()),
+            new WsGroupLookup(null, null, testRole2.getIdIndex().toString())}).getGroupResults();
+   
+    assertGroupSetsAndOrder(GrouperUtil.toSet(testRole, testRole2), wsGroups);    
     
     
   }
@@ -5340,7 +5352,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
   }
 
   /**
-   * test find groups with TypeOfGroup
+   * test find attribute def names with TypeOfGroup
    */
   public void testFindAttributeDefNames() {
   
@@ -5573,6 +5585,40 @@ public class GrouperServiceLogicTest extends GrouperTest {
   
     assertEquals(0, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefNameResults()));
     assertEquals(0, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefs()));
+  
+    //#############################################
+    //paging and find by attribute def idIndex
+    GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+    wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
+        GROUPER_VERSION, null, null, new WsAttributeDefLookup(null, null, testAttributeDef.getIdIndex().toString()), null, null, null, 
+        1, 2, "name", false, null, null, null);
+  
+    assertEquals(wsFindAttributeDefNamesResults.getResultMetadata().getResultMessage(),
+        WsFindAttributeDefNamesResultsCode.SUCCESS.name(), 
+        wsFindAttributeDefNamesResults.getResultMetadata().getResultCode());
+  
+    assertEquals(1, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefNameResults()));
+    assertEquals(testAttributeDefName1.getName(), wsFindAttributeDefNamesResults.getAttributeDefNameResults()[0].getName());
+  
+    assertEquals(1, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefs()));
+    assertEquals(testAttributeDef.getName(), wsFindAttributeDefNamesResults.getAttributeDefs()[0].getName());
+    
+    //#############################################
+    //paging and find by attribute def name idIndex
+    GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+    wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
+        GROUPER_VERSION, null, null, null, null, null, new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(null, null, testAttributeDefName1.getIdIndex().toString())}, 
+        1, 1, "name", false, null, null, null);
+  
+    assertEquals(wsFindAttributeDefNamesResults.getResultMetadata().getResultMessage(),
+        WsFindAttributeDefNamesResultsCode.SUCCESS.name(), 
+        wsFindAttributeDefNamesResults.getResultMetadata().getResultCode());
+  
+    assertEquals(1, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefNameResults()));
+    assertEquals(testAttributeDefName1.getName(), wsFindAttributeDefNamesResults.getAttributeDefNameResults()[0].getName());
+  
+    assertEquals(1, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefs()));
+    assertEquals(testAttributeDef.getName(), wsFindAttributeDefNamesResults.getAttributeDefs()[0].getName());
   
   }
 
@@ -6774,5 +6820,88 @@ public class GrouperServiceLogicTest extends GrouperTest {
     
   }
 
+  /**
+   * test find stems
+   */
+  public void testFindStems() {
   
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+  
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Stem testStem = new StemSave(grouperSession).assignName("test").save();
+    Stem testSubStem = new StemSave(grouperSession).assignName("test:sub").save();
+    
+    WsFindStemsResults wsFindStemsResults = GrouperServiceLogic.findStems(
+        GROUPER_VERSION, null, null, null, new WsStemLookup[]{new WsStemLookup(null, null, testStem.getIdIndex().toString()),
+            new WsStemLookup(null, null, testSubStem.getIdIndex().toString())});
+  
+    assertEquals(wsFindStemsResults.getResultMetadata().getResultMessage(),
+        WsGetGroupsResultsCode.SUCCESS.name(), 
+        wsFindStemsResults.getResultMetadata().getResultCode());
+  
+    assertStemSetsAndOrder(GrouperUtil.toSet(testStem, testSubStem), wsFindStemsResults.getStemResults());    
+    
+    
+  }
+
+  /**
+   * make sure a set of stems is similar to another by stem name including order
+   * @param set1 expected set
+   * @param stemResultArray received set
+   */
+  public void assertStemSetsAndOrder(Set<Stem> set1, WsStem[] stemResultArray) {
+    int set1length = GrouperUtil.length(set1);
+    int set2length = GrouperUtil.length(stemResultArray);
+    if (set1length != set2length) {
+      fail("Expecting stems of size: " + set1length + " but received size: " + set2length + ", expecting: "
+          + GrouperUtil.toStringForLog(set1, 200) + ", but received: " + GrouperUtil.toStringForLog(stemResultArray, 200));
+    }
+    
+    if (set1length == 0) {
+      return;
+    }
+    
+    int i=0;
+    for (Stem stem : set1) {
+      if (!StringUtils.equals(stem.getName(), stemResultArray[i].getName())) {
+        fail("Expecting index of set: " + i + " to be: " + stem.getName() + ", but received: "
+            + stemResultArray[i].getName() + ", expecting: " 
+            + GrouperUtil.toStringForLog(set1, 200) 
+            + ", but received: " + GrouperUtil.toStringForLog(stemResultArray, 200));
+      }
+      i++;
+    }
+  }
+
+  /**
+   * make sure a set of attributeDefNames is similar to another by attributeDefName name including order
+   * @param set1 expected set
+   * @param attributeDefNameResultArray received set
+   */
+  public void assertAttributeDefNameSetsAndOrder(Set<AttributeDefName> set1, WsAttributeDefName[] attributeDefNameResultArray) {
+    int set1length = GrouperUtil.length(set1);
+    int set2length = GrouperUtil.length(attributeDefNameResultArray);
+    if (set1length != set2length) {
+      fail("Expecting attributeDefNames of size: " + set1length + " but received size: " + set2length + ", expecting: "
+          + GrouperUtil.toStringForLog(set1, 200) + ", but received: " + GrouperUtil.toStringForLog(attributeDefNameResultArray, 200));
+    }
+    
+    if (set1length == 0) {
+      return;
+    }
+    
+    int i=0;
+    for (AttributeDefName attributeDefName : set1) {
+      if (!StringUtils.equals(attributeDefName.getName(), attributeDefNameResultArray[i].getName())) {
+        fail("Expecting index of set: " + i + " to be: " + attributeDefName.getName() + ", but received: "
+            + attributeDefNameResultArray[i].getName() + ", expecting: " 
+            + GrouperUtil.toStringForLog(set1, 200) 
+            + ", but received: " + GrouperUtil.toStringForLog(attributeDefNameResultArray, 200));
+      }
+      i++;
+    }
+  }
+
+
 }

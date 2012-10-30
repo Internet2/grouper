@@ -552,7 +552,8 @@ public class GrouperClient {
       
       String groupName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "groupName", false);
       String groupUuid = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "groupUuid", false);
-
+      String groupIdIndex = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "groupIdIndex", false);
+      
       String fieldName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "fieldName", false);
       String txType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "txType", false);
      
@@ -586,6 +587,7 @@ public class GrouperClient {
       
       gcAddMember.assignGroupName(groupName);
       gcAddMember.assignGroupUuid(groupUuid);
+      gcAddMember.assignGroupIdIndex(GrouperClientUtils.longObjectValue(groupIdIndex, true));
       
       {
         Timestamp disabledTime = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "disabledTime");
@@ -1189,6 +1191,8 @@ public class GrouperClient {
         argMapNotUsed, "groupLookupName", false);
     String groupLookupUuid = GrouperClientUtils.argMapString(argMap, 
         argMapNotUsed, "groupLookupUuid", false);
+    String groupLookupIdIndex = GrouperClientUtils.argMapString(argMap, 
+        argMapNotUsed, "groupLookupIdIndex", false);
     
     String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
     gcGroupSave.assignClientVersion(clientVersion);
@@ -1199,12 +1203,15 @@ public class GrouperClient {
     WsGroupLookup wsGroupLookup = new WsGroupLookup();
     wsGroupToSave.setWsGroupLookup(wsGroupLookup);
     //do the lookup if an edit
-    if (!GrouperClientUtils.isBlank(groupLookupName) || !GrouperClientUtils.isBlank(groupLookupUuid)) {
+    if (!GrouperClientUtils.isBlank(groupLookupName) || !GrouperClientUtils.isBlank(groupLookupUuid) || !GrouperClientUtils.isBlank(groupLookupIdIndex)) {
       if (!GrouperClientUtils.isBlank(groupLookupName)) {
         wsGroupLookup.setGroupName(groupLookupName);
       }
       if (!GrouperClientUtils.isBlank(groupLookupUuid)) {
         wsGroupLookup.setUuid(groupLookupUuid);
+      }
+      if (!GrouperClientUtils.isBlank(groupLookupIdIndex)) {
+        wsGroupLookup.setIdIndex(groupLookupIdIndex);
       }
     } else {
       //just edit the name passed in
@@ -1222,11 +1229,18 @@ public class GrouperClient {
       wsGroupToSave.setSaveMode(saveMode);
     }
     
-    //save mode
+    //typeOfGroup
     String typeOfGroup = GrouperClientUtils.argMapString(argMap, 
         argMapNotUsed, "typeOfGroup", false);
     if (typeOfGroup != null) {
       wsGroup.setTypeOfGroup(typeOfGroup);
+    }
+    
+    //typeOfGroup
+    String idIndex = GrouperClientUtils.argMapString(argMap, 
+        argMapNotUsed, "idIndex", false);
+    if (idIndex != null) {
+      wsGroup.setIdIndex(idIndex);
     }
     
     String description = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "description", false);
@@ -1629,6 +1643,7 @@ public class GrouperClient {
       
       String groupName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "groupName", false);
       String groupUuid = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "groupUuid", false);
+      String groupIdIndex = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "groupIdIndex", false);
       String fieldName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "fieldName", false);
       String txType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "txType", false);
      
@@ -1658,6 +1673,7 @@ public class GrouperClient {
       
       gcDeleteMember.assignGroupName(groupName);
       gcDeleteMember.assignGroupUuid(groupUuid);
+      gcDeleteMember.assignGroupIdIndex(GrouperClientUtils.longObjectValue(groupIdIndex, true));
       
       WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
       
@@ -2066,6 +2082,7 @@ public class GrouperClient {
       Map<String, String> argMapNotUsed) {
     List<String> groupNames = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "groupNames", false);
     List<String> groupUuids = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "groupUuids", false);
+    List<String> groupIdIndexes = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "groupIdIndexes", false);
 
     String fieldName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "fieldName", false);
   
@@ -2096,6 +2113,12 @@ public class GrouperClient {
     if (GrouperClientUtils.length(groupUuids) > 0) {
       for (String groupUuid: groupUuids) {
         gcGetMembers.addGroupUuid(groupUuid);
+      }
+    }
+    
+    if (GrouperClientUtils.length(groupIdIndexes) > 0) {
+      for (String groupIdIndex: groupIdIndexes) {
+        gcGetMembers.addGroupIdIndex(GrouperClientUtils.longValue(groupIdIndex));
       }
     }
     

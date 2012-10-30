@@ -35,10 +35,12 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.pit.PITAttributeDef;
 import edu.internet2.middleware.grouper.pit.PITAttributeDefName;
 import edu.internet2.middleware.grouper.pit.finder.PITAttributeDefFinder;
 import edu.internet2.middleware.grouper.pit.finder.PITAttributeDefNameFinder;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResult.WsAttributeDefNameDeleteResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -261,30 +263,41 @@ public class WsAttributeDefNameLookup {
         LOG.warn(logMessage);
       }
 
+      AttributeDefName theAttributeDefName = null;
+      
       if (hasName) {
         
-        //TODO make this more efficient
-        AttributeDefName theAttributeDefName = AttributeDefNameFinder.findByName(this.name, true);
-
-        //make sure uuid matches 
-        if (hasUuid && !StringUtils.equals(this.uuid, theAttributeDefName.getId())) {
-          this.attributeDefNameFindResult = AttributeDefNameFindResult.ATTRIBUTE_DEF_NAME_UUID_DOESNT_MATCH_NAME;
-          String error = "AttributeDefName name '" + this.name + "' and uuid '" + this.uuid
-              + "' do not match";
-          if (!StringUtils.isEmpty(invalidQueryReason)) {
-            throw new WsInvalidQueryException(error + " for '" + invalidQueryReason
-                + "', " + this);
-          }
-          String logMessage = "Invalid query: " + this;
-          LOG.warn(logMessage);
-        }
-
-        //success
-        this.attributeDefName = theAttributeDefName;
+        theAttributeDefName = AttributeDefNameFinder.findByName(this.name, true);
 
       } else if (hasUuid) {
-        this.attributeDefName = AttributeDefNameFinder.findById(this.uuid, true);
+        
+        theAttributeDefName = AttributeDefNameFinder.findById(this.uuid, true);
+
+      } else if (hasIdIndex) {
+        
+        theAttributeDefName = AttributeDefNameFinder.findByIdIndexSecure(GrouperUtil.longValue(this.idIndex), true, 
+            new QueryOptions().secondLevelCache(false));
+
       }
+
+      //make sure uuid matches 
+      if ((hasUuid && !StringUtils.equals(this.uuid, theAttributeDefName.getId()))
+          || (hasName && !StringUtils.equals(this.name, theAttributeDefName.getName()))
+          || (hasIdIndex && !GrouperUtil.equals(GrouperUtil.longValue(this.idIndex), theAttributeDefName.getIdIndex()))){
+        this.attributeDefNameFindResult = AttributeDefNameFindResult.ATTRIBUTE_DEF_NAME_UUID_DOESNT_MATCH_NAME;
+        String error = "AttributeDefName name '" + this.name + "' and uuid '" + this.uuid
+            + "', and idIndex: " + this.idIndex + " do not match";
+        if (!StringUtils.isEmpty(invalidQueryReason)) {
+          throw new WsInvalidQueryException(error + " for '" + invalidQueryReason
+              + "', " + this);
+        }
+        String logMessage = "Invalid query: " + this;
+        LOG.warn(logMessage);
+      }
+
+      //success
+      this.attributeDefName = theAttributeDefName;
+
 
     } catch (AttributeDefNameNotFoundException anf) {
       this.attributeDefNameFindResult = AttributeDefNameFindResult.ATTRIBUTE_DEF_NAME_NOT_FOUND;
@@ -320,14 +333,25 @@ public class WsAttributeDefNameLookup {
 
       boolean hasName = !StringUtils.isBlank(this.name);
 
+      boolean hasIdIndex = !StringUtils.isBlank(this.idIndex);
+
       //must have a name or uuid
       if (!hasUuid && !hasName) {
         this.attributeDefNameFindResult = AttributeDefNameFindResult.INVALID_QUERY;
+
+        String logMessage = "Invalid query: " + this;
+        
+        if (hasIdIndex) {
+          if (!StringUtils.isEmpty(invalidQueryReason)) {
+            throw new WsInvalidQueryException("Invalid attributeDefName query for '"
+                + invalidQueryReason + "', cant lookup by idIndex: " + this);
+          }
+          logMessage = "Invalid attributeDefName query cant lookup by idIndex: " + this;
+        }
         if (!StringUtils.isEmpty(invalidQueryReason)) {
           throw new WsInvalidQueryException("Invalid attributeDefName query for '"
               + invalidQueryReason + "', " + this);
         }
-        String logMessage = "Invalid query: " + this;
         LOG.warn(logMessage);
       }
 

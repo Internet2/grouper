@@ -189,6 +189,9 @@ public class WsGroupToSave {
       groupSave.assignDisplayExtension(this.getWsGroup().getDisplayExtension());
       groupSave.assignDescription(this.getWsGroup().getDescription());
       groupSave.assignSaveMode(theSaveMode);
+      if (!StringUtils.isBlank(this.getWsGroup().getIdIndex())) {
+        groupSave.assignIdIndex(GrouperUtil.longValue(this.getWsGroup().getIdIndex()));
+      }
       groupSave.assignCreateParentStemsIfNotExist(GrouperUtil.booleanValue(this.getCreateParentStemsIfNotExist(), false));
       
       group = groupSave.save();

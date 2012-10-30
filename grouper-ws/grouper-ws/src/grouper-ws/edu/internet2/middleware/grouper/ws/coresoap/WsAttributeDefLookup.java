@@ -34,8 +34,10 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.pit.PITAttributeDef;
 import edu.internet2.middleware.grouper.pit.finder.PITAttributeDefFinder;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
@@ -216,30 +218,39 @@ public class WsAttributeDefLookup {
         LOG.warn(logMessage);
       }
 
+      AttributeDef theAttributeDef = null;
+      
       if (hasName) {
         
-        //TODO make this more efficient
-        AttributeDef theAttributeDef = AttributeDefFinder.findByName(this.name, true);
-
-        //make sure uuid matches 
-        if (hasUuid && !StringUtils.equals(this.uuid, theAttributeDef.getId())) {
-          this.attributeDefFindResult = AttributeDefFindResult.ATTRIBUTE_DEF_UUID_DOESNT_MATCH_NAME;
-          String error = "AttributeDef name '" + this.name + "' and uuid '" + this.uuid
-              + "' do not match";
-          if (!StringUtils.isEmpty(invalidQueryReason)) {
-            throw new WsInvalidQueryException(error + " for '" + invalidQueryReason
-                + "', " + this);
-          }
-          String logMessage = "Invalid query: " + this;
-          LOG.warn(logMessage);
-        }
-
-        //success
-        this.attributeDef = theAttributeDef;
+        theAttributeDef = AttributeDefFinder.findByName(this.name, true);
 
       } else if (hasUuid) {
-        this.attributeDef = AttributeDefFinder.findById(this.uuid, true);
+
+        theAttributeDef = AttributeDefFinder.findById(this.uuid, true);
+      
+      } else if (hasIdIndex) {
+        
+        theAttributeDef = AttributeDefFinder.findByIdIndexSecure(GrouperUtil.longValue(this.idIndex), true, new QueryOptions().secondLevelCache(false));
+        
       }
+
+      //make sure uuid matches 
+      if ((hasUuid && !StringUtils.equals(this.uuid, theAttributeDef.getUuid()))
+          || (hasName && !StringUtils.equals(this.name, theAttributeDef.getName()))
+          || (hasIdIndex && !GrouperUtil.equals(GrouperUtil.longValue(this.idIndex), theAttributeDef.getIdIndex()))) {
+        this.attributeDefFindResult = AttributeDefFindResult.ATTRIBUTE_DEF_UUID_DOESNT_MATCH_NAME;
+        String error = "AttributeDef name '" + this.name + "', uuid '" + this.uuid
+            + "', idIndex: " + this.idIndex + " do not match";
+        if (!StringUtils.isEmpty(invalidQueryReason)) {
+          throw new WsInvalidQueryException(error + " for '" + invalidQueryReason
+              + "', " + this);
+        }
+        String logMessage = "Invalid query: " + this;
+        LOG.warn(logMessage);
+      }
+
+      //success
+      this.attributeDef = theAttributeDef;
 
     } catch (AttributeDefNotFoundException anf) {
       this.attributeDefFindResult = AttributeDefFindResult.ATTRIBUTE_DEF_NOT_FOUND;
