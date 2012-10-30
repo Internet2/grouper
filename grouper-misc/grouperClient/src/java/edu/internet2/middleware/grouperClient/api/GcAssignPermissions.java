@@ -115,6 +115,9 @@ public class GcAssignPermissions {
   /** group uuids to query */
   private Set<String> roleUuids = new LinkedHashSet<String>();
   
+  /** group id indexes to query */
+  private Set<Long> roleIdIndexes = new LinkedHashSet<Long>();
+  
   /**
    * set the role name
    * @param theRoleName
@@ -132,6 +135,17 @@ public class GcAssignPermissions {
    */
   public GcAssignPermissions addRoleUuid(String theRoleUuid) {
     this.roleUuids.add(theRoleUuid);
+    return this;
+  }
+  
+  
+  /**
+   * set the role id index
+   * @param theRoleIdIndex
+   * @return this for chaining
+   */
+  public GcAssignPermissions addRoleIdIndex(Long theRoleIdIndex) {
+    this.roleIdIndexes.add(theRoleIdIndex);
     return this;
   }
   
@@ -202,6 +216,9 @@ public class GcAssignPermissions {
   /** attributeDefName uuids to assign */
   private Set<String> permissionDefNameUuids = new LinkedHashSet<String>();
 
+  /** attributeDefName id indexes to assign */
+  private Set<Long> permissionDefNameIdIndexes = new LinkedHashSet<Long>();
+
   //  * @param wsAttributeDefLookups find assignments in these attribute defs (optional)
   //  * @param wsAttributeDefNameLookups find assignments in these attribute def names (optional)
   
@@ -216,6 +233,9 @@ public class GcAssignPermissions {
 
   /** attributeDef uuids to replace */
   private Set<String> attributeDefUuidsToReplace = new LinkedHashSet<String>();
+
+  /** attributeDef id indexes to replace */
+  private Set<Long> attributeDefIdIndexesToReplace = new LinkedHashSet<Long>();
   
   
   
@@ -296,6 +316,9 @@ public class GcAssignPermissions {
       for (String attributeDefNameUuid : this.permissionDefNameUuids) {
         permissionDefNameLookups.add(new WsAttributeDefNameLookup(null, attributeDefNameUuid));
       }
+      for (Long attributeDefNameIdIndex : this.permissionDefNameIdIndexes) {
+        permissionDefNameLookups.add(new WsAttributeDefNameLookup(null, null, attributeDefNameIdIndex.toString()));
+      }
       if (GrouperClientUtils.length(permissionDefNameLookups) > 0) {
         assignPermissions.setPermissionDefNameLookups(GrouperClientUtils.toArray(permissionDefNameLookups, WsAttributeDefNameLookup.class));
       }
@@ -308,6 +331,9 @@ public class GcAssignPermissions {
       }
       for (String ownerGroupUuid : this.roleUuids) {
         roleLookups.add(new WsGroupLookup(null, ownerGroupUuid));
+      }
+      for (Long ownerGroupIdIndex : this.roleIdIndexes) {
+        roleLookups.add(new WsGroupLookup(null, null, ownerGroupIdIndex.toString()));
       }
       if (GrouperClientUtils.length(roleLookups) > 0) {
         assignPermissions.setRoleLookups(GrouperClientUtils.toArray(roleLookups, WsGroupLookup.class));
@@ -329,6 +355,9 @@ public class GcAssignPermissions {
       }
       for (String attributeDefUuidToReplace : this.attributeDefUuidsToReplace) {
         attributeDefLookupsToReplace.add(new WsAttributeDefLookup(null, attributeDefUuidToReplace));
+      }
+      for (Long attributeDefIdIndexToReplace : this.attributeDefIdIndexesToReplace) {
+        attributeDefLookupsToReplace.add(new WsAttributeDefLookup(null, null, attributeDefIdIndexToReplace.toString()));
       }
       if (GrouperClientUtils.length(attributeDefLookupsToReplace) > 0) {
         assignPermissions.setAttributeDefsToReplace(GrouperClientUtils.toArray(attributeDefLookupsToReplace, WsAttributeDefLookup.class));
@@ -416,6 +445,16 @@ public class GcAssignPermissions {
    */
   public GcAssignPermissions addPermissionDefNameUuid(String thePermissionDefNameUuid) {
     this.permissionDefNameUuids.add(thePermissionDefNameUuid);
+    return this;
+  }
+
+  /**
+   * set the permissionDefName id index
+   * @param thePermissionDefNameIdIndex
+   * @return this for chaining
+   */
+  public GcAssignPermissions addPermissionDefNameIdIndex(Long thePermissionDefNameIdIndex) {
+    this.permissionDefNameIdIndexes.add(thePermissionDefNameIdIndex);
     return this;
   }
 
@@ -510,4 +549,14 @@ public class GcAssignPermissions {
     return this;
   }
   
+
+  /**
+   * set the attributeDef id index to replace
+   * @param theAttributeDefIdIndex
+   * @return this for chaining
+   */
+  public GcAssignPermissions addAttributeDefIdIndexToReplace(Long theAttributeDefIdIndex) {
+    this.attributeDefIdIndexesToReplace.add(theAttributeDefIdIndex);
+    return this;
+  }
 }

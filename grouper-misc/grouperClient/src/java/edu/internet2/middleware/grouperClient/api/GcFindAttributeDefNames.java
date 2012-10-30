@@ -180,8 +180,8 @@ public class GcFindAttributeDefNames {
    */
   private void validate() {
     if (GrouperClientUtils.isBlank(this.scope) && GrouperClientUtils.length(this.attributeDefNameUuids) == 0 
-        && GrouperClientUtils.length(this.attributeDefNameNames) == 0) {
-      throw new RuntimeException("Need to pass in a scope, or attributeDefNameNames or attributeDefNameUuids: " + this);
+        && GrouperClientUtils.length(this.attributeDefNameNames) == 0 && GrouperClientUtils.length(this.attributeDefNameIdIndexes) == 0) {
+      throw new RuntimeException("Need to pass in a scope, or attributeDefNameNames or attributeDefNameUuids or attributeDefNameIdIndexes: " + this);
     }
   }
   
@@ -191,11 +191,17 @@ public class GcFindAttributeDefNames {
   /** attributeDefName names to query */
   private Set<String> attributeDefNameUuids = new LinkedHashSet<String>();
 
+  /** attributeDefName id indexes to query */
+  private Set<Long> attributeDefNameIdIndexes = new LinkedHashSet<Long>();
+
   /** attributeDef names to query */
   private String nameOfAttributeDef;
 
   /** attributeDef names to query */
   private String uuidOfAttributeDef;
+
+  /** attributeDef id indexes to query */
+  private Long idIndexOfAttributeDef;
 
   /** true or null for ascending, false for descending.  If you pass true or false, must pass a sort string */
   private Boolean ascending;
@@ -279,11 +285,16 @@ public class GcFindAttributeDefNames {
       for (String attributeDefNameUuid : this.attributeDefNameUuids) {
         attributeDefNameLookups.add(new WsAttributeDefNameLookup(null, attributeDefNameUuid));
       }
+      for (Long attributeDefNameIdIndex : this.attributeDefNameIdIndexes) {
+        attributeDefNameLookups.add(new WsAttributeDefNameLookup(null, null, attributeDefNameIdIndex.toString()));
+      }
       findAttributeDefNames.setWsAttributeDefNameLookups(GrouperClientUtils.toArray(attributeDefNameLookups, WsAttributeDefNameLookup.class));
 
-      if (!GrouperClientUtils.isBlank(this.nameOfAttributeDef) || !GrouperClientUtils.isBlank(this.uuidOfAttributeDef)) {
+      if (!GrouperClientUtils.isBlank(this.nameOfAttributeDef) || !GrouperClientUtils.isBlank(this.uuidOfAttributeDef)
+          || !GrouperClientUtils.isBlank(this.idIndexOfAttributeDef)) {
         WsAttributeDefLookup attributeDefLookup = null;
-        attributeDefLookup = new WsAttributeDefLookup(this.nameOfAttributeDef, this.uuidOfAttributeDef);
+        attributeDefLookup = new WsAttributeDefLookup(this.nameOfAttributeDef, this.uuidOfAttributeDef, 
+            this.idIndexOfAttributeDef == null ? null : this.idIndexOfAttributeDef.toString());
         findAttributeDefNames.setWsAttributeDefLookup(attributeDefLookup);
       }
 
@@ -359,6 +370,16 @@ public class GcFindAttributeDefNames {
   }
 
   /**
+   * set the AttributeDefName id index
+   * @param theAttributeDefNameIdIndex
+   * @return this for chaining
+   */
+  public GcFindAttributeDefNames addAttributeDefNameIdIndex(Long theAttributeDefNameIdIndex) {
+    this.attributeDefNameIdIndexes.add(theAttributeDefNameIdIndex);
+    return this;
+  }
+
+  /**
    * set the AttributeDef name
    * @param theNameOfAttributeDef
    * @return this for chaining
@@ -375,6 +396,17 @@ public class GcFindAttributeDefNames {
    */
   public GcFindAttributeDefNames assignUuidOfAttributeDef(String theUuidOfAttributeDef) {
     this.uuidOfAttributeDef = theUuidOfAttributeDef;
+    return this;
+  }
+
+
+  /**
+   * set the AttributeDef id index
+   * @param theIdIndexOfAttributeDef
+   * @return this for chaining
+   */
+  public GcFindAttributeDefNames assignIdIndexOfAttributeDef(Long theIdIndexOfAttributeDef) {
+    this.idIndexOfAttributeDef = theIdIndexOfAttributeDef;
     return this;
   }
 
