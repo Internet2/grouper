@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+
+<!DOCTYPE web-app PUBLIC 
+          "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+          "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+  <filter>
+    <!-- keeps the request and response in threadlocal so they dont have to be passed around -->
+    <filter-name>Authz Standard API filter</filter-name>
+    <filter-class>edu.internet2.middleware.authzStandardApiServer.j2ee.AsasFilterJ2ee</filter-class>
+  </filter>
+
+  <!-- Map the filter to a Servlet or URL -->
+  <filter-mapping>
+    <filter-name>Authz Standard API filter</filter-name>
+    <url-pattern>/authzStandardApi/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>Authz Standard API filter</filter-name>
+    <url-pattern>/authzStandardApi.json</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>Authz Standard API filter</filter-name>
+    <url-pattern>/authzStandardApi.xml</url-pattern>
+  </filter-mapping>
+  <servlet>
+    <servlet-name>AuthzRestServlet</servlet-name>
+    <display-name>Authz WS REST Servlet</display-name>
+    <servlet-class>edu.internet2.middleware.authzStandardApiServer.j2ee.AsasRestServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AuthzRestServlet</servlet-name>
+    <url-pattern>/authzStandardApi/*</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>AuthzRestServlet</servlet-name>
+    <url-pattern>/authzStandardApi.json</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>AuthzRestServlet</servlet-name>
+    <url-pattern>/authzStandardApi.xml</url-pattern>
+  </servlet-mapping>
+
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>Web services</web-resource-name>
+      <url-pattern>/authzStandardApi/*</url-pattern>
+    </web-resource-collection>
+    <web-resource-collection>
+      <web-resource-name>Web services</web-resource-name>
+      <url-pattern>/authzStandardApi.json</url-pattern>
+    </web-resource-collection>
+    <web-resource-collection>
+      <web-resource-name>Web services</web-resource-name>
+      <url-pattern>/authzStandardApi.xml</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <!-- NOTE:  This role is not present in the default users file -->
+      <role-name>authz_user</role-name>
+    </auth-constraint>
+  </security-constraint>
+
+  <!-- Define the Login Configuration for this Application -->
+  <login-config>
+    <auth-method>BASIC</auth-method>
+    <realm-name>Authz API</realm-name>
+  </login-config>
+
+  <!-- Security roles referenced by this web application -->
+  <security-role>
+    <description>
+      The role that is required to log in to web service
+    </description>
+    <role-name>authz_user</role-name>
+  </security-role>
+  
+  <session-config>
+    <session-timeout>1</session-timeout> 
+  </session-config>
+</web-app>

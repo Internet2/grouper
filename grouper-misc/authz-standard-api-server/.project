@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>authz-standard-api-server</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+	<variableList>
+		<variable>
+			<name>AUTHZ_STANDARD_API_CLIENT_SOURCE</name>
+			<value>file:/C:/mchyzer/grouper/v2_0/authz-standard-api-client/src/main</value>
+		</variable>
+	</variableList>
+</projectDescription>
