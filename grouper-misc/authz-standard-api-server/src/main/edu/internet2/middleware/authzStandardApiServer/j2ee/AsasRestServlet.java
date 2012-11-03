@@ -91,6 +91,9 @@ public class AsasRestServlet extends HttpServlet {
 
     try {
       
+      //init params (if problem, exception will be thrown)
+      request.getParameterMap();
+      
       urlStrings = extractUrlStrings(request);
       int urlStringsLength = StandardApiServerUtils.length(urlStrings);
 
@@ -230,7 +233,7 @@ public class AsasRestServlet extends HttpServlet {
       
       String responseString = wsRestContentType.writeString(asasResponseBean);
       
-      if (StandardApiServerUtils.booleanValue(request.getParameter("_indent"), false)) {
+      if (StandardApiServerUtils.booleanValue(request.getParameter("indent"), false)) {
         responseString = wsRestContentType.indent(responseString);
       }
       

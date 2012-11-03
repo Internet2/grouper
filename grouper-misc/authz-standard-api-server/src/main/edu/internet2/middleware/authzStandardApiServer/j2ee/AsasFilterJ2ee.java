@@ -5,7 +5,6 @@ package edu.internet2.middleware.authzStandardApiServer.j2ee;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -40,33 +39,6 @@ public class AsasFilterJ2ee implements Filter {
     Long requestStartMillis = threadLocalRequestStartMillis.get();
     return StandardApiServerUtils.longValue(requestStartMillis, 0);
   }
-
-  /**
-   * get a single parameter value for key.  If multiple exist, throw error
-   * @param paramMap is the map of params.  will get value from here if no request object
-   * @param httpServletRequest optional.  if there, will make sure no dupes
-   * @param key to lookup
-   * @return the value
-   */
-  public static String parameterValue(Map<String, String> paramMap,
-      HttpServletRequest httpServletRequest, String key) {
-    //if no servlet (probably just testing), get from map
-    if (httpServletRequest == null) {
-      return paramMap.get(key);
-    }
-    String[] values = httpServletRequest.getParameterValues(key);
-    if (values == null || values.length == 0) {
-      return null;
-    }
-    //there is probably something wrong if multiple values detected
-    if (values.length > 1) {
-      throw new RuntimeException(
-          "Multiple request parameter values where detected for key: " + key
-              + ", when only one is expected: " + StandardApiServerUtils.toStringForLog(values));
-    }
-    return values[0];
-  }
-
   /**
    * retrieve the user principal (who is authenticated) from the (threadlocal)
    * request object
@@ -79,6 +51,7 @@ public class AsasFilterJ2ee implements Filter {
     StandardApiServerUtils
         .assertion(httpServletRequest != null,
             "HttpServletRequest is null, is the AsasRestServlet mapped in the web.xml?");
+    
     Principal principal = httpServletRequest.getUserPrincipal();
     String principalName = null;
     if (principal == null) {
@@ -105,6 +78,11 @@ public class AsasFilterJ2ee implements Filter {
   private static ThreadLocal<HttpServletRequest> threadLocalRequest = new ThreadLocal<HttpServletRequest>();
 
   /**
+   * thread local for original request
+   */
+  private static ThreadLocal<HttpServletRequest> threadLocalOriginalRequest = new ThreadLocal<HttpServletRequest>();
+
+  /**
    * thread local for request
    */
   private static ThreadLocal<Long> threadLocalRequestStartMillis = new ThreadLocal<Long>();
@@ -121,6 +99,15 @@ public class AsasFilterJ2ee implements Filter {
    */
   public static HttpServletRequest retrieveHttpServletRequest() {
     return threadLocalRequest.get();
+  }
+
+  /**
+   * public method to get the original http servlet request
+   * 
+   * @return the original http servlet request
+   */
+  public static HttpServletRequest retrieveOriginalHttpServletRequest() {
+    return threadLocalOriginalRequest.get();
   }
 
   /**
@@ -163,12 +150,16 @@ public class AsasFilterJ2ee implements Filter {
 
     try {
   
+      threadLocalOriginalRequest.set((HttpServletRequest) request);
+
+      //wrap this for single valued params or whatever
+      request = new AsasHttpServletRequest((HttpServletRequest)request);
+      
       //servlet will set this...
       threadLocalServlet.remove();
       threadLocalRequest.set((HttpServletRequest) request);
       threadLocalResponse.set((HttpServletResponse) response);
       threadLocalRequestStartMillis.set(System.currentTimeMillis());
-      
     
       filterChain.doFilter(request, response);
     } catch (RuntimeException re) {
@@ -176,6 +167,7 @@ public class AsasFilterJ2ee implements Filter {
       throw re;
     } finally {
       threadLocalRequest.remove();
+      threadLocalOriginalRequest.remove();
       threadLocalResponse.remove();
       threadLocalRequestStartMillis.remove();
       threadLocalServlet.remove();
