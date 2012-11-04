@@ -15,7 +15,7 @@ public class AsasResponseMeta {
   /**
    * number of milliseconds that the server took in processing this request
    */
-  private String millis;
+  private long millis;
   
   /**
    * freeform text about the request that the server processed, when debugging to make sure the server is processing the right params
@@ -49,7 +49,7 @@ public class AsasResponseMeta {
    * number of milliseconds that the server took in processing this request
    * @return the millis
    */
-  public String getMillis() {
+  public long getMillis() {
     return this.millis;
   }
 
@@ -58,7 +58,7 @@ public class AsasResponseMeta {
    * number of milliseconds that the server took in processing this request
    * @param millis1 the millis to set
    */
-  public void setMillis(String millis1) {
+  public void setMillis(long millis1) {
     this.millis = millis1;
   }
 

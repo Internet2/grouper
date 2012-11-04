@@ -3,7 +3,7 @@ package edu.internet2.middleware.authzStandardApiServer.util;
 import java.util.Calendar;
 import java.util.Date;
 
-import edu.internet2.middleware.authzStandardApiServer.contentType.WsRestContentType;
+import edu.internet2.middleware.authzStandardApiServer.contentType.AsasRestContentType;
 
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
@@ -39,11 +39,11 @@ public class StandardApiServerUtilsTest extends TestCase {
   }
   
   public void testFullUrlToServletUrl() {
-    assertEquals("https://whatever/appName/servlet", StandardApiServerUtils.fullUrlToServletUrl("https://whatever/appName/servlet/whatever/whatever", "/servlet", WsRestContentType.json));
-    assertEquals("https://whatever/appName/servlet", StandardApiServerUtils.fullUrlToServletUrl("https://whatever/appName/servlet", "/servlet", WsRestContentType.json));
-    assertEquals("https://whatever/appName/servlet", StandardApiServerUtils.fullUrlToServletUrl("https://whatever/appName/servlet/", "/servlet", WsRestContentType.json));
-    assertEquals("https://whatever/appName/servlet", StandardApiServerUtils.fullUrlToServletUrl("https://whatever/appName/servlet.xml", "/servlet.xml", WsRestContentType.xml));
-    assertEquals("https://whatever/appName/servlet", StandardApiServerUtils.fullUrlToServletUrl("https://whatever/appName/servlet.json", "/servlet.json", WsRestContentType.json));
+    assertEquals("https://whatever/appName/servlet", StandardApiServerUtils.fullUrlToServletUrl("https://whatever/appName/servlet/whatever/whatever", "/servlet", AsasRestContentType.json));
+    assertEquals("https://whatever/appName/servlet", StandardApiServerUtils.fullUrlToServletUrl("https://whatever/appName/servlet", "/servlet", AsasRestContentType.json));
+    assertEquals("https://whatever/appName/servlet", StandardApiServerUtils.fullUrlToServletUrl("https://whatever/appName/servlet/", "/servlet", AsasRestContentType.json));
+    assertEquals("https://whatever/appName/servlet", StandardApiServerUtils.fullUrlToServletUrl("https://whatever/appName/servlet.xml", "/servlet.xml", AsasRestContentType.xml));
+    assertEquals("https://whatever/appName/servlet", StandardApiServerUtils.fullUrlToServletUrl("https://whatever/appName/servlet.json", "/servlet.json", AsasRestContentType.json));
     
 
   }

@@ -15,9 +15,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import edu.internet2.middleware.authzStandardApiServer.contentType.WsRestContentType;
-import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasDefaultResource;
-import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasDefaultVersionResource;
+import edu.internet2.middleware.authzStandardApiServer.contentType.AsasRestContentType;
+import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasDefaultResourceContainer;
+import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasDefaultVersionResourceContainer;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasResponseBeanBase;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasResultProblem;
 import edu.internet2.middleware.authzStandardApiServer.exceptions.AsasRestInvalidRequest;
@@ -25,6 +25,7 @@ import edu.internet2.middleware.authzStandardApiServer.rest.AsasRestHttpMethod;
 import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerConfig;
 import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUtils;
 import edu.internet2.middleware.authzStandardApiServer.version.AsasWsVersion;
+import edu.internet2.middleware.authzStandardApiServerExt.org.apache.commons.httpclient.methods.GetMethod;
 import edu.internet2.middleware.authzStandardApiServerExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.authzStandardApiServerExt.org.apache.commons.logging.LogFactory;
 
@@ -53,13 +54,13 @@ public class AsasRestServlet extends HttpServlet {
   }
 
   /** content type thread local */
-  private static ThreadLocal<WsRestContentType> contentTypeThreadLocal = new ThreadLocal<WsRestContentType>();
+  private static ThreadLocal<AsasRestContentType> contentTypeThreadLocal = new ThreadLocal<AsasRestContentType>();
 
   /**
    * 
    * @param wsRestContentType
    */
-  private static void assignContentType(WsRestContentType wsRestContentType) {
+  private static void assignContentType(AsasRestContentType wsRestContentType) {
     contentTypeThreadLocal.set(wsRestContentType);
   }
   
@@ -67,7 +68,7 @@ public class AsasRestServlet extends HttpServlet {
    * 
    * @return wsRestContentType
    */
-  public static WsRestContentType retrieveContentType() {
+  public static AsasRestContentType retrieveContentType() {
     return contentTypeThreadLocal.get();
   }
   
@@ -88,7 +89,7 @@ public class AsasRestServlet extends HttpServlet {
     AsasResponseBeanBase asasResponseBean = null;
     
     //we need something here if errors, so default to xhtml
-    WsRestContentType wsRestContentType = WsRestContentType.json;
+    AsasRestContentType wsRestContentType = AsasRestContentType.json;
     assignContentType(wsRestContentType);
 
     boolean indent = false;
@@ -113,20 +114,17 @@ public class AsasRestServlet extends HttpServlet {
       //get the method and validate (either from object, or HTTP method
       AsasRestHttpMethod asasRestHttpMethod = null;
       {
-        String methodString = request.getParameter("_method");
-        if (StandardApiServerUtils.isBlank(methodString)) {
-          methodString = request.getMethod();
-        }
+        String methodString = request.getMethod();
         asasRestHttpMethod = AsasRestHttpMethod.valueOfIgnoreCase(methodString, true);
       }
       
       //if there are other content types, detect them here
       boolean foundContentType = false;
       if (request.getRequestURI().endsWith(".xml")) {
-        wsRestContentType = WsRestContentType.xml;
+        wsRestContentType = AsasRestContentType.xml;
         foundContentType = true;
       } else if (request.getRequestURI().endsWith(".json")) {
-        wsRestContentType = WsRestContentType.json;
+        wsRestContentType = AsasRestContentType.json;
         foundContentType = true;
       }
       assignContentType(wsRestContentType);
@@ -148,10 +146,10 @@ public class AsasRestServlet extends HttpServlet {
         
         if (foundContentType) {
           
-          asasResponseBean = new AsasDefaultVersionResource();
+          asasResponseBean = new AsasDefaultVersionResourceContainer();
           
         } else {
-          asasResponseBean = new AsasDefaultResource();
+          asasResponseBean = new AsasDefaultResourceContainer();
         }
       } else {
         
@@ -190,8 +188,8 @@ public class AsasRestServlet extends HttpServlet {
       LOG.error(error, arir);
 
       asasResponseBean.setError_description(error + StandardApiServerUtils.getFullStackTrace(arir));
-      asasResponseBean.setSuccess(false);
-      asasResponseBean.setStatusCode("INVALID_QUERY");
+      asasResponseBean.getMeta().setSuccess(false);
+      asasResponseBean.getMeta().setStatusCode("INVALID_QUERY");
       asasResponseBean.setError("INVALID_QUERY");
       asasResponseBean.getResponseMeta().setHttpStatusCode(400);
 
@@ -203,8 +201,8 @@ public class AsasRestServlet extends HttpServlet {
       LOG.error("Problem with request: " + requestDebugInfo(request), e);
       asasResponseBean.setError_description("Problem with request: "
           + requestDebugInfo(request) + ",\n" + StandardApiServerUtils.getFullStackTrace(e));
-      asasResponseBean.setSuccess(false);
-      asasResponseBean.setStatusCode("EXCEPTION");
+      asasResponseBean.getMeta().setSuccess(false);
+      asasResponseBean.getMeta().setStatusCode("EXCEPTION");
       asasResponseBean.setError("ERROR");
       asasResponseBean.getResponseMeta().setHttpStatusCode(500);
 
@@ -235,11 +233,10 @@ public class AsasRestServlet extends HttpServlet {
           
         }
         
-        
         asasResponseBean.getMeta().setSelfUri(urlBuilder.toString());
       }
       if (warnings.length() > 0) {
-        asasResponseBean.appendWarning(warnings.toString());
+        asasResponseBean.getMeta().appendWarning(warnings.toString());
       }
 
       {
@@ -247,7 +244,7 @@ public class AsasRestServlet extends HttpServlet {
         //add warnings about unused params
         if (StandardApiServerUtils.length(unusedParams) > 0) {
           for (String unusedParam : unusedParams) {
-            asasResponseBean.appendWarning("Unused HTTP param: " + unusedParam);
+            asasResponseBean.getMeta().appendWarning("Unused HTTP param: " + unusedParam);
           }
         }
       }     
@@ -269,7 +266,7 @@ public class AsasRestServlet extends HttpServlet {
       response.setContentType(responseContentType);
 
       //temporarily set to uuid, so we can time the content generation
-      String millisUuid = StandardApiServerUtils.uuid();
+      long millisUuid = -314253647586987L;
       
       asasResponseBean.getResponseMeta().setMillis(millisUuid);
       
@@ -279,7 +276,7 @@ public class AsasRestServlet extends HttpServlet {
         responseString = wsRestContentType.indent(responseString);
       }
       
-      responseString = StandardApiServerUtils.replace(responseString, millisUuid, Long.toString(((System.nanoTime()-servetStarted) / 1000000)));
+      responseString = StandardApiServerUtils.replace(responseString, Long.toString(millisUuid), Long.toString(((System.nanoTime()-servetStarted) / 1000000)));
       
       try {
         response.getWriter().write(responseString);
@@ -313,7 +310,10 @@ public class AsasRestServlet extends HttpServlet {
   public static String requestDebugInfo(HttpServletRequest request) {
     StringBuilder result = new StringBuilder();
     result.append(" uri: ").append(request.getRequestURI());
-    result.append(", method: ").append(request.getMethod());
+    result.append(", HTTP method: ").append(((AsasHttpServletRequest)request).getOriginalMethod());
+    if (!StandardApiServerUtils.isBlank(request.getParameter("method"))) {
+      result.append(", HTTP param method: ").append(request.getParameter("method"));
+    }
     result.append(", decoded url strings: ");
     List<String> urlStrings = extractUrlStrings(request);
     int urlStringsLength = StandardApiServerUtils.length(urlStrings);
@@ -355,6 +355,7 @@ public class AsasRestServlet extends HttpServlet {
   private static List<String> extractUrlStrings(String requestResourceFull) {
     String[] requestResources = StandardApiServerUtils.split(requestResourceFull, '/');
     List<String> urlStrings = new ArrayList<String>();
+
     //loop through and decode
     int index = 0;
     for (String requestResource : requestResources) {

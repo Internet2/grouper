@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasResponseBeanBase;
-import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasVersionResource;
+import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasVersionResourceContainer;
 import edu.internet2.middleware.authzStandardApiServer.exceptions.AsasRestInvalidRequest;
 import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUtils;
 
@@ -28,7 +28,7 @@ public enum AsasRestHttpMethod {
       
       if (urlStrings.size() == 0) {
         
-        return new AsasVersionResource();
+        return new AsasVersionResourceContainer();
         
       }
       

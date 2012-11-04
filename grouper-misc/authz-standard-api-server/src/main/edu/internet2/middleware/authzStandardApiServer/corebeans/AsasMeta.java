@@ -10,6 +10,111 @@ import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUti
  */
 public class AsasMeta {
   
+  
+  /**
+   * 
+   */
+  public AsasMeta() {
+    super();
+    this.setSuccess(true);
+    this.setStatusCode("SUCCESS");
+  }
+
+  /**
+   * response status text code
+   */
+  private String statusCode;
+
+  /**
+   * true or false if valid request
+   */
+  private boolean success;
+  
+  
+  
+  /**
+   * response status text code
+   * @return the statusCode
+   */
+  public String getStatusCode() {
+    return this.statusCode;
+  }
+
+  
+  /**
+   * response status text code
+   * @param statusCode1 the statusCode to set
+   */
+  public void setStatusCode(String statusCode1) {
+    this.statusCode = statusCode1;
+  }
+
+
+  /** 
+   * if there are warnings, they will be there
+   */
+  private StringBuilder resultWarning = new StringBuilder();
+
+  /**
+   * append error message to list of error messages
+   * 
+   * @param warning
+   */
+  public void appendWarning(String warning) {
+    if (this.resultWarning.length() > 0) {
+      this.resultWarning.append(", ");
+    }
+    this.resultWarning.append(warning);
+  }
+
+  /**
+   * if there are warnings, they will be there
+   * @return any warnings
+   */
+  public String getWarning() {
+    return StandardApiServerUtils.trimToNull(this.resultWarning.toString());
+  }
+
+  /**
+   * the builder for warnings
+   * @return the builder for warnings
+   */
+  public StringBuilder warnings() {
+    return this.resultWarning;
+  }
+
+
+  /**
+   * @param resultWarnings1 the resultWarnings to set
+   */
+  public void setWarning(String resultWarnings1) {
+    this.resultWarning = StandardApiServerUtils.isBlank(resultWarnings1) ? new StringBuilder() : new StringBuilder(resultWarnings1);
+  }
+
+  
+  /**
+   * true or false if valid request
+   * @return the success
+   */
+  public boolean isSuccess() {
+    return success;
+  }
+
+  
+  /**
+   * true or false if valid request
+   * @param success the success to set
+   */
+  public void setSuccess(boolean success) {
+    this.success = success;
+  }
+
+
+
+  /**
+   * 
+   * @param args
+   */
   public static void main(String[] args) {
     
     AsasMeta asacMetaResponse = new AsasMeta();

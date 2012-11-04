@@ -4,9 +4,6 @@
 package edu.internet2.middleware.authzStandardApiServer.contentType;
 
 import java.io.File;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.Map;
 
 import edu.internet2.middleware.authzStandardApiServer.exceptions.AsasRestInvalidRequest;
 import edu.internet2.middleware.authzStandardApiServer.json.DefaultJsonConverter;
@@ -15,19 +12,13 @@ import edu.internet2.middleware.authzStandardApiServer.util.JsonIndenter;
 import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerConfig;
 import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUtils;
 import edu.internet2.middleware.authzStandardApiServer.util.XmlIndenter;
-import edu.internet2.middleware.authzStandardApiServer.ws.AsasRestClassLookup;
-import edu.internet2.middleware.authzStandardApiServerExt.com.thoughtworks.xstream.XStream;
-import edu.internet2.middleware.authzStandardApiServerExt.com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
-import edu.internet2.middleware.authzStandardApiServerExt.com.thoughtworks.xstream.io.xml.CompactWriter;
-import edu.internet2.middleware.authzStandardApiServerExt.com.thoughtworks.xstream.io.xml.XppDriver;
-import edu.internet2.middleware.authzStandardApiServerExt.com.thoughtworks.xstream.mapper.MapperWrapper;
 import edu.internet2.middleware.authzStandardApiServerExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.authzStandardApiServerExt.org.apache.commons.logging.LogFactory;
 
 /**
  * possible content types by grouper ws rest
  */
-public enum WsRestContentType {
+public enum AsasRestContentType {
 
   /** xml content type
    * http request content type should be set to text/xml
@@ -57,7 +48,8 @@ public enum WsRestContentType {
      */
     @Override
     public String writeString(Object object) {
-      return StandardApiServerUtils.xmlConvertTo(object);
+      
+      return XML_HEADER + StandardApiServerUtils.xmlConvertTo(object);
     }
 
     @Override
@@ -118,6 +110,9 @@ public enum WsRestContentType {
     }
   };
 
+  /** xml header */
+  public static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+  
   /**
    * indent the content
    * @return the indented content
@@ -143,7 +138,7 @@ public enum WsRestContentType {
    */
   public static void main(String[] args) {
     String jsonString = StandardApiServerUtils.readFileIntoString(new File("c:/temp/problem.json"));
-    WsRestContentType.json.parseString(jsonString, new StringBuilder());
+    AsasRestContentType.json.parseString(jsonString, new StringBuilder());
   }
   
   /**
@@ -165,7 +160,7 @@ public enum WsRestContentType {
    * constructor with content type
    * @param theContentType
    */
-  private WsRestContentType(String theContentType) {
+  private AsasRestContentType(String theContentType) {
     this.contentType = theContentType;
   }
   
@@ -183,7 +178,7 @@ public enum WsRestContentType {
   /**
    * logger 
    */
-  private static final Log LOG = LogFactory.getLog(WsRestContentType.class);
+  private static final Log LOG = LogFactory.getLog(AsasRestContentType.class);
 
   /**
    * friendly content type error
@@ -196,8 +191,8 @@ public enum WsRestContentType {
     error.append(StandardApiServerUtils.defaultIfEmpty(contentTypeInRequest, "[none]"));
     error.append("', expecting one of: ");
     
-    for (WsRestContentType wsRestRequestContentType : 
-        WsRestContentType.values()) {
+    for (AsasRestContentType wsRestRequestContentType : 
+        AsasRestContentType.values()) {
       String contentTypeString = StandardApiServerUtils.defaultIfEmpty(wsRestRequestContentType.contentType,
           "[none] for http params");
       error.append(wsRestRequestContentType.name()).append(": ")
@@ -214,9 +209,9 @@ public enum WsRestContentType {
    * @return the enum or null or exception if not found
    * @throws AsasRestInvalidRequest problem
    */
-  public static WsRestContentType valueOfIgnoreCase(String string,
+  public static AsasRestContentType valueOfIgnoreCase(String string,
       boolean exceptionOnNotFound) throws AsasRestInvalidRequest {
-    return StandardApiServerUtils.enumValueOfIgnoreCase(WsRestContentType.class, string, exceptionOnNotFound);
+    return StandardApiServerUtils.enumValueOfIgnoreCase(AsasRestContentType.class, string, exceptionOnNotFound);
   }
 
 }

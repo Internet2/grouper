@@ -5,12 +5,13 @@ import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUti
 import edu.internet2.middleware.authzStandardApiServer.version.AsasWsVersion;
 
 /**
- * default resource
+ * version resource
+ * from URL: BASE_URL/v1.json, e.g. url/authzStandardApi/v1.json
  * 
  * @author mchyzer
  *
  */
-public class AsasVersionResource extends AsasResponseBeanBase {
+public class AsasVersionResource {
  
   /**
    * https://groups.institution.edu/groupsApp/authzStandardApi/v1/groups
@@ -95,7 +96,7 @@ public class AsasVersionResource extends AsasResponseBeanBase {
   }
 
   /**
-   * 
+   * from URL: BASE_URL/v1.json, e.g. url/authzStandardApi/v1.json
    */
   public AsasVersionResource() {
     

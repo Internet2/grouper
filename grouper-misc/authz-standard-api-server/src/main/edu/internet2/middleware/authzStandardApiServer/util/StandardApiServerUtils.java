@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
-import edu.internet2.middleware.authzStandardApiServer.contentType.WsRestContentType;
+import edu.internet2.middleware.authzStandardApiServer.contentType.AsasRestContentType;
 import edu.internet2.middleware.authzStandardApiServer.j2ee.AsasFilterJ2ee;
 import edu.internet2.middleware.authzStandardApiServer.j2ee.AsasRestServlet;
 import edu.internet2.middleware.authzStandardApiServerExt.com.thoughtworks.xstream.XStream;
@@ -82,7 +82,7 @@ public class StandardApiServerUtils extends StandardApiServerCommonUtils {
    * @oaram servletPath /servlet
    * @return the servlet url
    */
-  static String fullUrlToServletUrl(String fullUrl, String servletPath, WsRestContentType wsRestContentType) {
+  static String fullUrlToServletUrl(String fullUrl, String servletPath, AsasRestContentType wsRestContentType) {
     
     if (servletPath.endsWith("." + wsRestContentType.name())) {
       servletPath = servletPath.substring(0,servletPath.length()-(1+wsRestContentType.name().length()));

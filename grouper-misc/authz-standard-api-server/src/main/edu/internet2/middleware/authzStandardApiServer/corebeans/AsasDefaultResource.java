@@ -1,23 +1,21 @@
 package edu.internet2.middleware.authzStandardApiServer.corebeans;
 
-import java.util.Date;
-
-import edu.internet2.middleware.authzStandardApiServer.j2ee.AsasRestServlet;
 import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUtils;
 
 /**
+ * from url: BASE_URL: e.g. url/authzStandardApi
  * default resource
  * 
  * @author mchyzer
  *
  */
-public class AsasDefaultResource extends AsasResponseBeanBase {
-  
+public class AsasDefaultResource {
+
+  /**
+   * 
+   */
   public AsasDefaultResource() {
     super();
-    this.getResponseMeta().setHttpStatusCode(200);
-    this.getMeta().setLastModified(StandardApiServerUtils.convertToIso8601(new Date(AsasRestServlet.getStartupTime())));
-    this.setSuccess(true);
     
     this.jsonDefaultUri = StandardApiServerUtils.servletUrl() + ".json";
     

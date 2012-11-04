@@ -10,10 +10,12 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
 import edu.internet2.middleware.authzStandardApiServer.exceptions.AsasRestInvalidRequest;
+import edu.internet2.middleware.authzStandardApiServer.rest.AsasRestHttpMethod;
 import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerConfig;
 import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUtils;
 import edu.internet2.middleware.authzStandardApiServerExt.org.apache.commons.collections.IteratorUtils;
@@ -22,12 +24,43 @@ import edu.internet2.middleware.authzStandardApiServerExt.org.apache.commons.col
  * wrap request so that no nulls are given to axis (since it handles badly)
  */
 public class AsasHttpServletRequest extends HttpServletRequestWrapper {
+  
+  /**
+   * method for this request
+   */
+  private String method = null;
+  
+  /**
+   * @see HttpServletRequest#getMethod()
+   */
+  @Override
+  public String getMethod() {
+    if (this.method == null) {
+      //get it from the URL if it is there
+      String methodString = this.getParameter("method");
+      if (StandardApiServerUtils.isBlank(methodString)) {
+        methodString = super.getMethod();
+      }
+      //lets see if it is a valid method
+      AsasRestHttpMethod.valueOfIgnoreCase(methodString, true);
+      this.method = methodString;
+    }
+    return this.method;
+  }
+
+  /**
+   * @return original method from underlying servlet
+   * @see HttpServletRequest#getMethod()
+   */
+  public String getOriginalMethod() {
+    return super.getMethod();
+  }
 
   /**
    * valid params that the API knows about
    */
   private static Set<String> validParamNames = StandardApiServerUtils.toSet(
-      "indent");
+      "indent", "method");
 
   /**
    * construct with underlying request
