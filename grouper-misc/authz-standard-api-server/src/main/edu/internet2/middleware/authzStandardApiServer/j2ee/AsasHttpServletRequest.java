@@ -87,7 +87,7 @@ public class AsasHttpServletRequest extends HttpServletRequestWrapper {
           
           if (!validParamNames.contains(paramName)) {
             if (!paramsToIgnore.contains(paramName)) {
-              unusedParams.add(paramName);
+            newUnusedParams.add(paramName);
             }
             continue;
           }

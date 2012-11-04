@@ -102,6 +102,23 @@ public class AsasMeta {
     this.selfUri = selfUri1;
   }
   
-  
+  /** name of the structure (struct) returned, the same as the xml outer element */
+  private String structureName;
+
+  /**
+   * name of the structure (struct) returned, the same as the xml outer element
+   * @return the structure name
+   */
+  public String getStructureName() {
+    return structureName;
+  }
+
+  /**
+   * name of the structure (struct) returned, the same as the xml outer element
+   * @param structureName1
+   */
+  public void setStructureName(String structureName1) {
+    this.structureName = structureName1;
+  }
   
 }

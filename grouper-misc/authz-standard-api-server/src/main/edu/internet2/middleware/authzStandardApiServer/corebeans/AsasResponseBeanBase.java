@@ -12,8 +12,8 @@ import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUti
 public abstract class AsasResponseBeanBase {
 
   public AsasResponseBeanBase() {
-    this.get_requestMeta().setHttpStatusCode(200);
-    this.get_meta().setLastModified(StandardApiServerUtils.convertToIso8601(new Date(AsasRestServlet.getStartupTime())));
+    this.getResponseMeta().setHttpStatusCode(200);
+    this.getMeta().setLastModified(StandardApiServerUtils.convertToIso8601(new Date(AsasRestServlet.getStartupTime())));
     this.setSuccess(true);
   }
 
@@ -21,22 +21,22 @@ public abstract class AsasResponseBeanBase {
   /**
    * meta about resource
    */
-  private AsasMeta _meta = new AsasMeta();
+  private AsasMeta meta = new AsasMeta();
   
   /**
    * meta about resource
-   * @return the _meta
+   * @return the meta
    */
-  public AsasMeta get_meta() {
-    return _meta;
+  public AsasMeta getMeta() {
+    return meta;
   }
   
   /**
    * meta about resource
-   * @param _meta the _meta to set
+   * @param meta the meta to set
    */
-  public void set_meta(AsasMeta _meta) {
-    this._meta = _meta;
+  public void setMeta(AsasMeta _meta) {
+    this.meta = _meta;
   }
 
 
@@ -150,6 +150,9 @@ public abstract class AsasResponseBeanBase {
    * @param warning
    */
   public void appendWarning(String warning) {
+    if (this.resultWarning.length() > 0) {
+      this.resultWarning.append(", ");
+    }
     this.resultWarning.append(warning);
   }
 
@@ -196,20 +199,20 @@ public abstract class AsasResponseBeanBase {
   }
 
   /** metadata about this particular resource */
-  private AsasRequestMeta _requestMeta = new AsasRequestMeta();
+  private AsasResponseMeta responseMeta = new AsasResponseMeta();
   
   /**
    * @return the _requestMeta
    */
-  public AsasRequestMeta get_requestMeta() {
-    return _requestMeta;
+  public AsasResponseMeta getResponseMeta() {
+    return responseMeta;
   }
   
   /**
    * @param _requestMeta the _requestMeta to set
    */
-  public void set_requestMeta(AsasRequestMeta _requestMeta) {
-    this._requestMeta = _requestMeta;
+  public void setResponseMeta(AsasResponseMeta _requestMeta) {
+    this.responseMeta = _requestMeta;
   }
   
 }

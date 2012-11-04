@@ -1,7 +1,11 @@
 package edu.internet2.middleware.authzStandardApiServer.corebeans;
 
-
-public class AsasRequestMeta {
+/**
+ * metadata about the request/response that goes from server to client
+ * @author mchyzer
+ *
+ */
+public class AsasResponseMeta {
 
   /**
    * the timestamp that this was sent from the server (at the end of the processing)

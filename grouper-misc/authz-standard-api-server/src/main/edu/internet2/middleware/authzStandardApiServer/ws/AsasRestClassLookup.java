@@ -26,7 +26,7 @@ import java.util.Map;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasDefaultResource;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasDefaultVersionResource;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasMeta;
-import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasRequestMeta;
+import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasResponseMeta;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasResultProblem;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasVersionResource;
 import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUtils;
@@ -46,7 +46,7 @@ public class AsasRestClassLookup {
     addAliasClass(AsasDefaultResource.class);
     addAliasClass(AsasDefaultVersionResource.class);
     addAliasClass(AsasMeta.class);
-    addAliasClass(AsasRequestMeta.class);
+    addAliasClass(AsasResponseMeta.class);
     addAliasClass(AsasResultProblem.class);
     addAliasClass(AsasVersionResource.class);
     
@@ -58,11 +58,7 @@ public class AsasRestClassLookup {
    */
   public static void addAliasClass(Class<?> theClass) {
     synchronized (aliasClassMap) {
-      String registerByName = theClass.getSimpleName();
-      if (registerByName.toLowerCase().startsWith("asas")) {
-        registerByName = registerByName.substring(4);
-      }
-      registerByName = StandardApiServerUtils.lowerFirstLetter(registerByName);
+      String registerByName = StandardApiServerUtils.structureName(theClass);
       aliasClassMap.put(registerByName, theClass);
     }
   }

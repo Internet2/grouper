@@ -6,6 +6,8 @@ package edu.internet2.middleware.authzStandardApiServer.j2ee;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -89,7 +91,13 @@ public class AsasRestServlet extends HttpServlet {
     WsRestContentType wsRestContentType = WsRestContentType.json;
     assignContentType(wsRestContentType);
 
+    boolean indent = false;
+    
     try {
+      
+      if (StandardApiServerUtils.booleanValue(request.getParameter("indent"), false)) {
+        indent = true;
+      }
       
       //init params (if problem, exception will be thrown)
       request.getParameterMap();
@@ -185,7 +193,7 @@ public class AsasRestServlet extends HttpServlet {
       asasResponseBean.setSuccess(false);
       asasResponseBean.setStatusCode("INVALID_QUERY");
       asasResponseBean.setError("INVALID_QUERY");
-      asasResponseBean.get_requestMeta().setHttpStatusCode(400);
+      asasResponseBean.getResponseMeta().setHttpStatusCode(400);
 
     } catch (RuntimeException e) {
 
@@ -198,24 +206,58 @@ public class AsasRestServlet extends HttpServlet {
       asasResponseBean.setSuccess(false);
       asasResponseBean.setStatusCode("EXCEPTION");
       asasResponseBean.setError("ERROR");
-      asasResponseBean.get_requestMeta().setHttpStatusCode(500);
+      asasResponseBean.getResponseMeta().setHttpStatusCode(500);
 
     }
     
     //set http status code, content type, and write the response
     try {
       { 
-        String url = request.getRequestURL().toString();
-        url = StandardApiServerUtils.prefixOrSuffix(url, "?", true);
-        asasResponseBean.get_meta().setSelfUri(url);
+        StringBuilder urlBuilder = new StringBuilder();
+        {
+          String url = request.getRequestURL().toString();
+          url = StandardApiServerUtils.prefixOrSuffix(url, "?", true);
+          urlBuilder.append(url);
+        }
+        //lets put the params back on (the ones we expect)
+        Map<String, String> paramMap = request.getParameterMap();
+        boolean firstParam = true;
+        for (String paramName : paramMap.keySet()) {
+          if (firstParam) {
+            urlBuilder.append("?");
+          } else {
+            urlBuilder.append("&");
+          }
+          firstParam = false;
+          
+          urlBuilder.append(StandardApiServerUtils.escapeUrlEncode(paramName))
+            .append("=").append(StandardApiServerUtils.escapeUrlEncode(paramMap.get(paramName)));
+          
+        }
+        
+        
+        asasResponseBean.getMeta().setSelfUri(urlBuilder.toString());
       }
       if (warnings.length() > 0) {
         asasResponseBean.appendWarning(warnings.toString());
       }
+
+      {
+        Set<String> unusedParams = ((AsasHttpServletRequest)request).unusedParams();
+        //add warnings about unused params
+        if (StandardApiServerUtils.length(unusedParams) > 0) {
+          for (String unusedParam : unusedParams) {
+            asasResponseBean.appendWarning("Unused HTTP param: " + unusedParam);
+          }
+        }
+      }     
+      
+      //structure name
+      asasResponseBean.getMeta().setStructureName(StandardApiServerUtils.structureName(asasResponseBean.getClass()));
       
       //headers should be there by now
       //set the status code
-      response.setStatus(asasResponseBean.get_requestMeta().getHttpStatusCode());
+      response.setStatus(asasResponseBean.getResponseMeta().getHttpStatusCode());
 
       String restCharset = StandardApiServerConfig.retrieveConfig().propertyValueString("standardApiServer.restHttpContentTypeCharset");
       String responseContentType = wsRestContentType.getContentType();
@@ -229,11 +271,11 @@ public class AsasRestServlet extends HttpServlet {
       //temporarily set to uuid, so we can time the content generation
       String millisUuid = StandardApiServerUtils.uuid();
       
-      asasResponseBean.get_requestMeta().setMillis(millisUuid);
+      asasResponseBean.getResponseMeta().setMillis(millisUuid);
       
       String responseString = wsRestContentType.writeString(asasResponseBean);
       
-      if (StandardApiServerUtils.booleanValue(request.getParameter("indent"), false)) {
+      if (indent) {
         responseString = wsRestContentType.indent(responseString);
       }
       

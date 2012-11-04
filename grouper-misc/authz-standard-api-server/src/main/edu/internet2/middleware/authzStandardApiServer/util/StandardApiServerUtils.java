@@ -43,6 +43,20 @@ import edu.internet2.middleware.authzStandardApiServerExt.org.apache.commons.log
 public class StandardApiServerUtils extends StandardApiServerCommonUtils {
 
   /**
+   * structure name of class
+   * @param theClass
+   * @return the structure name
+   */
+  public static String structureName(Class<?> theClass) {
+    String registerByName = theClass.getSimpleName();
+    if (registerByName.toLowerCase().startsWith("asas")) {
+      registerByName = registerByName.substring(4);
+    }
+    registerByName = StandardApiServerUtils.lowerFirstLetter(registerByName);
+    return registerByName;
+  }
+  
+  /**
    * logger
    */
   private static Log LOG = StandardApiServerUtils.retrieveLog(StandardApiServerUtils.class);

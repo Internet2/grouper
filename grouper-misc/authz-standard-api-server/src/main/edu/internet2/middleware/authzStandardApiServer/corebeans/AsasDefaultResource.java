@@ -15,8 +15,8 @@ public class AsasDefaultResource extends AsasResponseBeanBase {
   
   public AsasDefaultResource() {
     super();
-    this.get_requestMeta().setHttpStatusCode(200);
-    this.get_meta().setLastModified(StandardApiServerUtils.convertToIso8601(new Date(AsasRestServlet.getStartupTime())));
+    this.getResponseMeta().setHttpStatusCode(200);
+    this.getMeta().setLastModified(StandardApiServerUtils.convertToIso8601(new Date(AsasRestServlet.getStartupTime())));
     this.setSuccess(true);
     
     this.jsonDefaultUri = StandardApiServerUtils.servletUrl() + ".json";
