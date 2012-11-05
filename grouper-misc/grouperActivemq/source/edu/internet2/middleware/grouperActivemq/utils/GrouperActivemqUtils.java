@@ -283,6 +283,7 @@ public class GrouperActivemqUtils {
    * @param allowPrivateConstructor true if should allow private constructors
    * @return the instance
    */
+  @SuppressWarnings("unchecked")
   public static <T> T newInstance(Class<T> theClass, boolean allowPrivateConstructor) {
     if (!allowPrivateConstructor) {
       return GrouperClientUtils.newInstance(theClass);

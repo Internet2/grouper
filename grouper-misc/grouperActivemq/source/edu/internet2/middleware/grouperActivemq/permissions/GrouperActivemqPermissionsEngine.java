@@ -4,7 +4,6 @@
 package edu.internet2.middleware.grouperActivemq.permissions;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -645,10 +644,6 @@ public class GrouperActivemqPermissionsEngine implements Job, StatefulJob {
     //lets make the permissions file
     StringBuilder fileContents = new StringBuilder(
         "# automatically generated from Grouper-ActiveMQ connector...\n\n");
-
-    //lets sort these so they are easier to manage
-    List<String> lines = new ArrayList<String>();
-
 
     //  # automatically generated from Grouper-ActiveMQ connector
     //

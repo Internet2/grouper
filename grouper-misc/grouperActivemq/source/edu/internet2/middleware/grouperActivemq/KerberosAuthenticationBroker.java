@@ -22,6 +22,9 @@ import edu.internet2.middleware.grouperActivemq.authn.GrouperActivemqKerberosAut
  */
 public class KerberosAuthenticationBroker extends BrokerFilter {
 
+  /**
+   * 
+   */
   private final CopyOnWriteArrayList<SecurityContext> securityContexts = new CopyOnWriteArrayList<SecurityContext>();
 
   /**
@@ -32,6 +35,11 @@ public class KerberosAuthenticationBroker extends BrokerFilter {
 
   }
 
+  /**
+   * 
+   * @see org.apache.activemq.broker.BrokerFilter#addConnection(org.apache.activemq.broker.ConnectionContext, org.apache.activemq.command.ConnectionInfo)
+   */
+  @Override
   public void addConnection(ConnectionContext context, ConnectionInfo info)
       throws Exception {
 
@@ -70,22 +78,27 @@ public class KerberosAuthenticationBroker extends BrokerFilter {
       };
       
       context.setSecurityContext(s);
-      securityContexts.add(s);
+      this.securityContexts.add(s);
     }
     try {
       super.addConnection(context, info);
     } catch (Exception e) {
-      securityContexts.remove(s);
+      this.securityContexts.remove(s);
       context.setSecurityContext(null);
       throw e;
     }
   }
 
+  /**
+   * 
+   * @see org.apache.activemq.broker.BrokerFilter#removeConnection(org.apache.activemq.broker.ConnectionContext, org.apache.activemq.command.ConnectionInfo, java.lang.Throwable)
+   */
+  @Override
   public void removeConnection(ConnectionContext context, ConnectionInfo info,
       Throwable error)
       throws Exception {
     super.removeConnection(context, info, error);
-    if (securityContexts.remove(context.getSecurityContext())) {
+    if (this.securityContexts.remove(context.getSecurityContext())) {
       context.setSecurityContext(null);
     }
   }
