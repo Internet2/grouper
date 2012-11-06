@@ -5397,7 +5397,7 @@ public class GrouperUtilElSafe {
       String  current = (String) next(theStringOrArrayOrList, iterator, i);
       
       //only append if not empty
-      if (!StringUtils.isBlank(current)) {
+      if (!StringUtils.isBlank(current) && !equals("null", current)) {
         
         //keeping track if anything changed
         appendedAnything = true;

@@ -2190,7 +2190,6 @@ public class GrouperUtil {
    * return a list of objects from varargs.  Though if there is one
    * object, and it is a list, return it.
    * 
-   * @param <T>
    *            template type of the objects
    * @param objects
    * @return the list or null if objects is null
@@ -10599,7 +10598,7 @@ public class GrouperUtil {
       String  current = (String) next(theStringOrArrayOrList, iterator, i);
       
       //only append if not empty
-      if (!StringUtils.isBlank(current)) {
+      if (!StringUtils.isBlank(current) && !equals("null", current)) {
         
         //keeping track if anything changed
         appendedAnything = true;
