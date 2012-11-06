@@ -5347,6 +5347,39 @@ public class GrouperUtilElSafe {
   }
   
   /**
+   * <pre>
+   * append a prefix to another string if both not blank.  trim to empty everything except separator
+   * i.e. appendPrefixIfStringNotBlank("[]", " - ", "a")   returns [] - a
+   * i.e. appendPrefixIfStringNotBlank("", " - ", "a")   returns a
+   * i.e. appendPrefixIfStringNotBlank("[]", " - ", "")   returns ""
+   * i.e. appendPrefixIfStringNotBlank("", " - ", "")   returns ""
+   * </pre>
+   * @param prefix
+   * @param separator
+   * @param string
+   * @return the resulting string or blank if nothing
+   */
+  public static String appendPrefixIfStringNotBlank(String prefix, String separator, String string) {
+    
+    string = StringUtils.trimToEmpty(string);
+    prefix = StringUtils.trimToEmpty(prefix);
+    
+    boolean stringIsBlank = StringUtils.isBlank(string);
+    boolean prefixIsBlank = StringUtils.isBlank(prefix);
+
+    if (stringIsBlank) {
+      return "";
+    }
+
+    if (prefixIsBlank) {
+      return string;
+    }
+    
+    return prefix + separator + string;
+    
+  }
+  
+  /**
    * if theString is not Blank, apppend it to the result, and if appending,
    * add a prefix (if not null)
    * @param result to append to
@@ -5397,7 +5430,7 @@ public class GrouperUtilElSafe {
       String  current = (String) next(theStringOrArrayOrList, iterator, i);
       
       //only append if not empty
-      if (!StringUtils.isBlank(current) && !equals("null", current)) {
+      if (!StringUtils.isBlank(current)) {
         
         //keeping track if anything changed
         appendedAnything = true;
