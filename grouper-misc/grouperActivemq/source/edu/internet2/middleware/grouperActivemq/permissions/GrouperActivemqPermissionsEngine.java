@@ -42,7 +42,12 @@ import edu.internet2.middleware.grouperClientExt.xmpp.GrouperClientXmppMain;
 import edu.internet2.middleware.grouperClientExt.xmpp.GrouperClientXmppMessageHandler;
 
 /**
- * keep track of all permissions
+ * keep track of all permissions.  It retrieves permissions from Grouper, 
+ * caches them in memory, and periodically stores them to disk too.  There are two files 
+ * on disk, in case one doesnt get written fully.  At the end of the file is a success
+ * flag so we know it is complete.  It is failsafe, if Grouper has a problem, and there
+ * is a copy in memory or disk, then it will still work.  I believe the disk store is
+ * only read on startup, but Im not sure.
  */
 public class GrouperActivemqPermissionsEngine implements Job, StatefulJob {
 
@@ -102,7 +107,7 @@ public class GrouperActivemqPermissionsEngine implements Job, StatefulJob {
   }
 
   /**
-   * whitelist of permissions
+   * whitelist of permissions for internal things in ActiveMQ that users need to be able to do
    */
   private static Set<GrouperActivemqPermission> whitelist;
   
@@ -120,7 +125,9 @@ public class GrouperActivemqPermissionsEngine implements Job, StatefulJob {
   
 
   /**
-   * all permissions for activemq
+   * all permissions for activemq.  See if the user has the action and destination.
+   * Note, if there is an internal permissions in ActiveMQ for the user, it is allowed (if supposed to be),
+   * and if there is a hierarchical "inherit" permission for an ancestor, it is permitted
    * @param user loginid to activemq
    * @param action action to check (note, if you just have sendMessage,
    * it will check the inherit destinations too
@@ -274,6 +281,7 @@ public class GrouperActivemqPermissionsEngine implements Job, StatefulJob {
       return;
     }
     
+    //do not synchronize the entire method so that all calls are not synchronized
     synchronized(GrouperActivemqPermissionsEngine.class) {
       
       if (started) {
@@ -288,12 +296,15 @@ public class GrouperActivemqPermissionsEngine implements Job, StatefulJob {
       try {
         performFullRefresh();
       } catch (RuntimeException e) {
+        //do not throw so this is always available if Grouper is down
         log.error("Error on startup", e);
       }
 
       try {
         scheduleQuartzJob();
       } catch (RuntimeException e) {
+        //do not throw so this is always available if Grouper is down.  Though not sure why
+        //quartz schedule would fail... hmm
         log.error("Error on startup", e);
       }
       Thread thread = new Thread(new Runnable() {
@@ -788,8 +799,8 @@ public class GrouperActivemqPermissionsEngine implements Job, StatefulJob {
     
     Map<String, Set<GrouperActivemqPermission>> result = new HashMap<String, Set<GrouperActivemqPermission>>();
     
-    //we have properties
-    for (int userIndex=0;userIndex<10000;userIndex++) {
+    //we have properties.  for loop so we dont have an endless loop somehow
+    for (int userIndex=0;userIndex<properties.size();userIndex++) {
       
       //  # automatically generated from Grouper-ActiveMQ connector
       //
@@ -961,6 +972,7 @@ public class GrouperActivemqPermissionsEngine implements Job, StatefulJob {
       return;
     }
     
+    //this method loops with a try catch so it will never crash...
     GrouperClientXmppMain.xmppLoop(new GrouperClientXmppMessageHandler() {
 
       @Override
