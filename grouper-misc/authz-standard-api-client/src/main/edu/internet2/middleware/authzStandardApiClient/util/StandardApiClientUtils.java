@@ -455,5 +455,94 @@ public class StandardApiClientUtils extends StandardApiClientCommonUtils {
     return requestDocument;
 
   }
+
+  /**
+   * 
+   * @return the encrypt key
+   */
+  public static String encryptKey() {
+    String encryptKey = StandardApiClientConfig.retrieveConfig().propertyValueStringRequired("encrypt.key");
+    
+    boolean disableExternalFileLookup = StandardApiClientConfig.retrieveConfig().propertyValueBooleanRequired(
+        "encrypt.disableExternalFileLookup");
+    
+    //lets lookup if file
+    encryptKey = StandardApiClientUtils.readFromFileIfFile(encryptKey, disableExternalFileLookup);
+    
+    //the server does this, so if the key is blank, it will still have something there, so be consistent
+    if (StandardApiClientConfig.retrieveConfig().propertyValueBoolean("encrypt.encryptLikeServer", false)) {
+      
+      encryptKey += "w";
+    }
+    
+    return encryptKey;
+  }
+
+  /**
+     * convert an object from json.  note this works well if there are no collections, just real types, arrays, etc.
+     * @param conversionMap is the class simple name to class of objects which are allowed to be brought back.
+     * Note: only the top level object needs to be registered
+     * @param json
+     * @return the object
+     */
+    public static Object jsonConvertFrom(Map<String, Class<?>> conversionMap, String json) {
+  
+      //gson does not put the type of the object in the json, but we need that.  so when we convert,
+      //put the type in there.  So we need to extract the type out when unmarshaling
+      Matcher matcher = jsonPattern.matcher(json);
+  
+      if (!matcher.matches()) {
+        throw new RuntimeException("Cant match this json, should start with simple class name: " + json);
+      }
+  
+      String simpleClassName = matcher.group(1);
+      String jsonBody = matcher.group(2);
+  
+      Class<?> theClass = conversionMap.get(simpleClassName);
+      if (theClass == null) {
+        throw new RuntimeException("Not allowed to unmarshal json: " + simpleClassName + ", " + json);
+      }
+  //    Gson gson = new GsonBuilder().create();
+  //    Object object = gson.fromJson(jsonBody, theClass);
+      JSONObject jsonObject = JSONObject.fromObject( jsonBody );
+      Object object = JSONObject.toBean( jsonObject, theClass );
+  
+      return object;
+    }
+
+  /**
+   * <pre>
+   * detects the front of a json string, pops off the first field, and gives the body as the matcher
+   * ^\s*\{\s*\"([^"]+)\"\s*:\s*\{(.*)}$
+   * Example matching text:
+   * {
+   *  "XstreamPocGroup":{
+   *    "somethingNotMarshaled":"whatever",
+   *    "name":"myGroup",
+   *    "someInt":5,
+   *    "someBool":true,
+   *    "members":[
+   *      {
+   *        "name":"John",
+   *        "description":"John Smith - Employee"
+   *      },
+   *      {
+   *        "name":"Mary",
+   *        "description":"Mary Johnson - Student"
+   *      }
+   *    ]
+   *  }
+   * }
+   *
+   * ^\s*          front of string and optional space
+   * \{\s*         open bracket and optional space
+   * \"([^"]+)\"   quote, simple name of class, quote
+   * \s*:\s*       optional space, colon, optional space
+   * \{(.*)}$      open bracket, the class info, close bracket, end of string
+   *
+   *
+   * </pre>
+   */
+  private static Pattern jsonPattern = Pattern.compile("^\\s*\\{\\s*\\\"([^\"]+)\\\"\\s*:\\s*(.*)}$", Pattern.DOTALL);
   
 }

@@ -2,7 +2,7 @@
  * @author Kate
  * $Id: JsonConverter.java,v 1.1 2009-11-20 07:15:38 mchyzer Exp $
  */
-package edu.internet2.middleware.authzStandardApiServer.json;
+package edu.internet2.middleware.authzStandardApiClient.json;
 
 import java.io.Writer;
 
@@ -39,6 +39,6 @@ public interface JsonConverter {
    * @param warnings put warnings here
    * @return the object
    */
-  public Object convertFromJson(Class<?> theClass, String json, StringBuilder warnings);
+  public <T> T convertFromJson(Class<T> theClass, String json, StringBuilder warnings);
   
 }

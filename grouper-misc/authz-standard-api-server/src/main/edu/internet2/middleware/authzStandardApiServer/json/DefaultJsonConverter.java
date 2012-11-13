@@ -20,8 +20,8 @@ public class DefaultJsonConverter implements JsonConverter {
   /**
    * @see edu.internet2.middleware.grouper.ws.rest.json.JsonConverter#convertFromJson(java.lang.String, StringBuilder)
    */
-  public Object convertFromJson(String json, StringBuilder warnings) {
-    Object object = StandardApiServerUtils.jsonConvertFrom(AsasRestClassLookup.getAliasClassMap(), json);
+  public Object convertFromJson(Class<?> theClass, String json, StringBuilder warnings) {
+    Object object = StandardApiServerUtils.jsonConvertFrom(json, theClass);
     return object;
   }
 

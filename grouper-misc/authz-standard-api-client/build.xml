@@ -1,5 +1,5 @@
 
-<project name="authzStandardApi" default="build" basedir=".">
+<project name="authzStandardApiClient" default="build" basedir=".">
 
   <!-- ant contrib allows conditionals in ant scripts -->
   <taskdef resource="net/sf/antcontrib/antcontrib.properties">
@@ -29,7 +29,7 @@
 
     <property name="main.outputDir" value="dist" />
 
-    <property name="main.appName" value="authzStandardApi" />
+    <property name="main.appName" value="authzStandardApiClient" />
     <property name="main.jarFile" value="${main.outputDir}/${main.appName}.jar" />
 
     <path id="main.extClasspath">
@@ -39,9 +39,6 @@
     </path>
 
     <path id="main.classpath">
-      <fileset dir="${main.lib}/nonwebapp">
-        <include name="**/*.jar" />
-      </fileset>
     </path>
 
     <condition property="main.os" value="windows">
@@ -108,21 +105,22 @@
       </fileset>
       <fileset dir="${main.binDir}" />
       <manifest>
+        <attribute name="Main-Class" value="edu.internet2.middleware.authzStandardApiClient.StandardApiClient"/>
         <attribute name="Built-By"                value="${user.name}"/>
-        <attribute name="Implementation-Title"    value="authzStandardApi"/>
+        <attribute name="Implementation-Title"    value="authzStandardApiClient"/>
         <attribute name="Implementation-Version"  value="${version}"/>
-        <attribute name="Implementation-URL"      value="https://spaces.internet2.edu/display/cifer/Authorization+Standard+API"/>
+        <attribute name="Implementation-URL"      value="https://spaces.internet2.edu/display/cifer/Authorization+Standard+API+Client"/>
         <attribute name="Build-Timestamp"         value="${the.timestamp}"/>
       </manifest>
      </jar>
-    <property name="instName" value="authzStandardApi.institution-${version}" />
+    <property name="instName" value="authzStandardApiClient.institution-${version}" />
     <mkdir dir="dist/institution/${instName}"/>
     <copy todir="dist/institution/${instName}">    
       <fileset dir="${main.confDir}">
-        <include name="standardApi.server.properties"/>
+        <include name="authzStandardApi.client.properties"/>
       </fileset>
       <fileset dir="dist">
-        <include name="authzStandardApi.jar"/>
+        <include name="authzStandardApiClient.jar"/>
       </fileset>
     </copy>
     <tar destfile="dist/${instName}.tar.gz" compression="gzip">
@@ -130,22 +128,22 @@
         <include name="${instName}/**"/>
       </tarfileset>
     </tar>            
-    <echo message="Output is: dist/authzStandardApi.jar and dist/${instName}.tar.gz" />
-    <echo message="Note: dist/${instName}.tar.gz contains the conf/standardApi.server.base.properties, make sure it has no sensitive credentials in it" />
+    <echo message="Output is: dist/authzStandardApiClient.jar and dist/${instName}.tar.gz" />
+    <echo message="Note: dist/${instName}.tar.gz contains the conf/authzStandardApi.client.base.properties, make sure it has no sensitive credentials in it" />
    </target>
   
   <target name="distPackage" description="build tar gz on internet2 box" depends="init,javadoc">
 
     <delete dir="doc" />
 
-    <copy todir="${basedir}/../authzStandardApi.server-${version}">
-      <fileset dir="${basedir}/../authzStandardApiServer" />
+    <copy todir="${basedir}/../authzStandardApi.client-${version}">
+      <fileset dir="${basedir}/../authzStandardApiClient" />
     </copy>
     
     <!-- this assumes that everything was checked out to the right place, and no other dirs exist -->
-    <tar destfile="${basedir}/../authzStandardApi.server-${version}.tar.gz" compression="gzip">
+    <tar destfile="${basedir}/../authzStandardApi.client-${version}.tar.gz" compression="gzip">
       <tarfileset dir="${basedir}/.." >
-        <include name="authzStandardApi.server-${version}/**"/>
+        <include name="authzStandardApi.client-${version}/**"/>
       </tarfileset>
     </tar>            
     
@@ -154,20 +152,20 @@
   <target name="distBinaryPreJar">
 
     <!-- we dont want this in the jar, we want it next to the jar -->
-    <delete file="${main.binDir}/authzStandardApi.server.usage.txt" />  
+    <delete file="${main.binDir}/authzStandardApi.client.usage.txt" />  
 
   </target>
     
   <target name="distBinary" description="build tar gz on internet2 box" depends="init,clean,compile,jarPrepare,distBinaryPreJar,jar">
-    <property name="binName" value="authzStandardApi.serverBinary-${version}" />
+    <property name="binName" value="authzStandardApi.clientBinary-${version}" />
     <mkdir dir="dist/binary/${binName}"/>
     <copy todir="dist/binary/${binName}">    
       <fileset dir="${main.confDir}">
-        <include name="authzStandardApi.server*.properties"/>
-        <include name="authzStandardApi.server.usage*.txt"/>
+        <include name="authzStandardApi.client*.properties"/>
+        <include name="authzStandardApi.client.usage*.txt"/>
       </fileset>
       <fileset dir="dist">
-        <include name="authzStandardApiServer.jar"/>
+        <include name="authzStandardApiClient.jar"/>
       </fileset>
       <fileset dir="misc">
         <include name="BINARY-README.txt"/>
@@ -189,7 +187,7 @@
     <javadoc destdir="javadoc/api" access="public"
       additionalparam="-notimestamp" >
       <packageset dir="src/java" defaultexcludes="yes">
-        <include name="edu/internet2/middleware/authzStandardApiServer/**" />
+        <include name="edu/internet2/middleware/authzStandardApiClient/**" />
 
       </packageset>
 
@@ -208,7 +206,7 @@
     <javadoc destdir="doc/api" access="public"
       additionalparam="-notimestamp" >
       <packageset dir="src/java" defaultexcludes="yes">
-        <include name="edu/internet2/middleware/authzStandardApiServer/**" />
+        <include name="edu/internet2/middleware/authzStandardApiClient/**" />
 
       </packageset>
 
@@ -218,7 +216,7 @@
 
     </javadoc>
 
-    <!-- replace .html?edu/internet2/middleware/authzStandardApi/webservices/AuthzStandardApiService.html" with 
+    <!-- replace .html?edu/internet2/middleware/authzStandardApi/webservices/authzStandardApiService.html" with 
     .html" -->
     <!-- take out existing params, these are used by javascript to go to frames gracefully, trash them -->
     <replaceregexp flags="g">

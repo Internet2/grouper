@@ -900,7 +900,7 @@ public abstract class AsacConfigPropertiesCascadeBase {
   protected abstract String getMainExampleConfigClasspath();
 
   /**
-   * get a boolean and validate from grouper.client.properties
+   * get a boolean and validate from authzStandardApi.client.properties
    * @param key
    * @param defaultValue
    * @param required
@@ -922,7 +922,7 @@ public abstract class AsacConfigPropertiesCascadeBase {
   }
   
   /**
-   * get a boolean and validate from grouper.client.properties or null if not there
+   * get a boolean and validate from authzStandardApi.client.properties or null if not there
    * @param key
    * @param defaultValue
    * @param required
@@ -1003,7 +1003,7 @@ public abstract class AsacConfigPropertiesCascadeBase {
   }
 
   /**
-   * get a boolean and validate from grouper.client.properties
+   * get a boolean and validate from authzStandardApi.client.properties
    * @param key
    * @param defaultValue
    * @param required
@@ -1016,7 +1016,7 @@ public abstract class AsacConfigPropertiesCascadeBase {
   }
   
   /**
-   * get a boolean and validate from grouper.client.properties
+   * get a boolean and validate from authzStandardApi.client.properties
    * @param key
    * @param defaultValue
    * @param required
@@ -1029,7 +1029,7 @@ public abstract class AsacConfigPropertiesCascadeBase {
   }
   
   /**
-   * get a boolean and validate from grouper.client.properties
+   * get a boolean and validate from authzStandardApi.client.properties
    * @param key
    * @param defaultValue
    * @param required
@@ -1042,7 +1042,7 @@ public abstract class AsacConfigPropertiesCascadeBase {
   }
   
   /**
-   * get a boolean and validate from grouper.client.properties
+   * get a boolean and validate from authzStandardApi.client.properties
    * @param key
    * @return the int or null if there
    */

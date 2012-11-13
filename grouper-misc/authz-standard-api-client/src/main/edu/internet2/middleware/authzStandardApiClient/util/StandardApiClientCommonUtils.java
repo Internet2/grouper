@@ -4869,7 +4869,7 @@ public class StandardApiClientCommonUtils  {
    */
   public static void saveStringIntoFile(File file, String contents) {
     try {
-      writeStringToFile(file, contents, StandardApiClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.default.fileEncoding"));
+      writeStringToFile(file, contents, StandardApiClientConfig.retrieveConfig().propertyValueStringRequired("authzStandardApiClient.default.fileEncoding"));
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
@@ -4945,7 +4945,7 @@ public class StandardApiClientCommonUtils  {
       return null;
     }
     try {
-      return readFileToString(file, StandardApiClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.default.fileEncoding"));
+      return readFileToString(file, StandardApiClientConfig.retrieveConfig().propertyValueStringRequired("authzStandardApiClient.default.fileEncoding"));
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
@@ -4975,7 +4975,7 @@ public class StandardApiClientCommonUtils  {
     StringWriter stringWriter = new StringWriter();
     try {
       inputStream = url.openStream();
-      copy(inputStream, stringWriter, StandardApiClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.default.fileEncoding"));
+      copy(inputStream, stringWriter, StandardApiClientConfig.retrieveConfig().propertyValueStringRequired("authzStandardApiClient.default.fileEncoding"));
     } catch (IOException ioe) {
       throw new RuntimeException("Error reading resource: '" + resourceName + "'", ioe);
     } finally {
@@ -5965,6 +5965,33 @@ public class StandardApiClientCommonUtils  {
    */
   public static String trimToEmpty(String str) {
     return str == null ? "" : str.trim();
+  }
+
+  /**
+   * <p>Removes control characters (char &lt;= 32) from both
+   * ends of this String returning <code>null</code> if the String is
+   * empty ("") after the trim or if it is <code>null</code>.
+   *
+   * <p>The String is trimmed using {@link String#trim()}.
+   * Trim removes start and end characters &lt;= 32.
+   * To strip whitespace use {@link #stripToNull(String)}.</p>
+   *
+   * <pre>
+   * StringUtils.trimToNull(null)          = null
+   * StringUtils.trimToNull("")            = null
+   * StringUtils.trimToNull("     ")       = null
+   * StringUtils.trimToNull("abc")         = "abc"
+   * StringUtils.trimToNull("    abc    ") = "abc"
+   * </pre>
+   *
+   * @param str  the String to be trimmed, may be null
+   * @return the trimmed String,
+   *  <code>null</code> if only chars &lt;= 32, empty or null String input
+   * @since 2.0
+   */
+  public static String trimToNull(String str) {
+      String ts = trim(str);
+      return isEmpty(ts) ? null : ts;
   }
 
   /**
@@ -7461,7 +7488,7 @@ public class StandardApiClientCommonUtils  {
    */
   public static void copy(InputStream input, Writer output)
           throws IOException {
-      String charsetName = StandardApiClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.default.fileEncoding");
+      String charsetName = StandardApiClientConfig.retrieveConfig().propertyValueStringRequired("authzStandardApiClient.default.fileEncoding");
       InputStreamReader in = new InputStreamReader(input, charsetName);
       copy(in, output);
   }

@@ -33,12 +33,8 @@ public enum AsasRestContentType {
      * @return the object
      */
     @Override
-    public Object parseString(String input, StringBuilder warnings) {
-      //TODO fix this
-      if (true) {
-        throw new RuntimeException("Need to fix this");
-      }
-      return StandardApiServerUtils.xmlConvertFrom(input, null);
+    public Object parseString(Class<?> theClass, String input, StringBuilder warnings) {
+      return StandardApiServerUtils.xmlConvertFrom(input, theClass);
     }
 
     /**
@@ -71,12 +67,12 @@ public enum AsasRestContentType {
      * @return the object
      */
     @Override
-    public Object parseString(String input, StringBuilder warnings) {
+    public Object parseString(Class<?> theClass, String input, StringBuilder warnings) {
 
       JsonConverter jsonConverter = jsonConverter();
       
       try {
-        return jsonConverter.convertFromJson(input, warnings);
+        return jsonConverter.convertFromJson(theClass, input, warnings);
       } catch (RuntimeException re) {
         LOG.error("Error unparsing string with converter: " + StandardApiServerUtils.className(jsonConverter) + ", " + input);
         throw new RuntimeException("Problem unparsing string with converter: " + StandardApiServerUtils.className(jsonConverter)
@@ -138,7 +134,7 @@ public enum AsasRestContentType {
    */
   public static void main(String[] args) {
     String jsonString = StandardApiServerUtils.readFileIntoString(new File("c:/temp/problem.json"));
-    AsasRestContentType.json.parseString(jsonString, new StringBuilder());
+    AsasRestContentType.json.parseString(Object.class, jsonString, new StringBuilder());
   }
   
   /**
@@ -147,7 +143,7 @@ public enum AsasRestContentType {
    * @param warnings is where warnings should be written to
    * @return the object
    */
-  public abstract Object parseString(String input, StringBuilder warnings);
+  public abstract Object parseString(Class<?> theClass, String input, StringBuilder warnings);
 
   /**
    * write a string representation to result string

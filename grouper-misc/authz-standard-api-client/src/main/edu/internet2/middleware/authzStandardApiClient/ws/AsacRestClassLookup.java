@@ -23,7 +23,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacMetaResponse;
+import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacDefaultResource;
+import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacDefaultVersionResource;
+import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacMeta;
+import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacResponseMeta;
+import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacResultProblem;
+import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacVersionResource;
 import edu.internet2.middleware.authzStandardApiClient.util.StandardApiClientUtils;
 
 
@@ -38,7 +43,12 @@ public class AsacRestClassLookup {
 
   /** add a bunch of xstream aliases */
   static {
-    addAliasClass(AsacMetaResponse.class);
+    addAliasClass(AsacDefaultResource.class);
+    addAliasClass(AsacDefaultVersionResource.class);
+    addAliasClass(AsacMeta.class);
+    addAliasClass(AsacResponseMeta.class);
+    addAliasClass(AsacResultProblem.class);
+    addAliasClass(AsacVersionResource.class);
   }
   
   /**

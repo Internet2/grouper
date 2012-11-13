@@ -4,7 +4,7 @@ import edu.internet2.middleware.authzStandardApiClient.config.AsacConfigProperti
 
 
 /**
- * hierarchical config class for grouper.client.properties
+ * hierarchical config class for authzStandardApi.client.properties
  * @author mchyzer
  *
  */
@@ -17,6 +17,14 @@ public class StandardApiClientConfig extends AsacConfigPropertiesCascadeBase {
     
   }
   
+  /**
+   * @see edu.internet2.middleware.authzStandardApiClient.config.AsacConfigPropertiesCascadeBase#getClassInSiblingJar()
+   */
+  @Override
+  protected Class<?> getClassInSiblingJar() {
+    return StandardApiClientConfig.class;
+  }
+
   /**
    * retrieve a config from the config file or from cache
    * @return the config object
@@ -38,7 +46,7 @@ public class StandardApiClientConfig extends AsacConfigPropertiesCascadeBase {
    */
   @Override
   protected String getHierarchyConfigKey() {
-    return "standardApiClient.config.hierarchy";
+    return "authzStandardApiClient.config.hierarchy";
   }
 
   /**
@@ -46,7 +54,7 @@ public class StandardApiClientConfig extends AsacConfigPropertiesCascadeBase {
    */
   @Override
   protected String getMainConfigClasspath() {
-    return "standardApi.client.properties";
+    return "authzStandardApi.client.properties";
   }
   
   /**
@@ -54,7 +62,7 @@ public class StandardApiClientConfig extends AsacConfigPropertiesCascadeBase {
    */
   @Override
   protected String getMainExampleConfigClasspath() {
-    return "standardApi.client.base.properties";
+    return "authzStandardApi.client.base.properties";
   }
 
   /**
@@ -62,7 +70,7 @@ public class StandardApiClientConfig extends AsacConfigPropertiesCascadeBase {
    */
   @Override
   protected String getSecondsToCheckConfigKey() {
-    return "standardApiClient.config.secondsBetweenUpdateChecks";
+    return "authzStandardApiClient.config.secondsBetweenUpdateChecks";
   }
 
   
