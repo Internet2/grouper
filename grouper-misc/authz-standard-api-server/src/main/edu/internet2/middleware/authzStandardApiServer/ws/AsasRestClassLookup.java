@@ -25,6 +25,8 @@ import java.util.Map;
 
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasDefaultResource;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasDefaultVersionResource;
+import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasGroup;
+import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasGroups;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasMeta;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasResponseMeta;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasResultProblem;
@@ -45,6 +47,8 @@ public class AsasRestClassLookup {
   static {
     addAliasClass(AsasDefaultResource.class);
     addAliasClass(AsasDefaultVersionResource.class);
+    addAliasClass(AsasGroup.class);
+    addAliasClass(AsasGroups.class);
     addAliasClass(AsasMeta.class);
     addAliasClass(AsasResponseMeta.class);
     addAliasClass(AsasResultProblem.class);
