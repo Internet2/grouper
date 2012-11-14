@@ -24,8 +24,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import edu.internet2.middleware.authzStandardApiClient.api.AsacApiDefaultResource;
+import edu.internet2.middleware.authzStandardApiClient.api.AsacApiTestSuite;
 import edu.internet2.middleware.authzStandardApiClient.contentType.AsacRestContentType;
 import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacDefaultResourceContainer;
+import edu.internet2.middleware.authzStandardApiClient.testSuite.AsacTestSuiteResults;
+import edu.internet2.middleware.authzStandardApiClient.testSuite.AsacTestSuiteVerbose;
 import edu.internet2.middleware.authzStandardApiClient.util.StandardApiClientCommonUtils;
 import edu.internet2.middleware.authzStandardApiClient.util.StandardApiClientConfig;
 import edu.internet2.middleware.authzStandardApiClient.util.StandardApiClientLog;
@@ -113,7 +116,10 @@ public class StandardApiClient {
         result = encryptText(argMap, argMapNotUsed, shouldSaveResultsToFile);
         
       } else if (StandardApiClientUtils.equals(operation, "defaultResourceWs")) {
-        result = defaultResource(argMap, argMapNotUsed);
+        result = defaultResourceWs(argMap, argMapNotUsed);
+
+      } else if (StandardApiClientUtils.equals(operation, "testSuite")) {
+        result = testSuite(argMap, argMapNotUsed);
 
       } else {
         System.err.println("Error: invalid operation: '" + operation + "', for usage help, run: java -jar grouperClient.jar" );
@@ -197,7 +203,7 @@ public class StandardApiClient {
      * @param argMapNotUsed
      * @return result
      */
-    private static String defaultResource(Map<String, String> argMap,
+    private static String defaultResourceWs(Map<String, String> argMap,
         Map<String, String> argMapNotUsed) {
       
       AsacApiDefaultResource asacApiDefaultResource = new AsacApiDefaultResource();        
@@ -363,5 +369,50 @@ public class StandardApiClient {
 
   /** custom operations from config file */
   private static Map<String, Class<ClientOperation>> customOperations = null;
+
+  /**
+   * run non-destructive tests against the server
+   * @param argMap
+   * @param argMapNotUsed
+   * @return result
+   */
+  private static String testSuite(Map<String, String> argMap,
+      Map<String, String> argMapNotUsed) {
+    
+    String verboseString = StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "verbose", false);
+    
+    AsacTestSuiteVerbose asacTestSuiteVerbose = AsacTestSuiteVerbose.valueOfIgnoreCase(verboseString, false);
+    asacTestSuiteVerbose = StandardApiClientUtils.defaultIfNull(asacTestSuiteVerbose, AsacTestSuiteVerbose.medium);
+
+    AsacApiTestSuite asacApiTestSuite = new AsacApiTestSuite();        
+    
+    asacApiTestSuite.assignVerbose(asacTestSuiteVerbose);
+      
+    failOnArgsNotUsed(argMapNotUsed);
+  
+    AsacTestSuiteResults asacTestSuiteResults = asacApiTestSuite.execute();
+    
+    StringBuilder result = new StringBuilder();
+    
+    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+  
+    substituteMap.put("asacTestSuiteResults", asacTestSuiteResults);
+  
+    String outputTemplate = null;
+  
+    if (argMap.containsKey("outputTemplate")) {
+      outputTemplate = StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
+      outputTemplate = StandardApiClientUtils.substituteCommonVars(outputTemplate);
+    } else {
+      outputTemplate = StandardApiClientConfig.retrieveConfig().propertyValueStringRequired("webService.testSuite.output");
+    }
+    log.debug("Output template: " + StandardApiClientUtils.trim(outputTemplate) + ", available variables: asacTestSuiteResults");
+  
+    
+    String output = StandardApiClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
+    result.append(output);
+    
+    return result.toString();
+  }
 
 }
