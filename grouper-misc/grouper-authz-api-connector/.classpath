@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main"/>
+	<classpathentry kind="src" path="GROUPER_V2_0_SOURCE"/>
+	<classpathentry kind="src" path="AUTHZ_STANDARD_API_SERVER_SOURCE"/>
+	<classpathentry kind="src" path="src/resources"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/grouper"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/authz-standard-api-server"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
