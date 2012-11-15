@@ -256,7 +256,7 @@ public class AsasRestServlet extends HttpServlet {
       //set the status code
       response.setStatus(asasResponseBean.getResponseMeta().getHttpStatusCode());
 
-      String restCharset = StandardApiServerConfig.retrieveConfig().propertyValueString("standardApiServer.restHttpContentTypeCharset");
+      String restCharset = StandardApiServerConfig.retrieveConfig().propertyValueString("authzStandardApiServer.restHttpContentTypeCharset");
       String responseContentType = wsRestContentType.getContentType();
       
       if (!StandardApiServerUtils.isBlank(restCharset)) {

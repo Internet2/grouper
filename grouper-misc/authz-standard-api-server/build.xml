@@ -1,5 +1,5 @@
 
-<project name="authzStandardApi" default="build" basedir=".">
+<project name="authzStandardApiServer" default="build" basedir=".">
 
   <!-- ant contrib allows conditionals in ant scripts -->
   <taskdef resource="net/sf/antcontrib/antcontrib.properties">
@@ -29,7 +29,7 @@
 
     <property name="main.outputDir" value="dist" />
 
-    <property name="main.appName" value="authzStandardApi" />
+    <property name="main.appName" value="authzStandardApiServer" />
     <property name="main.jarFile" value="${main.outputDir}/${main.appName}.jar" />
 
     <path id="main.extClasspath">
@@ -109,20 +109,20 @@
       <fileset dir="${main.binDir}" />
       <manifest>
         <attribute name="Built-By"                value="${user.name}"/>
-        <attribute name="Implementation-Title"    value="authzStandardApi"/>
+        <attribute name="Implementation-Title"    value="${main.appName}"/>
         <attribute name="Implementation-Version"  value="${version}"/>
         <attribute name="Implementation-URL"      value="https://spaces.internet2.edu/display/cifer/Authorization+Standard+API"/>
         <attribute name="Build-Timestamp"         value="${the.timestamp}"/>
       </manifest>
      </jar>
-    <property name="instName" value="authzStandardApi.institution-${version}" />
+    <property name="instName" value="${main.appName}.institution-${version}" />
     <mkdir dir="dist/institution/${instName}"/>
     <copy todir="dist/institution/${instName}">    
       <fileset dir="${main.confDir}">
         <include name="standardApi.server.properties"/>
       </fileset>
       <fileset dir="dist">
-        <include name="authzStandardApi.jar"/>
+        <include name="${main.appName}.jar"/>
       </fileset>
     </copy>
     <tar destfile="dist/${instName}.tar.gz" compression="gzip">
@@ -130,7 +130,7 @@
         <include name="${instName}/**"/>
       </tarfileset>
     </tar>            
-    <echo message="Output is: dist/authzStandardApi.jar and dist/${instName}.tar.gz" />
+    <echo message="Output is: dist/${main.appName}.jar and dist/${instName}.tar.gz" />
     <echo message="Note: dist/${instName}.tar.gz contains the conf/standardApi.server.base.properties, make sure it has no sensitive credentials in it" />
    </target>
   
@@ -138,36 +138,28 @@
 
     <delete dir="doc" />
 
-    <copy todir="${basedir}/../authzStandardApi.server-${version}">
-      <fileset dir="${basedir}/../authzStandardApiServer" />
+    <copy todir="${basedir}/../${main.appName}.server-${version}">
+      <fileset dir="${basedir}/../${main.appName}" />
     </copy>
     
     <!-- this assumes that everything was checked out to the right place, and no other dirs exist -->
-    <tar destfile="${basedir}/../authzStandardApi.server-${version}.tar.gz" compression="gzip">
+    <tar destfile="${basedir}/../${main.appName}.server-${version}.tar.gz" compression="gzip">
       <tarfileset dir="${basedir}/.." >
-        <include name="authzStandardApi.server-${version}/**"/>
+        <include name="${main.appName}.server-${version}/**"/>
       </tarfileset>
     </tar>            
     
   </target>
 
-  <target name="distBinaryPreJar">
-
-    <!-- we dont want this in the jar, we want it next to the jar -->
-    <delete file="${main.binDir}/authzStandardApi.server.usage.txt" />  
-
-  </target>
-    
-  <target name="distBinary" description="build tar gz on internet2 box" depends="init,clean,compile,jarPrepare,distBinaryPreJar,jar">
-    <property name="binName" value="authzStandardApi.serverBinary-${version}" />
+  <target name="distBinary" description="build tar gz on internet2 box" depends="init,clean,compile,jarPrepare,jar">
+    <property name="binName" value="${main.appName}.serverBinary-${version}" />
     <mkdir dir="dist/binary/${binName}"/>
     <copy todir="dist/binary/${binName}">    
       <fileset dir="${main.confDir}">
         <include name="authzStandardApi.server*.properties"/>
-        <include name="authzStandardApi.server.usage*.txt"/>
       </fileset>
       <fileset dir="dist">
-        <include name="authzStandardApiServer.jar"/>
+        <include name="${main.appName}.jar"/>
       </fileset>
       <fileset dir="misc">
         <include name="BINARY-README.txt"/>

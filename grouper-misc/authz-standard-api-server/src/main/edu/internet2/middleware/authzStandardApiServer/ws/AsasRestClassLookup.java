@@ -25,9 +25,11 @@ import java.util.Map;
 
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasDefaultResource;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasDefaultVersionResource;
+import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasFolder;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasGroup;
-import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasGroups;
+import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasGroupSearch;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasMeta;
+import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasPaging;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasResponseMeta;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasResultProblem;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasVersionResource;
@@ -47,15 +49,16 @@ public class AsasRestClassLookup {
   static {
     addAliasClass(AsasDefaultResource.class);
     addAliasClass(AsasDefaultVersionResource.class);
+    addAliasClass(AsasFolder.class);
     addAliasClass(AsasGroup.class);
-    addAliasClass(AsasGroups.class);
+    addAliasClass(AsasGroupSearch.class);
     addAliasClass(AsasMeta.class);
     addAliasClass(AsasResponseMeta.class);
     addAliasClass(AsasResultProblem.class);
     addAliasClass(AsasVersionResource.class);
-    
+    addAliasClass(AsasPaging.class);
   }
-  
+
   /**
    * add an alias by class simple name
    * @param theClass

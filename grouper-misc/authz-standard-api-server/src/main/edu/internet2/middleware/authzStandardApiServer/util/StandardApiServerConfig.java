@@ -4,7 +4,7 @@ import edu.internet2.middleware.authzStandardApiServer.config.AsasConfigProperti
 
 
 /**
- * hierarchical config class for grouper.client.properties
+ * hierarchical config class for authzStandardApi.server.properties
  * @author mchyzer
  *
  */
@@ -38,7 +38,7 @@ public class StandardApiServerConfig extends AsasConfigPropertiesCascadeBase {
    */
   @Override
   protected String getHierarchyConfigKey() {
-    return "standardApiServer.config.hierarchy";
+    return "authzStandardApiServer.config.hierarchy";
   }
 
   /**
@@ -46,7 +46,7 @@ public class StandardApiServerConfig extends AsasConfigPropertiesCascadeBase {
    */
   @Override
   protected String getMainConfigClasspath() {
-    return "standardApi.server.properties";
+    return "authzStandardApi.server.properties";
   }
   
   /**
@@ -54,7 +54,7 @@ public class StandardApiServerConfig extends AsasConfigPropertiesCascadeBase {
    */
   @Override
   protected String getMainExampleConfigClasspath() {
-    return "standardApi.server.base.properties";
+    return "authzStandardApi.server.base.properties";
   }
 
   /**
@@ -62,7 +62,7 @@ public class StandardApiServerConfig extends AsasConfigPropertiesCascadeBase {
    */
   @Override
   protected String getSecondsToCheckConfigKey() {
-    return "standardApiServer.config.secondsBetweenUpdateChecks";
+    return "authzStandardApiServer.config.secondsBetweenUpdateChecks";
   }
 
   

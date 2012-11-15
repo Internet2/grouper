@@ -8,27 +8,48 @@ import java.util.List;
 
 import edu.internet2.middleware.authzStandardApiServer.contentType.AsasRestContentType;
 import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUtils;
+import edu.internet2.middleware.authzStandardApiServerExt.com.thoughtworks.xstream.annotations.XStreamImplicit;
 
 
 /**
- * Multiple groups
+ * Multiple groupList
  * @author mchyzer
  *
  */
-public class AsasGroups {
+public class AsasGroupSearch {
+
+  /** paging information for response, if null there is no paging */
+  private AsasPaging paging;
+  
+  /**
+   * if null there is no paging
+   * @return the paging
+   */
+  public AsasPaging getPaging() {
+    return this.paging;
+  }
+  
+  /**
+   * if null there is no paging
+   * @param paging1 the paging to set
+   */
+  public void setPaging(AsasPaging paging1) {
+    this.paging = paging1;
+  }
+
 
   /**
    * 
    * @param args
    */
   public static void main(String[] args) {
-    AsasGroups asasGroups = new AsasGroups();
+    AsasGroupSearch asasGroups = new AsasGroupSearch();
     List<AsasGroup> asasGroupList = new ArrayList<AsasGroup>();
     AsasGroup asasGroup = new AsasGroup();
     asasGroup.setId("id");
     asasGroup.setName("name");
     asasGroupList.add(asasGroup);
-    asasGroups.setAsasGroups(asasGroupList);
+    asasGroups.setGroupList(asasGroupList);
     
     String string = StandardApiServerUtils.indent(AsasRestContentType.json.writeString(asasGroups), true);
     
@@ -41,24 +62,25 @@ public class AsasGroups {
   }
   
   /**
-   * list of groups
+   * list of groupList
    */
-  private List<AsasGroup> asasGroups = null;
+  @XStreamImplicit
+  private List<AsasGroup> groupList = null;
 
   
   /**
-   * @return the asasGroups
+   * @return the groupList
    */
-  public List<AsasGroup> getAsasGroups() {
-    return asasGroups;
+  public List<AsasGroup> getGroupList() {
+    return this.groupList;
   }
 
   
   /**
-   * @param asasGroups the asasGroups to set
+   * @param groupList the groupList to set
    */
-  public void setAsasGroups(List<AsasGroup> asasGroups) {
-    this.asasGroups = asasGroups;
+  public void setGroupList(List<AsasGroup> groups1) {
+    this.groupList = groups1;
   }
   
   
