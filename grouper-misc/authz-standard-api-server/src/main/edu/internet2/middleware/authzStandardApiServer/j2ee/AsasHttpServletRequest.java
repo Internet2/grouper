@@ -10,7 +10,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
@@ -24,6 +23,14 @@ import edu.internet2.middleware.authzStandardApiServerExt.org.apache.commons.col
  * wrap request so that no nulls are given to axis (since it handles badly)
  */
 public class AsasHttpServletRequest extends HttpServletRequestWrapper {
+  
+  /**
+   * retrieve from threadlocal
+   * @return the request
+   */
+  public static AsasHttpServletRequest retrieve() {
+    return (AsasHttpServletRequest)AsasFilterJ2ee.retrieveHttpServletRequest();
+  }
   
   /**
    * method for this request
@@ -76,6 +83,20 @@ public class AsasHttpServletRequest extends HttpServletRequestWrapper {
   @Override
   public String getParameter(String name) {
     return this.getParameterMap().get(name);
+  }
+
+  /**
+   * @see javax.servlet.ServletRequestWrapper#getParameter(java.lang.String)
+   */
+  public Boolean getParameterBoolean(String name) {
+    return StandardApiServerUtils.booleanObjectValue(this.getParameterMap().get(name));
+  }
+
+  /**
+   * @see javax.servlet.ServletRequestWrapper#getParameter(java.lang.String)
+   */
+  public Long getParameterLong(String name) {
+    return StandardApiServerUtils.longObjectValue(this.getParameterMap().get(name), true);
   }
 
   /** param map which doesnt return null */

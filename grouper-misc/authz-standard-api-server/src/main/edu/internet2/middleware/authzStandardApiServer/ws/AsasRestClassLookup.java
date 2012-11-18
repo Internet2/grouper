@@ -27,7 +27,7 @@ import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasDefaultReso
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasDefaultVersionResource;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasFolder;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasGroup;
-import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasGroupSearch;
+import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasGroupSearchContainer;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasMeta;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasPaging;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasResponseMeta;
@@ -51,7 +51,7 @@ public class AsasRestClassLookup {
     addAliasClass(AsasDefaultVersionResource.class);
     addAliasClass(AsasFolder.class);
     addAliasClass(AsasGroup.class);
-    addAliasClass(AsasGroupSearch.class);
+    addAliasClass(AsasGroupSearchContainer.class);
     addAliasClass(AsasMeta.class);
     addAliasClass(AsasResponseMeta.class);
     addAliasClass(AsasResultProblem.class);

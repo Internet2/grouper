@@ -1,5 +1,6 @@
 package edu.internet2.middleware.authzStandardApiServer.corebeans;
 
+import edu.internet2.middleware.authzStandardApiServer.contentType.AsasRestContentType;
 import edu.internet2.middleware.authzStandardApiServer.j2ee.AsasRestServlet;
 import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUtils;
 import edu.internet2.middleware.authzStandardApiServer.version.AsasWsVersion;
@@ -100,10 +101,10 @@ public class AsasVersionResource {
    */
   public AsasVersionResource() {
     
-    this.groupsUri = StandardApiServerUtils.servletUrl() + "/" + AsasWsVersion.retrieveCurrentClientVersion() + "/groups." + AsasRestServlet.retrieveContentType();
-    this.foldersUri = StandardApiServerUtils.servletUrl() + "/" + AsasWsVersion.retrieveCurrentClientVersion() + "/folders." + AsasRestServlet.retrieveContentType();
-    this.entitiesUri = StandardApiServerUtils.servletUrl() + "/" + AsasWsVersion.retrieveCurrentClientVersion() + "/entities." + AsasRestServlet.retrieveContentType();
-    this.permissionsUri = StandardApiServerUtils.servletUrl() + "/" + AsasWsVersion.retrieveCurrentClientVersion() + "/permissions." + AsasRestServlet.retrieveContentType();
+    this.groupsUri = StandardApiServerUtils.servletUrl() + "/" + AsasWsVersion.retrieveCurrentClientVersion() + "/groups." + AsasRestContentType.retrieveContentType();
+    this.foldersUri = StandardApiServerUtils.servletUrl() + "/" + AsasWsVersion.retrieveCurrentClientVersion() + "/folders." + AsasRestContentType.retrieveContentType();
+    this.entitiesUri = StandardApiServerUtils.servletUrl() + "/" + AsasWsVersion.retrieveCurrentClientVersion() + "/entities." + AsasRestContentType.retrieveContentType();
+    this.permissionsUri = StandardApiServerUtils.servletUrl() + "/" + AsasWsVersion.retrieveCurrentClientVersion() + "/permissions." + AsasRestContentType.retrieveContentType();
     
   }
   

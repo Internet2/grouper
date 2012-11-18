@@ -1,12 +1,10 @@
 package edu.internet2.middleware.authzStandardApiServer.util;
 
-import java.util.Calendar;
 import java.util.Date;
-
-import edu.internet2.middleware.authzStandardApiServer.contentType.AsasRestContentType;
 
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
+import edu.internet2.middleware.authzStandardApiServer.contentType.AsasRestContentType;
 
 /**
  * 
@@ -20,7 +18,7 @@ public class StandardApiServerUtilsTest extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new StandardApiServerUtilsTest("testFullUrlToServletUrl"));
+    TestRunner.run(new StandardApiServerUtilsTest("testConvertPathToUseSeparatorAndUnescape"));
   }
   
   /**
@@ -36,6 +34,30 @@ public class StandardApiServerUtilsTest extends TestCase {
    */
   public StandardApiServerUtilsTest(String name) {
     super(name);
+  }
+  
+  /**
+   * 
+   */
+  public void testConvertPathToUseSeparatorAndEscape() {
+    assertEquals("a_b_c", StandardApiServerUtils.convertPathToUseSeparatorAndEscape("a:b:c", ":", "_"));
+    
+    assertEquals("a%5f_b_c", StandardApiServerUtils.convertPathToUseSeparatorAndEscape("a_:b:c", ":", "_"));
+    
+    assertEquals("a%5f_b%255f_c", StandardApiServerUtils.convertPathToUseSeparatorAndEscape("a_:b%5f:c", ":", "_"));
+    
+  }
+  
+  /**
+   * 
+   */
+  public void testConvertPathToUseSeparatorAndUnescape() {
+    assertEquals("a:b:c", StandardApiServerUtils.convertPathToUseSeparatorAndUnescape("a_b_c", "_", ":"));
+    
+    assertEquals("a_:b:c", StandardApiServerUtils.convertPathToUseSeparatorAndUnescape("a%5f_b_c", "_", ":"));
+    
+    assertEquals("a_:b%5f:c", StandardApiServerUtils.convertPathToUseSeparatorAndUnescape("a%5f_b%255f_c", "_", ":"));
+    
   }
   
   public void testFullUrlToServletUrl() {

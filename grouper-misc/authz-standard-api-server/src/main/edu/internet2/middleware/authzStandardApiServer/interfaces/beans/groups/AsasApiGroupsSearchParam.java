@@ -2,33 +2,35 @@ package edu.internet2.middleware.authzStandardApiServer.interfaces.beans.groups;
 
 
 /**
- * request for search
+ * request for group search.
+ * take into account the paging/sorting if specified in the query params
+ * 
  * @author mchyzer
  *
  */
 public class AsasApiGroupsSearchParam {
 
   /**
-   * paging object for which objects to request
+   * queryParams object for which objects to request
    */
-  private AsasApiPaging paging;
+  private AsasApiQueryParams queryParams;
 
   
   /**
-   * paging object for which objects to request
-   * @return the paging
+   * queryParams object for which objects to request
+   * @return the queryParams
    */
-  public AsasApiPaging getPaging() {
-    return this.paging;
+  public AsasApiQueryParams getQueryParams() {
+    return this.queryParams;
   }
 
   
   /**
-   * paging object for which objects to request
-   * @param paging1 the paging to set
+   * queryParams object for which objects to request
+   * @param queryParams1 the queryParams to set
    */
-  public void setPaging(AsasApiPaging paging1) {
-    this.paging = paging1;
+  public void setQueryParams(AsasApiQueryParams queryParams1) {
+    this.queryParams = queryParams1;
   }
   
 }

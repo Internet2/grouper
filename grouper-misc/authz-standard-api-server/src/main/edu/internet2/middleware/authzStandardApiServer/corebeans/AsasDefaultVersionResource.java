@@ -1,6 +1,6 @@
 package edu.internet2.middleware.authzStandardApiServer.corebeans;
 
-import edu.internet2.middleware.authzStandardApiServer.j2ee.AsasRestServlet;
+import edu.internet2.middleware.authzStandardApiServer.contentType.AsasRestContentType;
 import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerConfig;
 import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUtils;
 
@@ -43,7 +43,7 @@ public class AsasDefaultVersionResource {
    */
   public AsasDefaultVersionResource() {
     
-    this.v1Uri = StandardApiServerUtils.servletUrl() + "/v1." + AsasRestServlet.retrieveContentType();
+    this.v1Uri = StandardApiServerUtils.servletUrl() + "/v1." + AsasRestContentType.retrieveContentType();
     this.serverType = StandardApiServerConfig.retrieveConfig().propertyValueStringRequired("authzStandardApiServer.serverType");
     
     if (StandardApiServerUtils.isBlank(this.serverType)) {

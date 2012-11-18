@@ -25,7 +25,6 @@ import edu.internet2.middleware.authzStandardApiServer.rest.AsasRestHttpMethod;
 import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerConfig;
 import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUtils;
 import edu.internet2.middleware.authzStandardApiServer.version.AsasWsVersion;
-import edu.internet2.middleware.authzStandardApiServerExt.org.apache.commons.httpclient.methods.GetMethod;
 import edu.internet2.middleware.authzStandardApiServerExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.authzStandardApiServerExt.org.apache.commons.logging.LogFactory;
 
@@ -53,25 +52,6 @@ public class AsasRestServlet extends HttpServlet {
     return AsasRestServlet.startupTime;
   }
 
-  /** content type thread local */
-  private static ThreadLocal<AsasRestContentType> contentTypeThreadLocal = new ThreadLocal<AsasRestContentType>();
-
-  /**
-   * 
-   * @param wsRestContentType
-   */
-  private static void assignContentType(AsasRestContentType wsRestContentType) {
-    contentTypeThreadLocal.set(wsRestContentType);
-  }
-  
-  /**
-   * 
-   * @return wsRestContentType
-   */
-  public static AsasRestContentType retrieveContentType() {
-    return contentTypeThreadLocal.get();
-  }
-  
   /**
    * @see javax.servlet.http.HttpServlet#service(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
    */
@@ -90,7 +70,7 @@ public class AsasRestServlet extends HttpServlet {
     
     //we need something here if errors, so default to xhtml
     AsasRestContentType wsRestContentType = AsasRestContentType.json;
-    assignContentType(wsRestContentType);
+    AsasRestContentType.assignContentType(wsRestContentType);
 
     boolean indent = false;
     
@@ -127,7 +107,7 @@ public class AsasRestServlet extends HttpServlet {
         wsRestContentType = AsasRestContentType.json;
         foundContentType = true;
       }
-      assignContentType(wsRestContentType);
+      AsasRestContentType.assignContentType(wsRestContentType);
 
       if (foundContentType && urlStringsLength > 0) {
         
@@ -291,7 +271,7 @@ public class AsasRestServlet extends HttpServlet {
 
       StandardApiServerUtils.closeQuietly(response.getWriter());
       AsasWsVersion.removeCurrentClientVersion();
-      contentTypeThreadLocal.remove();
+      AsasRestContentType.clearContentType();
 
     }
     

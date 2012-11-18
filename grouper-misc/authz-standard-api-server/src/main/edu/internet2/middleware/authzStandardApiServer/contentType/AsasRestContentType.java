@@ -177,27 +177,6 @@ public enum AsasRestContentType {
   private static final Log LOG = LogFactory.getLog(AsasRestContentType.class);
 
   /**
-   * friendly content type error
-   * @param contentTypeInRequest 
-   * @return the friendly content type error
-   */
-  private static String contentTypeError(String contentTypeInRequest) {
-    StringBuilder error = new StringBuilder(
-    "Cant find http request Content-type header from request, received: '");
-    error.append(StandardApiServerUtils.defaultIfEmpty(contentTypeInRequest, "[none]"));
-    error.append("', expecting one of: ");
-    
-    for (AsasRestContentType wsRestRequestContentType : 
-        AsasRestContentType.values()) {
-      String contentTypeString = StandardApiServerUtils.defaultIfEmpty(wsRestRequestContentType.contentType,
-          "[none] for http params");
-      error.append(wsRestRequestContentType.name()).append(": ")
-        .append(contentTypeString).append(", ");
-    }
-    return error.toString();
-  }
-  
-  /**
    * do a case-insensitive matching
    * 
    * @param string
@@ -209,5 +188,33 @@ public enum AsasRestContentType {
       boolean exceptionOnNotFound) throws AsasRestInvalidRequest {
     return StandardApiServerUtils.enumValueOfIgnoreCase(AsasRestContentType.class, string, exceptionOnNotFound);
   }
+
+  /** content type thread local */
+  private static ThreadLocal<AsasRestContentType> contentTypeThreadLocal = new ThreadLocal<AsasRestContentType>();
+
+  /**
+   * 
+   * @param wsRestContentType
+   */
+  public static void assignContentType(AsasRestContentType wsRestContentType) {
+    contentTypeThreadLocal.set(wsRestContentType);
+  }
+  
+  /**
+   * 
+   * @param wsRestContentType
+   */
+  public static void clearContentType() {
+    contentTypeThreadLocal.remove();
+  }
+  
+  /**
+   * 
+   * @return wsRestContentType
+   */
+  public static AsasRestContentType retrieveContentType() {
+    return contentTypeThreadLocal.get();
+  }
+  
 
 }

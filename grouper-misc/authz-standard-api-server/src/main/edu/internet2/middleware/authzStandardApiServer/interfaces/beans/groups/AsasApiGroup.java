@@ -3,7 +3,15 @@
  */
 package edu.internet2.middleware.authzStandardApiServer.interfaces.beans.groups;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import edu.internet2.middleware.authzStandardApiServer.contentType.AsasRestContentType;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasGroup;
+import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerConfig;
+import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUtils;
+import edu.internet2.middleware.authzStandardApiServer.version.AsasWsVersion;
 
 
 /**
@@ -12,7 +20,48 @@ import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasGroup;
  *
  */
 public class AsasApiGroup {
-  
+
+  /**
+   * path separator is a character that separates folders
+   */
+  private String pathSeparator;
+    
+  /**
+   * path separator is a character that separates folders
+   * @return the pathSeparator
+   */
+  public String getPathSeparator() {
+    return pathSeparator;
+  }
+
+  /**
+   * path separator is a character that separates folders
+   * @param pathSeparator the pathSeparator to set
+   */
+  public void setPathSeparator(String pathSeparator) {
+    this.pathSeparator = pathSeparator;
+  }
+
+  /**
+   * convert the api beans to the transport beans
+   * @param asasApiGroups
+   * @return the api bean
+   */
+  public static List<AsasGroup> convertToList(Collection<AsasApiGroup> asasApiGroups) {
+    
+    if (asasApiGroups == null) {
+      return null;
+    }
+    List<AsasGroup> asasGroups = new ArrayList<AsasGroup>();
+    
+    for (AsasApiGroup asasApiGroup : asasApiGroups) {
+      AsasGroup asasGroup = convertTo(asasApiGroup);
+      asasGroups.add(asasGroup);
+    }
+    
+    return asasGroups;
+  }
+
   /**
    * convert the api beans to the transport beans
    * @param asasApiGroups
@@ -28,6 +77,19 @@ public class AsasApiGroup {
     asasGroup.setId(asasApiGroup.getId());
     asasGroup.setName(asasApiGroup.getName());
     asasGroup.setStatus(asasApiGroup.getStatus());
+    
+    String groupUriBase = StandardApiServerUtils.servletUrl() + "/" 
+        + AsasWsVersion.retrieveCurrentClientVersion().name() + "/groups/name" 
+        + StandardApiServerUtils.escapeUrlEncode(":")
+        + StandardApiServerUtils.escapeUrlEncode(asasApiGroup.getName());
+    
+    String groupUriSuffix = "." + AsasRestContentType.retrieveContentType().name() + "?pathSeparator=" 
+        + StandardApiServerUtils.escapeUrlEncode(StandardApiServerConfig.retrieveConfig().configItemPathSeparatorChar());
+    
+    asasGroup.setUri(groupUriBase + groupUriSuffix);
+
+    //asasGroup.setAdminsUri(groupUriBase + "/");
+
     return asasGroup;
   }
 

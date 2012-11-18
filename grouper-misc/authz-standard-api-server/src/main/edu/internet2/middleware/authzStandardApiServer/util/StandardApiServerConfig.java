@@ -18,6 +18,15 @@ public class StandardApiServerConfig extends AsasConfigPropertiesCascadeBase {
   }
   
   /**
+   * path separator char
+   * @return path separator
+   */
+  public String configItemPathSeparatorChar() {
+    return StandardApiServerConfig.retrieveConfig().propertyValueStringRequired(
+        "authzStandardApiServer.pathSeparatorChar");
+  }
+  
+  /**
    * retrieve a config from the config file or from cache
    * @return the config object
    */

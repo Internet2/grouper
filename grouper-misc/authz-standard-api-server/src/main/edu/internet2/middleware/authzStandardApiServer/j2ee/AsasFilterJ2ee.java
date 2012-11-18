@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import edu.internet2.middleware.authzStandardApiServer.interfaces.entity.AsasApiEntityLookup;
 import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUtils;
 import edu.internet2.middleware.authzStandardApiServerExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.authzStandardApiServerExt.org.apache.commons.logging.LogFactory;
@@ -39,6 +40,7 @@ public class AsasFilterJ2ee implements Filter {
     Long requestStartMillis = threadLocalRequestStartMillis.get();
     return StandardApiServerUtils.longValue(requestStartMillis, 0);
   }
+
   /**
    * retrieve the user principal (who is authenticated) from the (threadlocal)
    * request object

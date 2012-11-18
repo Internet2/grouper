@@ -1,5 +1,6 @@
 package edu.internet2.middleware.authzStandardApiServer.corebeans;
 
+import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerConfig;
 import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUtils;
 
 /**
@@ -18,7 +19,35 @@ public class AsasServiceMeta {
     
     this.serviceRootUri = StandardApiServerUtils.servletUrl();
     
+    this.pathSeparator = StandardApiServerConfig.retrieveConfig().configItemPathSeparatorChar();
   }
+
+  
+  /**
+   * path separator char between folders
+   */
+  private String pathSeparator;
+  
+  
+  
+  
+  /**
+   * path separator char between folders
+   * @return the pathSeparator
+   */
+  public String getPathSeparator() {
+    return this.pathSeparator;
+  }
+
+  
+  /**
+   * path separator char between folders
+   * @param pathSeparator1 the pathSeparator to set
+   */
+  public void setPathSeparator(String pathSeparator1) {
+    this.pathSeparator = pathSeparator1;
+  }
+
 
   /**
    * version of the API, which is the main version (largest), and dot, and the

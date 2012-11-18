@@ -10,7 +10,26 @@ import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUti
  */
 public class AsasMeta {
   
+  /** with paging, retrieve records after this value */
+  private String offsetFieldValue;
+
+  /**
+   * with paging, retrieve records after this value
+   * @return the offsetFieldValue
+   */
+  public String getOffsetFieldValue() {
+    return this.offsetFieldValue;
+  }
   
+  /**
+   * with paging, retrieve records after this value
+   * @param offsetFieldValue1 the offsetFieldValue to set
+   */
+  public void setOffsetFieldValue(String offsetFieldValue1) {
+    this.offsetFieldValue = offsetFieldValue1;
+  }
+
+
   /**
    * 
    */
@@ -210,6 +229,21 @@ public class AsasMeta {
   /** name of the structure (struct) returned, the same as the xml outer element */
   private String structureName;
 
+  /** true or false sorting ascending or descending */
+  private Boolean ascending;
+
+  /** number of records that are being returned */
+  private Long limit;
+
+  /** record 0-indexed to start with... second page would be offset 100 */
+  private Long offset;
+
+  /** field name is dependent on the search, e.g. displayName */
+  private String sortField;
+
+  /** total number of records (not just the ones being returned, but overall) */
+  private Long totalCount;
+
   /**
    * name of the structure (struct) returned, the same as the xml outer element
    * @return the structure name
@@ -224,6 +258,95 @@ public class AsasMeta {
    */
   public void setStructureName(String structureName1) {
     this.structureName = structureName1;
+  }
+
+
+  /**
+   * true or false sorting ascending or descending
+   * @return the ascending
+   */
+  public Boolean getAscending() {
+    return this.ascending;
+  }
+
+
+  /**
+   * number of records that are being returned
+   * @return the limit
+   */
+  public Long getLimit() {
+    return this.limit;
+  }
+
+
+  /**
+   * record 0-indexed to start with... second page would be offset 100
+   * @return the offset
+   */
+  public Long getOffset() {
+    return this.offset;
+  }
+
+
+  /**
+   * field name is dependent on the search, e.g. displayName
+   * @return the sortField
+   */
+  public String getSortField() {
+    return this.sortField;
+  }
+
+
+  /**
+   * total number of records (not just the ones being returned, but overall)
+   * @return the totalCount
+   */
+  public Long getTotalCount() {
+    return this.totalCount;
+  }
+
+
+  /**
+   * true or false sorting ascending or descending
+   * @param ascending1 the ascending to set
+   */
+  public void setAscending(Boolean ascending1) {
+    this.ascending = ascending1;
+  }
+
+
+  /**
+   * number of records that are being returned
+   * @param count1 the limit to set
+   */
+  public void setLimit(Long count1) {
+    this.limit = count1;
+  }
+
+
+  /**
+   * record 0-indexed to start with... second page would be offset 100
+   * @param offset1 the offset to set
+   */
+  public void setOffset(Long offset1) {
+    this.offset = offset1;
+  }
+
+
+  /**
+   * field name is dependent on the search, e.g. displayName
+   * @param sortField1 the sortField to set
+   */
+  public void setSortField(String sortField1) {
+    this.sortField = sortField1;
+  }
+
+
+  /**
+   * @param totalCount1 the totalCount to set
+   */
+  public void setTotalCount(Long totalCount1) {
+    this.totalCount = totalCount1;
   }
   
 }

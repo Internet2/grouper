@@ -1,5 +1,11 @@
 package edu.internet2.middleware.authzStandardApiServer.interfaces.beans.groups;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasGroup;
+import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasGroupSearchContainer;
+
 
 /**
  * search result bean
@@ -9,46 +15,68 @@ package edu.internet2.middleware.authzStandardApiServer.interfaces.beans.groups;
 public class AsasApiGroupsSearchResult {
 
   /**
-   * paging
+   * queryParams
    */
-  private AsasApiPaging paging;
+  private AsasApiQueryParams queryParams;
   
   /**
-   * paging
-   * @return the paging
+   * queryParams
+   * @return the queryParams
    */
-  public AsasApiPaging getPaging() {
-    return this.paging;
+  public AsasApiQueryParams getQueryParams() {
+    return this.queryParams;
   }
   
   /**
-   * paging
-   * @param asasApiPaging1 the paging to set
+   * queryParams
+   * @param asasApiPaging1 the qsetQueryParamss to set
    */
-  public void setPaging(AsasApiPaging asasApiPaging1) {
-    this.paging = asasApiPaging1;
+  public void setQueryParams(AsasApiQueryParams asasApiPaging1) {
+    this.queryParams = asasApiPaging1;
   }
 
 
   /**
-   * groups result
+   * list of groups
    */
-  private AsasApiGroupSearch groupSearch;
+  private List<AsasApiGroup> groups = null;
   
   /**
-   * groups result
-   * @return the groupSearch
+   * @return the groups
    */
-  public AsasApiGroupSearch getGroupSearch() {
-    return this.groupSearch;
+  public List<AsasApiGroup> getGroups() {
+    return this.groups;
   }
 
   /**
-   * groups result
-   * @param asasApiGroups1 the groupSearch to set
+   * @param groups1 the groups to set
    */
-  public void setGroupSearch(AsasApiGroupSearch asasApiGroups1) {
-    this.groupSearch = asasApiGroups1;
+  public void setGroups(List<AsasApiGroup> groups1) {
+    this.groups = groups1;
   }
+
+  /**
+   * convert the api beans to the transport beans
+   * @param asasApiGroupSearch
+   * @return the api bean
+   */
+  public static AsasGroupSearchContainer convertTo(AsasApiGroupsSearchResult asasApiGroupSearch) {
+    if (asasApiGroupSearch == null) {
+      return null;
+    }
+    AsasGroupSearchContainer asasGroupSearchContainer = new AsasGroupSearchContainer();
+    if (asasApiGroupSearch.groups != null) {
+      List<AsasGroup> asasGroupList = new ArrayList<AsasGroup>();
+      asasGroupSearchContainer.setGroups(asasGroupList);
+
+      for (AsasApiGroup asasApiGroup : asasApiGroupSearch.groups) {
+        asasGroupList.add(AsasApiGroup.convertTo(asasApiGroup));
+      }
+    }
+    AsasApiQueryParams.convertTo(asasApiGroupSearch.queryParams, asasGroupSearchContainer.getMeta());
+    return asasGroupSearchContainer;
+  }
+
+
 
 }

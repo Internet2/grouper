@@ -24,8 +24,9 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import edu.internet2.middleware.authzStandardApiServer.contentType.AsasRestContentType;
+import edu.internet2.middleware.authzStandardApiServer.exceptions.AsasRestInvalidRequest;
+import edu.internet2.middleware.authzStandardApiServer.interfaces.AsasApiGroupInterface;
 import edu.internet2.middleware.authzStandardApiServer.j2ee.AsasFilterJ2ee;
-import edu.internet2.middleware.authzStandardApiServer.j2ee.AsasRestServlet;
 import edu.internet2.middleware.authzStandardApiServerExt.com.thoughtworks.xstream.XStream;
 import edu.internet2.middleware.authzStandardApiServerExt.com.thoughtworks.xstream.io.xml.CompactWriter;
 import edu.internet2.middleware.authzStandardApiServerExt.net.sf.json.JSONObject;
@@ -41,6 +42,136 @@ import edu.internet2.middleware.authzStandardApiServerExt.org.apache.commons.log
 import edu.internet2.middleware.authzStandardApiServerExt.org.apache.commons.logging.impl.Jdk14Logger;
 
 public class StandardApiServerUtils extends StandardApiServerCommonUtils {
+
+  /**
+   * convert the authz system path to use the standard api server path char
+   * @param path a path that needs to be converted
+   * @param currentSeparatorChar the separator of the current path
+   * @param newSeparatorChar the separator of the new path, typically this would be:
+   * String configuredSeparatorChar = StandardApiServerConfig.retrieveConfig().configItemPathSeparatorChar();
+   * @return the new path with the configured separator
+   */
+  public static String convertPathToUseSeparatorAndEscape(String path, String currentSeparatorChar, String newSeparatorChar) {
+    
+    if (StandardApiServerUtils.isBlank(newSeparatorChar) || newSeparatorChar.length() > 1) {
+      throw new RuntimeException("pathSeparatorChar must be one char: '" + newSeparatorChar + "'");
+    }
+
+    if (StandardApiServerUtils.isBlank(currentSeparatorChar) || currentSeparatorChar.length() > 1) {
+      throw new RuntimeException("separatorChar must be one char: '" + currentSeparatorChar + "'");
+    }
+
+    //split the path
+    String[] extensions = StandardApiServerUtils.split(path, currentSeparatorChar.charAt(0));
+
+    //loop through
+    StringBuilder result = new StringBuilder();
+
+    String hexString = "%" + Integer.toHexString(currentSeparatorChar.charAt(0)).toLowerCase();
+
+    for (String extension : extensions) {
+      if (result.length() > 0) {
+        result.append(newSeparatorChar);
+      }
+
+      //escape percents
+      extension = StandardApiServerUtils.replace(extension, "%", "%25");
+
+      //escape the separator
+      extension = StandardApiServerUtils.replace(extension, newSeparatorChar, hexString);
+      
+      result.append(extension);
+    }
+    
+    return result.toString();
+    
+  }
+
+  /**
+   * convert a path passed in from client to use the separator that the authz server understands
+   * note: the path cannot contain any of the new separator chars...
+   * @param path a path that needs to be converted
+   * @param newSeparatorChar the separator of the current path
+   * @return the new path with the configured separator
+   */
+  public static String convertPathToUseSeparatorAndUnescape(String path, String currentSeparatorChar, String newSeparatorChar) {
+    
+    if (StandardApiServerUtils.isBlank(currentSeparatorChar) || currentSeparatorChar.length() > 1) {
+      throw new RuntimeException("separatorChar must be one char: '" + currentSeparatorChar + "'");
+    }
+
+    if (StandardApiServerUtils.isBlank(newSeparatorChar) || newSeparatorChar.length() > 1) {
+      throw new RuntimeException("separatorChar must be one char: '" + newSeparatorChar + "'");
+    }
+
+    //split the path
+    String[] extensions = StandardApiServerUtils.split(path, currentSeparatorChar.charAt(0));
+
+    //loop through
+    StringBuilder result = new StringBuilder();
+
+    String hexString = "%" + Integer.toHexString(currentSeparatorChar.charAt(0)).toLowerCase();
+
+    for (String extension : extensions) {
+      if (result.length() > 0) {
+        result.append(newSeparatorChar);
+      }
+
+      //unescape the separator
+      extension = StandardApiServerUtils.replace(extension, hexString, currentSeparatorChar);
+
+      //escape percents
+      extension = StandardApiServerUtils.replace(extension, "%25", "%");
+      
+      if (extension.contains(newSeparatorChar)) {
+        throw new RuntimeException("extensions cannot contain the server separator char: extension: '" 
+            + extension + "', separator: '" + newSeparatorChar + "'");
+      }
+      
+      result.append(extension);
+
+    }
+    
+    return result.toString();
+    
+  }
+
+  /**
+   * see which group interface is configured and make an instance of it
+   * @return an instance of the group interface
+   */
+  public static AsasApiGroupInterface interfaceGroupInstance() {
+    
+    String className = StandardApiServerConfig.retrieveConfig().propertyValueStringRequired("authzStandardApiServer.interface.group");
+    
+    @SuppressWarnings("unchecked")
+    Class<AsasApiGroupInterface> theClass = (Class<AsasApiGroupInterface>)forName(className);
+    
+    return newInstance(theClass);
+  }
+  
+  /**
+   * do a case-insensitive matching
+   * @param theEnumClass class of the enum
+   * @param <E> generic type
+   * 
+   * @param string
+   * @param exceptionOnNotFound true if exception should be thrown on not found
+   * @return the enum or null or exception if not found
+   * @throws RuntimeException if there is a problem
+   */
+  public static <E extends Enum<?>> E enumValueOfIgnoreCase(Class<E> theEnumClass, String string, 
+      boolean exceptionOnNotFound) throws AsasRestInvalidRequest {
+
+    try {
+      return StandardApiServerCommonUtils.enumValueOfIgnoreCase(theEnumClass, string, exceptionOnNotFound);
+    } catch (RuntimeException re) {
+      if (!(re instanceof AsasRestInvalidRequest)) {
+        throw new AsasRestInvalidRequest(re.getMessage(), re);
+      }
+      throw re;
+    }
+  }
 
   /**
    * structure name of class
@@ -69,11 +200,19 @@ public class StandardApiServerUtils extends StandardApiServerCommonUtils {
     
     HttpServletRequest httpServletRequest = AsasFilterJ2ee.retrieveHttpServletRequest();
     
+    if (httpServletRequest == null) {
+      String servletUrl = StandardApiServerConfig.retrieveConfig().propertyValueStringRequired("authzStandardApiServer.servletUrl");
+      if (StandardApiServerUtils.isBlank(servletUrl)) {
+        throw new RuntimeException("Cant find servlet URL!  you can set it in authzStandardapi.server.properties as authzStandardApiServer.servletUrl");
+      }
+      return servletUrl;
+    }
+    
     String fullUrl = httpServletRequest.getRequestURL().toString();
     
     String servletPath = httpServletRequest.getServletPath();
     
-    return fullUrlToServletUrl(fullUrl, servletPath, AsasRestServlet.retrieveContentType());
+    return fullUrlToServletUrl(fullUrl, servletPath, AsasRestContentType.retrieveContentType());
   }
   
   /**

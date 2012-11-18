@@ -32,32 +32,15 @@ public enum AsasRestHttpMethod {
         
       }
       
-      throw new AsasRestInvalidRequest("No expecting this request");
+      String firstResource = StandardApiServerUtils.popUrlString(urlStrings);
+  
+      //validate and get the first resource
+      AsasRestGet asasRestGet = AsasRestGet.valueOfIgnoreCase(
+          firstResource, true);
+  
+      return asasRestGet.service(urlStrings, params, body);
 
     }
-
-//    /**
-//     * handle the incoming request based on HTTP method
-//     * @param clientVersion version of client, e.g. v1
-//     * @param urlStrings not including the app name or servlet.  
-//     * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/groups/a:b
-//     * the urlStrings would be size two: {"group", "a:b"}
-//     * @param requestObject is the request body converted to object
-//     * @return the resultObject
-//     */
-//    @Override
-//    public WsResponseBean service(
-//        GrouperVersion clientVersion, List<String> urlStrings,
-//        WsRequestBean requestObject) {
-//
-//      String firstResource = GrouperServiceUtils.popUrlString(urlStrings);
-//
-//      //validate and get the first resource
-//      GrouperWsRestGet grouperWsRestGet = GrouperWsRestGet.valueOfIgnoreCase(
-//          firstResource, true);
-//
-//      return grouperWsRestGet.service(clientVersion, urlStrings, requestObject);
-//    }
 
   },
 
@@ -73,21 +56,6 @@ public enum AsasRestHttpMethod {
       throw new AsasRestInvalidRequest("No expecting this request");
     }
 
-//    /**
-//     * handle the incoming request based on HTTP method
-//     * @param clientVersion version of client, e.g. v1_3_000
-//     * @param urlStrings not including the app name or servlet.  for http://localhost/grouper-ws/servicesRest/groups/a:b
-//     * the urlStrings would be size two: {"group", "a:b"}
-//     * @param requestObject is the request body converted to object
-//     * @return the resultObject
-//     */
-//    @Override
-//    public WsResponseBean service(
-//        GrouperVersion clientVersion, List<String> urlStrings,
-//        WsRequestBean requestObject) {
-//      throw new RuntimeException("Invalid POST request");
-//    }
-
   },
 
   /** PUT */
@@ -102,29 +70,6 @@ public enum AsasRestHttpMethod {
       throw new AsasRestInvalidRequest("No expecting this request");
     }
 
-//    /**
-//     * handle the incoming request based on HTTP method
-//     * @param clientVersion version of client, e.g. v1_3_000
-//     * @param urlStrings not including the app name or servlet.  for http://localhost/grouper-ws/servicesRest/groups/a:b
-//     * the urlStrings would be size two: {"group", "a:b"}
-//     * @param requestObject is the request body converted to object
-//     * @return the resultObject
-//     */
-//    @Override
-//    public WsResponseBean service(
-//        GrouperVersion clientVersion, List<String> urlStrings,
-//        WsRequestBean requestObject) {
-//      
-//      String firstResource = GrouperServiceUtils.popUrlString(urlStrings);
-//      
-//      //validate and get the first resource
-//      GrouperWsRestPut grouperWsRestPut = GrouperWsRestPut.valueOfIgnoreCase(
-//          firstResource, true);
-//
-//      return grouperWsRestPut.service(
-//          clientVersion, urlStrings, requestObject);
-//    }
-
   },
 
   /** DELETE */
@@ -138,29 +83,6 @@ public enum AsasRestHttpMethod {
         Map<String, String> params, String body) {
       throw new AsasRestInvalidRequest("No expecting this request");
     }
-
-//    /**
-//     * handle the incoming request based on HTTP method
-//     * @param clientVersion version of client, e.g. v1_3_000
-//     * @param urlStrings not including the app name or servlet.  for http://localhost/grouper-ws/servicesRest/groups/a:b
-//     * the urlStrings would be size two: {"group", "a:b"}
-//     * @param requestObject is the request body converted to object
-//     * @return the resultObject
-//     */
-//    @Override
-//    public WsResponseBean service(
-//        GrouperVersion clientVersion, List<String> urlStrings,
-//        WsRequestBean requestObject) {
-//
-//      String firstResource = GrouperServiceUtils.popUrlString(urlStrings);
-//
-//      //validate and get the first resource
-//      GrouperWsRestDelete grouperWsRestDelete = GrouperWsRestDelete.valueOfIgnoreCase(
-//          firstResource, true);
-//
-//      return grouperWsRestDelete.service(
-//          clientVersion, urlStrings, requestObject);
-//    }
 
   };
 
