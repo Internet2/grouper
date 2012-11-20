@@ -82,7 +82,6 @@ public class GrouperUtilTest extends GrouperTest {
     externalSubject.setIdentifier("me@inst.edu");
 
     Map<String, Object> substitutionMap = new HashMap<String, Object>();
-    substitutionMap.put("grouperUtil", new GrouperUtil());
     substitutionMap.put("externalSubject", externalSubject);
     
     //do silent since there are warnings on null...
@@ -97,7 +96,6 @@ public class GrouperUtilTest extends GrouperTest {
     externalSubject.setIdentifier("me@inst.edu");
 
     substitutionMap = new HashMap<String, Object>();
-    substitutionMap.put("grouperUtil", new GrouperUtil());
     substitutionMap.put("externalSubject", externalSubject);
     
     //do silent since there are warnings on null...
@@ -112,7 +110,6 @@ public class GrouperUtilTest extends GrouperTest {
     externalSubject.setIdentifier("me@inst.edu");
 
     substitutionMap = new HashMap<String, Object>();
-    substitutionMap.put("grouperUtil", new GrouperUtil());
     substitutionMap.put("externalSubject", externalSubject);
     
     //do silent since there are warnings on null...
@@ -127,7 +124,6 @@ public class GrouperUtilTest extends GrouperTest {
     externalSubject.setIdentifier("me@inst.edu");
 
     substitutionMap = new HashMap<String, Object>();
-    substitutionMap.put("grouperUtil", new GrouperUtil());
     substitutionMap.put("externalSubject", externalSubject);
     
     //do silent since there are warnings on null...

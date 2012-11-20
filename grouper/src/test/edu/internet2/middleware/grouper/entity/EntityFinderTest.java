@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Set;
 
 import junit.textui.TestRunner;
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -318,7 +317,16 @@ public class EntityFinderTest extends GrouperTest {
       .assignName("test:tesvA:testEntity3").save();
     Entity testEntity4 = new EntitySave(grouperSession).assignCreateParentStemsIfNotExist(true)
       .assignName("test:tesvA:testEntity4").save();
-    
+
+    testEntity.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    testEntity3.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    testEntity2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    testEntity4.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    testEntity.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    testEntity3.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    testEntity2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    testEntity4.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+
     testEntity.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW, false);
     testEntity3.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW, false);
     testEntity2.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN, false);
@@ -396,12 +404,106 @@ public class EntityFinderTest extends GrouperTest {
     
     GrouperSession.stopQuietly(grouperSession);
     
+    //##########################################  SUBJECT 0
     grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    subject = SubjectFinder.findByIdAndSource(testEntity.getId(), "g:gsa",  false);
+    
+    assertNull(subject);
+    
+    subject = SubjectFinder.findByIdAndSource(testEntity.getId(), "grouperEntities",  false);
+    
+    assertNotNull(subject);
+    
+    subject = SubjectFinder.findByIdentifierAndSource(testEntity.getName(), "g:gsa",  false);
+    
+    assertNull(subject); 
+    
+    subject = SubjectFinder.findByIdentifierAndSource(testEntity.getName(), "grouperEntities",  false);
+    
+    assertNotNull(subject);
+    
+    subjects = SubjectFinder.findAll("st:testE", "g:gsa");
+    
+    assertEquals(0, GrouperUtil.length(subjects)); 
+    
+    subjects = SubjectFinder.findAll("st:testE", "grouperEntities");
+    
+    assertEquals(1, GrouperUtil.length(subjects)); 
+    
+    subjects = SubjectFinder.findAll("some/weird", "g:gsa");
+    
+    assertEquals(0, GrouperUtil.length(subjects)); 
+    
+    subjects = SubjectFinder.findAll("some/weird", "grouperEntities");
+    
+    assertEquals(0, GrouperUtil.length(subjects)); 
+    
+    subject = SubjectFinder.findByIdentifierAndSource("test:some/weird:id2", "g:gsa", false);
+    
+    assertNull(subject); 
+    
+    subject = SubjectFinder.findByIdentifierAndSource("test:some/weird:id2", "grouperEntities", false);
+    
+    assertNull(subject); 
+    
+//    subjects = SubjectFinder.findAll("st:testE", "grouperEntities");
+//    subject = subjects.iterator().next();
+//    
+//    assertEquals("test:some/weird:id2", subject.getAttributeValue("entityIdAttribute"));
+//    assertEquals("test:some/weird:id2", subject.getAttributeValue("entityId"));
+//    assertEquals("some/weird:id2", subject.getAttributeValue("entityExtension"));
+
+    
     
     GrouperSession.stopQuietly(grouperSession);
     
-    //admins can assign the attribute
+    //##########################################  SUBJECT 1
     grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+
+    subject = SubjectFinder.findByIdAndSource(testEntity.getId(), "g:gsa",  false);
+    
+    assertNull(subject);
+    
+    subject = SubjectFinder.findByIdAndSource(testEntity.getId(), "grouperEntities",  false);
+    
+    assertNull(subject);
+    
+    subject = SubjectFinder.findByIdAndSource(testEntity2.getId(), "g:gsa",  false);
+    
+    assertNull(subject);
+    
+    subject = SubjectFinder.findByIdAndSource(testEntity2.getId(), "grouperEntities",  false);
+    
+    assertNotNull(subject);
+    
+    subjects = SubjectFinder.findAll("st:testE", "g:gsa");
+    
+    assertEquals(0, GrouperUtil.length(subjects)); 
+    
+    subjects = SubjectFinder.findAll("st:testE", "grouperEntities");
+    
+    assertEquals(1, GrouperUtil.length(subjects)); 
+    
+    subjects = SubjectFinder.findAll("some/weird", "g:gsa");
+    
+    assertEquals(0, GrouperUtil.length(subjects)); 
+    
+    subjects = SubjectFinder.findAll("some/weird", "grouperEntities");
+    
+    assertEquals(2, GrouperUtil.length(subjects)); 
+    
+    subject = SubjectFinder.findByIdentifierAndSource("test:some/weird:id2", "g:gsa", false);
+    
+    assertNull(subject); 
+    
+    subject = SubjectFinder.findByIdentifierAndSource("test:some/weird:id2", "grouperEntities", false);
+    
+    assertNotNull(subject); 
+    
+    assertEquals("test:some/weird:id2", subject.getAttributeValue("entityIdAttribute"));
+    assertEquals("test:some/weird:id2", subject.getAttributeValue("entityId"));
+    assertEquals("some/weird:id2", subject.getAttributeValue("entityExtension"));
 
 
     
