@@ -24,11 +24,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacDefaultResource;
+import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacDefaultResourceContainer;
 import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacDefaultVersionResource;
+import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacDefaultVersionResourceContainer;
+import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacFolder;
+import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacGroup;
+import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacGroupSearchContainer;
 import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacMeta;
 import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacResponseMeta;
 import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacResultProblem;
+import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacServiceMeta;
 import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacVersionResource;
+import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacVersionResourceContainer;
 import edu.internet2.middleware.authzStandardApiClient.util.StandardApiClientUtils;
 
 
@@ -43,12 +50,20 @@ public class AsacRestClassLookup {
 
   /** add a bunch of xstream aliases */
   static {
+    
     addAliasClass(AsacDefaultResource.class);
+    addAliasClass(AsacDefaultResourceContainer.class);
     addAliasClass(AsacDefaultVersionResource.class);
+    addAliasClass(AsacDefaultVersionResourceContainer.class);
+    addAliasClass(AsacFolder.class);
+    addAliasClass(AsacGroup.class);
+    addAliasClass(AsacGroupSearchContainer.class);
     addAliasClass(AsacMeta.class);
     addAliasClass(AsacResponseMeta.class);
     addAliasClass(AsacResultProblem.class);
+    addAliasClass(AsacServiceMeta.class);
     addAliasClass(AsacVersionResource.class);
+    addAliasClass(AsacVersionResourceContainer.class);
   }
   
   /**

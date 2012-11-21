@@ -24,15 +24,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasDefaultResource;
+import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasDefaultResourceContainer;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasDefaultVersionResource;
+import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasDefaultVersionResourceContainer;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasFolder;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasGroup;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasGroupSearchContainer;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasMeta;
-import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasPaging;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasResponseMeta;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasResultProblem;
+import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasServiceMeta;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasVersionResource;
+import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasVersionResourceContainer;
 import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUtils;
 
 
@@ -47,16 +50,21 @@ public class AsasRestClassLookup {
 
   /** add a bunch of xstream aliases */
   static {
+
     addAliasClass(AsasDefaultResource.class);
+    addAliasClass(AsasDefaultResourceContainer.class);
     addAliasClass(AsasDefaultVersionResource.class);
+    addAliasClass(AsasDefaultVersionResourceContainer.class);
     addAliasClass(AsasFolder.class);
     addAliasClass(AsasGroup.class);
     addAliasClass(AsasGroupSearchContainer.class);
     addAliasClass(AsasMeta.class);
     addAliasClass(AsasResponseMeta.class);
     addAliasClass(AsasResultProblem.class);
+    addAliasClass(AsasServiceMeta.class);
     addAliasClass(AsasVersionResource.class);
-    addAliasClass(AsasPaging.class);
+    addAliasClass(AsasVersionResourceContainer.class);
+
   }
 
   /**

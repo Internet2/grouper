@@ -67,7 +67,7 @@ public class AsasHttpServletRequest extends HttpServletRequestWrapper {
    * valid params that the API knows about
    */
   private static Set<String> validParamNames = StandardApiServerUtils.toSet(
-      "indent", "method");
+      "indent", "method", "limit", "offset", "offsetFieldValue", "sortField", "ascending", "extraFields");
 
   /**
    * construct with underlying request

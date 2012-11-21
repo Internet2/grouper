@@ -1,6 +1,5 @@
 package edu.internet2.middleware.authzStandardApiClient.corebeans;
 
-
 /**
  * version resource
  * from URL: BASE_URL/v1.json, e.g. url/authzStandardApi/v1.json
@@ -91,5 +90,5 @@ public class AsacVersionResource {
   public void setPermissionsUri(String permissionsUri1) {
     this.permissionsUri = permissionsUri1;
   }
-  
+
 }

@@ -1,7 +1,5 @@
 package edu.internet2.middleware.authzStandardApiClient.corebeans;
 
-
-
 /**
  * from url: BASE_URL: e.g. url/authzStandardApi
  * default resource

@@ -29,6 +29,30 @@ import edu.internet2.middleware.authzStandardApiClient.testSuite.AsacTestSuiteVe
  */
 public class AsacApiTestSuite extends AsacApiRequestBase {
   
+  /**
+   * if the indent flag should be sent to the server
+   */
+  private boolean indent = false;
+  
+  /**
+   * if indent flag should be sent
+   * @param indent1
+   * @return this for chaining
+   */
+  public AsacApiTestSuite assignIndent(boolean indent1) {
+    this.indent = indent1;
+    return this;
+  }
+  
+  /**
+   * if the indent flag should be sent to the server
+   * @return the indent
+   */
+  public boolean isIndent() {
+    return this.indent;
+  }
+
+  
   /** verbose level, low, medium, high */
   private AsacTestSuiteVerbose verbose = AsacTestSuiteVerbose.medium;
 
@@ -60,6 +84,7 @@ public class AsacApiTestSuite extends AsacApiRequestBase {
     AsacTestSuiteResults asacTestSuiteResults = new AsacTestSuiteResults();
     
     asacTestSuiteResults.setVerbose(this.verbose);
+    asacTestSuiteResults.setIndent(this.indent);
     
     asacTestSuiteResults.runAllTestSuites();
     

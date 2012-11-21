@@ -21,7 +21,6 @@ package edu.internet2.middleware.authzStandardApiClient.ws;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -32,8 +31,6 @@ import edu.internet2.middleware.authzStandardApiClient.exceptions.StandardApiCli
 import edu.internet2.middleware.authzStandardApiClient.util.StandardApiClientConfig;
 import edu.internet2.middleware.authzStandardApiClient.util.StandardApiClientLog;
 import edu.internet2.middleware.authzStandardApiClient.util.StandardApiClientUtils;
-import edu.internet2.middleware.authzStandardApiClientExt.com.thoughtworks.xstream.XStream;
-import edu.internet2.middleware.authzStandardApiClientExt.com.thoughtworks.xstream.io.xml.CompactWriter;
 import edu.internet2.middleware.authzStandardApiClientExt.edu.internet2.middleware.morphString.Crypto;
 import edu.internet2.middleware.authzStandardApiClientExt.org.apache.commons.httpclient.Credentials;
 import edu.internet2.middleware.authzStandardApiClientExt.org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
@@ -83,6 +80,12 @@ public class StandardApiClientWs<T extends AsacResponseBeanBase> {
   /** keep a reference to the most recent for testing */
   public static String mostRecentResponse = null;
 
+  /** keep a reference to the most recent for testing */
+  public static int mostRecentHttpStatusCode = -1;
+
+  /** keep a reference to the most recent for testing */
+  public static HttpMethodBase mostRecentHttpMethod = null;
+
   /**
    * @param urlSuffix e.g. groups/aStem:aGroup/members
    * @param toSend is the bean which will transform into XML, or just a string of XML to send...
@@ -129,6 +132,9 @@ public class StandardApiClientWs<T extends AsacResponseBeanBase> {
       AsacRestContentType asacRestContentType, 
       Class<? extends AsacResponseBeanBase> expectedResultClass, AsacRestHttpMethod asacRestHttpMethod)  {
     
+    mostRecentHttpStatusCode = -1;
+    mostRecentHttpMethod = null;
+        
     String logDir = StandardApiClientConfig.retrieveConfig().propertyValueString("authzStandardApiClient.logging.webService.documentDir");
     File requestFile = null;
     File responseFile = null;
@@ -155,7 +161,7 @@ public class StandardApiClientWs<T extends AsacResponseBeanBase> {
     int[] responseCode = new int[1];
     
     //make sure right content type is in request (e.g. application/xhtml+xml
-    this.method = this.postMethod(url, urlSuffix, 
+    this.method = this.method(url, urlSuffix, 
         toSend, requestFile, responseCode, clientVersion, asacRestContentType,
         asacRestHttpMethod);
 
@@ -216,7 +222,7 @@ public class StandardApiClientWs<T extends AsacResponseBeanBase> {
     
     //see if problem
     if (!StandardApiClientUtils.isBlank(resultObject.getError()) ||
-        (resultObject.getResponseMeta() != null && !resultObject.getMeta().isSuccess())) {
+        (resultObject.getResponseMeta() != null && !resultObject.getMeta().getSuccess())) {
       throw new StandardApiClientWsException(resultObject, resultObject.getError());
     }
 
@@ -345,8 +351,12 @@ public class StandardApiClientWs<T extends AsacResponseBeanBase> {
     suffix = StandardApiClientUtils.trim(suffix);
     suffix = StandardApiClientUtils.stripStart(suffix, "/");
         
-    url = url + (StandardApiClientUtils.isBlank(webServiceVersion) ? "" : ("/" + webServiceVersion)) 
-        + (StandardApiClientUtils.isBlank(suffix) ? "" :  ("/" + suffix));
+    if (suffix != null && suffix.startsWith(".") && StandardApiClientUtils.isBlank(webServiceVersion) ) {
+      url = url + suffix;
+    } else {
+      url = url + (StandardApiClientUtils.isBlank(webServiceVersion) ? "" : ("/" + webServiceVersion)) 
+          + (StandardApiClientUtils.isBlank(suffix) ? "" :  ("/" + suffix));
+    }
 
     LOG.debug("WebService: connecting to URL: '" + url + "'");
 
@@ -374,10 +384,13 @@ public class StandardApiClientWs<T extends AsacResponseBeanBase> {
    * @throws HttpException 
    * @throws IOException 
    */
-  private HttpMethodBase postMethod(String url, 
+  private HttpMethodBase method(String url, 
       String urlSuffix, Object objectToMarshall, File logFile, 
       int[] responseCode, String clientVersion, AsacRestContentType asacRestContentType,
       AsacRestHttpMethod asacRestHttpMethod)  {
+    
+    mostRecentHttpStatusCode = -1;
+    mostRecentHttpMethod = null;
     
     try {
       
@@ -458,7 +471,10 @@ public class StandardApiClientWs<T extends AsacResponseBeanBase> {
       mostRecentRequest = requestDocument;
       
       int responseCodeInt = httpClient.executeMethod(method);
-  
+
+      mostRecentHttpStatusCode = responseCodeInt;
+      mostRecentHttpMethod = method;
+      
       if (responseCode != null && responseCode.length > 0) {
         responseCode[0] = responseCodeInt;
       }
@@ -474,21 +490,5 @@ public class StandardApiClientWs<T extends AsacResponseBeanBase> {
     }
   }
   
-  /**
-   * 
-   * @param xStream
-   * @param object
-   * @return the xml
-   */
-  private static String marshalObject(XStream xStream, Object object) {
-    StringWriter stringWriter = new StringWriter();
-    //dont indent
-    xStream.marshal(object, new CompactWriter(stringWriter));
-
-    String requestDocument = stringWriter.toString();
-    return requestDocument;
-  }
-  
-
 
 }

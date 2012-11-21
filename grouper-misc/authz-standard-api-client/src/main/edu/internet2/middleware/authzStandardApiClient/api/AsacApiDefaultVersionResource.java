@@ -19,7 +19,7 @@
  */
 package edu.internet2.middleware.authzStandardApiClient.api;
 
-import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacDefaultResourceContainer;
+import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacDefaultVersionResourceContainer;
 import edu.internet2.middleware.authzStandardApiClient.ws.AsacRestHttpMethod;
 import edu.internet2.middleware.authzStandardApiClient.ws.StandardApiClientWs;
 
@@ -28,14 +28,14 @@ import edu.internet2.middleware.authzStandardApiClient.ws.StandardApiClientWs;
 /**
  * class to run an add member web service call
  */
-public class AsacApiDefaultResource extends AsacApiRequestBase {
+public class AsacApiDefaultVersionResource extends AsacApiRequestBase {
 
   /**
    * @see edu.internet2.middleware.authzStandardApiClient.api.AsacApiRequestBase#assignIndent(boolean)
    */
   @Override
-  public AsacApiDefaultResource assignIndent(boolean indent1) {
-    return (AsacApiDefaultResource)super.assignIndent(indent1);
+  public AsacApiDefaultVersionResource assignIndent(boolean indent1) {
+    return (AsacApiDefaultVersionResource)super.assignIndent(indent1);
   }
 
   /**
@@ -50,20 +50,20 @@ public class AsacApiDefaultResource extends AsacApiRequestBase {
    * 
    * @return the results
    */
-  public AsacDefaultResourceContainer execute() {
+  public AsacDefaultVersionResourceContainer execute() {
     this.validate();
-    AsacDefaultResourceContainer asacDefaultResourceContainer = null;
+    AsacDefaultVersionResourceContainer asacDefaultVersionResourceContainer = null;
       
-    StandardApiClientWs<AsacDefaultResourceContainer> standardApiClientWs = new StandardApiClientWs<AsacDefaultResourceContainer>();
+    StandardApiClientWs<AsacDefaultVersionResourceContainer> standardApiClientWs = new StandardApiClientWs<AsacDefaultVersionResourceContainer>();
     
     //kick off the web service
     //MCH dont fill all this in since could be uuid based
-    String urlSuffix = null;
-    asacDefaultResourceContainer =
-      standardApiClientWs.executeService(urlSuffix, null, "defaultResource", null,
-          this.getContentType(), AsacDefaultResourceContainer.class, AsacRestHttpMethod.GET);
+    String urlSuffix = "." + this.getContentType().name();
+    asacDefaultVersionResourceContainer =
+      standardApiClientWs.executeService(urlSuffix, null, "defaultVersionResource", null,
+          this.getContentType(), AsacDefaultVersionResourceContainer.class, AsacRestHttpMethod.GET);
     
-    return asacDefaultResourceContainer;
+    return asacDefaultVersionResourceContainer;
     
   }
   

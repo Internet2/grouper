@@ -13,6 +13,21 @@ import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUti
 public class AsasDefaultVersionResource {
  
   /**
+   * 
+   */
+  public AsasDefaultVersionResource() {
+    
+    this.v1Uri = StandardApiServerUtils.servletUrl() + "/v1." + AsasRestContentType.retrieveContentType();
+    this.serverType = StandardApiServerConfig.retrieveConfig().propertyValueStringRequired("authzStandardApiServer.serverType");
+    
+    if (StandardApiServerUtils.isBlank(this.serverType)) {
+      throw new RuntimeException("Why is authzStandardApiServer.serverType not defined in the the standardapi.server.properties");
+    }
+    
+  }
+
+
+  /**
    * describes the implementation of the API, i.e. the underlying groups service
    * e.g. Grouper WS Standard API v2.1.14
    */
@@ -36,21 +51,6 @@ public class AsasDefaultVersionResource {
     this.serverType = serverType;
   }
 
-
-
-  /**
-   * 
-   */
-  public AsasDefaultVersionResource() {
-    
-    this.v1Uri = StandardApiServerUtils.servletUrl() + "/v1." + AsasRestContentType.retrieveContentType();
-    this.serverType = StandardApiServerConfig.retrieveConfig().propertyValueStringRequired("authzStandardApiServer.serverType");
-    
-    if (StandardApiServerUtils.isBlank(this.serverType)) {
-      throw new RuntimeException("Why is authzStandardApiServer.serverType not defined in the the standardapi.server.properties");
-    }
-    
-  }
 
 
   /**

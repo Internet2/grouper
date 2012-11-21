@@ -41,7 +41,7 @@ public class AsacTestSuiteResults {
     
     //add all tests
     this.asacTestSuiteResultList.add(new AsacTestSuiteDefaultResource(this));
-    
+    this.asacTestSuiteResultList.add(new AsacTestSuiteDefaultVersionResource(this));
     
     //run them
     for (AsacTestSuiteResult asacTestSuiteResult : this.asacTestSuiteResultList) {
@@ -54,6 +54,10 @@ public class AsacTestSuiteResults {
    * list of tests
    */
   private List<AsacTestSuiteResult> asacTestSuiteResultList = new ArrayList<AsacTestSuiteResult>();
+  /**
+   * if the indent flag should be sent to the server
+   */
+  private boolean indent = false;
   
   /**
    * @return the failureCount
@@ -125,6 +129,14 @@ public class AsacTestSuiteResults {
   }
   
   /**
+   * summary label overall
+   * @return the summary label
+   */
+  public String getSummaryLabel() {
+    return this.isSuccess() ? "SUCCESS" : "FAILURE";
+  }
+  
+  /**
    * @return the warningCount
    */
   public int getWarningCount() {
@@ -135,6 +147,26 @@ public class AsacTestSuiteResults {
     }
     
     return warningCount;
+  }
+
+
+  /**
+   * if indent flag should be sent
+   * @param indent1
+   * @return this for chaining
+   */
+  public void setIndent(boolean indent1) {
+    this.indent = indent1;
+  }
+
+
+  
+  /**
+   * if indent flag should be set
+   * @return the indent
+   */
+  public boolean isIndent() {
+    return this.indent;
   }
   
   

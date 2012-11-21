@@ -24,9 +24,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import edu.internet2.middleware.authzStandardApiClient.api.AsacApiDefaultResource;
+import edu.internet2.middleware.authzStandardApiClient.api.AsacApiDefaultVersionResource;
 import edu.internet2.middleware.authzStandardApiClient.api.AsacApiTestSuite;
 import edu.internet2.middleware.authzStandardApiClient.contentType.AsacRestContentType;
 import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacDefaultResourceContainer;
+import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacDefaultVersionResourceContainer;
 import edu.internet2.middleware.authzStandardApiClient.testSuite.AsacTestSuiteResults;
 import edu.internet2.middleware.authzStandardApiClient.testSuite.AsacTestSuiteVerbose;
 import edu.internet2.middleware.authzStandardApiClient.util.StandardApiClientCommonUtils;
@@ -40,7 +42,12 @@ import edu.internet2.middleware.authzStandardApiClientExt.org.apache.commons.log
 
 
 /**
+ * <pre>
  * main class for grouper client.  note, stdout is for output, stderr is for error messages (or logs)
+ * 
+ * --operation=testSuite --verbose=high
+ * 
+ * </pre>
  */
 public class StandardApiClient {
 
@@ -117,6 +124,9 @@ public class StandardApiClient {
         
       } else if (StandardApiClientUtils.equals(operation, "defaultResourceWs")) {
         result = defaultResourceWs(argMap, argMapNotUsed);
+
+      } else if (StandardApiClientUtils.equals(operation, "defaultVersionResourceWs")) {
+        result = defaultVersionResourceWs(argMap, argMapNotUsed);
 
       } else if (StandardApiClientUtils.equals(operation, "testSuite")) {
         result = testSuite(argMap, argMapNotUsed);
@@ -208,17 +218,9 @@ public class StandardApiClient {
       
       AsacApiDefaultResource asacApiDefaultResource = new AsacApiDefaultResource();        
       
-      String formatString = StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "format", false);
-      
-      AsacRestContentType asacRestContentType = AsacRestContentType.valueOfIgnoreCase(formatString, false);
-      
-      if (asacRestContentType != null) {
-        asacApiDefaultResource.setContentType(asacRestContentType);
-      }
-      
       boolean indent = StandardApiClientUtils.argMapBoolean(argMap, argMapNotUsed, "indent", false, false);
       
-      asacApiDefaultResource.setIndent(indent);
+      asacApiDefaultResource.assignIndent(indent);
 
       //register that we will use this
       StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
@@ -255,67 +257,68 @@ public class StandardApiClient {
     }
 
   /**
-     * @param argMap
-     * @param argMapNotUsed
-     * @return result
-     */
-    private static String sendFile(Map<String, String> argMap,
-        Map<String, String> argMapNotUsed) {
-      
-      String clientVersion = StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
-      
-      String fileContents = StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "fileContents", false);
-      
-      String theFileName = "[contents on command line]";
-      if (StandardApiClientUtils.isBlank(fileContents)) {
-        String fileName = StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "fileName", true);
+   * @param argMap
+   * @param argMapNotUsed
+   * @return result
+   */
+  @SuppressWarnings("unused")
+  private static String sendFile(Map<String, String> argMap,
+      Map<String, String> argMapNotUsed) {
+    
+    String clientVersion = StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
+    
+    String fileContents = StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "fileContents", false);
+    
+    String theFileName = "[contents on command line]";
+    if (StandardApiClientUtils.isBlank(fileContents)) {
+      String fileName = StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "fileName", true);
 
-        fileContents = StandardApiClientUtils.readFileIntoString(new File(fileName));
-        
-        theFileName = StandardApiClientUtils.fileCanonicalPath(new File(fileName));
-      }
+      fileContents = StandardApiClientUtils.readFileIntoString(new File(fileName));
       
-      if (fileContents.startsWith("POST") || fileContents.startsWith("GET")
-          || fileContents.startsWith("PUT") || fileContents.startsWith("DELETE")
-          || fileContents.startsWith("Connection:")) {
-        throw new RuntimeException("The file is detected as containing HTTP headers, it should only contain the payload (e.g. the XML): " + theFileName);
-      }
-      
-      String urlSuffix = StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "urlSuffix", true);
-
-      //this is part of the log file if logging output
-      String labelForLog = StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "labelForLog", false);
-      
-      labelForLog = StandardApiClientUtils.defaultIfBlank(labelForLog, "sendFile");
-      
-      boolean indentOutput = StandardApiClientUtils.argMapBoolean(argMap, argMapNotUsed, "indentOutput", false, true);
-      
-      String contentType = StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "contentType", false);
-
-      failOnArgsNotUsed(argMapNotUsed);
-      
-      StandardApiClientWs<AsacDefaultResourceContainer> grouperClientWs 
-        = new StandardApiClientWs<AsacDefaultResourceContainer>();
-      
-      if (StandardApiClientUtils.isNotBlank(contentType)) {
-        
-      }
-      
-      try {
-        //assume the url suffix is already escaped...
-        String results = (String)(Object)grouperClientWs.executeService(urlSuffix, 
-            fileContents, labelForLog, clientVersion, AsacRestContentType.json, null, null);
-
-        if (indentOutput) {
-          results = StandardApiClientUtils.indent(results, false);
-        }
-        
-        return results;
-        
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
+      theFileName = StandardApiClientUtils.fileCanonicalPath(new File(fileName));
     }
+    
+    if (fileContents.startsWith("POST") || fileContents.startsWith("GET")
+        || fileContents.startsWith("PUT") || fileContents.startsWith("DELETE")
+        || fileContents.startsWith("Connection:")) {
+      throw new RuntimeException("The file is detected as containing HTTP headers, it should only contain the payload (e.g. the XML): " + theFileName);
+    }
+    
+    String urlSuffix = StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "urlSuffix", true);
+
+    //this is part of the log file if logging output
+    String labelForLog = StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "labelForLog", false);
+    
+    labelForLog = StandardApiClientUtils.defaultIfBlank(labelForLog, "sendFile");
+    
+    boolean indentOutput = StandardApiClientUtils.argMapBoolean(argMap, argMapNotUsed, "indent", false, true);
+    
+    String contentType = StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "contentType", false);
+
+    failOnArgsNotUsed(argMapNotUsed);
+    
+    StandardApiClientWs<AsacDefaultResourceContainer> grouperClientWs 
+      = new StandardApiClientWs<AsacDefaultResourceContainer>();
+    
+    if (StandardApiClientUtils.isNotBlank(contentType)) {
+      
+    }
+    
+    try {
+      //assume the url suffix is already escaped...
+      String results = (String)(Object)grouperClientWs.executeService(urlSuffix, 
+          fileContents, labelForLog, clientVersion, AsacRestContentType.json, null, null);
+
+      if (indentOutput) {
+        results = StandardApiClientUtils.indent(results, false);
+      }
+      
+      return results;
+      
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
 
   /**
    * print usage and exit
@@ -388,9 +391,11 @@ public class StandardApiClient {
     
     asacApiTestSuite.assignVerbose(asacTestSuiteVerbose);
       
+    boolean indent = StandardApiClientUtils.argMapBoolean(argMap, argMapNotUsed, "indent", false, false);
+
     failOnArgsNotUsed(argMapNotUsed);
-  
-    AsacTestSuiteResults asacTestSuiteResults = asacApiTestSuite.execute();
+    
+    AsacTestSuiteResults asacTestSuiteResults = asacApiTestSuite.assignIndent(indent).execute();
     
     StringBuilder result = new StringBuilder();
     
@@ -407,6 +412,62 @@ public class StandardApiClient {
       outputTemplate = StandardApiClientConfig.retrieveConfig().propertyValueStringRequired("webService.testSuite.output");
     }
     log.debug("Output template: " + StandardApiClientUtils.trim(outputTemplate) + ", available variables: asacTestSuiteResults");
+  
+    
+    String output = StandardApiClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
+    result.append(output);
+    
+    return result.toString();
+  }
+
+  /**
+   * @param argMap
+   * @param argMapNotUsed
+   * @return result
+   */
+  private static String defaultVersionResourceWs(Map<String, String> argMap,
+      Map<String, String> argMapNotUsed) {
+    
+    AsacApiDefaultVersionResource asacApiDefaultVersionResource = new AsacApiDefaultVersionResource();        
+    
+    String formatString = StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "format", false);
+    
+    AsacRestContentType asacRestContentType = AsacRestContentType.valueOfIgnoreCase(formatString, false);
+    
+    if (asacRestContentType != null) {
+      asacApiDefaultVersionResource.setContentType(asacRestContentType);
+    }
+    
+    boolean indent = StandardApiClientUtils.argMapBoolean(argMap, argMapNotUsed, "indent", false, false);
+    
+    asacApiDefaultVersionResource.assignIndent(indent);
+  
+    //register that we will use this
+    StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
+    failOnArgsNotUsed(argMapNotUsed);
+  
+    AsacDefaultVersionResourceContainer asacDefaultVersionResourceContainer = asacApiDefaultVersionResource.execute();
+    
+    StringBuilder result = new StringBuilder();
+    
+    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+  
+    substituteMap.put("asacDefaultVersionResourceContainer", asacDefaultVersionResourceContainer);
+    substituteMap.put("asacDefaultVersionResource", asacDefaultVersionResourceContainer.getAsasDefaultVersionResource());
+    substituteMap.put("meta", asacDefaultVersionResourceContainer.getMeta());
+    substituteMap.put("responseMeta", asacDefaultVersionResourceContainer.getResponseMeta());
+    substituteMap.put("serviceMeta", asacDefaultVersionResourceContainer.getServiceMeta());
+  
+    String outputTemplate = null;
+  
+    if (argMap.containsKey("outputTemplate")) {
+      outputTemplate = StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
+      outputTemplate = StandardApiClientUtils.substituteCommonVars(outputTemplate);
+    } else {
+      outputTemplate = StandardApiClientConfig.retrieveConfig().propertyValueStringRequired("webService.defaultVersionResourceWs.output");
+    }
+    log.debug("Output template: " + StandardApiClientUtils.trim(outputTemplate) + ", available variables: asacDefaultVersionResourceContainer, " +
+      "asacDefaultVersionResource, meta, responseMeta, serviceMeta");
   
     
     String output = StandardApiClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);

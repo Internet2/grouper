@@ -2,6 +2,10 @@ package edu.internet2.middleware.authzStandardApiClient.util;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -143,6 +147,7 @@ public class StandardApiClientUtils extends StandardApiClientCommonUtils {
       public boolean apply(Object source, String name, Object value) {
         //json-lib cannot handle maps where the key is not a string
         if (value != null && value instanceof Map) {
+          @SuppressWarnings("rawtypes")
           Map map = (Map) value;
           if (map.size() > 0 && !(map.keySet().iterator().next() instanceof String)) {
             return true;
@@ -545,4 +550,46 @@ public class StandardApiClientUtils extends StandardApiClientCommonUtils {
    */
   private static Pattern jsonPattern = Pattern.compile("^\\s*\\{\\s*\\\"([^\"]+)\\\"\\s*:\\s*(.*)}$", Pattern.DOTALL);
   
+  /** iso date string */
+  private static final String YYYY_MM_DD_T_HH_MM_SS_SSS_Z = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+
+  /**
+   * convert the date to a string
+   * 2012-10-04T03:10.123Z
+   * @param date
+   * @return the string
+   */
+  public static String convertToIso8601(Date date) {
+    
+    if (date == null) {
+      return null;
+    }
+    
+    DateFormat dateFormat = new SimpleDateFormat(YYYY_MM_DD_T_HH_MM_SS_SSS_Z);
+    
+    return dateFormat.format(date);
+    
+  }
+  
+  /**
+   * convert the string to a date
+   * 2012-10-04T03:10.123Z
+   * @param date
+   * @return the string
+   */
+  public static Date convertFromIso8601(String date) {
+    
+    if (date == null) {
+      return null;
+    }
+    
+    DateFormat dateFormat = new SimpleDateFormat(YYYY_MM_DD_T_HH_MM_SS_SSS_Z);
+    
+    try {
+      return dateFormat.parse(date);
+    } catch (ParseException parseException) {
+      throw new RuntimeException(parseException);
+    }
+  }
+
 }

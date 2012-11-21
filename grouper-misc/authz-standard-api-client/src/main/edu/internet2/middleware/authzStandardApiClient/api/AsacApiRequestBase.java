@@ -32,8 +32,9 @@ public class AsacApiRequestBase {
    * if the server should indent the response.  This is generally only for testing
    * @param indent1 the indent to set
    */
-  public void setIndent(boolean indent1) {
+  public AsacApiRequestBase assignIndent(boolean indent1) {
     this.indent = indent1;
+    return this;
   }
 
   

@@ -15,14 +15,25 @@ Optional arguments below are in [brackets]
 ## Web Service operations
 
 defaultResourceWs web service usage:
-  java -jar authzStandardApiClient.jar --operation=defaultResourceWs [--outputTemplate=somePattern] [--format=xml|json] [--debug=true]
+  java -jar authzStandardApiClient.jar --operation=defaultResourceWs [--outputTemplate=somePattern] [--format=xml|json] [--debug=true] [--indent=true]
   e.g.: java -jar authzStandardApiClient.jar --operation=defaultResourceWs
   output:
     success: true
     xml: https://authz.school.edu/authzStandardApi/authzStandardApi.xml
     json: https://authz.school.edu/authzStandardApi/authzStandardApi.json
   
-
+  
+defaultVersionResourceWs web service usage:
+  java -jar authzStandardApiClient.jar --operation=defaultVersionResourceWs [--outputTemplate=somePattern] [--format=xml|json] [--debug=true] [--indent=true]
+  e.g.: java -jar authzStandardApiClient.jar --operation=defaultVersionResourceWs
+  output:
+    success: true
+    v1: https://authz.school.edu/authzStandardApi/authzStandardApi/v1.json
+  
+  
+testSuite usage:
+  java -jar authzStandardApiClient.jar --operation=testSuite --verbose=low|medium|high|higher [--debug=true] [--indent=true]
+  e.g.: java -jar authzStandardApiClient.jar --operation=testSuite --verbose=high
 
 
 ###############################################

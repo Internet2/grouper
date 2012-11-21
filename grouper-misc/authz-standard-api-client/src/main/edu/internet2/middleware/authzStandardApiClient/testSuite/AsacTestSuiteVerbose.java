@@ -24,9 +24,10 @@ public enum AsacTestSuiteVerbose {
           return true;
         case medium:
         case high:
+        case higher:
           return false;
       }
-      throw new RuntimeException("Note expecting verbose level: " + asacTestSuiteVerbose);
+      throw new RuntimeException("Not expecting verbose level: " + asacTestSuiteVerbose);
     }
   },
   
@@ -45,9 +46,10 @@ public enum AsacTestSuiteVerbose {
         case medium:
           return true;
         case high:
+        case higher:
           return false;
       }
-      throw new RuntimeException("Note expecting verbose level: " + asacTestSuiteVerbose);
+      throw new RuntimeException("Not expecting verbose level: " + asacTestSuiteVerbose);
     }
   },
   
@@ -66,8 +68,31 @@ public enum AsacTestSuiteVerbose {
         case medium:
         case high:
           return true;
+        case higher:
+          return false;
       }
-      throw new RuntimeException("Note expecting verbose level: " + asacTestSuiteVerbose);
+      throw new RuntimeException("Not expecting verbose level: " + asacTestSuiteVerbose);
+    }
+  },
+  
+  /**
+   * give a line for each assert in each test
+   */
+  higher {
+
+    /**
+     * @see AsacTestSuiteVerbose#atLeastVerbose(AsacTestSuiteVerbose)
+     */
+    @Override
+    public boolean atLeastVerbose(AsacTestSuiteVerbose asacTestSuiteVerbose) {
+      switch(asacTestSuiteVerbose) {
+        case low:
+        case medium:
+        case high:
+        case higher:
+          return true;
+      }
+      throw new RuntimeException("Not expecting verbose level: " + asacTestSuiteVerbose);
     }
   };
   
