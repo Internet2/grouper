@@ -95,6 +95,7 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Generic filter for ui for grouper (e.g. set hooks context)
@@ -278,6 +279,9 @@ public class GrouperUiFilter implements Filter {
     try {
       subjectLoggedIn = SubjectFinder.findByIdOrIdentifier(userIdLoggedIn, true);
     } catch (RuntimeException re) {
+      if (re instanceof SubjectNotFoundException && uiSectionForRequest.isAnonymous()) {
+        return null;
+      }
       //this is probably a system error...  not a user error
       GrouperUtil.injectInException(re, "Cant find subject from login id: " + userIdLoggedIn);
       throw re;
@@ -523,7 +527,6 @@ public class GrouperUiFilter implements Filter {
   
   /**
    * get the ui section we are in
-   * @param httpServletRequest
    * @return true if allowed anonymous
    */
   public static UiSection uiSectionForRequest() {

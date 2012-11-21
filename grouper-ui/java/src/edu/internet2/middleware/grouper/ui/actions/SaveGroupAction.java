@@ -61,6 +61,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
+import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -249,7 +250,12 @@ public class SaveGroupAction extends GrouperCapableAction {
 				}
 			}
 
-			group.store();
+                        try {
+                          group.store();
+                        } catch (GroupModifyAlreadyExistsException e) {
+                          request.setAttribute("message", new Message("groups.message.error.update-problem-already-exists", true));
+                          return mapping.findForward(FORWARD_EditAgain);
+                        }
 
 			//do this after the store, in case there were types added in the hook...
 			doTypes(group,request, removableTypes);

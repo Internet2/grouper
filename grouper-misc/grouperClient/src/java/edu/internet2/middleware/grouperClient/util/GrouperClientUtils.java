@@ -272,6 +272,15 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
    * @return the value or null
    */
   public static String subjectAttributeValue(WsSubject wsSubject, String[] attributeNames, String attributeName) {
+    
+    if (GrouperClientUtils.equals("subject__id", attributeName)) {
+      return wsSubject.getId();
+    }
+    
+    if (GrouperClientUtils.equals("subject__name", attributeName)) {
+      return wsSubject.getName();
+    }
+    
     for (int i=0;i<GrouperClientUtils.length(attributeNames);i++) {
       
       if (GrouperClientUtils.equalsIgnoreCase(attributeName, attributeNames[i])

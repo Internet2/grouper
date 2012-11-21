@@ -2567,9 +2567,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
       sql.append(" or theGroup.alternateNameDb in ( ");
 
-      sql.append(HibUtils.convertToInClause(namesBatch, byHqlStatic)).append(" ) )");
-
-      TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, sql, byHqlStatic);
+      sql.append(HibUtils.convertToInClause(namesBatch, byHqlStatic)).append(" ) ");
 
       //if entities, then also allow entity identifier
       if (typeOfGroups != null && typeOfGroups.contains(TypeOfGroup.entity)) {
@@ -2587,9 +2585,11 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
         sql.append(" and theAttributeAssignValue.valueString in ( ");
         sql.append(HibUtils.convertToInClause(namesBatch, byHqlStatic)).append(" ) )");
-        sql.append(" ) ) ");
 
       }
+      sql.append(" ) ");
+      TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, sql, byHqlStatic);
+
 
 
       if (queryOptions != null) {

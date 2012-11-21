@@ -151,7 +151,7 @@ public class GrouperUtil {
     emailAddresses = StringUtils.replace(emailAddresses, "\n", " ");
     emailAddresses = StringUtils.replace(emailAddresses, "\t", " ");
     emailAddresses = StringUtils.replace(emailAddresses, "\r", " ");
-    emailAddresses = GrouperUtil.join(GrouperUtil.splitTrim(emailAddresses, " "), ";");
+    emailAddresses = join(splitTrim(emailAddresses, " "), ";");
     return emailAddresses;
   }
   
@@ -299,7 +299,7 @@ public class GrouperUtil {
    * @return the set of sources
    */
   public static Set<Source> convertSources(String[] sourceIds) {
-    if (GrouperUtil.length(sourceIds) == 0) {
+    if (length(sourceIds) == 0) {
       return null;
     }
     Set<Source> sourceSet = new HashSet<Source>();
@@ -1631,7 +1631,7 @@ public class GrouperUtil {
   public static String parentStemNameFromName(String name, boolean nullForRoot) {
     
     //null safe
-    if (GrouperUtil.isBlank(name)) {
+    if (isBlank(name)) {
       return name;
     }
     
@@ -2190,7 +2190,6 @@ public class GrouperUtil {
    * return a list of objects from varargs.  Though if there is one
    * object, and it is a list, return it.
    * 
-   * @param <T>
    *            template type of the objects
    * @param objects
    * @return the list or null if objects is null
@@ -2456,7 +2455,7 @@ public class GrouperUtil {
         if (resourcePropertiesCache == null) {
           //note, if this relies on the config file to configure, and the config file uses this, then we need a simpler cache here than an ehcache...
           //resourcePropertiesCache = new GrouperCache<String, Properties>(
-          //  GrouperUtil.class.getName() + ".resourcePropertiesCache", 200, false, 300, 300, false);
+          //  class.getName() + ".resourcePropertiesCache", 200, false, 300, 300, false);
           resourcePropertiesCache = new ExpirableCache<String, Properties>(5);
           
         }
@@ -3788,7 +3787,7 @@ public class GrouperUtil {
       @SuppressWarnings("unused") final Class<V> valueClass, String keyPropertyName)  {
     Map<K,V> result = new LinkedHashMap<K, V>();
     for (V value : nonNull(list)) {
-      K key = (K)GrouperUtil.propertyValue(value, keyPropertyName);
+      K key = (K)propertyValue(value, keyPropertyName);
       result.put(key, value);
     }
     return result;
@@ -7138,7 +7137,7 @@ public class GrouperUtil {
       throw new RuntimeException("Problem with file: " + file, ioe);
     } finally {
       
-      GrouperUtil.closeQuietly(fileInputStream);
+      closeQuietly(fileInputStream);
       
     }
     
@@ -8883,7 +8882,7 @@ public class GrouperUtil {
   @SuppressWarnings("unchecked")
   public static String substituteExpressionLanguage(String stringToParse, 
       Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent, boolean lenient) {
-    if (GrouperUtil.isBlank(stringToParse)) {
+    if (isBlank(stringToParse)) {
       return stringToParse;
     }
     String overallResult = null;
@@ -8971,7 +8970,7 @@ public class GrouperUtil {
           
         if (o == null) {
           LOG.warn("expression returned null: " + script + ", in pattern: '" + stringToParse + "', available variables are: "
-              + GrouperUtil.toStringForLog(variableMap.keySet()));
+              + toStringForLog(variableMap.keySet()));
         }
         
         if (o instanceof RuntimeException) {
@@ -8997,7 +8996,7 @@ public class GrouperUtil {
       throw new RuntimeException("Error substituting string: '" + stringToParse + "'", e);
     } finally {
       if (LOG.isDebugEnabled()) {
-        Set<String> keysSet = new LinkedHashSet<String>(GrouperUtil.nonNull(variableMap).keySet());
+        Set<String> keysSet = new LinkedHashSet<String>(nonNull(variableMap).keySet());
         keysSet.add("grouperUtil");
         StringBuilder logMessage = new StringBuilder();
         logMessage.append("Subsituting EL: '").append(stringToParse).append("', and with env vars: ");
@@ -10285,7 +10284,7 @@ public class GrouperUtil {
    * @return Stem
    */
   public static Stem getFirstParentStemOfName(String name) {
-    String parent = GrouperUtil.parentStemNameFromName(name);
+    String parent = parentStemNameFromName(name);
 
     if (parent == null || parent.equals(name)) {
       return StemFinder.findRootStem(GrouperSession.staticGrouperSession()
@@ -10468,7 +10467,7 @@ public class GrouperUtil {
   public static boolean substituteStrings(Map<String, String> stringSubstituteMap, 
       Object object) {
   
-    Set<String> fieldNames = GrouperUtil.stringFieldNames(object.getClass());
+    Set<String> fieldNames = stringFieldNames(object.getClass());
   
     boolean altered = false;
     
@@ -10548,6 +10547,39 @@ public class GrouperUtil {
     
   }
   
+  /**
+   * <pre>
+   * append a prefix to another string if both not blank.  trim to empty everything
+   * i.e. appendPrefixIfStringNotBlank("[]", " - ", "a")   returns [] - a
+   * i.e. appendPrefixIfStringNotBlank("", " - ", "a")   returns a
+   * i.e. appendPrefixIfStringNotBlank("[]", " - ", "")   returns ""
+   * i.e. appendPrefixIfStringNotBlank("", " - ", "")   returns ""
+   * </pre>
+   * @param prefix
+   * @param separator
+   * @param string
+   * @return the resulting string or blank if nothing
+   */
+  public static String appendPrefixIfStringNotBlank(String prefix, String separator, String string) {
+    
+    string = StringUtils.trimToEmpty(string);
+    prefix = StringUtils.trimToEmpty(prefix);
+    
+    boolean stringIsBlank = StringUtils.isBlank(string);
+    boolean prefixIsBlank = StringUtils.isBlank(prefix);
+
+    if (stringIsBlank) {
+      return "";
+    }
+
+    if (prefixIsBlank) {
+      return string;
+    }
+    
+    return prefix + separator + string;
+    
+  }
+
   /**
    * if theString is not Blank, apppend it to the result, and if appending,
    * add a prefix (if not null)
@@ -10913,7 +10945,7 @@ public class GrouperUtil {
     
     Map<String, Object> result = new LinkedHashMap<String, Object>();
     
-    if (GrouperUtil.length(limitEnvVars) == 0) {
+    if (length(limitEnvVars) == 0) {
       return result;
     }
     
@@ -10930,16 +10962,16 @@ public class GrouperUtil {
         try {
           if (StringUtils.equalsIgnoreCase(type, "int") || StringUtils.equalsIgnoreCase(type, "integer")
               || StringUtils.equalsIgnoreCase(type, "long")) {
-            value = GrouperUtil.longValue(value);
+            value = longValue(value);
           } else if (StringUtils.equalsIgnoreCase(type, "double") || StringUtils.equalsIgnoreCase(type, "float")
               || StringUtils.equalsIgnoreCase(type, "decimal")) {
-            value = GrouperUtil.doubleValue(value);
+            value = doubleValue(value);
           } else if (StringUtils.equalsIgnoreCase(type, "date") || StringUtils.equalsIgnoreCase(type, "timestamp")) {
-            value = GrouperUtil.toTimestamp(value);
+            value = toTimestamp(value);
           } else if (StringUtils.equalsIgnoreCase(type, "text") || StringUtils.equalsIgnoreCase(type, "string")) {
             //nothing, the value is a string
           } else if (StringUtils.equalsIgnoreCase(type, "boolean")) {
-            value = GrouperUtil.booleanValue(value);
+            value = booleanValue(value);
           } else if (StringUtils.equalsIgnoreCase(type, "null")) {
             value = null;
           } else if (StringUtils.equalsIgnoreCase(type, "empty") || StringUtils.equalsIgnoreCase(type, "emptyString")) {

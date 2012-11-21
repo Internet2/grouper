@@ -141,7 +141,7 @@ public class GrouperActivemqKerberosAuthentication {
 
   
   /**
-   * see if a user and pass are correct with kerberos
+   * see if a user and pass are correct with kerberos.  This is code downloaded from the internet
    * @param principal
    * @param password
    * @return true for ok, false for not

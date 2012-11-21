@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.Jexl
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlException;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.MapContext;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.binary.Base64;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
@@ -33,6 +34,23 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
  */
 public class GrouperActivemqUtils {
 
+  /**
+   * null safe compare
+   * @param a
+   * @param b
+   * @return the compare integer
+   */
+  @SuppressWarnings("unchecked")
+  public static int compareTo(Comparable a, Comparable b) {
+    if (a == null) {
+      return 1;
+    }
+    if (b == null) {
+      return -1;
+    }
+    return a.compareTo(b);
+  }
+  
   /**
    * 
    */
@@ -265,6 +283,7 @@ public class GrouperActivemqUtils {
    * @param allowPrivateConstructor true if should allow private constructors
    * @return the instance
    */
+  @SuppressWarnings("unchecked")
   public static <T> T newInstance(Class<T> theClass, boolean allowPrivateConstructor) {
     if (!allowPrivateConstructor) {
       return GrouperClientUtils.newInstance(theClass);
@@ -338,6 +357,34 @@ public class GrouperActivemqUtils {
     String hash = new String(encoded);
     //String hash = (new BASE64Encoder()).encode(raw); //step 5
     return hash; //step 6
+  }
+
+  /**
+   * get the attribute value of an attribute name of a subject
+   * @param wsSubject subject
+   * @param attributeNames list of attribute names in the subject
+   * @param attributeName to query
+   * @return the value or null
+   */
+  public static String subjectAttributeValue(WsSubject wsSubject, String[] attributeNames, String attributeName) {
+    
+    if (GrouperClientUtils.equals("subject__id", attributeName)) {
+      return wsSubject.getId();
+    }
+    
+    if (GrouperClientUtils.equals("subject__name", attributeName)) {
+      return wsSubject.getName();
+    }
+    
+    for (int i=0;i<GrouperClientUtils.length(attributeNames);i++) {
+      
+      if (GrouperClientUtils.equalsIgnoreCase(attributeName, attributeNames[i])
+          && GrouperClientUtils.length(wsSubject.getAttributeValues()) > i) {
+        //got it
+        return wsSubject.getAttributeValue(i);
+      }
+    }
+    return null;
   }
 
 }

@@ -27,10 +27,7 @@ import javax.security.auth.callback.TextOutputCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
 /**
- * <p>
- * Pass in 
- * This can be used by a JAAS application to instantiate a
- * CallbackHandler
+ * this is a kerberos handler downloaded from the internet
  * @see javax.security.auth.callback
  */
 

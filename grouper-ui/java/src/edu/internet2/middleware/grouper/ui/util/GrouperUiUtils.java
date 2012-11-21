@@ -1220,7 +1220,9 @@ public class GrouperUiUtils {
    * @return the relative path to image path
    */
   public static String convertSubjectToLabelConfigured(Subject subject, boolean tryLong) {
-    
+    if (subject == null) {
+      return "";
+    }
     //see if it is already computed
     if (subject instanceof SubjectSortWrapper) {
       return ((SubjectSortWrapper)subject).getScreenLabelLong();

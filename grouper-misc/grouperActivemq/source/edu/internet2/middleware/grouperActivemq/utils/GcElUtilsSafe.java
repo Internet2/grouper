@@ -157,6 +157,7 @@ public class GcElUtilsSafe {
    * @param second
    * @return 0 for equal, 1 for greater, -1 for less
    */
+  @SuppressWarnings("unchecked")
   public static int compare(Comparable first, Comparable second) {
     if (first == second) {
       return 0;
@@ -636,6 +637,7 @@ public class GcElUtilsSafe {
    * need to abbreviate when back
    * @param result is where to append to
    */
+  @SuppressWarnings("unchecked")
   private static void toStringForLogHelper(Object object, int maxChars,
       StringBuilder result) {
 
@@ -1045,6 +1047,7 @@ public class GcElUtilsSafe {
    * @param objects
    * @return the list or null if objects is null
    */
+  @SuppressWarnings("unchecked")
   public static <T> List<T> toList(T... objects) {
     if (objects == null) {
       return null;
@@ -2063,6 +2066,7 @@ public class GcElUtilsSafe {
    * @param object
    * @return the toStringSafe string
    */
+  @SuppressWarnings("unchecked")
   public static String toStringSafe(Object object) {
     if (object == null) {
       return null;
@@ -3784,6 +3788,7 @@ public class GcElUtilsSafe {
    *  array. A zero or negative value implies no limit.
    * @return an array of parsed Strings, <code>null</code> if null String was input
    */
+  @SuppressWarnings("unchecked")
   public static String[] splitByWholeSeparator(String str, String separator, int max) {
     if (str == null) {
       return null;
@@ -3917,6 +3922,7 @@ public class GcElUtilsSafe {
    * separators are treated as one separator.
    * @return an array of parsed Strings, <code>null</code> if null String input
    */
+  @SuppressWarnings("unchecked")
   private static String[] splitWorker(String str, char separatorChar,
       boolean preserveAllTokens) {
     // Performance tuned for 2.0 (JDK1.4)
@@ -4043,6 +4049,7 @@ public class GcElUtilsSafe {
    * separators are treated as one separator.
    * @return an array of parsed Strings, <code>null</code> if null String input
    */
+  @SuppressWarnings("unchecked")
   private static String[] splitWorker(String str, String separatorChars, int max,
       boolean preserveAllTokens) {
     // Performance tuned for 2.0 (JDK1.4)
@@ -5742,6 +5749,7 @@ public class GcElUtilsSafe {
    * @param throwable  the throwable to inspect, may be null
    * @return the array of throwables, never null
    */
+  @SuppressWarnings("unchecked")
   public static Throwable[] getThrowables(Throwable throwable) {
     List list = new ArrayList();
     while (throwable != null) {
@@ -5772,6 +5780,7 @@ public class GcElUtilsSafe {
    * @return boolean <code>true</code> if nested otherwise <code>false</code>
    * @since 2.0
    */
+  @SuppressWarnings("unchecked")
   public static boolean isNestedThrowable(Throwable throwable) {
     if (throwable == null) {
       return false;
@@ -5831,8 +5840,7 @@ public class GcElUtilsSafe {
    * 
    * <p>The method searches for methods with specific names that return a 
    * <code>Throwable</code> object. This will pick up most wrapping exceptions,
-   * including those from JDK 1.4, and
-   * {@link org.apache.commons.lang.exception.NestableException NestableException}.</p>
+   * including those from JDK 1.4, and</p>
    *
    * <p>The default list searched for are:</p>
    * <ul>
