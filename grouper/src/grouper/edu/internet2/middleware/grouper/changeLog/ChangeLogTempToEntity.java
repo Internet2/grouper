@@ -19,6 +19,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Membership;
@@ -58,6 +60,9 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class ChangeLogTempToEntity {
 
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(ChangeLogTempToEntity.class);
+  
   /**
    * convert the temps to regulars, assign id's
    * hib3GrouperLoaderLog is the log object to post updates, can be null
@@ -197,8 +202,14 @@ public class ChangeLogTempToEntity {
               }
               
               //delete from the temp
-              CHANGE_LOG_ENTRY.setTempObject(true);
-              CHANGE_LOG_ENTRY.delete();
+              //using sql since hibernate would try to otherwise batch this delete (since the table is not versioned I think),
+              //in which case some database (like Oracle) do not return the number of affected rows.
+              int count = HibernateSession.bySqlStatic().executeSql("delete from grouper_change_log_entry_temp where id = ?", 
+                  GrouperUtil.toList((Object)CHANGE_LOG_ENTRY.getId()));
+              if (count != 1) {
+                throw new RuntimeException("Bad count of " + count + " when deleting temp change log entry: " + CHANGE_LOG_ENTRY.toStringDeep());
+              }
+              
               return null;
             }
         
@@ -225,6 +236,8 @@ public class ChangeLogTempToEntity {
    */
   private static void processGroupAdd(ChangeLogEntry changeLogEntry) {
     
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_ADD.id.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_ADD.name.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_ADD.parentStemId.name());
@@ -232,6 +245,12 @@ public class ChangeLogTempToEntity {
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_ADD.id);
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long time = changeLogEntry.getCreatedOnDb();
+    
+    PITGroup existing = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(id, false);
+    if (existing != null) {
+      LOG.warn("Skipping change since already in PIT: " + changeLogEntry.toStringDeep());
+      return;
+    }
 
     PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_ADD.parentStemId), true);
     
@@ -255,6 +274,8 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processGroupUpdate(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
     
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     
@@ -285,6 +306,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processGroupDelete(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_DELETE.id.name());
 
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_DELETE.id);
@@ -309,6 +333,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processStemAdd(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.STEM_ADD.id.name());
 
     PITStem pitStem = new PITStem();
@@ -319,6 +346,12 @@ public class ChangeLogTempToEntity {
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long time = changeLogEntry.getCreatedOnDb();
 
+    PITStem existing = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(id, false);
+    if (existing != null) {
+      LOG.warn("Skipping change since already in PIT: " + changeLogEntry.toStringDeep());
+      return;
+    }
+    
     if (GrouperUtil.isEmpty(name)) {
       // is this the root stem??
       name = null;
@@ -352,7 +385,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processStemUpdate(ChangeLogEntry changeLogEntry) {
-
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
 
     if (changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.propertyChanged).equals("name")) {
@@ -382,6 +417,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processStemDelete(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.STEM_DELETE.id.name());
 
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_DELETE.id);
@@ -406,6 +444,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeDefAdd(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_ADD.id.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_ADD.name.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_ADD.stemId.name());
@@ -415,6 +456,12 @@ public class ChangeLogTempToEntity {
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long time = changeLogEntry.getCreatedOnDb();
 
+    PITAttributeDef existing = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(id, false);
+    if (existing != null) {
+      LOG.warn("Skipping change since already in PIT: " + changeLogEntry.toStringDeep());
+      return;
+    }
+    
     PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_ADD.stemId), true);
     PITAttributeDef pitAttributeDef = new PITAttributeDef();
     pitAttributeDef.setId(GrouperUuid.getUuid());
@@ -437,6 +484,8 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeDefUpdate(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
     
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
 
@@ -467,6 +516,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeDefDelete(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_DELETE.id.name());
 
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_DELETE.id);
@@ -491,6 +543,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processFieldAdd(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_FIELD_ADD.id.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_FIELD_ADD.name.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_FIELD_ADD.type.name());
@@ -503,6 +558,12 @@ public class ChangeLogTempToEntity {
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long time = changeLogEntry.getCreatedOnDb();
 
+    PITField existing = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(id, false);
+    if (existing != null) {
+      LOG.warn("Skipping change since already in PIT: " + changeLogEntry.toStringDeep());
+      return;
+    }
+    
     pitField.setId(GrouperUuid.getUuid());
     pitField.setSourceId(id);
     pitField.setNameDb(name);
@@ -521,6 +582,9 @@ public class ChangeLogTempToEntity {
   }
   
   private static void processFieldDelete(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_FIELD_DELETE.id.name());
 
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_FIELD_DELETE.id);
@@ -545,7 +609,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processFieldUpdate(ChangeLogEntry changeLogEntry) {
-
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
 
     if (changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_FIELD_UPDATE.propertyChanged).equals("name") ||
@@ -567,6 +633,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processGroupTypeAssign(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_TYPE_ASSIGN.groupId.name());
 
     String groupId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_TYPE_ASSIGN.groupId);
@@ -580,6 +649,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processGroupTypeUnassign(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_TYPE_UNASSIGN.groupId.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_TYPE_UNASSIGN.typeId.name());
 
@@ -614,6 +686,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processMemberAdd(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBER_ADD.id.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBER_ADD.subjectId.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBER_ADD.subjectSourceId.name());
@@ -627,6 +702,12 @@ public class ChangeLogTempToEntity {
     String subjectTypeId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.subjectTypeId);
     Long time = changeLogEntry.getCreatedOnDb();
 
+    PITMember existing = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(id, false);
+    if (existing != null) {
+      LOG.warn("Skipping change since already in PIT: " + changeLogEntry.toStringDeep());
+      return;
+    }
+    
     pitMember.setId(GrouperUuid.getUuid());
     pitMember.setSourceId(id);
     pitMember.setSubjectId(subjectId);
@@ -647,7 +728,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processMemberUpdate(ChangeLogEntry changeLogEntry) {
-
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
 
     if (changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged).equals("subjectId") ||
@@ -669,6 +752,9 @@ public class ChangeLogTempToEntity {
   }
   
   private static void processMemberDelete(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBER_DELETE.id.name());
 
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.id);
@@ -692,6 +778,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processMembershipAdd(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBERSHIP_ADD.id.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBERSHIP_ADD.groupId.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBERSHIP_ADD.fieldId.name());
@@ -702,6 +791,12 @@ public class ChangeLogTempToEntity {
     String fieldId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldId);
     String memberId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.memberId);
     Long time = changeLogEntry.getCreatedOnDb();
+    
+    PITMembership existing = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdActive(id, false);
+    if (existing != null) {
+      LOG.warn("Skipping change since already in PIT: " + changeLogEntry.toStringDeep());
+      return;
+    }
     
     PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(groupId, true);
     PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(fieldId, true);
@@ -736,6 +831,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processMembershipDelete(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBERSHIP_DELETE.id.name());
 
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.id);
@@ -769,6 +867,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processPrivilegeAdd(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.PRIVILEGE_ADD.id.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.PRIVILEGE_ADD.ownerType.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.PRIVILEGE_ADD.ownerId.name());
@@ -781,6 +882,12 @@ public class ChangeLogTempToEntity {
     String fieldId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.fieldId);
     String memberId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.memberId);    
     Long time = changeLogEntry.getCreatedOnDb();
+    
+    PITMembership existing = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdActive(id, false);
+    if (existing != null) {
+      LOG.warn("Skipping change since already in PIT: " + changeLogEntry.toStringDeep());
+      return;
+    }
     
     PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(fieldId, true);
     PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(memberId, true);
@@ -827,6 +934,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processPrivilegeDelete(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.PRIVILEGE_DELETE.id.name());
 
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.id);
@@ -859,6 +969,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeAssignAdd(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.id.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeDefNameId.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeAssignActionId.name());
@@ -875,6 +988,12 @@ public class ChangeLogTempToEntity {
     String disallowedDb = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.disallowed);    
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
+    
+    PITAttributeAssign existing = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(id, false);
+    if (existing != null) {
+      LOG.warn("Skipping change since already in PIT: " + changeLogEntry.toStringDeep());
+      return;
+    }
     
     PITAttributeDefName pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(attributeDefNameId, true);
     PITAttributeAssignAction pitAttributeAssignAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(actionId, true);
@@ -935,6 +1054,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeAssignDelete(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.id.name());
 
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.id);
@@ -961,6 +1083,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeAssignValueAdd(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.id.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeAssignId.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.valueType.name());
@@ -970,6 +1095,12 @@ public class ChangeLogTempToEntity {
     String value = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.value);
     String valueType = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.valueType);
   
+    PITAttributeAssignValue existing = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().findBySourceIdActive(id, false);
+    if (existing != null) {
+      LOG.warn("Skipping change since already in PIT: " + changeLogEntry.toStringDeep());
+      return;
+    }
+    
     PITAttributeAssign pitAttributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(attributeAssignId, false);
     if (pitAttributeAssign == null) {
       // it may be disabled..
@@ -1007,6 +1138,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeAssignValueDelete(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.id.name());
 
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.id);
@@ -1030,6 +1164,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeDefNameAdd(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.id.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.attributeDefId.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.stemId.name());
@@ -1041,6 +1178,12 @@ public class ChangeLogTempToEntity {
     String name = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.name);
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
+    
+    PITAttributeDefName existing = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(id, false);
+    if (existing != null) {
+      LOG.warn("Skipping change since already in PIT: " + changeLogEntry.toStringDeep());
+      return;
+    }
     
     PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(attributeDefId, true);
     PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(stemId, true);
@@ -1064,6 +1207,8 @@ public class ChangeLogTempToEntity {
    */
   private static void processAttributeDefNameUpdate(ChangeLogEntry changeLogEntry) {
     
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+     
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
 
     if (changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.propertyChanged).equals("name")) {
@@ -1083,6 +1228,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeDefNameDelete(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.id.name());
 
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.id);
@@ -1106,6 +1254,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeAssignActionAdd(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_ADD.id.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_ADD.attributeDefId.name());
 
@@ -1114,6 +1265,12 @@ public class ChangeLogTempToEntity {
     String name = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_ADD.name);
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
+    
+    PITAttributeAssignAction existing = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(id, false);
+    if (existing != null) {
+      LOG.warn("Skipping change since already in PIT: " + changeLogEntry.toStringDeep());
+      return;
+    }
     
     PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(attributeDefId, true);
 
@@ -1135,6 +1292,8 @@ public class ChangeLogTempToEntity {
    */
   private static void processAttributeAssignActionUpdate(ChangeLogEntry changeLogEntry) {
     
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
 
     if (changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.propertyChanged).equals("name")) {
@@ -1153,6 +1312,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeAssignActionDelete(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_DELETE.id.name());
 
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_DELETE.id);
@@ -1176,6 +1338,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeAssignActionSetAdd(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.id.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.depth.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.ifHasAttrAssnActionId.name());
@@ -1189,6 +1354,12 @@ public class ChangeLogTempToEntity {
     String parent = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.parentAttrAssignActionSetId);
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
+    
+    PITAttributeAssignActionSet existing = GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().findBySourceIdActive(id, false);
+    if (existing != null) {
+      LOG.warn("Skipping change since already in PIT: " + changeLogEntry.toStringDeep());
+      return;
+    }
     
     PITAttributeAssignAction pitIfHas = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(ifHas, true);
     PITAttributeAssignAction pitThenHas = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(thenHas, true);
@@ -1216,6 +1387,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeAssignActionSetDelete(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.id.name());
 
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.id);
@@ -1242,6 +1416,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeDefNameSetAdd(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.id.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.depth.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.ifHasAttributeDefNameId.name());
@@ -1255,6 +1432,12 @@ public class ChangeLogTempToEntity {
     String parent = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.parentAttrDefNameSetId);
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
+    
+    PITAttributeDefNameSet existing = GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().findBySourceIdActive(id, false);
+    if (existing != null) {
+      LOG.warn("Skipping change since already in PIT: " + changeLogEntry.toStringDeep());
+      return;
+    }
     
     PITAttributeDefName pitIfHas = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(ifHas, true);
     PITAttributeDefName pitThenHas = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(thenHas, true);
@@ -1282,6 +1465,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processAttributeDefNameSetDelete(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.id.name());
 
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.id);
@@ -1308,6 +1494,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processRoleSetAdd(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ROLE_SET_ADD.id.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ROLE_SET_ADD.depth.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ROLE_SET_ADD.ifHasRoleId.name());
@@ -1321,6 +1510,12 @@ public class ChangeLogTempToEntity {
     String parent = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ROLE_SET_ADD.parentRoleSetId);
     Long time = changeLogEntry.getCreatedOnDb();
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
+    
+    PITRoleSet existing = GrouperDAOFactory.getFactory().getPITRoleSet().findBySourceIdActive(id, false);
+    if (existing != null) {
+      LOG.warn("Skipping change since already in PIT: " + changeLogEntry.toStringDeep());
+      return;
+    }
     
     PITGroup pitIfHas = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(ifHas, true);
     PITGroup pitThenHas = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(thenHas, true);
@@ -1348,6 +1543,9 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processRoleSetDelete(ChangeLogEntry changeLogEntry) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
     assertNotEmpty(changeLogEntry, ChangeLogLabels.ROLE_SET_DELETE.id.name());
 
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ROLE_SET_DELETE.id);
