@@ -224,5 +224,26 @@ public class Hib3PITStemDAO extends Hib3DAO implements PITStemDAO {
     
     return stems;
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITStemDAO#findActiveDuplicates()
+   */
+  public Set<String> findActiveDuplicates() {
+    return HibernateSession
+      .byHqlStatic()
+      .createQuery("select sourceId from PITStem where active='T' group by sourceId having count(*) > 1")
+      .setCacheable(false)
+      .listSet(String.class);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITStemDAO#delete(java.lang.String)
+   */
+  public void delete(String id) {
+    HibernateSession.byHqlStatic()
+      .createQuery("delete from PITStem where id = :id")
+      .setString("id", id)
+      .executeUpdate();
+  }
 }
 

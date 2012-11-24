@@ -316,20 +316,14 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
       return false;
     }
     
-    return new EqualsBuilder()
-      .append(this.getName(), ((PITGroup) other).getName())
-      .append(this.getStartTimeDb(), ((PITGroup) other).getStartTimeDb())
-      .isEquals();
+    return new EqualsBuilder().append(this.getId(), ((PITGroup) other).getId()).isEquals();
   }
   
   /**
    * @see java.lang.Object#hashCode()
    */
   public int hashCode() {
-    return new HashCodeBuilder()
-      .append(this.getName())
-      .append(this.getStartTimeDb())
-      .toHashCode();
+    return new HashCodeBuilder().append(this.getId()).toHashCode();
   }
   
   /**

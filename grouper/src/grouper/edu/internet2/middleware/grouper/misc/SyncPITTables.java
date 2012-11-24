@@ -29,7 +29,11 @@
 
 package edu.internet2.middleware.grouper.misc;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -51,8 +55,10 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.group.GroupSet;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.permissions.role.RoleSet;
+import edu.internet2.middleware.grouper.pit.GrouperPIT;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignAction;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignActionSet;
@@ -1582,5 +1588,106 @@ public class SyncPITTables {
     if (createReport && report != null) {
       report.append(detail + "\n");
     }
+  }
+  
+  /**
+   * Find and delete active entries in point in time tables that are duplicates.  
+   * This will keep the oldest entry based on the start time.
+   * @return number of duplicates
+   */
+  public long processAllDuplicates() {
+    
+    GrouperSession session = null;
+    long count = 0;
+
+    try {
+      session = GrouperSession.startRootSession();
+      clearReport();
+      
+      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITField());
+      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITMember());
+      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITStem());
+      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITGroup());
+      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITRoleSet());
+      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITAttributeDef());
+      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITAttributeDefName());
+      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITAttributeDefNameSet());
+      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITAttributeAssignAction());
+      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet());
+      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITGroupSet());
+      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITMembership());
+      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITAttributeAssign());
+      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITAttributeAssignValue());
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+    
+    return count;
+  }
+  
+  /**
+   * @param dao
+   * @return number of duplicates
+   */
+  public long processDuplicates(GrouperDAO dao) {
+
+    String className = dao.getClass().getSimpleName();
+    long errorCount = 0;
+    
+    showStatus("\n\n" + className + ": Searching for point in time duplicates");
+
+    Set<String> sourceIds = (Set<String>)GrouperUtil.callMethod(dao.getClass(), dao, "findActiveDuplicates", null, null, false, false);
+    showStatus("Found " + sourceIds.size() + " entries that have duplicates in point in time.");
+
+    for (String sourceId : sourceIds) {
+      Set<GrouperPIT> objectsSet = (Set<GrouperPIT>)GrouperUtil.callMethod(dao.getClass(), dao, "findBySourceId", new Class[] {String.class, boolean.class}, new Object[] {sourceId, true}, false, false);
+      List<GrouperPIT> objectsList = new ArrayList<GrouperPIT>();
+      for (GrouperPIT object : objectsSet) {
+        if (object.isActive()) {
+          objectsList.add(object);
+        }
+      }
+      
+      if (objectsList.size() < 2) {
+        throw new RuntimeException("Found fewer than expected entries with sourceId=" + sourceId + ", DAO=" + className);
+      }
+      
+      Collections.sort(objectsList, new Comparator<GrouperPIT>() {
+
+        public int compare(GrouperPIT o1, GrouperPIT o2) {
+          return ((Long)o1.getStartTimeDb()).compareTo(o2.getStartTimeDb());
+        }
+      });
+
+      // remove the first object from the list -- should be the oldest or tied for the oldest
+      objectsList.remove(0);
+      
+      // try deleting the rest .. hopefully we won't have foreign key issues....
+      for (GrouperPIT object : objectsList) {
+        String id  = (String)GrouperUtil.callMethod(object.getClass(), object, "getId", null, null, false, false);
+        
+        logDetail(className + ": Found duplicate PIT record with sourceId=" + sourceId + ", id=" + id);
+        showStatus("Found duplicate PIT record with sourceId=" + sourceId + ", id=" + id);
+
+        if (saveUpdates) {
+          try {
+            GrouperUtil.callMethod(dao.getClass(), dao, "delete", new Class[] {String.class}, new Object[] {id}, false, false);
+          } catch (Exception e) {
+            LOG.error(className + ": Failed to delete PIT record with sourceId=" + sourceId + ", id=" + id, e);
+            errorCount++;
+          }
+        }
+      }
+    }
+    
+    if (sourceIds.size() > 0 && saveUpdates) {
+      if (errorCount == 0) {
+        showStatus("Done making updates");
+      } else {
+        showStatus("Done making updates but there were " + errorCount + " errors.  See logs for details.");
+      }
+    }
+    
+    return sourceIds.size();
   }
 }

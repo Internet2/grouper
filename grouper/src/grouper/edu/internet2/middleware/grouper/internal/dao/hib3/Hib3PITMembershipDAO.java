@@ -236,5 +236,26 @@ public class Hib3PITMembershipDAO extends Hib3DAO implements PITMembershipDAO {
     
     return mships;
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#findActiveDuplicates()
+   */
+  public Set<String> findActiveDuplicates() {
+    return HibernateSession
+      .byHqlStatic()
+      .createQuery("select sourceId from PITMembership where active='T' group by sourceId having count(*) > 1")
+      .setCacheable(false)
+      .listSet(String.class);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#delete(java.lang.String)
+   */
+  public void delete(String id) {
+    HibernateSession.byHqlStatic()
+      .createQuery("delete from PITMembership where id = :id")
+      .setString("id", id)
+      .executeUpdate();
+  }
 }
 

@@ -183,5 +183,26 @@ public class Hib3PITFieldDAO extends Hib3DAO implements PITFieldDAO {
     
     return fields;
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITFieldDAO#findActiveDuplicates()
+   */
+  public Set<String> findActiveDuplicates() {
+    return HibernateSession
+      .byHqlStatic()
+      .createQuery("select sourceId from PITField where active='T' group by sourceId having count(*) > 1")
+      .setCacheable(false)
+      .listSet(String.class);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITFieldDAO#delete(java.lang.String)
+   */
+  public void delete(String id) {
+    HibernateSession.byHqlStatic()
+      .createQuery("delete from PITField where id = :id")
+      .setString("id", id)
+      .executeUpdate();
+  }
 }
 

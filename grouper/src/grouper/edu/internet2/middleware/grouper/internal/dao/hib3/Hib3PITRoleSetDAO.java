@@ -242,4 +242,43 @@ public class Hib3PITRoleSetDAO extends Hib3DAO implements PITRoleSetDAO {
     
     return roleSets;
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO#findActiveDuplicates()
+   */
+  public Set<String> findActiveDuplicates() {
+    return HibernateSession
+      .byHqlStatic()
+      .createQuery("select sourceId from PITRoleSet where active='T' group by sourceId having count(*) > 1")
+      .setCacheable(false)
+      .listSet(String.class);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO#findBySourceId(java.lang.String, boolean)
+   */
+  public Set<PITRoleSet> findBySourceId(String id, boolean exceptionIfNotFound) {
+    Set<PITRoleSet> pitRoleSets = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pitRoleSet from PITRoleSet as pitRoleSet where pitRoleSet.sourceId = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceId")
+      .setString("id", id)
+      .listSet(PITRoleSet.class);
+    
+    if (pitRoleSets.size() == 0 && exceptionIfNotFound) {
+      throw new RuntimeException("PITRoleSet with sourceId=" + id + " not found");
+    }
+    
+    return pitRoleSets;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITRoleSetDAO#delete(java.lang.String)
+   */
+  public void delete(String id) {
+    HibernateSession.byHqlStatic()
+      .createQuery("delete from PITRoleSet where id = :id")
+      .setString("id", id)
+      .executeUpdate();
+  }
 }

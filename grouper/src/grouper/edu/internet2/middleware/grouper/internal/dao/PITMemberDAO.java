@@ -99,4 +99,15 @@ public interface PITMemberDAO extends GrouperDAO {
    * @return active point in time members that should be inactive
    */
   public Set<PITMember> findMissingInactivePITMembers();
+  
+  /**
+   * @return source ids of records that have duplicate active entries in PIT
+   */
+  public Set<String> findActiveDuplicates();
+  
+  /**
+   * Delete (won't run pre and post delete methods)
+   * @param id
+   */
+  public void delete(String id);
 }
