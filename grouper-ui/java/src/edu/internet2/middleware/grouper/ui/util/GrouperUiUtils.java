@@ -1302,7 +1302,7 @@ public class GrouperUiUtils {
     Map<String, Object> variableMap = new HashMap<String, Object>();
     variableMap.put("subject", subject);
     variableMap.put("grouperUiUtils", new GrouperUiUtils());
-    String result = GrouperUtil.substituteExpressionLanguage(screenEl, variableMap);
+    String result = GrouperUtil.substituteExpressionLanguage(screenEl, variableMap, false, true, true);
     return result;
   }
 
