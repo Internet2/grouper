@@ -104,4 +104,22 @@ public interface PITAttributeAssignValueDAO extends GrouperDAO {
    * @return active point in time attribute assign values that should be inactive
    */
   public Set<PITAttributeAssignValue> findMissingInactivePITAttributeAssignValues();
+  
+  /**
+   * @return source ids of records that have duplicate active entries in PIT
+   */
+  public Set<String> findActiveDuplicates();
+  
+  /**
+   * @param id
+   * @param exceptionIfNotFound 
+   * @return set of PITAttributeAssignValue
+   */
+  public Set<PITAttributeAssignValue> findBySourceId(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * Delete (won't run pre and post delete methods)
+   * @param id
+   */
+  public void delete(String id);
 }

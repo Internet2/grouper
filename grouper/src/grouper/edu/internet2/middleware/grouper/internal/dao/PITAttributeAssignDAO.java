@@ -181,4 +181,15 @@ public interface PITAttributeAssignDAO extends GrouperDAO {
    * @return set of PITAttributeAssign
    */
   public Set<PITAttributeAssign> findByOwnerPITGroupIdAndPITAttributeDefNameId(String pitGroupId, String pitAttributeDefNameId);
+  
+  /**
+   * @return source ids of records that have duplicate active entries in PIT
+   */
+  public Set<String> findActiveDuplicates();
+  
+  /**
+   * Delete (won't run pre and post delete methods)
+   * @param id
+   */
+  public void delete(String id);
 }

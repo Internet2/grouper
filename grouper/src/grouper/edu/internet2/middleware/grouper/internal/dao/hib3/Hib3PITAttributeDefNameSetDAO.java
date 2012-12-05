@@ -243,4 +243,43 @@ public class Hib3PITAttributeDefNameSetDAO extends Hib3DAO implements PITAttribu
     
     return attrSets;
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameSetDAO#findActiveDuplicates()
+   */
+  public Set<String> findActiveDuplicates() {
+    return HibernateSession
+      .byHqlStatic()
+      .createQuery("select sourceId from PITAttributeDefNameSet where active='T' group by sourceId having count(*) > 1")
+      .setCacheable(false)
+      .listSet(String.class);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameSetDAO#findBySourceId(java.lang.String, boolean)
+   */
+  public Set<PITAttributeDefNameSet> findBySourceId(String id, boolean exceptionIfNotFound) {
+    Set<PITAttributeDefNameSet> pitAttributeDefNameSets = HibernateSession
+      .byHqlStatic()
+      .createQuery("select attrDefNameSet from PITAttributeDefNameSet as attrDefNameSet where attrDefNameSet.sourceId = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceId")
+      .setString("id", id)
+      .listSet(PITAttributeDefNameSet.class);
+    
+    if (pitAttributeDefNameSets.size() == 0 && exceptionIfNotFound) {
+      throw new RuntimeException("PITAttributeDefNameSet with sourceId=" + id + " not found");
+    }
+    
+    return pitAttributeDefNameSets;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameSetDAO#delete(java.lang.String)
+   */
+  public void delete(String id) {
+    HibernateSession.byHqlStatic()
+      .createQuery("delete from PITAttributeDefNameSet where id = :id")
+      .setString("id", id)
+      .executeUpdate();
+  }
 }

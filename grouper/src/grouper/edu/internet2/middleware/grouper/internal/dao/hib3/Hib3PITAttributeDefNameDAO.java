@@ -227,4 +227,25 @@ public class Hib3PITAttributeDefNameDAO extends Hib3DAO implements PITAttributeD
     
     return attrs;
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameDAO#findActiveDuplicates()
+   */
+  public Set<String> findActiveDuplicates() {
+    return HibernateSession
+      .byHqlStatic()
+      .createQuery("select sourceId from PITAttributeDefName where active='T' group by sourceId having count(*) > 1")
+      .setCacheable(false)
+      .listSet(String.class);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefNameDAO#delete(java.lang.String)
+   */
+  public void delete(String id) {
+    HibernateSession.byHqlStatic()
+      .createQuery("delete from PITAttributeDefName where id = :id")
+      .setString("id", id)
+      .executeUpdate();
+  }
 }

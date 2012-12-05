@@ -206,4 +206,43 @@ public class Hib3PITAttributeAssignValueDAO extends Hib3DAO implements PITAttrib
     
     return values;
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignValueDAO#findActiveDuplicates()
+   */
+  public Set<String> findActiveDuplicates() {
+    return HibernateSession
+      .byHqlStatic()
+      .createQuery("select sourceId from PITAttributeAssignValue where active='T' group by sourceId having count(*) > 1")
+      .setCacheable(false)
+      .listSet(String.class);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignValueDAO#findBySourceId(java.lang.String, boolean)
+   */
+  public Set<PITAttributeAssignValue> findBySourceId(String id, boolean exceptionIfNotFound) {
+    Set<PITAttributeAssignValue> pitAttributeAssignValue = HibernateSession
+      .byHqlStatic()
+      .createQuery("select attrAssignValue from PITAttributeAssignValue as attrAssignValue where attrAssignValue.sourceId = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceId")
+      .setString("id", id)
+      .listSet(PITAttributeAssignValue.class);
+    
+    if (pitAttributeAssignValue.size() == 0 && exceptionIfNotFound) {
+      throw new RuntimeException("PITAttributeAssignValue with sourceId=" + id + " not found");
+    }
+    
+    return pitAttributeAssignValue;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignValueDAO#delete(java.lang.String)
+   */
+  public void delete(String id) {
+    HibernateSession.byHqlStatic()
+      .createQuery("delete from PITAttributeAssignValue where id = :id")
+      .setString("id", id)
+      .executeUpdate();
+  }
 }
