@@ -5210,7 +5210,7 @@ public enum GrouperDdl implements DdlVersionable {
     {
       GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
           StemSet.TABLE_GROUPER_STEM_SET, 
-          "This table holds the relationship between stems by easily indicating all the children of a stem.");
+          "This table holds the relationship between stems by easily indicating all the ancestors of a stem.");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           StemSet.TABLE_GROUPER_STEM_SET, 
@@ -5235,7 +5235,7 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           StemSet.TABLE_GROUPER_STEM_SET, 
           StemSet.COLUMN_IF_HAS_STEM_ID, 
-          "uuid foreign key of left hand side of this relationship. If a stem contains this stem, it also contains the then_has stem.");
+          "uuid foreign key of left hand side of this relationship. If an object is in this stem, it is also in the then_has stem.");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           StemSet.TABLE_GROUPER_STEM_SET, 
@@ -5250,7 +5250,7 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           StemSet.TABLE_GROUPER_STEM_SET, 
           StemSet.COLUMN_THEN_HAS_STEM_ID, 
-          "uuid foreign key of the right hand side of this relationship.  If a stem contains the if_has stem, it also contains this stem.");
+          "uuid foreign key of the right hand side of this relationship.  If an object is in the if_has stem, it is also in this stem.");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           StemSet.TABLE_GROUPER_STEM_SET, 

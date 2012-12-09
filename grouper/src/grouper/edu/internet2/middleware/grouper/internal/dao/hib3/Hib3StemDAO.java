@@ -33,6 +33,8 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -279,10 +281,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     
     allStemSets.add(selfStemSet);
    
-    // now find stems that imply this one..
+    // now find ancestor stems
     if (stem.getParentUuid() != null) {
-      Set<StemSet> stemSets = GrouperDAOFactory.getFactory().getStemSet().findByThenHasStemId(stem.getParentUuid());
-      allStemSets.addAll(createNonSelfStemSetsForStem(stemSets, stem.getUuid()));
+      Set<StemSet> stemSets = GrouperDAOFactory.getFactory().getStemSet().findByIfHasStemId(stem.getParentUuid());
+      allStemSets.addAll(createNonSelfStemSetsForStem(new LinkedList<StemSet>(stemSets), stem.getUuid(), selfStemSet));
     }
     
     for (int i = 0; i < GrouperUtil.batchNumberOfBatches(allStemSets, batchSize); i++) {
@@ -292,35 +294,60 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   }
   
   /**
-   * @param parents
-   * @param stemId
+   * @param ifHasStemSetsOfParentStem
+   * @param ifHasStemId
+   * @param firstParentStemSet
    * @return new child stemSets
    */
-  private List<StemSet> createNonSelfStemSetsForStem(Collection<StemSet> parents, String stemId) {
+  private List<StemSet> createNonSelfStemSetsForStem(List<StemSet> ifHasStemSetsOfParentStem, String ifHasStemId, StemSet firstParentStemSet) {
+    
+    String nextParentStemSetId = firstParentStemSet.getId();
+    
+    // sort by depth
+    Collections.sort(ifHasStemSetsOfParentStem, new Comparator<StemSet>() {
+
+      public int compare(StemSet o1, StemSet o2) {
+        return ((Integer)o1.getDepth()).compareTo(o2.getDepth());
+      }
+    });
+    
     
     List<StemSet> newChildren = new LinkedList<StemSet>();
     
-    for (StemSet parent : parents) {
+    for (StemSet currIfHasStemSet : ifHasStemSetsOfParentStem) {
       StemSet childStemSet = new StemSet();
       childStemSet.setId(GrouperUuid.getUuid());
-      childStemSet.setDepth(parent.getDepth() + 1);
-      childStemSet.setIfHasStemId(parent.getIfHasStemId());
-      childStemSet.setThenHasStemId(stemId);
-      childStemSet.setType(parent.getDepth() == 0 ? StemHierarchyType.immediate : StemHierarchyType.effective);
-      childStemSet.setParentStemSetId(parent.getId());
+      childStemSet.setDepth(currIfHasStemSet.getDepth() + 1 + firstParentStemSet.getDepth());
+      childStemSet.setThenHasStemId(currIfHasStemSet.getThenHasStemId());
+      childStemSet.setIfHasStemId(ifHasStemId);
+      childStemSet.setType(childStemSet.getDepth() == 1 ? StemHierarchyType.immediate : StemHierarchyType.effective);
+      childStemSet.setParentStemSetId(nextParentStemSetId);
       
       newChildren.add(childStemSet);
+      
+      nextParentStemSetId = childStemSet.getId();
     }
     
     return newChildren;
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.StemDAO#moveStemSets(java.util.Collection, java.util.Collection, java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.StemDAO#moveStemSets(java.util.List, java.util.List, java.lang.String, int)
    */
-  public void moveStemSets(Collection<StemSet> newParentSets, Collection<StemSet> oldStemSets, String currentStemId) {
+  public void moveStemSets(List<StemSet> ifHasStemSetsOfParentStem, List<StemSet> oldStemSets, String currentStemId, int depthOfFirstParent) {
 
-    List<StemSet> allStemSetsForCurrentNode = createNonSelfStemSetsForStem(newParentSets, currentStemId);
+    // we want to keep one of the oldStemSets -- with the lowest depth .. remove from the collection
+    // also sort desc so they can be deleted later in order
+    Collections.sort(oldStemSets, new Comparator<StemSet>() {
+
+      public int compare(StemSet o1, StemSet o2) {
+        return ((Integer)o2.getDepth()).compareTo(o1.getDepth());
+      }
+    });
+    
+    StemSet firstParentStemSet = oldStemSets.remove(oldStemSets.size() - 1);
+    
+    List<StemSet> allStemSetsForCurrentNode = createNonSelfStemSetsForStem(new LinkedList<StemSet>(ifHasStemSetsOfParentStem), currentStemId, firstParentStemSet);
     
     // batch to help performance
     int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 20);
@@ -334,25 +361,25 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       GrouperDAOFactory.getFactory().getStemSet().saveBatch(currentBatch);
     }
     
-    // take care of children, separately for each thenHasStemId
-    Set<StemSet> allOldStemSetChildren = GrouperDAOFactory.getFactory().getStemSet().findAllChildren(oldStemSets, new QueryOptions().sortAsc("thenHasStemId"));
+    // take care of children, separately for each ifHasStemId
+    Set<StemSet> allOldStemSetChildren = GrouperDAOFactory.getFactory().getStemSet().findByIfHasStemOfStemChildrenAndMinDepth(currentStemId, depthOfFirstParent + 1, new QueryOptions().sortAsc("ss.ifHasStemId"));
 
     if (allOldStemSetChildren.size() > 0) {
-      Set<StemSet> oldStemSetChildrenSameThenId = new LinkedHashSet<StemSet>();
-      String lastThenId = null;
+      List<StemSet> oldStemSetChildrenSameIfId = new LinkedList<StemSet>();
+      String lastIfId = null;
       for (StemSet oldStemSetChild : allOldStemSetChildren) {
-        if (lastThenId != null && !oldStemSetChild.getThenHasStemId().equals(lastThenId)) {
-          moveStemSets(allStemSetsForCurrentNode, oldStemSetChildrenSameThenId, lastThenId);
+        if (lastIfId != null && !oldStemSetChild.getIfHasStemId().equals(lastIfId)) {
+          moveStemSets(ifHasStemSetsOfParentStem, oldStemSetChildrenSameIfId, lastIfId, depthOfFirstParent + 1);
 
-          oldStemSetChildrenSameThenId.clear();
+          oldStemSetChildrenSameIfId.clear();
         }
         
-        lastThenId = oldStemSetChild.getThenHasStemId();
-        oldStemSetChildrenSameThenId.add(oldStemSetChild);
+        lastIfId = oldStemSetChild.getIfHasStemId();
+        oldStemSetChildrenSameIfId.add(oldStemSetChild);
       }
       
-      if (oldStemSetChildrenSameThenId.size() > 0) {
-        moveStemSets(allStemSetsForCurrentNode, oldStemSetChildrenSameThenId, lastThenId);
+      if (oldStemSetChildrenSameIfId.size() > 0) {
+        moveStemSets(ifHasStemSetsOfParentStem, oldStemSetChildrenSameIfId, lastIfId, depthOfFirstParent + 1);
       }
     }
     
@@ -400,7 +427,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     GrouperDAOFactory.getFactory().getGroupSet().deleteSelfByOwnerStem(_ns.getUuid());
 
     // delete stem sets
-    GrouperDAOFactory.getFactory().getStemSet().deleteByThenHasStemId(_ns.getUuid());
+    GrouperDAOFactory.getFactory().getStemSet().deleteByIfHasStemId(_ns.getUuid());
     
     try {
       HibernateSession.byObjectStatic().delete(_ns);

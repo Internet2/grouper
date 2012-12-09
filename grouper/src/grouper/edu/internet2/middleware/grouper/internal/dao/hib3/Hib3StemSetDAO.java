@@ -54,10 +54,10 @@ public class Hib3StemSetDAO extends Hib3DAO implements StemSetDAO {
     if (GrouperDdlUtils.isMysql() || GrouperDdlUtils.isHsql()) {
       //do this since mysql cant handle self-referential foreign keys
       // restrict this only to mysql since in oracle this might cause unique constraint violations
-      hibernateSession.byHql().createQuery("update StemSet set parentStemSetId = null where thenHasStemId not in (select uuid from Stem where name = ':')").executeUpdate();
+      hibernateSession.byHql().createQuery("update StemSet set parentStemSetId = null where ifHasStemId not in (select uuid from Stem where name = ':')").executeUpdate();
     }
     
-    hibernateSession.byHql().createQuery("delete from StemSet where thenHasStemId not in (select uuid from Stem where name = ':')").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from StemSet where ifHasStemId not in (select uuid from Stem where name = ':')").executeUpdate();
   }
 
   /**
@@ -111,11 +111,11 @@ public class Hib3StemSetDAO extends Hib3DAO implements StemSetDAO {
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.StemSetDAO#findNonSelfByThenHasStemId(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.StemSetDAO#findNonSelfByIfHasStemId(java.lang.String)
    */
-  public Set<StemSet> findNonSelfByThenHasStemId(String id) {
+  public Set<StemSet> findNonSelfByIfHasStemId(String id) {
     Set<StemSet> stemSets = HibernateSession.byHqlStatic()
-      .createQuery("from StemSet where thenHasStemId = :theId and depth > 0")
+      .createQuery("from StemSet where ifHasStemId = :theId and depth > 0")
       .setString("theId", id).listSet(StemSet.class);
     
     return stemSets;
@@ -191,9 +191,23 @@ public class Hib3StemSetDAO extends Hib3DAO implements StemSetDAO {
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.StemSetDAO#deleteByThenHasStemId(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.StemSetDAO#findByIfHasStemOfStemChildrenAndMinDepth(java.lang.String, int, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
    */
-  public void deleteByThenHasStemId(final String id) {
+  public Set<StemSet> findByIfHasStemOfStemChildrenAndMinDepth(String stemId, int minDepth, QueryOptions queryOptions) {
+    Set<StemSet> stemSets = HibernateSession.byHqlStatic()
+      .createQuery("select ss from StemSet ss, Stem s where s.uuid = ss.ifHasStemId and s.parentUuid = :stemId and ss.depth >= :depth")
+      .setString("stemId", stemId)
+      .setInteger("depth", minDepth)
+      .options(queryOptions)
+      .listSet(StemSet.class);
+    
+    return stemSets;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.StemSetDAO#deleteByIfHasStemId(java.lang.String)
+   */
+  public void deleteByIfHasStemId(final String id) {
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
         AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
@@ -206,11 +220,11 @@ public class Hib3StemSetDAO extends Hib3DAO implements StemSetDAO {
               //set parent to null so mysql doest get mad
               //http://bugs.mysql.com/bug.php?id=15746
               hibernateHandlerBean.getHibernateSession().byHql()
-                .createQuery("update StemSet set parentStemSetId = null where thenHasStemId = :id")
+                .createQuery("update StemSet set parentStemSetId = null where ifHasStemId = :id")
                 .setString("id", id).executeUpdate();
             }
             
-            for (StemSet stemSet : findByThenHasStemId(id)) {
+            for (StemSet stemSet : findByIfHasStemId(id)) {
               stemSet.delete();
             }
             

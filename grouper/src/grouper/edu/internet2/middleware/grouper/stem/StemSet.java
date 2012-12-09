@@ -142,10 +142,10 @@ public class StemSet extends GrouperAPI implements Hib3GrouperVersioned, Grouper
    */
   private String parentStemSetId;
 
-  /** stem id of the child stem */
+  /** stem id of the then has stem */
   private String thenHasStemId;
   
-  /** stem id of the parent stem */
+  /** stem id of the if has stem */
   private String ifHasStemId;
 
   /**
@@ -245,14 +245,14 @@ public class StemSet extends GrouperAPI implements Hib3GrouperVersioned, Grouper
   }
   
   /**
-   * @return the parent stem
+   * @return the if has stem.  An object in this stem is also in the thenHas stem.
    */
   public Stem getIfHasStem() {
     return GrouperDAOFactory.getFactory().getStem().findByUuid(this.getIfHasStemId(), true);
   }
   
   /**
-   * @return the child stem
+   * @return the then has stem.  An object in the ifHas stem is also in this stem.
    */
   public Stem getThenHasStem() {
     return GrouperDAOFactory.getFactory().getStem().findByUuid(this.getThenHasStemId(), true);
@@ -300,14 +300,14 @@ public class StemSet extends GrouperAPI implements Hib3GrouperVersioned, Grouper
 
   
   /**
-   * @return stem id of the child stem
+   * @return stem id of the then has stem
    */
   public String getThenHasStemId() {
     return this.thenHasStemId;
   }
 
   /**
-   * Set stem id of the child stem
+   * Set stem id of the then has stem
    * @param stemId
    */
   public void setThenHasStemId(String stemId) {
@@ -315,7 +315,7 @@ public class StemSet extends GrouperAPI implements Hib3GrouperVersioned, Grouper
   }
 
   /**
-   * @return stem id of the parent stem
+   * @return stem id of the if has stem
    */
   public String getIfHasStemId() {
     return this.ifHasStemId;
@@ -323,7 +323,7 @@ public class StemSet extends GrouperAPI implements Hib3GrouperVersioned, Grouper
 
   
   /**
-   * Set stem id of the parent stem
+   * Set stem id of the if has stem
    * @param stemId
    */
   public void setIfHasStemId(String stemId) {

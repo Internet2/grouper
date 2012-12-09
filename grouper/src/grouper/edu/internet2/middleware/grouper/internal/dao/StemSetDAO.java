@@ -55,31 +55,31 @@ public interface StemSetDAO extends GrouperDAO {
     throws StemSetNotFoundException;
 
   /**
-   * find by parent stem id
+   * find by if has stem id
    * @param id
    * @return the stem sets
    */
   public Set<StemSet> findByIfHasStemId(String id);
 
   /**
-   * find by child stem id
+   * find by then has stem id
    * @param id
    * @return the stem sets
    */
   public Set<StemSet> findByThenHasStemId(String id);
   
   /**
-   * find by child stem id
+   * find by if has stem id (exclude self stem)
    * @param id
    * @return the stem sets
    */
-  public Set<StemSet> findNonSelfByThenHasStemId(String id);
+  public Set<StemSet> findNonSelfByIfHasStemId(String id);
   
   /**
-   * delete all stem sets with the given then has stem id
+   * delete all stem sets with the given if has stem id
    * @param id
    */
-  public void deleteByThenHasStemId(String id);
+  public void deleteByIfHasStemId(String id);
 
   /**
    * @param stemSets 
@@ -87,6 +87,14 @@ public interface StemSetDAO extends GrouperDAO {
    * @return children
    */
   public Set<StemSet> findAllChildren(Collection<StemSet> stemSets, QueryOptions queryOptions);
+  
+  /**
+   * @param stemId
+   * @param minDepth
+   * @param queryOptions
+   * @return stemSets
+   */
+  public Set<StemSet> findByIfHasStemOfStemChildrenAndMinDepth(String stemId, int minDepth, QueryOptions queryOptions);
   
   /**
    * find by if and then (not same) with depth of 1 (immediate)

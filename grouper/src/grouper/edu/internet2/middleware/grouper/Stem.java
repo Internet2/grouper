@@ -37,6 +37,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
@@ -3115,9 +3116,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     
     if (this.dbVersionDifferentFields().contains(FIELD_PARENT_UUID)) {
       // stem is being moved.  take care of stem sets..
-      Set<StemSet> newParentSets = GrouperDAOFactory.getFactory().getStemSet().findByThenHasStemId(this.parentUuid);
-      Set<StemSet> oldStemSets = GrouperDAOFactory.getFactory().getStemSet().findNonSelfByThenHasStemId(this.uuid);
-      GrouperDAOFactory.getFactory().getStem().moveStemSets(newParentSets, oldStemSets, this.uuid);
+      Set<StemSet> ifHasStemSetsOfParentStem = GrouperDAOFactory.getFactory().getStemSet().findByIfHasStemId(this.parentUuid);
+      Set<StemSet> oldStemSets = GrouperDAOFactory.getFactory().getStemSet().findByIfHasStemId(this.uuid);
+      GrouperDAOFactory.getFactory().getStem().moveStemSets(new LinkedList<StemSet>(ifHasStemSetsOfParentStem), new LinkedList<StemSet>(oldStemSets), this.uuid, 0);
     }
     
     super.onPostUpdate(hibernateSession);

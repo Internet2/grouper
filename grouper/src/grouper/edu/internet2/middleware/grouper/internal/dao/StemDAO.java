@@ -33,6 +33,7 @@
 package edu.internet2.middleware.grouper.internal.dao;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -544,11 +545,12 @@ public interface StemDAO extends GrouperDAO {
       String sqlLikeString);
 
   /**
-   * @param newParentSets
+   * @param ifHasStemSetsOfParentStem
    * @param oldStemSets
    * @param currentStemId
+   * @param depthOfFirstParent
    */
-  public void moveStemSets(Collection<StemSet> newParentSets, Collection<StemSet> oldStemSets, String currentStemId);
+  public void moveStemSets(List<StemSet> ifHasStemSetsOfParentStem, List<StemSet> oldStemSets, String currentStemId, int depthOfFirstParent);
 
 } 
 
