@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.service.ServiceRole;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -266,14 +267,14 @@ public class AttributeDefNameFinderTest extends GrouperTest {
 
     //which services can the user see?  subj6 can see the public one... service 9
     attributeDefNames = new AttributeDefNameFinder().assignScope("test1:").assignSubject(SubjectTestHelper.SUBJ6)
-      .assignFilterByServicesCanView(true).findAttributeNames();
+      .assignServiceRole(ServiceRole.user).findAttributeNames();
     
     assertEquals(GrouperUtil.toStringForLog(attributeDefNames), 1, attributeDefNames.size());
     assertTrue(attributeDefNames.contains(serviceDefName1_1_9));
     
     //which services can the user see?  subj7 can see the public one... service 9, and 7
     attributeDefNames = new AttributeDefNameFinder().assignScope("test1:").assignSubject(SubjectTestHelper.SUBJ7)
-      .assignFilterByServicesCanView(true).findAttributeNames();
+        .assignServiceRole(ServiceRole.user).findAttributeNames();
     
     assertEquals(GrouperUtil.toStringForLog(attributeDefNames), 2, attributeDefNames.size());
     assertTrue(attributeDefNames.contains(serviceDefName1_1_9));

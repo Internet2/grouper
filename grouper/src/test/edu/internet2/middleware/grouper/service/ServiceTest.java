@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.service;
 
+import java.util.Set;
+
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -13,10 +15,12 @@ import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * 
@@ -38,9 +42,111 @@ public class ServiceTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ServiceTest("testServicePrivileges"));
+    TestRunner.run(new ServiceTest("testListServicesForUser"));
   }
 
+  /**
+   * see which services a subject is a user of.
+   */
+  public void testListServicesForUser() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    AttributeDefName jiraService = null;
+    AttributeDefName confluenceService = null;    
+    AttributeDefName directoryService = null;    
+    try {
+      
+      //create three services, one directly in, one hierarchical, one the user is not in
+      AttributeDef jiraServiceDef = new AttributeDefSave(grouperSession)
+        .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
+        .assignName("apps:jira:jiraServiceDefinition").assignToStem(true).save();
+      
+      jiraService = new AttributeDefNameSave(grouperSession, jiraServiceDef)
+        .assignCreateParentStemsIfNotExist(true)
+        .assignName("apps:jira:jiraService").assignDisplayExtension("Central IT production Jira issue tracker").save();
+      
+      //jira group
+      Group jiraGroup = new GroupSave(grouperSession)
+        .assignName("apps:jira:groups:admins").assignCreateParentStemsIfNotExist(true).save();
+      
+      jiraGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+      jiraGroup.grantPriv(SubjectTestHelper.SUBJ5, AccessPrivilege.READ);
+      jiraGroup.grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.ADMIN);
+      
+      jiraGroup.addMember(SubjectTestHelper.SUBJ0);
+      jiraGroup.addMember(SubjectTestHelper.SUBJ1);
+      
+      //the jira group has the jira service tag
+      Stem jiraStem = StemFinder.findByUuid(grouperSession, jiraGroup.getStemId(), true);
+      jiraStem.getAttributeDelegate().assignAttribute(jiraService);
+      
+      AttributeDef confluenceServiceDef = new AttributeDefSave(grouperSession)
+        .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
+        .assignName("apps:confluence:confluenceServiceDefinition").assignToStem(true).save();
+      
+      confluenceService = new AttributeDefNameSave(grouperSession, confluenceServiceDef)
+        .assignCreateParentStemsIfNotExist(true)
+        .assignName("apps:confluence:confluenceService").assignDisplayExtension("Central IT production Confluence wiki").save();
+    
+      Group confluenceGroup = new GroupSave(grouperSession)
+        .assignName("apps:confluence:editors").assignCreateParentStemsIfNotExist(true).save();
+
+      confluenceGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+      confluenceGroup.grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.READ);
+      confluenceGroup.grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.ADMIN);
+
+      confluenceGroup.addMember(SubjectTestHelper.SUBJ1);
+      confluenceGroup.addMember(SubjectTestHelper.SUBJ2);
+
+      //the confluence folder has the confluence service tag
+      Stem confluenceFolder = StemFinder.findByName(grouperSession, "apps:confluence", true);
+      confluenceFolder.getAttributeDelegate().assignAttribute(confluenceService);
+      
+      AttributeDef directoryServiceDef = new AttributeDefSave(grouperSession)
+        .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
+        .assignName("apps:directory:directoryServiceDefinition").assignToStem(true).save();
+      
+      directoryService = new AttributeDefNameSave(grouperSession, directoryServiceDef)
+        .assignCreateParentStemsIfNotExist(true)
+        .assignName("apps:directory:directoryService").assignDisplayExtension("MySchool directory").save();
+      
+      Group directoryGroup = new GroupSave(grouperSession)
+        .assignName("apps:directory:users").assignCreateParentStemsIfNotExist(true).save();
+
+      directoryGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+      directoryGroup.grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.READ);
+      directoryGroup.grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.READ);
+      directoryGroup.addMember(SubjectTestHelper.SUBJ2);
+      directoryGroup.addMember(SubjectTestHelper.SUBJ3);
+
+      //the confluence folder has the confluence service tag
+      Stem directoryFolder = StemFinder.findByName(grouperSession, "apps:directory", true);
+      directoryFolder.getAttributeDelegate().assignAttribute(directoryService);
+
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+    // ##################### subject 5 can see that subject 0 and 1 are in the jira service...
+
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ5);
+    
+    try {
+
+      Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignSubject(SubjectTestHelper.SUBJ0)
+        .assignServiceRole(ServiceRole.user).findAttributeNames();
+      
+      assertEquals(1, GrouperUtil.length(attributeDefNames));
+      assertEquals(jiraService.getId(), attributeDefNames.iterator().next().getId());
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
   /**
    * 
    */
@@ -49,8 +155,7 @@ public class ServiceTest extends GrouperTest {
     
     AttributeDef jiraServiceDef = new AttributeDefSave(grouperSession)
       .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
-      .assignName("apps:jira:jiraServiceDefinition").assignToAttributeDef(true)
-      .assignToGroup(true).assignToStem(true).save();
+      .assignName("apps:jira:jiraServiceDefinition").assignToStem(true).save();
     
     AttributeDefName jiraService = new AttributeDefNameSave(grouperSession, jiraServiceDef)
       .assignCreateParentStemsIfNotExist(true)
@@ -61,12 +166,12 @@ public class ServiceTest extends GrouperTest {
       .assignName("apps:jira:groups:admins").assignCreateParentStemsIfNotExist(true).save();
     
     //the jira group has the jira service tag
-    jiraGroup.getAttributeDelegate().assignAttribute(jiraService);
+    Stem jiraStem = StemFinder.findByUuid(grouperSession, jiraGroup.getStemId(), true);
+    jiraStem.getAttributeDelegate().assignAttribute(jiraService);
     
     AttributeDef confluenceServiceDef = new AttributeDefSave(grouperSession)
       .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
-      .assignName("apps:confluence:confluenceServiceDefinition").assignToAttributeDef(true)
-      .assignToGroup(true).assignToStem(true).save();
+      .assignName("apps:confluence:confluenceServiceDefinition").assignToStem(true).save();
     
     AttributeDefName confluenceService = new AttributeDefNameSave(grouperSession, confluenceServiceDef)
       .assignCreateParentStemsIfNotExist(true)
@@ -81,8 +186,7 @@ public class ServiceTest extends GrouperTest {
     
     AttributeDef directoryServiceDef = new AttributeDefSave(grouperSession)
       .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
-      .assignName("apps:directory:directoryServiceDefinition").assignToAttributeDef(true)
-      .assignToGroup(true).assignToStem(true).save();
+      .assignName("apps:directory:directoryServiceDefinition").assignToStem(true).save();
     
     AttributeDefName directoryService = new AttributeDefNameSave(grouperSession, directoryServiceDef)
       .assignCreateParentStemsIfNotExist(true)
@@ -167,8 +271,7 @@ public class ServiceTest extends GrouperTest {
     
     AttributeDef jiraServiceDef = new AttributeDefSave(grouperSession)
       .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
-      .assignName("apps:jira:jiraServiceDefinition").assignToAttributeDef(true)
-      .assignToGroup(true).assignToStem(true).save();
+      .assignName("apps:jira:jiraServiceDefinition").assignToStem(true).save();
     
     AttributeDefName jiraService = new AttributeDefNameSave(grouperSession, jiraServiceDef)
       .assignCreateParentStemsIfNotExist(true)
@@ -177,7 +280,7 @@ public class ServiceTest extends GrouperTest {
     try {
       new AttributeDefSave(grouperSession)
         .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
-        .assignName("apps:jira:jira2").assignMultiAssignable(true).assignToAttributeDef(true).assignToGroup(true).assignToStem(true).save();
+        .assignName("apps:jira:jira2").assignMultiAssignable(true).assignToStem(true).save();
       fail("Shouldnt be able to create multi-assignable");
     } catch (Exception e) {
       //good
@@ -186,7 +289,7 @@ public class ServiceTest extends GrouperTest {
     try {
       new AttributeDefSave(grouperSession)
         .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
-        .assignName("apps:jira:jira2").assignMultiValued(true).assignToAttributeDef(true).assignToGroup(true).assignToStem(true).save();
+        .assignName("apps:jira:jira2").assignMultiValued(true).assignToStem(true).save();
       fail("Shouldnt be able to create multi-valued");
     } catch (Exception e) {
       //good
@@ -195,7 +298,7 @@ public class ServiceTest extends GrouperTest {
     try {
       new AttributeDefSave(grouperSession)
         .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
-        .assignName("apps:jira:jira2").assignValueType(AttributeDefValueType.string).assignToAttributeDef(true).assignToGroup(true).assignToStem(true).save();
+        .assignName("apps:jira:jira2").assignValueType(AttributeDefValueType.string).assignToStem(true).save();
       fail("Shouldnt be able to create non-marker");
     } catch (Exception e) {
       //good
@@ -204,7 +307,7 @@ public class ServiceTest extends GrouperTest {
     try {
       new AttributeDefSave(grouperSession)
         .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
-        .assignName("apps:jira:jira2").assignToMember(true).assignToAttributeDef(true).assignToGroup(true).assignToStem(true).save();
+        .assignName("apps:jira:jira2").assignToMember(true).assignToStem(true).save();
       fail("Shouldnt be able to create assignable to member");
     } catch (Exception e) {
       //good
@@ -213,7 +316,7 @@ public class ServiceTest extends GrouperTest {
     try {
       new AttributeDefSave(grouperSession)
         .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
-        .assignName("apps:jira:jira2").assignToMemberAssn(true).assignToAttributeDef(true).assignToGroup(true).assignToStem(true).save();
+        .assignName("apps:jira:jira2").assignToMemberAssn(true).assignToStem(true).save();
       fail("Shouldnt be able to create assignable to member assign");
     } catch (Exception e) {
       //good
@@ -222,7 +325,7 @@ public class ServiceTest extends GrouperTest {
     try {
       new AttributeDefSave(grouperSession)
         .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
-        .assignName("apps:jira:jira2").assignToGroupAssn(true).assignToAttributeDef(true).assignToGroup(true).assignToStem(true).save();
+        .assignName("apps:jira:jira2").assignToGroupAssn(true).assignToStem(true).save();
       fail("Shouldnt be able to create assignable to group assn");
     } catch (Exception e) {
       //good
@@ -231,7 +334,7 @@ public class ServiceTest extends GrouperTest {
     try {
       new AttributeDefSave(grouperSession)
         .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
-        .assignName("apps:jira:jira2").assignToStemAssn(true).assignToAttributeDef(true).assignToGroup(true).assignToStem(true).save();
+        .assignName("apps:jira:jira2").assignToStemAssn(true).assignToStem(true).save();
       fail("Shouldnt be able to create assignable to stem assn");
     } catch (Exception e) {
       //good
@@ -240,7 +343,7 @@ public class ServiceTest extends GrouperTest {
     try {
       new AttributeDefSave(grouperSession)
         .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
-        .assignName("apps:jira:jira2").assignToAttributeDefAssn(true).assignToAttributeDef(true).assignToGroup(true).assignToStem(true).save();
+        .assignName("apps:jira:jira2").assignToAttributeDefAssn(true).assignToStem(true).save();
       fail("Shouldnt be able to create assignable to attr def assn");
     } catch (Exception e) {
       //good
@@ -249,7 +352,7 @@ public class ServiceTest extends GrouperTest {
     try {
       new AttributeDefSave(grouperSession)
         .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
-        .assignName("apps:jira:jira2").assignToImmMembership(true).assignToAttributeDef(true).assignToGroup(true).assignToStem(true).save();
+        .assignName("apps:jira:jira2").assignToImmMembership(true).assignToStem(true).save();
       fail("Shouldnt be able to create assignable to imm membership");
     } catch (Exception e) {
       //good
@@ -258,7 +361,7 @@ public class ServiceTest extends GrouperTest {
     try {
       new AttributeDefSave(grouperSession)
         .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
-        .assignName("apps:jira:jira2").assignToImmMembershipAssn(true).assignToAttributeDef(true).assignToGroup(true).assignToStem(true).save();
+        .assignName("apps:jira:jira2").assignToImmMembershipAssn(true).assignToStem(true).save();
       fail("Shouldnt be able to create assignable to imm membership assn");
     } catch (Exception e) {
       //good
@@ -267,7 +370,7 @@ public class ServiceTest extends GrouperTest {
     try {
       new AttributeDefSave(grouperSession)
         .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
-        .assignName("apps:jira:jira2").assignToEffMembership(true).assignToAttributeDef(true).assignToGroup(true).assignToStem(true).save();
+        .assignName("apps:jira:jira2").assignToEffMembership(true).assignToStem(true).save();
       fail("Shouldnt be able to create assignable to eff membership");
     } catch (Exception e) {
       //good
@@ -276,7 +379,7 @@ public class ServiceTest extends GrouperTest {
     try {
       new AttributeDefSave(grouperSession)
         .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
-        .assignName("apps:jira:jira2").assignToEffMembershipAssn(true).assignToAttributeDef(true).assignToGroup(true).assignToStem(true).save();
+        .assignName("apps:jira:jira2").assignToEffMembershipAssn(true).assignToStem(true).save();
       fail("Shouldnt be able to create assignable to eff membership assn");
     } catch (Exception e) {
       //good

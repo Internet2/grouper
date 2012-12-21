@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.service.ServiceRole;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -198,15 +199,14 @@ public interface AttributeDefNameDAO extends GrouperDAO {
    * @param queryOptions
    * @param attributeAssignType
    * @param attributeDefType
-   * @param filterByServicesCanView if true then only return services the user can view based on memberships which have the 
-   * service, or folders which have the service, or attribute definitions which have the service,
-   * or the view privilege set
+   * @param serviceId if filtering by service, this is the service we are l
    * @return set of attribute defs
    * @since v2.2.0
    */
   public Set<AttributeDefName> findAllAttributeNamesSecure(String scope, boolean splitScope,
       GrouperSession grouperSession, String attributeDefId, 
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, AttributeAssignType attributeAssignType,
-      AttributeDefType attributeDefType, boolean filterByServicesCanView);
+      AttributeDefType attributeDefType,
+      String serviceId, ServiceRole serviceRole);
 
 }

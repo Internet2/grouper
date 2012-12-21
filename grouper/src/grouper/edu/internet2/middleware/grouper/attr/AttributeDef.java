@@ -427,14 +427,14 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
 
     //if a service, can only be assigned to group, stem, attributeDef
     if (this.attributeDefType == AttributeDefType.service &&
-        (this.assignToAttributeDefAssn
+        (this.assignToAttributeDefAssn || this.assignToAttributeDef
         || this.assignToStemAssn
-        || this.assignToGroupAssn
+        || this.assignToGroupAssn || this.assignToGroup
         || this.assignToMember || this.assignToMemberAssn
         || this.assignToEffMembership || this.assignToEffMembershipAssn
         || this.assignToImmMembership || this.assignToImmMembershipAssn )
     ) {
-      throw new RuntimeException("An attribute definition of type service can only be assignable to group/folder/attributeDef or effective membership");
+      throw new RuntimeException("An attribute definition of type service can only be assignable to folder");
     }
 
     //invalid entry: permission type attributes cannot be multi-assignable

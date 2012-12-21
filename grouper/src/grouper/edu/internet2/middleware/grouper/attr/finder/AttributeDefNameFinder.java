@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.service.ServiceRole;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -72,12 +73,45 @@ public class AttributeDefNameFinder {
   }
   
   /**
+   * if filtering by service, this is the role, or null for all
+   */
+  private ServiceRole serviceRole;
+  
+  /**
+   * if filtering by service, this is the service role, or null for all
+   * @param theServiceRole
+   * @return this for chaining
+   */
+  public AttributeDefNameFinder assignServiceRole(ServiceRole theServiceRole) {
+    this.serviceRole = theServiceRole;
+    return this;
+  }
+  
+  /**
+   * if filtering by service, this is the id of the service
+   */
+  private String serviceId;
+  
+  /**
+   * filter by users in a service, either admin or user
+   * @param theRole is the role (user or admin), or null for all
+   * @param theAttributeDefNameId
+   * @return this for chaining
+   */
+  public AttributeDefNameFinder assignFilterByServiceId(ServiceRole theRole, String theAttributeDefNameId) {
+    this.serviceRole = theRole;
+    this.serviceId = theAttributeDefNameId;
+    return this;
+    
+  }
+  
+  /**
    * this is the subject that has certain privileges
    */
   private Subject subject;
   
   /**
-   * this is the subject that has certain privileges
+   * this is the subject that has certain privileges or is in the service
    * @param theSubject
    * @return this for chaining
    */
@@ -138,25 +172,6 @@ public class AttributeDefNameFinder {
   private boolean splitScope;
   
   /**
-   * if true then only return services the user can view based on memberships which have the 
-   * service, or folders which have the service, or attribute definitions which have the service,
-   * or the view privilege set
-   */
-  private boolean filterByServicesCanView;
-  
-  /**
-   * if true then only return services the user can view based on memberships which have the 
-   * service, or folders which have the service, or attribute definitions which have the service,
-   * or the view privilege set
-   * @param theFilterByServicesCanView 
-   * @return this for chaining
-   */
-  public AttributeDefNameFinder assignFilterByServicesCanView(boolean theFilterByServicesCanView) {
-    this.filterByServicesCanView = theFilterByServicesCanView;
-    return this;
-  }
-  
-  /**
    * if the scope has spaces in it, then split by whitespace, and find results that contain all of the scope strings
    * @param theSplitScope
    * @return this for chaining
@@ -208,7 +223,9 @@ public class AttributeDefNameFinder {
     return GrouperDAOFactory.getFactory().getAttributeDefName()
       .findAllAttributeNamesSecure(this.scope, this.splitScope, grouperSession, 
           this.attributeDefId, this.subject, this.privileges, 
-          this.queryOptions, this.attributeAssignType, this.attributeDefType, this.filterByServicesCanView);
+          this.queryOptions, this.attributeAssignType, 
+          this.attributeDefType, 
+          this.serviceId, this.serviceRole);
   }
   
   /**
