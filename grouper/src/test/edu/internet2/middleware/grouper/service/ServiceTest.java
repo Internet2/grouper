@@ -145,6 +145,88 @@ public class ServiceTest extends GrouperTest {
       GrouperSession.stopQuietly(grouperSession);
     }
     
+    // ##################### subject 6 can see that subject 0 and 1 are in the jira service...
+
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ6);
+    
+    try {
+
+      Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignSubject(SubjectTestHelper.SUBJ0)
+        .assignServiceRole(ServiceRole.user).findAttributeNames();
+      
+      assertEquals(1, GrouperUtil.length(attributeDefNames));
+      assertEquals(jiraService.getId(), attributeDefNames.iterator().next().getId());
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+    // ##################### subject 7 cannot see that subject 0 and 1 are in the jira service...
+
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ7);
+    
+    try {
+
+      Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignSubject(SubjectTestHelper.SUBJ0)
+        .assignServiceRole(ServiceRole.user).findAttributeNames();
+      
+      assertEquals(0, GrouperUtil.length(attributeDefNames));
+      //assertEquals(jiraService.getId(), attributeDefNames.iterator().next().getId());
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+    // ##################### GrouperSystem can see that subject 0 and 1 are in the jira service...
+
+    grouperSession = GrouperSession.startRootSession();
+    
+    try {
+
+      Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignSubject(SubjectTestHelper.SUBJ0)
+        .assignServiceRole(ServiceRole.user).findAttributeNames();
+      
+      assertEquals(1, GrouperUtil.length(attributeDefNames));
+      assertEquals(jiraService.getId(), attributeDefNames.iterator().next().getId());
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+    // ##################### GrouperSystem can see that subject 7 is admin of the confluence service...
+
+    grouperSession = GrouperSession.startRootSession();
+    
+    try {
+
+      Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignSubject(SubjectTestHelper.SUBJ7)
+        .assignServiceRole(ServiceRole.admin).findAttributeNames();
+      
+      assertEquals(1, GrouperUtil.length(attributeDefNames));
+      assertEquals(confluenceService.getId(), attributeDefNames.iterator().next().getId());
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+    // ##################### subject 7 can see that subject 7 is admin of the confluence service...
+
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ7);
+    
+    try {
+
+      Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignSubject(SubjectTestHelper.SUBJ7)
+        .assignServiceRole(ServiceRole.admin).findAttributeNames();
+      
+      assertEquals(1, GrouperUtil.length(attributeDefNames));
+      assertEquals(confluenceService.getId(), attributeDefNames.iterator().next().getId());
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+
+    
   }
   
   /**

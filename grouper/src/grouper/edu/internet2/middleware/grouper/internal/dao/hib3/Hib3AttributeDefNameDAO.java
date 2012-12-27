@@ -19,7 +19,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -45,6 +44,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.service.ServiceRole;
@@ -567,9 +567,21 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
 
       whereClause.append(" select stemAttributeDefName.id from StemSet stemSet, "
           + " AttributeDefName stemAttributeDefName, Group groupGroup, " 
-          + " MembershipEntry groupMembership, AttributeAssign stemAttributeAssign "
-          + " where groupMembership.ownerGroupId = groupGroup.id "
-          
+          + " MembershipEntry groupMembership, AttributeAssign stemAttributeAssign ");
+
+      boolean changedQuery = 
+          grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
+          grouperSession.getSubject(), byHqlStatic, 
+          whereClause, "groupMembership.ownerGroupId", AccessPrivilege.READ_PRIVILEGES);
+
+      if (!changedQuery) {
+        whereClause.append(" where ");
+      } else {
+        whereClause.append(" and ");
+      }
+      
+      whereClause.append(
+          " groupMembership.ownerGroupId = groupGroup.id "
           + " and groupMembership.enabledDb = 'T' "
           + " and groupMembership.memberUuid = :groupMemberId "
           + " and stemAttributeDefName.id = stemAttributeAssign.attributeDefNameId "
