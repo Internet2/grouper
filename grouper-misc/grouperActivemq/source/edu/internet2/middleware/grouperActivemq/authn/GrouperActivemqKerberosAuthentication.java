@@ -76,7 +76,7 @@ public class GrouperActivemqKerberosAuthentication {
     
     for (int i=0;i<10;i++) {
       System.out.println(authenticateKerberosHelper(
-          "penngroups_activemq_test/medley.isc-seo.upenn.edu", "k4hrbf3smer8"));
+          "penngroups_activemq_test/medley.isc-seo.upenn.edu", "xxxxxxxxxx"));
     }
     
   }
