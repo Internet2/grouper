@@ -644,7 +644,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		
 		request.setAttribute("groupMembership", membership);
 		request.setAttribute("noResultsKey", noResultsKey);
-		request.setAttribute("removableMembers",new Boolean("imm".equals(membershipListScope) && resolver.canManageField(mField.getName()) && !group.hasComposite() && nMemberCount>0));
+		request.setAttribute("removableMembers",new Boolean("imm".equals(membershipListScope) && resolver.canManageField(mField.getName()) && nMemberCount>0));
 		
 		return mapping.findForward(FORWARD_GroupMembers);
 
