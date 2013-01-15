@@ -1,10 +1,11 @@
 /**
  * 
  */
-package edu.internet2.middleware.authzStandardApiServer.interfaces.beans.groups;
+package edu.internet2.middleware.authzStandardApiServer.interfaces.beans;
 
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasMeta;
 import edu.internet2.middleware.authzStandardApiServer.exceptions.AsasRestInvalidRequest;
+import edu.internet2.middleware.authzStandardApiServer.interfaces.beans.AsasApiQueryParams;
 import edu.internet2.middleware.authzStandardApiServer.j2ee.AsasHttpServletRequest;
 import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUtils;
 

@@ -19,6 +19,7 @@ import java.util.logging.SimpleFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacResultProblem;
 import edu.internet2.middleware.authzStandardApiClientExt.com.thoughtworks.xstream.XStream;
 import edu.internet2.middleware.authzStandardApiClientExt.com.thoughtworks.xstream.io.xml.CompactWriter;
 import edu.internet2.middleware.authzStandardApiClientExt.net.sf.json.JSONObject;
@@ -36,6 +37,44 @@ import edu.internet2.middleware.authzStandardApiClientExt.org.apache.commons.log
 public class StandardApiClientUtils extends StandardApiClientCommonUtils {
 
   /**
+   * convert a bean to string
+   * @param asacResultProblem
+   * @param result
+   * @return the string representation
+   */
+  public static void convertBeanToString(AsacResultProblem asacResultProblem, StringBuilder result) {
+    if (!StandardApiClientUtils.isBlank(asacResultProblem.getError())) {
+      StandardApiClientUtils.append(result, ", ", asacResultProblem.getError());
+    }
+    if (!StandardApiClientUtils.isBlank(asacResultProblem.getError_description())) {
+      StandardApiClientUtils.append(result, ", ", asacResultProblem.getError_description());
+    }
+    if (!StandardApiClientUtils.isBlank(asacResultProblem.getError_uri())) {
+      StandardApiClientUtils.append(result, ", ", asacResultProblem.getError_uri());
+    }
+    if (asacResultProblem.getMeta() != null) {
+      if (!StandardApiClientUtils.isBlank(asacResultProblem.getMeta().getStatus())) {
+        StandardApiClientUtils.append(result, ", ", asacResultProblem.getMeta().getStatus());
+      }
+    }
+    if (asacResultProblem.getResponseMeta() != null) {
+      if (!StandardApiClientUtils.isBlank(asacResultProblem.getResponseMeta().getHttpStatusCode())) {
+        StandardApiClientUtils.append(result, ", ", asacResultProblem.getResponseMeta().getHttpStatusCode().toString());
+      }
+    }
+    if (asacResultProblem.getServiceMeta() != null) {
+      if (!StandardApiClientUtils.isBlank(asacResultProblem.getServiceMeta().getServerVersion())) {
+        StandardApiClientUtils.append(result, ", ", asacResultProblem.getServiceMeta().getServerVersion());
+      }
+    }
+    if (asacResultProblem.getServiceMeta() != null) {
+      if (!StandardApiClientUtils.isBlank(asacResultProblem.getServiceMeta().getServiceRootUri())) {
+        StandardApiClientUtils.append(result, ", ", asacResultProblem.getServiceMeta().getServiceRootUri());
+      }
+    }
+  }
+  
+  /**
    * logger
    */
   private static Log LOG = StandardApiClientUtils.retrieveLog(StandardApiClientUtils.class);
@@ -45,6 +84,14 @@ public class StandardApiClientUtils extends StandardApiClientCommonUtils {
    */
   private static boolean configuredLogs = false;
 
+  /**
+   * 
+   * @return current version for url
+   */
+  public static String version() {
+    return "v1";
+  }
+  
   /**
    * @param theClass
    * @return the log
@@ -435,6 +482,14 @@ public class StandardApiClientUtils extends StandardApiClientCommonUtils {
     Object marshaledInstance = xStream.fromXML(xml);
     
     if (marshaledInstance != null) {
+      
+      if (marshaledInstance instanceof AsacResultProblem) {
+        AsacResultProblem asacResultProblem = (AsacResultProblem)marshaledInstance;
+        StringBuilder error = new StringBuilder();
+        convertBeanToString(asacResultProblem, error);
+        throw new RuntimeException(error.toString());
+      }
+      
       if (!theClass.isAssignableFrom(marshaledInstance.getClass())) {
         throw new RuntimeException("Expecting XML class: " + theClass + ", but was: " 
             + marshaledInstance.getClass() + ", " + StandardApiClientUtils.abbreviate(xml, 300));

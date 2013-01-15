@@ -665,23 +665,6 @@ public class StandardApiServerCommonUtils  {
   }
   
   /**
-   * get the parent stem name from name.  if already a root stem
-   * then just return null.  e.g. if the name is a:b:c then
-   * the return value is a:b
-   * @param name
-   * @return the parent stem name or null if none
-   */
-  public static String parentStemNameFromName(String name) {
-    int lastColonIndex = name.lastIndexOf(':');
-    if (lastColonIndex == -1) {
-      return null;
-    }
-    String parentStemName = name.substring(0,lastColonIndex);
-    return parentStemName;
-
-  }
-  
-  /**
    * return the string or the other if the first is blank
    * @param string
    * @param defaultStringIfBlank

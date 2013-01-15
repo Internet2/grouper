@@ -9,10 +9,10 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.authzStandardApiServer.interfaces.AsasApiGroupInterface;
+import edu.internet2.middleware.authzStandardApiServer.interfaces.beans.AsasApiQueryParams;
 import edu.internet2.middleware.authzStandardApiServer.interfaces.beans.groups.AsasApiGroup;
 import edu.internet2.middleware.authzStandardApiServer.interfaces.beans.groups.AsasApiGroupsSearchParam;
 import edu.internet2.middleware.authzStandardApiServer.interfaces.beans.groups.AsasApiGroupsSearchResult;
-import edu.internet2.middleware.authzStandardApiServer.interfaces.beans.groups.AsasApiQueryParams;
 import edu.internet2.middleware.authzStandardApiServer.interfaces.entity.AsasApiEntityLookup;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;

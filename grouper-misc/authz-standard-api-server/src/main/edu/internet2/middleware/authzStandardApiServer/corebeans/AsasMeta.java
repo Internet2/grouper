@@ -16,7 +16,7 @@ public class AsasMeta {
   public AsasMeta() {
     super();
     this.setSuccess(true);
-    this.setStatusCode("SUCCESS");
+    this.setStatus("SUCCESS");
   }
 
   /**
@@ -135,14 +135,14 @@ public class AsasMeta {
   /**
    * response status text code
    */
-  private String statusCode;
+  private String status;
   
   /**
    * response status text code
    * @return the statusCode
    */
-  public String getStatusCode() {
-    return this.statusCode;
+  public String getStatus() {
+    return this.status;
   }
 
   
@@ -150,8 +150,8 @@ public class AsasMeta {
    * response status text code
    * @param statusCode1 the statusCode to set
    */
-  public void setStatusCode(String statusCode1) {
-    this.statusCode = statusCode1;
+  public void setStatus(String statusCode1) {
+    this.status = statusCode1;
   }
 
   /**

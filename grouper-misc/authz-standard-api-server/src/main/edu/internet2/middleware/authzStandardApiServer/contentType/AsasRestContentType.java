@@ -33,7 +33,7 @@ public enum AsasRestContentType {
      * @return the object
      */
     @Override
-    public Object parseString(Class<?> theClass, String input, StringBuilder warnings) {
+    public <T> T parseString(Class<T> theClass, String input, StringBuilder warnings) {
       return StandardApiServerUtils.xmlConvertFrom(input, theClass);
     }
 
@@ -66,13 +66,14 @@ public enum AsasRestContentType {
      * @param warnings is where warnings should be written to
      * @return the object
      */
+    @SuppressWarnings("unchecked")
     @Override
-    public Object parseString(Class<?> theClass, String input, StringBuilder warnings) {
+    public <T> T parseString(Class<T> theClass, String input, StringBuilder warnings) {
 
       JsonConverter jsonConverter = jsonConverter();
       
       try {
-        return jsonConverter.convertFromJson(theClass, input, warnings);
+        return (T)jsonConverter.convertFromJson(theClass, input, warnings);
       } catch (RuntimeException re) {
         LOG.error("Error unparsing string with converter: " + StandardApiServerUtils.className(jsonConverter) + ", " + input);
         throw new RuntimeException("Problem unparsing string with converter: " + StandardApiServerUtils.className(jsonConverter)
@@ -142,8 +143,9 @@ public enum AsasRestContentType {
    * @param input
    * @param warnings is where warnings should be written to
    * @return the object
+   * @param <T> is the template type of the object
    */
-  public abstract Object parseString(Class<?> theClass, String input, StringBuilder warnings);
+  public abstract <T> T parseString(Class<T> theClass, String input, StringBuilder warnings);
 
   /**
    * write a string representation to result string

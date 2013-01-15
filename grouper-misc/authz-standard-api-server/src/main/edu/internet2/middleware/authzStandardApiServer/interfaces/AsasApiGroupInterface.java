@@ -9,6 +9,7 @@ import edu.internet2.middleware.authzStandardApiServer.interfaces.entity.AsasApi
 
 
 /**
+ * implement this interface to provide logic for the authz standard api server group operations
  * @author mchyzer
  *
  */

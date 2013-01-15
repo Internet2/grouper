@@ -1,6 +1,7 @@
 package edu.internet2.middleware.authzStandardApiServer.util;
 
 import java.util.Date;
+import java.util.List;
 
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
@@ -18,7 +19,7 @@ public class StandardApiServerUtilsTest extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new StandardApiServerUtilsTest("testConvertPathToUseSeparatorAndUnescape"));
+    TestRunner.run(new StandardApiServerUtilsTest("testPathParentFolderName"));
   }
   
   /**
@@ -39,27 +40,59 @@ public class StandardApiServerUtilsTest extends TestCase {
   /**
    * 
    */
-  public void testConvertPathToUseSeparatorAndEscape() {
-    assertEquals("a_b_c", StandardApiServerUtils.convertPathToUseSeparatorAndEscape("a:b:c", ":", "_"));
+  public void testConvertPathToList() {
+    List<String> extensionList = StandardApiServerUtils.convertPathToExtensionList("a:b:c");
     
-    assertEquals("a%5f_b_c", StandardApiServerUtils.convertPathToUseSeparatorAndEscape("a_:b:c", ":", "_"));
+    assertEquals(3, extensionList.size());
+    assertEquals("a", extensionList.get(0));
+    assertEquals("b", extensionList.get(1));
+    assertEquals("c", extensionList.get(2));
     
-    assertEquals("a%5f_b%255f_c", StandardApiServerUtils.convertPathToUseSeparatorAndEscape("a_:b%5f:c", ":", "_"));
+    String path = StandardApiServerUtils.convertPathFromExtensionList(extensionList);
+    
+    assertEquals("a:b:c", path);
+    
+    //#######################
+    extensionList = StandardApiServerUtils.convertPathToExtensionList("a");
+    
+    assertEquals(1, extensionList.size());
+    assertEquals("a", extensionList.get(0));
+    
+    path = StandardApiServerUtils.convertPathFromExtensionList(extensionList);
+    
+    assertEquals("a", path);
+    
+    //########################
+    extensionList = StandardApiServerUtils.convertPathToExtensionList("a\\:\\::a\\\\b:\\\\\\:c");
+    
+    assertEquals(3, extensionList.size());
+    assertEquals("a::", extensionList.get(0));
+    assertEquals("a\\b", extensionList.get(1));
+    assertEquals("\\:c", extensionList.get(2));
+    
+    path = StandardApiServerUtils.convertPathFromExtensionList(extensionList);
+    
+    assertEquals("a\\:\\::a\\\\b:\\\\\\:c", path);
+    
     
   }
   
   /**
    * 
    */
-  public void testConvertPathToUseSeparatorAndUnescape() {
-    assertEquals("a:b:c", StandardApiServerUtils.convertPathToUseSeparatorAndUnescape("a_b_c", "_", ":"));
+  public void testPathParentFolderName() {
     
-    assertEquals("a_:b:c", StandardApiServerUtils.convertPathToUseSeparatorAndUnescape("a%5f_b_c", "_", ":"));
-    
-    assertEquals("a_:b%5f:c", StandardApiServerUtils.convertPathToUseSeparatorAndUnescape("a%5f_b%255f_c", "_", ":"));
+    assertEquals("a:b", StandardApiServerUtils.pathParentFolderName("a:b:c"));
+
+    assertEquals(":", StandardApiServerUtils.pathParentFolderName("a"));
+
+    assertNull(StandardApiServerUtils.pathParentFolderName(":"));
     
   }
   
+  /**
+   * 
+   */
   public void testFullUrlToServletUrl() {
     assertEquals("https://whatever/appName/servlet", StandardApiServerUtils.fullUrlToServletUrl("https://whatever/appName/servlet/whatever/whatever", "/servlet", AsasRestContentType.json));
     assertEquals("https://whatever/appName/servlet", StandardApiServerUtils.fullUrlToServletUrl("https://whatever/appName/servlet", "/servlet", AsasRestContentType.json));

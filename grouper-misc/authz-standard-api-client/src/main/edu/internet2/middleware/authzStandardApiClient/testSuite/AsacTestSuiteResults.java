@@ -42,6 +42,9 @@ public class AsacTestSuiteResults {
     //add all tests
     this.asacTestSuiteResultList.add(new AsacTestSuiteDefaultResource(this));
     this.asacTestSuiteResultList.add(new AsacTestSuiteDefaultVersionResource(this));
+    //TODO test the version
+    this.asacTestSuiteResultList.add(new AsacTestSuiteFolderSave(this));
+    
     
     //run them
     for (AsacTestSuiteResult asacTestSuiteResult : this.asacTestSuiteResultList) {

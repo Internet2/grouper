@@ -1,10 +1,9 @@
 package edu.internet2.middleware.authzStandardApiServer.interfaces.beans.groups;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasGroup;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasGroupSearchContainer;
+import edu.internet2.middleware.authzStandardApiServer.interfaces.beans.AsasApiQueryParams;
 
 
 /**
@@ -65,18 +64,9 @@ public class AsasApiGroupsSearchResult {
       return null;
     }
     AsasGroupSearchContainer asasGroupSearchContainer = new AsasGroupSearchContainer();
-    if (asasApiGroupSearch.groups != null) {
-      List<AsasGroup> asasGroupList = new ArrayList<AsasGroup>();
-      asasGroupSearchContainer.setGroups(asasGroupList);
-
-      for (AsasApiGroup asasApiGroup : asasApiGroupSearch.groups) {
-        asasGroupList.add(AsasApiGroup.convertTo(asasApiGroup));
-      }
-    }
+    asasGroupSearchContainer.setGroups(AsasApiGroup.convertToArray(asasApiGroupSearch.getGroups()));
     AsasApiQueryParams.convertTo(asasApiGroupSearch.queryParams, asasGroupSearchContainer.getMeta());
     return asasGroupSearchContainer;
   }
-
-
 
 }

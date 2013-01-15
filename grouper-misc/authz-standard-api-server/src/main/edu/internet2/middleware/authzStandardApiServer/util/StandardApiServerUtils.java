@@ -6,6 +6,7 @@ import java.io.Writer;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -26,7 +27,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import edu.internet2.middleware.authzStandardApiServer.contentType.AsasRestContentType;
 import edu.internet2.middleware.authzStandardApiServer.exceptions.AsasRestInvalidRequest;
+import edu.internet2.middleware.authzStandardApiServer.interfaces.AsasApiFolderInterface;
 import edu.internet2.middleware.authzStandardApiServer.interfaces.AsasApiGroupInterface;
+import edu.internet2.middleware.authzStandardApiServer.interfaces.beans.folders.AsasApiFolderLookup;
 import edu.internet2.middleware.authzStandardApiServer.j2ee.AsasFilterJ2ee;
 import edu.internet2.middleware.authzStandardApiServerExt.com.thoughtworks.xstream.XStream;
 import edu.internet2.middleware.authzStandardApiServerExt.com.thoughtworks.xstream.io.xml.CompactWriter;
@@ -38,12 +41,100 @@ import edu.internet2.middleware.authzStandardApiServerExt.org.apache.commons.jex
 import edu.internet2.middleware.authzStandardApiServerExt.org.apache.commons.jexl2.JexlEngine;
 import edu.internet2.middleware.authzStandardApiServerExt.org.apache.commons.jexl2.JexlException;
 import edu.internet2.middleware.authzStandardApiServerExt.org.apache.commons.jexl2.MapContext;
+import edu.internet2.middleware.authzStandardApiServerExt.org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.authzStandardApiServerExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.authzStandardApiServerExt.org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.authzStandardApiServerExt.org.apache.commons.logging.impl.Jdk14Logger;
 
+/**
+ * utility methods for the authz standard api server
+ * 
+ * @author mchyzer
+ *
+ */
 public class StandardApiServerUtils extends StandardApiServerCommonUtils {
 
+  /**
+   * convert a uri to folder lookup
+   * @param folderUri
+   */
+  public static AsasApiFolderLookup folderConvertUriToLookup(String folderUri) {
+
+    AsasApiFolderLookup asasApiFolderLookup = new AsasApiFolderLookup();
+
+    if (folderUri.startsWith("name:")) {
+
+      String name = folderUri.substring(5);
+      asasApiFolderLookup.setName(name);
+
+    } else if (folderUri.startsWith("id:")) {
+  
+      String id = folderUri.substring(3);
+      asasApiFolderLookup.setId(id);
+  
+    } else if (folderUri.contains(":")) {
+  
+      String handleName = StandardApiServerUtils.prefixOrSuffix(folderUri, ":", true);
+      String handleValue = StandardApiServerUtils.prefixOrSuffix(folderUri, ":", false);
+      asasApiFolderLookup.setHandleName(handleName);
+      asasApiFolderLookup.setHandleValue(handleValue);
+      
+    } else {
+      throw new AsasRestInvalidRequest("folderUri needs to contain a colon, start " +
+          "with name: id: or another uri prefix that is server specific: '" + folderUri + "'");
+    }
+    return asasApiFolderLookup;
+  }
+  
+  /**
+   * 
+   * @return current version for url
+   */
+  public static String version() {
+    return "v1";
+  }
+
+  /**
+   * if the path is the root folder
+   * @param objectName
+   * @return true if the path is the root folder
+   */
+  public static boolean pathIsRootFolder(String objectName) {
+    
+    return equals(":", objectName);
+    
+  }
+
+  /**
+   * get the parent folder name from an object name
+   * @param objectName
+   * @return the parent folder name, or null if it is the root folder (":")
+   */
+  public static String pathParentFolderName(String objectName) {
+    
+    if (objectName == null) {
+      throw new NullPointerException("Why is there a null objectName?");
+    }
+    
+    //there is no parent of the top parent
+    if (pathIsRootFolder(objectName)) {
+      return null;
+    }
+    
+    //lets get the list of folders here:
+    List<String> extensions = convertPathToExtensionList(objectName);
+    
+    //if top level, then return colon
+    if (extensions.size() == 1) {
+      return ":";
+    }
+    
+    //else, pop off the top and convert back
+    extensions.remove(extensions.size()-1);
+    
+    return convertPathFromExtensionList(extensions);
+  }
+  
   /**
    * convert the authz system path to use the standard api server path char
    * @param path a path that needs to be converted
@@ -52,7 +143,8 @@ public class StandardApiServerUtils extends StandardApiServerCommonUtils {
    * String configuredSeparatorChar = StandardApiServerConfig.retrieveConfig().configItemPathSeparatorChar();
    * @return the new path with the configured separator
    */
-  public static String convertPathToUseSeparatorAndEscape(String path, String currentSeparatorChar, String newSeparatorChar) {
+  @Deprecated
+  public static String convertPathToUseSeparatorAndEscapeOld(String path, String currentSeparatorChar, String newSeparatorChar) {
     
     if (StandardApiServerUtils.isBlank(newSeparatorChar) || newSeparatorChar.length() > 1) {
       throw new RuntimeException("pathSeparatorChar must be one char: '" + newSeparatorChar + "'");
@@ -87,7 +179,97 @@ public class StandardApiServerUtils extends StandardApiServerCommonUtils {
     return result.toString();
     
   }
+  
+  /**
+   * convert an authz standard path (colon separated)
+   * @param authzStandardPath
+   * @return the list of strings
+   */
+  public static List<String> convertPathToExtensionList(String authzStandardPath) {
+    List<String> resultList = new ArrayList<String>();
+    if (StringUtils.isBlank(authzStandardPath)) {
+      return resultList;
+    }
+    
+    StringBuilder currentExtension = new StringBuilder();
+    
+    //lets loop through, and look for slash or colon
+    char[] theChars = authzStandardPath.toCharArray();
+    for (int i=0;i<theChars.length;i++) {
+      char curChar = theChars[i];
 
+      //end of the extension
+      if (curChar == ':') {
+        resultList.add(currentExtension.toString());
+        currentExtension = new StringBuilder();
+        continue;
+      }
+      
+      //escaped character
+      if (curChar == '\\') {
+        
+        //if there is no next char, then there is an error
+        if (i==theChars.length-1) {
+          throw new RuntimeException("There is a slash at the end of the path, " +
+          		"but there is no next char, this is an error: '" + authzStandardPath + "'" );
+        }
+        
+        //we arent at the end of the string, so what is the next char
+        i++;
+        char nextChar = theChars[i];
+        
+        //if the next char is colon or slash, then it is an escaped colon or slash
+        if (nextChar == ':' || nextChar == '\\') {
+          curChar = nextChar;
+        } else {
+          throw new RuntimeException("There is a slash in the path, " +
+              "but there the next char is not colon or slash: '" + nextChar 
+              + "', this is an error: '" + authzStandardPath + "'" );
+        }
+        
+        //dont continue, since we need to append that char below
+      }
+
+      //normal character
+      currentExtension.append(curChar);
+    }
+    //add the last extension on
+    resultList.add(currentExtension.toString());
+    
+    //this doenst work for complex escaped cases
+    //String[] extensions = split(authzStandardPath, ':');
+    //for (int i=0;i<extensions.length;i++) {
+    //  extensions[i] = extensions[i].replace("\\:", ":");
+    //  resultList.add(extensions[i].replace("\\\\", "\\"));
+    //}
+    return resultList;
+  }
+  
+  /**
+   * convert an authz standard path (colon separated)
+   * @param extensionList
+   * @return the list of strings
+   */
+  public static String convertPathFromExtensionList(List<String> extensionList) {
+    StringBuilder result = new StringBuilder();
+    if (length(extensionList) > 0) {
+      for (String extension : extensionList) {
+        if (extension == null) {
+          throw new NullPointerException("Why is extension null????");
+        }
+         
+        if (result.length() > 0) {
+          result.append(":");
+        }
+        
+        extension = extension.replace("\\", "\\\\");
+        extension = extension.replace(":", "\\:");
+        result.append(extension);
+      }
+    }
+    return result.toString();
+  }
+  
   /**
    * convert a path passed in from client to use the separator that the authz server understands
    * note: the path cannot contain any of the new separator chars...
@@ -95,7 +277,8 @@ public class StandardApiServerUtils extends StandardApiServerCommonUtils {
    * @param newSeparatorChar the separator of the current path
    * @return the new path with the configured separator
    */
-  public static String convertPathToUseSeparatorAndUnescape(String path, String currentSeparatorChar, String newSeparatorChar) {
+  @Deprecated
+  public static String convertPathToUseSeparatorAndUnescapeOld(String path, String currentSeparatorChar, String newSeparatorChar) {
     
     if (StandardApiServerUtils.isBlank(currentSeparatorChar) || currentSeparatorChar.length() > 1) {
       throw new RuntimeException("separatorChar must be one char: '" + currentSeparatorChar + "'");
@@ -147,6 +330,20 @@ public class StandardApiServerUtils extends StandardApiServerCommonUtils {
     
     @SuppressWarnings("unchecked")
     Class<AsasApiGroupInterface> theClass = (Class<AsasApiGroupInterface>)forName(className);
+    
+    return newInstance(theClass);
+  }
+
+  /**
+   * see which folder interface is configured and make an instance of it
+   * @return an instance of the folder interface
+   */
+  public static AsasApiFolderInterface interfaceFolderInstance() {
+    
+    String className = StandardApiServerConfig.retrieveConfig().propertyValueStringRequired("authzStandardApiServer.interface.folder");
+    
+    @SuppressWarnings("unchecked")
+    Class<AsasApiFolderInterface> theClass = (Class<AsasApiFolderInterface>)forName(className);
     
     return newInstance(theClass);
   }
@@ -963,5 +1160,6 @@ public class StandardApiServerUtils extends StandardApiServerCommonUtils {
     return null;
   }
   
-
+  
+  
 }

@@ -8,30 +8,34 @@ import edu.internet2.middleware.authzStandardApiServer.exceptions.AsasRestInvali
 import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUtils;
 
 
-public enum AsasRestGet {
+public enum AsasRestPut {
 
-  /** group get requests */
-  groups {
+  /** folder put requests */
+  folders {
 
     /**
-     * handle the incoming request based on GET HTTP method and groups resource
+     * handle the incoming request based on PUT HTTP method and folders resource
      * @param urlStrings not including the app name or servlet.  
-     * for http://localhost/authzStandardApi/authzStandardApi/v1/groups.json
+     * for http://localhost/authzStandardApi/authzStandardApi/v1/folders/id:123.json
      * @param requestObject is the request body converted to object
      * @return the result object
      */
     @Override
     public AsasResponseBeanBase service(List<String> urlStrings,
         Map<String, String> params, String body) {
-      
+
+      //eventually we will process a request body
       if (!StandardApiServerUtils.isBlank(body)) {
         throw new AsasRestInvalidRequest("Not expecting body in request (size: " + StandardApiServerUtils.length(body) + ")");
       }
-      
-      if (StandardApiServerUtils.length(urlStrings) > 0) {
-        throw new AsasRestInvalidRequest("Not expecting more url strings: " + StandardApiServerUtils.toStringForLog(urlStrings));
+
+      if (StandardApiServerUtils.length(urlStrings) != 1) {
+        throw new AsasRestInvalidRequest("Expecting 1 url string after 'folders': " + StandardApiServerUtils.toStringForLog(urlStrings));
       }
-      return AsasRestLogic.getGroups(params);
+      
+      String folderUri = StandardApiServerUtils.popUrlString(urlStrings);
+      
+      return AsasRestLogic.folderSave(folderUri, params);
     }
   };
 
@@ -43,9 +47,9 @@ public enum AsasRestGet {
    * @return the enum or null or exception if not found
    * @throws GrouperRestInvalidRequest if there is a problem
    */
-  public static AsasRestGet valueOfIgnoreCase(String string,
+  public static AsasRestPut valueOfIgnoreCase(String string,
       boolean exceptionOnNotFound) throws AsasRestInvalidRequest {
-    return StandardApiServerUtils.enumValueOfIgnoreCase(AsasRestGet.class, 
+    return StandardApiServerUtils.enumValueOfIgnoreCase(AsasRestPut.class, 
         string, exceptionOnNotFound);
   }
 

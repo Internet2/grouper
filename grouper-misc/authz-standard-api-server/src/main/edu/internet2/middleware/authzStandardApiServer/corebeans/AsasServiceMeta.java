@@ -1,6 +1,5 @@
 package edu.internet2.middleware.authzStandardApiServer.corebeans;
 
-import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerConfig;
 import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUtils;
 
 /**
@@ -16,39 +15,12 @@ public class AsasServiceMeta {
   public AsasServiceMeta() {
     
     this.serverVersion = "1.0";
-    
+
     this.serviceRootUri = StandardApiServerUtils.servletUrl();
-    
-    this.pathSeparator = StandardApiServerConfig.retrieveConfig().configItemPathSeparatorChar();
+
   }
 
   
-  /**
-   * path separator char between folders
-   */
-  private String pathSeparator;
-  
-  
-  
-  
-  /**
-   * path separator char between folders
-   * @return the pathSeparator
-   */
-  public String getPathSeparator() {
-    return this.pathSeparator;
-  }
-
-  
-  /**
-   * path separator char between folders
-   * @param pathSeparator1 the pathSeparator to set
-   */
-  public void setPathSeparator(String pathSeparator1) {
-    this.pathSeparator = pathSeparator1;
-  }
-
-
   /**
    * version of the API, which is the main version (largest), and dot, and the
    * build number of the release.  this is two number, i.e. 1.3 is less than 1.21

@@ -56,7 +56,6 @@ public class AsacTestSuiteDefaultResource extends AsacTestSuiteResult {
     //    "millis":2
     //  },
     //  "serviceMeta":{
-    //    "pathSeparator":":",
     //    "serverVersion":"1.0",
     //    "serviceRootUri":"http://localhost:8090/grouperWs/authzStandardApi"
     //  }
@@ -71,7 +70,7 @@ public class AsacTestSuiteDefaultResource extends AsacTestSuiteResult {
     executeTestsForMeta(asacDefaultResourceContainer, "SUCCESS", "defaultResourceContainer", "");
 
     String serviceRootUri = asacDefaultResourceContainer.getServiceMeta().getServiceRootUri();
-
+    
     assertNotNull("asasDefaultResource", asacDefaultResourceContainer.getAsasDefaultResource());
     assertEquals("asasDefaultResource.jsonDefaultUri", serviceRootUri + ".json", 
         asacDefaultResourceContainer.getAsasDefaultResource().getJsonDefaultUri());

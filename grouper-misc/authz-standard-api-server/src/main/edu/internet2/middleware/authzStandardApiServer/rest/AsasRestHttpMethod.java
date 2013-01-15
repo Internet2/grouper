@@ -53,7 +53,7 @@ public enum AsasRestHttpMethod {
     @Override
     public AsasResponseBeanBase service(List<String> urlStrings,
         Map<String, String> params, String body) {
-      throw new AsasRestInvalidRequest("No expecting this request");
+      throw new AsasRestInvalidRequest("Not expecting this request");
     }
 
   },
@@ -67,7 +67,20 @@ public enum AsasRestHttpMethod {
     @Override
     public AsasResponseBeanBase service(List<String> urlStrings,
         Map<String, String> params, String body) {
-      throw new AsasRestInvalidRequest("No expecting this request");
+      
+      if (urlStrings.size() > 0) {
+        
+        String firstResource = StandardApiServerUtils.popUrlString(urlStrings);
+        
+        //validate and get the first resource
+        AsasRestPut asasRestPut = AsasRestPut.valueOfIgnoreCase(
+            firstResource, true);
+    
+        return asasRestPut.service(urlStrings, params, body);
+
+      }
+      
+      throw new AsasRestInvalidRequest("Not expecting this request");
     }
 
   },
@@ -81,7 +94,20 @@ public enum AsasRestHttpMethod {
     @Override
     public AsasResponseBeanBase service(List<String> urlStrings,
         Map<String, String> params, String body) {
-      throw new AsasRestInvalidRequest("No expecting this request");
+
+      if (urlStrings.size() > 0) {
+
+        String firstResource = StandardApiServerUtils.popUrlString(urlStrings);
+
+        //validate and get the first resource
+        AsasRestDelete asasRestDelete = AsasRestDelete.valueOfIgnoreCase(
+            firstResource, true);
+
+        return asasRestDelete.service(urlStrings, params, body);
+
+      }
+
+      throw new AsasRestInvalidRequest("Not expecting this request");
     }
 
   };

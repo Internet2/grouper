@@ -1,5 +1,7 @@
 package edu.internet2.middleware.authzStandardApiServer.interfaces.beans.groups;
 
+import edu.internet2.middleware.authzStandardApiServer.interfaces.beans.AsasApiQueryParams;
+
 
 /**
  * request for group search.

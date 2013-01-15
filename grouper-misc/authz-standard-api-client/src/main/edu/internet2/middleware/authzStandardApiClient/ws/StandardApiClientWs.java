@@ -223,7 +223,8 @@ public class StandardApiClientWs<T extends AsacResponseBeanBase> {
     //see if problem
     if (!StandardApiClientUtils.isBlank(resultObject.getError()) ||
         (resultObject.getResponseMeta() != null && !resultObject.getMeta().getSuccess())) {
-      throw new StandardApiClientWsException(resultObject, resultObject.getError());
+      throw new StandardApiClientWsException(resultObject, resultObject.getError() 
+          + ", " + resultObject.getError_description() + ", " + resultObject.getError_uri());
     }
 
     return resultObject;
@@ -402,14 +403,15 @@ public class StandardApiClientWs<T extends AsacResponseBeanBase> {
       
       if (objectToMarshall != null) {
         requestDocument = objectToMarshall instanceof String ? (String)objectToMarshall : asacRestContentType.writeString(objectToMarshall);
-      }
-      
-      if (method instanceof EntityEnclosingMethod) {
-        //text/xml
-        //text/x-json
-        //
-        ((EntityEnclosingMethod)method).setRequestEntity(new StringRequestEntity(requestDocument, 
-            asacRestContentType.getContentType(), "UTF-8"));
+
+        if (method instanceof EntityEnclosingMethod) {
+          //text/xml
+          //text/x-json
+          //
+          ((EntityEnclosingMethod)method).setRequestEntity(new StringRequestEntity(requestDocument, 
+              asacRestContentType.getContentType(), "UTF-8"));
+        }
+        
       }
       
       if (logFile != null || StandardApiClientLog.debugToConsole()) {

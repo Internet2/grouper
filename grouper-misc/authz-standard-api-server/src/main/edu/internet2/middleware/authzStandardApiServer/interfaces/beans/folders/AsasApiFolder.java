@@ -1,12 +1,14 @@
 /**
  * 
  */
-package edu.internet2.middleware.authzStandardApiServer.interfaces.beans.groups;
+package edu.internet2.middleware.authzStandardApiServer.interfaces.beans.folders;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import edu.internet2.middleware.authzStandardApiServer.contentType.AsasRestContentType;
-import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasGroup;
+import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasFolder;
 import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUtils;
 import edu.internet2.middleware.authzStandardApiServer.version.AsasWsVersion;
 
@@ -16,28 +18,26 @@ import edu.internet2.middleware.authzStandardApiServer.version.AsasWsVersion;
  * @author mchyzer
  *
  */
-public class AsasApiGroup {
+public class AsasApiFolder {
 
   /**
    * convert the api beans to the transport beans
-   * @param asasApiGroups
+   * @param asasApiFolders
    * @return the api bean
    */
-  public static AsasGroup[] convertToArray(Collection<AsasApiGroup> asasApiGroups) {
+  public static List<AsasFolder> convertToList(Collection<AsasApiFolder> asasApiFolders) {
     
-    if (asasApiGroups == null) {
+    if (asasApiFolders == null) {
       return null;
     }
-    AsasGroup[] asasGroups = new AsasGroup[asasApiGroups.size()];
+    List<AsasFolder> asasFolders = new ArrayList<AsasFolder>();
     
-    int index = 0;
-    for (AsasApiGroup asasApiGroup : asasApiGroups) {
-      AsasGroup asasGroup = convertTo(asasApiGroup);
-      asasGroups[index] = asasGroup;
-      index++;
+    for (AsasApiFolder asasApiFolder : asasApiFolders) {
+      AsasFolder asasFolder = convertToAsasApiFolder(asasApiFolder);
+      asasFolders.add(asasFolder);
     }
     
-    return asasGroups;
+    return asasFolders;
   }
 
   /**
@@ -45,39 +45,38 @@ public class AsasApiGroup {
    * @param asasApiGroups
    * @return the api bean
    */
-  public static AsasGroup convertTo(AsasApiGroup asasApiGroup) {
-    if (asasApiGroup == null) {
+  public static AsasFolder convertToAsasApiFolder(AsasApiFolder asasApiFolder) {
+    if (asasApiFolder == null) {
       return null;
     }
-    AsasGroup asasGroup = new AsasGroup();
-    asasGroup.setDescription(asasApiGroup.getDescription());
-    asasGroup.setDisplayName(asasApiGroup.getDisplayName());
-    asasGroup.setId(asasApiGroup.getId());
-    asasGroup.setName(asasApiGroup.getName());
-    asasGroup.setStatus(asasApiGroup.getStatus());
+    AsasFolder asasFolder = new AsasFolder();
+    asasFolder.setDescription(asasApiFolder.getDescription());
+    asasFolder.setDisplayName(asasApiFolder.getDisplayName());
+    asasFolder.setId(asasApiFolder.getId());
+    asasFolder.setName(asasApiFolder.getName());
+    asasFolder.setStatus(asasApiFolder.getStatus());
     
-    String groupUriBase = "/" 
-        + AsasWsVersion.retrieveCurrentClientVersion().name() + "/groups/name" 
-        + StandardApiServerUtils.escapeUrlEncode(":")
-        + StandardApiServerUtils.escapeUrlEncode(asasApiGroup.getName());
-    
-    String groupUriSuffix = "." + AsasRestContentType.retrieveContentType().name();
-    
-    asasGroup.setUri(groupUriBase + groupUriSuffix);
-
-    asasGroup.setParentFolderUri("/" 
+    String folderUriBase = "/" 
         + AsasWsVersion.retrieveCurrentClientVersion().name() + "/folders/name" 
         + StandardApiServerUtils.escapeUrlEncode(":")
-        + StandardApiServerUtils.escapeUrlEncode(StandardApiServerUtils.pathParentFolderName(asasApiGroup.getName()) + groupUriSuffix));
+        + StandardApiServerUtils.escapeUrlEncode(asasApiFolder.getName());
     
-    asasGroup.setAdminsUri(groupUriBase + "/admins" + groupUriSuffix);
-    asasGroup.setMembersUri(groupUriBase + "/members" + groupUriSuffix);
-    asasGroup.setOptinsUri(groupUriBase + "/optins" + groupUriSuffix);
-    asasGroup.setOptoutsUri(groupUriBase + "/optouts" + groupUriSuffix);
-    asasGroup.setReadersUri(groupUriBase + "/readers" + groupUriSuffix);
-    asasGroup.setUpdatersUri(groupUriBase + "/updaters" + groupUriSuffix);
+    String folderUriSuffix = "." + AsasRestContentType.retrieveContentType().name();
+    
+    asasFolder.setUri(folderUriBase + folderUriSuffix);
+    
+    //if we are a the root, dont set this since it is null
+    if (!StandardApiServerUtils.pathIsRootFolder(asasApiFolder.getName())) {
+      asasFolder.setParentFolderUri("/" 
+          + AsasWsVersion.retrieveCurrentClientVersion().name() + "/folders/name" 
+          + StandardApiServerUtils.escapeUrlEncode(":")
+          + StandardApiServerUtils.escapeUrlEncode(StandardApiServerUtils.pathParentFolderName(asasApiFolder.getName()) + folderUriSuffix));
+    }
 
-    return asasGroup;
+    asasFolder.setCreatorsUri(folderUriBase + "/creators" + folderUriSuffix);
+    asasFolder.setFolderAdminsUri(folderUriBase + "/admins" + folderUriSuffix);
+
+    return asasFolder;
   }
 
   /** id of the group */

@@ -1,22 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
-/*
- * @author mchyzer
- * $Id: AsasRestClassLookup.java,v 1.9 2009-12-30 04:23:02 mchyzer Exp $
- */
 package edu.internet2.middleware.authzStandardApiServer.ws;
 
 import java.util.Collections;
@@ -28,6 +9,9 @@ import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasDefaultReso
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasDefaultVersionResource;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasDefaultVersionResourceContainer;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasFolder;
+import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasFolderLookup;
+import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasFolderSaveRequest;
+import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasFolderSaveResponse;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasGroup;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasGroupSearchContainer;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasMeta;
@@ -56,6 +40,9 @@ public class AsasRestClassLookup {
     addAliasClass(AsasDefaultVersionResource.class);
     addAliasClass(AsasDefaultVersionResourceContainer.class);
     addAliasClass(AsasFolder.class);
+    addAliasClass(AsasFolderLookup.class);
+    addAliasClass(AsasFolderSaveRequest.class);
+    addAliasClass(AsasFolderSaveResponse.class);
     addAliasClass(AsasGroup.class);
     addAliasClass(AsasGroupSearchContainer.class);
     addAliasClass(AsasMeta.class);

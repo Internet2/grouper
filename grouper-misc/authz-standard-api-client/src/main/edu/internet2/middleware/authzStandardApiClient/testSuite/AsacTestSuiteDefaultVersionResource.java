@@ -54,15 +54,15 @@ public class AsacTestSuiteDefaultVersionResource extends AsacTestSuiteResult {
     executeTestsForResponseMeta(asacDefaultVersionResourceContainer, 200);
     
     executeTestsForMeta(asacDefaultVersionResourceContainer, "SUCCESS", "defaultVersionResourceContainer", "." + asacRestContentType.name());
-  
+
     String serviceRootUri = asacDefaultVersionResourceContainer.getServiceMeta().getServiceRootUri();
-  
+
     assertNotNull("asasDefaultVersionResource", asacDefaultVersionResourceContainer.getAsasDefaultVersionResource());
-    assertEquals("asasDefaultVersionResource.v1Uri", serviceRootUri + "/v1." + asacRestContentType.name(), 
+    assertEquals("asasDefaultVersionResource.v1Uri", "/v1." + asacRestContentType.name(), 
         asacDefaultVersionResourceContainer.getAsasDefaultVersionResource().getV1Uri());
     assertNotBlank("asasDefaultVersionResource.serverType",  
         asacDefaultVersionResourceContainer.getAsasDefaultVersionResource().getServerType());
-  
+
   }
   
   /**

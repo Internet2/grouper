@@ -18,10 +18,10 @@ public class AsasVersionResource {
    */
   public AsasVersionResource() {
     
-    this.groupsUri = StandardApiServerUtils.servletUrl() + "/" + AsasWsVersion.retrieveCurrentClientVersion() + "/groups." + AsasRestContentType.retrieveContentType();
-    this.foldersUri = StandardApiServerUtils.servletUrl() + "/" + AsasWsVersion.retrieveCurrentClientVersion() + "/folders." + AsasRestContentType.retrieveContentType();
-    this.entitiesUri = StandardApiServerUtils.servletUrl() + "/" + AsasWsVersion.retrieveCurrentClientVersion() + "/entities." + AsasRestContentType.retrieveContentType();
-    this.permissionsUri = StandardApiServerUtils.servletUrl() + "/" + AsasWsVersion.retrieveCurrentClientVersion() + "/permissions." + AsasRestContentType.retrieveContentType();
+    this.groupsUri = "/" + AsasWsVersion.retrieveCurrentClientVersion() + "/groups." + AsasRestContentType.retrieveContentType();
+    this.foldersUri = "/" + AsasWsVersion.retrieveCurrentClientVersion() + "/folders." + AsasRestContentType.retrieveContentType();
+    this.entitiesUri = "/" + AsasWsVersion.retrieveCurrentClientVersion() + "/entities." + AsasRestContentType.retrieveContentType();
+    this.permissionsUri = "/" + AsasWsVersion.retrieveCurrentClientVersion() + "/permissions." + AsasRestContentType.retrieveContentType();
     
   }
   

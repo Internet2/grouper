@@ -169,7 +169,7 @@ public class AsasRestServlet extends HttpServlet {
 
       asasResponseBean.setError_description(error + StandardApiServerUtils.getFullStackTrace(arir));
       asasResponseBean.getMeta().setSuccess(false);
-      asasResponseBean.getMeta().setStatusCode("INVALID_QUERY");
+      asasResponseBean.getMeta().setStatus("INVALID_QUERY");
       asasResponseBean.setError("INVALID_QUERY");
       asasResponseBean.getResponseMeta().setHttpStatusCode(400);
 
@@ -182,7 +182,7 @@ public class AsasRestServlet extends HttpServlet {
       asasResponseBean.setError_description("Problem with request: "
           + requestDebugInfo(request) + ",\n" + StandardApiServerUtils.getFullStackTrace(e));
       asasResponseBean.getMeta().setSuccess(false);
-      asasResponseBean.getMeta().setStatusCode("EXCEPTION");
+      asasResponseBean.getMeta().setStatus("EXCEPTION");
       asasResponseBean.setError("ERROR");
       asasResponseBean.getResponseMeta().setHttpStatusCode(500);
 
@@ -212,8 +212,11 @@ public class AsasRestServlet extends HttpServlet {
             .append("=").append(StandardApiServerUtils.escapeUrlEncode(paramMap.get(paramName)));
           
         }
-        
-        asasResponseBean.getMeta().setSelfUri(urlBuilder.toString());
+        String selfUri = urlBuilder.toString();
+        if (selfUri.startsWith(StandardApiServerUtils.servletUrl() + "/")) {
+          selfUri = selfUri.substring(StandardApiServerUtils.servletUrl().length());
+        }
+        asasResponseBean.getMeta().setSelfUri(selfUri);
       }
       if (warnings.length() > 0) {
         asasResponseBean.getMeta().appendWarning(warnings.toString());

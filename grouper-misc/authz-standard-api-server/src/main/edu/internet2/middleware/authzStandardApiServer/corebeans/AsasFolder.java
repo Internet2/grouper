@@ -34,6 +34,9 @@ public class AsasFolder {
   /** reference to the parent folder: URI.  */
   private String parentFolderUri;
 
+  /** uri of this folder */
+  private String uri;
+
   
   /**
    * id
@@ -176,6 +179,23 @@ public class AsasFolder {
    */
   public void setParentFolderUri(String parentFolderUri1) {
     this.parentFolderUri = parentFolderUri1;
+  }
+
+
+  /**
+   * uri of this folder
+   * @return the uri
+   */
+  public String getUri() {
+    return this.uri;
+  }
+
+  /**
+   * uri of this folder
+   * @param uri1 the uri to set
+   */
+  public void setUri(String uri1) {
+    this.uri = uri1;
   }
 
 }

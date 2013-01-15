@@ -81,8 +81,6 @@ public class AsasGroup {
   public String getAdminsUri() {
     return this.adminsUri;
   }
-
-
   
   /**
    * admins uri
@@ -91,8 +89,6 @@ public class AsasGroup {
   public void setAdminsUri(String adminsUri1) {
     this.adminsUri = adminsUri1;
   }
-
-
   
   /**
    * updaters uri

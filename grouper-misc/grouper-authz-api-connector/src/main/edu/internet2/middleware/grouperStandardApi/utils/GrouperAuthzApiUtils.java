@@ -6,15 +6,17 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.authzStandardApiServer.interfaces.beans.AsasApiQueryParams;
+import edu.internet2.middleware.authzStandardApiServer.interfaces.beans.folders.AsasApiFolder;
+import edu.internet2.middleware.authzStandardApiServer.interfaces.beans.folders.AsasApiFolderLookup;
 import edu.internet2.middleware.authzStandardApiServer.interfaces.beans.groups.AsasApiGroup;
-import edu.internet2.middleware.authzStandardApiServer.interfaces.beans.groups.AsasApiQueryParams;
 import edu.internet2.middleware.authzStandardApiServer.interfaces.entity.AsasApiEntityLookup;
 import edu.internet2.middleware.authzStandardApiServer.util.ExpirableCache;
-import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerConfig;
-import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUtils;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -28,6 +30,40 @@ import edu.internet2.middleware.subject.Subject;
 
 public class GrouperAuthzApiUtils {
 
+  /**
+   * convert a folder lookup to a stem
+   * @param grouperSession
+   * @param asasApiFolderLookup
+   * @param errorIfNotFound
+   * @return the stem
+   */
+  public static Stem folderLookupConvertToStem(GrouperSession grouperSession, AsasApiFolderLookup asasApiFolderLookup, boolean errorIfNotFound) {
+    Stem stem = null;
+    boolean lookedForFolder = false;
+    if (asasApiFolderLookup == null) {
+      throw new RuntimeException("folderLookup is null");
+    }
+      
+    //TODO do handles (idIndex?)
+    
+    if (asasApiFolderLookup.getId() != null) {
+      stem = StemFinder.findByUuid(grouperSession, asasApiFolderLookup.getId(), errorIfNotFound);
+      lookedForFolder = true;
+    }
+    
+    if (asasApiFolderLookup.getName() != null) {
+      stem = StemFinder.findByName(grouperSession, asasApiFolderLookup.getName(), errorIfNotFound);
+      lookedForFolder = true;
+    }
+
+    if (!lookedForFolder) {
+      throw new RuntimeException("Invalid folderLookup! " + asasApiFolderLookup.getId() + ", " + asasApiFolderLookup.getName()
+          + ", " + asasApiFolderLookup.getHandleName() + ", " + asasApiFolderLookup.getHandleValue());
+    }
+    
+    return stem;
+  }
+  
   /**
    * successes cache
    */
@@ -106,12 +142,11 @@ public class GrouperAuthzApiUtils {
     asasApiGroup.setDescription(group.getDescription());
     asasApiGroup.setId(group.getId());
     
-    asasApiGroup.setName(StandardApiServerUtils.convertPathToUseSeparatorAndEscape(group.getName(), ":", 
-        StandardApiServerConfig.retrieveConfig().configItemPathSeparatorChar()));
-    asasApiGroup.setDisplayName(StandardApiServerUtils.convertPathToUseSeparatorAndEscape(group.getDisplayName(), ":", 
-        StandardApiServerConfig.retrieveConfig().configItemPathSeparatorChar()));
+    //grouper groups already use the right path separator
+    asasApiGroup.setName(group.getName());
+    asasApiGroup.setDisplayName(group.getDisplayName());
     
-    asasApiGroup.setStatus("enabled");
+    asasApiGroup.setStatus("active");
     return asasApiGroup;
   }
   
@@ -344,6 +379,29 @@ public class GrouperAuthzApiUtils {
     }
     
     return asasApiQueryParams;
+  }
+
+  /**
+   * 
+   * @param stem
+   * @return the converted folder
+   */
+  public static AsasApiFolder convertToFolder(Stem stem) {
+    
+    if (stem == null) {
+      return null;
+    }
+    
+    AsasApiFolder asasApiFolder = new AsasApiFolder();
+    asasApiFolder.setDescription(stem.getDescription());
+    asasApiFolder.setDisplayName(stem.getDisplayName());
+    asasApiFolder.setId(stem.getUuid());
+    asasApiFolder.setName(stem.getName());
+    asasApiFolder.setStatus("active");
+    
+    //grouper stems already use the right path separator
+    
+    return asasApiFolder;
   }
   
 }

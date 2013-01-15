@@ -11,6 +11,18 @@ import edu.internet2.middleware.authzStandardApiClient.config.AsacConfigProperti
 public class StandardApiClientConfig extends AsacConfigPropertiesCascadeBase {
 
   /**
+   * root folder for testing
+   * @return the root folder
+   */
+  public String unitTestRootFolder() {
+    String rootFolder = StandardApiClientConfig.retrieveConfig().propertyValueStringRequired("authzStandardApiClient.unitTest.rootFolder");
+    if (StandardApiClientUtils.isBlank(rootFolder)) {
+      throw new RuntimeException("Need to set a config property: authzStandardApiClient.unitTest.rootFolder");
+    }
+    return rootFolder;
+  }
+  
+  /**
    * use the factory
    */
   private StandardApiClientConfig() {

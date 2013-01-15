@@ -3,9 +3,6 @@
  */
 package edu.internet2.middleware.authzStandardApiServer.corebeans;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import edu.internet2.middleware.authzStandardApiServer.contentType.AsasRestContentType;
 import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUtils;
 
@@ -23,12 +20,10 @@ public class AsasGroupSearchContainer extends AsasResponseBeanBase {
    */
   public static void main(String[] args) {
     AsasGroupSearchContainer asasGroupSearchContainer = new AsasGroupSearchContainer();
-    List<AsasGroup> asasGroupList = new ArrayList<AsasGroup>();
     AsasGroup asasGroup = new AsasGroup();
     asasGroup.setId("id");
     asasGroup.setName("name");
-    asasGroupList.add(asasGroup);
-    asasGroupSearchContainer.setGroups(asasGroupList);
+    asasGroupSearchContainer.setGroups(new AsasGroup[]{asasGroup});
     
     String string = StandardApiServerUtils.indent(AsasRestContentType.json.writeString(asasGroupSearchContainer), true);
     
@@ -44,13 +39,13 @@ public class AsasGroupSearchContainer extends AsasResponseBeanBase {
   /**
    * list of groups
    */
-  private List<AsasGroup> groups = null;
+  private AsasGroup[] groups = null;
 
   
   /**
    * @return the groups
    */
-  public List<AsasGroup> getGroups() {
+  public AsasGroup[] getGroups() {
     return this.groups;
   }
 
@@ -58,7 +53,7 @@ public class AsasGroupSearchContainer extends AsasResponseBeanBase {
   /**
    * @param groups the groups to set
    */
-  public void setGroups(List<AsasGroup> groups1) {
+  public void setGroups(AsasGroup[] groups1) {
     this.groups = groups1;
   }
   

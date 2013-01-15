@@ -17,8 +17,10 @@ public class AsasDefaultVersionResource {
    */
   public AsasDefaultVersionResource() {
     
-    this.v1Uri = StandardApiServerUtils.servletUrl() + "/v1." + AsasRestContentType.retrieveContentType();
-    this.serverType = StandardApiServerConfig.retrieveConfig().propertyValueStringRequired("authzStandardApiServer.serverType");
+    this.v1Uri = "/" 
+        + StandardApiServerUtils.version() + "." + AsasRestContentType.retrieveContentType();
+    this.serverType = StandardApiServerConfig.retrieveConfig()
+        .propertyValueStringRequired("authzStandardApiServer.serverType");
     
     if (StandardApiServerUtils.isBlank(this.serverType)) {
       throw new RuntimeException("Why is authzStandardApiServer.serverType not defined in the the standardapi.server.properties");
