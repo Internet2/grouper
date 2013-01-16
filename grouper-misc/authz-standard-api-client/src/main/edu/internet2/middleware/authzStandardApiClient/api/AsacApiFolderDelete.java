@@ -4,8 +4,8 @@
  */
 package edu.internet2.middleware.authzStandardApiClient.api;
 
+import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacFolderDeleteResponse;
 import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacFolderLookup;
-import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacFolderSaveResponse;
 import edu.internet2.middleware.authzStandardApiClient.exceptions.StandardApiClientWsException;
 import edu.internet2.middleware.authzStandardApiClient.util.StandardApiClientUtils;
 import edu.internet2.middleware.authzStandardApiClient.ws.AsacRestHttpMethod;
@@ -70,11 +70,11 @@ public class AsacApiFolderDelete extends AsacApiRequestBase {
    * 
    * @return the results
    */
-  public AsacFolderSaveResponse execute() {
+  public AsacFolderDeleteResponse execute() {
     this.validate();
-    AsacFolderSaveResponse asacFolderDeleteResponse = null;
+    AsacFolderDeleteResponse asacFolderDeleteResponse = null;
 
-    StandardApiClientWs<AsacFolderSaveResponse> standardApiClientWs = new StandardApiClientWs<AsacFolderSaveResponse>();
+    StandardApiClientWs<AsacFolderDeleteResponse> standardApiClientWs = new StandardApiClientWs<AsacFolderDeleteResponse>();
 
     //kick off the web service
     StringBuilder urlSuffix = new StringBuilder();
@@ -102,7 +102,7 @@ public class AsacApiFolderDelete extends AsacApiRequestBase {
     
     asacFolderDeleteResponse =
       standardApiClientWs.executeService(urlSuffix.toString(), null, "folderDelete", null,
-          this.getContentType(), AsacFolderSaveResponse.class, asacRestHttpMethod);
+          this.getContentType(), AsacFolderDeleteResponse.class, asacRestHttpMethod);
     
     return asacFolderDeleteResponse;
     

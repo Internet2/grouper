@@ -31,6 +31,7 @@ import edu.internet2.middleware.authzStandardApiServer.interfaces.AsasApiFolderI
 import edu.internet2.middleware.authzStandardApiServer.interfaces.AsasApiGroupInterface;
 import edu.internet2.middleware.authzStandardApiServer.interfaces.beans.folders.AsasApiFolderLookup;
 import edu.internet2.middleware.authzStandardApiServer.j2ee.AsasFilterJ2ee;
+import edu.internet2.middleware.authzStandardApiServer.version.AsasWsVersion;
 import edu.internet2.middleware.authzStandardApiServerExt.com.thoughtworks.xstream.XStream;
 import edu.internet2.middleware.authzStandardApiServerExt.com.thoughtworks.xstream.io.xml.CompactWriter;
 import edu.internet2.middleware.authzStandardApiServerExt.net.sf.json.JSONObject;
@@ -91,7 +92,8 @@ public class StandardApiServerUtils extends StandardApiServerCommonUtils {
    * @return current version for url
    */
   public static String version() {
-    return "v1";
+    //TODO: this should be based on the request
+    return AsasWsVersion.serverVersion().name();
   }
 
   /**

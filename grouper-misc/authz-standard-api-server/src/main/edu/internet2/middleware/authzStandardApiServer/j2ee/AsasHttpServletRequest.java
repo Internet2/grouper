@@ -67,8 +67,20 @@ public class AsasHttpServletRequest extends HttpServletRequestWrapper {
    * valid params that the API knows about
    */
   private static Set<String> validParamNames = StandardApiServerUtils.toSet(
-      "indent", "method", "limit", "offset", "offsetFieldValue", "sortField", "ascending", "extraFields", "recursive");
+      "ascending", 
+      "extraFields", 
+      "indent", 
+      "limit", 
+      "method", 
+      "offset", 
+      "offsetFieldValue", 
+      "recursive",
+      "saveMode",
+      "sortField" 
+      );
 
+  
+  
   /**
    * construct with underlying request
    * @param theHttpServletRequest
@@ -174,6 +186,7 @@ public class AsasHttpServletRequest extends HttpServletRequestWrapper {
   /**
    * @see javax.servlet.ServletRequestWrapper#getParameterNames()
    */
+  @SuppressWarnings("rawtypes")
   @Override
   public Enumeration getParameterNames() {
     return IteratorUtils.asEnumeration(this.getParameterMap().keySet().iterator());

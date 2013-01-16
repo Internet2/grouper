@@ -6,6 +6,7 @@ import edu.internet2.middleware.authzStandardApiClient.contentType.AsacRestConte
 import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacFolderLookup;
 import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacFolderSaveResponse;
 import edu.internet2.middleware.authzStandardApiClient.util.StandardApiClientConfig;
+import edu.internet2.middleware.authzStandardApiClient.util.StandardApiClientUtils;
 
 /**
  * test put folder
@@ -49,12 +50,17 @@ public class AsacTestSuiteFolderSave extends AsacTestSuiteResult {
     AsacFolderLookup asacFolderLookup = new AsacFolderLookup();
 
     String rootFolder = StandardApiClientConfig.retrieveConfig().unitTestRootFolder();
-    String theName = rootFolder + ":test";
+    String theName = rootFolder + ":test" + asacRestContentType.name();
     
     //first delete the folder
-    new AsacApiFolderDelete().assignFolderLookup(new AsacFolderLookup(theName, null)).assignRecursive(true).execute();
+    AsacApiFolderDelete asacApiFolderDelete = new AsacApiFolderDelete()
+      .assignFolderLookup(new AsacFolderLookup(theName, null)).assignRecursive(true);
     
-    asacFolderLookup.setName(theName + asacRestContentType.name());
+    asacApiFolderDelete.setContentType(asacRestContentType);
+    
+    asacApiFolderDelete.execute();
+    
+    asacFolderLookup.setName(theName);
     asacApiFolderSave.assignFolderLookup(asacFolderLookup);
     asacApiFolderSave.setContentType(asacRestContentType);
     
@@ -70,7 +76,8 @@ public class AsacTestSuiteFolderSave extends AsacTestSuiteResult {
     
     executeTestsForResponseMeta(asacFolderSaveResponse, 201);
     
-    executeTestsForMeta(asacFolderSaveResponse, "SUCCESS", "asacFolderSaveResponse", "." + asacRestContentType.name());
+    executeTestsForMeta(asacFolderSaveResponse, "FOLDER_CREATED", "folderSaveResponse", 
+        "/" + StandardApiClientUtils.version() + "/folders/name:" + theName + "." + asacRestContentType.name());
 
     assertNotNull("asacFolderSaveResponse", asacFolderSaveResponse.getFolder());
 

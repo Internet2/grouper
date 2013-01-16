@@ -233,7 +233,7 @@ public class StandardApiClient {
       Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
   
       substituteMap.put("asacDefaultResourceContainer", asacDefaultResourceContainer);
-      substituteMap.put("asacDefaultResource", asacDefaultResourceContainer.getAsasDefaultResource());
+      substituteMap.put("asacDefaultResource", asacDefaultResourceContainer.getDefaultResource());
       substituteMap.put("meta", asacDefaultResourceContainer.getMeta());
       substituteMap.put("responseMeta", asacDefaultResourceContainer.getResponseMeta());
       substituteMap.put("serviceMeta", asacDefaultResourceContainer.getServiceMeta());
@@ -453,7 +453,7 @@ public class StandardApiClient {
     Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
   
     substituteMap.put("asacDefaultVersionResourceContainer", asacDefaultVersionResourceContainer);
-    substituteMap.put("asacDefaultVersionResource", asacDefaultVersionResourceContainer.getAsasDefaultVersionResource());
+    substituteMap.put("asacDefaultVersionResource", asacDefaultVersionResourceContainer.getDefaultVersionResource());
     substituteMap.put("meta", asacDefaultVersionResourceContainer.getMeta());
     substituteMap.put("responseMeta", asacDefaultVersionResourceContainer.getResponseMeta());
     substituteMap.put("serviceMeta", asacDefaultVersionResourceContainer.getServiceMeta());

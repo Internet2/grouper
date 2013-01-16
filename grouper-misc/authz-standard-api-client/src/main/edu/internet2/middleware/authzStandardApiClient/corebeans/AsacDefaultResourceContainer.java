@@ -12,15 +12,15 @@ public class AsacDefaultResourceContainer extends AsacResponseBeanBase {
    * from url: BASE_URL: e.g. url/authzStandardApi
    * body of the asas default resource
    */
-  private AsacDefaultResource asasDefaultResource = new AsacDefaultResource();
+  private AsacDefaultResource defaultResource = new AsacDefaultResource();
 
   /**
    * from url: BASE_URL: e.g. url/authzStandardApi
    * body of the asas default resource
    * @return the body of the response
    */
-  public AsacDefaultResource getAsasDefaultResource() {
-    return this.asasDefaultResource;
+  public AsacDefaultResource getDefaultResource() {
+    return this.defaultResource;
   }
 
   /**
@@ -28,8 +28,8 @@ public class AsacDefaultResourceContainer extends AsacResponseBeanBase {
    * body of the asas default resource
    * @param asasDefaultResource1
    */
-  public void setAsasDefaultResource(AsacDefaultResource asasDefaultResource1) {
-    this.asasDefaultResource = asasDefaultResource1;
+  public void setDefaultResource(AsacDefaultResource asasDefaultResource1) {
+    this.defaultResource = asasDefaultResource1;
   }
   
 }

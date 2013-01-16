@@ -74,7 +74,7 @@ public class AsasApiFolder {
     }
 
     asasFolder.setCreatorsUri(folderUriBase + "/creators" + folderUriSuffix);
-    asasFolder.setFolderAdminsUri(folderUriBase + "/admins" + folderUriSuffix);
+    asasFolder.setAdminsUri(folderUriBase + "/admins" + folderUriSuffix);
 
     return asasFolder;
   }

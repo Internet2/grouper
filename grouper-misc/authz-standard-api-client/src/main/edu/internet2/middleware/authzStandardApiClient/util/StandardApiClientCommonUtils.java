@@ -1027,12 +1027,21 @@ public class StandardApiClientCommonUtils  {
    * @return the encoded string
    */
   public static String escapeUrlEncode(String string) {
+    if (string == null) {
+      return null;
+    }
     String result = null;
     try {
       result = URLEncoder.encode(string, "UTF-8");
     } catch (UnsupportedEncodingException ex) {
       throw new RuntimeException("UTF-8 not supported", ex);
     }
+    
+    if (!StandardApiClientConfig.retrieveConfig().propertyValueBoolean("authzStandardApiClient.escapeUriColons", false)) {
+      result = replace(result, "%3A", ":");
+      result = replace(result, "%3a", ":");
+    }
+    
     return result;
   }
   

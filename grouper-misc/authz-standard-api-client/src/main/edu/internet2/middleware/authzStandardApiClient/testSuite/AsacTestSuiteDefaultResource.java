@@ -71,11 +71,11 @@ public class AsacTestSuiteDefaultResource extends AsacTestSuiteResult {
 
     String serviceRootUri = asacDefaultResourceContainer.getServiceMeta().getServiceRootUri();
     
-    assertNotNull("asasDefaultResource", asacDefaultResourceContainer.getAsasDefaultResource());
+    assertNotNull("asasDefaultResource", asacDefaultResourceContainer.getDefaultResource());
     assertEquals("asasDefaultResource.jsonDefaultUri", serviceRootUri + ".json", 
-        asacDefaultResourceContainer.getAsasDefaultResource().getJsonDefaultUri());
+        asacDefaultResourceContainer.getDefaultResource().getJsonDefaultUri());
     assertEquals("asasDefaultResource.xmlDefaultUri", serviceRootUri + ".xml", 
-        asacDefaultResourceContainer.getAsasDefaultResource().getXmlDefaultUri());
+        asacDefaultResourceContainer.getDefaultResource().getXmlDefaultUri());
     
   }
 
@@ -85,6 +85,33 @@ public class AsacTestSuiteDefaultResource extends AsacTestSuiteResult {
   @Override
   public String getName() {
     return "defaultResource";
+  }
+
+  /**
+   * test default resource
+   */
+  public void testDefaultContentTypedResource() {
+    
+    AsacDefaultResourceContainer asacDefaultResourceContainer = new AsacApiDefaultResource()
+      .assignIndent(this.getResults().isIndent()).execute();
+    
+    
+    executeTestsForHttp(200, AsacRestContentType.json);
+    
+    executeTestsForServiceMeta(asacDefaultResourceContainer);
+    
+    executeTestsForResponseMeta(asacDefaultResourceContainer, 200);
+    
+    executeTestsForMeta(asacDefaultResourceContainer, "SUCCESS", "defaultResourceContainer", "");
+  
+    String serviceRootUri = asacDefaultResourceContainer.getServiceMeta().getServiceRootUri();
+    
+    assertNotNull("asasDefaultResource", asacDefaultResourceContainer.getDefaultResource());
+    assertEquals("asasDefaultResource.jsonDefaultUri", serviceRootUri + ".json", 
+        asacDefaultResourceContainer.getDefaultResource().getJsonDefaultUri());
+    assertEquals("asasDefaultResource.xmlDefaultUri", serviceRootUri + ".xml", 
+        asacDefaultResourceContainer.getDefaultResource().getXmlDefaultUri());
+    
   }
     
   

@@ -1,7 +1,6 @@
 package edu.internet2.middleware.authzStandardApiServer.corebeans;
 
 import edu.internet2.middleware.authzStandardApiServer.contentType.AsasRestContentType;
-import edu.internet2.middleware.authzStandardApiServer.util.StandardApiServerUtils;
 import edu.internet2.middleware.authzStandardApiServer.version.AsasWsVersion;
 
 /**

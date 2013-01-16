@@ -251,6 +251,28 @@ public abstract class AsacTestSuiteResult {
   /**
    * 
    * @param describeObject
+   * @param expectedString
+   * @param actualString
+   */
+  public void assertEqualsUri(String describeObject, String expectedString, String actualString) {
+    if (expectedString != null) {
+      expectedString = StandardApiClientUtils.replace(expectedString, "%3A", ":");
+      expectedString = StandardApiClientUtils.replace(expectedString, "%3a", ":");
+    }
+    if (actualString != null) {
+      actualString = StandardApiClientUtils.replace(actualString, "%3A", ":");
+      actualString = StandardApiClientUtils.replace(actualString, "%3a", ":");
+    }
+    if (!StandardApiClientUtils.equals(expectedString, actualString)) {
+      throw new AsacTestFailException(describeObject + ", strings do not match, expected: '" 
+          + expectedString +"', but was '" + actualString + "'");
+    }
+    this.appendToTestReport(describeObject + " equals: " + StandardApiClientUtils.abbreviate(expectedString, 60));
+  }
+  
+  /**
+   * 
+   * @param describeObject
    * @param expected
    * @param actual
    */
@@ -381,8 +403,15 @@ public abstract class AsacTestSuiteResult {
   protected void executeTestsForMeta(AsacResponseBeanBase asacResponseBeanBase, String statusCode, String structureName, String expectedUriSuffix) {
     assertNotNull("meta", asacResponseBeanBase.getMeta());
     assertValidDate("meta.lastModified", asacResponseBeanBase.getMeta().getLastModified());
-    assertEquals("meta.selfUri", asacResponseBeanBase.getServiceMeta().getServiceRootUri() + expectedUriSuffix, 
-        asacResponseBeanBase.getMeta().getSelfUri());
+    if (expectedUriSuffix.startsWith("/")) {
+      assertEqualsUri("meta.selfUri", expectedUriSuffix, 
+          asacResponseBeanBase.getMeta().getSelfUri());
+      
+    } else {
+      assertEqualsUri("meta.selfUri", asacResponseBeanBase.getServiceMeta().getServiceRootUri() + expectedUriSuffix, 
+          asacResponseBeanBase.getMeta().getSelfUri());
+      
+    }
     assertEquals("meta.statusCode", statusCode, asacResponseBeanBase.getMeta().getStatus());
     assertEquals("meta.structureName", structureName, asacResponseBeanBase.getMeta().getStructureName());
     assertTrue("meta.success", asacResponseBeanBase.getMeta().getSuccess());

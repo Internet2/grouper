@@ -14,15 +14,15 @@ public class AsacVersionResourceContainer extends AsacResponseBeanBase {
    * from URL: BASE_URL/v1.json, e.g. url/authzStandardApi/v1.json
    * displays the resources under the version
    */
-  private AsacVersionResource asasVersionResource = new AsacVersionResource();
+  private AsacVersionResource versionResource = new AsacVersionResource();
 
   /**
    * from URL: BASE_URL/v1.json, e.g. url/authzStandardApi/v1.json
    * displays the resources under the version
    * @return the version resource
    */
-  public AsacVersionResource getAsasVersionResource() {
-    return this.asasVersionResource;
+  public AsacVersionResource getVersionResource() {
+    return this.versionResource;
   }
 
   /**
@@ -30,8 +30,8 @@ public class AsacVersionResourceContainer extends AsacResponseBeanBase {
    * displays the resources under the version
    * @param asasVersionResource
    */
-  public void setAsasVersionResource(AsacVersionResource asasVersionResource) {
-    this.asasVersionResource = asasVersionResource;
+  public void setVersionResource(AsacVersionResource asasVersionResource) {
+    this.versionResource = asasVersionResource;
   }
 
   

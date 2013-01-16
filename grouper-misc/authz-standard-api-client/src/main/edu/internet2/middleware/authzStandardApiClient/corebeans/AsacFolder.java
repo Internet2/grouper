@@ -26,7 +26,7 @@ public class AsacFolder {
   private String status;
   
   /** folderAdmins uri */
-  private String folderAdminsUri;
+  private String adminsUri;
   
   /** folderCreators uri */
   private String creatorsUri;
@@ -129,8 +129,8 @@ public class AsacFolder {
    * uri to the folder admins (can edit/delete the folder)
    * @return the folderAdminsUri
    */
-  public String getFolderAdminsUri() {
-    return this.folderAdminsUri;
+  public String getAdminsUri() {
+    return this.adminsUri;
   }
 
   
@@ -138,8 +138,8 @@ public class AsacFolder {
    * uri to the folder admins (can edit/delete the folder)
    * @param folderAdminsUri1 the folderAdminsUri to set
    */
-  public void setFolderAdminsUri(String folderAdminsUri1) {
-    this.folderAdminsUri = folderAdminsUri1;
+  public void setAdminsUri(String folderAdminsUri1) {
+    this.adminsUri = folderAdminsUri1;
   }
 
   

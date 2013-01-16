@@ -148,11 +148,11 @@ public class AsasRestLogic {
    * @return the result container
    */
   public static AsasFolderDeleteResponse folderDelete(String folderUri, Map<String, String> params) {
-  
+
     if (StandardApiServerUtils.isBlank(folderUri)) {
       throw new NullPointerException("Why is folderUri blank?");
     }
-    
+
     //lets get the folders interface
     AsasApiFolderInterface asasApiFolderInterface = StandardApiServerUtils.interfaceFolderInstance();
     AsasApiEntityLookup authenticatedSubject = AsasApiEntityLookup.retrieveLoggedInUser();

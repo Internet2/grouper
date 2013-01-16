@@ -39,7 +39,6 @@ public class AsacMeta {
   public String getStatus() {
     return this.status;
   }
-
   
   /**
    * response status text code

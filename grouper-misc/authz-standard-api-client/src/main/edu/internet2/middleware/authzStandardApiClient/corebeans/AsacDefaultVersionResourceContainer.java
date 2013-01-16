@@ -14,23 +14,23 @@ public class AsacDefaultVersionResourceContainer extends AsacResponseBeanBase {
   /**
    * e.g. from URL: BASE_URL.json, e.g. url/authzStandardApi.json
    */
-  private AsacDefaultVersionResource asasDefaultVersionResource = new AsacDefaultVersionResource();
+  private AsacDefaultVersionResource defaultVersionResource = new AsacDefaultVersionResource();
 
   /**
    * e.g. from URL: BASE_URL.json, e.g. url/authzStandardApi.json
    * @return standard api
    */
-  public AsacDefaultVersionResource getAsasDefaultVersionResource() {
-    return this.asasDefaultVersionResource;
+  public AsacDefaultVersionResource getDefaultVersionResource() {
+    return this.defaultVersionResource;
   }
 
   /**
    * e.g. from URL: BASE_URL.json, e.g. url/authzStandardApi.json
    * @param asasDefaultVersionResource1
    */
-  public void setAsasDefaultVersionResource(
+  public void setDefaultVersionResource(
       AsacDefaultVersionResource asasDefaultVersionResource1) {
-    this.asasDefaultVersionResource = asasDefaultVersionResource1;
+    this.defaultVersionResource = asasDefaultVersionResource1;
   }
 
 }

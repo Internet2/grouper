@@ -9,6 +9,7 @@ import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasDefaultReso
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasDefaultVersionResource;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasDefaultVersionResourceContainer;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasFolder;
+import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasFolderDeleteResponse;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasFolderLookup;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasFolderSaveRequest;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasFolderSaveResponse;
@@ -40,6 +41,7 @@ public class AsasRestClassLookup {
     addAliasClass(AsasDefaultVersionResource.class);
     addAliasClass(AsasDefaultVersionResourceContainer.class);
     addAliasClass(AsasFolder.class);
+    addAliasClass(AsasFolderDeleteResponse.class);
     addAliasClass(AsasFolderLookup.class);
     addAliasClass(AsasFolderSaveRequest.class);
     addAliasClass(AsasFolderSaveResponse.class);

@@ -25,8 +25,8 @@ public class AsasFolder {
   /** status (active/inactive) */
   private String status;
   
-  /** folderAdmins uri */
-  private String folderAdminsUri;
+  /** admins uri */
+  private String adminsUri;
   
   /** folderCreators uri */
   private String creatorsUri;
@@ -56,6 +56,23 @@ public class AsasFolder {
   }
 
   
+  
+  /**
+   * admins uri
+   * @return the adminsUri
+   */
+  public String getAdminsUri() {
+    return this.adminsUri;
+  }
+  
+  /**
+   * admins uri
+   * @param adminsUri1 the adminsUri to set
+   */
+  public void setAdminsUri(String adminsUri1) {
+    this.adminsUri = adminsUri1;
+  }
+
   /**
    * name
    * @return the name
@@ -126,25 +143,6 @@ public class AsasFolder {
   public void setStatus(String status1) {
     this.status = status1;
   }
-
-  
-  /**
-   * uri to the folder admins (can edit/delete the folder)
-   * @return the folderAdminsUri
-   */
-  public String getFolderAdminsUri() {
-    return this.folderAdminsUri;
-  }
-
-  
-  /**
-   * uri to the folder admins (can edit/delete the folder)
-   * @param folderAdminsUri1 the folderAdminsUri to set
-   */
-  public void setFolderAdminsUri(String folderAdminsUri1) {
-    this.folderAdminsUri = folderAdminsUri1;
-  }
-
   
   /**
    * uri to entities who can create objects in this folder
@@ -153,7 +151,6 @@ public class AsasFolder {
   public String getCreatorsUri() {
     return this.creatorsUri;
   }
-
   
   /**
    * uri to entities who can create objects in this folder

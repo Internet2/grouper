@@ -28,6 +28,7 @@ import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacDefaultReso
 import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacDefaultVersionResource;
 import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacDefaultVersionResourceContainer;
 import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacFolder;
+import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacFolderDeleteResponse;
 import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacFolderLookup;
 import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacFolderSaveRequest;
 import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacFolderSaveResponse;
@@ -59,6 +60,7 @@ public class AsacRestClassLookup {
     addAliasClass(AsacDefaultVersionResource.class);
     addAliasClass(AsacDefaultVersionResourceContainer.class);
     addAliasClass(AsacFolder.class);
+    addAliasClass(AsacFolderDeleteResponse.class);
     addAliasClass(AsacFolderLookup.class);
     addAliasClass(AsacFolderSaveRequest.class);
     addAliasClass(AsacFolderSaveResponse.class);

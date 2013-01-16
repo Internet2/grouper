@@ -14,23 +14,25 @@ public class AsasDefaultVersionResourceContainer extends AsasResponseBeanBase {
   /**
    * e.g. from URL: BASE_URL.json, e.g. url/authzStandardApi.json
    */
-  private AsasDefaultVersionResource asasDefaultVersionResource = new AsasDefaultVersionResource();
+  private AsasDefaultVersionResource defaultVersionResource = new AsasDefaultVersionResource();
 
+  
   /**
    * e.g. from URL: BASE_URL.json, e.g. url/authzStandardApi.json
-   * @return standard api
+   * @return the defaultVersionResource
    */
-  public AsasDefaultVersionResource getAsasDefaultVersionResource() {
-    return this.asasDefaultVersionResource;
+  public AsasDefaultVersionResource getDefaultVersionResource() {
+    return this.defaultVersionResource;
   }
 
+  
   /**
    * e.g. from URL: BASE_URL.json, e.g. url/authzStandardApi.json
-   * @param asasDefaultVersionResource1
+   * @param defaultVersionResource1 the defaultVersionResource to set
    */
-  public void setAsasDefaultVersionResource(
-      AsasDefaultVersionResource asasDefaultVersionResource1) {
-    this.asasDefaultVersionResource = asasDefaultVersionResource1;
+  public void setDefaultVersionResource(AsasDefaultVersionResource defaultVersionResource1) {
+    this.defaultVersionResource = defaultVersionResource1;
   }
+
 
 }
