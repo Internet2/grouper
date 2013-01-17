@@ -4,8 +4,13 @@
  */
 package edu.internet2.middleware.authzStandardApiClient.api;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import edu.internet2.middleware.authzStandardApiClient.testSuite.AsacTestSuiteResults;
 import edu.internet2.middleware.authzStandardApiClient.testSuite.AsacTestSuiteVerbose;
+import edu.internet2.middleware.authzStandardApiClient.util.StandardApiClientUtils;
 
 
 
@@ -18,6 +23,23 @@ public class AsacApiTestSuite extends AsacApiRequestBase {
    * if the indent flag should be sent to the server
    */
   private boolean indent = false;
+  
+  /**
+   * tests to run or null for all
+   */
+  private List<String> tests = new ArrayList<String>();
+
+  /**
+   * add tests to run
+   * @param theTests
+   * @return this for chaining
+   */
+  public AsacApiTestSuite addTests(Collection<String> theTests) {
+    if (theTests != null) {
+      this.tests.addAll(theTests);
+    }
+    return this;
+  }
   
   /**
    * if indent flag should be sent
@@ -71,7 +93,11 @@ public class AsacApiTestSuite extends AsacApiRequestBase {
     asacTestSuiteResults.setVerbose(this.verbose);
     asacTestSuiteResults.setIndent(this.indent);
     
-    asacTestSuiteResults.runAllTestSuites();
+    if (StandardApiClientUtils.length(this.tests) > 0) {
+      asacTestSuiteResults.runTests(this.tests);
+    } else {
+      asacTestSuiteResults.runAllTestSuites();
+    }
     
     return asacTestSuiteResults;
     

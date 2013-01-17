@@ -31,6 +31,28 @@ import edu.internet2.middleware.subject.Subject;
 public class GrouperAuthzApiUtils {
 
   /**
+   * get the parent folder of an object, do not throw exception
+   * @param grouperSession
+   * @param name
+   * @return true if exists or null if cant tell
+   */
+  public static Boolean folderParentExistsSafe(GrouperSession grouperSession, String name) {
+    
+    try {
+      String parentFolderName = GrouperUtil.parentStemNameFromName(name, true);
+      //root
+      if (parentFolderName == null) {
+        return true;
+      }
+      Stem parentStem = StemFinder.findByName(grouperSession, parentFolderName, false);
+      return parentStem != null;
+    } catch (Exception e) {
+      //ignore  
+    }
+    return null;
+  }
+  
+  /**
    * convert a folder lookup to a stem
    * @param grouperSession
    * @param asasApiFolderLookup

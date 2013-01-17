@@ -68,6 +68,7 @@ public class AsasHttpServletRequest extends HttpServletRequestWrapper {
    */
   private static Set<String> validParamNames = StandardApiServerUtils.toSet(
       "ascending", 
+      "createParentFoldersIfNotExist", 
       "extraFields", 
       "indent", 
       "limit", 

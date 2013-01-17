@@ -19,6 +19,7 @@ import java.util.logging.SimpleFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacFolderLookup;
 import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacResultProblem;
 import edu.internet2.middleware.authzStandardApiClientExt.com.thoughtworks.xstream.XStream;
 import edu.internet2.middleware.authzStandardApiClientExt.com.thoughtworks.xstream.io.xml.CompactWriter;
@@ -35,6 +36,64 @@ import edu.internet2.middleware.authzStandardApiClientExt.org.apache.commons.log
 import edu.internet2.middleware.authzStandardApiClientExt.org.apache.commons.logging.impl.Jdk14Logger;
 
 public class StandardApiClientUtils extends StandardApiClientCommonUtils {
+
+  /**
+   * marshal a folder lookup if it is there, else null
+   * @return the lookup
+   */
+  public static AsacFolderLookup argFolderLookup(Map<String, String> argMap,
+      Map<String, String> argMapNotUsed) {
+
+    String folderLookupName = StandardApiClientUtils.argMapString(argMap, 
+        argMapNotUsed, "folderLookupName", false);
+    String folderLookupId = StandardApiClientUtils.argMapString(argMap, 
+        argMapNotUsed, "folderLookupId", false);
+    String folderLookupHandleName = StandardApiClientUtils.argMapString(argMap, 
+        argMapNotUsed, "folderLookupHandleName", false);
+    String folderLookupHandleValue = StandardApiClientUtils.argMapString(argMap, 
+        argMapNotUsed, "folderLookupHandleValue", false);
+
+
+    AsacFolderLookup asacFolderLookup = null;
+
+    if (!StandardApiClientUtils.isBlank(folderLookupName) || !StandardApiClientUtils.isBlank(folderLookupId) 
+        || !StandardApiClientUtils.isBlank(folderLookupHandleName) || !StandardApiClientUtils.isBlank(folderLookupHandleValue)) {
+
+      asacFolderLookup = new AsacFolderLookup();
+      
+      if (!StandardApiClientUtils.isBlank(folderLookupName)) {
+        asacFolderLookup.setName(folderLookupName);
+      }
+
+      if (!StandardApiClientUtils.isBlank(folderLookupId)) {
+        asacFolderLookup.setName(folderLookupId);
+      }
+
+      if (!StandardApiClientUtils.isBlank(folderLookupHandleName)) {
+        asacFolderLookup.setName(folderLookupHandleName);
+      }
+
+      if (!StandardApiClientUtils.isBlank(folderLookupHandleValue)) {
+        asacFolderLookup.setName(folderLookupHandleValue);
+      }
+    }
+    return asacFolderLookup;
+  }
+  
+  /**
+   * append to url, escape first
+   * @param url
+   * @param paramName
+   * @param paramValue
+   */
+  public static void urlEscapeAndAppend(StringBuilder url, String paramName, String paramValue) {
+    if (url.indexOf("?") == -1) {
+      url.append("?");
+    } else {
+      url.append("&");
+    }
+    url.append(escapeUrlEncode(paramName)).append("=").append(escapeUrlEncode(paramValue));
+  }
 
   /**
    * convert a bean to string
@@ -107,14 +166,14 @@ public class StandardApiClientUtils extends StandardApiClientCommonUtils {
     }
     
     if (!configuredLogs) {
-      String logLevel = StandardApiClientConfig.retrieveConfig().propertyValueString("grouperClient.logging.logLevel");
-      String logFile = StandardApiClientConfig.retrieveConfig().propertyValueString("grouperClient.logging.logFile");
-      String grouperClientLogLevel = StandardApiClientConfig.retrieveConfig().propertyValueString(
-          "grouperClient.logging.grouperClientOnly.logLevel");
+      String logLevel = StandardApiClientConfig.retrieveConfig().propertyValueString("authzStandardApiClient.logging.logLevel");
+      String logFile = StandardApiClientConfig.retrieveConfig().propertyValueString("authzStandardApiClient.logging.logFile");
+      String authzStandardApiClientLogLevel = StandardApiClientConfig.retrieveConfig().propertyValueString(
+          "authzStandardApiClient.logging.authzStandardApiClientOnly.logLevel");
       
       boolean hasLogLevel = !isBlank(logLevel);
       boolean hasLogFile = !isBlank(logFile);
-      boolean hasStandardApiClientLogLevel = !isBlank(grouperClientLogLevel);
+      boolean hasStandardApiClientLogLevel = !isBlank(authzStandardApiClientLogLevel);
       
       if (hasLogLevel || hasLogFile) {
         if (theLog instanceof Jdk14Logger) {
@@ -162,10 +221,10 @@ public class StandardApiClientUtils extends StandardApiClientCommonUtils {
       }
       
       if (hasStandardApiClientLogLevel) {
-        Level level = Level.parse(grouperClientLogLevel);
-        Log grouperClientLog = LogFactory.getLog("edu.internet2.middleware.grouperClient");
-        if (grouperClientLog instanceof Jdk14Logger) {
-          Jdk14Logger jdkLogger = (Jdk14Logger) grouperClientLog;
+        Level level = Level.parse(authzStandardApiClientLogLevel);
+        Log authzStandardApiClientLog = LogFactory.getLog("edu.internet2.middleware.authzStandardApiClient");
+        if (authzStandardApiClientLog instanceof Jdk14Logger) {
+          Jdk14Logger jdkLogger = (Jdk14Logger) authzStandardApiClientLog;
           Logger logger = jdkLogger.getLogger();
           logger.setLevel(level);
         }
@@ -277,7 +336,7 @@ public class StandardApiClientUtils extends StandardApiClientCommonUtils {
     }
     
     /**
-     * @see edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.MapContext#get(java.lang.String)
+     * @see edu.internet2.middleware.authzStandardApiClientExt.org.apache.commons.jexl2.MapContext#get(java.lang.String)
      */
     @Override
     public Object get(String name) {
@@ -292,7 +351,7 @@ public class StandardApiClientUtils extends StandardApiClientCommonUtils {
     }
   
     /**
-     * @see edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.MapContext#has(java.lang.String)
+     * @see edu.internet2.middleware.authzStandardApiClientExt.org.apache.commons.jexl2.MapContext#has(java.lang.String)
      */
     @Override
     public boolean has(String name) {

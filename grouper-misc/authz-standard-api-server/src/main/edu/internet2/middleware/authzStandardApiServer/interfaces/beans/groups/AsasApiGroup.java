@@ -32,7 +32,7 @@ public class AsasApiGroup {
     
     int index = 0;
     for (AsasApiGroup asasApiGroup : asasApiGroups) {
-      AsasGroup asasGroup = convertTo(asasApiGroup);
+      AsasGroup asasGroup = convertToAsasGroup(asasApiGroup);
       asasGroups[index] = asasGroup;
       index++;
     }
@@ -45,7 +45,7 @@ public class AsasApiGroup {
    * @param asasApiGroups
    * @return the api bean
    */
-  public static AsasGroup convertTo(AsasApiGroup asasApiGroup) {
+  public static AsasGroup convertToAsasGroup(AsasApiGroup asasApiGroup) {
     if (asasApiGroup == null) {
       return null;
     }

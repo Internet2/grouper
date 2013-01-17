@@ -1,7 +1,12 @@
 package edu.internet2.middleware.authzStandardApiClient.testSuite;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import edu.internet2.middleware.authzStandardApiClient.util.StandardApiClientUtils;
 
@@ -11,11 +16,24 @@ import edu.internet2.middleware.authzStandardApiClient.util.StandardApiClientUti
  *
  */
 public class AsacTestSuiteResults {
+
+  /**
+   * number of spaces to right pad in report
+   */
+  public static final int RIGHT_PAD_SPACES = 43;
   
+  /**
+   * list of tests
+   */
+  @SuppressWarnings("unchecked")
+  private static final List<Class<? extends AsacTestSuiteResult>> ALL_TEST_SUITES = Collections.unmodifiableList(StandardApiClientUtils.toList(
+    AsacTestSuiteDefaultResource.class,
+    AsacTestSuiteDefaultVersionResource.class,
+    AsacTestSuiteVersionResource.class,
+    AsacTestSuiteFolderSave.class));
+
   /** verbose level, low, medium, high */
   private AsacTestSuiteVerbose verbose = AsacTestSuiteVerbose.medium;
-
-
   
   /**
    * verbose level, low, medium, high
@@ -39,12 +57,11 @@ public class AsacTestSuiteResults {
    */
   public void runAllTestSuites() {
     
-    //add all tests
-    this.asacTestSuiteResultList.add(new AsacTestSuiteDefaultResource(this));
-    this.asacTestSuiteResultList.add(new AsacTestSuiteDefaultVersionResource(this));
-    this.asacTestSuiteResultList.add(new AsacTestSuiteVersionResource(this));
-    this.asacTestSuiteResultList.add(new AsacTestSuiteFolderSave(this));
-    
+    for (Class<? extends AsacTestSuiteResult> theClass: ALL_TEST_SUITES) {
+      AsacTestSuiteResult asacTestSuiteResult = StandardApiClientUtils.construct(theClass, 
+          new Class<?>[]{AsacTestSuiteResults.class}, new Object[]{this});
+      this.asacTestSuiteResultList.add(asacTestSuiteResult);
+    }
     
     //run them
     for (AsacTestSuiteResult asacTestSuiteResult : this.asacTestSuiteResultList) {
@@ -52,11 +69,62 @@ public class AsacTestSuiteResults {
     }
     
   }
-  
+
+  /**
+   * run all tests
+   */
+  public void runTests(List<String> tests) {
+
+    Set<String> suitesToRunAll = new HashSet<String>();
+    
+    Map<String, List<String>> testsToRunInSuite = new HashMap<String, List<String>>();
+    
+    //lets keep track of which things are full suites and which things are individual tests inside a suite
+    for (String test : tests) {
+      if (test.contains(".")) {
+        String suite = StandardApiClientUtils.prefixOrSuffix(test, ".", true);
+        String testName = StandardApiClientUtils.prefixOrSuffix(test, ".", false);
+        List<String> testNames = testsToRunInSuite.get(suite);
+        if (!testsToRunInSuite.containsKey(suite)) {
+          testNames = new ArrayList<String>();
+          testsToRunInSuite.put(suite, testNames);
+        }
+        testNames.add(testName);
+      } else {
+        suitesToRunAll.add(test);
+      }
+    }
+    
+    for (Class<? extends AsacTestSuiteResult> theClass: ALL_TEST_SUITES) {
+      
+      AsacTestSuiteResult asacTestSuiteResult = StandardApiClientUtils.construct(theClass, 
+          new Class<?>[]{AsacTestSuiteResults.class}, new Object[]{this});
+      
+      //lets see if it matches a suite or test in a suite
+      String suiteName = asacTestSuiteResult.getName();
+      if (suitesToRunAll.contains(suiteName) || testsToRunInSuite.containsKey(suiteName)) {
+        this.asacTestSuiteResultList.add(asacTestSuiteResult);
+      }
+    }
+    
+    //run them
+    for (AsacTestSuiteResult asacTestSuiteResult : this.asacTestSuiteResultList) {
+      String suiteName = asacTestSuiteResult.getName();
+      if (suitesToRunAll.contains(suiteName)) {
+        asacTestSuiteResult.runTests();
+      } else {
+        //else just run specific tests
+        asacTestSuiteResult.runTests(testsToRunInSuite.get(suiteName));
+      }
+    }
+    
+  }
+
   /**
    * list of tests
    */
   private List<AsacTestSuiteResult> asacTestSuiteResultList = new ArrayList<AsacTestSuiteResult>();
+
   /**
    * if the indent flag should be sent to the server
    */

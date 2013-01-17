@@ -63,7 +63,7 @@ public class StandardApiClientXstreamUtils {
 
         /**
          * 
-         * @see edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.XStream#wrapMapper(edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.mapper.MapperWrapper)
+         * @see edu.internet2.middleware.authzStandardApiClientExt.com.thoughtworks.xstream.XStream#wrapMapper(edu.internet2.middleware.authzStandardApiClientExt.com.thoughtworks.xstream.mapper.MapperWrapper)
          */
         @Override
         protected MapperWrapper wrapMapper(MapperWrapper next) {
@@ -71,7 +71,7 @@ public class StandardApiClientXstreamUtils {
   
             /**
              * 
-             * @see edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.mapper.MapperWrapper#shouldSerializeMember(java.lang.Class, java.lang.String)
+             * @see edu.internet2.middleware.authzStandardApiClientExt.com.thoughtworks.xstream.mapper.MapperWrapper#shouldSerializeMember(java.lang.Class, java.lang.String)
              */
             @Override
             public boolean shouldSerializeMember(Class definedIn, String fieldName) {

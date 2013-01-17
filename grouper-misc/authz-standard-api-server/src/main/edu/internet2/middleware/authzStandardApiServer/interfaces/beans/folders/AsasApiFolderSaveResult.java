@@ -11,12 +11,77 @@ package edu.internet2.middleware.authzStandardApiServer.interfaces.beans.folders
  *
  */
 public class AsasApiFolderSaveResult {
+
+  /**
+   * set true if on insert, the object already exists
+   */
+  private Boolean insertAlreadyExists;
   
+  /**
+   * set true if on update, the object already exists
+   */
+  private Boolean updateDoesntExist;
+  
+  /**
+   * set true if on insert, the object already exists
+   * @return the insertAlreadyExists
+   */
+  public Boolean getInsertAlreadyExists() {
+    return insertAlreadyExists;
+  }
+  
+  /**
+   * set true if on insert, the object already exists
+   * @param insertAlreadyExists the insertAlreadyExists to set
+   */
+  public void setInsertAlreadyExists(Boolean insertAlreadyExists) {
+    this.insertAlreadyExists = insertAlreadyExists;
+  }
+  
+  /**
+   * set true if on update, the object already exists
+   * @return the updateDoesntExist
+   */
+  public Boolean getUpdateDoesntExist() {
+    return updateDoesntExist;
+  }
+  
+  /**
+   * set true if on update, the object already exists
+   * @param updateDoesntExist1 the updateDoesntExist to set
+   */
+  public void setUpdateDoesntExist(Boolean updateDoesntExist1) {
+    this.updateDoesntExist = updateDoesntExist1;
+  }
+
   /**
    * if this folder was created
    */
   private Boolean created;
   
+  /**
+   * if there was a problem and its because the parent folder didnt exist and createParentFoldersIfNotExist was not true
+   */
+  private Boolean parentFolderDoesntExist;
+  
+  
+  /**
+   * if there was a problem and its because the parent folder didnt exist and createParentFoldersIfNotExist was not true
+   * @return the parentFolderDoesntExist
+   */
+  public Boolean getParentFolderDoesntExist() {
+    return this.parentFolderDoesntExist;
+  }
+
+  
+  /**
+   * if there was a problem and its because the parent folder didnt exist and createParentFoldersIfNotExist was not true
+   * @param parentFolderDoesntExist1 the parentFolderDoesntExist to set
+   */
+  public void setParentFolderDoesntExist(Boolean parentFolderDoesntExist1) {
+    this.parentFolderDoesntExist = parentFolderDoesntExist1;
+  }
+
   /**
    * if this folder was updated
    */

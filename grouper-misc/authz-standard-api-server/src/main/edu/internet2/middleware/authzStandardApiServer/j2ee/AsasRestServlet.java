@@ -40,6 +40,19 @@ public class AsasRestServlet extends HttpServlet {
   private static long startupTime = System.currentTimeMillis();
   
   /**
+   * keep warnings in thread local so they can be accessed from anywhere
+   */
+  private static ThreadLocal<StringBuilder> threadLocalWarnings = new ThreadLocal<StringBuilder>();
+
+  /**
+   * 
+   * @return the warnings
+   */
+  public static StringBuilder threadLocalWarnings() {
+    return threadLocalWarnings.get();
+  }
+  
+  /**
    * id
    */
   private static final long serialVersionUID = 1L;
@@ -65,6 +78,7 @@ public class AsasRestServlet extends HttpServlet {
     AsasFilterJ2ee.assignHttpServlet(this);
     List<String> urlStrings = null;
     StringBuilder warnings = new StringBuilder();
+    threadLocalWarnings.set(warnings);
 
     AsasResponseBeanBase asasResponseBean = null;
     
@@ -282,7 +296,7 @@ public class AsasRestServlet extends HttpServlet {
     if (httpSession != null) {
       httpSession.invalidate();
     }
-
+    threadLocalWarnings.remove();
   }
 
   /**

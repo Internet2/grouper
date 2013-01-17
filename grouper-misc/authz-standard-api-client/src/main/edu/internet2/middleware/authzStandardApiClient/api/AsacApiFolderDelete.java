@@ -62,6 +62,13 @@ public class AsacApiFolderDelete extends AsacApiRequestBase {
       throw new StandardApiClientWsException("Need to pass in a lookup to a folder");
     }
     
+    if (StandardApiClientUtils.isBlank(this.folderLookup.getHandleName())
+        != StandardApiClientUtils.isBlank(this.folderLookup.getHandleValue())) {
+      throw new StandardApiClientWsException("If you specify either handleName or " +
+          "handleValue then you need to pass both: " + this.folderLookup.getHandleName()
+          + ", " + this.folderLookup.getHandleValue());
+    }
+
   }
   
   /**
@@ -80,15 +87,15 @@ public class AsacApiFolderDelete extends AsacApiRequestBase {
     StringBuilder urlSuffix = new StringBuilder();
 
     if (this.folderLookup != null && !StandardApiClientUtils.isBlank(this.folderLookup.getId())) {
-      urlSuffix.append("/" + StandardApiClientUtils.version() + "/folders/id:" 
-            + StandardApiClientUtils.escapeUrlEncode(this.folderLookup.getId()) + "." + this.getContentType().name());
+      urlSuffix.append("/" + StandardApiClientUtils.version() + "/folders/" 
+            + StandardApiClientUtils.escapeUrlEncode("id:" + this.folderLookup.getId()) + "." + this.getContentType().name());
     } else if (this.folderLookup != null && !StandardApiClientUtils.isBlank(this.folderLookup.getName())) {
-      urlSuffix.append("/" + StandardApiClientUtils.version() + "/folders/name:"
-            + StandardApiClientUtils.escapeUrlEncode(this.folderLookup.getName()) + "." + this.getContentType().name());
+      urlSuffix.append("/" + StandardApiClientUtils.version() + "/folders/"
+            + StandardApiClientUtils.escapeUrlEncode("name:" + this.folderLookup.getName()) + "." + this.getContentType().name());
     } else if (this.folderLookup != null && !StandardApiClientUtils.isBlank(this.folderLookup.getHandleName())) {
       urlSuffix.append("/" + StandardApiClientUtils.version() + "/folders/"
             + StandardApiClientUtils.escapeUrlEncode(this.folderLookup.getHandleName())
-            + ":" + StandardApiClientUtils.escapeUrlEncode(this.folderLookup.getHandleValue()) + "." + this.getContentType().name());
+            + StandardApiClientUtils.escapeUrlEncode(":" + this.folderLookup.getHandleValue()) + "." + this.getContentType().name());
     }
 
     AsacRestHttpMethod asacRestHttpMethod = AsacRestHttpMethod.DELETE;

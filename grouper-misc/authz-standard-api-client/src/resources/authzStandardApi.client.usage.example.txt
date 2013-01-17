@@ -18,7 +18,6 @@ defaultResourceWs web service usage:
   java -jar authzStandardApiClient.jar --operation=defaultResourceWs [--outputTemplate=somePattern] [--format=xml|json] [--debug=true] [--indent=true]
   e.g.: java -jar authzStandardApiClient.jar --operation=defaultResourceWs
   output:
-    success: true
     xml: https://authz.school.edu/authzStandardApi/authzStandardApi.xml
     json: https://authz.school.edu/authzStandardApi/authzStandardApi.json
   
@@ -27,12 +26,25 @@ defaultVersionResourceWs web service usage:
   java -jar authzStandardApiClient.jar --operation=defaultVersionResourceWs [--outputTemplate=somePattern] [--format=xml|json] [--debug=true] [--indent=true]
   e.g.: java -jar authzStandardApiClient.jar --operation=defaultVersionResourceWs
   output:
-    success: true
-    v1: https://authz.school.edu/authzStandardApi/authzStandardApi/v1.json
+    v1: /v1.json
+  
+versionResourceWs web service usage:
+  java -jar authzStandardApiClient.jar --operation=versionResourceWs [--outputTemplate=somePattern] [--format=xml|json] [--debug=true] [--indent=true]
+  e.g.: java -jar authzStandardApiClient.jar --operation=versionResourceWs
+  output:
+    entities: /v1/entities.json
+    folders: /v1/folders.json
+    groups: /v1/groups.json
+    permissions: /v1/permissions.json
+  
+folderSaveWs web service usage:
+  java -jar authzStandardApiClient.jar --operation=folderSaveWs [--name=a:b] [--displayName=A:B] [--description="some description"] [--saveMode=insert|update|insert_or_update] [--createParentFoldersIfNotExist] [--folderLookupName=a:b] [--folderLookupId=abc123] [--folderLookupHandleName=something] [--folderLookupHandleValue=somethingElse] [--outputTemplate=somePattern] [--format=xml|json] [--debug=true] [--indent=true]
+  e.g.: java -jar authzStandardApiClient.jar --operation=folderSaveWs --name=a:b  
+  output: Success: code: FOLDER_CREATED: a:b
   
   
 testSuite usage:
-  java -jar authzStandardApiClient.jar --operation=testSuite --verbose=low|medium|high|higher [--debug=true] [--indent=true]
+  java -jar authzStandardApiClient.jar --operation=testSuite [--tests=defaultResource,folderSave.testPutFolderUpdateXml] [--verbose=low|medium|high|higher] [--debug=true] [--indent=true]
   e.g.: java -jar authzStandardApiClient.jar --operation=testSuite --verbose=high
 
 

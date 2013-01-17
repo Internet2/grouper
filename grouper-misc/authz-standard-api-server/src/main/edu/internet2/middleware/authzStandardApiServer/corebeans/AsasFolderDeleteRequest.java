@@ -8,7 +8,7 @@ package edu.internet2.middleware.authzStandardApiServer.corebeans;
  * @author mchyzer
  *
  */
-public class AsasFolderDeleteRequest extends AsasResponseBeanBase {
+public class AsasFolderDeleteRequest {
 
   /**
    * lookup object (generally this is in the url)

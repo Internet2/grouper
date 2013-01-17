@@ -2468,7 +2468,7 @@ public class StandardApiClientCommonUtils  {
    * @param types
    * @return the instance
    */
-  public static <T> T construct(Class<T> theClass, Class[] types, Object[] args) {
+  public static <T> T construct(Class<T> theClass, Class<?>[] types, Object[] args) {
     try {
       Constructor<T> constructor = theClass.getConstructor(types);
       

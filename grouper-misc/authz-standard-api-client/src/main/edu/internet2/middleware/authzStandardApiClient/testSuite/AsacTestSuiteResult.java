@@ -3,6 +3,7 @@ package edu.internet2.middleware.authzStandardApiClient.testSuite;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import edu.internet2.middleware.authzStandardApiClient.contentType.AsacRestContentType;
@@ -45,11 +46,17 @@ public abstract class AsacTestSuiteResult {
     super();
     this.results = results;
   }
-
   /**
    * run this test by looking for instance methods that are void and start with "test"
    */
   public void runTests() {
+    this.runTests(null);
+  }
+
+  /**
+   * run this test by looking for instance methods that are void and start with "test"
+   */
+  public void runTests(List<String> testNamesToRun) {
     
     Set<Method> methods = new LinkedHashSet<Method>();
     
@@ -62,6 +69,11 @@ public abstract class AsacTestSuiteResult {
       Method method = methodIterator.next();
       
       if (!method.getName().startsWith("test")) {
+        methodIterator.remove();
+        continue;
+      }
+      //if we are specifying which tests to run, and this isnt one of them, then ignore
+      if (testNamesToRun != null && !testNamesToRun.contains(method.getName())) {
         methodIterator.remove();
         continue;
       }
@@ -101,8 +113,10 @@ public abstract class AsacTestSuiteResult {
       }
 
       if (this.getResults().getVerbose().atLeastVerbose(AsacTestSuiteVerbose.medium)) {
-        this.prependToReport((this.isSuccess() ? "Success:" : "FAILURE!") 
-            + " test suite: " + this.getName() 
+        String name = (this.isSuccess() ? "Success:" : "FAILURE!") 
+            + " suite: " + this.getName();
+        name = StandardApiClientUtils.rightPad(name, AsacTestSuiteResults.RIGHT_PAD_SPACES, " ");
+        this.prependToReport(name
             + " - tests: " + this.getTestCount()
             + ", successes: " + this.getSuccessCount() + ", failures: "
             + this.getFailureCount() + ", warnings: " + this.getWarningCount());
@@ -287,7 +301,7 @@ public abstract class AsacTestSuiteResult {
   }
   
   /**
-   * 
+   * make sure something is true
    * @param describeObject
    * @param expected
    * @param actual
@@ -300,7 +314,26 @@ public abstract class AsacTestSuiteResult {
       throw new AsacTestFailException(descriptionWithShould + ", theBoolean is not a boolean: " + theBoolean);
     }
     if (!(Boolean)theBoolean) {
-      throw new AsacTestFailException(descriptionWithShould);
+      throw new AsacTestFailException(descriptionWithShould + ", expected true, but was false");
+    }
+    this.appendToTestReport(descriptionWithShould + "... success");
+  }
+  
+  /**
+   * make sure something is false
+   * @param describeObject
+   * @param expected
+   * @param actual
+   */
+  public void assertFalse(String descriptionWithShould, Object theBoolean) {
+    if (theBoolean == null) {
+      throw new AsacTestFailException(descriptionWithShould + ", theBoolean is null");
+    }
+    if ((!(theBoolean instanceof Boolean))) {
+      throw new AsacTestFailException(descriptionWithShould + ", theBoolean is not a boolean: " + theBoolean);
+    }
+    if ((Boolean)theBoolean) {
+      throw new AsacTestFailException(descriptionWithShould + ", expected false, but was true");
     }
     this.appendToTestReport(descriptionWithShould + "... success");
   }
@@ -308,14 +341,25 @@ public abstract class AsacTestSuiteResult {
   /**
    * 
    * @param describeObject
-   * @param expectedString
-   * @param actualString
+   * @param object
    */
   public void assertNotNull(String describeObject, Object object) {
     if (object == null) {
       throw new AsacTestFailException(describeObject + ", object is null");
     }
     this.appendToTestReport(describeObject + " is not null");
+  }
+
+  /**
+   * 
+   * @param describeObject
+   * @param object
+   */
+  public void assertNull(String describeObject, Object object) {
+    if (object != null) {
+      throw new AsacTestFailException(describeObject + ", object is null");
+    }
+    this.appendToTestReport(describeObject + " is null");
   }
 
   /**
@@ -368,13 +412,17 @@ public abstract class AsacTestSuiteResult {
 
   /**
    * execute http tests
+   * @param statusCode
+   * @param asacRestContentType
+   * @param httpMethod
    */
-  protected void executeTestsForHttp(int statusCode, AsacRestContentType asacRestContentType) {
+  protected void executeTestsForHttp(int statusCode, AsacRestContentType asacRestContentType, String httpMethod) {
     assertEquals("httpStatusCode", statusCode, StandardApiClientWs.mostRecentHttpStatusCode);
     Header header = StandardApiClientWs.mostRecentHttpMethod.getResponseHeader("Content-Type");
     String contentType = header == null ? "" : header.getValue();
     assertTrue("Content type header should contain '" + asacRestContentType.name() + "': " 
         + contentType, contentType.toLowerCase().contains(asacRestContentType.name()));
+    assertEquals("httpMethod", httpMethod, StandardApiClientWs.mostRecentHttpMethod.getName());
   }
 
   /**
@@ -399,8 +447,10 @@ public abstract class AsacTestSuiteResult {
    * @param statusCode
    * @param structureName
    * @param expectedUriSuffix
+   * @param success
    */
-  protected void executeTestsForMeta(AsacResponseBeanBase asacResponseBeanBase, String statusCode, String structureName, String expectedUriSuffix) {
+  protected void executeTestsForMeta(AsacResponseBeanBase asacResponseBeanBase, 
+      String statusCode, String structureName, String expectedUriSuffix, boolean success) {
     assertNotNull("meta", asacResponseBeanBase.getMeta());
     assertValidDate("meta.lastModified", asacResponseBeanBase.getMeta().getLastModified());
     if (expectedUriSuffix.startsWith("/")) {
@@ -414,7 +464,11 @@ public abstract class AsacTestSuiteResult {
     }
     assertEquals("meta.statusCode", statusCode, asacResponseBeanBase.getMeta().getStatus());
     assertEquals("meta.structureName", structureName, asacResponseBeanBase.getMeta().getStructureName());
-    assertTrue("meta.success", asacResponseBeanBase.getMeta().getSuccess());
+    if (success) {
+      assertTrue("meta.success", asacResponseBeanBase.getMeta().getSuccess());
+    } else {
+      assertFalse("meta.success", asacResponseBeanBase.getMeta().getSuccess());
+    }
   }
 
   /**

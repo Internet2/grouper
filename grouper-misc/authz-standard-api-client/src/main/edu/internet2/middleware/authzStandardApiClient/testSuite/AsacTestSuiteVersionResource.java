@@ -48,14 +48,14 @@ public class AsacTestSuiteVersionResource extends AsacTestSuiteResult {
     AsacVersionResourceContainer asacVersionResourceContainer = asacApiVersionResource
       .assignIndent(this.getResults().isIndent()).execute();
     
-    executeTestsForHttp(200, asacRestContentType);
+    executeTestsForHttp(200, asacRestContentType, "GET");
     
     executeTestsForServiceMeta(asacVersionResourceContainer);
     
     executeTestsForResponseMeta(asacVersionResourceContainer, 200);
     
     executeTestsForMeta(asacVersionResourceContainer, "SUCCESS", "versionResourceContainer", 
-        "/" + StandardApiClientUtils.version() + "." + asacRestContentType.name());
+        "/" + StandardApiClientUtils.version() + "." + asacRestContentType.name(), true);
 
     assertNotNull("asasVersionResource", asacVersionResourceContainer.getVersionResource());
     assertEquals("asasVersionResource.entitiesUri", "/" + StandardApiClientUtils.version() + "/entities." + asacRestContentType.name(), 

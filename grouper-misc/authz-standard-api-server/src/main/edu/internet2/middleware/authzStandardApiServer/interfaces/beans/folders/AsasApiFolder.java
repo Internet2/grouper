@@ -33,7 +33,7 @@ public class AsasApiFolder {
     List<AsasFolder> asasFolders = new ArrayList<AsasFolder>();
     
     for (AsasApiFolder asasApiFolder : asasApiFolders) {
-      AsasFolder asasFolder = convertToAsasApiFolder(asasApiFolder);
+      AsasFolder asasFolder = convertToAsasFolder(asasApiFolder);
       asasFolders.add(asasFolder);
     }
     
@@ -45,7 +45,7 @@ public class AsasApiFolder {
    * @param asasApiGroups
    * @return the api bean
    */
-  public static AsasFolder convertToAsasApiFolder(AsasApiFolder asasApiFolder) {
+  public static AsasFolder convertToAsasFolder(AsasApiFolder asasApiFolder) {
     if (asasApiFolder == null) {
       return null;
     }
@@ -181,6 +181,25 @@ public class AsasApiFolder {
    */
   public void setStatus(String status1) {
     this.status = status1;
+  }
+
+  /**
+   * convert the transport beans to the api beans
+   * @param asasApiGroups
+   * @return the api bean
+   */
+  public static AsasApiFolder convertToAsasApiFolder(AsasFolder asasFolder) {
+    if (asasFolder == null) {
+      return null;
+    }
+    AsasApiFolder asasApiFolder = new AsasApiFolder();
+    asasApiFolder.setDescription(asasFolder.getDescription());
+    asasApiFolder.setDisplayName(asasFolder.getDisplayName());
+    asasApiFolder.setId(asasFolder.getId());
+    asasApiFolder.setName(asasFolder.getName());
+    asasApiFolder.setStatus(asasFolder.getStatus());
+     
+    return asasApiFolder;
   }
   
   

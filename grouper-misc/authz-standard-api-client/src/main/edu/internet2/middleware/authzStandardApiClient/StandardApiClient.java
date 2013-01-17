@@ -21,14 +21,21 @@ package edu.internet2.middleware.authzStandardApiClient;
 
 import java.io.File;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import edu.internet2.middleware.authzStandardApiClient.api.AsacApiDefaultResource;
 import edu.internet2.middleware.authzStandardApiClient.api.AsacApiDefaultVersionResource;
+import edu.internet2.middleware.authzStandardApiClient.api.AsacApiFolderSave;
 import edu.internet2.middleware.authzStandardApiClient.api.AsacApiTestSuite;
+import edu.internet2.middleware.authzStandardApiClient.api.AsacApiVersionResource;
 import edu.internet2.middleware.authzStandardApiClient.contentType.AsacRestContentType;
 import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacDefaultResourceContainer;
 import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacDefaultVersionResourceContainer;
+import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacFolderLookup;
+import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacFolderSaveResponse;
+import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacSaveMode;
+import edu.internet2.middleware.authzStandardApiClient.corebeans.AsacVersionResourceContainer;
 import edu.internet2.middleware.authzStandardApiClient.testSuite.AsacTestSuiteResults;
 import edu.internet2.middleware.authzStandardApiClient.testSuite.AsacTestSuiteVerbose;
 import edu.internet2.middleware.authzStandardApiClient.util.StandardApiClientCommonUtils;
@@ -128,11 +135,17 @@ public class StandardApiClient {
       } else if (StandardApiClientUtils.equals(operation, "defaultVersionResourceWs")) {
         result = defaultVersionResourceWs(argMap, argMapNotUsed);
 
+      } else if (StandardApiClientUtils.equals(operation, "versionResourceWs")) {
+        result = versionResourceWs(argMap, argMapNotUsed);
+
+      } else if (StandardApiClientUtils.equals(operation, "folderSaveWs")) {
+        result = folderSaveWs(argMap, argMapNotUsed);
+
       } else if (StandardApiClientUtils.equals(operation, "testSuite")) {
         result = testSuite(argMap, argMapNotUsed);
 
       } else {
-        System.err.println("Error: invalid operation: '" + operation + "', for usage help, run: java -jar grouperClient.jar" );
+        System.err.println("Error: invalid operation: '" + operation + "', for usage help, run: java -jar authzStandardApiClient.jar" );
         if (exitOnError) {
           System.exit(1);
         }
@@ -173,7 +186,7 @@ public class StandardApiClient {
   public static void failOnArgsNotUsed(Map<String, String> argMapNotUsed) {
     if (argMapNotUsed.size() > 0) {
       boolean failOnExtraParams = StandardApiClientConfig.retrieveConfig().propertyValueBooleanRequired(
-          "grouperClient.failOnExtraCommandLineArgs");
+          "authzStandardApiClient.failOnExtraCommandLineArgs");
       String error = "Invalid command line arguments: " + argMapNotUsed.keySet();
       if (failOnExtraParams) {
         throw new RuntimeException(error);
@@ -232,8 +245,8 @@ public class StandardApiClient {
       
       Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
   
-      substituteMap.put("asacDefaultResourceContainer", asacDefaultResourceContainer);
-      substituteMap.put("asacDefaultResource", asacDefaultResourceContainer.getDefaultResource());
+      substituteMap.put("defaultResourceContainer", asacDefaultResourceContainer);
+      substituteMap.put("defaultResource", asacDefaultResourceContainer.getDefaultResource());
       substituteMap.put("meta", asacDefaultResourceContainer.getMeta());
       substituteMap.put("responseMeta", asacDefaultResourceContainer.getResponseMeta());
       substituteMap.put("serviceMeta", asacDefaultResourceContainer.getServiceMeta());
@@ -244,10 +257,10 @@ public class StandardApiClient {
         outputTemplate = StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
         outputTemplate = StandardApiClientUtils.substituteCommonVars(outputTemplate);
       } else {
-        outputTemplate = StandardApiClientConfig.retrieveConfig().propertyValueStringRequired("webService.defaultResource.output");
+        outputTemplate = StandardApiClientConfig.retrieveConfig().propertyValueStringRequired("webService.defaultResourceWs.output");
       }
-      log.debug("Output template: " + StandardApiClientUtils.trim(outputTemplate) + ", available variables: asacDefaultResourceContainer, " +
-        "asacDefaultResource, meta, responseMeta, serviceMeta");
+      log.debug("Output template: " + StandardApiClientUtils.trim(outputTemplate) + ", available variables: defaultResourceContainer, " +
+        "defaultResource, meta, responseMeta, serviceMeta");
 
       
       String output = StandardApiClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
@@ -297,7 +310,7 @@ public class StandardApiClient {
 
     failOnArgsNotUsed(argMapNotUsed);
     
-    StandardApiClientWs<AsacDefaultResourceContainer> grouperClientWs 
+    StandardApiClientWs<AsacDefaultResourceContainer> authzStandardApiClientWs 
       = new StandardApiClientWs<AsacDefaultResourceContainer>();
     
     if (StandardApiClientUtils.isNotBlank(contentType)) {
@@ -306,7 +319,7 @@ public class StandardApiClient {
     
     try {
       //assume the url suffix is already escaped...
-      String results = (String)(Object)grouperClientWs.executeService(urlSuffix, 
+      String results = (String)(Object)authzStandardApiClientWs.executeService(urlSuffix, 
           fileContents, labelForLog, clientVersion, AsacRestContentType.json, null, null);
 
       if (indentOutput) {
@@ -393,6 +406,10 @@ public class StandardApiClient {
       
     boolean indent = StandardApiClientUtils.argMapBoolean(argMap, argMapNotUsed, "indent", false, false);
 
+    List<String> tests = StandardApiClientUtils.argMapList(argMap, argMapNotUsed, "tests", false);
+    
+    asacApiTestSuite.addTests(tests);
+    
     failOnArgsNotUsed(argMapNotUsed);
     
     AsacTestSuiteResults asacTestSuiteResults = asacApiTestSuite.assignIndent(indent).execute();
@@ -452,8 +469,8 @@ public class StandardApiClient {
     
     Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
   
-    substituteMap.put("asacDefaultVersionResourceContainer", asacDefaultVersionResourceContainer);
-    substituteMap.put("asacDefaultVersionResource", asacDefaultVersionResourceContainer.getDefaultVersionResource());
+    substituteMap.put("defaultVersionResourceContainer", asacDefaultVersionResourceContainer);
+    substituteMap.put("defaultVersionResource", asacDefaultVersionResourceContainer.getDefaultVersionResource());
     substituteMap.put("meta", asacDefaultVersionResourceContainer.getMeta());
     substituteMap.put("responseMeta", asacDefaultVersionResourceContainer.getResponseMeta());
     substituteMap.put("serviceMeta", asacDefaultVersionResourceContainer.getServiceMeta());
@@ -466,8 +483,140 @@ public class StandardApiClient {
     } else {
       outputTemplate = StandardApiClientConfig.retrieveConfig().propertyValueStringRequired("webService.defaultVersionResourceWs.output");
     }
-    log.debug("Output template: " + StandardApiClientUtils.trim(outputTemplate) + ", available variables: asacDefaultVersionResourceContainer, " +
-      "asacDefaultVersionResource, meta, responseMeta, serviceMeta");
+    log.debug("Output template: " + StandardApiClientUtils.trim(outputTemplate) + ", available variables: defaultVersionResourceContainer, " +
+      "defaultVersionResource, meta, responseMeta, serviceMeta");
+  
+    
+    String output = StandardApiClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
+    result.append(output);
+    
+    return result.toString();
+  }
+
+  /**
+   * @param argMap
+   * @param argMapNotUsed
+   * @return result
+   */
+  private static String versionResourceWs(Map<String, String> argMap,
+      Map<String, String> argMapNotUsed) {
+    
+    AsacApiVersionResource asacApiVersionResource = new AsacApiVersionResource();        
+    
+    String formatString = StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "format", false);
+    
+    AsacRestContentType asacRestContentType = AsacRestContentType.valueOfIgnoreCase(formatString, false);
+    
+    if (asacRestContentType != null) {
+      asacApiVersionResource.setContentType(asacRestContentType);
+    }
+    
+    boolean indent = StandardApiClientUtils.argMapBoolean(argMap, argMapNotUsed, "indent", false, false);
+    
+    asacApiVersionResource.assignIndent(indent);
+  
+    //register that we will use this
+    StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
+    failOnArgsNotUsed(argMapNotUsed);
+  
+    AsacVersionResourceContainer asacVersionResourceContainer = asacApiVersionResource.execute();
+    
+    StringBuilder result = new StringBuilder();
+    
+    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+
+    substituteMap.put("versionResourceContainer", asacVersionResourceContainer);
+    substituteMap.put("versionResource", asacVersionResourceContainer.getVersionResource());
+    substituteMap.put("meta", asacVersionResourceContainer.getMeta());
+    substituteMap.put("responseMeta", asacVersionResourceContainer.getResponseMeta());
+    substituteMap.put("serviceMeta", asacVersionResourceContainer.getServiceMeta());
+  
+    String outputTemplate = null;
+  
+    if (argMap.containsKey("outputTemplate")) {
+      outputTemplate = StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
+      outputTemplate = StandardApiClientUtils.substituteCommonVars(outputTemplate);
+    } else {
+      outputTemplate = StandardApiClientConfig.retrieveConfig().propertyValueStringRequired("webService.versionResourceWs.output");
+    }
+    log.debug("Output template: " + StandardApiClientUtils.trim(outputTemplate) + ", available variables: versionResourceContainer, " +
+      "versionResource, meta, responseMeta, serviceMeta");
+  
+    
+    String output = StandardApiClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
+    result.append(output);
+    
+    return result.toString();
+  }
+
+  /**
+   * @param argMap
+   * @param argMapNotUsed
+   * @return result
+   */
+  private static String folderSaveWs(Map<String, String> argMap,
+      Map<String, String> argMapNotUsed) {
+    
+    AsacApiFolderSave asacApiFolderSave = new AsacApiFolderSave();        
+    
+    String formatString = StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "format", false);
+    
+    AsacRestContentType asacRestContentType = AsacRestContentType.valueOfIgnoreCase(formatString, false);
+    
+    if (asacRestContentType != null) {
+      asacApiFolderSave.setContentType(asacRestContentType);
+    }
+    
+    boolean indent = StandardApiClientUtils.argMapBoolean(argMap, argMapNotUsed, "indent", false, false);
+    
+    asacApiFolderSave.assignIndent(indent);
+  
+    //register that we will use this
+    StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
+    failOnArgsNotUsed(argMapNotUsed);
+  
+    String saveMode = StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "saveMode", false);
+    
+    if (!StandardApiClientUtils.isBlank(saveMode)) {
+      AsacSaveMode asacSaveMode = AsacSaveMode.valueOfIgnoreCase(saveMode, true);
+      
+      asacApiFolderSave.assignSaveMode(asacSaveMode);
+    }
+    
+    Boolean createParentFoldersIfNotExist = StandardApiClientUtils.argMapBoolean(argMap, 
+        argMapNotUsed, "createParentFoldersIfNotExist");
+    if (createParentFoldersIfNotExist != null) {
+      asacApiFolderSave.assignCreateParentFoldersIfNotExist(createParentFoldersIfNotExist);
+    }
+    
+    AsacFolderLookup asacFolderLookup = StandardApiClientUtils.argFolderLookup(argMap, argMapNotUsed);
+    
+    if (asacFolderLookup != null) {
+      asacApiFolderSave.assignFolderLookup(asacFolderLookup);
+    }
+    
+    AsacFolderSaveResponse asacFolderSaveResponse = asacApiFolderSave.execute();
+    
+    StringBuilder result = new StringBuilder();
+    
+    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+  
+    substituteMap.put("versionResourceContainer", asacFolderSaveResponse);
+    //substituteMap.put("versionResource", asacFolderSaveResponse.getVersionResource());
+    substituteMap.put("meta", asacFolderSaveResponse.getMeta());
+    substituteMap.put("responseMeta", asacFolderSaveResponse.getResponseMeta());
+    substituteMap.put("serviceMeta", asacFolderSaveResponse.getServiceMeta());
+  
+    String outputTemplate = null;
+  
+    if (argMap.containsKey("outputTemplate")) {
+      outputTemplate = StandardApiClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
+      outputTemplate = StandardApiClientUtils.substituteCommonVars(outputTemplate);
+    } else {
+      outputTemplate = StandardApiClientConfig.retrieveConfig().propertyValueStringRequired("webService.versionResourceWs.output");
+    }
+    log.debug("Output template: " + StandardApiClientUtils.trim(outputTemplate) + ", available variables: versionResourceContainer, " +
+      "versionResource, meta, responseMeta, serviceMeta");
   
     
     String output = StandardApiClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);

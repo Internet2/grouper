@@ -47,13 +47,14 @@ public class AsacTestSuiteDefaultVersionResource extends AsacTestSuiteResult {
     AsacDefaultVersionResourceContainer asacDefaultVersionResourceContainer = asacApiDefaultVersionResource
       .assignIndent(this.getResults().isIndent()).execute();
     
-    executeTestsForHttp(200, asacRestContentType);
+    executeTestsForHttp(200, asacRestContentType, "GET");
     
     executeTestsForServiceMeta(asacDefaultVersionResourceContainer);
     
     executeTestsForResponseMeta(asacDefaultVersionResourceContainer, 200);
-    
-    executeTestsForMeta(asacDefaultVersionResourceContainer, "SUCCESS", "defaultVersionResourceContainer", "." + asacRestContentType.name());
+
+    executeTestsForMeta(asacDefaultVersionResourceContainer, "SUCCESS", "defaultVersionResourceContainer", 
+        "." + asacRestContentType.name(), true);
 
     assertNotNull("asasDefaultVersionResource", asacDefaultVersionResourceContainer.getDefaultVersionResource());
     assertEquals("asasDefaultVersionResource.v1Uri", "/v1." + asacRestContentType.name(), 
@@ -62,14 +63,13 @@ public class AsacTestSuiteDefaultVersionResource extends AsacTestSuiteResult {
         asacDefaultVersionResourceContainer.getDefaultVersionResource().getServerType());
 
   }
-  
+
   /**
    * 
    */
   @Override
   public String getName() {
-    return "defaultResource";
+    return "defaultVersionResource";
   }
-    
-  
+
 }

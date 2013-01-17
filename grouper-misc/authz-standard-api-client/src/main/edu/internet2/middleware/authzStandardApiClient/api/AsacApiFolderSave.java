@@ -117,19 +117,25 @@ public class AsacApiFolderSave extends AsacApiRequestBase {
     StandardApiClientWs<AsacFolderSaveResponse> standardApiClientWs = new StandardApiClientWs<AsacFolderSaveResponse>();
 
     //kick off the web service
-    String urlSuffix = null;
+    StringBuilder urlSuffix = new StringBuilder();
+    
+    urlSuffix.append("/" + StandardApiClientUtils.version() + "/folders/");
     
     if (this.folderLookup != null && !StandardApiClientUtils.isBlank(this.folderLookup.getId())) {
-      urlSuffix = "/" + StandardApiClientUtils.version() + "/folders/id:" + StandardApiClientUtils.escapeUrlEncode(this.folderLookup.getId()) + "." + this.getContentType().name();
+      urlSuffix.append(StandardApiClientUtils.escapeUrlEncode(
+          "id:" + this.folderLookup.getId()) + "." + this.getContentType().name());
     } else if (this.folderLookup != null && !StandardApiClientUtils.isBlank(this.folderLookup.getName())) {
-      urlSuffix = "/" + StandardApiClientUtils.version() + "/folders/name:" + StandardApiClientUtils.escapeUrlEncode(this.folderLookup.getName()) + "." + this.getContentType().name();
+      urlSuffix.append(StandardApiClientUtils.escapeUrlEncode(
+          "name:" + this.folderLookup.getName()) + "." + this.getContentType().name());
     } else if (this.folderLookup != null && !StandardApiClientUtils.isBlank(this.folderLookup.getHandleName())) {
-      urlSuffix = "/" + StandardApiClientUtils.version() + "/folders/" + StandardApiClientUtils.escapeUrlEncode(this.folderLookup.getHandleName())
-          + ":" + StandardApiClientUtils.escapeUrlEncode(this.folderLookup.getHandleValue()) + "." + this.getContentType().name();
+      urlSuffix.append(StandardApiClientUtils.escapeUrlEncode(this.folderLookup.getHandleName())
+          + StandardApiClientUtils.escapeUrlEncode(":" +this.folderLookup.getHandleValue()) + "." + this.getContentType().name());
     } else if (this.folder != null && !StandardApiClientUtils.isBlank(this.folder.getId())) {
-      urlSuffix = "/" + StandardApiClientUtils.version() + "/folders/id:" + StandardApiClientUtils.escapeUrlEncode(this.folder.getId()) + "." + this.getContentType().name();
+      urlSuffix.append(StandardApiClientUtils.escapeUrlEncode(
+          "id:" + this.folder.getId()) + "." + this.getContentType().name());
     } else if (this.folder != null && !StandardApiClientUtils.isBlank(this.folder.getName())) {
-      urlSuffix = "/" + StandardApiClientUtils.version() + "/folders/name:" + StandardApiClientUtils.escapeUrlEncode(this.folder.getName()) + "." + this.getContentType().name();
+      urlSuffix.append(StandardApiClientUtils.escapeUrlEncode(
+          "name:" + this.folder.getName()) + "." + this.getContentType().name());
     }
 
     AsacRestHttpMethod asacRestHttpMethod = null;
@@ -140,6 +146,7 @@ public class AsacApiFolderSave extends AsacApiRequestBase {
           break;
         case UPDATE:
           asacRestHttpMethod = AsacRestHttpMethod.PUT;
+          StandardApiClientUtils.urlEscapeAndAppend(urlSuffix, "saveMode", "update");
           break;
         case INSERT_OR_UPDATE:
           asacRestHttpMethod = AsacRestHttpMethod.PUT;
@@ -153,14 +160,15 @@ public class AsacApiFolderSave extends AsacApiRequestBase {
     boolean sendRequest = false;
     
     if (this.createParentFoldersIfNotExist != null) {
-      asacFolderSaveRequest.setCreateParentFoldersIfNotExist(this.createParentFoldersIfNotExist);
-      sendRequest = true;
+      StandardApiClientUtils.urlEscapeAndAppend(urlSuffix, "createParentFoldersIfNotExist", "true");
+      //asacFolderSaveRequest.setCreateParentFoldersIfNotExist(this.createParentFoldersIfNotExist);
+      //sendRequest = true;
     }
     
-    if (this.saveMode != null) {
-      asacFolderSaveRequest.setSaveMode(this.saveMode.name());
-      sendRequest = true;
-    }
+    //if (this.saveMode != null) {
+    //  asacFolderSaveRequest.setSaveMode(this.saveMode.name());
+    //  sendRequest = true;
+    //}
     
     if (this.folder != null) {
       asacFolderSaveRequest.setFolder(this.folder);
@@ -173,7 +181,7 @@ public class AsacApiFolderSave extends AsacApiRequestBase {
     }
     
     asacFolderSaveResponse =
-      standardApiClientWs.executeService(urlSuffix, asacFolderSaveRequest, "folderSave", null,
+      standardApiClientWs.executeService(urlSuffix.toString(), asacFolderSaveRequest, "folderSave", null,
           this.getContentType(), AsacFolderSaveResponse.class, asacRestHttpMethod);
     
     return asacFolderSaveResponse;

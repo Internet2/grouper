@@ -8,7 +8,7 @@ package edu.internet2.middleware.authzStandardApiServer.corebeans;
  * @author mchyzer
  *
  */
-public class AsasFolderSaveRequest extends AsasResponseBeanBase {
+public class AsasFolderSaveRequest {
 
   /**
    * the saved folder

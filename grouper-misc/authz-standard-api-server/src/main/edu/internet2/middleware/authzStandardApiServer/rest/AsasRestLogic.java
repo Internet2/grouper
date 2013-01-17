@@ -6,11 +6,14 @@ package edu.internet2.middleware.authzStandardApiServer.rest;
 import java.util.Map;
 
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasFolderDeleteResponse;
+import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasFolderSaveRequest;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasFolderSaveResponse;
 import edu.internet2.middleware.authzStandardApiServer.corebeans.AsasGroupSearchContainer;
+import edu.internet2.middleware.authzStandardApiServer.exceptions.AsasRestInvalidRequest;
 import edu.internet2.middleware.authzStandardApiServer.interfaces.AsasApiFolderInterface;
 import edu.internet2.middleware.authzStandardApiServer.interfaces.AsasApiGroupInterface;
 import edu.internet2.middleware.authzStandardApiServer.interfaces.beans.AsasApiQueryParams;
+import edu.internet2.middleware.authzStandardApiServer.interfaces.beans.AsasSaveMode;
 import edu.internet2.middleware.authzStandardApiServer.interfaces.beans.folders.AsasApiFolder;
 import edu.internet2.middleware.authzStandardApiServer.interfaces.beans.folders.AsasApiFolderDeleteParam;
 import edu.internet2.middleware.authzStandardApiServer.interfaces.beans.folders.AsasApiFolderDeleteResult;
@@ -100,9 +103,11 @@ public class AsasRestLogic {
    * folder save
    * @param folderUri
    * @param params
+   * @param putVsPost true for put or false for post
    * @return the result container
    */
-  public static AsasFolderSaveResponse folderSave(String folderUri, Map<String, String> params) {
+  public static AsasFolderSaveResponse folderSave(AsasFolderSaveRequest asasFolderSaveRequest, 
+      String folderUri, Map<String, String> params, boolean putVsPost) {
 
     if (StandardApiServerUtils.isBlank(folderUri)) {
       throw new NullPointerException("Why is folderUri blank?");
@@ -117,12 +122,62 @@ public class AsasRestLogic {
     AsasApiFolderLookup asasApiFolderLookup = StandardApiServerUtils.folderConvertUriToLookup(folderUri);
     
     asasApiFolderSaveParam.setFolderLookup(asasApiFolderLookup);
+
+    Boolean createParentFoldersIfNotExist = AsasHttpServletRequest.retrieve().getParameterBoolean("createParentFoldersIfNotExist");
+
+    asasApiFolderSaveParam.setCreateParentFoldersIfNotExist(createParentFoldersIfNotExist);
     
+    //setup the insert / update / insert_or_update
+    if (putVsPost) {
+      String saveMode = AsasHttpServletRequest.retrieve().getParameter("saveMode");
+      if (!StandardApiServerUtils.isBlank(saveMode)) {
+        if (StandardApiServerUtils.equals("update", saveMode)) {
+          asasApiFolderSaveParam.setSaveMode(AsasSaveMode.UPDATE);
+        } else {
+          throw new AsasRestInvalidRequest("Invalid saveMode, expecting 'update', '" + saveMode + "'");
+        }
+      } else {
+        asasApiFolderSaveParam.setSaveMode(AsasSaveMode.INSERT_OR_UPDATE);
+      }
+    } else {
+      asasApiFolderSaveParam.setSaveMode(AsasSaveMode.INSERT);
+    }
+    
+    if (asasFolderSaveRequest != null && asasFolderSaveRequest.getFolder() != null) {
+      AsasApiFolder asasApiFolder = AsasApiFolder.convertToAsasApiFolder(asasFolderSaveRequest.getFolder());
+      asasApiFolderSaveParam.setFolder(asasApiFolder);
+    }
+    
+    //call the logic
     AsasApiFolderSaveResult asasApiFolderSaveResult = asasApiFolderInterface.save(authenticatedSubject, asasApiFolderSaveParam);
     
     AsasFolderSaveResponse asasFolderSaveResponse = new AsasFolderSaveResponse();
     
-    asasFolderSaveResponse.setFolder(AsasApiFolder.convertToAsasApiFolder(asasApiFolderSaveResult.getFolder()));
+    //if parent folder doent exist
+    if (asasApiFolderSaveResult.getParentFolderDoesntExist() != null && asasApiFolderSaveResult.getParentFolderDoesntExist()) {
+      asasFolderSaveResponse.getResponseMeta().setHttpStatusCode(400);
+      asasFolderSaveResponse.getMeta().setStatus("PARENT_FOLDER_NOT_EXIST");
+      asasFolderSaveResponse.getMeta().setSuccess(true);
+      return asasFolderSaveResponse;
+    }
+    
+    //if insert already there
+    if (asasApiFolderSaveResult.getInsertAlreadyExists() != null && asasApiFolderSaveResult.getInsertAlreadyExists()) {
+      asasFolderSaveResponse.getResponseMeta().setHttpStatusCode(409);
+      asasFolderSaveResponse.getMeta().setStatus("FOLDER_EXISTS");
+      asasFolderSaveResponse.getMeta().setSuccess(false);
+      return asasFolderSaveResponse;
+    }
+    
+    //if update not there
+    if (asasApiFolderSaveResult.getUpdateDoesntExist() != null && asasApiFolderSaveResult.getUpdateDoesntExist()) {
+      asasFolderSaveResponse.getResponseMeta().setHttpStatusCode(409);
+      asasFolderSaveResponse.getMeta().setStatus("FOLDER_NOT_EXIST");
+      asasFolderSaveResponse.getMeta().setSuccess(false);
+      return asasFolderSaveResponse;
+    }
+    
+    asasFolderSaveResponse.setFolder(AsasApiFolder.convertToAsasFolder(asasApiFolderSaveResult.getFolder()));
     
     asasFolderSaveResponse.setCreated(asasApiFolderSaveResult.getCreated());
     asasFolderSaveResponse.setUpdated(asasApiFolderSaveResult.getUpdated());

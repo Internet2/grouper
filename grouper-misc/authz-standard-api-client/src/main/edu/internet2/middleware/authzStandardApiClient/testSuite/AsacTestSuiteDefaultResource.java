@@ -61,13 +61,13 @@ public class AsacTestSuiteDefaultResource extends AsacTestSuiteResult {
     //  }
     //}
     
-    executeTestsForHttp(200, AsacRestContentType.json);
+    executeTestsForHttp(200, AsacRestContentType.json, "GET");
     
     executeTestsForServiceMeta(asacDefaultResourceContainer);
     
     executeTestsForResponseMeta(asacDefaultResourceContainer, 200);
     
-    executeTestsForMeta(asacDefaultResourceContainer, "SUCCESS", "defaultResourceContainer", "");
+    executeTestsForMeta(asacDefaultResourceContainer, "SUCCESS", "defaultResourceContainer", "", true);
 
     String serviceRootUri = asacDefaultResourceContainer.getServiceMeta().getServiceRootUri();
     
@@ -96,13 +96,13 @@ public class AsacTestSuiteDefaultResource extends AsacTestSuiteResult {
       .assignIndent(this.getResults().isIndent()).execute();
     
     
-    executeTestsForHttp(200, AsacRestContentType.json);
+    executeTestsForHttp(200, AsacRestContentType.json, "GET");
     
     executeTestsForServiceMeta(asacDefaultResourceContainer);
     
     executeTestsForResponseMeta(asacDefaultResourceContainer, 200);
     
-    executeTestsForMeta(asacDefaultResourceContainer, "SUCCESS", "defaultResourceContainer", "");
+    executeTestsForMeta(asacDefaultResourceContainer, "SUCCESS", "defaultResourceContainer", "", true);
   
     String serviceRootUri = asacDefaultResourceContainer.getServiceMeta().getServiceRootUri();
     

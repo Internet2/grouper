@@ -19,6 +19,8 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.exception.StemAddAlreadyExistsException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -115,8 +117,27 @@ public class GaasFolderInterfaceImpl implements AsasApiFolderInterface {
           break;
       }
       
-      Stem stem = stemSave.save();
-      
+      Stem stem = null;
+      try {
+        stem = stemSave.save();
+      } catch (StemNotFoundException snfe) {
+        result.setUpdateDoesntExist(true);
+        return result;
+      } catch (StemAddAlreadyExistsException saaee) {
+        result.setInsertAlreadyExists(true);
+        return result;
+      } catch (RuntimeException re) {
+        if (asasApiFolderLookup != null && !StandardApiServerUtils.isBlank(asasApiFolderLookup.getName())) {
+          
+          Boolean parentFolderExists = GrouperAuthzApiUtils.folderParentExistsSafe(grouperSession, asasApiFolderLookup.getName());
+          if (parentFolderExists != null && !parentFolderExists) {
+            result.setParentFolderDoesntExist(true);
+            return result;
+          }
+        }
+        //its not this case so just rethrow
+        throw re;
+      }
       SaveResultType saveResultType = stemSave.getSaveResultType();
 
       // convert the folder

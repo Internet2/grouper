@@ -53,6 +53,19 @@ public enum AsasRestHttpMethod {
     @Override
     public AsasResponseBeanBase service(List<String> urlStrings,
         Map<String, String> params, String body) {
+
+      if (urlStrings.size() > 0) {
+
+        String firstResource = StandardApiServerUtils.popUrlString(urlStrings);
+        
+        //validate and get the first resource
+        AsasRestPost asasRestPost = AsasRestPost.valueOfIgnoreCase(
+            firstResource, true);
+    
+        return asasRestPost.service(urlStrings, params, body);
+
+      }
+
       throw new AsasRestInvalidRequest("Not expecting this request");
     }
 
