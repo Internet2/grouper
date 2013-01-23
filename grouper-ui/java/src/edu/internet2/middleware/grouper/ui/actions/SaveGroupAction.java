@@ -251,7 +251,7 @@ public class SaveGroupAction extends GrouperCapableAction {
 			}
 
                         try {
-                          group.store();
+			group.store();
                         } catch (GroupModifyAlreadyExistsException e) {
                           request.setAttribute("message", new Message("groups.message.error.update-problem-already-exists", true));
                           return mapping.findForward(FORWARD_EditAgain);
@@ -340,8 +340,7 @@ public class SaveGroupAction extends GrouperCapableAction {
 		}
 
 		request.setAttribute("message", new Message(
-				"groups.message.group-saved", (String) groupForm
-						.get("groupDisplayName")));
+				"groups.message.group-saved", group.getDisplayExtension()));
 		
 		//TODO: more sophistication in determining where to go?
 		String submit = request.getParameter("submit.save");
