@@ -373,7 +373,7 @@ public class SimpleGroupUpdate {
       }
       
       guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message(
-          "simpleGroupUpdate.groupSaved", false, true, stemName + ":" + extension)));
+          "simpleGroupUpdate.groupSaved", false, true, group.getName())));
   
       groupUpdateRequestContainer.setGroupToEdit(group);
       groupUpdateRequestContainer.setCreate(false);
