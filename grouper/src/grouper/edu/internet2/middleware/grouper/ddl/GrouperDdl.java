@@ -31,6 +31,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.ddlutils.model.Column;
 import org.apache.ddlutils.model.Database;
+import org.apache.ddlutils.model.Index;
 import org.apache.ddlutils.model.Table;
 
 import edu.internet2.middleware.grouper.Attribute;
@@ -2021,6 +2022,92 @@ public enum GrouperDdl implements DdlVersionable {
       addStemSetTable(ddlVersionBean, database);
       
       addTableIndices(ddlVersionBean, database, false, false, false, false);
+      
+      
+      // fix pit indexes to add unique indexes on each table
+      boolean fixPITIndexes = true;
+      Table pitStem = GrouperDdlUtils.ddlutilsFindTable(database, PITStem.TABLE_GROUPER_PIT_STEMS, true);
+      for (Index index : pitStem.getIndices()) {
+        if (index.getColumnCount() == 2 && index.isUnique() && 
+            StringUtils.equalsIgnoreCase(index.getColumn(0).getName(), PITStem.COLUMN_START_TIME) &&
+            StringUtils.equalsIgnoreCase(index.getColumn(1).getName(), PITStem.COLUMN_SOURCE_ID)) {
+          fixPITIndexes = false;
+          break;
+        }
+      }
+
+      if (fixPITIndexes) {
+        // ok we didn't find the new index, fix them all
+        Table table = GrouperDdlUtils.ddlutilsFindTable(database, PITMember.TABLE_GROUPER_PIT_MEMBERS, true);
+        GrouperDdlUtils.ddlutilsDropIndexes(table, PITMember.COLUMN_START_TIME);
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(),
+            "pit_member_start_idx", true, PITMember.COLUMN_START_TIME, PITMember.COLUMN_SOURCE_ID);
+        
+        table = GrouperDdlUtils.ddlutilsFindTable(database, PITField.TABLE_GROUPER_PIT_FIELDS, true);
+        GrouperDdlUtils.ddlutilsDropIndexes(table, PITField.COLUMN_START_TIME);
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(),
+            "pit_field_start_idx", true, PITField.COLUMN_START_TIME, PITField.COLUMN_SOURCE_ID);
+        
+        table = GrouperDdlUtils.ddlutilsFindTable(database, PITGroup.TABLE_GROUPER_PIT_GROUPS, true);
+        GrouperDdlUtils.ddlutilsDropIndexes(table, PITGroup.COLUMN_START_TIME);
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(),
+            "pit_group_start_idx", true, PITGroup.COLUMN_START_TIME, PITGroup.COLUMN_SOURCE_ID);
+        
+        table = GrouperDdlUtils.ddlutilsFindTable(database, PITAttributeDef.TABLE_GROUPER_PIT_ATTRIBUTE_DEF, true);
+        GrouperDdlUtils.ddlutilsDropIndexes(table, PITAttributeDef.COLUMN_START_TIME);
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(),
+            "pit_attribute_def_start_idx", true, PITAttributeDef.COLUMN_START_TIME, PITAttributeDef.COLUMN_SOURCE_ID);
+        
+        table = GrouperDdlUtils.ddlutilsFindTable(database, PITMembership.TABLE_GROUPER_PIT_MEMBERSHIPS, true);
+        GrouperDdlUtils.ddlutilsDropIndexes(table, PITMembership.COLUMN_START_TIME);
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(),
+            "pit_ms_start_idx", true, PITMembership.COLUMN_START_TIME, PITMembership.COLUMN_SOURCE_ID);
+        
+        table = GrouperDdlUtils.ddlutilsFindTable(database, PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET, true);
+        GrouperDdlUtils.ddlutilsDropIndexes(table, PITGroupSet.COLUMN_START_TIME);
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(),
+            "pit_gs_start_idx", true, PITGroupSet.COLUMN_START_TIME, PITGroupSet.COLUMN_SOURCE_ID);
+        
+        table = GrouperDdlUtils.ddlutilsFindTable(database, PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, true);
+        GrouperDdlUtils.ddlutilsDropIndexes(table, PITAttributeAssign.COLUMN_START_TIME);
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(),
+            "pit_attr_assn_start_idx", true, PITAttributeAssign.COLUMN_START_TIME, PITAttributeAssign.COLUMN_SOURCE_ID);
+
+        table = GrouperDdlUtils.ddlutilsFindTable(database, PITAttributeAssignValue.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN_VALUE, true);
+        GrouperDdlUtils.ddlutilsDropIndexes(table, PITAttributeAssignValue.COLUMN_START_TIME);
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(),
+            "pit_attr_val_start_idx", true, PITAttributeAssignValue.COLUMN_START_TIME, PITAttributeAssignValue.COLUMN_SOURCE_ID);
+
+        table = GrouperDdlUtils.ddlutilsFindTable(database, PITAttributeAssignAction.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION, true);
+        GrouperDdlUtils.ddlutilsDropIndexes(table, PITAttributeAssignAction.COLUMN_START_TIME);
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(),
+            "pit_attr_assn_act_start_idx", true, PITAttributeAssignAction.COLUMN_START_TIME, PITAttributeAssignAction.COLUMN_SOURCE_ID);
+
+        table = GrouperDdlUtils.ddlutilsFindTable(database, PITAttributeDefName.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME, true);
+        GrouperDdlUtils.ddlutilsDropIndexes(table, PITAttributeDefName.COLUMN_START_TIME);
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(),
+            "pit_attr_def_name_start_idx", true, PITAttributeDefName.COLUMN_START_TIME, PITAttributeDefName.COLUMN_SOURCE_ID);
+        
+        table = GrouperDdlUtils.ddlutilsFindTable(database, PITAttributeDefNameSet.TABLE_GROUPER_PIT_ATTRIBUTE_DEF_NAME_SET, true);
+        GrouperDdlUtils.ddlutilsDropIndexes(table, PITAttributeDefNameSet.COLUMN_START_TIME);
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(),
+            "pit_attr_def_name_set_strt_idx", true, PITAttributeDefNameSet.COLUMN_START_TIME, PITAttributeDefNameSet.COLUMN_SOURCE_ID);
+        
+        table = GrouperDdlUtils.ddlutilsFindTable(database, PITAttributeAssignActionSet.TABLE_GROUPER_PIT_ATTR_ASSIGN_ACTION_SET, true);
+        GrouperDdlUtils.ddlutilsDropIndexes(table, PITAttributeAssignActionSet.COLUMN_START_TIME);
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(),
+            "pit_action_set_start_idx", true, PITAttributeAssignActionSet.COLUMN_START_TIME, PITAttributeAssignActionSet.COLUMN_SOURCE_ID);
+        
+        table = GrouperDdlUtils.ddlutilsFindTable(database, PITRoleSet.TABLE_GROUPER_PIT_ROLE_SET, true);
+        GrouperDdlUtils.ddlutilsDropIndexes(table, PITRoleSet.COLUMN_START_TIME);
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(),
+            "pit_rs_start_idx", true, PITRoleSet.COLUMN_START_TIME, PITRoleSet.COLUMN_SOURCE_ID);
+        
+        table = GrouperDdlUtils.ddlutilsFindTable(database, PITStem.TABLE_GROUPER_PIT_STEMS, true);
+        GrouperDdlUtils.ddlutilsDropIndexes(table, PITStem.COLUMN_START_TIME);
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(),
+            "pit_stem_start_idx", true, PITStem.COLUMN_START_TIME, PITStem.COLUMN_SOURCE_ID);
+      }
 
     }
   
