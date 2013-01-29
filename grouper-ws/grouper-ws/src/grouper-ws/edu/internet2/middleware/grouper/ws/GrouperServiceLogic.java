@@ -98,6 +98,7 @@ import edu.internet2.middleware.grouper.privs.NamingResolver;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.privs.PrivilegeType;
+import edu.internet2.middleware.grouper.service.ServiceRole;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberLiteResult;
@@ -7031,6 +7032,8 @@ public class GrouperServiceLogic {
    * @param wsInheritanceSetRelation if there is one wsAttributeDefNameLookup, and this is specified, then find 
    * the attribute def names which are related to the lookup by this relation, e.g. IMPLIED_BY_THIS, 
    * IMPLIED_BY_THIS_IMMEDIATE, THAT_IMPLY_THIS, THAT_IMPLY_THIS_IMMEDIATE
+   * @param wsSubjectLookup subject if looking for privileges or service role
+   * @param serviceRole to filter attributes that a user has a certain role
    * @return the attribute def names, or no attribute def names if none found
    */
   public static WsFindAttributeDefNamesResults findAttributeDefNames(final GrouperVersion clientVersion,
@@ -7038,7 +7041,8 @@ public class GrouperServiceLogic {
       AttributeAssignType attributeAssignType, AttributeDefType attributeDefType,
       WsAttributeDefNameLookup[] wsAttributeDefNameLookups, Integer pageSize, Integer pageNumber,
       String sortString, Boolean ascending, 
-      WsInheritanceSetRelation wsInheritanceSetRelation, WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
+      WsInheritanceSetRelation wsInheritanceSetRelation, WsSubjectLookup actAsSubjectLookup, WsParam[] params,
+      WsSubjectLookup wsSubjectLookup, ServiceRole serviceRole) {
 
     final WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = new WsFindAttributeDefNamesResults();
     
@@ -7057,7 +7061,8 @@ public class GrouperServiceLogic {
           + ", pageSize: " + pageSize + ", pageNumber: " + pageNumber 
           + ", sortString: " + sortString + ", ascending: " + ascending 
           + ", actAsSubject: " + actAsSubjectLookup + ", paramNames: "
-          + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100)
+          + "\n, wsSubjectLookup: " + wsSubjectLookup + ", serviceRole: " + serviceRole;
   
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -7094,30 +7099,44 @@ public class GrouperServiceLogic {
             "You need to pass in either a scope query or attribute def lookup, or attribute def name lookups.");
 
       }
-      
+
       if (splitScope != null && StringUtils.isBlank(scope)) {
 
         throw new WsInvalidQueryException(
           "If you pass in a splitScope, then you need to pass in a scope");
-        
+
       }
-      
+
       if (wsInheritanceSetRelation != null && GrouperUtil.length(wsAttributeDefNameLookups) != 1) {
-        
+
         throw new WsInvalidQueryException(
           "If you pass in a wsInheritanceSetRelation, then you need to pass in one and only one wsAttributeDefNameLookup");
-      
+
       }
-      
+
       if ((pageNumber != null) && (pageSize == null) ) {
-        
+
         throw new WsInvalidQueryException(
           "If you pass in pageNumber you need to pass in pageSize");
-      
+
       }
-      
+
+      if (!wsSubjectLookup.blank() && (serviceRole == null )) {
+
+        throw new WsInvalidQueryException(
+          "If you pass in wsSubjectLookup you need to pass in serviceRole");
+
+      }
+
+      if (wsSubjectLookup.blank() && (serviceRole != null )) {
+
+        throw new WsInvalidQueryException(
+          "If you pass in serviceRole you need to pass in wsSubjectLookup");
+
+      }
+
       if (hasScopeQuery) {
-        
+
         String attributeDefId = null;
         if (wsAttributeDefLookup != null && !wsAttributeDefLookup.blank()) {
           wsAttributeDefLookup.retrieveAttributeDefIfNeeded(session);
@@ -7148,7 +7167,8 @@ public class GrouperServiceLogic {
         }
         
         attributeDefNames.addAll(GrouperDAOFactory.getFactory().getAttributeDefName().findAllAttributeNamesSplitScopeSecure(
-            scope, session, attributeDefId, session.getSubject(), AttributeDefPrivilege.VIEW_PRIVILEGES, queryOptions, attributeAssignType, attributeDefType));
+            scope, session, attributeDefId, session.getSubject(), AttributeDefPrivilege.VIEW_PRIVILEGES, 
+            queryOptions, attributeAssignType, attributeDefType));
       }
       
       if (hasLookupQuery) {
@@ -7236,6 +7256,10 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @param paramValue1
    *            reserved for future use
+   * @param subjectId subject id if looking for privileges or service role
+   * @param subjectSourceId subject source id if looking for privileges or service role
+   * @param subjectIdentifier subject identifier if looking for privileges or service role
+   * @param serviceRole to filter attributes that a user has a certain role
    * @return the attribute def names, or no attribute def names if none found
    */
   public static WsFindAttributeDefNamesResults findAttributeDefNamesLite(final GrouperVersion clientVersion,
@@ -7245,31 +7269,35 @@ public class GrouperServiceLogic {
       String sortString, Boolean ascending, WsInheritanceSetRelation wsInheritanceSetRelation,
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0,
-      String paramValue0, String paramName1, String paramValue1) {
-    
+      String paramValue0, String paramName1, String paramValue1, String subjectId, String subjectSourceId,
+      String subjectIdentifier, ServiceRole serviceRole) {
+
     WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
 
-  
+
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
-  
+
     WsAttributeDefLookup wsAttributeDefLookup = null;
-    
+
     if (!StringUtils.isBlank(nameOfAttributeDef) || !StringUtils.isBlank(uuidOfAttributeDef)) {
       wsAttributeDefLookup = new WsAttributeDefLookup(nameOfAttributeDef, uuidOfAttributeDef);
     }
-    
+
     WsAttributeDefNameLookup[] wsAttributeDefNameLookups = null;
-    
+
     if (!StringUtils.isBlank(attributeDefNameName) || !StringUtils.isBlank(attributeDefNameUuid)) {
       wsAttributeDefNameLookups = new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(attributeDefNameName, attributeDefNameUuid)};
     }
+
+    WsSubjectLookup wsSubjectLookup = WsSubjectLookup.createIfNeeded(subjectId,
+        subjectSourceId, subjectIdentifier);
 
     // pass through to the more comprehensive method
     WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = findAttributeDefNames(clientVersion, 
         scope, splitScope, wsAttributeDefLookup, attributeAssignType, attributeDefType, wsAttributeDefNameLookups, 
         pageSize, pageNumber, sortString, ascending, wsInheritanceSetRelation, 
-        actAsSubjectLookup, params);
+        actAsSubjectLookup, params, wsSubjectLookup, serviceRole);
   
     return wsFindAttributeDefNamesResults;
 

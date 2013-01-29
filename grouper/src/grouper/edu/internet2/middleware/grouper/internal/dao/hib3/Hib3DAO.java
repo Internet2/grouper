@@ -186,6 +186,7 @@ public abstract class Hib3DAO {
       addClass(CFG, Hib3PITAttributeDefNameSetDAO.class);
       addClass(CFG, Hib3PITPermissionAllViewDAO.class);
       addClass(CFG, Hib3PITAttributeAssignValueViewDAO.class);
+      addClass(CFG, Hib3ServiceRoleViewDAO.class);
       addClass(CFG, Hib3StemSetDAO.class);
       addClass(CFG, Hib3TableIndexDAO.class);
       CFG.setInterceptor(new Hib3SessionInterceptor());

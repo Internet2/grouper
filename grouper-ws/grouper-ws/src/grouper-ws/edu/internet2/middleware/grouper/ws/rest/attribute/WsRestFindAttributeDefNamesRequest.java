@@ -33,6 +33,53 @@ import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 public class WsRestFindAttributeDefNamesRequest implements WsRequestBean {
 
   /**
+   * subject if looking for privileges or service role
+   */
+  private WsSubjectLookup subjectLookup;
+
+  /**
+   * subject if looking for privileges or service role
+   * @return subject
+   */
+  public WsSubjectLookup getSubjectLookup() {
+    return this.subjectLookup;
+  }
+
+  /**
+   * subject if looking for privileges or service role
+   * @param subjectLookup1
+   */
+  public void setSubjectLookup(WsSubjectLookup subjectLookup1) {
+    this.subjectLookup = subjectLookup1;
+  }
+
+  /**
+   * from ServiceRole enum, which service role you are querying
+   * e.g. admin or user
+   */
+  private String serviceRole;
+  
+  
+  
+  /**
+   * from ServiceRole enum, which service role you are querying
+   * e.g. admin or user
+   * @return service role
+   */
+  public String getServiceRole() {
+    return this.serviceRole;
+  }
+
+  /**
+   * from ServiceRole enum, which service role you are querying
+   * e.g. admin or user
+   * @param serviceRole1
+   */
+  public void setServiceRole(String serviceRole1) {
+    this.serviceRole = serviceRole1;
+  }
+
+  /**
    * search string with % as wildcards will search name, display name, description
    */
   private String scope;
@@ -307,6 +354,7 @@ public class WsRestFindAttributeDefNamesRequest implements WsRequestBean {
   /**
    * @see edu.internet2.middleware.grouper.ws.rest.WsRequestBean#retrieveRestHttpMethod()
    */
+  @Override
   public GrouperRestHttpMethod retrieveRestHttpMethod() {
     return GrouperRestHttpMethod.GET;
   }

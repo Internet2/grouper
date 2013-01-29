@@ -95,6 +95,7 @@ public class ServiceTest extends GrouperTest {
       confluenceGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
       confluenceGroup.grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.READ);
       confluenceGroup.grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.ADMIN);
+      confluenceGroup.grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.ADMIN);
 
       confluenceGroup.addMember(SubjectTestHelper.SUBJ1);
       confluenceGroup.addMember(SubjectTestHelper.SUBJ2);
@@ -138,7 +139,7 @@ public class ServiceTest extends GrouperTest {
       Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignSubject(SubjectTestHelper.SUBJ0)
         .assignServiceRole(ServiceRole.user).findAttributeNames();
       
-      assertEquals(1, GrouperUtil.length(attributeDefNames));
+      assertEquals(GrouperUtil.toStringForLog(attributeDefNames), 1, GrouperUtil.length(attributeDefNames));
       assertEquals(jiraService.getId(), attributeDefNames.iterator().next().getId());
       
     } finally {
@@ -209,9 +210,9 @@ public class ServiceTest extends GrouperTest {
       GrouperSession.stopQuietly(grouperSession);
     }
     
-    // ##################### subject 7 can see that subject 7 is admin of the confluence service...
+    // ##################### subject 8 can see that subject 7 is admin of the confluence service...
 
-    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ7);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ8);
     
     try {
 
@@ -220,6 +221,21 @@ public class ServiceTest extends GrouperTest {
       
       assertEquals(1, GrouperUtil.length(attributeDefNames));
       assertEquals(confluenceService.getId(), attributeDefNames.iterator().next().getId());
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+    // ##################### subject 9 cannot see that subject 7 is admin of the confluence service...
+
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ9);
+    
+    try {
+
+      Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignSubject(SubjectTestHelper.SUBJ7)
+        .assignServiceRole(ServiceRole.admin).findAttributeNames();
+      
+      assertEquals(0, GrouperUtil.length(attributeDefNames));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);

@@ -45,4 +45,14 @@ public enum ServiceRole {
    */
   public abstract Collection<Field> fieldsForGroupQuery();
   
+  /**
+   * convert a string to the service role enum
+   * @param string
+   * @param exceptionOnNull
+   * @return service role
+   */
+  public static ServiceRole valueOfIgnoreCase(String string, boolean exceptionOnNull) {
+    return GrouperUtil.enumValueOfIgnoreCase(ServiceRole.class, string, exceptionOnNull, true);
+  }
+  
 }

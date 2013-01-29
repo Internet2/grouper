@@ -1981,7 +1981,9 @@ public class GrouperServiceRest {
         wsRestFindAttributeDefNamesRequest.getAscending(), 
         wsRestFindAttributeDefNamesRequest.getWsInheritanceSetRelation(), 
         wsRestFindAttributeDefNamesRequest.getActAsSubjectLookup(), 
-        wsRestFindAttributeDefNamesRequest.getParams());
+        wsRestFindAttributeDefNamesRequest.getParams(),
+        wsRestFindAttributeDefNamesRequest.getSubjectLookup(),
+        wsRestFindAttributeDefNamesRequest.getServiceRole() );
     
     return wsFindAttributeDefNamesResults;
   }
@@ -2027,7 +2029,12 @@ public class GrouperServiceRest {
         wsRestFindAttributeDefNamesLiteRequest.getParamName0(), 
         wsRestFindAttributeDefNamesLiteRequest.getParamValue0(), 
         wsRestFindAttributeDefNamesLiteRequest.getParamName1(), 
-        wsRestFindAttributeDefNamesLiteRequest.getParamValue1());
+        wsRestFindAttributeDefNamesLiteRequest.getParamValue1(),
+        wsRestFindAttributeDefNamesLiteRequest.getSubjectId(),
+        wsRestFindAttributeDefNamesLiteRequest.getSubjectSourceId(),
+        wsRestFindAttributeDefNamesLiteRequest.getSubjectIdentifier(),
+        wsRestFindAttributeDefNamesLiteRequest.getServiceRole()
+        );
     
     return wsFindAttributeDefNamesResults;
     

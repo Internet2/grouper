@@ -23,12 +23,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
-import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -75,7 +73,7 @@ public class AttributeDefNameFinder {
   /**
    * if filtering by service, this is the role, or null for all
    */
-  private ServiceRole serviceRole;
+  ServiceRole serviceRole;
   
   /**
    * if filtering by service, this is the service role, or null for all
@@ -85,24 +83,6 @@ public class AttributeDefNameFinder {
   public AttributeDefNameFinder assignServiceRole(ServiceRole theServiceRole) {
     this.serviceRole = theServiceRole;
     return this;
-  }
-  
-  /**
-   * if filtering by service, this is the id of the service
-   */
-  private String serviceId;
-  
-  /**
-   * filter by users in a service, either admin or user
-   * @param theRole is the role (user or admin), or null for all
-   * @param theAttributeDefNameId
-   * @return this for chaining
-   */
-  public AttributeDefNameFinder assignFilterByServiceId(ServiceRole theRole, String theAttributeDefNameId) {
-    this.serviceRole = theRole;
-    this.serviceId = theAttributeDefNameId;
-    return this;
-    
   }
   
   /**
@@ -225,7 +205,7 @@ public class AttributeDefNameFinder {
           this.attributeDefId, this.subject, this.privileges, 
           this.queryOptions, this.attributeAssignType, 
           this.attributeDefType, 
-          this.serviceId, this.serviceRole);
+          this.serviceRole);
   }
   
   /**

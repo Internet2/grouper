@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeType;
+import edu.internet2.middleware.grouper.service.ServiceRole;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperServiceLogic;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
@@ -4135,6 +4136,8 @@ public class GrouperService {
    * @param wsInheritanceSetRelation if there is one wsAttributeDefNameLookup, and this is specified, then find 
    * the attribute def names which are related to the lookup by this relation, e.g. IMPLIED_BY_THIS, 
    * IMPLIED_BY_THIS_IMMEDIATE, THAT_IMPLY_THIS, THAT_IMPLY_THIS_IMMEDIATE
+   * @param wsSubjectLookup subject if looking for privileges or service role
+   * @param serviceRole to filter attributes that a user has a certain role
    * @return the attribute def names, or no attribute def names if none found
    */
   public WsFindAttributeDefNamesResults findAttributeDefNames(final String clientVersion,
@@ -4142,12 +4145,13 @@ public class GrouperService {
       String attributeAssignType, String attributeDefType,
       WsAttributeDefNameLookup[] wsAttributeDefNameLookups, 
       String pageSize, String pageNumber,
-      String sortString, String ascending, String wsInheritanceSetRelation, WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
-  
+      String sortString, String ascending, String wsInheritanceSetRelation, WsSubjectLookup actAsSubjectLookup, WsParam[] params,
+      WsSubjectLookup wsSubjectLookup, String serviceRole) {
+
     WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = new WsFindAttributeDefNamesResults();
-    
+
     GrouperVersion grouperWsVersion = null;
-    
+
     try {
   
       grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
@@ -4165,11 +4169,13 @@ public class GrouperService {
       AttributeAssignType attributeAssignTypeEnum = GrouperServiceUtils.enumValueOfIgnoreCase(AttributeAssignType.class, attributeAssignType, false);
       WsInheritanceSetRelation wsInheritanceSetRelationEnum = WsInheritanceSetRelation.valueOfIgnoreCase(wsInheritanceSetRelation);
 
+      ServiceRole serviceRoleEnum = GrouperServiceUtils.enumValueOfIgnoreCase(ServiceRole.class, serviceRole, false);
+      
       wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(grouperWsVersion,
           scope, splitScopeBoolean, wsAttributeDefLookup,
           attributeAssignTypeEnum, attributeDefTypeEnum,
           wsAttributeDefNameLookups, pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean,
-          wsInheritanceSetRelationEnum, actAsSubjectLookup, params);
+          wsInheritanceSetRelationEnum, actAsSubjectLookup, params, wsSubjectLookup, serviceRoleEnum);
   
     } catch (Exception e) {
       wsFindAttributeDefNamesResults.assignResultCodeException(null, null, e);
@@ -4225,6 +4231,10 @@ public class GrouperService {
    *            reserved for future use
    * @param paramValue1
    *            reserved for future use
+   * @param subjectId subject id if looking for privileges or service role
+   * @param subjectSourceId subject source id if looking for privileges or service role
+   * @param subjectIdentifier subject identifier if looking for privileges or service role
+   * @param serviceRole to filter attributes that a user has a certain role
    * @return the attribute def names, or no attribute def names if none found
    */
   public WsFindAttributeDefNamesResults findAttributeDefNamesLite(final String clientVersion,
@@ -4234,7 +4244,10 @@ public class GrouperService {
       String sortString, String ascending, String wsInheritanceSetRelation,
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0,
-      String paramValue0, String paramName1, String paramValue1) {
+      String paramValue0, String paramName1, String paramValue1,
+      String subjectId, String subjectSourceId,
+      String subjectIdentifier, String serviceRole 
+      ) {
         
     WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = new WsFindAttributeDefNamesResults();
     
@@ -4257,21 +4270,24 @@ public class GrouperService {
       Integer pageSizeInteger = GrouperServiceUtils.integerValue(pageSize, "pageSize");
       Integer pageNumberInteger = GrouperServiceUtils.integerValue(pageNumber, "pageNumber");
 
+      ServiceRole serviceRoleEnum = GrouperServiceUtils.enumValueOfIgnoreCase(ServiceRole.class, serviceRole, false);
+
       wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNamesLite(grouperWsVersion,
           scope, splitScopeBoolean, uuidOfAttributeDef, nameOfAttributeDef,
           attributeAssignTypeEnum, attributeDefTypeEnum, attributeDefNameUuid, attributeDefNameName,
           pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean,
           wsInheritanceSetRelationEnum, actAsSubjectId, actAsSubjectSourceId,
           actAsSubjectIdentifier, paramName0,
-          paramValue0, paramName1, paramValue1);
-  
+          paramValue0, paramName1, paramValue1, subjectId, subjectSourceId,
+          subjectIdentifier, serviceRoleEnum);
+
     } catch (Exception e) {
       wsFindAttributeDefNamesResults.assignResultCodeException(null, null, e);
     }
-  
+
     //set response headers
     GrouperServiceUtils.addResponseHeaders(wsFindAttributeDefNamesResults.getResultMetadata(), this.soap);
-  
+
     //this should be the first and only return, or else it is exiting too early
     return wsFindAttributeDefNamesResults; 
 

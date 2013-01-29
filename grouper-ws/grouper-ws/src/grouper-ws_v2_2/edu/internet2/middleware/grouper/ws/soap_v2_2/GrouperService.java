@@ -2699,6 +2699,8 @@ public class GrouperService {
    * @param wsInheritanceSetRelation if there is one wsAttributeDefNameLookup, and this is specified, then find 
    * the attribute def names which are related to the lookup by this relation, e.g. IMPLIED_BY_THIS, 
    * IMPLIED_BY_THIS_IMMEDIATE, THAT_IMPLY_THIS, THAT_IMPLY_THIS_IMMEDIATE
+   * @param wsSubjectLookup subject if looking for privileges or service role
+   * @param serviceRole to filter attributes that a user has a certain role
    * @return the attribute def names, or no attribute def names if none found
    */
   public WsFindAttributeDefNamesResults findAttributeDefNames(final String clientVersion,
@@ -2707,8 +2709,9 @@ public class GrouperService {
       WsAttributeDefNameLookup[] wsAttributeDefNameLookups, 
       String pageSize, String pageNumber,
       String sortString, String ascending, 
-      String wsInheritanceSetRelation, WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
-  
+      String wsInheritanceSetRelation, WsSubjectLookup actAsSubjectLookup, WsParam[] params,
+      WsSubjectLookup wsSubjectLookup, String serviceRole) {
+
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "findAttributeDefNames",
         new Object[]{
@@ -2718,9 +2721,10 @@ public class GrouperService {
       GrouperUtil.changeToVersion(wsAttributeDefNameLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
       pageSize, pageNumber, sortString, ascending, wsInheritanceSetRelation,
       GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
-      GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName())
+      GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      wsSubjectLookup, serviceRole
       });
-    
+
     return (WsFindAttributeDefNamesResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   }
 
@@ -2766,6 +2770,10 @@ public class GrouperService {
    *            reserved for future use
    * @param paramValue1
    *            reserved for future use
+   * @param subjectId subject id if looking for privileges or service role
+   * @param subjectSourceId subject source id if looking for privileges or service role
+   * @param subjectIdentifier subject identifier if looking for privileges or service role
+   * @param serviceRole is the role you are looking for, admin or user, ServiceRole enum
    * @return the attribute def names, or no attribute def names if none found
    */
   public WsFindAttributeDefNamesResults findAttributeDefNamesLite(final String clientVersion,
@@ -2775,7 +2783,9 @@ public class GrouperService {
       String sortString, String ascending, String wsInheritanceSetRelation,
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0,
-      String paramValue0, String paramName1, String paramValue1) {
+      String paramValue0, String paramName1, String paramValue1, 
+      String subjectId, String subjectSourceId,
+      String subjectIdentifier, String serviceRole) {
         
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "findAttributeDefNamesLite",
@@ -2786,7 +2796,7 @@ public class GrouperService {
       wsInheritanceSetRelation,
       actAsSubjectId, actAsSubjectSourceId,
       actAsSubjectIdentifier, paramName0,
-      paramValue0, paramName1, paramValue1});
+      paramValue0, paramName1, paramValue1, subjectId, subjectSourceId, subjectIdentifier, serviceRole});
     
     return (WsFindAttributeDefNamesResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   

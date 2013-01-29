@@ -29,6 +29,90 @@ import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 public class WsRestFindAttributeDefNamesLiteRequest implements WsRequestBean {
 
   /**
+   * subjectId subject id if looking for privileges or service role
+   */
+  private String subjectId;
+      
+  /**
+   * subjectSourceId subject source id if looking for privileges or service role
+   */
+  private String subjectSourceId;
+  
+  /**
+   * subjectIdentifier subject identifier if looking for privileges or service role
+   */
+  private String subjectIdentifier;
+
+  /**
+   * serviceRole to filter attributes that a user has a certain role
+   */
+  private String serviceRole;
+
+  /**
+   * subjectId subject id if looking for privileges or service role
+   * @return subjectId
+   */
+  public String getSubjectId() {
+    return this.subjectId;
+  }
+
+  /**
+   * subjectId subject id if looking for privileges or service role
+   * @param subjectId1
+   */
+  public void setSubjectId(String subjectId1) {
+    this.subjectId = subjectId1;
+  }
+
+  /**
+   * subjectSourceId subject source id if looking for privileges or service role
+   * @return subject source id
+   */
+  public String getSubjectSourceId() {
+    return this.subjectSourceId;
+  }
+
+  /**
+   * subjectSourceId subject source id if looking for privileges or service role
+   * @param subjectSourceId1
+   */
+  public void setSubjectSourceId(String subjectSourceId1) {
+    this.subjectSourceId = subjectSourceId1;
+  }
+
+  /**
+   * subjectIdentifier subject identifier if looking for privileges or service role
+   * @return subjectIdentifier
+   */
+  public String getSubjectIdentifier() {
+    return this.subjectIdentifier;
+  }
+
+  /**
+   * subjectIdentifier subject identifier if looking for privileges or service role
+   * @param subjectIdentifier1
+   */
+  public void setSubjectIdentifier(String subjectIdentifier1) {
+    this.subjectIdentifier = subjectIdentifier1;
+  }
+
+  /**
+   * serviceRole to filter attributes that a user has a certain role
+   * @return serviceRole
+   */
+  public String getServiceRole() {
+    return this.serviceRole;
+  }
+
+  /**
+   * serviceRole to filter attributes that a user has a certain role
+   * @param serviceRole1
+   */
+  public void setServiceRole(String serviceRole1) {
+    this.serviceRole = serviceRole1;
+  }
+
+  /**
    * search string with % as wildcards will search name, display name, description
    */
   private String scope;
@@ -256,6 +340,7 @@ public class WsRestFindAttributeDefNamesLiteRequest implements WsRequestBean {
   /**
    * @see edu.internet2.middleware.grouper.ws.rest.WsRequestBean#retrieveRestHttpMethod()
    */
+  @Override
   public GrouperRestHttpMethod retrieveRestHttpMethod() {
     return GrouperRestHttpMethod.GET;
   }

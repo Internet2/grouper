@@ -157,7 +157,7 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable {
   /** any of these constitutes READ on a group
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> READ_PRIVILEGES = Collections.unmodifiableSet(
-      GrouperUtil.toSet(READ, ADMIN, OPTIN, OPTOUT));
+      GrouperUtil.toSet(READ, ADMIN));
   
   /** any of these constitutes MANAGE on a group
    * note, keep most common/likely privs toward the front  */

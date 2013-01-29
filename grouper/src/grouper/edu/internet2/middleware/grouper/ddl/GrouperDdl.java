@@ -2022,7 +2022,7 @@ public enum GrouperDdl implements DdlVersionable {
       addStemSetTable(ddlVersionBean, database);
       
       addTableIndices(ddlVersionBean, database, false, false, false, false);
-      
+
       
       // fix pit indexes to add unique indexes on each table
       boolean fixPITIndexes = true;
@@ -2587,6 +2587,9 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_types_v");
     
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rules_v");
+    
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_service_role_v");
+    
     
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_stems_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_stem_set_v");
@@ -10510,6 +10513,78 @@ public enum GrouperDdl implements DdlVersionable {
               + " WHERE main_gadn.name = '" + attributeRootStem + ":rules:rule' "
               + " AND main_gaa.attribute_def_name_id = main_gadn.id "
       );
+      
+      
+      //select distinct 
+      //(CASE gf.name WHEN 'admins' THEN 'admin'
+      //WHEN 'readers' THEN 'admin'
+      //when 'updaters' then 'admin'
+      //when 'members' then 'user'
+      //end
+      //) as service_role,
+      //gg.name as group_name, gadn.name as name_of_service_def_name, 
+      //gm.subject_source as subject_source_id, gm.subject_id, 
+      //gf.name as field_name, gad.name as name_of_service_def, 
+      //gg.display_name as group_display_name, gg.id as group_id, gad.id as service_def_id, 
+      //gadn.id as service_name_id, gm.id as member_id, gf.id as field_id,
+      //gadn.display_name as display_name_of_service_name
+      //from grouper_attribute_def_name gadn, grouper_attribute_def gad, grouper_groups gg,
+      //grouper_memberships_all_v gmav, grouper_attribute_assign gaa, grouper_stem_set gss,
+      //grouper_members gm, grouper_fields gf
+      //where gadn.attribute_def_id = gad.id and gad.attribute_def_type='service'
+      //and gad.assign_to_stem='T' and gmav.field_id = gf.id
+      //and gmav.immediate_mship_enabled='T' and gmav.owner_group_id = gg.id
+      //and gaa.owner_stem_id = gss.then_has_stem_id and gg.parent_stem=gss.if_has_stem_id
+      //and gaa.enabled='T' and gmav.member_id = gm.id
+      //and gf.name in ('admins', 'members', 'readers', 'updaters')
+      GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_service_role_v", 
+          "grouper_service_role_v: shows service admin or user relationships to folders/groups",
+          GrouperUtil.toSet("service_role", "group_name", "name_of_service_def_name", 
+                  "subject_source_id", "subject_id", 
+                  "field_name", "name_of_service_def", 
+                  "group_display_name", "group_id", "service_def_id", 
+                  "service_name_id", "member_id", "field_id", "display_name_of_service_name", "service_stem_id"),
+          GrouperUtil.toSet(
+              "service_role: admin or user is the subject is an admin/updater/reader of a group in the service folder, or user is the subject is a member of a group in the service folder", 
+              "group_name: group name in the service that the user is an admin or user of", 
+              "name_of_service_def_name: name of the service dev name, this generally is the system name of the service", 
+              "subject_source_id: subject source id of the subject who is the admin or user of the service", 
+              "subject_id: subject id of the subject who is the admin or user of the service", 
+              "field_name: field of the membership of the subject who is the admin or user of the service", 
+              "name_of_service_def: name of the attribute definition of the service", 
+              "group_display_name: display name of the group that the subject is an admin or user of the service", 
+              "group_id: group id of the group that the subject is an admin or user of the service", 
+              "service_def_id: id of the attribute definition that is related to the service", 
+              "service_name_id: id of the attribute name that is the service", 
+              "member_id: id in the member table of the subject who is an admin or user of the service", 
+              "field_id: id of the field for the membership of the subject who an admin or user of the service",
+              "display_name_of_service_name: display name of the service definition name",
+              "service_stem_id: id of the stem where the service tag is assigned"
+          ),
+        "select distinct " 
+        + "(CASE gf.name WHEN 'admins' THEN 'admin' "
+        + "WHEN 'updaters' then 'admin' "
+        + "when 'members' then 'user' "
+        + "end "
+        + ") as service_role, "
+        + "gg.name as group_name, gadn.name as name_of_service_def_name,  "
+        + "gm.subject_source as subject_source_id, gm.subject_id,  "
+        + "gf.name as field_name, gad.name as name_of_service_def,  "
+        + "gg.display_name as group_display_name, gg.id as group_id, gad.id as service_def_id, " 
+        + "gadn.id as service_name_id, gm.id as member_id, gf.id as field_id, "
+        + "gadn.display_name as display_name_of_service_name, "
+        + "gaa.owner_stem_id as service_stem_id "
+        + "from grouper_attribute_def_name gadn, grouper_attribute_def gad, grouper_groups gg, "
+        + "grouper_memberships_all_v gmav, grouper_attribute_assign gaa, grouper_stem_set gss, "
+        + "grouper_members gm, grouper_fields gf "
+        + "where gadn.attribute_def_id = gad.id and gad.attribute_def_type='service' "
+        + "and gaa.attribute_def_name_id = gadn.id "
+        + "and gad.assign_to_stem='T' and gmav.field_id = gf.id "
+        + "and gmav.immediate_mship_enabled='T' and gmav.owner_group_id = gg.id "
+        + "and gaa.owner_stem_id = gss.then_has_stem_id and gg.parent_stem=gss.if_has_stem_id "
+        + "and gaa.enabled='T' and gmav.member_id = gm.id "
+        + "and gf.name in ('admins', 'members', 'readers', 'updaters') ");
+
       
     }
     
