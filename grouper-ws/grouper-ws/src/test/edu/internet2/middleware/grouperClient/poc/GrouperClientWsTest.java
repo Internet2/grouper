@@ -100,7 +100,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testFindAttributeDefNames"));
+    TestRunner.run(new GrouperClientWsTest("testFindAttributeDefNamesServiceRole"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -36089,6 +36089,161 @@ public class GrouperClientWsTest extends GrouperTest {
   //        !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookup"));
   
   
+      
+    } finally {
+      System.setOut(systemOut);
+    }
+  
+  }
+
+  /**
+   * @throws Exception
+   */
+  public void testFindAttributeDefNamesServiceRole() throws Exception {
+  
+    PrintStream systemOut = System.out;
+  
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(baos));
+    String output = null;
+    String[] outputLines = null;
+    Pattern pattern = null;
+    Matcher matcher = null;
+    try {
+      
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+
+      AttributeDefName jiraService = null;
+      AttributeDefName confluenceService = null;    
+      try {
+        
+        //create three services, one directly in, one hierarchical, one the user is not in
+        AttributeDef jiraServiceDef = new AttributeDefSave(grouperSession)
+          .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
+          .assignName("apps:jira:jiraServiceDefinition").assignToStem(true).save();
+        
+        jiraService = new AttributeDefNameSave(grouperSession, jiraServiceDef)
+          .assignCreateParentStemsIfNotExist(true)
+          .assignName("apps:jira:jiraService").assignDisplayExtension("Central IT production Jira issue tracker").save();
+        
+        //jira group
+        Group jiraGroup = new GroupSave(grouperSession)
+          .assignName("apps:jira:groups:admins").assignCreateParentStemsIfNotExist(true).save();
+        
+        jiraGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+        jiraGroup.grantPriv(SubjectTestHelper.SUBJ5, AccessPrivilege.READ);
+        jiraGroup.grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.ADMIN);
+        
+        jiraGroup.addMember(SubjectTestHelper.SUBJ0);
+        jiraGroup.addMember(SubjectTestHelper.SUBJ1);
+        
+        //the jira group has the jira service tag
+        Stem jiraStem = StemFinder.findByUuid(grouperSession, jiraGroup.getStemId(), true);
+        jiraStem.getAttributeDelegate().assignAttribute(jiraService);
+        
+        AttributeDef confluenceServiceDef = new AttributeDefSave(grouperSession)
+          .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
+          .assignName("apps:confluence:confluenceServiceDefinition").assignToStem(true).save();
+        
+        confluenceService = new AttributeDefNameSave(grouperSession, confluenceServiceDef)
+          .assignCreateParentStemsIfNotExist(true)
+          .assignName("apps:confluence:confluenceService").assignDisplayExtension("Central IT production Confluence wiki").save();
+      
+        Group confluenceGroup = new GroupSave(grouperSession)
+          .assignName("apps:confluence:editors").assignCreateParentStemsIfNotExist(true).save();
+
+        confluenceGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+        confluenceGroup.grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.READ);
+        confluenceGroup.grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.ADMIN);
+        confluenceGroup.grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.ADMIN);
+
+        confluenceGroup.addMember(SubjectTestHelper.SUBJ1);
+        confluenceGroup.addMember(SubjectTestHelper.SUBJ2);
+
+        //the confluence folder has the confluence service tag
+        Stem confluenceFolder = StemFinder.findByName(grouperSession, "apps:confluence", true);
+        confluenceFolder.getAttributeDelegate().assignAttribute(confluenceService);
+                
+      } finally {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+
+      // ##################### subject 0 is in the jira service...
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=findAttributeDefNamesWs --scope=% --serviceRole=user --subjectId=" + SubjectTestHelper.SUBJ0_ID , " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+      
+      systemOut.println(output);
+      
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+      
+      assertEquals(1, outputLines.length);
+      
+      //Index ${index}: name: ${wsAttributeDefName.name}, displayName: ${wsAttributeDefName.displayName}$newline$
+      pattern = Pattern.compile("^Index (\\d+): name: (.*), displayName: (.*)$");
+      matcher = pattern.matcher(outputLines[0]);
+  
+      assertTrue(outputLines[0], matcher.matches());
+  
+      assertEquals(outputLines[0], "0", matcher.group(1));
+      assertEquals(outputLines[0], jiraService.getName(), matcher.group(2));
+      assertEquals(outputLines[0], jiraService.getDisplayName(), matcher.group(3));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("serviceRole"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<subjectId>"));
+  
+      // ##################### subject 1 is in the jira and confluence service...
+
+      baos = new ByteArrayOutputStream();
+      
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=findAttributeDefNamesWs --scope=% --serviceRole=user --subjectIdentifier=" + SubjectTestHelper.SUBJ1_IDENTIFIER + " --subjectSource=jdbc" , " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+      
+      systemOut.println(output);
+      
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+      
+      assertEquals(2, outputLines.length);
+      
+      //Index ${index}: name: ${wsAttributeDefName.name}, displayName: ${wsAttributeDefName.displayName}$newline$
+      pattern = Pattern.compile("^Index (\\d+): name: (.*), displayName: (.*)$");
+      matcher = pattern.matcher(outputLines[0]);
+  
+      assertTrue(outputLines[0], matcher.matches());
+  
+      assertEquals(outputLines[0], "0", matcher.group(1));
+      assertEquals(outputLines[0], confluenceService.getName(), matcher.group(2));
+      assertEquals(outputLines[0], confluenceService.getDisplayName(), matcher.group(3));
+      
+      matcher = pattern.matcher(outputLines[1]);
+      assertTrue(outputLines[1], matcher.matches());
+      
+      assertEquals(outputLines[1], "1", matcher.group(1));
+      assertEquals(outputLines[1], jiraService.getName(), matcher.group(2));
+      assertEquals(outputLines[1], jiraService.getDisplayName(), matcher.group(3));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("serviceRole"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("subjectIdentifier"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<subjectId>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("subjectSourceId"));
+  
+
       
     } finally {
       System.setOut(systemOut);

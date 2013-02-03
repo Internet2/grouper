@@ -81,6 +81,7 @@ import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.service.ServiceRole;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult.WsAddMemberResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults;
@@ -168,7 +169,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testFindAttributeDefNames"));
+    TestRunner.run(new GrouperServiceLogicTest("testListServicesForUser"));
   }
 
   /**
@@ -2739,6 +2740,246 @@ public class GrouperServiceLogicTest extends GrouperTest {
     //##################################################
     
     GrouperSession.stopQuietly(GrouperServiceUtils.testSession);
+  }
+
+  /**
+   * see which services a subject is a user of.
+   */
+  public void testListServicesForUser() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    AttributeDefName jiraService = null;
+    AttributeDefName confluenceService = null;    
+    AttributeDefName directoryService = null;    
+    try {
+      
+      //create three services, one directly in, one hierarchical, one the user is not in
+      AttributeDef jiraServiceDef = new AttributeDefSave(grouperSession)
+        .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
+        .assignName("apps:jira:jiraServiceDefinition").assignToStem(true).save();
+      
+      jiraService = new AttributeDefNameSave(grouperSession, jiraServiceDef)
+        .assignCreateParentStemsIfNotExist(true)
+        .assignName("apps:jira:jiraService").assignDisplayExtension("Central IT production Jira issue tracker").save();
+      
+      //jira group
+      Group jiraGroup = new GroupSave(grouperSession)
+        .assignName("apps:jira:groups:admins").assignCreateParentStemsIfNotExist(true).save();
+      
+      jiraGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+      jiraGroup.grantPriv(SubjectTestHelper.SUBJ5, AccessPrivilege.READ);
+      jiraGroup.grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.ADMIN);
+      
+      jiraGroup.addMember(SubjectTestHelper.SUBJ0);
+      jiraGroup.addMember(SubjectTestHelper.SUBJ1);
+      
+      //the jira group has the jira service tag
+      Stem jiraStem = StemFinder.findByUuid(grouperSession, jiraGroup.getStemId(), true);
+      jiraStem.getAttributeDelegate().assignAttribute(jiraService);
+      
+      AttributeDef confluenceServiceDef = new AttributeDefSave(grouperSession)
+        .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
+        .assignName("apps:confluence:confluenceServiceDefinition").assignToStem(true).save();
+      
+      confluenceService = new AttributeDefNameSave(grouperSession, confluenceServiceDef)
+        .assignCreateParentStemsIfNotExist(true)
+        .assignName("apps:confluence:confluenceService").assignDisplayExtension("Central IT production Confluence wiki").save();
+    
+      Group confluenceGroup = new GroupSave(grouperSession)
+        .assignName("apps:confluence:editors").assignCreateParentStemsIfNotExist(true).save();
+
+      confluenceGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+      confluenceGroup.grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.READ);
+      confluenceGroup.grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.ADMIN);
+      confluenceGroup.grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.ADMIN);
+
+      confluenceGroup.addMember(SubjectTestHelper.SUBJ1);
+      confluenceGroup.addMember(SubjectTestHelper.SUBJ2);
+
+      //the confluence folder has the confluence service tag
+      Stem confluenceFolder = StemFinder.findByName(grouperSession, "apps:confluence", true);
+      confluenceFolder.getAttributeDelegate().assignAttribute(confluenceService);
+      
+      AttributeDef directoryServiceDef = new AttributeDefSave(grouperSession)
+        .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
+        .assignName("apps:directory:directoryServiceDefinition").assignToStem(true).save();
+      
+      directoryService = new AttributeDefNameSave(grouperSession, directoryServiceDef)
+        .assignCreateParentStemsIfNotExist(true)
+        .assignName("apps:directory:directoryService").assignDisplayExtension("MySchool directory").save();
+      
+      Group directoryGroup = new GroupSave(grouperSession)
+        .assignName("apps:directory:users").assignCreateParentStemsIfNotExist(true).save();
+
+      directoryGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+      directoryGroup.grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.READ);
+      directoryGroup.grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.READ);
+      directoryGroup.addMember(SubjectTestHelper.SUBJ2);
+      directoryGroup.addMember(SubjectTestHelper.SUBJ3);
+
+      //the confluence folder has the confluence service tag
+      Stem directoryFolder = StemFinder.findByName(grouperSession, "apps:directory", true);
+      directoryFolder.getAttributeDelegate().assignAttribute(directoryService);
+
+      
+    } finally {
+      GrouperSession.stopQuietly(GrouperServiceUtils.testSession);
+    }
+
+    // ##################### subject 5 can see that subject 0 and 1 are in the jira service...
+
+    
+    GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ5);
+
+    try {
+
+      WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
+          GROUPER_VERSION, "%", null, null, null, null, null, null, null, null, 
+          null, null, null, null, new WsSubjectLookup(SubjectTestHelper.SUBJ0_ID, null, null), ServiceRole.user);
+
+      WsAttributeDefName[] wsAttributeDefNames = wsFindAttributeDefNamesResults.getAttributeDefNameResults();
+      
+      assertEquals(GrouperUtil.toStringForLog(wsAttributeDefNames), 1, GrouperUtil.length(wsAttributeDefNames));
+      assertEquals(jiraService.getId(), wsAttributeDefNames[0].getUuid());
+      
+    } finally {
+      GrouperSession.stopQuietly(GrouperServiceUtils.testSession);
+    }
+    
+    // ##################### subject 5 can see that subject 0 and 1 are in the jira service (LITE)...
+
+    
+    GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ5);
+
+    try {
+
+      WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNamesLite(
+          GROUPER_VERSION, "%", null, null, null, null, null, null, null, null, 
+          null, null, null, null, null, null, null, null, null, null, null, SubjectTestHelper.SUBJ0_ID,null, null, ServiceRole.user);
+
+      WsAttributeDefName[] wsAttributeDefNames = wsFindAttributeDefNamesResults.getAttributeDefNameResults();
+      
+      assertEquals(GrouperUtil.toStringForLog(wsAttributeDefNames), 1, GrouperUtil.length(wsAttributeDefNames));
+      assertEquals(jiraService.getId(), wsAttributeDefNames[0].getUuid());
+      
+    } finally {
+      GrouperSession.stopQuietly(GrouperServiceUtils.testSession);
+    }
+    
+    // ##################### subject 6 can see that subject 0 and 1 are in the jira service...
+
+    GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ6);
+
+    try {
+
+      WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
+          GROUPER_VERSION, "%", null, null, null, null, null, null, null, null, 
+          null, null, null, null, new WsSubjectLookup(SubjectTestHelper.SUBJ0_ID, null, null), ServiceRole.user);
+
+      WsAttributeDefName[] wsAttributeDefNames = wsFindAttributeDefNamesResults.getAttributeDefNameResults();
+      
+      assertEquals(GrouperUtil.toStringForLog(wsAttributeDefNames), 1, GrouperUtil.length(wsAttributeDefNames));
+      assertEquals(jiraService.getId(), wsAttributeDefNames[0].getUuid());
+
+    } finally {
+      GrouperSession.stopQuietly(GrouperServiceUtils.testSession);
+    }
+
+    // ##################### subject 7 cannot see that subject 0 and 1 are in the jira service...
+
+    GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ7);
+
+    try {
+
+      WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
+          GROUPER_VERSION, "%", null, null, null, null, null, null, null, null, 
+          null, null, null, null, new WsSubjectLookup(SubjectTestHelper.SUBJ0_ID, null, null), ServiceRole.user);
+
+      WsAttributeDefName[] wsAttributeDefNames = wsFindAttributeDefNamesResults.getAttributeDefNameResults();
+      
+      assertEquals(GrouperUtil.toStringForLog(wsAttributeDefNames), 0, GrouperUtil.length(wsAttributeDefNames));
+      //assertEquals(jiraService.getId(), wsAttributeDefNames[0].getUuid());
+      
+    } finally {
+      GrouperSession.stopQuietly(GrouperServiceUtils.testSession);
+    }
+    
+    // ##################### GrouperSystem can see that subject 0 and 1 are in the jira service...
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+
+    try {
+
+      WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
+          GROUPER_VERSION, "%", null, null, null, null, null, null, null, null, 
+          null, null, null, null, new WsSubjectLookup(SubjectTestHelper.SUBJ0_ID, null, null), ServiceRole.user);
+
+      WsAttributeDefName[] wsAttributeDefNames = wsFindAttributeDefNamesResults.getAttributeDefNameResults();
+      
+      assertEquals(GrouperUtil.toStringForLog(wsAttributeDefNames), 1, GrouperUtil.length(wsAttributeDefNames));
+      assertEquals(jiraService.getId(), wsAttributeDefNames[0].getUuid());
+
+    } finally {
+      GrouperSession.stopQuietly(GrouperServiceUtils.testSession);
+    }
+    
+    // ##################### GrouperSystem can see that subject 7 is admin of the confluence service...
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+
+    try {
+
+      WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
+          GROUPER_VERSION, "%", null, null, null, null, null, null, null, null, 
+          null, null, null, null, new WsSubjectLookup(null, null, SubjectTestHelper.SUBJ7_IDENTIFIER), ServiceRole.admin);
+
+      WsAttributeDefName[] wsAttributeDefNames = wsFindAttributeDefNamesResults.getAttributeDefNameResults();
+      
+      assertEquals(GrouperUtil.toStringForLog(wsAttributeDefNames), 1, GrouperUtil.length(wsAttributeDefNames));
+      assertEquals(confluenceService.getId(), wsAttributeDefNames[0].getUuid());
+      
+    } finally {
+      GrouperSession.stopQuietly(GrouperServiceUtils.testSession);
+    }
+    
+    // ##################### subject 8 can see that subject 7 is admin of the confluence service...
+
+    GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ8);
+
+    try {
+
+      WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
+          GROUPER_VERSION, "%", null, null, null, null, null, null, null, null, 
+          null, null, null, null, new WsSubjectLookup(null, null, SubjectTestHelper.SUBJ7_IDENTIFIER), ServiceRole.admin);
+
+      WsAttributeDefName[] wsAttributeDefNames = wsFindAttributeDefNamesResults.getAttributeDefNameResults();
+      
+      assertEquals(GrouperUtil.toStringForLog(wsAttributeDefNames), 1, GrouperUtil.length(wsAttributeDefNames));
+      assertEquals(confluenceService.getId(), wsAttributeDefNames[0].getUuid());
+
+    } finally {
+      GrouperSession.stopQuietly(GrouperServiceUtils.testSession);
+    }
+    
+    // ##################### subject 9 cannot see that subject 7 is admin of the confluence service...
+
+    GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ9);
+
+    try {
+
+      WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
+          GROUPER_VERSION, "%", null, null, null, null, null, null, null, null, 
+          null, null, null, null, new WsSubjectLookup(null, null, SubjectTestHelper.SUBJ7_IDENTIFIER), ServiceRole.admin);
+
+      WsAttributeDefName[] wsAttributeDefNames = wsFindAttributeDefNamesResults.getAttributeDefNameResults();
+      
+      assertEquals(GrouperUtil.toStringForLog(wsAttributeDefNames), 0, GrouperUtil.length(wsAttributeDefNames));
+
+    } finally {
+      GrouperSession.stopQuietly(GrouperServiceUtils.testSession);
+    }
+    
   }
 
   /**

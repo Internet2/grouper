@@ -188,6 +188,7 @@ public class WsFindAttributeDefNamesResults implements WsResponseBean, ResultMet
   /**
    * put an attribute def name in the results
    * @param attributeDefNameSet
+   * @param useViewSecurity if doing rules, then you can ignore security on the attributes
    */
   public void assignAttributeDefNameResult(Set<AttributeDefName> attributeDefNameSet) {
     this.setAttributeDefNameResults(WsAttributeDefName.convertAttributeDefNames(attributeDefNameSet));

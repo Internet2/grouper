@@ -77,6 +77,7 @@ public class WsAttributeDefName implements Comparable<WsAttributeDefName> {
   /**
    * convert a set of attribute def names to results
    * @param attributeDefNameSet
+   * @param useViewSecurity true if should check to see if the user can view the services
    * @return the attributeDefNames (null if none or null)
    */
   public static WsAttributeDefName[] convertAttributeDefNames(Set<AttributeDefName> attributeDefNameSet) {

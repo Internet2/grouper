@@ -59,6 +59,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignOperation;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueOperation;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
@@ -78,6 +79,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
@@ -7072,7 +7074,7 @@ public class GrouperServiceLogic {
       Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
           params);
   
-      Set<AttributeDefName> attributeDefNames = new LinkedHashSet<AttributeDefName>();
+      final Set<AttributeDefName> attributeDefNames = new LinkedHashSet<AttributeDefName>();
       
       boolean hasScopeQuery = false;
       
@@ -7121,14 +7123,14 @@ public class GrouperServiceLogic {
 
       }
 
-      if (!wsSubjectLookup.blank() && (serviceRole == null )) {
+      if (wsSubjectLookup != null && !wsSubjectLookup.blank() && (serviceRole == null )) {
 
         throw new WsInvalidQueryException(
           "If you pass in wsSubjectLookup you need to pass in serviceRole");
 
       }
 
-      if (wsSubjectLookup.blank() && (serviceRole != null )) {
+      if (wsSubjectLookup != null && wsSubjectLookup.blank() && (serviceRole != null )) {
 
         throw new WsInvalidQueryException(
           "If you pass in serviceRole you need to pass in wsSubjectLookup");
@@ -7166,9 +7168,11 @@ public class GrouperServiceLogic {
           }
         }
         
-        attributeDefNames.addAll(GrouperDAOFactory.getFactory().getAttributeDefName().findAllAttributeNamesSplitScopeSecure(
-            scope, session, attributeDefId, session.getSubject(), AttributeDefPrivilege.VIEW_PRIVILEGES, 
-            queryOptions, attributeAssignType, attributeDefType));
+        Subject subject = wsSubjectLookup == null ? null : wsSubjectLookup.retrieveSubject();
+        
+        attributeDefNames.addAll(GrouperDAOFactory.getFactory().getAttributeDefName().findAllAttributeNamesSecure(
+            scope, true, session, attributeDefId, subject, AttributeDefPrivilege.VIEW_PRIVILEGES, 
+            queryOptions, attributeAssignType, attributeDefType, serviceRole));
       }
       
       if (hasLookupQuery) {
@@ -7197,7 +7201,21 @@ public class GrouperServiceLogic {
         }        
       }
       
-      wsFindAttributeDefNamesResults.assignAttributeDefNameResult(attributeDefNames);
+      if (serviceRole != null) {
+        
+        //if service role is not equal to null, then we are searching for services
+        GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+          
+          @Override
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+            wsFindAttributeDefNamesResults.assignAttributeDefNameResult(attributeDefNames);
+            return null;
+          }
+        });
+        
+      } else {
+        wsFindAttributeDefNamesResults.assignAttributeDefNameResult(attributeDefNames);
+      }
   
       wsFindAttributeDefNamesResults.assignResultCode(WsFindAttributeDefNamesResultsCode.SUCCESS);
       
