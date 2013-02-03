@@ -2722,6 +2722,10 @@ public class GrouperClient {
     
     String sourceId = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "sourceId", false);
     
+    if (sourceId == null) {
+      sourceId = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "subjectSource", false);
+    }
+    
     // add two subjects to the group
     boolean hasSubjectId = GrouperClientUtils.isNotBlank(subjectId);
     boolean hasSubjectIdentifier = GrouperClientUtils.isNotBlank(subjectIdentifier);
@@ -5158,6 +5162,21 @@ public class GrouperClient {
         for (String attributeDefNameIdIndex: attributeDefNameIdIndexes) {
           gcFindAttributeDefNames.addAttributeDefNameIdIndex(GrouperClientUtils.longValue(attributeDefNameIdIndex));
         }
+      }
+    }
+    
+    {
+      String serviceRole = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "serviceRole", false);
+      if (serviceRole != null) {
+        gcFindAttributeDefNames.assignServiceRole(serviceRole);
+      }
+    }
+
+    {
+      WsSubjectLookup wsSubjectLookup = retrieveSubjectFromArgs(argMap,
+          argMapNotUsed);
+      if (wsSubjectLookup != null) {
+        gcFindAttributeDefNames.assignSubjectLookup(wsSubjectLookup);
       }
     }
     

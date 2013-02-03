@@ -338,6 +338,17 @@ public class WsRestFindAttributeDefNamesRequest implements WsRequestBean {
   /** optional: reserved for future use */
   private  WsParam[] params;
 
+  /**
+   * from ServiceRole enum, which service role you are querying
+   * e.g. admin or user
+   */
+  private String serviceRole;
+
+  /**
+   * subject if looking for privileges or service role
+   */
+  private WsSubjectLookup subjectLookup;
+
   
   
   /**
@@ -354,6 +365,44 @@ public class WsRestFindAttributeDefNamesRequest implements WsRequestBean {
    */
   public void setParams(WsParam[] params1) {
     this.params = params1;
+  }
+
+
+  /**
+   * from ServiceRole enum, which service role you are querying
+   * e.g. admin or user
+   * @return service role
+   */
+  public String getServiceRole() {
+    return this.serviceRole;
+  }
+
+
+  /**
+   * subject if looking for privileges or service role
+   * @return subject
+   */
+  public WsSubjectLookup getSubjectLookup() {
+    return this.subjectLookup;
+  }
+
+
+  /**
+   * from ServiceRole enum, which service role you are querying
+   * e.g. admin or user
+   * @param serviceRole1
+   */
+  public void setServiceRole(String serviceRole1) {
+    this.serviceRole = serviceRole1;
+  }
+
+
+  /**
+   * subject if looking for privileges or service role
+   * @param subjectLookup1
+   */
+  public void setSubjectLookup(WsSubjectLookup subjectLookup1) {
+    this.subjectLookup = subjectLookup1;
   }
 
   

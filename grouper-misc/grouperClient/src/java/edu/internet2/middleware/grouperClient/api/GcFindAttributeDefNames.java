@@ -40,6 +40,36 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 public class GcFindAttributeDefNames {
 
   /**
+   * serviceRole to filter attributes that a user has a certain role
+   */
+  private String serviceRole;
+  
+  /**
+   * serviceRole to filter attributes that a user has a certain role
+   * @param theServiceRole
+   * @return this for chaining
+   */
+  public GcFindAttributeDefNames assignServiceRole(String theServiceRole) {
+    this.serviceRole = theServiceRole;
+    return this;
+  }
+  
+  /**
+   * subject if looking for privileges or service role
+   */
+  private WsSubjectLookup subjectLookup;
+
+  /**
+   * subject lookup if looking for privileges or service role
+   * @param theSubjectLookup
+   * @return this for chaining
+   */
+  public GcFindAttributeDefNames assignSubjectLookup(WsSubjectLookup theSubjectLookup) {
+    this.subjectLookup = theSubjectLookup;
+    return this;
+  }
+  
+  /**
    * if there is one wsAttributeDefNameLookup, and this is specified, then find 
    * the attribute def names which are related to the lookup by this relation, e.g. IMPLIED_BY_THIS, 
    * IMPLIED_BY_THIS_IMMEDIATE, THAT_IMPLY_THIS, THAT_IMPLY_THIS_IMMEDIATE
@@ -331,6 +361,14 @@ public class GcFindAttributeDefNames {
       }
       if (this.splitScope != null) {
         findAttributeDefNames.setSplitScope(this.splitScope ? "T" : "F");
+      }
+      
+      if (this.serviceRole != null) {
+        findAttributeDefNames.setServiceRole(this.serviceRole);
+      }
+      
+      if (this.subjectLookup != null) {
+        findAttributeDefNames.setSubjectLookup(this.subjectLookup);
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
