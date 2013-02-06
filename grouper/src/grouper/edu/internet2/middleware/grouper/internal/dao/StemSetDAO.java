@@ -60,6 +60,13 @@ public interface StemSetDAO extends GrouperDAO {
    * @return the stem sets
    */
   public Set<StemSet> findByIfHasStemId(String id);
+  
+  /**
+   * find by if has stem ids
+   * @param ids
+   * @return the stem sets
+   */
+  public Set<StemSet> findByIfHasStemIds(Collection ids);
 
   /**
    * find by then has stem id
@@ -106,4 +113,9 @@ public interface StemSetDAO extends GrouperDAO {
    */
   public StemSet findByIfThenImmediate(String stemIdIf, 
       String stemIdThen, boolean exceptionIfNotFound) throws StemSetNotFoundException;
+  
+  /**
+   * @return stems that are missing self stem sets.  First element of the array is the stemId, second is the parentStemId
+   */
+  public Set<Object[]> findMissingSelfStemSets();
 }

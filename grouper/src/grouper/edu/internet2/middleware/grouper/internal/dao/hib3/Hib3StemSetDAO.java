@@ -15,8 +15,13 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -32,6 +37,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.StemSetDAO;
 import edu.internet2.middleware.grouper.stem.StemSet;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Data Access Object for stem set
@@ -97,6 +103,44 @@ public class Hib3StemSetDAO extends Hib3DAO implements StemSetDAO {
       .createQuery("from StemSet where ifHasStemId = :theId")
       .setString("theId", id).listSet(StemSet.class);
     return stemSets;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.StemSetDAO#findByIfHasStemIds(java.util.Collection)
+   */
+  public Set<StemSet> findByIfHasStemIds(Collection ids) {
+    int idsSize = GrouperUtil.length(ids);
+    
+    Set<StemSet> results = new HashSet<StemSet>();
+    
+    if (idsSize == 0) {
+      return results;
+    }
+    
+    List<String> idsList = new ArrayList<String>(ids);
+    
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(idsSize, 100);
+    
+    //if there are more than 100, batch these up and return them
+    for (int i = 0; i < numberOfBatches; i++) {
+      
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+      StringBuilder sql = new StringBuilder("from StemSet where ");
+      
+      List<String> currentBatch = GrouperUtil.batchList(idsList, 100, i);
+      
+      sql.append(" ifHasStemId in (");
+      sql.append(HibUtils.convertToInClause(currentBatch, byHqlStatic));
+      sql.append(") ");
+    
+      Set<StemSet> localResult = byHqlStatic.createQuery(sql.toString())
+        .listSet(StemSet.class);
+      
+      results.addAll(localResult);
+    }
+
+    return results;
   }
 
   /**
@@ -224,12 +268,39 @@ public class Hib3StemSetDAO extends Hib3DAO implements StemSetDAO {
                 .setString("id", id).executeUpdate();
             }
             
-            for (StemSet stemSet : findByIfHasStemId(id)) {
+            List<StemSet> stemSets = new ArrayList<StemSet>(findByIfHasStemId(id));
+            
+            // sort by depth desc
+            Collections.sort(stemSets, new Comparator<StemSet>() {
+
+              public int compare(StemSet o1, StemSet o2) {
+                return ((Integer)o2.getDepth()).compareTo(o1.getDepth());
+              }
+            });
+            
+            for (StemSet stemSet : stemSets) {
               stemSet.delete();
             }
             
             return null;
           }
     });
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.StemSetDAO#findMissingSelfStemSets()
+   */
+  public Set<Object[]> findMissingSelfStemSets() {
+    String sql = "select s.uuid, s.parentUuid from Stem as s " +
+      "where not exists " +
+      "(select 1 from StemSet as ss where ss.ifHasStemId = s.id and ss.depth='0') " +
+      "order by s.nameDb";
+  
+    Set<Object[]> missing = HibernateSession
+      .byHqlStatic()
+      .createQuery(sql)
+      .listSet(Object[].class);
+    
+    return missing;
   }
 }

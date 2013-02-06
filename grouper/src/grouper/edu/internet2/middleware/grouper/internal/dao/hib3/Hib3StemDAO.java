@@ -232,7 +232,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     
     createGroupSetsForStem(_child);
     
-    createStemSetsForStem(_child);
+    createStemSetsForStem(_child.getUuid(), _child.getParentUuid());
   } 
 
 
@@ -254,13 +254,14 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     
     createGroupSetsForStem(_root);
     
-    createStemSetsForStem(_root);
+    createStemSetsForStem(_root.getUuid(), _root.getParentUuid());
   } 
   
   /**
-   * @param stem
+   * @param stemId
+   * @param parentStemId
    */
-  private void createStemSetsForStem(Stem stem) {
+  public void createStemSetsForStem(String stemId, String parentStemId) {
     
     List<StemSet> allStemSets = new LinkedList<StemSet>();
 
@@ -274,17 +275,17 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     StemSet selfStemSet = new StemSet();
     selfStemSet.setId(GrouperUuid.getUuid());
     selfStemSet.setDepth(0);
-    selfStemSet.setIfHasStemId(stem.getUuid());
-    selfStemSet.setThenHasStemId(stem.getUuid());
+    selfStemSet.setIfHasStemId(stemId);
+    selfStemSet.setThenHasStemId(stemId);
     selfStemSet.setType(StemHierarchyType.self);
     selfStemSet.setParentStemSetId(selfStemSet.getId());
     
     allStemSets.add(selfStemSet);
    
     // now find ancestor stems
-    if (stem.getParentUuid() != null) {
-      Set<StemSet> stemSets = GrouperDAOFactory.getFactory().getStemSet().findByIfHasStemId(stem.getParentUuid());
-      allStemSets.addAll(createNonSelfStemSetsForStem(new LinkedList<StemSet>(stemSets), stem.getUuid(), selfStemSet));
+    if (parentStemId != null) {
+      Set<StemSet> stemSets = GrouperDAOFactory.getFactory().getStemSet().findByIfHasStemId(parentStemId);
+      allStemSets.addAll(createNonSelfStemSetsForStem(new LinkedList<StemSet>(stemSets), stemId, selfStemSet));
     }
     
     for (int i = 0; i < GrouperUtil.batchNumberOfBatches(allStemSets, batchSize); i++) {
