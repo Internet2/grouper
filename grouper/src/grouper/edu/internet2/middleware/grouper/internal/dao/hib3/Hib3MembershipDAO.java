@@ -71,6 +71,7 @@ import edu.internet2.middleware.grouper.member.SortStringEnum;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.service.ServiceRole;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -516,7 +517,6 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     
   }
     
-    
   /**
    * 
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean, Boolean)
@@ -525,6 +525,20 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       Collection<String> totalMembershipIds, MembershipType membershipType,
       Field field,  
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean checkSecurity) {
+    return findAllByGroupOwnerOptions(totalGroupIds, totalMemberIds,
+        totalMembershipIds, membershipType,
+        field, sources, scope, stem, stemScope, enabled, checkSecurity, null, null);
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean, Boolean, String, ServiceRole)
+   */
+  public Set<Object[]> findAllByGroupOwnerOptions(Collection<String> totalGroupIds, Collection<String> totalMemberIds,
+      Collection<String> totalMembershipIds, MembershipType membershipType,
+      Field field,  
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean checkSecurity, 
+      String serviceId, ServiceRole serviceRole) {
     
     if (checkSecurity == null) {
       checkSecurity = Boolean.TRUE;
@@ -534,6 +548,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       throw new RuntimeException("If stem is set, then stem scope must be set.  If stem isnt set, then stem scope must not be set: " + stem + ", " + stemScope);
     }
 
+    if (StringUtils.isBlank(serviceId) != (serviceRole == null)) {
+      throw new RuntimeException("If serviceId is set, then serviceRole needs to be set, and vice versa");
+    }
+    
     List<String> totalGroupIdsList = GrouperUtil.listFromCollection(totalGroupIds);
     List<String> totalMemberIdsList = GrouperUtil.listFromCollection(totalMemberIds);
     List<String> totalMembershipIdsList = GrouperUtil.listFromCollection(totalMembershipIds);
@@ -565,7 +583,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           int memberIdsSize = GrouperUtil.length(memberIds);
           int membershipIdsSize = GrouperUtil.length(membershipIds);
           
-          if (groupIdsSize == 0 && memberIdsSize == 0 && membershipIdsSize == 0 && stem == null) {
+          if (groupIdsSize == 0 && memberIdsSize == 0 && membershipIdsSize == 0 && stem == null && serviceRole == null) {
             throw new RuntimeException("Must pass in group(s), member(s), stem, and/or membership(s)");
           }
 
@@ -576,11 +594,20 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           
           StringBuilder sql = new StringBuilder(" from Member m, MembershipEntry ms, Group g ");
           
-          //we need to make sure it is a list type field
+          //we need to make sure it is a list type field if the field ID is not sent in
           if (field == null) {
             sql.append(", Field f ");
           }
+
+          if (serviceRole == null != StringUtils.isBlank(serviceId)) {
+            throw new RuntimeException("If you pass in the serviceRole you must pass in the serviceId and visa versa");
+          }
           
+          if (serviceRole != null) {
+            sql.append(", ServiceRoleView theServiceRoleView ");
+
+          }
+
           //maybe we are checking security, maybe not
           boolean changedQuery = false;
           
@@ -589,7 +616,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
               grouperSessionSubject, byHqlStatic, 
               sql, "ms.ownerGroupId", AccessPrivilege.READ_PRIVILEGES);
           }
-          
+
           if (!changedQuery) {
             sql.append(" where ");
           } else {
@@ -598,6 +625,15 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           
           sql.append(" ms.ownerGroupId = g.uuid "
               + " and ms.memberUuid = m.uuid ");
+          
+          if (serviceRole != null) {
+            sql.append(" and ms.ownerGroupId = theServiceRoleView.groupId ");
+            sql.append(" and f.uuid = theServiceRoleView.fieldId ");
+            HibUtils.convertFieldsToSqlInString(serviceRole.fieldsForGroupQuery(), byHqlStatic, sql, "theServiceRoleView.fieldId");
+            sql.append(" and theServiceRoleView.serviceNameId = :serviceNameId ");
+            byHqlStatic.setString("serviceNameId", serviceId);
+          }
+          
           if (enabled != null && enabled) {
             sql.append(" and ms.enabledDb = 'T' ");
           }
@@ -634,6 +670,9 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             sql.append(" and ms.type ").append(membershipType.queryClause()).append(" ");
           }
           if (field != null) {
+            if (serviceRole != null) {
+              throw new RuntimeException("If you specify the field, you cannot specify the serviceRole (and vice versa)");
+            }
             //needs to be a members field
             if (!StringUtils.equals("list",field.getTypeString())) {
               throw new RuntimeException("This method only works with members fields: " + field);
@@ -641,8 +680,11 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             sql.append(" and ms.fieldId = :fieldId ");
             byHqlStatic.setString("fieldId", field.getUuid());
           } else {
-            //add on the column
-            sql.append(" and ms.fieldId = f.uuid and f.typeString = 'list' ");
+            sql.append(" and ms.fieldId = f.uuid ");
+            if (serviceRole == null) {
+              //add on the column
+              sql.append(" and f.typeString = 'list' ");
+            }
           }
           if (groupIdsSize > 0) {
             sql.append(" and ms.ownerGroupId in (");

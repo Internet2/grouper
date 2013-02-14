@@ -548,8 +548,6 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       }
       
       //must be a service type
-      
-      
       whereClause.append(" and theAttributeDefName.id = theServiceRoleView.serviceNameId ");
 
       changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(

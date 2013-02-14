@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.service.ServiceRole;
 import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
@@ -98,6 +99,34 @@ public class MembershipFinder {
   /** if we should check security */
   private boolean checkSecurity = true;
 
+  /** if filtering by service role, this is the service id (id of the attributeDefName for service */
+  private String serviceId = null; 
+
+  /**
+   * if filtering by serviceRole, this is the role, e.g. user or admin
+   */
+  private ServiceRole serviceRole = null;
+
+  /**
+   * if filtering by service role, this is the service id (id of the attributeDefName for service
+   * @param serviceId1
+   * @return this for chaining
+   */
+  public MembershipFinder assignServiceId(String serviceId1) {
+    this.serviceId = serviceId1;
+    return this;
+  }
+  
+  /**
+   * if filtering by service role, this is the service id (id of the attributeDefName for service
+   * @param serviceRole1
+   * @return this for chaining
+   */
+  public MembershipFinder assignServiceRole(ServiceRole serviceRole1) {
+    this.serviceRole = serviceRole1;
+    return this;
+  }
+  
   /**
    * assign a stem scope to look in
    * @param theStemScope
@@ -287,7 +316,8 @@ public class MembershipFinder {
   public Set<Object[]> findMembershipsGroupsMembers() {
 
     return edu.internet2.middleware.grouper.MembershipFinder.findMemberships(this.groupIds, this.memberIds, 
-        this.membershipIds, this.membershipType, this.field, this.sources, null, this.stem, this.stemScope, this.enabled, this.checkSecurity);
+        this.membershipIds, this.membershipType, this.field, this.sources, null, this.stem, this.stemScope, 
+        this.enabled, this.checkSecurity, this.serviceId, this.serviceRole);
     
   }
 
@@ -378,6 +408,7 @@ public class MembershipFinder {
     
   }
   
+  
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean)
    * @param groupIds to limit memberships to (cant have more than 100 bind variables)
@@ -396,9 +427,39 @@ public class MembershipFinder {
   public static Set<Object[]> findMemberships(Collection<String> groupIds, Collection<String> memberIds,
       Collection<String> membershipIds, MembershipType membershipType,
       Field field,  
-      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean shouldCheckSecurity) {
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, 
+      Boolean shouldCheckSecurity) {
+
+    return findMemberships(groupIds, memberIds, membershipIds, membershipType, field, 
+        sources, scope, stem, stemScope, enabled, shouldCheckSecurity, null, null);
+  
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean)
+   * @param groupIds to limit memberships to (cant have more than 100 bind variables)
+   * @param memberIds to limit memberships to (cant have more than 100 bind variables)
+   * @param membershipIds to limit memberships to (cant have more than 100 bind variables)
+   * @param membershipType Immediate, NonImmediate, etc
+   * @param field if finding one field, list here, otherwise all list fields will be returned
+   * @param sources if limiting memberships of members in certain sources, list here
+   * @param scope sql like string which will have a % appended to it
+   * @param stem if looking in a certain stem
+   * @param stemScope if looking only in this stem, or all substems
+   * @param enabled null for all, true for enabled only, false for disabled only
+   * @param shouldCheckSecurity if we should check security, default to true
+   * @param serviceId is the id of the service (attributeDefName) if filtering memberships of people in a service
+   * @param serviceRole is the user/admin role of the user in the service
+   * @return the set of arrays of Membership, Group, and Member
+   */
+  public static Set<Object[]> findMemberships(Collection<String> groupIds, Collection<String> memberIds,
+      Collection<String> membershipIds, MembershipType membershipType,
+      Field field,  
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean shouldCheckSecurity,
+      String serviceId, ServiceRole serviceRole) {
     return GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(groupIds, memberIds,
-        membershipIds, membershipType, field, sources, scope, stem, stemScope, enabled, shouldCheckSecurity);  
+        membershipIds, membershipType, field, sources, scope, stem, stemScope, enabled, shouldCheckSecurity, 
+        serviceId, serviceRole);  
   }
   
   /**

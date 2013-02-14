@@ -47,7 +47,7 @@ public class MembershipResult {
   private Map<String, Group> groups;
 
   /**
-   * member
+   * member uuid to member
    */
   private Map<String, Member> members;
 
@@ -148,6 +148,14 @@ public class MembershipResult {
     
   }
   
+  /**
+   * get the members from the result
+   * @return the members
+   */
+  public Set<Member> members() {
+    return new HashSet(this.members.values());
+  }
+
   /**
    * find the group names for the membership result in a certain stem
    * @param subject
