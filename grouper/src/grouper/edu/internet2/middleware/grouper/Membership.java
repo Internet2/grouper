@@ -1683,6 +1683,10 @@ public class Membership extends GrouperAPI implements
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
     
+    if (this.isEffective()) {
+      throw new RuntimeException("Unexpected save attempt of effective membership.");
+    }
+    
     if (this.isImmediate()) {
       
       // validate the immediate membership
@@ -2312,6 +2316,10 @@ public class Membership extends GrouperAPI implements
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
     
+    if (this.isEffective()) {
+      throw new RuntimeException("Unexpected deletion attempt of effective membership.");
+    }
+    
     if (this.isImmediate()) {
       // high level membership hooks
       GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
@@ -2331,6 +2339,10 @@ public class Membership extends GrouperAPI implements
   @Override
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
+    
+    if (this.isEffective()) {
+      throw new RuntimeException("Unexpected update attempt on effective membership.");
+    }
     
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_PRE_UPDATE, HooksMembershipBean.class, 
