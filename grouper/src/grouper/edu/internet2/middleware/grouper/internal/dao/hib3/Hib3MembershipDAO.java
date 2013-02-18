@@ -2010,6 +2010,28 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   }
 
   /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllImmediateByAttrDefOwnerAsList(java.lang.String, boolean)
+   */
+  public List<Membership> findAllImmediateByAttrDefOwnerAsList(String attrDefId,
+      boolean enabledOnly) throws GrouperDAOException {
+    StringBuilder sql = new StringBuilder(
+        "select ms, m from MembershipEntry as ms, Member as m where ms.ownerAttrDefId = :owner and ms.type = :type "
+          + "and ms.memberUuid = m.uuid");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
+    List<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS)
+      .setString("owner", attrDefId)
+      .setString( "type",   MembershipType.IMMEDIATE.getTypeString()   )
+      .list(Object[].class);
+    return _getMembershipsFromMembershipAndMemberQueryAsList(mships);
+  }
+  
+  /**
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByAttrDefOwnerAndMember(java.lang.String, java.lang.String, boolean)
    */
   public Set<Membership> findAllByAttrDefOwnerAndMember(String ownerAttrDefId,
