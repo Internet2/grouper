@@ -36,10 +36,13 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.role.Role;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -303,6 +306,127 @@ public enum RuleThenEnum {
     }
     
   }, 
+
+  reassignGroupPrivilegesIfFromGroup {
+
+    /**
+     * @see RuleThenEnum#validate(RuleDefinition)
+     */
+    @Override
+    public String validate(RuleDefinition ruleDefinition) {
+
+      if (!StringUtils.isBlank(ruleDefinition.getThen().getThenEnumArg2())) {
+        return "ruleThenEnumArg2 should not be entered for this ruleThenEnum: " + this.name();
+      }
+
+      if (!StringUtils.isBlank(ruleDefinition.getThen().getThenEnumArg1())) {
+        return "ruleThenEnumArg1 should not be entered for this ruleThenEnum: " + this.name();
+      }
+
+      if (!StringUtils.isBlank(ruleDefinition.getThen().getThenEnumArg1())) {
+        return "ruleThenEnumArg0 should not be entered for this ruleThenEnum: " + this.name();
+      }
+
+      return null;
+    }
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleThenEnum#fireRule(edu.internet2.middleware.grouper.rules.RuleDefinition, edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     */
+    @Override
+    public Object fireRule(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
+        RulesBean rulesBean, StringBuilder logDataForThisDefinition) {
+
+      Group group = rulesBean.getGroup();
+      
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("reassignGroupPrivilegesIfFromGroup: from group: " + group);
+      }
+      
+      //get the subject that did this
+      Subject subjectUnderlyingSession = rulesBean.getSubjectUnderlyingSession();
+      
+      //this shouldnt ever be null
+      if (subjectUnderlyingSession == null) {
+        throw new NullPointerException("Why is there no subject in grouper session???");
+      }
+
+      //get the stem of the parent of this group
+      Stem stem = group.getParentStem();
+      
+      Set<Subject> creators = stem.getCreators();
+      
+      Set<Subject> creatorsAreNonWheelGroups = new HashSet<Subject>();
+
+      Group wheelGroup = null;
+      boolean calculatedWheelGroup = false;
+      
+      //lets see which ones are groups
+      for (Subject creator : GrouperUtil.nonNull(creators)) {
+        
+        if (!StringUtils.equals("g:gsa", creator.getSourceId())) {
+          continue;
+        }
+        
+        //ok, we have a group, is the session user a member of the group?
+        Group creatorGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), creator.getId(), false);
+        if (!creatorGroup.hasMember(subjectUnderlyingSession)) {
+          continue;
+        }
+        
+        //lets see if this is the wheel group
+        if (!calculatedWheelGroup) {
+          if (GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_USE_WHEEL_GROUP, false)) {
+            String wheelGroupName = GrouperConfig.getProperty( GrouperConfig.PROP_WHEEL_GROUP );
+            if (!StringUtils.isBlank(wheelGroupName)) {
+              wheelGroup = GroupFinder.findByName( GrouperSession.staticGrouperSession(), wheelGroupName, true );
+            }
+          }
+          calculatedWheelGroup = true;
+        }
+        
+        //if wheel
+        if (wheelGroup != null) {
+
+          //dont worry about wheel groups
+          if (StringUtils.equals(wheelGroup.getId(), creator.getId())) {
+            continue;
+          }
+          
+          //dont worry if group is a member of the wheel gropu
+          if (wheelGroup.hasMember(creator)) {
+            continue;
+          }
+          
+        }
+        
+        //ok, we have a group to do this with
+        creatorsAreNonWheelGroups.add(creator);
+        
+      }
+      
+      boolean result = false;
+      
+      //if we found a group to use, or if user is wheel or root
+      if (creatorsAreNonWheelGroups.size() > 0 || PrivilegeHelper.isWheelOrRoot(subjectUnderlyingSession)) {
+        
+        //unassign the subject as admin
+        group.revokePriv(subjectUnderlyingSession, AccessPrivilege.ADMIN, false);
+        
+        result = true;
+        
+      }
+      
+      //assign admin for the groups which have create
+      for (Subject creatorNonWheelGroup : creatorsAreNonWheelGroups) {
+        group.grantPriv(creatorNonWheelGroup, AccessPrivilege.ADMIN, false);
+      }
+      
+      return result;
+    }
+
+  },
   
   /** assign privilege(s) to subject on the group being acted on (groupId) */
   assignGroupPrivilegeToGroupId {

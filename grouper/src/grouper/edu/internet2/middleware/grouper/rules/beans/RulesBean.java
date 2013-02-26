@@ -32,6 +32,27 @@ import edu.internet2.middleware.subject.Subject;
 public abstract class RulesBean {
 
   /**
+   * subject of the original grouper session (or null if none)
+   */
+  private Subject subjectUnderlyingSession;
+  
+  /**
+   * subject of the original grouper session (or null if none)
+   * @return the subject
+   */
+  public Subject getSubjectUnderlyingSession() {
+    return this.subjectUnderlyingSession;
+  }
+
+  /**
+   * subject of the original grouper session (or null if none)
+   * @param subjectOriginalSession1
+   */
+  public void setSubjectUnderlyingSession(Subject subjectOriginalSession1) {
+    this.subjectUnderlyingSession = subjectOriginalSession1;
+  }
+
+  /**
    * if has group
    * @return true or false
    */

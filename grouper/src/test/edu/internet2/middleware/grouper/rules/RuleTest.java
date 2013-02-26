@@ -95,7 +95,7 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleTest("testRuleLonghandStemScopeSubCreateAttributeDefAsGrouperSystem"));
+    TestRunner.run(new RuleTest("testRuleLonghandStemScopeSubCreateGroupNormalizePrivileges"));
     //TestRunner.run(RuleTest.class);
   }
 
@@ -726,6 +726,142 @@ public class RuleTest extends GrouperTest {
     
   }
 
+
+  
+  /**
+   * 
+   */
+  public void testRuleLonghandStemScopeSubCreateGroupNormalizePrivileges() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem2 = new StemSave(grouperSession).assignName("stem2").assignCreateParentStemsIfNotExist(true).save();
+    Stem stem2sub = new StemSave(grouperSession).assignName("stem2:sub").assignCreateParentStemsIfNotExist(true).save();
+    Stem stem2sub2 = new StemSave(grouperSession).assignName("stem2:sub2").assignCreateParentStemsIfNotExist(true).save();
+    Stem stem2sub3 = new StemSave(grouperSession).assignName("stem2:sub3").assignCreateParentStemsIfNotExist(true).save();
+    Stem stem2sub4 = new StemSave(grouperSession).assignName("stem2:sub4").assignCreateParentStemsIfNotExist(true).save();
+    Stem stem2sub5 = new StemSave(grouperSession).assignName("stem2:sub5").assignCreateParentStemsIfNotExist(true).save();
+    Stem stem1 = new StemSave(grouperSession).assignName("stem1").assignCreateParentStemsIfNotExist(true).save();
+
+    Group stem1admins = new GroupSave(grouperSession).assignName("stem1:admins").assignCreateParentStemsIfNotExist(true).save();
+    Group stem1admins2 = new GroupSave(grouperSession).assignName("stem1:admins2").assignCreateParentStemsIfNotExist(true).save();
+    Group stem2sub3wheel = new GroupSave(grouperSession).assignName("stem2:sub3wheel").assignCreateParentStemsIfNotExist(true).save();
+
+    ApiConfig.testConfig.put("groups.wheel.use", "true");
+    Group wheelGroup = new GroupSave(grouperSession).assignName("etc:sysadmingroup").assignCreateParentStemsIfNotExist(true).save();
+
+    //subject 0 is wheel
+    wheelGroup.addMember(SubjectTestHelper.SUBJ0);
+    wheelGroup.addMember(stem2sub3wheel.toSubject());
+
+    //subject 1 is indirect wheel
+    stem2sub3wheel.addMember(SubjectTestHelper.SUBJ1);
+    
+    //subject 2 is stem1admin
+    stem1admins.addMember(SubjectTestHelper.SUBJ2);
+    
+    //subject 3 is stem1admins2
+    stem1admins2.addMember(SubjectTestHelper.SUBJ3);
+    
+    //subject4 is not in a group
+    
+    //subject5 is in stem1admins and stem1admins2
+    stem1admins.addMember(SubjectTestHelper.SUBJ5);
+    stem1admins2.addMember(SubjectTestHelper.SUBJ5);
+    
+    //stem2 is admined by stem1admins
+    stem2.grantPriv(stem1admins.toSubject(), NamingPrivilege.CREATE);
+
+    //stem2sub is admined by stem1admins2
+    stem2sub.grantPriv(stem1admins2.toSubject(), NamingPrivilege.CREATE);
+    
+    //stem2sub2 is not admined by a group
+
+    //stem1 is admined by stem1admin
+    stem1.grantPriv(stem1admins.toSubject(), NamingPrivilege.CREATE);
+
+    //stem2sub3 is admined by stem1admins2
+    stem2sub3.grantPriv(stem2sub3wheel.toSubject(), NamingPrivilege.CREATE);
+    
+    //stem2sub4 is admined by wheel
+    stem2sub4.grantPriv(wheelGroup.toSubject(), NamingPrivilege.CREATE);
+
+    //stem2sub5 is admined by two groups
+    stem2sub5.grantPriv(stem1admins.toSubject(), NamingPrivilege.CREATE);
+    stem2sub5.grantPriv(stem1admins2.toSubject(), NamingPrivilege.CREATE);
+    
+
+    Group groupA = new GroupSave(grouperSession).assignName("stem1:admins").assignCreateParentStemsIfNotExist(true).save();
+
+    groupA.addMember(SubjectTestHelper.SUBJ0);
+    
+    
+    //add a rule on stem2 saying if you create a group underneath, then remove admin if in another group which has create on stem
+    AttributeAssign attributeAssign = stem2
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+    
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.groupCreate.name());
+    
+    //can be SUB or ONE for if in this folder, or in this and all subfolders
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckStemScopeName(), Stem.Scope.SUB.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.reassignGroupPrivilegesIfFromGroup.name());
+    
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    
+    Group groupB = new GroupSave(grouperSession).assignName("stem2:b").assignCreateParentStemsIfNotExist(true).save();
+
+    //count rule firings
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+
+    Group stem2testGroup = new GroupSave(grouperSession).assignName("stem2:testGroup").assignCreateParentStemsIfNotExist(true).save();
+
+    //make sure allowed
+    
+
+    
+    assertTrue(groupB.hasUpdate(SubjectTestHelper.SUBJ0));
+    assertTrue(groupB.hasRead(SubjectTestHelper.SUBJ0));
+    
+    
+    Group groupD = new GroupSave(grouperSession).assignName("stem3:d").assignCreateParentStemsIfNotExist(true).save();
+
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    assertFalse(groupD.hasUpdate(SubjectTestHelper.SUBJ0));
+    assertFalse(groupD.hasRead(SubjectTestHelper.SUBJ0));
+    
+    
+    Group groupC = new GroupSave(grouperSession).assignName("stem2:sub:c").assignCreateParentStemsIfNotExist(true).save();
+
+    assertEquals(initialFirings+2, RuleEngine.ruleFirings);
+
+    assertTrue(groupC.hasRead(SubjectTestHelper.SUBJ0));
+    assertTrue(groupC.hasUpdate(SubjectTestHelper.SUBJ0));
+
+
+    // GrouperSession.startRootSession();
+    // addMember("stem:a", "test.subject.0");
+    // addMember("stem:b", "test.subject.0");
+    // delMember("stem:b", "test.subject.0");
+    // hasMember("stem:a", "test.subject.0");
+    
+  }
 
 
   
