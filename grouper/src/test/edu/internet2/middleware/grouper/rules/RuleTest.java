@@ -736,6 +736,7 @@ public class RuleTest extends GrouperTest {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     Stem stem2 = new StemSave(grouperSession).assignName("stem2").assignCreateParentStemsIfNotExist(true).save();
     Stem stem2sub = new StemSave(grouperSession).assignName("stem2:sub").assignCreateParentStemsIfNotExist(true).save();
+    @SuppressWarnings("unused")
     Stem stem2sub2 = new StemSave(grouperSession).assignName("stem2:sub2").assignCreateParentStemsIfNotExist(true).save();
     Stem stem2sub3 = new StemSave(grouperSession).assignName("stem2:sub3").assignCreateParentStemsIfNotExist(true).save();
     Stem stem2sub4 = new StemSave(grouperSession).assignName("stem2:sub4").assignCreateParentStemsIfNotExist(true).save();
@@ -1012,8 +1013,30 @@ public class RuleTest extends GrouperTest {
     GrouperSession.stopQuietly(grouperSession);
 
     
+    //################################## SUBJ 4 stem2 NO WHEEL
+    ApiConfig.testConfig.put("groups.wheel.use", "false");
+    ApiConfig.testConfig.put("groups.wheel.group", "");
+
+    initialFirings = RuleEngine.ruleFirings;
     
-    //test without wheel group!
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ4);
+    
+    stem2testGroup = new GroupSave(grouperSession).assignName("stem2:testGroup").assignCreateParentStemsIfNotExist(true).save();
+
+    //count rule firings
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+
+    assertTrue(PrivilegeHelper.hasImmediatePrivilege(stem2testGroup, SubjectTestHelper.SUBJ4, AccessPrivilege.ADMIN));
+    assertTrue(stem2testGroup.hasAdmin(SubjectTestHelper.SUBJ4));
+    
+    stem2testGroup.delete();
+    
+    GrouperSession.stopQuietly(grouperSession);
+
+    
+    
+    
+
   }
   
   /**

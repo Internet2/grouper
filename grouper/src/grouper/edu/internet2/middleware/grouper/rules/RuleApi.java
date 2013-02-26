@@ -40,6 +40,41 @@ import edu.internet2.middleware.subject.Subject;
 public class RuleApi {
 
   /**
+   * normalize privileges if the user who creates a group is in a group which has create privilegs on the stem
+   * @param actAs
+   * @param ruleStem
+   * @return the attribute assignment
+   */
+  public static AttributeAssign reassignGroupPrivilegesIfFromGroup(Subject actAs, Stem ruleStem) {
+    AttributeAssign attributeAssign = ruleStem
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+  
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+    
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), actAs.getSourceId());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), actAs.getId());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.groupCreate.name());
+    
+    //can be SUB or ONE for if in this folder, or in this and all subfolders
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckStemScopeName(), Stem.Scope.SUB.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.reassignGroupPrivilegesIfFromGroup.name());
+    
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+  
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+    return attributeAssign;
+  }
+  
+  /**
    * 
    * @param actAs
    * @param ruleGroup
