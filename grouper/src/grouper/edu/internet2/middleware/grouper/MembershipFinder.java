@@ -43,6 +43,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -50,6 +51,7 @@ import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
@@ -356,6 +358,57 @@ public class MembershipFinder {
   }
 
   /**
+   * Return the immediate membership if it exists.  
+   * 
+   * An immediate member is directly assigned to a stem.
+   * A stem can have potentially unlimited effective 
+   * memberships
+   * 
+   * <p/>
+   * <pre class="eg">
+   * </pre>
+   * @param   s     Get membership within this session context.
+   * @param   stem     Immediate membership has this group.
+   * @param   subj  Immediate membership has this subject.
+   * @param   f     Immediate membership has this list.
+   * @param exceptionIfNotFound
+   * @return  A {@link Membership} object
+   * @throws  MembershipNotFoundException 
+   * @throws  SchemaException
+   */
+  public static Membership findImmediateMembership(
+    GrouperSession s, Stem stem, Subject subj, Field f, boolean exceptionIfNotFound
+  ) throws  MembershipNotFoundException, SchemaException {
+    //note, no need for GrouperSession inverse of control
+    // @filtered  true
+    // @session   true
+    GrouperSession.validate(s);
+    try {
+      Member      m   = MemberFinder.findBySubject(s, subj, true);
+      Membership  ms  = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType( 
+          stem.getUuid(), m.getUuid(), f, MembershipType.IMMEDIATE.getTypeString(), true, true);
+      PrivilegeHelper.dispatch( s, ms.getStem(), s.getSubject(), f.getReadPriv() );
+      return ms;
+    } catch (MembershipNotFoundException mnfe)         {
+      if (exceptionIfNotFound) {
+        throw mnfe;
+      }
+      return null;
+    } catch (StemNotFoundException eGNF)         {
+      //not sure why this should happen in a non-corrupt db
+      if (exceptionIfNotFound) {
+        throw new MembershipNotFoundException(eGNF.getMessage(), eGNF);
+      }
+      return null;
+    } catch (InsufficientPrivilegeException eIP)  {
+      if (exceptionIfNotFound) {
+        throw new MembershipNotFoundException(eIP.getMessage(), eIP);
+      }
+      return null;
+    }
+  }
+
+  /**
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean)
    * @param groupIds to limit memberships to (cant have more than 100 bind variables)
    * @param memberIds to limit memberships to (cant have more than 100 bind variables)
@@ -627,6 +680,58 @@ public class MembershipFinder {
       }
       return null;
     } catch (GroupNotFoundException eGNF)         {
+      //not sure why this should happen in a non-corrupt db
+      if (exceptionIfNotFound) {
+        throw new MembershipNotFoundException(eGNF.getMessage(), eGNF);
+      }
+      return null;
+    } catch (InsufficientPrivilegeException eIP)  {
+      if (exceptionIfNotFound) {
+        throw new MembershipNotFoundException(eIP.getMessage(), eIP);
+      }
+      return null;
+    }
+  }
+
+
+  /**
+   * Return the immediate membership if it exists.  
+   * 
+   * An immediate member is directly assigned to an attributeDef.
+   * An attributeDef can have potentially unlimited effective 
+   * memberships
+   * 
+   * <p/>
+   * <pre class="eg">
+   * </pre>
+   * @param   s     Get membership within this session context.
+   * @param    SchemaException     Immediate membership has this attribute def.
+   * @param   subj  Immediate membership has this subject.
+   * @param   f     Immediate membership has this list.
+   * @param exceptionIfNotFound
+   * @return  A {@link Membership} object
+   * @throws  MembershipNotFoundException 
+   * @throws  SchemaException
+   */
+  public static Membership findImmediateMembership(
+    GrouperSession s, AttributeDef attributeDef, Subject subj, Field f, boolean exceptionIfNotFound
+  ) throws  MembershipNotFoundException, SchemaException {
+    //note, no need for GrouperSession inverse of control
+    // @filtered  true
+    // @session   true
+    GrouperSession.validate(s);
+    try {
+      Member      m   = MemberFinder.findBySubject(s, subj, true);
+      Membership  ms  = GrouperDAOFactory.getFactory().getMembership().findByAttrDefOwnerAndMemberAndFieldAndType(
+          attributeDef.getUuid(), m.getUuid(), f, MembershipType.IMMEDIATE.getTypeString(), true, true);
+      PrivilegeHelper.dispatch( s, ms.getAttributeDef(), s.getSubject(), f.getReadPriv() );
+      return ms;
+    } catch (MembershipNotFoundException mnfe)         {
+      if (exceptionIfNotFound) {
+        throw mnfe;
+      }
+      return null;
+    } catch (AttributeDefNotFoundException eGNF)         {
       //not sure why this should happen in a non-corrupt db
       if (exceptionIfNotFound) {
         throw new MembershipNotFoundException(eGNF.getMessage(), eGNF);

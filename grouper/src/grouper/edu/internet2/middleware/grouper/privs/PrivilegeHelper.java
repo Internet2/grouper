@@ -1140,5 +1140,41 @@ public class PrivilegeHelper {
     
     return pitAttributeAssigns;
   }
+
+  /**
+   * see if a stem has an immediate privilege
+   * @param stem
+   * @param subject
+   * @param privilege
+   * @return true if has immediate privilege, false if not
+   */
+  public static boolean hasImmediatePrivilege(Stem stem, Subject subject, Privilege privilege) {
+    
+    try {
+      MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), stem, subject, privilege.getField(), true);
+      return true;
+    } catch (MembershipNotFoundException eMNF) {    
+      
+    }
+    return false;
+  }
+
+  /**
+   * see if an attributeDef has an immediate privilege
+   * @param attributeDef
+   * @param subject
+   * @param privilege
+   * @return true if has immediate privilege, false if not
+   */
+  public static boolean hasImmediatePrivilege(AttributeDef attributeDef, Subject subject, Privilege privilege) {
+    
+    try {
+      MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), attributeDef, subject, privilege.getField(), true);
+      return true;
+    } catch (MembershipNotFoundException eMNF) {    
+      
+    }
+    return false;
+  }
 }
 
