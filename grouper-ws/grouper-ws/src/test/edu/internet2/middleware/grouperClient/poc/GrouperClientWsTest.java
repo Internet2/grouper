@@ -100,7 +100,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testFindAttributeDefNamesServiceRole"));
+    TestRunner.run(new GrouperClientWsTest("testGetMembershipsForService"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -7233,6 +7233,230 @@ public class GrouperClientWsTest extends GrouperTest {
   }
 
   /**
+   * 
+   * @throws Exception
+   */
+  public void testGetMembershipsForService() throws Exception {
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    AttributeDefName jiraService = null;
+    AttributeDefName confluenceService = null;    
+    AttributeDefName directoryService = null;    
+      
+    //create three services, one directly in, one hierarchical, one the user is not in
+    AttributeDef jiraServiceDef = new AttributeDefSave(grouperSession)
+      .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
+      .assignName("apps:jira:jiraServiceDefinition").assignToStem(true).save();
+    
+    jiraService = new AttributeDefNameSave(grouperSession, jiraServiceDef)
+      .assignCreateParentStemsIfNotExist(true)
+      .assignName("apps:jira:jiraService").assignDisplayExtension("Central IT production Jira issue tracker").save();
+    
+    //jira group
+    Group jiraGroup = new GroupSave(grouperSession)
+      .assignName("apps:jira:groups:admins").assignCreateParentStemsIfNotExist(true).save();
+    
+    jiraGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    jiraGroup.revokePriv(grouperSession.getSubject(), AccessPrivilege.ADMIN);
+    jiraGroup.grantPriv(SubjectTestHelper.SUBJ5, AccessPrivilege.READ);
+    jiraGroup.grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.ADMIN);
+    
+    jiraGroup.addMember(SubjectTestHelper.SUBJ0);
+    jiraGroup.addMember(SubjectTestHelper.SUBJ1);
+    
+    //the jira group has the jira service tag
+    Stem jiraStem = StemFinder.findByUuid(grouperSession, jiraGroup.getStemId(), true);
+    jiraStem.getAttributeDelegate().assignAttribute(jiraService);
+    
+    AttributeDef confluenceServiceDef = new AttributeDefSave(grouperSession)
+      .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
+      .assignName("apps:confluence:confluenceServiceDefinition").assignToStem(true).save();
+    
+    confluenceService = new AttributeDefNameSave(grouperSession, confluenceServiceDef)
+      .assignCreateParentStemsIfNotExist(true)
+      .assignName("apps:confluence:confluenceService").assignDisplayExtension("Central IT production Confluence wiki").save();
+  
+    Group confluenceGroup = new GroupSave(grouperSession)
+      .assignName("apps:confluence:editors").assignCreateParentStemsIfNotExist(true).save();
+
+    confluenceGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    confluenceGroup.revokePriv(grouperSession.getSubject(), AccessPrivilege.ADMIN);
+    confluenceGroup.grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.READ);
+    confluenceGroup.grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.ADMIN);
+    confluenceGroup.grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.UPDATE);
+
+    confluenceGroup.addMember(SubjectTestHelper.SUBJ1);
+    confluenceGroup.addMember(SubjectTestHelper.SUBJ2);
+
+    //the confluence folder has the confluence service tag
+    Stem confluenceFolder = StemFinder.findByName(grouperSession, "apps:confluence", true);
+    confluenceFolder.getAttributeDelegate().assignAttribute(confluenceService);
+    
+    AttributeDef directoryServiceDef = new AttributeDefSave(grouperSession)
+      .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)
+      .assignName("apps:directory:directoryServiceDefinition").assignToStem(true).save();
+    
+    directoryService = new AttributeDefNameSave(grouperSession, directoryServiceDef)
+      .assignCreateParentStemsIfNotExist(true)
+      .assignName("apps:directory:directoryService").assignDisplayExtension("MySchool directory").save();
+    
+    Group directoryGroup = new GroupSave(grouperSession)
+      .assignName("apps:directory:users").assignCreateParentStemsIfNotExist(true).save();
+
+    directoryGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    directoryGroup.grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.READ);
+    directoryGroup.grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.READ);
+    directoryGroup.addMember(SubjectTestHelper.SUBJ2);
+    directoryGroup.addMember(SubjectTestHelper.SUBJ3);
+
+    //the confluence folder has the confluence service tag
+    Stem directoryFolder = StemFinder.findByName(grouperSession, "apps:directory", true);
+    directoryFolder.getAttributeDelegate().assignAttribute(directoryService);
+
+    PrintStream systemOut = System.out;
+    
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(baos));
+  
+    try {
+  
+      // ##################### subject 0 and 1 are in the jira service...
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getMembershipsWs --serviceId=" + jiraService.getId() + " --serviceRole=user",
+          " "));
+      System.out.flush();
+      String output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(2, GrouperUtil.length(outputLines));
+      
+      // match: Index: 0: group: aStem:aGroup, subject: GrouperSystem, list: members, type: immediate, enabled: T
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      Pattern pattern = Pattern
+          .compile("^Index: (\\d+)\\: group\\: (.+), subject\\: (.+), list: (.+), type\\: (.+), enabled\\: (T|F)$");
+      String outputLine = outputLines[0];
+
+      Matcher matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "apps:jira:groups:admins", matcher.group(2));
+      assertEquals(outputLine, "test.subject.0", matcher.group(3));
+      assertEquals(outputLine, "members", matcher.group(4));
+      assertEquals(outputLine, "immediate", matcher.group(5));
+      assertEquals(outputLine, "T", matcher.group(6));
+      
+      outputLine = outputLines[1];
+
+      matcher = pattern.matcher(outputLine);
+  
+      assertTrue(outputLine, matcher.matches());
+  
+      assertEquals(outputLine, "1", matcher.group(1));
+      assertEquals(outputLine, "apps:jira:groups:admins", matcher.group(2));
+      assertEquals(outputLine, "test.subject.1", matcher.group(3));
+      assertEquals(outputLine, "members", matcher.group(4));
+      assertEquals(outputLine, "immediate", matcher.group(5));
+      assertEquals(outputLine, "T", matcher.group(6));
+  
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("serviceRole"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<serviceLookup><uuid>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("<serviceLookup><name>"));
+  
+      // ##################### subject 7 and 8 is admin of the confluence service...
+  
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getMembershipsWs --serviceName=" + confluenceService.getName() + " --serviceRole=admin",
+          " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(2, GrouperUtil.length(outputLines));
+      
+      // match: Index: 0: group: aStem:aGroup, subject: GrouperSystem, list: members, type: immediate, enabled: T
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: group\\: (.+), subject\\: (.+), list: (.+), type\\: (.+), enabled\\: (T|F)$");
+      outputLine = outputLines[0];
+
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "apps:confluence:editors", matcher.group(2));
+      assertEquals(outputLine, "test.subject.7", matcher.group(3));
+      assertEquals(outputLine, "admins", matcher.group(4));
+      assertEquals(outputLine, "immediate", matcher.group(5));
+      assertEquals(outputLine, "T", matcher.group(6));
+      
+      matcher = pattern.matcher(outputLines[1]);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "1", matcher.group(1));
+      assertEquals(outputLine, "apps:confluence:editors", matcher.group(2));
+      assertEquals(outputLine, "test.subject.8", matcher.group(3));
+      assertEquals(outputLine, "updaters", matcher.group(4));
+      assertEquals(outputLine, "immediate", matcher.group(5));
+      assertEquals(outputLine, "T", matcher.group(6));
+      
+  
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("serviceRole"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<serviceLookup><name>"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("<serviceLookup><uuid>"));
+
+    } finally {
+      System.setOut(systemOut);
+    }
+
+  }
+  
+  /**
    * @throws Exception
    */
   public void testGetMemberships() throws Exception {
@@ -7348,6 +7572,10 @@ public class GrouperClientWsTest extends GrouperTest {
           !GrouperClientWs.mostRecentRequest.contains("fieldName"));
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("serviceRole"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("<serviceLookup><uuid>"));
   
       // ######################################################
       // Try a sourceId

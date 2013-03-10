@@ -15,6 +15,4 @@
 <%-- note, dont do a tooltip here since there is a title attribute --%>
 <img 
 src="grouper/images/subject.gif"
-class="subjectIcon" /><
-  c:if test="${empty inLink}"><span class="<c:out value="${viewObject.subjectType}"/>Subject"></c:if><
-  c:out value="${viewObject[mediaMap[attrKey]]}" /><c:if test="${empty inLink}"></span></c:if>
+class="subjectIcon" /><c:if test="${empty inLink}"><span class="<c:out value="${viewObject.subjectType}"/>Subject"></c:if><c:out value="${viewObject[mediaMap[attrKey]]}" /><c:if test="${empty inLink}"></span></c:if>

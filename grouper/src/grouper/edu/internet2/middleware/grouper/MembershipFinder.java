@@ -34,6 +34,7 @@ package edu.internet2.middleware.grouper;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -157,6 +158,15 @@ public class MembershipFinder {
     return this;
   }
   
+  /**
+   * assign a field to filter by
+   * @param theField
+   * @return this for chaining
+   */
+  public MembershipFinder assignField(Field theField) {
+    this.field = theField;
+    return this;
+  }
   
   /**
    * 
@@ -240,6 +250,38 @@ public class MembershipFinder {
     return this;
   }
 
+  
+  /**
+   * add a membership id to the search criteria
+   * @param membershipId
+   * @return this for chaining
+   */
+  public MembershipFinder addMembershipId(String membershipId) {
+    if (!StringUtils.isBlank(membershipId)) {
+      if (this.membershipIds == null) {
+        this.membershipIds = new ArrayList<String>();
+      }
+      //no need to look for dupes
+      this.membershipIds.add(membershipId);
+    }
+    return this;
+  }
+
+  /**
+   * add a source to the search criteria
+   * @param source
+   * @return this for chaining
+   */
+  public MembershipFinder addSource(Source source) {
+    if (source != null) {
+      if (this.sources == null) {
+        this.sources = new HashSet<Source>();
+      }
+      this.sources.add(source);
+    }
+    return this;
+  }
+
   /**
    * assign a collection of role ids to look for
    * @param theRoleIds
@@ -283,6 +325,16 @@ public class MembershipFinder {
    */
   public MembershipFinder assignEnabled(Boolean theEnabled) {
     this.enabled = theEnabled;
+    return this;
+  }
+  
+  /**
+   * assign membership type to filter by
+   * @param theMembershipType
+   * @return the type
+   */
+  public MembershipFinder assignMembershipType(MembershipType theMembershipType) {
+    this.membershipType = theMembershipType;
     return this;
   }
   

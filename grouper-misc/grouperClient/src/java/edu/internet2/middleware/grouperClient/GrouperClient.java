@@ -2797,9 +2797,21 @@ public class GrouperClient {
     Set<String> subjectAttributeNames = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "subjectAttributeNames", false);
 
     List<WsSubjectLookup> wsSubjectLookupList = retrieveSubjectsFromArgs(argMap, argMapNotUsed, false);
-
+    
+    String serviceRole = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "serviceRole", false);
+    String serviceId = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "serviceId", false);
+    String serviceName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "serviceName", false);
+        
     GcGetMemberships gcGetMemberships = new GcGetMemberships();        
 
+    if (!GrouperClientUtils.isBlank(serviceRole)) {
+      gcGetMemberships.assignServiceRole(serviceRole);
+    }
+    
+    if (!GrouperClientUtils.isBlank(serviceId) || !GrouperClientUtils.isBlank(serviceName)) {
+      gcGetMemberships.assignServiceLookup(new WsAttributeDefNameLookup(serviceName, serviceId));
+    }
+    
     gcGetMemberships.assignActAsSubject(actAsSubject);
     
     gcGetMemberships.assignClientVersion(clientVersion);

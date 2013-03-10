@@ -108,6 +108,69 @@ public class WsRestGetMembershipsLiteRequest implements WsRequestBean {
   private String subjectSourceId;
   
   /**
+   * serviceRole to filter attributes that a user has a certain role
+   */
+  private String serviceRole;
+
+  /**
+   * serviceId if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceName
+   */
+  private String serviceId;
+
+  /**
+   * serviceName if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceId
+   */
+  private String serviceName;
+  
+  /**
+   * serviceRole to filter attributes that a user has a certain role
+   * @return service role
+   */
+  public String getServiceRole() {
+    return this.serviceRole;
+  }
+
+  /**
+   * serviceRole to filter attributes that a user has a certain role
+   * @param serviceRole1
+   */
+  public void setServiceRole(String serviceRole1) {
+    this.serviceRole = serviceRole1;
+  }
+
+  /**
+   * serviceId if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceName
+   * @return service id
+   */
+  public String getServiceId() {
+    return this.serviceId;
+  }
+  
+  /**
+   * serviceId if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceName
+   * @param serviceId1
+   */
+  public void setServiceId(String serviceId1) {
+    this.serviceId = serviceId1;
+  }
+
+  /**
+   * serviceName if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceId
+   * @return service name
+   */
+  public String getServiceName() {
+    return this.serviceName;
+  }
+
+  /**
+   * serviceName if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceId
+   * @param serviceName1
+   */
+  public void setServiceName(String serviceName1) {
+    this.serviceName = serviceName1;
+  }
+
+  /**
    * subject id to look for memberships
    * @return subject id
    */
@@ -441,6 +504,7 @@ public class WsRestGetMembershipsLiteRequest implements WsRequestBean {
   /**
    * @see edu.internet2.middleware.grouper.ws.rest.WsRequestBean#retrieveRestHttpMethod()
    */
+  @Override
   public GrouperRestHttpMethod retrieveRestHttpMethod() {
     return GrouperRestHttpMethod.GET;
   }

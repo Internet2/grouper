@@ -589,7 +589,9 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
           ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
-          String selectPrefix = "select ms, g, m ";
+          String selectPrefix = "select distinct ms, g, m ";
+          
+          //note: mysql wont let you do count distinct of multiple columns
           String countPrefix = "select count(*) ";
           
           StringBuilder sql = new StringBuilder(" from Member m, MembershipEntry ms, Group g ");

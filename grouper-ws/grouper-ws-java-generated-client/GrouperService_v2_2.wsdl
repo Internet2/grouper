@@ -866,6 +866,9 @@
                         <xs:element minOccurs="0" name="stemScope" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="enabled" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="membershipIds" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="serviceRole" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="serviceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="serviceName" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -923,6 +926,8 @@
                         <xs:element minOccurs="0" name="stemScope" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="enabled" nillable="true" type="xs:string"/>
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="membershipIds" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="serviceRole" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="serviceLookup" nillable="true" type="ns:WsAttributeDefNameLookup"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>

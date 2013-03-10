@@ -40,4 +40,3 @@
 <p>A group can have a single composite member, or any number of entities (including 
   groups) as members, but not a combination, however, groups which have a composite 
   member can be used anywhere other groups can be used.</p>
-</grouper:recordTile>

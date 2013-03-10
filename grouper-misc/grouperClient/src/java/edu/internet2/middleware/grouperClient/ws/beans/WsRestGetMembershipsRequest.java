@@ -78,6 +78,44 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
   /** membershipIds are the ids to search for if they are known */
   private String[] membershipIds;
   
+  /** serviceRole to filter attributes that a user has a certain role */
+  private String serviceRole;
+
+  /** serviceLookup if filtering by users in a service, then this is the service to look in */
+  private WsAttributeDefNameLookup serviceLookup;
+  
+  /**
+   * serviceRole to filter attributes that a user has a certain role
+   * @return the service role
+   */
+  public String getServiceRole() {
+    return this.serviceRole;
+  }
+
+  /**
+   * serviceRole to filter attributes that a user has a certain role
+   * @param serviceRole1
+   */
+  public void setServiceRole(String serviceRole1) {
+    this.serviceRole = serviceRole1;
+  }
+
+  /**
+   * serviceLookup if filtering by users in a service, then this is the service to look in
+   * @return service lookup
+   */
+  public WsAttributeDefNameLookup getServiceLookup() {
+    return this.serviceLookup;
+  }
+
+  /**
+   * serviceLookup if filtering by users in a service, then this is the service to look in
+   * @param serviceLookup1
+   */
+  public void setServiceLookup(WsAttributeDefNameLookup serviceLookup1) {
+    this.serviceLookup = serviceLookup1;
+  }
+
   /**
    * membershipIds are the ids to search for if they are known
    * @return the ids

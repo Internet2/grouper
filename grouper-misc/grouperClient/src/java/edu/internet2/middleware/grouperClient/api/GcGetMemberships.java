@@ -27,6 +27,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
 import edu.internet2.middleware.grouperClient.ws.WsMemberFilter;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembershipsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
@@ -182,8 +183,15 @@ public class GcGetMemberships {
         && GrouperClientUtils.length(this.groupUuids) == 0
         && GrouperClientUtils.length(this.groupIdIndexes) == 0
         && GrouperClientUtils.length(this.membershipIds) == 0
-        && GrouperClientUtils.length(this.wsSubjectLookups) == 0) {
-      throw new RuntimeException("Group name or uuid or id index or subject lookup or membership id is required: " + this);
+        && GrouperClientUtils.length(this.wsSubjectLookups) == 0
+        && GrouperClientUtils.isBlank(this.serviceRole)) {
+      throw new RuntimeException("Group name or uuid or id index or subject lookup or membership id or serviceRole is required: " + this);
+    }
+    if (GrouperClientUtils.isBlank(this.serviceRole) != (this.serviceLookup == null 
+          || (GrouperClientUtils.isBlank(this.serviceLookup.getIdIndex())
+              && GrouperClientUtils.isBlank(this.serviceLookup.getName())
+              && GrouperClientUtils.isBlank(this.serviceLookup.getUuid())))) {
+     throw new RuntimeException("If serviceRole is passed in, then a serviceId or serviceName needs to be passed in");
     }
   }
   
@@ -192,6 +200,32 @@ public class GcGetMemberships {
   
   /** sql like string where percent will be added to the end, this limits the memberships */
   private String scope;
+  
+  /** serviceRole to filter attributes that a user has a certain role */
+  private String serviceRole;
+
+  /** serviceLookup if filtering by users in a service, then this is the service to look in */
+  private WsAttributeDefNameLookup serviceLookup;
+
+  /**
+   * serviceLookup if filtering by users in a service, then this is the service to look in
+   * @param serviceLookup1
+   * @return this for chaining
+   */
+  public GcGetMemberships assignServiceLookup(WsAttributeDefNameLookup serviceLookup1) {
+    this.serviceLookup = serviceLookup1;
+    return this;
+  }
+  
+  /**
+   * serviceRole to filter attributes that a user has a certain role
+   * @param serviceRole1
+   * @return this for chaining
+   */
+  public GcGetMemberships assignServiceRole(String serviceRole1) {
+    this.serviceRole = serviceRole1;
+    return this;
+  }
   
   /**
    * assign the field name to the request
@@ -328,6 +362,13 @@ public class GcGetMemberships {
         getMemberships.setIncludeSubjectDetail(this.includeSubjectDetail ? "T" : "F");
       }
       
+      if (this.serviceLookup != null) {
+        getMemberships.setServiceLookup(this.serviceLookup);
+      }
+      
+      if (this.serviceRole != null) {
+        getMemberships.setServiceRole(this.serviceRole);
+      }
      
       getMemberships.setMemberFilter(this.memberFilter == null ? null : this.memberFilter.name());
 

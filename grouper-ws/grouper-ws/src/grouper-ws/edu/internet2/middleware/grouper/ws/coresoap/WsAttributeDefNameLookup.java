@@ -56,6 +56,20 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 public class WsAttributeDefNameLookup {
 
   /**
+   * create if any not null, otherwise null
+   * @param uuid
+   * @param name
+   * @return the lookup
+   */
+  public static WsAttributeDefNameLookup createIfNeeded(String uuid, String name) {
+    WsAttributeDefNameLookup wsAttributeDefNameLookup = null;
+    if (StringUtils.isNotBlank(uuid) || StringUtils.isNotBlank(name)) {
+      wsAttributeDefNameLookup = new WsAttributeDefNameLookup(name, uuid);
+    }
+    return wsAttributeDefNameLookup;
+  }
+
+  /**
    * integer ID for object
    */
   private String idIndex;

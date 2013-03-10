@@ -38,8 +38,8 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.PermissionAssignOperation;
-import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
+import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeType;
 import edu.internet2.middleware.grouper.service.ServiceRole;
@@ -2361,6 +2361,8 @@ public class GrouperService {
    * @param stemScope is StemScope to search only in one stem or in substems: ONE_LEVEL, ALL_IN_SUBTREE
    * @param enabled is A for all, T or null for enabled only, F for disabled 
    * @param membershipIds are the ids to search for if they are known
+   * @param serviceRole to filter attributes that a user has a certain role
+   * @param serviceLookup if filtering by users in a service, then this is the service to look in
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -2369,8 +2371,9 @@ public class GrouperService {
       WsSubjectLookup actAsSubjectLookup, String fieldName, String includeSubjectDetail,
       String[] subjectAttributeNames, String includeGroupDetail, final WsParam[] params, 
       String[] sourceIds, String scope, 
-      WsStemLookup wsStemLookup, String stemScope, String enabled, String[] membershipIds) {  
-  
+      WsStemLookup wsStemLookup, String stemScope, String enabled, String[] membershipIds, 
+      String serviceRole, WsAttributeDefNameLookup serviceLookup) {  
+    
     WsGetMembershipsResults wsGetMembershipsResults = new WsGetMembershipsResults();
   
     try {
@@ -2394,10 +2397,13 @@ public class GrouperService {
       if (wsStemLookup != null && wsStemLookup.blank()) {
         wsStemLookup = null;
       }
+
+      ServiceRole serviceRoleEnum = ServiceRole.valueOfIgnoreCase(serviceRole, false);
       
       wsGetMembershipsResults = GrouperServiceLogic.getMemberships(grouperWsVersion, wsGroupLookups, 
           wsSubjectLookups, memberFilter, actAsSubjectLookup, field, includeSubjectDetailBoolean, 
-          subjectAttributeNames, includeGroupDetailBoolean, params, sourceIds, scope, wsStemLookup, theStemScope, enabled, membershipIds);
+          subjectAttributeNames, includeGroupDetailBoolean, params, sourceIds, scope, wsStemLookup, theStemScope, enabled, membershipIds,
+          serviceRoleEnum, serviceLookup);
     } catch (Exception e) {
       wsGetMembershipsResults.assignResultCodeException(null, null, e);
     }
@@ -2458,6 +2464,9 @@ public class GrouperService {
    * @param stemScope to specify if we are searching in or under the stem
    * @param enabled A for all, null or T for enabled only, F for disabled only
    * @param membershipIds comma separated list of membershipIds to retrieve
+   * @param serviceRole to filter attributes that a user has a certain role
+   * @param serviceId if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceName
+   * @param serviceName if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceId
    * @return the memberships, or none if none found
    */
   public WsGetMembershipsResults getMembershipsLite(final String clientVersion,
@@ -2467,7 +2476,8 @@ public class GrouperService {
       String actAsSubjectIdentifier, String fieldName, String subjectAttributeNames,
       String includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1, String sourceIds, String scope, String stemName, 
-      String stemUuid, String stemScope, String enabled, String membershipIds) {
+      String stemUuid, String stemScope, String enabled, String membershipIds, String serviceRole, 
+      String serviceId, String serviceName) {
   
     WsGetMembershipsResults wsGetMembershipsResults = new WsGetMembershipsResults();
     try {
@@ -2485,12 +2495,15 @@ public class GrouperService {
       Field field = GrouperServiceUtils.retrieveField(fieldName);
       
       StemScope theStemScope = StringUtils.isBlank(stemScope) ? null : StemScope.valueOfIgnoreCase(stemScope);
+
+      ServiceRole serviceRoleEnum = ServiceRole.valueOfIgnoreCase(serviceRole, false);
       
       wsGetMembershipsResults = GrouperServiceLogic.getMembershipsLite(grouperWsVersion, groupName,
           groupUuid, subjectId, sourceId, subjectIdentifier, memberFilter,includeSubjectDetailBoolean, 
           actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier, field, subjectAttributeNames, 
           includeGroupDetailBoolean, paramName0, paramValue1, paramName1, paramValue1, sourceIds, scope, 
-          stemName, stemUuid, theStemScope, enabled, membershipIds);
+          stemName, stemUuid, theStemScope, enabled, membershipIds, serviceRoleEnum, serviceId, serviceName);
+
     } catch (Exception e) {
       wsGetMembershipsResults.assignResultCodeException(null, null, e);
       

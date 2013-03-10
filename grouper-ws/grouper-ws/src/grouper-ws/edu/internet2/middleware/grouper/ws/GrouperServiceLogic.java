@@ -1575,6 +1575,8 @@ public class GrouperServiceLogic {
    * @param stemScope is StemScope to search only in one stem or in substems: ONE_LEVEL, ALL_IN_SUBTREE
    * @param enabled is A for all, T or null for enabled only, F for disabled 
    * @param membershipIds are the ids to search for if they are known
+   * @param serviceRole to filter attributes that a user has a certain role
+   * @param serviceLookup if filtering by users in a service, then this is the service to look in
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -1583,7 +1585,9 @@ public class GrouperServiceLogic {
       WsSubjectLookup actAsSubjectLookup, Field fieldName, boolean includeSubjectDetail,
       String[] subjectAttributeNames, boolean includeGroupDetail, final WsParam[] params, 
       String[] sourceIds, String scope, 
-      WsStemLookup wsStemLookup, StemScope stemScope, String enabled, String[] membershipIds) {  
+      WsStemLookup wsStemLookup, StemScope stemScope, String enabled, String[] membershipIds,
+      ServiceRole serviceRole, WsAttributeDefNameLookup serviceLookup
+      ) {  
 
     WsGetMembershipsResults wsGetMembershipsResults = new WsGetMembershipsResults();
   
@@ -1602,6 +1606,7 @@ public class GrouperServiceLogic {
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100) + "\n, wsSubjectLookups: "
           + GrouperUtil.toStringForLog(wsSubjectLookups, 200) + "\n, sourceIds: " + GrouperUtil.toStringForLog(sourceIds, 100)
           + "\n, scope: " + scope + ", wsStemLookup: " + wsStemLookup + ", stemScope: " + stemScope + ", enabled: " + enabled
+          + "\n, serviceRole: " + serviceRole + ", serviceLookup: " + serviceLookup
           + "\n, membershipIds: " + GrouperUtil.toStringForLog(membershipIds, 200);
   
       //start session based on logged in user or the actAs passed in
@@ -1613,20 +1618,22 @@ public class GrouperServiceLogic {
       @SuppressWarnings("unused")
       Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
           params);
+
+      MembershipFinder membershipFinder = new MembershipFinder();
+      
       
       MembershipType membershipType = null;
       if (wsMemberFilter != null) {
         membershipType = wsMemberFilter.getMembershipType();
+        membershipFinder.assignMembershipType(membershipType);
       }
       
       //get all the groups
       //we could probably batch these to get better performance.  And we dont even have to lookup uuids
-      Set<String> groupIds = null;
       boolean groupsOk = GrouperUtil.length(wsGroupLookups) == 0;
 
       if (GrouperUtil.length(wsGroupLookups) > 0) {
         groupsOk = false;
-        groupIds = new LinkedHashSet<String>();
         int groupCount = 0;
         for (WsGroupLookup wsGroupLookup : wsGroupLookups) {
           
@@ -1639,19 +1646,17 @@ public class GrouperServiceLogic {
           if (group == null) {
             throw new GroupNotFoundException("Could not find group: " + wsGroupLookup);
           }
-          groupIds.add(group.getUuid());
-          
+          membershipFinder.addGroupId(group.getUuid());
+          groupsOk = groupsOk || !StringUtils.isBlank(group.getUuid());
         }
-        groupsOk = groupCount == 0 || groupIds.size() > 0;
+        groupsOk = groupCount == 0 || groupsOk;
       }
 
       //get all the members
-      Set<String> memberIds = null;
       boolean membersOk = GrouperUtil.length(wsSubjectLookups) == 0;
       if (GrouperUtil.length(wsSubjectLookups) > 0) {
         membersOk = false;
         int subjectCount = 0;
-        memberIds = new LinkedHashSet<String>();
         for (WsSubjectLookup wsSubjectLookup : wsSubjectLookups) {
           if (wsSubjectLookup == null) {
             continue;
@@ -1666,40 +1671,59 @@ public class GrouperServiceLogic {
             //problem
             throw new RuntimeException("Problem with subject: " + wsSubjectLookup + ", " + wsSubjectLookup.retrieveMemberFindResult());
           }
-          memberIds.add(member.getUuid());
+          membershipFinder.addMemberId(member.getUuid());
+          membersOk = membersOk || !StringUtils.isBlank(member.getUuid());
         }
-        membersOk = subjectCount == 0 || memberIds.size() > 0;
+        membersOk = subjectCount == 0 || membersOk;
       }
 
-      Boolean enabledBoolean = true;
-      if (!StringUtils.isBlank(enabled)) {
-        if (StringUtils.equalsIgnoreCase("A", enabled)) {
-          enabledBoolean = null;
-        } else {
-          enabledBoolean = GrouperUtil.booleanValue(enabled);
+      if (StringUtils.isBlank(enabled)) {
+        membershipFinder.assignEnabled(true);
+      } else {
+        //if A leave at null
+        if (!StringUtils.equalsIgnoreCase("A", enabled)) {
+          membershipFinder.assignEnabled(GrouperUtil.booleanValue(enabled));
         }
       }
       
       Stem stem = null;
-      
       if (wsStemLookup != null) {
         wsStemLookup.retrieveStemIfNeeded(session, true);
         stem = wsStemLookup.retrieveStem();
-
+        membershipFinder.assignStem(stem);
       }
       
       //if filtering by stem, and stem not found, then dont find any memberships
       if ((wsStemLookup == null || stem != null) && membersOk && groupsOk) {
         Set<Source> sources = GrouperUtil.convertSources(sourceIds);
         
-        Set<String> membershipIdSet = null;
-        if (GrouperUtil.length(membershipIds) > 0) {
-          membershipIdSet = GrouperUtil.toSet(membershipIds);
+        for (Source source : GrouperUtil.nonNull(sources)) {
+          membershipFinder.addSource(source);
         }
         
+        Set<String> membershipIdSet = null;
+        if (GrouperUtil.length(membershipIds) > 0) {
+          for (String membershipId : membershipIds) { 
+            membershipFinder.addMembershipId(membershipId);
+          }
+        }
+        
+        membershipFinder.assignField(fieldName);
+        
+        membershipFinder.assignStemScope(stemScope == null ? null : stemScope.convertToScope());
+        
+        membershipFinder.assignServiceRole(serviceRole);
+        
+        if (serviceLookup != null && serviceLookup.hasData()) {
+          serviceLookup.retrieveAttributeDefNameIfNeeded(session, "serviceLookup");
+          membershipFinder.assignServiceId(serviceLookup.retrieveAttributeDefName().getId());
+        }
+        
+        
         // lets get the members, cant be null
-        Set<Object[]> membershipObjects = MembershipFinder.findMemberships(groupIds, memberIds, membershipIdSet, 
-            membershipType, fieldName, sources, scope, stem, stemScope == null ? null : stemScope.convertToScope(), enabledBoolean);
+        Set<Object[]> membershipObjects = membershipFinder.findMembershipsGroupsMembers();
+        
+        
         Membership.resolveSubjects(membershipObjects);
         
         //calculate and return the results
@@ -1772,6 +1796,9 @@ public class GrouperServiceLogic {
    * @param stemScope to specify if we are searching in or under the stem
    * @param enabled A for all, null or T for enabled only, F for disabled only
    * @param membershipIds comma separated list of membershipIds to retrieve
+   * @param serviceRole to filter attributes that a user has a certain role
+   * @param serviceId if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceName
+   * @param serviceName if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceId
    * @return the memberships, or none if none found
    */
   public static WsGetMembershipsResults getMembershipsLite(final GrouperVersion clientVersion,
@@ -1781,7 +1808,8 @@ public class GrouperServiceLogic {
       String actAsSubjectIdentifier, Field fieldName, String subjectAttributeNames,
       boolean includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1, String sourceIds, String scope, String stemName, 
-      String stemUuid, StemScope stemScope, String enabled, String membershipIds) {
+      String stemUuid, StemScope stemScope, String enabled, String membershipIds, ServiceRole serviceRole,
+      String serviceId, String serviceName) {
   
     // setup the group lookup
     WsGroupLookup wsGroupLookup = null;
@@ -1795,6 +1823,8 @@ public class GrouperServiceLogic {
     WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
   
+    WsAttributeDefNameLookup serviceLookup = WsAttributeDefNameLookup.createIfNeeded(serviceId, serviceName);
+    
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
   
     String[] subjectAttributeArray = GrouperUtil.splitTrim(subjectAttributeNames, ",");
@@ -1812,7 +1842,8 @@ public class GrouperServiceLogic {
     WsGetMembershipsResults wsGetMembershipsResults = getMemberships(clientVersion,
         wsGroupLookups, wsSubjectLookups, wsMemberFilter, actAsSubjectLookup, fieldName,
         includeSubjectDetail, subjectAttributeArray, includeGroupDetail,
-        params, sourceIdArray, scope, wsStemLookup, stemScope, enabled, membershipIdArray);
+        params, sourceIdArray, scope, wsStemLookup, stemScope, enabled, membershipIdArray,
+        serviceRole, serviceLookup);
   
     return wsGetMembershipsResults;
   }
