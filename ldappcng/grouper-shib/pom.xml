@@ -20,10 +20,10 @@
 
     <repositories>
         <repository>
-            <id>shibboleth.internet2.edu</id>
-            <name>Internet2</name>
+            <id>build.shibboleth.net</id>
+            <name>Shibboleth</name>
             <layout>default</layout>
-            <url>http://shibboleth.internet2.edu/downloads/maven2</url>
+            <url>http://build.shibboleth.net/nexus/content/repositories/releases</url>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
