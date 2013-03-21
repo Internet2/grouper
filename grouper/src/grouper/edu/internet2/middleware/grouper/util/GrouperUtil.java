@@ -1569,12 +1569,12 @@ public class GrouperUtil {
    * @param theClass is the class that the object should be coverted into.
    * Note: only the top level object needs to be registered
    * @return the object
+   * 
    */
-  public static Object jsonConvertFrom (String json, Class<?> theClass) {
+  public static <T> T jsonConvertFrom (String json, Class<T> theClass) {
 	  	JSONObject jsonObject = JSONObject.fromObject( json );
 	    Object object = JSONObject.toBean( jsonObject, theClass );
-	    return object;
-
+	    return (T)object;
   }
   /**
    * get the extension from name.  if name is a:b:c, name is c

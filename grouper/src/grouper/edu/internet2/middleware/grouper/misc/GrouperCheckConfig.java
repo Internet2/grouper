@@ -45,6 +45,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -79,10 +80,10 @@ import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
-import edu.internet2.middleware.grouper.privs.AccessAdapter;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
-import edu.internet2.middleware.grouper.privs.NamingAdapter;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
+import edu.internet2.middleware.grouper.userData.GrouperUserDataUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.Subject;
@@ -2079,6 +2080,80 @@ public class GrouperCheckConfig {
                 "optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES", 
                 wasInCheckConfig);
           }
+        }
+      }
+      
+      {
+        String userDataRootStemName = GrouperUserDataUtils.grouperUserDataStemName();
+        
+        Stem userDataStem = StemFinder.findByName(grouperSession, userDataRootStemName, false);
+        if (userDataStem == null) {
+          userDataStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for built in Grouper user data attributes").assignName(userDataRootStemName)
+            .save();
+        }
+
+        {
+          //see if attributeDef is there
+          String userDataDefName = userDataRootStemName + ":" + GrouperUserDataUtils.USER_DATA_DEF;
+          AttributeDef userDataDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+              userDataDefName, false, new QueryOptions().secondLevelCache(false));
+          if (userDataDef == null) {
+            userDataDef = userDataStem.addChildAttributeDef(GrouperUserDataUtils.USER_DATA_DEF, AttributeDefType.attr);
+            userDataDef.setAssignToImmMembership(true);
+            userDataDef.setValueType(AttributeDefValueType.marker);
+            userDataDef.store();
+          }
+          
+          //add an attribute for the loader ldap marker
+          {
+            checkAttribute(userDataStem, userDataDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_MARKER, "Grouper user data", 
+                "Marks a group that has memberships which have attributes for user data", wasInCheckConfig);
+          }
+        }
+        {
+          //see if attributeDef is there
+          String userDataValueDefName = userDataRootStemName + ":" + GrouperUserDataUtils.USER_DATA_VALUE_DEF;
+          AttributeDef userDataValueDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+              userDataValueDefName, false, new QueryOptions().secondLevelCache(false));
+          if (userDataValueDef == null) {
+            userDataValueDef = userDataStem.addChildAttributeDef(GrouperUserDataUtils.USER_DATA_VALUE_DEF, AttributeDefType.attr);
+            userDataValueDef.setAssignToImmMembershipAssn(true);
+            userDataValueDef.setValueType(AttributeDefValueType.string);
+            userDataValueDef.store();
+          }
+          
+          //add an attribute for the loader ldap marker
+          {
+            checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_FAVORITE_GROUPS, 
+                "Grouper user data favorite groups", 
+                "A list of group ids and metadata in json format that are the favorites for a user", wasInCheckConfig);
+            checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_RECENT_GROUPS, 
+                "Grouper user data recent groups", 
+                "A list of group ids and metadata in json format that are the recently used groups for a user", wasInCheckConfig);
+            checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_FAVORITE_STEMS, 
+                "Grouper user data favorite folders", 
+                "A list of folder ids and metadata in json format that are the favorites for a user", wasInCheckConfig);
+            checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_RECENT_STEMS, 
+                "Grouper user data recent folders", 
+                "A list of folder ids and metadata in json format that are the recently used folders for a user", wasInCheckConfig);
+            checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_FAVORITE_ATTIRBUTE_DEFS, 
+                "Grouper user data favorite attribute definitions", 
+                "A list of attribute definition ids and metadata in json format that are the favorites for a user", wasInCheckConfig);
+            checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_FAVORITE_ATTIRBUTE_DEFS, 
+                "Grouper user data recent attribute definitions", 
+                "A list of attribute definition ids and metadata in json format that are the recently used attribute definitions for a user", wasInCheckConfig);
+            checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_FAVORITE_ATTRIBUTE_DEF_NAMES, 
+                "Grouper user data favorite attribute definition names", 
+                "A list of attribute definition name ids and metadata in json format that are the favorites for a user", wasInCheckConfig);
+            checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_FAVORITE_ATTRIBUTE_DEF_NAMES, 
+                "Grouper user data recent attribute definition names", 
+                "A list of attribute definition name ids and metadata in json format that are the recently used attribute definition names for a user", wasInCheckConfig);
+            checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_PREFERENCES, 
+                "Grouper user data preferences", 
+                "Preferences and metadata in json format for a user", wasInCheckConfig);
+          }
+          
         }
       }
       {

@@ -1342,5 +1342,16 @@
           overflowToDisk="false"
           statistics="false"
   />
+  
+  <!-- this is the cache of groups used by user data.  will be a small cache, but can last a long time (10 minutes) -->
+  <cache  name="edu.internet2.middleware.grouper.userData.GrouperUserDataUtils.userDataGroupCache"
+          maxElementsInMemory="100"
+          eternal="false"
+          timeToIdleSeconds="600"
+          timeToLiveSeconds="600"
+          overflowToDisk="false"
+          statistics="false"
+  />
+
 
 </ehcache>
