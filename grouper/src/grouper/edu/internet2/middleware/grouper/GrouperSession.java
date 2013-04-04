@@ -118,7 +118,7 @@ public class GrouperSession implements Serializable {
   private void internal_ThrowIllegalStateIfStopped() {
     if (this.subject == null) {
       throw new IllegalStateException("Grouper session subject is null, probably since it is stopped.  " +
-      		"Dont use it anymore, start another");
+          "Dont use it anymore, start another");
     }
   }
   
@@ -290,6 +290,7 @@ public class GrouperSession implements Serializable {
    * start a session based on a sourceId and subjectId
    * @param subjectIdentifier
    * @param sourceId if null search all sources
+   * @param addToThreadLocal 
    * @return return the GrouperSession
    */
   public static GrouperSession startBySubjectIdentifierAndSource(final String subjectIdentifier, final String sourceId, boolean addToThreadLocal) {
@@ -599,6 +600,7 @@ public class GrouperSession implements Serializable {
     return this.subject;
   } // public Subject getSubject()
 
+
   /**
    * Stop this API session.
    * <pre class="eg">
@@ -606,7 +608,7 @@ public class GrouperSession implements Serializable {
    * </pre>
    * @throws SessionException 
    */
-  public void stop()  throws  SessionException
+  public void stop()  throws  SessionException 
   {
     //remove from threadlocal if this is the one on threadlocal (might not be due
     //to nesting)
@@ -946,18 +948,27 @@ public class GrouperSession implements Serializable {
     //first look at the list of threadlocals
     List<GrouperSession> grouperSessionList = grouperSessionList();
     int size = grouperSessionList.size();
+    String error = "There is no open GrouperSession detected.  Make sure " +
+        "to start a grouper session (e.g. GrouperSession.startRootSession() if you want to use a root session ) before calling this method";
+    GrouperSession grouperSession = null;
     if (size == 0) {
       //if nothing in the threadlocal list, then use the last one
       //started (and added)
-      GrouperSession grouperSession = staticGrouperSession.get();
-      if (grouperSession == null && exceptionOnNull) {
-        throw new IllegalStateException("There is no open GrouperSession detected.  Make sure " +
-        		"to start a grouper session (e.g. GrouperSession.startRootSession() if you want to use a root session ) before calling this method");
-      }
-      return grouperSession;
+      grouperSession = staticGrouperSession.get();
+      
+    } else {
+      // get the last index, return null if session closed
+      grouperSession = grouperSessionList.get(size-1);
     }
-    // get the last index
-    return grouperSessionList.get(size-1);
+
+    if (grouperSession != null && grouperSession.subject == null) {
+      grouperSession = null;
+    }
+    
+    if (exceptionOnNull && grouperSession == null) {
+      throw new IllegalStateException(error);
+    }
+    return grouperSession;
   } 
   
 }
