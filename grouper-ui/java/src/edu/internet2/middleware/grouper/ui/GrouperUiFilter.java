@@ -38,6 +38,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.security.Principal;
 import java.util.Enumeration;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -501,27 +502,52 @@ public class GrouperUiFilter implements Filter {
    * @return user name
    */
   public static String remoteUser(HttpServletRequest httpServletRequest) {
-    String remoteUser = httpServletRequest.getRemoteUser();
     
-    if (StringUtils.isBlank(remoteUser)) {
-      //this is how mod_jk passes env vars
-      remoteUser = (String)httpServletRequest.getAttribute("REMOTE_USER");
+    Map<String, Object> debugLog = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+    try {
+      String remoteUser = httpServletRequest.getRemoteUser();
+      
+      if (LOG.isDebugEnabled()) {
+        debugLog.put("httpServletRequest.getRemoteUser()", remoteUser);
+      }
+      
+      if (StringUtils.isBlank(remoteUser)) {
+        //this is how mod_jk passes env vars
+        remoteUser = (String)httpServletRequest.getAttribute("REMOTE_USER");
+        if (LOG.isDebugEnabled()) {
+          debugLog.put("REMOTE_USER attribute", remoteUser);
+        }
+      }
+      
+      if (StringUtils.isBlank(remoteUser) && httpServletRequest.getUserPrincipal() != null) {
+        //this is how mod_jk passes env vars
+        remoteUser = httpServletRequest.getUserPrincipal().getName();
+        if (LOG.isDebugEnabled()) {
+          debugLog.put("httpServletRequest.getUserPrincipal().getName()", remoteUser);
+        }
+      }
+      if (StringUtils.isBlank(remoteUser)) {
+        HttpSession session = httpServletRequest.getSession(false);
+        remoteUser = (String)(session == null ? null : session.getAttribute("authUser"));
+        if (LOG.isDebugEnabled()) {
+          debugLog.put("session.getAttribute(authUser)", remoteUser);
+        }
+      }
+      
+      remoteUser = StringUtils.trim(remoteUser);
+      
+      httpServletRequest.getSession().setAttribute("grouperLoginId", remoteUser);
+
+      if (LOG.isDebugEnabled()) {
+        debugLog.put("remoteUser overall", remoteUser);
+      }
+
+      return remoteUser;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugLog));
+      }
     }
-    
-    if (StringUtils.isBlank(remoteUser) && httpServletRequest.getUserPrincipal() != null) {
-      //this is how mod_jk passes env vars
-      remoteUser = httpServletRequest.getUserPrincipal().getName();
-    }
-    if (StringUtils.isBlank(remoteUser)) {
-      HttpSession session = httpServletRequest.getSession(false);
-      remoteUser = (String)(session == null ? null : session.getAttribute("authUser"));
-    }
-    
-    remoteUser = StringUtils.trim(remoteUser);
-    
-    httpServletRequest.getSession().setAttribute("grouperLoginId", remoteUser);
-    
-    return remoteUser;
   }
   
   
