@@ -745,8 +745,52 @@ public class SourcesXmlResolver implements SubjectResolver {
     
     if (GrouperUtil.length(sources) == 0) {
       return findAll(query);
-        }
+    }
     
+    Set<Subject> subjects = null;
+    
+    //can configure not separating search string by commas
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperQuerySubjectsMultipleQueriesCommaSeparated", true)) {
+      
+      Set<String> queries = GrouperUtil.splitTrimToSet(query, ",");
+      
+      subjects = new LinkedHashSet<Subject>();
+      
+      for (String individualQuery : GrouperUtil.nonNull(queries)) {
+        
+        subjects.addAll(GrouperUtil.nonNull(findAllHelperNonMultiple(individualQuery, sources, stemName)));
+        
+      }
+
+      //take out dupes
+      SubjectHelper.removeDuplicates(subjects);
+      
+    } else {
+      subjects = findAllHelperNonMultiple(query, sources, stemName);
+
+    }
+    
+    
+    //lets init the group attributes
+    this.initGroupAttributes(subjects);
+    
+    subjects = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjects, stemName);
+    
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
+      subjects = SubjectHelper.sortSetForSearch(subjects, query);
+    }
+
+    return subjects;
+  }
+
+  /**
+   * run a subject search without checking for multiple queries comma separated
+   * @param query
+   * @param sources
+   * @param stemName
+   * @return the results
+   */
+  private Set<Subject> findAllHelperNonMultiple(final String query, final Set<Source> sources, final String stemName) {
     Set<Subject> subjects = new LinkedHashSet<Subject>();
     
     List<LogLabelCallable<Set<Subject>>> callables = new ArrayList<LogLabelCallable<Set<Subject>>>();
@@ -790,18 +834,9 @@ public class SourcesXmlResolver implements SubjectResolver {
       }
     }
     
-    //lets init the group attributes
-    this.initGroupAttributes(subjects);
-    
-    subjects = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjects, stemName);
-    
-    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
-      subjects = SubjectHelper.sortSetForSearch(subjects, query);
-    }
-
     return subjects;
   }
-
+  
   /**
    * @see SubjectResolver#findPage(String, Set)
    */
