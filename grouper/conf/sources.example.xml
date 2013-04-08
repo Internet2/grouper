@@ -536,7 +536,7 @@ where
          <param>
             <param-name>filter</param-name>
             <param-value>
-                (&amp; (|(uid=%TERM%)(cn=*%TERM%*)(exampleEduRegId=%TERM%))(objectclass=exampleEduPerson))
+                (&amp; (|(|(uid=%TERM%)(cn=*%TERM%*))(exampleEduRegId=%TERM%))(objectclass=exampleEduPerson))
             </param-value>
         </param>
         <param>
