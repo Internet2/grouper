@@ -61,6 +61,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -4959,7 +4960,23 @@ public class GrouperUtil {
     theClass = unenhanceClass(theClass);
     Method[] methods = retrieveDeclaredMethods(theClass);
     if (length(methods) != 0) {
+      
+      //sort to put in right order... java7 doesnt do this
+      List<Method> methodsList = new ArrayList<Method>();
+      
       for (Method method: methods) {
+        methodsList.add(method);
+      }
+      
+      Collections.sort(methodsList, new Comparator<Method>() {
+
+        @Override
+        public int compare(Method o1, Method o2) {
+          return o1.getName().compareTo(o2.getName());
+        }
+      });
+      
+      for (Method method: methodsList) {
         //must be a getter
         if (!isGetter(method)) {
           continue;
