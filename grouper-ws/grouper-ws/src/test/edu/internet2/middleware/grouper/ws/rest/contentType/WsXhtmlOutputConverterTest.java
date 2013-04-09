@@ -49,7 +49,7 @@ public class WsXhtmlOutputConverterTest extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new WsXhtmlOutputConverterTest("testMarshal2"));
+    TestRunner.run(new WsXhtmlOutputConverterTest("testMarshal"));
   }
   
   /**
@@ -60,8 +60,10 @@ public class WsXhtmlOutputConverterTest extends TestCase {
     WsXhtmlOutputConverter wsXhtmlOutputConverter = new WsXhtmlOutputConverter(false, null);
     String xhtml = wsXhtmlOutputConverter.writeBean(beanChild);
 
-    System.out.println(xhtml);
-    assertEquals("<div title=\"BeanChild\"><p class=\"childField1\">va&lt;l1</p><p class=\"childField2\">val2</p><ul class=\"childStringArray\"><li>a</li></ul><ul class=\"childIntegerArray\"><li>1</li><li>2</li></ul></div>", xhtml);
+    String expectedXhtml = "<div title=\"BeanChild\"><p class=\"childField1\">va&lt;l1</p><p class=\"childField2\">val2</p><ul class=\"childIntegerArray\"><li>1</li><li>2</li></ul><ul class=\"childStringArray\"><li>a</li></ul></div>";
+    System.out.println("expectedXhtml: " + expectedXhtml);
+    System.out.println("xhtml:         " + xhtml);
+    assertEquals(expectedXhtml, xhtml);
     
     //test warnings
     xhtml = "<div title=\"BeanChild\" id=\"something\"><span>something</span><p class=\"childField1\">va&lt;l1</p><p class=\"childField2\">val2</p><ul class=\"childStringArray\"><li>a</li></ul><ul class=\"childIntegerArray\"><li>1</li><li>2</li></ul></div>";
