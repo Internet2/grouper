@@ -17,7 +17,7 @@
  * @author mchyzer
  * $Id: InvalidQueryRuntimeException.java,v 1.1 2008-08-18 06:15:58 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.subj;
+package edu.internet2.middleware.subject.provider;
 
 
 /**
