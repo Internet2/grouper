@@ -714,6 +714,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       }
       for (int i = 0; i < colCount; i++) {
         String name1 = colNames[i];
+        /*
         if (name1.toLowerCase().equals(this.subjectIDAttributeName.toLowerCase())) {
           continue;
         }
@@ -723,6 +724,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
         if (name1.toLowerCase().equals(this.descriptionAttributeName.toLowerCase())) {
           continue;
         }
+        */
         String value = rs.getString(i + 1);
         Set<String> values = attributes1.get(name1);
         if (values == null) {

@@ -43,6 +43,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectUtils;
 
 public class LdapComparator implements Comparator<Subject> {
 
@@ -61,19 +62,23 @@ public class LdapComparator implements Comparator<Subject> {
 	 *            second subject
 	 */
 	public int compare(Subject so0, Subject so1) {
+    if (so0 == so1) {
+      return 0;
+    }
 
-		try {
-
-			Subject s0 = (Subject) so0;
-			Subject s1 = (Subject) so1;
-			String s0d = s0.getDescription();
-			String s1d = s1.getDescription();
-
-			// log.debug("comparing " + s0d + " to " + s1d);
-			return s0d.compareTo(s1d);
-		} catch (Exception e) {
-			log.debug("exception " + e);
-		}
-		return (1);
+    if (so0 == null) {
+      return -1;
+    }
+    
+    if (so1 == null) {
+      return 1;
+    }
+    
+    int compare = SubjectUtils.compare(so0.getSourceId(), so1.getSourceId());
+    if (compare != 0) {
+      return compare;
+    }
+    
+    return SubjectUtils.compare(so0.getId(), so1.getId());
 	}
 }

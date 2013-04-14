@@ -2528,4 +2528,25 @@ public class SubjectUtils {
     return array == null ? ((T[])Array.newInstance(theClass, 0)) : array;
   }
 
+  /**
+   * compare null safe
+   * @param first
+   * @param second
+   * @return 0 for equal, 1 for greater, -1 for less
+   */
+  @SuppressWarnings("unchecked")
+  public static int compare(Comparable first, Comparable second) {
+    if (first == second) {
+      return 0;
+    }
+  
+    if (first == null) {
+      return -1;
+    }
+    
+    if (second == null) {
+      return 1;
+    }
+    return first.compareTo(second);
+  }
 }
