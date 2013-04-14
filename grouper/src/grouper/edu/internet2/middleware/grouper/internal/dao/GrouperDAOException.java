@@ -35,36 +35,42 @@ import edu.internet2.middleware.grouper.exception.GrouperException;
 
 /**
  * Generic Grouper DAO exception.
- * @author  blair christensen.
  * @version $Id: GrouperDAOException.java,v 1.5 2009-03-15 06:37:22 mchyzer Exp $
- * @since   1.2.0
  */
 public class GrouperDAOException extends GrouperException {
-  private static final long serialVersionUID = -7856283917603254749L;
+  
   /**
-   * @since   1.2.0
+   * 
+   */
+  private static final long serialVersionUID = -7856283917603254749L;
+  
+  /**
    */
   public GrouperDAOException() { 
     super(); 
-  } // public GrouperDAOException()
+  }
+  
   /**
-   * @since   1.2.0
+   * @param msg 
    */
   public GrouperDAOException(String msg) { 
     super(msg); 
-  } // public GrouperDAOException(msg)
+  }
+  
   /**
-   * @since   1.2.0
+   * @param msg 
+   * @param cause 
    */
   public GrouperDAOException(String msg, Throwable cause) { 
     super(msg, cause); 
-  } // public GrouperDAOException(msg, cause)
+  }
+  
   /**
-   * @since   1.2.0
+   * @param cause 
    */
   public GrouperDAOException(Throwable cause) { 
     super(cause); 
-  } // public GrouperDAOException(cause)
+  }
 
 } 
 
