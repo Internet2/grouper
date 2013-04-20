@@ -67,6 +67,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
+import edu.internet2.middleware.subject.provider.SubjectImpl;
 
 
 /**
@@ -87,7 +88,7 @@ public class RuleApiTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleApiTest("testReassignAttributeDefPrivilegesIfFromGroup"));
+    TestRunner.run(new RuleApiTest("testReassignGroupPrivilegesIfFromGroup"));
   }
 
   /**
@@ -105,6 +106,9 @@ public class RuleApiTest extends GrouperTest {
    * 
    */
   public void testReassignAttributeDefPrivilegesIfFromGroup() {
+    
+    assertTrue(RuleSubjectActAs.allowedToActAs(null, SubjectFinder.findRootSubject(), new SubjectImpl("GrouperSystem", null, null, null, "g:isa")));
+    
     GrouperSession grouperSession = GrouperSession.startRootSession();
     Stem stem2 = new StemSave(grouperSession).assignName("stem2").assignCreateParentStemsIfNotExist(true).save();
     Stem stem2sub = new StemSave(grouperSession).assignName("stem2:sub").assignCreateParentStemsIfNotExist(true).save();
@@ -802,6 +806,23 @@ public class RuleApiTest extends GrouperTest {
     Group stem1testGroup = null;
     Group stem2subTestGroup = null;
     Group stem2sub5testGroup = null;
+    
+    //################################## GrouperSystem should be able to call this
+    initialFirings = RuleEngine.ruleFirings;
+    
+    grouperSession = GrouperSession.startRootSession();
+    
+    stem2testGroup = new GroupSave(grouperSession).assignName("stem2:testGroup").assignCreateParentStemsIfNotExist(true).save();
+
+    //count rule firings
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+
+    assertFalse(PrivilegeHelper.hasImmediatePrivilege(stem2testGroup, SubjectFinder.findRootSubject(), AccessPrivilege.ADMIN));
+    assertFalse(PrivilegeHelper.hasImmediatePrivilege(stem2testGroup, wheelGroup.toSubject(), AccessPrivilege.ADMIN));
+    
+    stem2testGroup.delete();
+    
+    GrouperSession.stopQuietly(grouperSession);
     
     //################################## SUBJ 0 wheel should be removed, nothing added
     initialFirings = RuleEngine.ruleFirings;
