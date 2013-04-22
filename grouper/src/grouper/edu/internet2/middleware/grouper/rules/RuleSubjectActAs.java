@@ -194,7 +194,7 @@ public class RuleSubjectActAs {
     
     if (!allowedToActAs(ruleDefinition, currentSubject, subject)) {
       return "Subject: " 
-      + GrouperUtil.subjectToString(GrouperSession.staticGrouperSession().getSubject())
+      + GrouperUtil.subjectToString(currentSubject)
       + " cannot act as subject: " + GrouperUtil.subjectToString(subject) + " based on grouper.properties: "
       + " rules.act.as.group";
     }
