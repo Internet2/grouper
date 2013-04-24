@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -253,11 +254,10 @@ public class RuleSubjectActAs {
       return true;
     }
 
-    //if we are GrouperSystem, let that go through
-    if (SubjectHelper.eq(SubjectFinder.findRootSubject(), subject)) {
+    //if we are wheel or GrouperSystem, thats good.
+    if (PrivilegeHelper.isWheelOrRoot(subject)) {
       return true;
     }
-
     
     //lets see if in cache    
     //cache key to get or set if a user can act as another

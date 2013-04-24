@@ -56,6 +56,18 @@ import edu.internet2.middleware.subject.SubjectUtils;
 public abstract class BaseSourceAdapter implements Source {
 
   /**
+   * @see Source#getSubjectStatusConfig()
+   */
+  @Override
+  public SubjectStatusConfig getSubjectStatusConfig() {
+
+    //get the cached config for this source
+    return SourceManager.getInstance().getSourceManagerStatusBean().getSourceIdToStatusConfigs().get(this.getId());
+    
+  }
+
+
+  /**
    * see what the result set limit should be (dont add one yet)
    * @param firstPageOnly
    * @param pageSize

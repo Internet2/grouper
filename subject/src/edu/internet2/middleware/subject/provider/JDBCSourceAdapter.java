@@ -318,6 +318,20 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
    * @return the result object, never null
    */
   private SearchPageResult searchHelper(String searchValue, boolean firstPageOnly) {
+
+    //if this is a search and not by id or identifier, strip out the status part
+    {
+      SubjectStatusResult subjectStatusResult = null;
+      
+      //see if we are doing status
+      SubjectStatusProcessor subjectStatusProcessor = new SubjectStatusProcessor(searchValue, this.getSubjectStatusConfig());
+      subjectStatusResult = subjectStatusProcessor.processSearch();
+
+      //strip out status parts
+      searchValue = subjectStatusResult.getStrippedQuery();
+    }      
+    
+
     Set<Subject> result = new LinkedHashSet<Subject>();
     boolean tooManyResults = false;
     Search search = getSearch("search");
