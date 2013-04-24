@@ -10,6 +10,11 @@ then
   exit 1
 fi
 
+export oldJavaHome=$JAVA_HOME
+export oldPath=$PATH
+export JAVA_HOME=/opt/java6
+export PATH=$JAVA_HOME/bin:$PATH
+
 # don't build with mvn here anymore
 # /home/mchyzer/bin/buildMorphStringMvn.sh $1
 # /home/mchyzer/bin/buildSubjectMvn.sh $1
@@ -78,3 +83,8 @@ cd /home/mchyzer/tmp/grouperAll
 echo
 echo "Overall done! All packages have been moved to: $buildDir"
 echo
+
+export JAVA_HOME=$oldJavaHome
+export PATH=$oldPath
+export oldJavaHome=
+export oldPath=

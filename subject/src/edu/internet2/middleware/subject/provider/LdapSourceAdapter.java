@@ -83,6 +83,13 @@ import edu.vt.middleware.ldap.pool.SoftLimitLdapPool;
 
 public class LdapSourceAdapter extends BaseSourceAdapter {
     
+  public static void main(String[] args) {
+    System.out.println("abc123ABC_-".matches("[a-zA-Z0-9_-]+"));
+    System.out.println("abc1 23ABC_-".matches("[a-zA-Z0-9_-]+"));
+    System.out.println("abc1)23ABC_-".matches("[a-zA-Z0-9_-]+"));
+    
+  }
+  
     private static Log log = LogFactory.getLog(LdapSourceAdapter.class);
     
     private Properties props;
@@ -399,6 +406,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
      * @return the set
      */
    private SearchPageResult searchHelper(String searchValue, boolean firstPageOnly) {
+
      boolean tooManyResults = false;
         Comparator cp = new LdapComparator();
         TreeSet result = new TreeSet(cp);
@@ -577,6 +585,20 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
     }
    
     private Iterator<SearchResult> getLdapResultsHelper(Search search, String searchValue, String[] attributeNames, boolean firstPageOnly ) {
+
+      SubjectStatusResult subjectStatusResult = null;
+      
+      //if this is a search and not by id or identifier
+      boolean subjectStatusQuery = StringUtils.equals("search", search.getSearchType());
+      if (subjectStatusQuery) {
+        //see if we are doing status
+        SubjectStatusProcessor subjectStatusProcessor = new SubjectStatusProcessor(searchValue, this.getSubjectStatusConfig());
+        subjectStatusResult = subjectStatusProcessor.processSearch();
+  
+        //strip out status parts
+        searchValue = subjectStatusResult.getStrippedQuery();
+      }      
+      
         Ldap ldap = null;
         String filter = null;
         Iterator<SearchResult> results = null;
@@ -616,10 +638,33 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
             }
             filter = filter.replaceAll("%TERM%", escapeSearchFilter(searchValue));
         }
-        if (log.isDebugEnabled()) {
-            log.debug("searchType: " + search.getSearchType() + " filter: " + filter);
+        
+        String preStatusFilter = filter;
+        if (subjectStatusQuery && !subjectStatusResult.isAll() && !StringUtils.isBlank(subjectStatusResult.getDatastoreFieldName())) {
+          
+          //validate the status value
+          if (!subjectStatusResult.getDatastoreValue().matches("[a-zA-Z0-9_-]+")) {
+            throw new RuntimeException("Invalid status value: " + subjectStatusResult.getDatastoreValue());
+          }
+          
+          //wrap the query in a status part
+          filter = "(&" + filter + "(" + (subjectStatusResult.isEquals()?"":" ! ( ") + subjectStatusResult.getDatastoreFieldName() + "=" 
+            + subjectStatusResult.getDatastoreValue() + (subjectStatusResult.isEquals()?"":" ) ") + "))";
+
         }
 
+        if (!StringUtils.equals(preStatusFilter, filter)) {
+          if (log.isDebugEnabled()) {
+            log.debug("searchType: " + search.getSearchType() + ", preStatusFilter: " + preStatusFilter + ", filter: " + filter);
+          }
+
+        } else {
+          if (log.isDebugEnabled()) {
+            log.debug("searchType: " + search.getSearchType() + ", filter: " + filter);
+          }
+          
+        }
+        
         try  {
             ldap =  (Ldap) ldapPool.checkOut();
 

@@ -292,6 +292,8 @@ public class GrouperLoaderConfig {
     
     GrouperLoaderLdapServer grouperLoaderLdapServer = new GrouperLoaderLdapServer();
 
+    grouperLoaderLdapServer.setConfigFileFromClasspath(getPropertyString("ldap." + name + ".configFileFromClasspath"));
+
     {
       //#note the URL should start with ldap: or ldaps: if it is SSL.  
       //#It should contain the server and port (optional if not default), and baseDn, 
@@ -299,10 +301,11 @@ public class GrouperLoaderConfig {
       //#ldap.personLdap.url = ldaps://ldapserver.school.edu:636/dc=school,dc=edu
       String url = getPropertyString("ldap." + name + ".url");
       
-      if (StringUtils.isBlank(url)) {
+      if (StringUtils.isBlank(url) && StringUtils.isBlank(grouperLoaderLdapServer.getConfigFileFromClasspath())) {
         throw new RuntimeException("Cant find the ldap connection named: '" + name + "' in " +
-        		"the grouper-loader.properties.  Should have entry: ldap." + name + ".url");
+        		"the grouper-loader.properties.  Should have entry: ldap." + name + ".url or ldap." + name + ".configFileFromClasspath");
       }
+      
       grouperLoaderLdapServer.setUrl(url);
     }
     
@@ -355,6 +358,8 @@ public class GrouperLoaderConfig {
     grouperLoaderLdapServer.setValidatePeriodically(getPropertyBoolean("ldap." + name + ".validatePeriodically", false));
 
     grouperLoaderLdapServer.setPagedResultsSize(getPropertyInt("ldap." + name + ".pagedResultsSize", -1));
+
+    grouperLoaderLdapServer.setReferral(getPropertyString("ldap." + name + ".referral"));
 
     //#validateOnCheckout defaults to true if all other validate methods are false
     if (!grouperLoaderLdapServer.isValidateOnCheckIn() && !grouperLoaderLdapServer.isValidateOnCheckOut() && !grouperLoaderLdapServer.isValidatePeriodically()) {
