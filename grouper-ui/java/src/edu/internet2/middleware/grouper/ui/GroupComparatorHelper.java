@@ -78,7 +78,7 @@ public class GroupComparatorHelper implements GrouperComparatorHelper{
 		}else if(obj instanceof MembershipAsMap) {
 			group = ((Membership)((MembershipAsMap)obj).getWrappedObject()).getGroup();
 		}else{
-			throw new IllegalArgumentException(obj + " is not a Group");
+			throw new IllegalArgumentException(obj + " is not a Group" + (obj == null ? null : obj.getClass()));
 		}
 		String attrStr=null;
 		if("flat".equals(context)) {
