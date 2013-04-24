@@ -434,8 +434,15 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
                SearchResult si = (SearchResult) ldapResults.next();
                Attributes attributes = si.getAttributes();
                Subject subject = createSubject(attributes);
-               if (noAttrSearch) ((LdapSubject)subject).setAttributesGotten(true);
-               result.add(subject);
+               
+               if (subject != null) {
+                 if (noAttrSearch) ((LdapSubject)subject).setAttributesGotten(true);
+                 result.add(subject);
+               } else {
+                log.error("Failed to create subject with attributes: " + attributes);  
+               }
+
+               
            }
 
            if (log.isDebugEnabled()) {
@@ -470,7 +477,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
         try {
             Attribute attribute = attributes.get(subjectIDAttributeName);
             if (attribute == null) {
-                log.error("No value for LDAP attribute \"" + subjectIDAttributeName + "\". It is Grouper attribute \"SubjectID\".");
+                log.error("No value for LDAP attribute \"" + subjectIDAttributeName + "\". It is Grouper attribute \"SubjectID\".\".  Subject's problematic attributes : " + attributes);
                 return null;
             }
             subjectID   = (String)attribute.get();
@@ -480,7 +487,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
             attribute = attributes.get(nameAttributeName);
             if (attribute == null) {
                 if (log.isDebugEnabled()) {
-                log.debug("No immedaite value for attribute \"" + nameAttributeName + "\". Will look later.");
+                log.debug("No immediate value for attribute \"" + nameAttributeName + "\". Will look later.");
                 }
             } else {
                 name = (String) attribute.get();
