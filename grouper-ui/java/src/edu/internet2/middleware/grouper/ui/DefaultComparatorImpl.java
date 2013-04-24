@@ -126,7 +126,7 @@ public class DefaultComparatorImpl implements GrouperComparator {
 			String comp = helper.getComparisonString(obj,GrouperUiFilter.retrieveSessionMediaResourceBundle(),context);
 			return comp;
 		}catch(Exception e) {
-			LOG.error(e);
+			LOG.error("error for obj: " + (obj == null ? null : obj.getClass()), e);
 			return "?";
 		}
 	}
