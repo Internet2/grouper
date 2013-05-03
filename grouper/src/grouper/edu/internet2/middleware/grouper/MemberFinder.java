@@ -37,6 +37,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -325,9 +326,7 @@ public class MemberFinder {
   
   /**
    * find a member 
-   * @param id
-   * @param src
-   * @param type
+   * @param subj 
    * @param memberUuidIfCreate 
    * @param createIfNotExist 
    * @return the member or null
@@ -350,9 +349,26 @@ public class MemberFinder {
         if (member != null) {
           throw new RuntimeException("That uuid already exists: " + memberUuidIfCreate + ", " + member);
         }
-        
-        Member _m = internal_createMember(subj, memberUuidIfCreate);
-        return _m;
+        try {
+          Member _m = internal_createMember(subj, memberUuidIfCreate);
+          return _m;
+        } catch (RuntimeException re) {
+          //GRP-903: if the same member is created on two jvms, it throws a constrain exception
+          //maybe a constraint was violated?  Try to select again?
+          try {
+            //lets wait a little bit if transactions are finishing or whatever
+            GrouperUtil.sleep(500);
+            return GrouperDAOFactory.getFactory().getMember().findBySubject(subj.getId(), sourceId, 
+                subj.getType().getName(), true, new QueryOptions().secondLevelCache(false));
+          }
+          catch (MemberNotFoundException eMNF2) {
+            //put this exception in the other one...
+            GrouperUtil.injectInException(re, "... second memberNotFoundException for subject " + GrouperUtil.subjectToString(subj) 
+                + "... " + ExceptionUtils.getFullStackTrace(eMNF2) + "...");
+            //ignore this exception...  throw the original create exception
+            throw re;
+          }
+        }
       }
       return null;
     }

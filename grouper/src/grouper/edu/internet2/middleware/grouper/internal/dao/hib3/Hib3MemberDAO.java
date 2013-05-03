@@ -306,9 +306,15 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
         .setString( "source", src  )
         .uniqueResult(Member.class);
       
-    if (member == null) {
+    if (exceptionIfNull && member == null) {
       throw new MemberNotFoundException();
     }
+    
+    //dont cache this
+    if (!exceptionIfNull && member == null) {
+      return null;
+    }
+    
     getUuid2dtoCache().put( member.getUuid(), member );
     return member;
   }
