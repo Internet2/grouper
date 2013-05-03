@@ -419,10 +419,15 @@ public class GrouperLoaderLdapServer {
    */
   @Override
   public String toString() {
-    return "GrouperLoaderLdapServer [batchSize=" + batchSize + ", countLimit="
+    return "GrouperLoaderLdapServer [batchSize=" + batchSize
+        + ", configFileFromClasspath: " + this.configFileFromClasspath
+        + ", countLimit="
         + countLimit + ", driver=" + driver + ", expirationTime=" + expirationTime
-        + ", maxPoolSize=" + maxPoolSize + ", minPoolSize=" + minPoolSize + ", pass="
-        + (StringUtils.isBlank(pass) ? "" : "XXXXX") + ", pruneTimerPeriod=" + pruneTimerPeriod 
+        + ", maxPoolSize=" + maxPoolSize + ", minPoolSize=" + minPoolSize
+        + ", pagedResultsSize=" + pagedResultsSize
+        + ", pass="
+        + (StringUtils.isBlank(pass) ? "" : "XXXXX") 
+        + ", pruneTimerPeriod=" + pruneTimerPeriod + ", referral=" + referral
         + ", saslAuthorizationId=" + saslAuthorizationId + ", saslRealm=" + saslRealm
         + ", timeLimit=" + timeLimit + ", timeout=" + timeout + ", tls=" + tls + ", url="
         + url + ", user=" + user + ", validateOnCheckIn=" + validateOnCheckIn
