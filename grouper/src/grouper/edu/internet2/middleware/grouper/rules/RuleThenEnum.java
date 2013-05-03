@@ -309,6 +309,25 @@ public enum RuleThenEnum {
     
   }, 
 
+  /** add the member (the current one being acted on) to the owner group */
+  addMemberToOwnerGroup {
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleThenEnum#fireRule(edu.internet2.middleware.grouper.rules.RuleDefinition, edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     */
+    @Override
+    public Object fireRule(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
+        RulesBean rulesBean, StringBuilder logDataForThisDefinition) {
+      
+      Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), 
+          ruleDefinition.getAttributeAssignType().getOwnerGroupId(), true);
+      Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), rulesBean.getMemberId(), true);
+      return group.addMember(member.getSubject(), false);
+    }
+    
+  }, 
+
   /** */
   reassignGroupPrivilegesIfFromGroup {
 
