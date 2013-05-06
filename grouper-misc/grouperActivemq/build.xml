@@ -26,8 +26,8 @@
 
     <property name="main.lib" value="lib" />
 
-    <property name="main.bin" value="dist/bin" />
-    <property name="main.outputDir" value="dist" />
+    <property name="main.bin" value="dist2/bin" />
+    <property name="main.outputDir" value="dist2" />
 
     <property name="main.appName" value="grouperActivemq" />
     <property name="main.jarFile" value="${main.outputDir}/${main.appName}.jar" />
