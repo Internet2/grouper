@@ -293,7 +293,13 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
       
       //if we did where and, then switch to where
       sqlString = sqlString.replaceAll("where\\s+and", "where");
-      
+
+      //if we end in where, strip it out
+      sqlString = sqlString.trim();
+      if (sqlString.endsWith("where")) {
+        sqlString = sqlString.substring(0, sqlString.length()-5);
+      }
+
       Set<PermissionEntry> results = byHqlStatic.createQuery(selectPrefix + sqlString).listSet(PermissionEntry.class);
 
       int size = GrouperUtil.length(results);

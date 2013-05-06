@@ -542,7 +542,10 @@ public class SimplePermissionUpdate {
         }
       } else {
         
-        permissionFinder.assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS);
+        //only do this for enabled
+        if (enabledDisabledBoolean == Boolean.TRUE) {
+          permissionFinder.assignPermissionProcessor(PermissionProcessor.FILTER_REDUNDANT_PERMISSIONS);
+        }
 
       }
       

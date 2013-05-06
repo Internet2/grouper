@@ -11195,7 +11195,7 @@ public enum GrouperDdl implements DdlVersionable {
           "pit_member_context_idx", false, PITMember.COLUMN_CONTEXT_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembersTable.getName(), 
-          "pit_member_start_idx", false, PITMember.COLUMN_START_TIME, PITMember.COLUMN_END_TIME);
+          "pit_member_start_idx", true, PITMember.COLUMN_START_TIME, PITMember.COLUMN_SOURCE_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembersTable.getName(), 
           "pit_member_end_idx", false, PITMember.COLUMN_END_TIME);
@@ -11215,7 +11215,7 @@ public enum GrouperDdl implements DdlVersionable {
           "pit_field_context_idx", false, PITField.COLUMN_CONTEXT_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitFieldsTable.getName(), 
-          "pit_field_start_idx", false, PITField.COLUMN_START_TIME, PITField.COLUMN_END_TIME);
+          "pit_field_start_idx", true, PITField.COLUMN_START_TIME, PITField.COLUMN_SOURCE_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitFieldsTable.getName(), 
           "pit_field_end_idx", false, PITField.COLUMN_END_TIME);
@@ -11241,7 +11241,7 @@ public enum GrouperDdl implements DdlVersionable {
           "pit_group_context_idx", false, PITGroup.COLUMN_CONTEXT_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupsTable.getName(), 
-          "pit_group_start_idx", false, PITGroup.COLUMN_START_TIME, PITGroup.COLUMN_END_TIME);
+          "pit_group_start_idx", true, PITGroup.COLUMN_START_TIME, PITGroup.COLUMN_SOURCE_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupsTable.getName(), 
           "pit_group_end_idx", false, PITGroup.COLUMN_END_TIME);
@@ -11267,7 +11267,7 @@ public enum GrouperDdl implements DdlVersionable {
           "pit_stem_context_idx", false, PITStem.COLUMN_CONTEXT_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitStemsTable.getName(), 
-          "pit_stem_start_idx", false, PITStem.COLUMN_START_TIME, PITStem.COLUMN_END_TIME);
+          "pit_stem_start_idx", true, PITStem.COLUMN_START_TIME, PITStem.COLUMN_SOURCE_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitStemsTable.getName(), 
           "pit_stem_end_idx", false, PITStem.COLUMN_END_TIME);
@@ -11296,7 +11296,7 @@ public enum GrouperDdl implements DdlVersionable {
           "pit_attribute_def_type_idx", false, PITAttributeDef.COLUMN_ATTRIBUTE_DEF_TYPE);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefTable.getName(), 
-          "pit_attribute_def_start_idx", false, PITAttributeDef.COLUMN_START_TIME, PITAttributeDef.COLUMN_END_TIME);
+          "pit_attribute_def_start_idx", true, PITAttributeDef.COLUMN_START_TIME, PITAttributeDef.COLUMN_SOURCE_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefTable.getName(), 
           "pit_attribute_def_end_idx", false, PITAttributeDef.COLUMN_END_TIME);
@@ -11334,7 +11334,7 @@ public enum GrouperDdl implements DdlVersionable {
           "pit_ms_owner_member_field_idx", false, PITMembership.COLUMN_OWNER_ID, PITMembership.COLUMN_MEMBER_ID, PITMembership.COLUMN_FIELD_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembershipTable.getName(), 
-          "pit_ms_start_idx", false, PITMembership.COLUMN_START_TIME, PITMembership.COLUMN_END_TIME);
+          "pit_ms_start_idx", true, PITMembership.COLUMN_START_TIME, PITMembership.COLUMN_SOURCE_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembershipTable.getName(), 
           "pit_ms_end_idx", false, PITMembership.COLUMN_END_TIME);
@@ -11393,7 +11393,7 @@ public enum GrouperDdl implements DdlVersionable {
           "pit_gs_owner_member_field_idx", false, PITGroupSet.COLUMN_OWNER_ID, PITGroupSet.COLUMN_MEMBER_ID, PITGroupSet.COLUMN_FIELD_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupSetTable.getName(), 
-          "pit_gs_start_idx", false, PITGroupSet.COLUMN_START_TIME, PITGroupSet.COLUMN_END_TIME);
+          "pit_gs_start_idx", true, PITGroupSet.COLUMN_START_TIME, PITGroupSet.COLUMN_SOURCE_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupSetTable.getName(), 
           "pit_gs_end_idx", false, PITGroupSet.COLUMN_END_TIME);
@@ -11434,7 +11434,7 @@ public enum GrouperDdl implements DdlVersionable {
           "pit_attr_assn_own_stem_idx", false, PITAttributeAssign.COLUMN_OWNER_STEM_ID, PITAttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_ACTION_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignTable.getName(), 
-          "pit_attr_assn_start_idx", false, PITAttributeAssign.COLUMN_START_TIME, PITAttributeAssign.COLUMN_END_TIME);
+          "pit_attr_assn_start_idx", true, PITAttributeAssign.COLUMN_START_TIME, PITAttributeAssign.COLUMN_SOURCE_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignTable.getName(), 
           "pit_attr_assn_end_idx", false, PITAttributeAssign.COLUMN_END_TIME);
@@ -11468,7 +11468,7 @@ public enum GrouperDdl implements DdlVersionable {
           "pit_attr_val_member_id_idx", false, PITAttributeAssignValue.COLUMN_VALUE_MEMBER_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignValueTable.getName(), 
-          "pit_attr_val_start_idx", false, PITAttributeAssignValue.COLUMN_START_TIME, PITAttributeAssignValue.COLUMN_END_TIME);
+          "pit_attr_val_start_idx", true, PITAttributeAssignValue.COLUMN_START_TIME, PITAttributeAssignValue.COLUMN_SOURCE_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignValueTable.getName(), 
           "pit_attr_val_end_idx", false, PITAttributeAssignValue.COLUMN_END_TIME);
@@ -11485,7 +11485,7 @@ public enum GrouperDdl implements DdlVersionable {
           "pit_attr_assn_act_def_id_idx", false, PITAttributeAssignAction.COLUMN_ATTRIBUTE_DEF_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignActionTable.getName(), 
-          "pit_attr_assn_act_start_idx", false, PITAttributeAssignAction.COLUMN_START_TIME, PITAttributeAssignAction.COLUMN_END_TIME);
+          "pit_attr_assn_act_start_idx", true, PITAttributeAssignAction.COLUMN_START_TIME, PITAttributeAssignAction.COLUMN_SOURCE_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignActionTable.getName(), 
           "pit_attr_assn_act_end_idx", false, PITAttributeAssignAction.COLUMN_END_TIME);
@@ -11511,7 +11511,7 @@ public enum GrouperDdl implements DdlVersionable {
           "pit_attr_def_name_def_idx", false, PITAttributeDefName.COLUMN_ATTRIBUTE_DEF_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefNameTable.getName(), 
-          "pit_attr_def_name_start_idx", false, PITAttributeDefName.COLUMN_START_TIME, PITAttributeDefName.COLUMN_END_TIME);
+          "pit_attr_def_name_start_idx", true, PITAttributeDefName.COLUMN_START_TIME, PITAttributeDefName.COLUMN_SOURCE_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefNameTable.getName(), 
           "pit_attr_def_name_end_idx", false, PITAttributeDefName.COLUMN_END_TIME);
@@ -11534,7 +11534,7 @@ public enum GrouperDdl implements DdlVersionable {
           "pit_attr_def_name_set_prnt_idx", false, PITAttributeDefNameSet.COLUMN_PARENT_ATTR_DEF_NAME_SET_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefNameSet.getName(), 
-          "pit_attr_def_name_set_strt_idx", false, PITAttributeDefNameSet.COLUMN_START_TIME, PITAttributeDefNameSet.COLUMN_END_TIME);
+          "pit_attr_def_name_set_strt_idx", true, PITAttributeDefNameSet.COLUMN_START_TIME, PITAttributeDefNameSet.COLUMN_SOURCE_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefNameSet.getName(), 
           "pit_attr_def_name_set_end_idx", false, PITAttributeDefNameSet.COLUMN_END_TIME);
@@ -11557,7 +11557,7 @@ public enum GrouperDdl implements DdlVersionable {
           "pit_action_set_parent_idx", false, PITAttributeAssignActionSet.COLUMN_PARENT_ATTR_ASSN_ACTION_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignActionSet.getName(), 
-          "pit_action_set_start_idx", false, PITAttributeAssignActionSet.COLUMN_START_TIME, PITAttributeAssignActionSet.COLUMN_END_TIME);
+          "pit_action_set_start_idx", true, PITAttributeAssignActionSet.COLUMN_START_TIME, PITAttributeAssignActionSet.COLUMN_SOURCE_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeAssignActionSet.getName(), 
           "pit_action_set_end_idx", false, PITAttributeAssignActionSet.COLUMN_END_TIME);
@@ -11580,7 +11580,7 @@ public enum GrouperDdl implements DdlVersionable {
           "pit_rs_parent_idx", false, PITRoleSet.COLUMN_PARENT_ROLE_SET_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitRoleSet.getName(), 
-          "pit_rs_start_idx", false, PITRoleSet.COLUMN_START_TIME, PITRoleSet.COLUMN_END_TIME);
+          "pit_rs_start_idx", true, PITRoleSet.COLUMN_START_TIME, PITRoleSet.COLUMN_SOURCE_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitRoleSet.getName(), 
           "pit_rs_end_idx", false, PITRoleSet.COLUMN_END_TIME);

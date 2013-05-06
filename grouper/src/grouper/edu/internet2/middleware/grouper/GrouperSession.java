@@ -290,6 +290,7 @@ public class GrouperSession implements Serializable {
    * start a session based on a sourceId and subjectId
    * @param subjectIdentifier
    * @param sourceId if null search all sources
+   * @param addToThreadLocal 
    * @return return the GrouperSession
    */
   public static GrouperSession startBySubjectIdentifierAndSource(final String subjectIdentifier, final String sourceId, boolean addToThreadLocal) {
@@ -946,19 +947,27 @@ public class GrouperSession implements Serializable {
     //first look at the list of threadlocals
     List<GrouperSession> grouperSessionList = grouperSessionList();
     int size = grouperSessionList.size();
+    String error = "There is no open GrouperSession detected.  Make sure " +
+        "to start a grouper session (e.g. GrouperSession.startRootSession() if you want to use a root session ) before calling this method";
+    GrouperSession grouperSession = null;
     if (size == 0) {
       //if nothing in the threadlocal list, then use the last one
       //started (and added)
-      GrouperSession grouperSession = staticGrouperSession.get();
-      if (grouperSession == null && exceptionOnNull) {
-        //TODO CH 20120327: make this an option or something...
-        throw new IllegalStateException("There is no open GrouperSession detected.  Make sure " +
-        		"to start a grouper session (e.g. GrouperSession.startRootSession() if it should be a root session) before calling this method");
+      grouperSession = staticGrouperSession.get();
+      
+    } else {
+      // get the last index, return null if session closed
+      grouperSession = grouperSessionList.get(size-1);
+    }
+
+    if (grouperSession != null && grouperSession.subject == null) {
+      grouperSession = null;
+    }
+    
+    if (exceptionOnNull && grouperSession == null) {
+      throw new IllegalStateException(error);
       }
       return grouperSession;
     }
-    // get the last index
-    return grouperSessionList.get(size-1);
-  } 
   
 }

@@ -40,6 +40,78 @@ import edu.internet2.middleware.subject.Subject;
 public class RuleApi {
 
   /**
+   * normalize privileges if the user who creates a group is in a group which has create privilegs on the stem
+   * @param actAs
+   * @param ruleStem
+   * @param stemScope 
+   * @return the attribute assignment
+   */
+  public static AttributeAssign reassignGroupPrivilegesIfFromGroup(Subject actAs, Stem ruleStem, Scope stemScope) {
+    AttributeAssign attributeAssign = ruleStem
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+  
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+    
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), actAs.getSourceId());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), actAs.getId());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.groupCreate.name());
+    
+    //can be SUB or ONE for if in this folder, or in this and all subfolders
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckStemScopeName(), stemScope.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.reassignGroupPrivilegesIfFromGroup.name());
+    
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+  
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+    return attributeAssign;
+  }
+  
+  /**
+   * normalize privileges if the user who creates a group is in a group which has create privilegs on the stem
+   * @param actAs
+   * @param ruleStem
+   * @param stemScope 
+   * @return the attribute assignment
+   */
+  public static AttributeAssign reassignAttributeDefPrivilegesIfFromGroup(Subject actAs, Stem ruleStem, Scope stemScope) {
+    AttributeAssign attributeAssign = ruleStem
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+  
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+    
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), actAs.getSourceId());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), actAs.getId());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.attributeDefCreate.name());
+    
+    //can be SUB or ONE for if in this folder, or in this and all subfolders
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckStemScopeName(), stemScope.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.reassignAttributeDefPrivilegesIfFromGroup.name());
+    
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+  
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+    return attributeAssign;
+  }
+  
+  /**
    * 
    * @param actAs
    * @param ruleGroup
@@ -1202,5 +1274,43 @@ public class RuleApi {
     return attributeAssign;
     
 
+  }
+
+  /**
+   * normalize privileges if the user who creates a stem is in a group which has create privileges on the stem
+   * @param actAs
+   * @param ruleStem
+   * @param stemScope 
+   * @return the attribute assignment
+   */
+  public static AttributeAssign reassignStemPrivilegesIfFromGroup(Subject actAs, Stem ruleStem, Scope stemScope) {
+    //add a rule on stem2 saying if you create a stem underneath, then remove admin if in another group which has create on stem
+    AttributeAssign attributeAssign = ruleStem
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+    
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), actAs.getSourceId());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), actAs.getId());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.stemCreate.name());
+    
+    //can be SUB or ONE for if in this folder, or in this and all subfolders
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckStemScopeName(), stemScope.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.reassignStemPrivilegesIfFromGroup.name());
+    
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+
+    return attributeAssign;
   }
 }

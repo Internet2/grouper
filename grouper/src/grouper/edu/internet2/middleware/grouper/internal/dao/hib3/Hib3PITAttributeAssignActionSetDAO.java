@@ -237,4 +237,43 @@ public class Hib3PITAttributeAssignActionSetDAO extends Hib3DAO implements PITAt
     
     return actionSets;
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionSetDAO#findActiveDuplicates()
+   */
+  public Set<String> findActiveDuplicates() {
+    return HibernateSession
+      .byHqlStatic()
+      .createQuery("select sourceId from PITAttributeAssignActionSet where active='T' group by sourceId having count(*) > 1")
+      .setCacheable(false)
+      .listSet(String.class);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionSetDAO#findBySourceId(java.lang.String, boolean)
+   */
+  public Set<PITAttributeAssignActionSet> findBySourceId(String id, boolean exceptionIfNotFound) {
+    Set<PITAttributeAssignActionSet> pitAttributeAssignActionSet = HibernateSession
+      .byHqlStatic()
+      .createQuery("select actionSet from PITAttributeAssignActionSet as actionSet where actionSet.sourceId = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceId")
+      .setString("id", id)
+      .listSet(PITAttributeAssignActionSet.class);
+    
+    if (pitAttributeAssignActionSet.size() == 0 && exceptionIfNotFound) {
+      throw new RuntimeException("PITAttributeAssignActionSet with sourceId=" + id + " not found");
+    }
+    
+    return pitAttributeAssignActionSet;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionSetDAO#delete(java.lang.String)
+   */
+  public void delete(String id) {
+    HibernateSession.byHqlStatic()
+      .createQuery("delete from PITAttributeAssignActionSet where id = :id")
+      .setString("id", id)
+      .executeUpdate();
+  }
 }

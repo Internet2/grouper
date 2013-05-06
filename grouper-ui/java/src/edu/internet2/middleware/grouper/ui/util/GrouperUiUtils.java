@@ -1219,7 +1219,9 @@ public class GrouperUiUtils {
    * @return the relative path to image path
    */
   public static String convertSubjectToLabelConfigured(Subject subject, boolean tryLong) {
-    
+    if (subject == null) {
+      return "";
+    }
     //see if it is already computed
     if (subject instanceof SubjectSortWrapper) {
       return ((SubjectSortWrapper)subject).getScreenLabelLong();
@@ -1297,7 +1299,7 @@ public class GrouperUiUtils {
     Map<String, Object> variableMap = new HashMap<String, Object>();
     variableMap.put("subject", subject);
     variableMap.put("grouperUiUtils", new GrouperUiUtils());
-    String result = GrouperUtil.substituteExpressionLanguage(screenEl, variableMap);
+    String result = GrouperUtil.substituteExpressionLanguage(screenEl, variableMap, false, true, true);
     return result;
   }
 

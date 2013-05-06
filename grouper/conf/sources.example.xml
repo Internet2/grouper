@@ -438,7 +438,56 @@ where
        <param-value>searchAttribute0</param-value>
      </init-param>
      <internal-attribute>searchAttribute0</internal-attribute>
-
+     <!- - ##########################  STATUS SECTION for searches to filter out inactives and allow
+                                                     the user to filter by status with e.g. status=all
+                                                     this is optional, and advanced - -> 
+     <!- - column or attribute which represents the status - - >
+     <!- -
+     <init-param>
+       <param-name>statusDatastoreFieldName</param-name>
+       <param-value>status</param-value>
+     </init-param> - - >
+     <!- - search string from user which represents the status.  e.g. status=active - - >
+     <!- -
+     <init-param>
+       <param-name>statusLabel</param-name>
+       <param-value>status</param-value>
+     </init-param> - - >
+     <!- - available statuses from screen (if not specified, any will be allowed). comma separated list.
+          Note, this is optional and you probably dont want to configure it, it is mostly necessary
+          when you have multiple sources with statuses...  if someone types an invalid status
+          and you have this configured, it will not filter by it - - >
+     <!- - 
+     <init-param>
+       <param-name>statusesFromUser<param-name>
+       <param-value>Active, Inactive, Pending, All</param-value>
+     </init-param> - - >
+     <!- - all label from the user - - >
+     <!- -
+     <init-param>
+       <param-name>statusAllFromUser</param-name>
+       <param-value>All</param-value>
+     </init-param> - - >
+     <!- - if no status is specified, this will be used (e.g. for active only).  Note, the value should be of the
+          form the user would type in - - >
+     <!- - 
+     <init-param>
+       <param-name>statusSearchDefault</param-name>
+       <param-value>status=active</param-value>
+     </init-param> - - >
+     <!- - translate between screen values of status, and the data store value.  Increment the 0 to 1, 2, etc for more translations.
+          so the user could enter: status=active, and that could translate to status_col=A.  The 'user' is what the user types in,
+          the 'datastore' is what is in the datastore.  The user part is not case-sensitive.  Note, this could be a many to one - - >
+     <!- -
+     <init-param>
+       <param-name>statusTranslateUser0</param-name>
+       <param-value>active</param-value>
+     </init-param>
+     <init-param>
+       <param-name>statusTranslateDatastore0</param-name>
+       <param-value>A</param-value>
+     </init-param> - - >
+     <!- - ########################## END STATUS SECTION - - > 
    </source>
    -->
    
@@ -536,7 +585,7 @@ where
          <param>
             <param-name>filter</param-name>
             <param-value>
-                (&amp; (|(uid=%TERM%)(cn=*%TERM%*)(exampleEduRegId=%TERM%))(objectclass=exampleEduPerson))
+                (&amp; (|(|(uid=%TERM%)(cn=*%TERM%*))(exampleEduRegId=%TERM%))(objectclass=exampleEduPerson))
             </param-value>
         </param>
         <param>
@@ -564,6 +613,59 @@ where
       <param-name>searchAttribute0</param-name>
       <param-value>searchAttribute0</param-value>
     </init-param>
+
+     <!- - ##########################  STATUS SECTION for searches to filter out inactives and allow
+                                                     the user to filter by status with e.g. status=all
+                                                     this is optional, and advanced - -> 
+     <!- - column or attribute which represents the status - - >
+     <!- -
+     <init-param>
+       <param-name>statusDatastoreFieldName</param-name>
+       <param-value>status</param-value>
+     </init-param> - - >
+     <!- - search string from user which represents the status.  e.g. status=active - - >
+     <!- -
+     <init-param>
+       <param-name>statusLabel</param-name>
+       <param-value>status</param-value>
+     </init-param> - - >
+     <!- - available statuses from screen (if not specified, any will be allowed). comma separated list.
+          Note, this is optional and you probably dont want to configure it, it is mostly necessary
+          when you have multiple sources with statuses...  if someone types an invalid status
+          and you have this configured, it will not filter by it - - >
+     <!- - 
+     <init-param>
+       <param-name>statusesFromUser<param-name>
+       <param-value>Active, Inactive, Pending, All</param-value>
+     </init-param> - - >
+     <!- - all label from the user - - >
+     <!- -
+     <init-param>
+       <param-name>statusAllFromUser</param-name>
+       <param-value>All</param-value>
+     </init-param> - - >
+     <!- - if no status is specified, this will be used (e.g. for active only).  Note, the value should be of the
+          form the user would type in - - >
+     <!- - 
+     <init-param>
+       <param-name>statusSearchDefault</param-name>
+       <param-value>status=active</param-value>
+     </init-param> - - >
+     <!- - translate between screen values of status, and the data store value.  Increment the 0 to 1, 2, etc for more translations.
+          so the user could enter: status=active, and that could translate to status_col=A.  The 'user' is what the user types in,
+          the 'datastore' is what is in the datastore.  The user part is not case-sensitive.  Note, this could be a many to one - - >
+     <!- -
+     <init-param>
+       <param-name>statusTranslateUser0</param-name>
+       <param-value>active</param-value>
+     </init-param>
+     <init-param>
+       <param-name>statusTranslateDatastore0</param-name>
+       <param-value>A</param-value>
+     </init-param> - - >
+     <!- - ########################## END STATUS SECTION - - > 
+
+
     <internal-attribute>searchAttribute0</internal-attribute>
 
     ///Attributes you would like to display when doing a search 

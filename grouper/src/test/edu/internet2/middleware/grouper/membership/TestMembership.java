@@ -50,6 +50,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -82,7 +83,7 @@ public class TestMembership extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMembership("testDisabledDateRange"));
+    TestRunner.run(new TestMembership("testIllegalEffectiveDelete"));
   }
   
   // Private Class Constants
@@ -964,6 +965,25 @@ public class TestMembership extends TestCase {
     assertEquals("not in range", 0, memberships.size());
 
     
+  }
+  
+  /**
+   * 
+   */
+  public void testIllegalEffectiveDelete() {
+    Group group1 = edu.addChildGroup("group1", "group1");
+    Group group2 = edu.addChildGroup("group2", "group2");
+    group1.addMember(group2.toSubject());
+    group2.addMember(subj0);
+    
+    Membership ms = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndFieldAndType(group1.getUuid(), Group.getDefaultList(), "effective", false).iterator().next();
+    
+    try {
+      ms.delete();
+      fail("expected failure");
+    } catch (Exception e) {
+      // good
+    }
   }
   
 }

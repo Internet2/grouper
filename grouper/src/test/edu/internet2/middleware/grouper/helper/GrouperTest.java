@@ -697,7 +697,8 @@ public class GrouperTest extends TestCase {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.rootStem", "etc:attribute");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.loader.autoconfigure", "true");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.permissions.limits.builtin.createAs.public", "true");
-
+    ApiConfig.testConfig.put("ddlutils.use.nestedTransactions", "true");
+    
     setupConfigs();
     
     RegistryReset.internal_resetRegistryAndAddTestSubjects();

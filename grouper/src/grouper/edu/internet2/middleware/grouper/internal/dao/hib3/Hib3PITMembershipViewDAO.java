@@ -202,6 +202,10 @@ public class Hib3PITMembershipViewDAO extends Hib3DAO implements PITMembershipVi
       sql.append(" and m.subjectSourceIdDb in ").append(HibUtils.convertSourcesToSqlInString(sources));
     }
     
+    if (queryOptions != null) {
+      Hib3MemberDAO.massageMemberSortFields(queryOptions.getQuerySort());
+    }
+
     return HibernateSession.byHqlStatic().options(queryOptions)
       .createQuery(sql.toString())
       .setCacheable(false)

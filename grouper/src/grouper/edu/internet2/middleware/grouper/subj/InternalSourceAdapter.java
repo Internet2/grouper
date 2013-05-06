@@ -45,6 +45,8 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
 import edu.internet2.middleware.subject.provider.SubjectImpl;
+import edu.internet2.middleware.subject.provider.SubjectStatusProcessor;
+import edu.internet2.middleware.subject.provider.SubjectStatusResult;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 /**
@@ -242,6 +244,19 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
    * @return  Subjects matching search value.
    */
   public Set search(String searchValue) {
+    
+    //if this is a search and not by id or identifier, strip out the status part
+    {
+      SubjectStatusResult subjectStatusResult = null;
+      
+      //see if we are doing status
+      SubjectStatusProcessor subjectStatusProcessor = new SubjectStatusProcessor(searchValue, this.getSubjectStatusConfig());
+      subjectStatusResult = subjectStatusProcessor.processSearch();
+
+      //strip out status parts
+      searchValue = subjectStatusResult.getStrippedQuery();
+    }      
+
     Set results = new LinkedHashSet();
     Subject subject = this._resolveSubject(searchValue,true, false);
     if (subject != null) {

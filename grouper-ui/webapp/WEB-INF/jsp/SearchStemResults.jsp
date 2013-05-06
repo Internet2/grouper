@@ -5,6 +5,8 @@
   @version $Id: SearchStemResults.jsp,v 1.5 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
+  <div class="section groupSearchSubject">
+  <div class="sectionBody">
 <c:set var="termMode" value="query"/>
 <c:set var="termText" value=""/>
 <c:forEach var="outTerm" items="${queryOutTerms}">
@@ -50,4 +52,6 @@
 </c:if>
 <div class="linkButton">
 <tiles:insert definition="callerPageButtonDef"/>
+</div>
+</div>
 </div>

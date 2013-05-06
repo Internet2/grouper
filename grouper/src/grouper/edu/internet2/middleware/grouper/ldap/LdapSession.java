@@ -15,6 +15,8 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ldap;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -68,7 +70,26 @@ public class LdapSession {
           
           GrouperLoaderLdapServer grouperLoaderLdapServer = GrouperLoaderConfig.retrieveLdapProfile(ldapServerId);
           
-          LdapConfig ldapConfig = new LdapConfig(grouperLoaderLdapServer.getUrl());
+          LdapConfig ldapConfig = null;
+          
+          // load this vt-ldap config file before the configs here.  load from classpath
+          if (!StringUtils.isBlank(grouperLoaderLdapServer.getConfigFileFromClasspath())) {
+
+            URL url = GrouperUtil.computeUrl(grouperLoaderLdapServer.getConfigFileFromClasspath(), false);
+            try {
+              ldapConfig = LdapConfig.createFromProperties(url.openStream());    
+            } catch (IOException ioe) {
+              throw new RuntimeException("Error processing classpath file: " + grouperLoaderLdapServer.getConfigFileFromClasspath(), ioe);
+            }
+            
+            if (!StringUtils.isBlank(grouperLoaderLdapServer.getUrl())) {
+              ldapConfig.setLdapUrl(grouperLoaderLdapServer.getUrl());
+            }
+          } else {
+
+            ldapConfig = new LdapConfig(grouperLoaderLdapServer.getUrl());
+
+          }
           
           if (!StringUtils.isBlank(grouperLoaderLdapServer.getUser())) {
             ldapConfig.setBindDn(grouperLoaderLdapServer.getUser());
@@ -85,7 +106,7 @@ public class LdapSession {
           }
           
           LdapPoolConfig ldapPoolConfig = new LdapPoolConfig();
-
+          
           //
           //#optional, if using sasl
           //#ldap.personLdap.saslAuthorizationId = 
@@ -121,6 +142,16 @@ public class LdapSession {
             ldapConfig.setTimeout(grouperLoaderLdapServer.getTimeout());
           }
           
+          //#ldap.personLdap.pagedResultsSize
+          if (grouperLoaderLdapServer.getPagedResultsSize() != -1) {
+            ldapConfig.setPagedResultsSize(grouperLoaderLdapServer.getPagedResultsSize());
+          }
+
+          //#ldap.personLdap.referral
+          if (!StringUtils.isBlank(grouperLoaderLdapServer.getReferral())) {
+            ldapConfig.setReferral(grouperLoaderLdapServer.getReferral());
+          }
+
           //#ldap.personLdap.minPoolSize = 
           if (grouperLoaderLdapServer.getMinPoolSize() != -1) {
             ldapPoolConfig.setMinPoolSize(grouperLoaderLdapServer.getMinPoolSize());

@@ -1981,7 +1981,7 @@ public class SimpleAttributeUpdate {
       AttributeAssign attributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(attributeAssignId, true, false);
       
       //now we need to check security
-      if (!PrivilegeHelper.canAttrAdmin(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
+      if (!PrivilegeHelper.canAttrUpdate(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
         
         String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
         notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);
@@ -2065,7 +2065,7 @@ public class SimpleAttributeUpdate {
       AttributeAssign attributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(attributeAssignId, true, false);
       
       //now we need to check security
-      if (!PrivilegeHelper.canAttrAdmin(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
+      if (!PrivilegeHelper.canAttrUpdate(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
         //we are in a modal dialog, so we need to put up a native javascript alert
         String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
         notAllowed = GrouperUiUtils.escapeJavascript(notAllowed, true);
@@ -2131,7 +2131,7 @@ public class SimpleAttributeUpdate {
       AttributeAssign attributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(attributeAssignId, true, false);
       
       //now we need to check security
-      if (!PrivilegeHelper.canAttrAdmin(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
+      if (!PrivilegeHelper.canAttrUpdate(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
         
         String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
         notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);
@@ -2209,7 +2209,7 @@ public class SimpleAttributeUpdate {
       AttributeAssign attributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(attributeAssignId, true, false);
       
       //now we need to check security
-      if (!PrivilegeHelper.canAttrAdmin(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
+      if (!PrivilegeHelper.canAttrUpdate(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
         
         String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
         notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);
@@ -2284,7 +2284,7 @@ public class SimpleAttributeUpdate {
       AttributeAssign attributeAssign = AttributeAssignFinder.findById(attributeAssignId, true);
 
       //now we need to check security
-      if (!PrivilegeHelper.canAttrAdmin(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
+      if (!PrivilegeHelper.canAttrUpdate(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
         
         String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
         notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);
@@ -2342,7 +2342,7 @@ public class SimpleAttributeUpdate {
       attributeAssign.delete();
       
       //now we need to check security
-      if (!PrivilegeHelper.canAttrAdmin(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
+      if (!PrivilegeHelper.canAttrUpdate(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
         
         String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
         notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);
@@ -2587,7 +2587,7 @@ public class SimpleAttributeUpdate {
       AttributeAssign attributeAssign = AttributeAssignFinder.findById(attributeAssignId, true);
   
       //now we need to check security
-      if (!PrivilegeHelper.canAttrAdmin(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
+      if (!PrivilegeHelper.canAttrUpdate(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
         
         String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
         notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);

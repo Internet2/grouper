@@ -26,6 +26,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import edu.internet2.middleware.subject.provider.SourceManager;
+import edu.internet2.middleware.subject.provider.SubjectStatusConfig;
 
 
 /**
@@ -33,6 +34,17 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  */
 @SuppressWarnings("serial")
 public class LazySource implements Source, Serializable {
+
+  /**
+   * @see Source#getSubjectStatusConfig()
+   */
+  @Override
+  public SubjectStatusConfig getSubjectStatusConfig() {
+
+    //get the cached config for this source
+    return this.source.getSubjectStatusConfig();
+    
+  }
 
   /** id of underlying source */
   private String underlyingSourceId = null;

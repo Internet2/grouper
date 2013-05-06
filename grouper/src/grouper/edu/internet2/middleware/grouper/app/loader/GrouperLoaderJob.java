@@ -245,8 +245,23 @@ public class GrouperLoaderJob implements Job, StatefulJob {
       //see if the runtime settings have changed
       if (scheduleChange) {
         
-        GrouperLoaderScheduleType grouperLoaderScheduleTypeEnumFromOwner = GrouperLoaderScheduleType
-          .valueOfIgnoreCase(grouperLoaderScheduleTypeFromOwner, true);
+        GrouperLoaderScheduleType grouperLoaderScheduleTypeEnumFromOwner = null;
+        
+        //if there is a cron string, then it must be cron
+        if (StringUtils.isBlank(grouperLoaderScheduleTypeFromOwner) && !StringUtils.isBlank(grouperLoaderQuartzCronFromOwner)) {
+          grouperLoaderScheduleTypeEnumFromOwner = GrouperLoaderScheduleType.CRON;
+          
+          //if it is an LDAP job, then it must be cron
+        } else if (StringUtils.isBlank(grouperLoaderQuartzCronFromOwner) && (grouperLoaderType.equals(GrouperLoaderType.LDAP_SIMPLE)
+            || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUP_LIST)
+            || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES))) {
+          grouperLoaderScheduleTypeEnumFromOwner = GrouperLoaderScheduleType.CRON;
+          
+          //else parse the schedule type, and it is required
+        } else {
+          grouperLoaderScheduleTypeEnumFromOwner = GrouperLoaderScheduleType
+              .valueOfIgnoreCase(grouperLoaderScheduleTypeFromOwner, true);
+        }
         
         if (grouperLoaderScheduleTypeEnumFromOwner.equals(GrouperLoaderScheduleType.START_TO_START_INTERVAL)) {
           if (grouperLoaderIntervalSecondsFromOwner == null) {
@@ -290,9 +305,9 @@ public class GrouperLoaderJob implements Job, StatefulJob {
       if (grouperLoaderType.equals(GrouperLoaderType.ATTR_SQL_SIMPLE)) {
         
         runJobAttrDef(hib3GrouploaderLog, attributeDef, grouperSession);
-      } else if (grouperLoaderType.equals(GrouperLoaderType.LDAP_SIMPLE) 
-          || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUP_LIST)
-          || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES)) {
+      } else if (grouperLoaderType.equals(GrouperLoaderType.LDAP_SIMPLE)
+        || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUP_LIST)
+        || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES)) {
         
         runJobLdap(hib3GrouploaderLog, group, grouperSession);
       } else {

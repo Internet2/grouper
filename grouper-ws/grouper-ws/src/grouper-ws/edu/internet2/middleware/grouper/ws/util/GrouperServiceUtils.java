@@ -37,6 +37,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
@@ -1305,8 +1306,21 @@ public final class GrouperServiceUtils {
    * @param theClass 
    * @return the new array
    */
-  @SuppressWarnings("unchecked")
   public static <T> T[] mergeArrays(T[] toArray, T[] fromArray, String propertyNameForEquality, Class<T> theClass) {
+    return mergeArrays(toArray, fromArray, new String[]{propertyNameForEquality}, theClass);
+  }
+
+  /**
+   * merge one array into another array and return it
+   * @param <T> is the type that is being handled
+   * @param toArray
+   * @param fromArray
+   * @param propertyNamesForEquality list of property names which are used for equality
+   * @param theClass 
+   * @return the new array
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> T[] mergeArrays(T[] toArray, T[] fromArray, String[] propertyNamesForEquality, Class<T> theClass) {
     
     //if there is nothing coming from, then return the old one (toArray)
     if (GrouperUtil.length(fromArray) == 0) {
@@ -1321,23 +1335,23 @@ public final class GrouperServiceUtils {
     //see if they are in there
     List<T> itemsToAdd = new ArrayList<T>();
     
-    Set<String> toArrayNames = new HashSet<String>();
+    Set<MultiKey> toArrayNames = new HashSet<MultiKey>();
     
     //add all the toArrayNames
     for (T item : toArray) {
-      String id = (String)GrouperUtil.propertyValue(item, propertyNameForEquality);
-      toArrayNames.add(id);
+      MultiKey multiKey = propertyNameValues(item, propertyNamesForEquality);
+      toArrayNames.add(multiKey);
     }
     
-    Set<String> itemNamesToAddNames = new HashSet<String>();
+    Set<MultiKey> itemNamesToAddNames = new HashSet<MultiKey>();
     
     for (T item : fromArray) {
       
-      String id = (String)GrouperUtil.propertyValue(item, propertyNameForEquality);
+      MultiKey multiKey = propertyNameValues(item, propertyNamesForEquality);
 
-      if (!toArrayNames.contains(id) && !itemNamesToAddNames.contains(id)) {
+      if (!toArrayNames.contains(multiKey) && !itemNamesToAddNames.contains(multiKey)) {
         itemsToAdd.add(item);
-        itemNamesToAddNames.add(id);
+        itemNamesToAddNames.add(multiKey);
       }
       
     }
@@ -1357,5 +1371,22 @@ public final class GrouperServiceUtils {
     return result;
   }
 
+  /**
+   * 
+   * @param object
+   * @param propertyNamesForEquality
+   * @return the multikey of property values
+   */
+  public static MultiKey propertyNameValues(Object object, String[] propertyNamesForEquality) {
+    Object[] keys = new Object[GrouperUtil.length(propertyNamesForEquality)];
+    int i=0;
+    for (String propertyNameForEquality: propertyNamesForEquality) {
+      GrouperUtil.propertyValue(object, propertyNameForEquality);
+
+      keys[i] = propertyNamesForEquality;
+    }
+    MultiKey multiKey = new MultiKey(keys);
+    return multiKey;
+  }
 
 }

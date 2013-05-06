@@ -46,14 +46,17 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.beans.groupUpdate.GroupUpdateRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -236,7 +239,23 @@ public class SimpleGroupUpdate {
        
         
         stem = StemFinder.findByUuid(grouperSession, stemId, true);
-  
+        final String GROUP_NAME = stem.getName() + ":" + extension;
+        //see if the group exists, do this as admin, since the user might not be able to see it
+        boolean exists = (Boolean)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+          
+          @Override
+          public Object callback(GrouperSession grouperSessionSystem) throws GrouperSessionException {
+
+            Group group = GroupFinder.findByName(grouperSessionSystem, GROUP_NAME, false, new QueryOptions().secondLevelCache(false));
+            return group != null;
+          }
+        });
+        
+        if (exists) {
+          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleGroupUpdate.errorInsertGroupExists", false)));
+          return;
+        }
+        
       }
 
       String displayExtension = httpServletRequest.getParameter("groupToEditDisplayExtension");
@@ -354,7 +373,7 @@ public class SimpleGroupUpdate {
       }
       
       guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message(
-          "simpleGroupUpdate.groupSaved", false, true, stemName + ":" + extension)));
+          "simpleGroupUpdate.groupSaved", false, true, group.getName())));
   
       groupUpdateRequestContainer.setGroupToEdit(group);
       groupUpdateRequestContainer.setCreate(false);

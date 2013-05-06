@@ -38,6 +38,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.security.Principal;
 import java.util.Enumeration;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -97,6 +98,7 @@ import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Generic filter for ui for grouper (e.g. set hooks context)
@@ -256,6 +258,16 @@ public class GrouperUiFilter implements Filter {
    * @return the subject
    */
   public static Subject retrieveSubjectLoggedIn() {
+    return retrieveSubjectLoggedIn(false);
+  }
+    
+
+  /**
+   * retrieve the subject logged in
+   * @param allowNoUserLoggedIn true if allowed to have no user, false if expecting a user
+   * @return the subject
+   */
+  private static Subject retrieveSubjectLoggedIn(boolean allowNoUserLoggedIn) {
     
     GrouperSession grouperSession = SessionInitialiser.getGrouperSession(retrieveHttpServletRequest().getSession());
     if (grouperSession != null && grouperSession.getSubject() != null) {
@@ -283,6 +295,9 @@ public class GrouperUiFilter implements Filter {
     }
 
     if (StringUtils.isBlank(userIdLoggedIn)) {
+      if (allowNoUserLoggedIn) {
+        return null;
+      }
       throw new RuntimeException("Cant find logged in user");
     }
     
@@ -290,6 +305,9 @@ public class GrouperUiFilter implements Filter {
     try {
       subjectLoggedIn = SubjectFinder.findByIdOrIdentifier(userIdLoggedIn, true);
     } catch (RuntimeException re) {
+      if (re instanceof SubjectNotFoundException && uiSectionForRequest.isAnonymous()) {
+        return null;
+      }
       //this is probably a system error...  not a user error
       GrouperUtil.injectInException(re, "Cant find subject from login id: " + userIdLoggedIn);
       throw re;
@@ -369,6 +387,9 @@ public class GrouperUiFilter implements Filter {
     
     //see if member of login group
     String groupToRequire = TagUtils.mediaResourceString(mediaKeyOfGroup);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("mediaKeyOfGroup: " + mediaKeyOfGroup + ", groupToRequire: " + groupToRequire + ", subject: " + GrouperUtil.subjectToString(subjectLoggedIn));
+    }
     if (!StringUtils.isBlank(groupToRequire)) {
       
       GrouperSession grouperSession = null;
@@ -506,33 +527,57 @@ public class GrouperUiFilter implements Filter {
    * @return user name
    */
   public static String remoteUser(HttpServletRequest httpServletRequest) {
-    String remoteUser = httpServletRequest.getRemoteUser();
     
-    if (StringUtils.isBlank(remoteUser)) {
-      //this is how mod_jk passes env vars
-      remoteUser = (String)httpServletRequest.getAttribute("REMOTE_USER");
+    Map<String, Object> debugLog = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+    try {
+      String remoteUser = httpServletRequest.getRemoteUser();
+      
+      if (LOG.isDebugEnabled()) {
+        debugLog.put("httpServletRequest.getRemoteUser()", remoteUser);
+      }
+      
+      if (StringUtils.isBlank(remoteUser)) {
+        //this is how mod_jk passes env vars
+        remoteUser = (String)httpServletRequest.getAttribute("REMOTE_USER");
+        if (LOG.isDebugEnabled()) {
+          debugLog.put("REMOTE_USER attribute", remoteUser);
+        }
+      }
+      
+      if (StringUtils.isBlank(remoteUser) && httpServletRequest.getUserPrincipal() != null) {
+        //this is how mod_jk passes env vars
+        remoteUser = httpServletRequest.getUserPrincipal().getName();
+        if (LOG.isDebugEnabled()) {
+          debugLog.put("httpServletRequest.getUserPrincipal().getName()", remoteUser);
+        }
+      }
+      if (StringUtils.isBlank(remoteUser)) {
+        HttpSession session = httpServletRequest.getSession(false);
+        remoteUser = (String)(session == null ? null : session.getAttribute("authUser"));
+        if (LOG.isDebugEnabled()) {
+          debugLog.put("session.getAttribute(authUser)", remoteUser);
+        }
+      }
+      
+      remoteUser = StringUtils.trim(remoteUser);
+      
+      httpServletRequest.getSession().setAttribute("grouperLoginId", remoteUser);
+
+      if (LOG.isDebugEnabled()) {
+        debugLog.put("remoteUser overall", remoteUser);
+      }
+
+      return remoteUser;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugLog));
+      }
     }
-    
-    if (StringUtils.isBlank(remoteUser) && httpServletRequest.getUserPrincipal() != null) {
-      //this is how mod_jk passes env vars
-      remoteUser = httpServletRequest.getUserPrincipal().getName();
-    }
-    if (StringUtils.isBlank(remoteUser)) {
-      HttpSession session = httpServletRequest.getSession(false);
-      remoteUser = (String)(session == null ? null : session.getAttribute("authUser"));
-    }
-    
-    remoteUser = StringUtils.trim(remoteUser);
-    
-    httpServletRequest.getSession().setAttribute("grouperLoginId", remoteUser);
-    
-    return remoteUser;
   }
   
   
   /**
    * get the ui section we are in
-   * @param httpServletRequest
    * @return true if allowed anonymous
    */
   public static UiSection uiSectionForRequest() {
@@ -624,10 +669,14 @@ public class GrouperUiFilter implements Filter {
     
     if (!StringUtils.isBlank(operation)) {
       
+      //anyone can see the menu...
+      if (theClass.equals("Misc") || theClass.equals("MiscMenu")) {
+        return UiSection.ANONYMOUS;
+      }
       if (theClass.startsWith("SimpleAttributeUpdate")) {
         return UiSection.SIMPLE_ATTRIBUTE_UPDATE;
       }
-      if (theClass.equals("Misc") || theClass.startsWith("SimpleMembershipUpdate")) {
+      if (theClass.startsWith("SimpleMembershipUpdate")) {
         return UiSection.SIMPLE_MEMBERSHIP_UPDATE;
       }
       if (theClass.startsWith("SubjectPicker") || theClass.startsWith("AttributeDefNamePicker")) {
@@ -842,6 +891,13 @@ public class GrouperUiFilter implements Filter {
         
       } catch (Exception e) {
         LOG.error("Error checking debugSessionSerialization", e);
+      }
+      
+      //this makes sure allowed in section
+      Subject subjectLoggedIn = retrieveSubjectLoggedIn(true);
+      if (subjectLoggedIn != null) {
+        UiSection uiSection = uiSectionForRequest();
+        ensureUserAllowedInSection(uiSection, subjectLoggedIn);
       }
       
       filterChain.doFilter(httpServletRequest, response);

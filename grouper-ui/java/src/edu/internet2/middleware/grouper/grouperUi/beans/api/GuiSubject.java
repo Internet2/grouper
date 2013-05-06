@@ -116,18 +116,20 @@ public class GuiSubject implements Serializable {
   public Map<String, String> getAttributes() {
     if (this.attributes == null) {
       Map<String, String> result = new LinkedHashMap<String, String>();
-      for (String key : (Set<String>)(Object)GrouperUtil.nonNull(this.subject.getAttributes()).keySet()) {
-        Object value = this.subject.getAttributes().get(key);
-        if (value instanceof String) {
-          //if a string
-          result.put(key, (String)value);
-        } else if (value instanceof Set) {
-          //if set of one string, then add it
-          if (((Set)value).size() == 1) {
-            result.put(key, (String)((Set)value).iterator().next());
-          } else if (((Set)value).size() > 1) {
-            //put commas in between?  not sure what else to do here
-            result.put(key, GrouperUtil.setToString((Set)value));
+      if (this.subject != null) {
+        for (String key : (Set<String>)(Object)GrouperUtil.nonNull(this.subject.getAttributes()).keySet()) {
+          Object value = this.subject.getAttributes().get(key);
+          if (value instanceof String) {
+            //if a string
+            result.put(key, (String)value);
+          } else if (value instanceof Set) {
+            //if set of one string, then add it
+            if (((Set)value).size() == 1) {
+              result.put(key, (String)((Set)value).iterator().next());
+            } else if (((Set)value).size() > 1) {
+              //put commas in between?  not sure what else to do here
+              result.put(key, GrouperUtil.setToString((Set)value));
+            }
           }
         }
       }

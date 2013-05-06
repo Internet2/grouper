@@ -501,5 +501,44 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
     
     return groupSets;
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findActiveDuplicates()
+   */
+  public Set<String> findActiveDuplicates() {
+    return HibernateSession
+      .byHqlStatic()
+      .createQuery("select sourceId from PITGroupSet where active='T' group by sourceId having count(*) > 1")
+      .setCacheable(false)
+      .listSet(String.class);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findBySourceId(java.lang.String, boolean)
+   */
+  public Set<PITGroupSet> findBySourceId(String id, boolean exceptionIfNotFound) {
+    Set<PITGroupSet> pitGroupSets = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pitGroupSet from PITGroupSet as pitGroupSet where pitGroupSet.sourceId = :id")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBySourceId")
+      .setString("id", id)
+      .listSet(PITGroupSet.class);
+    
+    if (pitGroupSets.size() == 0 && exceptionIfNotFound) {
+      throw new RuntimeException("PITGroupSet with sourceId=" + id + " not found");
+    }
+    
+    return pitGroupSets;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#delete(java.lang.String)
+   */
+  public void delete(String id) {
+    HibernateSession.byHqlStatic()
+      .createQuery("delete from PITGroupSet where id = :id")
+      .setString("id", id)
+      .executeUpdate();
+  }
 }
 

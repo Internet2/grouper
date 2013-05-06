@@ -327,6 +327,11 @@ public class GrouperService {
    *            will be done at a single point in time rather than a range.  If this is specified but 
    *            pointInTimeFrom is not specified, then the point in time query range will be from the 
    *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
+   * @param pageSize page size if paging
+   * @param pageNumber page number 1 indexed if paging
+   * @param sortString must be an hql query field, e.g. 
+   * can sort on uuid, subjectId, sourceId, name, description, sortString0, sortString1, sortString2, sortString3, sortString4
+   * @param ascending T or null for ascending, F for descending.  
    * @return the members, or no members if none found
    */
   public WsGetMembersLiteResult getMembersLite(final String clientVersion,
@@ -336,7 +341,8 @@ public class GrouperService {
       String includeSubjectDetail, String subjectAttributeNames,
       String paramName0, String paramValue0,
       String paramName1, String paramValue1, String sourceIds,
-      String pointInTimeFrom, String pointInTimeTo) {
+      String pointInTimeFrom, String pointInTimeTo, String pageSize, String pageNumber,
+      String sortString, String ascending ) {
 
     WsGetMembersLiteResult wsGetMembersLiteResult = new WsGetMembersLiteResult();
 
@@ -360,12 +366,17 @@ public class GrouperService {
       Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
       Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
 
+      Integer pageSizeInteger = GrouperUtil.intObjectValue(pageSize, true);
+      Integer pageNumberInteger = GrouperUtil.intObjectValue(pageNumber, true);
+      
+      Boolean ascendingBoolean = GrouperUtil.booleanObjectValue(ascending);
 
       wsGetMembersLiteResult = GrouperServiceLogic.getMembersLite(grouperWsVersion, 
           groupName, groupUuid, wsMemberFilter, actAsSubjectId, 
           actAsSubjectSourceId, actAsSubjectIdentifier, field, includeGroupDetailBoolean, 
           includeSubjectDetailBoolean, subjectAttributeNames, paramName0, paramValue0, 
-          paramName1, paramValue1, sourceIds, pointInTimeFromTimestamp, pointInTimeToTimestamp);
+          paramName1, paramValue1, sourceIds, pointInTimeFromTimestamp, pointInTimeToTimestamp,
+          pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean);
     } catch (Exception e) {
       wsGetMembersLiteResult.assignResultCodeException(null, null, e);
     }
@@ -410,6 +421,11 @@ public class GrouperService {
    *            will be done at a single point in time rather than a range.  If this is specified but 
    *            pointInTimeFrom is not specified, then the point in time query range will be from the 
    *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
+   * @param pageSize page size if paging
+   * @param pageNumber page number 1 indexed if paging
+   * @param sortString must be an hql query field, e.g. 
+   * can sort on uuid, subjectId, sourceId, name, description, sortString0, sortString1, sortString2, sortString3, sortString4
+   * @param ascending T or null for ascending, F for descending.  
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -419,8 +435,9 @@ public class GrouperService {
       String includeGroupDetail, 
       String includeSubjectDetail, String[] subjectAttributeNames,
       WsParam[] params, String[] sourceIds,
-      String pointInTimeFrom, String pointInTimeTo) {
-  
+      String pointInTimeFrom, String pointInTimeTo, String pageSize, String pageNumber,
+      String sortString, String ascending ) {
+	  
     WsGetMembersResults wsGetMembersResults = new WsGetMembersResults();
   
     try {
@@ -443,10 +460,16 @@ public class GrouperService {
       Timestamp pointInTimeFromTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeFrom);
       Timestamp pointInTimeToTimestamp = GrouperServiceUtils.stringToTimestamp(pointInTimeTo);
   
+      Integer pageSizeInteger = GrouperUtil.intObjectValue(pageSize, true);
+      Integer pageNumberInteger = GrouperUtil.intObjectValue(pageNumber, true);
+      
+      Boolean ascendingBoolean = GrouperUtil.booleanObjectValue(ascending);
+
       wsGetMembersResults = GrouperServiceLogic.getMembers(grouperWsVersion, wsGroupLookups, 
           wsMemberFilter, actAsSubjectLookup, field, includeGroupDetailBoolean, 
           includeSubjectDetailBoolean, subjectAttributeNames, params, sourceIds, 
-          pointInTimeFromTimestamp, pointInTimeToTimestamp);
+          pointInTimeFromTimestamp, pointInTimeToTimestamp,
+          pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean);
     } catch (Exception e) {
       wsGetMembersResults.assignResultCodeException(null, null, e);
     }

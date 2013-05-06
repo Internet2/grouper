@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import edu.internet2.middleware.subject.provider.SubjectStatusConfig;
+
 
 
 /**
@@ -27,6 +29,12 @@ import java.util.Set;
  */
 public interface Source {
 
+  /**
+   * get the config bean for this source
+   * @return the config bean for this source
+   */
+  public SubjectStatusConfig getSubjectStatusConfig();
+  
   /**
    * Returns the ID of this source.
    * @return id

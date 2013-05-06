@@ -110,4 +110,15 @@ public interface PITAttributeDefNameDAO extends GrouperDAO {
    * @return active point in time attribute def names that should be inactive
    */
   public Set<PITAttributeDefName> findMissingInactivePITAttributeDefNames();
+  
+  /**
+   * @return source ids of records that have duplicate active entries in PIT
+   */
+  public Set<String> findActiveDuplicates();
+  
+  /**
+   * Delete (won't run pre and post delete methods)
+   * @param id
+   */
+  public void delete(String id);
 }

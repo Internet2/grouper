@@ -887,6 +887,15 @@ TODO update for 1.5
    */
   List<Membership> findAllByAttrDefOwnerAsList(String attrDefId, boolean enabledOnly)
     throws  GrouperDAOException;
+  
+  /**
+   * @param attrDefId 
+   * @param enabledOnly 
+   * @return list
+   * @throws GrouperDAOException 
+   */
+  List<Membership> findAllImmediateByAttrDefOwnerAsList(String attrDefId, boolean enabledOnly)
+    throws  GrouperDAOException;
 
   /**
    * @param memberUUID 

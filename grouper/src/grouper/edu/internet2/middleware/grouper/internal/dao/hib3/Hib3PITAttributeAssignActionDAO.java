@@ -195,4 +195,25 @@ public class Hib3PITAttributeAssignActionDAO extends Hib3DAO implements PITAttri
     
     return actions;
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionDAO#findActiveDuplicates()
+   */
+  public Set<String> findActiveDuplicates() {
+    return HibernateSession
+      .byHqlStatic()
+      .createQuery("select sourceId from PITAttributeAssignAction where active='T' group by sourceId having count(*) > 1")
+      .setCacheable(false)
+      .listSet(String.class);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionDAO#delete(java.lang.String)
+   */
+  public void delete(String id) {
+    HibernateSession.byHqlStatic()
+      .createQuery("delete from PITAttributeAssignAction where id = :id")
+      .setString("id", id)
+      .executeUpdate();
+  }
 }

@@ -69,6 +69,8 @@ import edu.internet2.middleware.subject.SubjectTooManyResults;
 import edu.internet2.middleware.subject.SubjectUtils;
 import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
 import edu.internet2.middleware.subject.provider.SourceManager;
+import edu.internet2.middleware.subject.provider.SubjectStatusProcessor;
+import edu.internet2.middleware.subject.provider.SubjectStatusResult;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 /** 
@@ -414,9 +416,22 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * @return  the search page result
    * @throws  IllegalArgumentException if <i>searchValue</i> is null.
    */
-  private SearchPageResult searchHelper(final String searchValue, final boolean firstPageOnly) 
+  private SearchPageResult searchHelper(String searchValue, final boolean firstPageOnly) 
     throws  IllegalArgumentException
   {
+    //if this is a search and not by id or identifier, strip out the status part
+    {
+      SubjectStatusResult subjectStatusResult = null;
+      
+      //see if we are doing status
+      SubjectStatusProcessor subjectStatusProcessor = new SubjectStatusProcessor(searchValue, this.getSubjectStatusConfig());
+      subjectStatusResult = subjectStatusProcessor.processSearch();
+
+      //strip out status parts
+      searchValue = subjectStatusResult.getStrippedQuery();
+    }      
+
+    final String SEARCH_VALUE = searchValue;
     
     final Set<Subject> result = new LinkedHashSet<Subject>();
     final boolean[] tooManyResultsArray = new boolean[]{false};
@@ -428,7 +443,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
 
       public Object callback(GrouperSession grouperSession)
           throws GrouperSessionException {
-        GrouperValidator v = NotNullValidator.validate(searchValue);
+        GrouperValidator v = NotNullValidator.validate(SEARCH_VALUE);
         if (v.isInvalid()) {
           throw new IllegalArgumentException( v.getErrorMessage() );
         }
@@ -453,7 +468,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
           }
           
           Set<Group> groups = GrouperDAOFactory.getFactory().getGroup()
-            .findAllByApproximateNameSecure(searchValue, null, queryOptions ,GrouperSourceAdapter.this.typeOfGroups());
+            .findAllByApproximateNameSecure(SEARCH_VALUE, null, queryOptions ,GrouperSourceAdapter.this.typeOfGroups());
           
           for (Group group : GrouperUtil.nonNull(groups)) {
             //if we are at the end of the page
@@ -465,7 +480,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
             if (GrouperSourceAdapter.this.maxResults != null && result.size() >= GrouperSourceAdapter.this.maxResults) {
               throw new SubjectTooManyResults(
                   "More results than allowed: " + GrouperSourceAdapter.this.maxResults 
-                  + " for search '" + searchValue + "'");
+                  + " for search '" + SEARCH_VALUE + "'");
             }
             //dont call group.toSubject() since that causes a query
             result.add(new GrouperSubject(group)); 
@@ -496,11 +511,11 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
           }
           if (!throwErrorOnFindAllFailure) {
             LOG.error(ex.getMessage() + ", source: " + GrouperSourceAdapter.this.getId() + ", searchValue: "
-              + searchValue, ex);
+              + SEARCH_VALUE, ex);
           } else {
             throw new SourceUnavailableException(ex.getMessage() + ", source: " 
                 + GrouperSourceAdapter.this.getId() + ", searchValue: "
-                + searchValue, ex);
+                + SEARCH_VALUE, ex);
           }
 
         } 

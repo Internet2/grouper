@@ -183,7 +183,7 @@ public class RemoveGroupMembersAction extends GrouperCapableAction {
 	
 		//Retrieve the membership according to scope selected by user
 		Group group = GroupFinder.findByUuid(grouperSession, groupId, true);
-		if(group.canWriteField(mField) && !group.isComposite()) {
+		if(group.canWriteField(mField) && (!group.hasComposite() || !mField.getUuid().equals(Group.getDefaultList().getUuid()))) {
 			if(!isEmpty(request.getParameter("submit.remove.all"))) {
 				Set members = group.getImmediateMembers(mField);
 				Iterator it = members.iterator();
@@ -228,7 +228,7 @@ public class RemoveGroupMembersAction extends GrouperCapableAction {
 			}
 			
 			
-		}else if(group.canWriteField(mField) && group.isComposite()){
+		}else if(group.canWriteField(mField) && group.hasComposite() && mField.getUuid().equals(Group.getDefaultList().getUuid())){
 			//Message - not applicable for composites
 			request.setAttribute("message", new Message(
 			"groups.remove.composite.error",true));

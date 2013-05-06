@@ -122,7 +122,71 @@ public class GrouperLoaderLdapServer {
   /** if connections expire after a certain amount of time, this is it, in millis, defaults to 300000 (5 minutes) */
   private int expirationTime = -1;
 
+  /** if the ldap server has a max page size, then this will get the results in pages */
+  private int pagedResultsSize = -1;
+
+  /**
+   * ldap.personLdap.referral: set to 'follow' if using AD and using paged results size
+   */
+  private String referral = null;
+
+  /**
+   * load this vt-ldap config file before the configs here.  load from classpath
+   */
+  private String configFileFromClasspath = null;
   
+  /**
+   * load this vt-ldap config file before the configs here.  load from classpath
+   * @return the configFileFromClasspath
+   */
+  public String getConfigFileFromClasspath() {
+    return this.configFileFromClasspath;
+  }
+  
+  /**
+   * load this vt-ldap config file before the configs here.  load from classpath
+   * @param configFileFromClasspath1 the configFileFromClasspath to set
+   */
+  public void setConfigFileFromClasspath(String configFileFromClasspath1) {
+    this.configFileFromClasspath = configFileFromClasspath1;
+  }
+
+  /**
+   * ldap.personLdap.referral: set to 'follow' if using AD and using paged results size
+   * @return the referral
+   */
+  public String getReferral() {
+    return this.referral;
+  }
+  
+  /**
+   * ldap.personLdap.referral: set to 'follow' if using AD and using paged results size
+   * @param referral1 the referral to set
+   */
+  public void setReferral(String referral1) {
+    this.referral = referral1;
+  }
+
+  /**
+   * if the ldap server has a max page size, then this will get the results in pages
+   * @return page size
+   */
+  public int getPagedResultsSize() {
+
+    return this.pagedResultsSize;
+
+  }
+
+  /**
+   * if the ldap server has a max page size, then this will get the results in pages
+   * @param pagedResultsSize1
+   */
+  public void setPagedResultsSize(int pagedResultsSize1) {
+
+    this.pagedResultsSize = pagedResultsSize1;
+
+  }
+
   
   /**
    * if using sasl, this is authz id
@@ -355,10 +419,15 @@ public class GrouperLoaderLdapServer {
    */
   @Override
   public String toString() {
-    return "GrouperLoaderLdapServer [batchSize=" + batchSize + ", countLimit="
+    return "GrouperLoaderLdapServer [batchSize=" + batchSize
+        + ", configFileFromClasspath: " + this.configFileFromClasspath
+        + ", countLimit="
         + countLimit + ", driver=" + driver + ", expirationTime=" + expirationTime
-        + ", maxPoolSize=" + maxPoolSize + ", minPoolSize=" + minPoolSize + ", pass="
-        + (StringUtils.isBlank(pass) ? "" : "XXXXX") + ", pruneTimerPeriod=" + pruneTimerPeriod 
+        + ", maxPoolSize=" + maxPoolSize + ", minPoolSize=" + minPoolSize
+        + ", pagedResultsSize=" + pagedResultsSize
+        + ", pass="
+        + (StringUtils.isBlank(pass) ? "" : "XXXXX") 
+        + ", pruneTimerPeriod=" + pruneTimerPeriod + ", referral=" + referral
         + ", saslAuthorizationId=" + saslAuthorizationId + ", saslRealm=" + saslRealm
         + ", timeLimit=" + timeLimit + ", timeout=" + timeout + ", tls=" + tls + ", url="
         + url + ", user=" + user + ", validateOnCheckIn=" + validateOnCheckIn

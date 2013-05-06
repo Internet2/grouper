@@ -40,6 +40,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.util.versioningV1.BeanA;
@@ -59,7 +60,7 @@ public class GrouperUtilTest extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("testSubstituteExpressionLanguage"));
+    TestRunner.run(new GrouperUtilTest("testSubstituteExpressionLanguageExternal"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
   }
@@ -70,10 +71,83 @@ public class GrouperUtilTest extends GrouperTest {
   /**
    * 
    */
+  public void testSubstituteExpressionLanguageExternal() {
+
+    String el = "${grouperUtil.appendPrefixIfStringNotBlank('[unverifiedInfo]', ' ', grouperUtil.appendIfNotBlankString(externalSubject.name, ' - ', externalSubject.institution))} [externalUserID] ${externalSubject.identifier}";
+
+    //###########################
+    ExternalSubject externalSubject = new ExternalSubject();
+    externalSubject.setName("My Name");
+    externalSubject.setInstitution("My Institution");
+    externalSubject.setIdentifier("me@inst.edu");
+
+    Map<String, Object> substitutionMap = new HashMap<String, Object>();
+    substitutionMap.put("externalSubject", externalSubject);
+    
+    //do silent since there are warnings on null...
+    String description = GrouperUtil.substituteExpressionLanguage(el, substitutionMap, false, true, true);
+    //System.out.println("has all three: " + description);
+    assertEquals("[unverifiedInfo] My Name - My Institution [externalUserID] me@inst.edu", description);
+    
+    //###########################
+    externalSubject = new ExternalSubject();
+    externalSubject.setName("My Name");
+    externalSubject.setInstitution(null);
+    externalSubject.setIdentifier("me@inst.edu");
+
+    substitutionMap = new HashMap<String, Object>();
+    substitutionMap.put("externalSubject", externalSubject);
+    
+    //do silent since there are warnings on null...
+    description = GrouperUtil.substituteExpressionLanguage(el, substitutionMap, false, true, true);
+    //System.out.println("has no institution: " + description);
+    assertEquals("[unverifiedInfo] My Name [externalUserID] me@inst.edu", description);
+    
+    //###########################
+    externalSubject = new ExternalSubject();
+    externalSubject.setName(null);
+    externalSubject.setInstitution("My Institution");
+    externalSubject.setIdentifier("me@inst.edu");
+
+    substitutionMap = new HashMap<String, Object>();
+    substitutionMap.put("externalSubject", externalSubject);
+    
+    //do silent since there are warnings on null...
+    description = GrouperUtil.substituteExpressionLanguage(el, substitutionMap, false, true, true);
+    //System.out.println("has no name: " + description);
+    assertEquals("[unverifiedInfo] My Institution [externalUserID] me@inst.edu", description);
+    
+    //###########################
+    externalSubject = new ExternalSubject();
+    externalSubject.setName(null);
+    externalSubject.setInstitution(null);
+    externalSubject.setIdentifier("me@inst.edu");
+
+    substitutionMap = new HashMap<String, Object>();
+    substitutionMap.put("externalSubject", externalSubject);
+    
+    //do silent since there are warnings on null...
+    description = GrouperUtil.substituteExpressionLanguage(el, substitutionMap, false, true, true);
+    //System.out.println("has no name or institution: " + description);
+    assertEquals(" [externalUserID] me@inst.edu", description);
+  }
+  
+  /**
+   * 
+   */
   public void testAppendIfNotBlankString() {
     
   }
 
+  /**
+   * 
+   */
+  public void testTruncateAscii() {
+
+    String testString = "H13_FRA2007, Questions d’histoire de la litérature";
+    System.out.println(GrouperUtil.truncateAscii(testString, 50));
+  }
+  
   /**
    * 
    */

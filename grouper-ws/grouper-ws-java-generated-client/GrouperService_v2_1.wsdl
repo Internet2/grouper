@@ -946,6 +946,10 @@
                         <xs:element minOccurs="0" name="sourceIds" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="pointInTimeFrom" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="pointInTimeTo" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -980,6 +984,10 @@
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="sourceIds" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="pointInTimeFrom" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="pointInTimeTo" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>

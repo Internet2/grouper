@@ -617,6 +617,17 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
    */
   private SearchPageResult searchHelper(String searchValue, boolean firstPageOnly) {
 
+    SubjectStatusResult subjectStatusResult = null;
+
+    {
+      //see if we are doing status
+      SubjectStatusProcessor subjectStatusProcessor = new SubjectStatusProcessor(searchValue, this.getSubjectStatusConfig());
+      subjectStatusResult = subjectStatusProcessor.processSearch();
+
+      //strip out status parts
+      searchValue = subjectStatusResult.getStrippedQuery();
+    }      
+    
     Set<Subject> results = new LinkedHashSet<Subject>();
     boolean tooManyResults = false;
 
@@ -635,13 +646,27 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
 
     List<String> args = new ArrayList<String>();
 
+    boolean addedArg = false;
     for (int i = 0; i < terms.length; i++) {
+      addedArg = true;
       query.append(this.lowerSearchCol + " like ?");
       if (i != terms.length - 1) {
         query.append(" and ");
       }
       args.add("%" + terms[i].toLowerCase() + "%");
     }
+    
+    //add status?
+    if (!subjectStatusResult.isAll() && !StringUtils.isBlank(subjectStatusResult.getDatastoreFieldName())) {
+      
+      if (addedArg) {
+        query.append(" and ");
+      }
+      addedArg = true;
+      query.append(" " + subjectStatusResult.getDatastoreFieldName() + " " + (subjectStatusResult.isEquals()?"=":"<>") + " ? ");
+      args.add(subjectStatusResult.getDatastoreValue());
+    }
+
     
     if (!StringUtils.isBlank(this.defaultSortCol)) {
       query.append(" order by ").append(this.defaultSortCol);
@@ -796,6 +821,11 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       }
       throw new SourceUnavailableException(error, ex);
     } finally {
+      
+      if (log.isDebugEnabled()) {
+        log.debug("Query returned " + results.size() + ", " + query + ", " + GrouperUtil.toStringForLog(args));
+      }
+      
       closeStatement(stmt);
       if (jdbcConnectionBean != null) {
         jdbcConnectionBean.doneWithConnectionFinally();
@@ -1080,36 +1110,36 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
     this.subjectAttributeColToName = subjectAttributeColToName1;
   }
 
-//  /**
-//   * 
-//   * @param args
-//   * @throws Exception 
-//   */
-//  public static void main(String[] args) throws Exception {
-//    Subject subject = SubjectFinder.findById("10021368", true);
-//    
-//    System.out.println(SubjectHelper.getPrettyComplete(subject));
-//    
-//    subject = SubjectFinder.findByIdentifier("mchyzer", true);
-//    
-//    System.out.println(SubjectHelper.getPrettyComplete(subject));
-//    
-//    System.out.println("\n\n###########################\n\n");
-//    
-//    Set<Subject> subjects = SubjectFinder.findAll("BeCk");
-//    
-//    for (Subject theSubject : subjects) {
-//      System.out.println(SubjectHelper.getPrettyComplete(theSubject));
-//    }
-//    
-//    System.out.println("\n\n###########################\n\n");
-//    
-//    subjects = SubjectFinder.findAll("ro beck");
-//    
-//    for (Subject theSubject : subjects) {
-//      System.out.println(SubjectHelper.getPrettyComplete(theSubject));
-//    }
-//    
-//  }
+  /**
+   * 
+   * @param args
+   * @throws Exception 
+   */
+  public static void main(String[] args) throws Exception {
+    Subject subject = SubjectFinder.findById("10021368", true);
+    
+    System.out.println(SubjectHelper.getPrettyComplete(subject));
+    
+    subject = SubjectFinder.findByIdentifier("mchyzer", true);
+    
+    System.out.println(SubjectHelper.getPrettyComplete(subject));
+    
+    System.out.println("\n\n###########################\n\n");
+    
+    Set<Subject> subjects = SubjectFinder.findAll("BeCk");
+    
+    for (Subject theSubject : subjects) {
+      System.out.println(SubjectHelper.getPrettyComplete(theSubject));
+    }
+    
+    System.out.println("\n\n###########################\n\n");
+    
+    subjects = SubjectFinder.findAll("ro beck");
+    
+    for (Subject theSubject : subjects) {
+      System.out.println(SubjectHelper.getPrettyComplete(theSubject));
+    }
+    
+  }
   
 }

@@ -479,8 +479,21 @@ public class SimpleMembershipUpdateImportExport {
       for (int i=0;i<importedSubjectWrappers.size();i++) {
         
         ImportSubjectWrapper importedSubjectWrapper = (ImportSubjectWrapper)importedSubjectWrappers.get(i);
+        Subject wrappedSubject = null;
         try {
-          group.addMember(importedSubjectWrapper, false);
+          wrappedSubject = importedSubjectWrapper.wrappedSubject();
+        } catch (Exception e) {
+          //ignore
+        }
+        try {
+          if (wrappedSubject != null) {
+            
+            group.addMember(wrappedSubject, false);
+          } else {
+            
+            group.addMember(importedSubjectWrapper, false);
+          }
+          
           addedCount++;
         } catch (Exception e) {
           String error = "Error adding subject from " + importedSubjectWrapper.errorLabelForError() + ", " + e.getMessage();

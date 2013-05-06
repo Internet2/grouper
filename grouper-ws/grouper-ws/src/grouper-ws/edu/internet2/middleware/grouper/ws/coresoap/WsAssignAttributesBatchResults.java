@@ -487,9 +487,9 @@ public class WsAssignAttributesBatchResults implements WsResponseBean, ResultMet
       this.wsAttributeDefNames = GrouperServiceUtils.mergeArrays(this.wsAttributeDefNames, wsAssignAttributesResults.getWsAttributeDefNames(), "name", WsAttributeDefName.class);
       this.wsAttributeDefs = GrouperServiceUtils.mergeArrays(this.wsAttributeDefs, wsAssignAttributesResults.getWsAttributeDefs(), "name", WsAttributeDef.class);
       this.wsGroups = GrouperServiceUtils.mergeArrays(this.wsGroups, wsAssignAttributesResults.getWsGroups(), "name", WsGroup.class);
-      this.wsMemberships = GrouperServiceUtils.mergeArrays(this.wsMemberships, wsAssignAttributesResults.getWsMemberships(), "name", WsMembership.class);
+      this.wsMemberships = GrouperServiceUtils.mergeArrays(this.wsMemberships, wsAssignAttributesResults.getWsMemberships(), "membershipId", WsMembership.class);
       this.wsStems = GrouperServiceUtils.mergeArrays(this.wsStems, wsAssignAttributesResults.getWsStems(), "name", WsStem.class);
-      this.wsSubjects = GrouperServiceUtils.mergeArrays(this.wsSubjects, wsAssignAttributesResults.getWsSubjects(), "name", WsSubject.class);
+      this.wsSubjects = GrouperServiceUtils.mergeArrays(this.wsSubjects, wsAssignAttributesResults.getWsSubjects(), new String[]{"sourceId", "id"}, WsSubject.class);
       
     } else {
       wsAssignAttributeBatchResult = new WsAssignAttributeBatchResult(wsAssignAttributesResults, theError, e);

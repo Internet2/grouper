@@ -59,6 +59,9 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
+import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
+import edu.internet2.middleware.grouper.member.SortStringEnum;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -200,6 +203,82 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   }
 
   /**
+   * if there are sort fields, go through them, and replace name with m.subjectIdDb, etc,
+   * sort_string0 for m.sortString0, etc
+   * @param querySort
+   */
+  public static void massageMemberSortFields(QuerySort querySort) {
+    if (querySort == null) {
+      return;
+    }
+
+    for (QuerySortField querySortField : GrouperUtil.nonNull(querySort.getQuerySortFields())) {
+      if (StringUtils.equalsIgnoreCase("uuid", querySortField.getColumn())
+          || StringUtils.equalsIgnoreCase("id", querySortField.getColumn())) {
+        querySortField.setColumn("m.uuid");
+      }
+      if (StringUtils.equalsIgnoreCase("subjectIdDb", querySortField.getColumn())
+          || StringUtils.equalsIgnoreCase("subject_id", querySortField.getColumn())
+          || StringUtils.equalsIgnoreCase("subjectId", querySortField.getColumn())) {
+        querySortField.setColumn("m.subjectIdDb");
+      }
+      if (StringUtils.equalsIgnoreCase("subjectSourceIdDb", querySortField.getColumn())
+          || StringUtils.equalsIgnoreCase("subject_source", querySortField.getColumn())
+          || StringUtils.equalsIgnoreCase("sourceId", querySortField.getColumn())) {
+        querySortField.setColumn("m.subjectSourceIdDb");
+      }
+      if (StringUtils.equalsIgnoreCase("subjectTypeId", querySortField.getColumn())
+          || StringUtils.equalsIgnoreCase("subject_type", querySortField.getColumn())) {
+        querySortField.setColumn("m.subjectTypeId");
+      }
+      if (StringUtils.equalsIgnoreCase("sortString0", querySortField.getColumn())
+          || StringUtils.equalsIgnoreCase("sort_string0", querySortField.getColumn())) {
+        if (!SortStringEnum.newInstance(0).hasAccess()) {
+          throw new RuntimeException("Not allowed to access " + querySortField.getColumn());
+        }
+        querySortField.setColumn("m.sortString0");
+      }
+      if (StringUtils.equalsIgnoreCase("sortString1", querySortField.getColumn())
+          || StringUtils.equalsIgnoreCase("sort_string1", querySortField.getColumn())) {
+        if (!SortStringEnum.newInstance(1).hasAccess()) {
+          throw new RuntimeException("Not allowed to access " + querySortField.getColumn());
+        }
+        querySortField.setColumn("m.sortString1");
+      }
+      if (StringUtils.equalsIgnoreCase("sortString2", querySortField.getColumn())
+          || StringUtils.equalsIgnoreCase("sort_string2", querySortField.getColumn())) {
+        if (!SortStringEnum.newInstance(2).hasAccess()) {
+          throw new RuntimeException("Not allowed to access " + querySortField.getColumn());
+        }
+        querySortField.setColumn("m.sortString2");
+      }
+      if (StringUtils.equalsIgnoreCase("sortString3", querySortField.getColumn())
+          || StringUtils.equalsIgnoreCase("sort_string3", querySortField.getColumn())) {
+        if (!SortStringEnum.newInstance(3).hasAccess()) {
+          throw new RuntimeException("Not allowed to access " + querySortField.getColumn());
+        }
+        querySortField.setColumn("m.sortString3");
+      }
+      if (StringUtils.equalsIgnoreCase("sortString4", querySortField.getColumn())
+          || StringUtils.equalsIgnoreCase("sort_string4", querySortField.getColumn())) {
+        if (!SortStringEnum.newInstance(4).hasAccess()) {
+          throw new RuntimeException("Not allowed to access " + querySortField.getColumn());
+        }
+        querySortField.setColumn("m.sortString4");
+      }
+      if (StringUtils.equalsIgnoreCase("name", querySortField.getColumn())) {
+        querySortField.setColumn("m.name");
+      }
+      if (StringUtils.equalsIgnoreCase("description", querySortField.getColumn())) {
+        querySortField.setColumn("m.description");
+      }
+
+    }
+
+  }
+
+
+  /**
    * 
    * @param id
    * @param src
@@ -227,9 +306,15 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
         .setString( "source", src  )
         .uniqueResult(Member.class);
       
-    if (member == null) {
+    if (exceptionIfNull && member == null) {
       throw new MemberNotFoundException();
     }
+    
+    //dont cache this
+    if (!exceptionIfNull && member == null) {
+      return null;
+    }
+    
     getUuid2dtoCache().put( member.getUuid(), member );
     return member;
   }

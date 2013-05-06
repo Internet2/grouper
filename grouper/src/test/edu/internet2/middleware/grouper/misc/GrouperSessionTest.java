@@ -19,6 +19,8 @@
  */
 package edu.internet2.middleware.grouper.misc;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
+
 import junit.textui.TestRunner;
 import net.sf.ehcache.CacheManager;
 import edu.internet2.middleware.grouper.Group;
@@ -27,10 +29,12 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -92,7 +96,7 @@ public class GrouperSessionTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperSessionTest("testShorthandByIdNoThreadLocal"));
+    TestRunner.run(new GrouperSessionTest("testClosedSession"));
   }
 
   /**
@@ -140,6 +144,164 @@ public class GrouperSessionTest extends GrouperTest {
     
   }
 
+  /**
+   * 
+   */
+  public void testClosedSession() {
+    
+    {
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      
+      GrouperSession grouperSession2 = GrouperSession.staticGrouperSession(true);
+      
+      assertTrue(grouperSession == grouperSession2);
+      
+      //set the subject to null which closes it
+      GrouperUtil.assignField(grouperSession, "subject", null);
+      
+      grouperSession2 = GrouperSession.staticGrouperSession(false);
+      assertNull(grouperSession2);
+      
+      //######## test that exception is thrown
+      grouperSession = GrouperSession.startRootSession();
+      grouperSession2 = GrouperSession.staticGrouperSession(true);
+      
+      assertTrue(grouperSession == grouperSession2);
+      
+      //set the subject to null which closes it
+      GrouperUtil.assignField(grouperSession, "subject", null);
+      
+      try {
+        GrouperSession.staticGrouperSession(false);
+        throw new RuntimeException("Should throw exception");
+      } catch (Exception e) {
+        //good
+      }
+    }
+    
+    {
+      //######## test that closed list session still works with size 1
+      final GrouperSession GROUPER_SESSION_SUBJ0 = GrouperSession.start(SubjectTestHelper.SUBJ0, false);
+      
+      GrouperSession.callbackGrouperSession(GROUPER_SESSION_SUBJ0, new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSessionSubject0) throws GrouperSessionException {
+          
+          //at this point a static session should return subj0
+          GrouperSession temp0 = GrouperSession.staticGrouperSession(false);
+          assertEquals(SubjectTestHelper.SUBJ0_ID, temp0.getSubject().getId());
+          
+          //lets close 0
+          GrouperUtil.assignField(GROUPER_SESSION_SUBJ0, "subject", null);
+              
+          //see that null is there
+          temp0 = GrouperSession.staticGrouperSession(false);
+          assertNull(temp0);
+              
+          return null;
+        }
+      });
+    }
+
+    {
+      GrouperSession temp0 = GrouperSession.staticGrouperSession(false);
+      assertNull(temp0);
+    }
+    
+    {
+      //######## test that closed list session still works with size 2, close 1 of them
+      final GrouperSession GROUPER_SESSION_SUBJ0 = GrouperSession.start(SubjectTestHelper.SUBJ0, false);
+      
+      final GrouperSession GROUPER_SESSION_SUBJ1 = GrouperSession.start(SubjectTestHelper.SUBJ1, false);
+      
+      GrouperSession.callbackGrouperSession(GROUPER_SESSION_SUBJ0, new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSessionSubject0) throws GrouperSessionException {
+          
+          //at this point a static session should return subj0
+          GrouperSession temp0 = GrouperSession.staticGrouperSession(false);
+          assertEquals(SubjectTestHelper.SUBJ0_ID, temp0.getSubject().getId());
+          
+          GrouperSession.callbackGrouperSession(GROUPER_SESSION_SUBJ1, new GrouperSessionHandler() {
+            
+            @Override
+            public Object callback(GrouperSession grouperSessionSubject1) throws GrouperSessionException {
+              
+              GrouperSession temp1 = GrouperSession.staticGrouperSession(false);
+              assertEquals(SubjectTestHelper.SUBJ1_ID, temp1.getSubject().getId());
+              
+              //lets close 1
+              GrouperUtil.assignField(GROUPER_SESSION_SUBJ1, "subject", null);
+              
+              //see that it is null now
+              temp1 = GrouperSession.staticGrouperSession(false);
+              assertNull(temp1);
+              
+              return null;
+            }
+          });
+          
+          //see that 0 is there
+          temp0 = GrouperSession.staticGrouperSession(false);
+          assertEquals(SubjectTestHelper.SUBJ0_ID, temp0.getSubject().getId());
+          
+          return null;
+        }
+      });
+    }
+    
+    {
+      //######## test that closed list session still works with size 2, close 2 of them
+      final GrouperSession GROUPER_SESSION_SUBJ0 = GrouperSession.start(SubjectTestHelper.SUBJ0, false);
+      
+      final GrouperSession GROUPER_SESSION_SUBJ1 = GrouperSession.start(SubjectTestHelper.SUBJ1, false);
+      
+      GrouperSession.callbackGrouperSession(GROUPER_SESSION_SUBJ0, new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSessionSubject0) throws GrouperSessionException {
+          
+          //at this point a static session should return subj0
+          GrouperSession temp0 = GrouperSession.staticGrouperSession(false);
+          assertEquals(SubjectTestHelper.SUBJ0_ID, temp0.getSubject().getId());
+          
+          GrouperSession.callbackGrouperSession(GROUPER_SESSION_SUBJ1, new GrouperSessionHandler() {
+            
+            @Override
+            public Object callback(GrouperSession grouperSessionSubject1) throws GrouperSessionException {
+              
+              GrouperSession temp1 = GrouperSession.staticGrouperSession(false);
+              assertEquals(SubjectTestHelper.SUBJ1_ID, temp1.getSubject().getId());
+              
+              //lets close 1
+              GrouperUtil.assignField(GROUPER_SESSION_SUBJ1, "subject", null);
+              
+              //lets close 2
+              GrouperUtil.assignField(GROUPER_SESSION_SUBJ0, "subject", null);
+              
+              //see that static is null
+              GrouperSession temp0 = GrouperSession.staticGrouperSession(false);
+              assertNull(temp0);
+              
+              return null;
+            }
+          });
+          
+          {
+            //see that static is null
+            GrouperSession nullSession = GrouperSession.staticGrouperSession(false);
+            assertNull(nullSession);
+          }
+          
+          return null;
+        }
+      });
+    }
+    
+  }
+  
   /**
    * 
    */

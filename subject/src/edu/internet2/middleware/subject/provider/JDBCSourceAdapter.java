@@ -318,6 +318,20 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
    * @return the result object, never null
    */
   private SearchPageResult searchHelper(String searchValue, boolean firstPageOnly) {
+
+    //if this is a search and not by id or identifier, strip out the status part
+    {
+      SubjectStatusResult subjectStatusResult = null;
+      
+      //see if we are doing status
+      SubjectStatusProcessor subjectStatusProcessor = new SubjectStatusProcessor(searchValue, this.getSubjectStatusConfig());
+      subjectStatusResult = subjectStatusProcessor.processSearch();
+
+      //strip out status parts
+      searchValue = subjectStatusResult.getStrippedQuery();
+    }      
+    
+
     Set<Subject> result = new LinkedHashSet<Subject>();
     boolean tooManyResults = false;
     Search search = getSearch("search");
@@ -518,13 +532,13 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
                 }
               }
               
-              //if we made it this far there is a problem
-              throw new InvalidQueryException("Why is this subject not able to be " +
-                  "referenced by id or identifier (do you need to add " +
-                  "identifierAttributes to your sources.xml???) " + SubjectUtils.subjectToString(subject) );
-              
             }
-            
+
+            //if we made it this far there is a problem
+            throw new InvalidQueryException("Why is this subject not able to be " +
+                "referenced by id or identifier (do you need to add " +
+                "identifierAttributes to your sources.xml???) " + SubjectUtils.subjectToString(subject) );
+
           }
           
         }

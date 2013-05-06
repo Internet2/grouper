@@ -489,6 +489,20 @@ public class JNDISourceAdapterLegacy extends BaseSourceAdapter {
    */
   protected NamingEnumeration getLdapResults(Search search, String searchValue,
       String[] attributeNames, boolean firstPageOnly) {
+    
+    //if this is a search and not by id or identifier, strip out the status part
+    boolean subjectStatusQuery = StringUtils.equals("search", search.getSearchType());
+    if (subjectStatusQuery) {
+      SubjectStatusResult subjectStatusResult = null;
+      
+      //see if we are doing status
+      SubjectStatusProcessor subjectStatusProcessor = new SubjectStatusProcessor(searchValue, this.getSubjectStatusConfig());
+      subjectStatusResult = subjectStatusProcessor.processSearch();
+
+      //strip out status parts
+      searchValue = subjectStatusResult.getStrippedQuery();
+    }      
+    
     DirContext context = null;
     NamingEnumeration results = null;
     String filter = search.getParam("filter");
@@ -496,6 +510,7 @@ public class JNDISourceAdapterLegacy extends BaseSourceAdapter {
       log.error("Search filter not found for search type:  " + search.getSearchType());
       return results;
     }
+    
     filter = filter.replaceAll("%TERM%", escapeSearchFilter(searchValue));
     String base = search.getParam("base");
     if (base == null) {

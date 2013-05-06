@@ -51,6 +51,7 @@ import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.SubjectUtils;
+import edu.internet2.middleware.subject.util.ExpirableCache;
 import edu.internet2.middleware.subject.config.SubjectConfig;
 
 /**
@@ -61,6 +62,143 @@ import edu.internet2.middleware.subject.config.SubjectConfig;
  */
 public class SourceManager {
 
+  //  <init-param>
+  //  <param-name>statusLabel<param-name>
+  //  <param-value>status</param-value>
+  //</init-param>
+  //<!-- available statuses from screen (if not specified, any will be allowed). comma separated list - - >
+  //<init-param>
+  //  <param-name>statusesFromUser<param-name>
+  //  <param-value>Active, Inactive, Pending, All</param-value>
+  //</init-param>
+  //<!-- all label from the user - - >
+  //<init-param>
+  //  <param-name>statusAllFromUser<param-name>
+  //  <param-value>All</param-value>
+  //</init-param>
+  
+  /**
+   * bean to hold the status stuff across all sources
+   */
+  public static class SourceManagerStatusBean {
+
+    /**
+     * map of source id to status
+     * @return the source id
+     */
+    public Map<String, SubjectStatusConfig> getSourceIdToStatusConfigs() {
+      return this.sourceIdToStatusConfigs;
+    }
+
+    /**
+     * map of source id to status
+     */
+    private Map<String, SubjectStatusConfig> sourceIdToStatusConfigs = new HashMap<String, SubjectStatusConfig>();
+    
+    /**
+     * search string from user which represents the status.  e.g. status=active
+     */
+    private Set<String> statusLabels = new HashSet<String>();
+    
+    /**
+     * available statuses from screen (if not specified, any will be allowed). comma separated list
+     */
+    private Set<String> statusesFromUser = new HashSet<String>();
+    
+    /**
+     * all label from the user
+     */
+    private Set<String> statusAllFromUser = new HashSet<String>();
+
+    /**
+     * search string from user which represents the status.  e.g. status=active
+     * @return search string
+     */
+    public Set<String> getStatusLabels() {
+      return this.statusLabels;
+    }
+
+    /**
+     * available statuses from screen (if not specified, any will be allowed). comma separated list
+     * @return available statuses
+     */
+    public Set<String> getStatusesFromUser() {
+      return this.statusesFromUser;
+    }
+
+    /**
+     * all label from the user
+     * @return status from user
+     */
+    public Set<String> getStatusAllFromUser() {
+      return this.statusAllFromUser;
+    }
+    
+    /**
+     * loop through config beans from sources.xml 
+     */
+    public void processConfigBeans() {
+      
+      for (SubjectStatusConfig subjectStatusConfig : this.sourceIdToStatusConfigs.values()) {
+
+        {
+          String statusLabel = subjectStatusConfig.getStatusLabel();
+          if (!StringUtils.isBlank(statusLabel)) {
+            this.statusLabels.add(statusLabel);
+          }
+        }
+        
+        {
+          Set<String> statusesFromUser = subjectStatusConfig.getStatusesFromUser();
+          this.statusesFromUser.addAll(statusesFromUser);
+        }
+
+        {
+          String statusAllFromUser = subjectStatusConfig.getStatusAllFromUser();
+          if (!StringUtils.isBlank(statusAllFromUser)) {
+            this.statusAllFromUser.add(statusAllFromUser);
+          }
+        }
+      }
+    }
+  }
+  
+  /**
+   * search string from user which represents the status.  e.g. status=active
+   */
+  private static ExpirableCache<Boolean, SourceManagerStatusBean> sourceManagerStatusBeanCache = 
+      new ExpirableCache<Boolean, SourceManagerStatusBean>();
+
+  /**
+   * get status information across all sources
+   * @return the status rollup bean
+   */
+  public SourceManagerStatusBean getSourceManagerStatusBean() {
+    SourceManagerStatusBean sourceManagerStatusBean = sourceManagerStatusBeanCache.get(true);
+    if (sourceManagerStatusBean == null) {
+      synchronized (sourceManagerStatusBeanCache) {
+        sourceManagerStatusBean = sourceManagerStatusBeanCache.get(true);
+        if (sourceManagerStatusBean == null) {
+          
+          sourceManagerStatusBean = new SourceManagerStatusBean();
+          
+          for (Source source : getInstance().getSources()) {
+            
+            SubjectStatusConfig subjectStatusConfig = new SubjectStatusConfig(source);
+            sourceManagerStatusBean.getSourceIdToStatusConfigs().put(source.getId(), subjectStatusConfig);
+            
+          }
+          
+          sourceManagerStatusBean.processConfigBeans();
+          
+          sourceManagerStatusBeanCache.put(Boolean.TRUE, sourceManagerStatusBean);
+          
+        }
+      }
+    }
+    return sourceManagerStatusBean;
+  }
+  
   /**
    * print out the config for the subject API
    * @return the config

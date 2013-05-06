@@ -442,6 +442,14 @@ public class RuleEngine {
             LOG.error("Cant find subject for rule: " + ruleDefinition);
           } else {
             
+            //lets get the currect subject and put it in the bean...
+            GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+            Subject subjectGrouperSession = grouperSession == null ? null : grouperSession.getSubject();
+            
+            if (subjectGrouperSession != null) {
+              rulesBean.setSubjectUnderlyingSession(subjectGrouperSession);
+            }
+            
             GrouperSession.callbackGrouperSession(GrouperSession.start(actAsSubject, false), new GrouperSessionHandler() {
   
               /**

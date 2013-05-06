@@ -120,24 +120,15 @@ public class MyMembershipsRepositoryBrowser extends AbstractRepositoryBrowser {
 	 * @see edu.internet2.middleware.grouper.ui.AbstractRepositoryBrowser#getValidStems()
 	 */
 	protected Map getValidStems() throws Exception{
-		Map validStems = savedValidStems;
-    if (validStems != null)
-      return validStems;
-    GrouperSession s = GrouperSession.startRootSession(false);
-    Set groups = (Set)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+	  Map validStems = savedValidStems;
+	  if (validStems != null)
+	    return validStems;
 
-      public Object callback(GrouperSession grouperSession)
-          throws GrouperSessionException {
-        Subject curSubj = getGrouperSession().getSubject();
-        Member member = MemberFinder.findBySubject(grouperSession, curSubj, true);
-        Set groupSet = member.getGroups();
-        return groupSet;
-      }
-      
-    });
-    s.stop();
+	  Subject curSubj = getGrouperSession().getSubject();
+	  Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), curSubj, true);
+	  Set groups = member.getGroups();
 
-		return getStems(groups);
+	  return getStems(groups);
 	}
 	
 	protected Map getGroups() throws Exception{

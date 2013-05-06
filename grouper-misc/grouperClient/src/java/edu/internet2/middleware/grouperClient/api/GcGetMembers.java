@@ -40,6 +40,65 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
  */
 public class GcGetMembers {
 
+  /**
+   * page size if paging
+   */
+  private Integer pageSize;
+      
+  /**
+   * page number 1 indexed if paging
+   */
+  private Integer pageNumber;
+  
+  /**
+   * sortString must be an hql query field, e.g. 
+   * can sort on uuid, subjectId, sourceId, name, description, sortString0, sortString1, sortString2, sortString3, sortString4
+   */
+  private String sortString;
+  
+  /**
+   * ascending T or null for ascending, F for descending.  
+   */
+  private Boolean ascending;
+  
+
+  /**
+   * page size if paging
+   * @param pageSize1
+   */
+  public void assignPageSize(Integer pageSize1) {
+    this.pageSize = pageSize1;
+  }
+
+
+
+  /**
+   * page number 1 indexed if paging
+   * @param pageNumber1
+   */
+  public void assignPageNumber(Integer pageNumber1) {
+    this.pageNumber = pageNumber1;
+  }
+
+
+  /**
+   * sortString must be an hql query field, e.g. 
+   * can sort on uuid, subjectId, sourceId, name, description, sortString0, sortString1, sortString2, sortString3, sortString4
+   * @param sortString1
+   */
+  public void assignSortString(String sortString1) {
+    this.sortString = sortString1;
+  }
+
+  /**
+   * ascending T or null for ascending, F for descending.  
+   * @param ascending1
+   */
+  public void assignAscending(Boolean ascending1) {
+    this.ascending = ascending1;
+  }
+
+
   /** client version */
   private String clientVersion;
 
@@ -330,6 +389,20 @@ public class GcGetMembers {
       
       if (GrouperClientUtils.length(this.sourceIds) > 0) {
         getMembers.setSourceIds(GrouperClientUtils.toArray(this.sourceIds, String.class));
+      }
+      
+      if (this.ascending != null) {
+        getMembers.setAscending(this.ascending ? "T" : "F");
+      }
+      
+      getMembers.setSortString(this.sortString);
+      
+      if (this.pageNumber != null) {
+        getMembers.setPageNumber(this.pageNumber.toString());
+      }
+
+      if (this.pageSize != null) {
+        getMembers.setPageSize(this.pageSize.toString());
       }
       
       getMembers.setPointInTimeFrom(GrouperClientUtils.dateToString(this.pointInTimeFrom));

@@ -1749,6 +1749,7 @@ public class PITMembershipTests extends GrouperTest {
     
     // sync script shouldn't see any reason to sync anything..
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
   }
   
   /**
@@ -1793,5 +1794,6 @@ public class PITMembershipTests extends GrouperTest {
     
     // sync script shouldn't see any reason to sync anything..
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
   }
 }

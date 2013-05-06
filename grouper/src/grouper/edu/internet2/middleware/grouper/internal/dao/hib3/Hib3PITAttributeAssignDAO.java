@@ -259,6 +259,21 @@ public class Hib3PITAttributeAssignDAO extends Hib3DAO implements PITAttributeAs
     
     return assignments;
   }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignDAO#findByOwnerPITGroupIdAndPITAttributeDefNameId(java.lang.String, java.lang.String)
+   */
+  public Set<PITAttributeAssign> findByOwnerPITGroupIdAndPITAttributeDefNameId(String pitGroupId, String pitAttributeDefNameId) {
+    Set<PITAttributeAssign> assignments = HibernateSession
+      .byHqlStatic()
+      .createQuery("select attrAssign from PITAttributeAssign as attrAssign where attrAssign.ownerGroupId = :pitGroupId and attrAssign.attributeDefNameId = :pitAttributeDefNameId and attributeAssignTypeDb = 'group'")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindByOwnerPITGroupIdAndPITAttributeDefNameId")
+      .setString("pitGroupId", pitGroupId)
+      .setString("pitAttributeDefNameId", pitAttributeDefNameId)
+      .listSet(PITAttributeAssign.class);
+    
+    return assignments;
+  }
   
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignDAO#findByOwnerPITStemId(java.lang.String)
@@ -471,5 +486,26 @@ public class Hib3PITAttributeAssignDAO extends Hib3DAO implements PITAttributeAs
       .listSet(PITAttributeAssign.class);
     
     return assigns;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignDAO#findActiveDuplicates()
+   */
+  public Set<String> findActiveDuplicates() {
+    return HibernateSession
+      .byHqlStatic()
+      .createQuery("select sourceId from PITAttributeAssign where active='T' group by sourceId having count(*) > 1")
+      .setCacheable(false)
+      .listSet(String.class);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignDAO#delete(java.lang.String)
+   */
+  public void delete(String id) {
+    HibernateSession.byHqlStatic()
+      .createQuery("delete from PITAttributeAssign where id = :id")
+      .setString("id", id)
+      .executeUpdate();
   }
 }

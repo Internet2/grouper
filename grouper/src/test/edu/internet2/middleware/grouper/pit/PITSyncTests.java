@@ -47,6 +47,7 @@ import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SyncPITTables;
 import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
@@ -118,7 +119,7 @@ public class PITSyncTests extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PITSyncTests("testNotifications"));
+    TestRunner.run(new PITSyncTests("testDuplicateMemberships"));
   }
 
   
@@ -213,16 +214,20 @@ public class PITSyncTests extends GrouperTest {
     addData();
     
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
     ChangeLogTempToEntity.convertRecords();
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
     
     // now delete everything...
     grouperSession = GrouperSession.startRootSession();
     deleteData();
     
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
     ChangeLogTempToEntity.convertRecords();
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
   }
   
   /**
@@ -240,8 +245,10 @@ public class PITSyncTests extends GrouperTest {
     
     // verify that changes aren't made
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
     assertTrue(ChangeLogTempToEntity.convertRecords() > 0);
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
   }
   
   /**
@@ -257,6 +264,7 @@ public class PITSyncTests extends GrouperTest {
     long updates = new SyncPITTables().showResults(false).saveUpdates(false).syncAllPITTables();
     assertTrue(updates > 0);
     assertEquals(updates, new SyncPITTables().showResults(false).saveUpdates(false).syncAllPITTables());
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
     
     // now sync, delete data, and clear temp change log
     new SyncPITTables().showResults(false).syncAllPITTables();
@@ -267,6 +275,7 @@ public class PITSyncTests extends GrouperTest {
     updates = new SyncPITTables().showResults(false).saveUpdates(false).syncAllPITTables();
     assertTrue(updates > 0);
     assertEquals(updates, new SyncPITTables().showResults(false).saveUpdates(false).syncAllPITTables());
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
   }
   
   /**
@@ -298,6 +307,7 @@ public class PITSyncTests extends GrouperTest {
   
     updates = new SyncPITTables().showResults(false).sendFlattenedNotifications(false).sendPermissionNotifications(false).syncAllPITTables();
     assertTrue(updates > 0);
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
 
     changeLogTempCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry_temp");
     changeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
@@ -321,6 +331,7 @@ public class PITSyncTests extends GrouperTest {
     // let's sync and make sure there's nothing in the change log
     long updates = new SyncPITTables().showResults(false).syncAllPITTables();
     assertTrue(updates > 0);
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
     
     int changeLogTempCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry_temp");
     int changeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
@@ -339,6 +350,7 @@ public class PITSyncTests extends GrouperTest {
     
     updates = new SyncPITTables().showResults(false).syncAllPITTables();
     assertTrue(updates > 0);
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
 
     changeLogTempCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry_temp");
     changeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
@@ -365,12 +377,14 @@ public class PITSyncTests extends GrouperTest {
     Thread.sleep(100);
     long updates = new SyncPITTables().showResults(false).syncAllPITTables();
     assertTrue(updates > 0);
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
     Thread.sleep(100);
     long endTime = System.currentTimeMillis() * 1000;
     
     // if we sync again, there should be no updates
     updates = new SyncPITTables().showResults(false).syncAllPITTables();
     assertEquals(0, updates);
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
     grouperSession = GrouperSession.startRootSession();
     
     // now let's verify some of the updates (at least 1 per table)...
@@ -666,12 +680,14 @@ public class PITSyncTests extends GrouperTest {
     Thread.sleep(100);
     long updates = new SyncPITTables().showResults(false).syncAllPITTables();
     assertTrue(updates > 0);
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
     Thread.sleep(100);
     long endTime = System.currentTimeMillis() * 1000;
     
     // if we sync again, there should be no updates
     updates = new SyncPITTables().showResults(false).syncAllPITTables();
     assertEquals(0, updates);
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
     grouperSession = GrouperSession.startRootSession();
     
     // now let's verify some of the updates (at least 1 per table)...
@@ -943,10 +959,12 @@ public class PITSyncTests extends GrouperTest {
     // let's sync and verify that there were updates
     long updates = new SyncPITTables().showResults(false).syncAllPITTables();
     assertTrue(updates > 0);
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
 
     // if we sync again, there should be no updates
     updates = new SyncPITTables().showResults(false).syncAllPITTables();
     assertEquals(0, updates);
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
     grouperSession = GrouperSession.startRootSession();
     
     // now let's verify some of the updates (at least 1 per table)...
@@ -1071,7 +1089,8 @@ public class PITSyncTests extends GrouperTest {
     
     // there should be no updates
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
-
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
+    
     // now clear temp change log
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
 
@@ -1081,14 +1100,16 @@ public class PITSyncTests extends GrouperTest {
     
     // now there should be one update
     assertEquals(1, new SyncPITTables().showResults(false).syncAllPITTables());
-
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
+    
     Thread.sleep(100);
     long endTime = System.currentTimeMillis() * 1000;
     Thread.sleep(100);
     
     // now there shouldn't be any updates
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
-
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
+    
     // verify the point in time update
     PITMembership pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findById(pitMembershipId, false);
     assertNotNull(pitMembership);
@@ -1111,7 +1132,8 @@ public class PITSyncTests extends GrouperTest {
     
     // there should be no updates
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
-
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
+    
     // now clear temp change log
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
 
@@ -1121,14 +1143,16 @@ public class PITSyncTests extends GrouperTest {
     
     // now there should be one update
     assertEquals(1, new SyncPITTables().showResults(false).syncAllPITTables());
-
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
+    
     Thread.sleep(100);
     endTime = System.currentTimeMillis() * 1000;
     Thread.sleep(100);
     
     // now there shouldn't be any updates
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
-
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
+    
     // verify the point in time update
     pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdActive(membership.getImmediateMembershipId(), false);
     assertNotNull(pitMembership);
@@ -1163,7 +1187,8 @@ public class PITSyncTests extends GrouperTest {
     
     // there should be no updates
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
-
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
+    
     // now clear temp change log
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
 
@@ -1173,14 +1198,16 @@ public class PITSyncTests extends GrouperTest {
     
     // now there should be one update
     assertEquals(1, new SyncPITTables().showResults(false).syncAllPITTables());
-
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
+    
     Thread.sleep(100);
     long endTime = System.currentTimeMillis() * 1000;
     Thread.sleep(100);
     
     // now there shouldn't be any updates
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
-
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
+    
     // verify the point in time update
     PITAttributeAssign pitAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(pitAssignId, false);
     assertNotNull(pitAssign);
@@ -1206,7 +1233,8 @@ public class PITSyncTests extends GrouperTest {
     
     // there should be no updates
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
-
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
+    
     // now clear temp change log
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
 
@@ -1216,14 +1244,16 @@ public class PITSyncTests extends GrouperTest {
     
     // now there should be one update
     assertEquals(1, new SyncPITTables().showResults(false).syncAllPITTables());
-
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
+    
     Thread.sleep(100);
     endTime = System.currentTimeMillis() * 1000;
     Thread.sleep(100);
     
     // now there shouldn't be any updates
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
-
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
+    
     // verify the point in time update
     pitAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(assign1.getId(), false);
     assertNotNull(pitAssign);
@@ -1241,5 +1271,62 @@ public class PITSyncTests extends GrouperTest {
     assertTrue(pitAssign.getStartTimeDb().longValue() < endTime);
     assertNull(pitAssign.getEndTimeDb());
     assertEquals(assign1.getContextId(), pitAssign.getContextId());
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testDuplicateMemberships() throws Exception {
+    ChangeLogTempToEntity.convertRecords();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    addData();
+    ChangeLogTempToEntity.convertRecords();
+    
+    Membership membership = MembershipFinder.findImmediateMembership(grouperSession, (Group)role, newMember1.getSubject(), Group.getDefaultList(), true);
+    PITMembership pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdActive(membership.getImmediateMembershipId(), true);
+    PITMembership pitMembership2 = pitMembership.clone();
+    PITMembership pitMembership3 = pitMembership.clone();
+    PITMembership pitMembership4 = pitMembership.clone();
+    PITMembership pitMembership5 = pitMembership.clone();
+    
+    pitMembership2.setHibernateVersionNumber(-1L);
+    pitMembership3.setHibernateVersionNumber(-1L);
+    pitMembership4.setHibernateVersionNumber(-1L);
+    pitMembership5.setHibernateVersionNumber(-1L);
+    
+    pitMembership2.setId(GrouperUuid.getUuid());
+    pitMembership3.setId(GrouperUuid.getUuid());
+    pitMembership4.setId(GrouperUuid.getUuid());
+    pitMembership5.setId(GrouperUuid.getUuid());
+    
+    pitMembership2.setStartTimeDb(pitMembership.getStartTimeDb() - 1);
+    pitMembership3.setStartTimeDb(pitMembership.getStartTimeDb() - 2);
+    pitMembership4.setStartTimeDb(pitMembership.getStartTimeDb() + 1);
+    pitMembership5.setStartTimeDb(pitMembership.getStartTimeDb() - 3);
+    
+    // last one will look disabled in PIT .. make sure it doesn't get touched...
+    pitMembership5.setActiveDb("F");
+    pitMembership5.setEndTimeDb(pitMembership.getStartTimeDb());
+    
+    GrouperDAOFactory.getFactory().getPITMembership().saveOrUpdate(pitMembership2);    
+    GrouperDAOFactory.getFactory().getPITMembership().saveOrUpdate(pitMembership3);    
+    GrouperDAOFactory.getFactory().getPITMembership().saveOrUpdate(pitMembership4);    
+    GrouperDAOFactory.getFactory().getPITMembership().saveOrUpdate(pitMembership5);    
+    
+    assertEquals(5, GrouperDAOFactory.getFactory().getPITMembership().findBySourceId(membership.getImmediateMembershipId(), true).size());
+    assertEquals(1, new SyncPITTables().showResults(false).saveUpdates(false).processAllDuplicates());
+    assertEquals(1, new SyncPITTables().showResults(false).processAllDuplicates());
+    assertEquals(2, GrouperDAOFactory.getFactory().getPITMembership().findBySourceId(membership.getImmediateMembershipId(), true).size());
+    
+    PITMembership checkActive = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdActive(membership.getImmediateMembershipId(), true);
+    assertEquals(pitMembership3.getId(), checkActive.getId());
+    assertEquals(pitMembership3.getStartTimeDb(), checkActive.getStartTimeDb());
+    assertNull(checkActive.getEndTimeDb());
+    
+    PITMembership checkInactive = GrouperDAOFactory.getFactory().getPITMembership().findById(pitMembership5.getId(), true);
+    assertEquals(pitMembership5.getStartTimeDb(), checkInactive.getStartTimeDb());
+    assertEquals(pitMembership5.getEndTimeDb(), checkInactive.getEndTimeDb());
+    assertEquals("F", checkInactive.getActiveDb());
   }
 }

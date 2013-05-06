@@ -50,6 +50,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -60,6 +61,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -80,6 +82,24 @@ import edu.internet2.middleware.subject.Subject;
  * @since   1.2.1
  */
 public class PrivilegeHelper {
+
+  /**
+   * see if a group has an immediate privilege
+   * @param group
+   * @param subject
+   * @param privilege
+   * @return true if has immediate privilege, false if not
+   */
+  public static boolean hasImmediatePrivilege(Group group, Subject subject, Privilege privilege) {
+    
+    try {
+      MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), group, subject, privilege.getField(), true);
+      return true;
+    } catch (MembershipNotFoundException eMNF) {    
+      
+    }
+    return false;
+  }
 
   /**
    * flush all privilege caches
@@ -1116,6 +1136,42 @@ public class PrivilegeHelper {
     }
     
     return pitAttributeAssigns;
+  }
+
+  /**
+   * see if a stem has an immediate privilege
+   * @param stem
+   * @param subject
+   * @param privilege
+   * @return true if has immediate privilege, false if not
+   */
+  public static boolean hasImmediatePrivilege(Stem stem, Subject subject, Privilege privilege) {
+    
+    try {
+      MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), stem, subject, privilege.getField(), true);
+      return true;
+    } catch (MembershipNotFoundException eMNF) {    
+      
+    }
+    return false;
+  }
+
+  /**
+   * see if an attributeDef has an immediate privilege
+   * @param attributeDef
+   * @param subject
+   * @param privilege
+   * @return true if has immediate privilege, false if not
+   */
+  public static boolean hasImmediatePrivilege(AttributeDef attributeDef, Subject subject, Privilege privilege) {
+    
+    try {
+      MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), attributeDef, subject, privilege.getField(), true);
+      return true;
+    } catch (MembershipNotFoundException eMNF) {    
+      
+    }
+    return false;
   }
 }
 

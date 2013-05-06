@@ -2483,7 +2483,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
               hql.append(" or exists ( select theAttributeAssignValue from AttributeAssign theAttributeAssign, " +
                   " AttributeAssignValue theAttributeAssignValue, AttributeDefName theAttributeDefName ");
     
-              hql.append(" where theGroup.uuid = theAttributeAssign.ownerGroupId ");
+              hql.append(" where theGroup.typeOfGroupDb = 'entity' and theGroup.uuid = theAttributeAssign.ownerGroupId ");
               hql.append(" and theAttributeAssign.attributeDefNameId = theAttributeDefName.id ");
     
               hql.append(" and theAttributeDefName.nameDb = :entitySubjectIdDefName ");
@@ -2575,11 +2575,32 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       sql.append(HibUtils.convertToInClause(namesBatch, byHqlStatic)).append(" ) ");
 
       sql.append(" or theGroup.alternateNameDb in ( ");
-      
-      sql.append(HibUtils.convertToInClause(namesBatch, byHqlStatic)).append(" ) )");
 
+      sql.append(HibUtils.convertToInClause(namesBatch, byHqlStatic)).append(" ) ");
+
+      //if entities, then also allow entity identifier
+      if (typeOfGroups != null && typeOfGroups.contains(TypeOfGroup.entity)) {
+        
+        sql.append(" or exists ( select theAttributeAssignValue from AttributeAssign theAttributeAssign, " +
+            " AttributeAssignValue theAttributeAssignValue, AttributeDefName theAttributeDefName ");
+
+        sql.append(" where theGroup.typeOfGroupDb = 'entity' and theGroup.uuid = theAttributeAssign.ownerGroupId ");
+        sql.append(" and theAttributeAssign.attributeDefNameId = theAttributeDefName.id ");
+
+        sql.append(" and theAttributeDefName.nameDb = :entitySubjectIdDefName ");
+        byHqlStatic.setString("entitySubjectIdDefName", EntityUtils.entitySubjectIdentifierName());
+
+        sql.append(" and theAttributeAssignValue.attributeAssignId = theAttributeAssign.id ");
+
+        sql.append(" and theAttributeAssignValue.valueString in ( ");
+        sql.append(HibUtils.convertToInClause(namesBatch, byHqlStatic)).append(" ) )");
+
+      }
+      sql.append(" ) ");
       TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, sql, byHqlStatic);
-      
+
+
+
       if (queryOptions != null) {
         massageSortFields(queryOptions.getQuerySort());
       }

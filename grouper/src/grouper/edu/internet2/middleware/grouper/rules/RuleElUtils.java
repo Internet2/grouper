@@ -395,5 +395,41 @@ public class RuleElUtils {
     SimpleDateFormat dateFormat = new SimpleDateFormat(StringUtils.isBlank(format) ? "yyyy/MM/dd" : format);
     return dateFormat.format(date);
   }
+
+  /**
+   * remove a member of a group
+   * @param groupId
+   * @param memberId
+   * @return true if removed, false if not
+   */
+  public static boolean addMemberToGroupId(String groupId, String memberId) {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Adding member: " + memberId + ", to group: " + groupId);
+    }
+    Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, true);
+    Member member = MemberFinder.findByUuid(GrouperSession.startRootSession(), memberId, true);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Adding subject: " + member.getSubjectId() + ", to group: " + group.getName());
+    }
+    return group.addMember(member.getSubject(), false);
+  }
+
+  /**
+   * remove a member of a group
+   * @param groupName
+   * @param memberId
+   * @return true if removed, false if not
+   */
+  public static boolean addMemberToGroupName(String groupName, String memberId) {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Adding member: " + memberId + ", to group: " + groupName);
+    }
+    Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, true);
+    Member member = MemberFinder.findByUuid(GrouperSession.startRootSession(), memberId, true);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Adding subject: " + member.getSubjectId() + ", to group: " + group.getName());
+    }
+    return group.addMember(member.getSubject(), false);
+  }
   
 }
