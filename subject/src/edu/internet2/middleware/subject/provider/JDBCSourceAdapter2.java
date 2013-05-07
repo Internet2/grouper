@@ -823,7 +823,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
     } finally {
       
       if (log.isDebugEnabled()) {
-        log.debug("Query returned " + results.size() + ", " + query + ", " + GrouperUtil.toStringForLog(args));
+        log.debug("Query returned " + results.size() + ", " + query + ", " + SubjectUtils.toStringForLog(args));
       }
       
       closeStatement(stmt);
@@ -1110,36 +1110,36 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
     this.subjectAttributeColToName = subjectAttributeColToName1;
   }
 
-  /**
-   * 
-   * @param args
-   * @throws Exception 
-   */
-  public static void main(String[] args) throws Exception {
-    Subject subject = SubjectFinder.findById("10021368", true);
-    
-    System.out.println(SubjectHelper.getPrettyComplete(subject));
-    
-    subject = SubjectFinder.findByIdentifier("mchyzer", true);
-    
-    System.out.println(SubjectHelper.getPrettyComplete(subject));
-    
-    System.out.println("\n\n###########################\n\n");
-    
-    Set<Subject> subjects = SubjectFinder.findAll("BeCk");
-    
-    for (Subject theSubject : subjects) {
-      System.out.println(SubjectHelper.getPrettyComplete(theSubject));
-    }
-    
-    System.out.println("\n\n###########################\n\n");
-    
-    subjects = SubjectFinder.findAll("ro beck");
-    
-    for (Subject theSubject : subjects) {
-      System.out.println(SubjectHelper.getPrettyComplete(theSubject));
-    }
-    
-  }
+//  /**
+//   * 
+//   * @param args
+//   * @throws Exception 
+//   */
+//  public static void main(String[] args) throws Exception {
+//    Subject subject = SubjectFinder.findById("10021368", true);
+//    
+//    System.out.println(SubjectHelper.getPrettyComplete(subject));
+//    
+//    subject = SubjectFinder.findByIdentifier("mchyzer", true);
+//    
+//    System.out.println(SubjectHelper.getPrettyComplete(subject));
+//    
+//    System.out.println("\n\n###########################\n\n");
+//    
+//    Set<Subject> subjects = SubjectFinder.findAll("BeCk");
+//    
+//    for (Subject theSubject : subjects) {
+//      System.out.println(SubjectHelper.getPrettyComplete(theSubject));
+//    }
+//    
+//    System.out.println("\n\n###########################\n\n");
+//    
+//    subjects = SubjectFinder.findAll("ro beck");
+//    
+//    for (Subject theSubject : subjects) {
+//      System.out.println(SubjectHelper.getPrettyComplete(theSubject));
+//    }
+//    
+//  }
   
 }
