@@ -5,6 +5,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.subject.SubjectUtils;
+
 /**
  * process a subject status
  * 
@@ -159,6 +161,11 @@ public class SubjectStatusProcessor {
     String queryToOperateOn = firstPass ? StringUtils.defaultString(this.originalQuery) : StringUtils.defaultString(this.queryWithDefault);
     
     boolean hasStatus = this.subjectStatusConfig.isStatusConfigured();
+    
+    if (hasStatus && StringUtils.isBlank(this.subjectStatusConfig.getStatusLabel())) {
+      throw new RuntimeException("Cant find status label for source");
+    }
+    
     boolean foundStatus = false;
     
     for (Pattern pattern : new Pattern[]{statusPattern}) {
