@@ -467,6 +467,7 @@ public class GrouperLoaderJob implements Job, StatefulJob {
       String grouperLoaderLdapSearchScope = null;
       String grouperLoaderLdapAndGroups = null;
       String grouperLoaderLdapGroupAttributeName = null;
+      String grouperLoaderLdapAttributeFilterExpression = null;
       String grouperLoaderLdapExtraAttributes = null;
       String grouperLoaderLdapErrorUnresolvable = null;
       String grouperLoaderLdapGroupNameExpression = null;
@@ -498,6 +499,7 @@ public class GrouperLoaderJob implements Job, StatefulJob {
       grouperLoaderLdapSearchScope = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapSearchScopeName());
       grouperLoaderLdapAndGroups = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapAndGroupsName());
       grouperLoaderLdapGroupAttributeName = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapGroupAttributeName());
+      grouperLoaderLdapAttributeFilterExpression = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapAttributeFilterExpressionName());
       grouperLoaderLdapExtraAttributes = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapExtraAttributesName());
       grouperLoaderLdapErrorUnresolvable = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapErrorUnresolvableName());
       grouperLoaderLdapGroupNameExpression = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName());
@@ -552,7 +554,7 @@ public class GrouperLoaderJob implements Job, StatefulJob {
           grouperLoaderLdapGroupDisplayExtensionExpression, grouperLoaderLdapGroupDescriptionExpression,
           grouperLoaderLdapSubjectExpression, groupTypes, grouperLoaderLdapGroupReaders, 
           grouperLoaderLdapGroupViewers, grouperLoaderLdapGroupAdmins, grouperLoaderLdapGroupUpdaters, 
-          grouperLoaderLdapGroupOptins, grouperLoaderLdapGroupOptouts, grouperLoaderLdapGroupsLike  );
+          grouperLoaderLdapGroupOptins, grouperLoaderLdapGroupOptouts, grouperLoaderLdapGroupsLike, grouperLoaderLdapAttributeFilterExpression  );
 
       //call hooks if registered
       GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LOADER, 

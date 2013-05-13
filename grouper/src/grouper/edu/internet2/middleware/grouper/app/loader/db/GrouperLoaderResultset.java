@@ -636,6 +636,8 @@ public class GrouperLoaderResultset {
    * @param groupDescriptionExpression 
    * @param groupNameToDisplayName map to translate group name to display name
    * @param groupNameToDescription map to translate group name to description
+   * @param ldapAttributeFilterExpression if specified, this will filter the attributes that are turned into 
+   * groups, should return true or false
    */
   public void initForLdapGroupsFromAttributes(final String ldapServerId, final String filter,
       final String searchDn, final String subjectAttributeName,
@@ -648,7 +650,7 @@ public class GrouperLoaderResultset {
       final String groupDisplayNameExpression, 
       final String groupDescriptionExpression,  
       final Map<String, String> groupNameToDisplayName,
-      final Map<String, String> groupNameToDescription) {
+      final Map<String, String> groupNameToDescription, final String ldapAttributeFilterExpression) {
 
     //run the query
     final LdapSearchScope ldapSearchScopeEnum = LdapSearchScope.valueOfIgnoreCase(
@@ -741,6 +743,11 @@ public class GrouperLoaderResultset {
               
               Map<String, List<String>> result = new HashMap<String, List<String>>();
               int subObjectCount = 0;
+              int subObjectValidCount = 0;
+              
+              //if filtering attributes by a jexl, then this is the cached result true or false, for if it is a valid attribute
+              Map<String, Boolean> validAttributes = new HashMap<String, Boolean>();
+
               while (searchResultIterator.hasNext()) {
 
                 SearchResult searchResult = searchResultIterator.next();
@@ -822,9 +829,46 @@ public class GrouperLoaderResultset {
                       //lets see if we know the groupName
                       String groupName = attributeNameToGroupNameMap.get(attributeValue);
                       if (StringUtils.isBlank(groupName)) {
+
+                        //lets see if valid attribute, see if a filter expression is set
+                        if (!StringUtils.isBlank(ldapAttributeFilterExpression)) {
+                          //see if we have already calculated it
+                          if (!validAttributes.containsKey(attributeValue)) {
+                            
+                            Map<String, Object> variableMap = new HashMap<String, Object>();
+                            variableMap.put("attributeValue", attributeValue);
+                            
+                            //lets run the filter on the attribute name
+                            String attributeResultBooleanString = GrouperUtil.substituteExpressionLanguage(
+                                ldapAttributeFilterExpression, variableMap, true, false, false);
+                            
+                            boolean attributeResultBoolean = false;
+                            try {
+                              attributeResultBoolean = GrouperUtil.booleanValue(attributeResultBooleanString);
+                            } catch (RuntimeException re) {
+                              throw new RuntimeException("Error parsing boolean: '" + attributeResultBooleanString 
+                                  + "', expecting true or false, from expression: " + ldapAttributeFilterExpression );
+                            }
+                            
+                            if (LOG.isDebugEnabled()) {
+                              LOG.debug("Attribute '" + attributeValue + "' is allowed to be used based on expression? " 
+                                  + attributeResultBoolean + ", '" + ldapAttributeFilterExpression + "', note the attributeValue is" +
+                                  		" in a variable called attributeValue");
+                            }
+                            
+                            validAttributes.put((String)attributeValue, attributeResultBoolean);
+                            
+                          }
+                          
+                          //lets see if filtering
+                          if (!validAttributes.get(attributeValue)) {
+                            continue;
+                          }
+                        }
+                        
+                        subObjectValidCount++;
                         
                         String defaultFolder = defaultLdapFolder();
-
                         
                         groupName = defaultFolder + attributeValue;
                         
@@ -886,7 +930,7 @@ public class GrouperLoaderResultset {
               
               if (LOG.isDebugEnabled()) {
                 LOG.debug("Found " + result.size() + " results, (" + subObjectCount
-                    + " sub-results) for serverId: " + ldapServerId + ", searchDn: "
+                    + " sub-results, " + subObjectValidCount + " valid-sub-results) for serverId: " + ldapServerId + ", searchDn: "
                     + searchDn
                     + ", filter: '" + filter + "', returning subject attribute: "
                     + subjectAttributeName + ", some results: "

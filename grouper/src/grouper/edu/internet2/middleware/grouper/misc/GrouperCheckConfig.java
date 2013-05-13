@@ -1270,29 +1270,37 @@ public class GrouperCheckConfig {
         }
         JarFile jarFile = new JarFile(file);
         Class sampleClass = null;
-        Enumeration<JarEntry> enumeration = jarFile.entries();
-        while (enumeration.hasMoreElements()) {
-          JarEntry jarEntry = enumeration.nextElement();
-          String jarEntryName = jarEntry.getName();
-          if (jarEntryName.endsWith(".class") && !jarEntryName.contains("$")) {
-            String className = jarEntryName.substring(0, jarEntryName.length()-6);
-            className = className.replace('/', '.');
-            className = className.replace('\\', '.');
-            //these dont work
-            if ("javax.activation.SecuritySupport12".equals(className)) {
-              continue;
+        try {
+          Enumeration<JarEntry> enumeration = jarFile.entries();
+          while (enumeration.hasMoreElements()) {
+            JarEntry jarEntry = enumeration.nextElement();
+            String jarEntryName = jarEntry.getName();
+            if (jarEntryName.endsWith(".class") && !jarEntryName.contains("$")) {
+              String className = jarEntryName.substring(0, jarEntryName.length()-6);
+              className = className.replace('/', '.');
+              className = className.replace('\\', '.');
+              //these dont work
+              if ("javax.activation.SecuritySupport12".equals(className)) {
+                continue;
+              }
+              Class tempClass = null;
+              try {
+                tempClass = Class.forName(className);
+              } catch  (Throwable t) {
+                LOG.warn("Problem with class: " + className + ", in jar: " + file.getCanonicalPath(), t);
+                continue;
+              }
+              if (Modifier.isPublic(tempClass.getModifiers())) {
+                sampleClass = tempClass;
+                break;
+              }
             }
-            Class tempClass = null;
-            try {
-              tempClass = Class.forName(className);
-            } catch  (Throwable t) {
-              LOG.warn("Problem with class: " + className + ", in jar: " + file.getCanonicalPath(), t);
-              continue;
-            }
-            if (Modifier.isPublic(tempClass.getModifiers())) {
-              sampleClass = tempClass;
-              break;
-            }
+          }
+        } finally {
+          try {
+            jarFile.close();
+          } catch (RuntimeException re) {
+            LOG.warn("error: " + file, re);
           }
         }
         if (sampleClass == null) {
@@ -2045,6 +2053,10 @@ public class GrouperCheckConfig {
                 "Grouper loader LDAP group attribute name", 
                 "Attribute name of the filter object result that holds the group name (required for " +
                 "loader ldap type: LDAP_GROUPS_FROM_ATTRIBUTE)", wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_ATTRIBUTE_FILTER_EXPRESSION, 
+                "Grouper loader LDAP attribute filter expression", 
+                "JEXL expression that returns true or false to signify if an attribute (in GROUPS_FROM_ATTRIBUTES) is ok to use for a group.  " +
+                "attributeValue is the variable that is the value of the attribute.", wasInCheckConfig);
             checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_EXTRA_ATTRIBUTES, 
                 "Grouper loader LDAP extra attributes", 
                 "Attribute names (comma separated) to get LDAP data for expressions in group name, displayExtension, description, " +

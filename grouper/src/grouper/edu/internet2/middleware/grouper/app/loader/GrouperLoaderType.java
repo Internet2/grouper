@@ -393,7 +393,6 @@ public enum GrouperLoaderType {
           LOG.debug(groupNameOverall + ": start syncing membership");
         }
         
-        long startTimeLoadData = 0;
         GrouperLoaderStatus[] statusOverall = new GrouperLoaderStatus[]{GrouperLoaderStatus.SUCCESS};
         
         try {
@@ -911,6 +910,7 @@ public enum GrouperLoaderType {
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapErrorUnresolvableName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapAttributeFilterExpressionName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupDisplayNameExpressionName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupDescriptionExpressionName(), attributeName)
@@ -967,9 +967,9 @@ public enum GrouperLoaderType {
               loaderJobBean.getLdapGroupNameExpression(), 
               loaderJobBean.getLdapGroupDisplayNameExpression(),
               loaderJobBean.getLdapGroupDescriptionExpression(),
-              groupNameToDisplayName, groupNameToDescription);
-          
-          
+              groupNameToDisplayName, groupNameToDescription, loaderJobBean.getLdapAttributeFilterExpression());
+
+
           String groupNameOverall = hib3GrouploaderLogOverall.getGroupNameFromJobName();
   
           GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
@@ -3312,6 +3312,8 @@ public enum GrouperLoaderType {
               LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName());
           grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
               LoaderLdapUtils.grouperLoaderLdapGroupAttributeName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapAttributeFilterExpressionName());
           grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
               LoaderLdapUtils.grouperLoaderLdapExtraAttributesName());
           grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
