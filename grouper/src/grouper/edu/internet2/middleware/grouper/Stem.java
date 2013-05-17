@@ -1326,6 +1326,38 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   public boolean hasCreate(Subject subj) {
     return GrouperSession.staticGrouperSession().getNamingResolver().hasPrivilege(this, subj, NamingPrivilege.CREATE);
   } 
+  
+  /**
+   * Check whether a subject has the STEM_ATTR_READ privilege on this stem.
+   * <pre class="eg">
+   * if (ns.hasStemAttrRead(subj)) {
+   *   // Has STEM_ATTR_READ
+   * }
+   *   // Does not have STEM_ATTR_READ
+   * } 
+   * </pre>
+   * @param   subj  Check whether this subject has STEM_ATTR_READ.
+   * @return  Boolean true if the subject has STEM_ATTR_READ.
+   */
+  public boolean hasStemAttrRead(Subject subj) {
+    return GrouperSession.staticGrouperSession().getNamingResolver().hasPrivilege(this, subj, NamingPrivilege.STEM_ATTR_READ);
+  }
+  
+  /**
+   * Check whether a subject has the STEM_ATTR_UPDATE privilege on this stem.
+   * <pre class="eg">
+   * if (ns.hasStemAttrUpdate(subj)) {
+   *   // Has STEM_ATTR_UPDATE
+   * }
+   *   // Does not have STEM_ATTR_UPDATE
+   * } 
+   * </pre>
+   * @param   subj  Check whether this subject has STEM_ATTR_UPDATE.
+   * @return  Boolean true if the subject has STEM_ATTR_UPDATE.
+   */
+  public boolean hasStemAttrUpdate(Subject subj) {
+    return GrouperSession.staticGrouperSession().getNamingResolver().hasPrivilege(this, subj, NamingPrivilege.STEM_ATTR_UPDATE);
+  }
  
   /**
    * Check whether a member has the STEM privilege on this stem.
@@ -2446,6 +2478,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         this._grantOptionalPrivUponCreate( g, AccessPrivilege.OPTOUT, GrouperConfig.GCGAOO );
         this._grantOptionalPrivUponCreate( g, AccessPrivilege.READ, GrouperConfig.GCGAR );
         this._grantOptionalPrivUponCreate( g, AccessPrivilege.UPDATE, GrouperConfig.GCGAU );
+        this._grantOptionalPrivUponCreate( g, AccessPrivilege.GROUP_ATTR_READ, GrouperConfig.GCGAGAR );
+        this._grantOptionalPrivUponCreate( g, AccessPrivilege.GROUP_ATTR_UPDATE, GrouperConfig.GCGAGAU );
       }
       if (g.getTypeOfGroup() == TypeOfGroup.entity) {
         this._grantOptionalPrivUponCreate( g, AccessPrivilege.VIEW, "entities.create.grant.all.view" );
@@ -2496,6 +2530,12 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       this._grantOptionalPrivUponCreate(
           attributeDef, AttributeDefPrivilege.ATTR_VIEW, GrouperConfig.ATTRIBUTE_DEFS_CREATE_GRANT_ALL_ATTR_VIEW
         );
+      this._grantOptionalPrivUponCreate(
+          attributeDef, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, GrouperConfig.ATTRIBUTE_DEFS_CREATE_GRANT_ALL_ATTR_DEF_ATTR_READ
+        );
+      this._grantOptionalPrivUponCreate(
+          attributeDef, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, GrouperConfig.ATTRIBUTE_DEFS_CREATE_GRANT_ALL_ATTR_DEF_ATTR_UPDATE
+        );
     }
     catch (GrantPrivilegeException eGP)         {
       throw new AttributeDefAddException(eGP.getMessage(), eGP);
@@ -2538,6 +2578,12 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       this._grantOptionalPrivUponCreate(
         ns, NamingPrivilege.STEM, GrouperConfig.SCGAS
       );
+      this._grantOptionalPrivUponCreate(
+          ns, NamingPrivilege.STEM_ATTR_READ, GrouperConfig.SCGASAR
+        );
+      this._grantOptionalPrivUponCreate(
+          ns, NamingPrivilege.STEM_ATTR_UPDATE, GrouperConfig.SCGASAU
+        );
     }
     catch (GrantPrivilegeException eGP)         {
       throw new StemAddException(eGP.getMessage(), eGP);

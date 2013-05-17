@@ -100,7 +100,11 @@ public class Privilege implements Serializable {
   /** */
   private static final Privilege              CREATE  = new Privilege("create");
   /** */
-  private static final Privilege              STEM    = new Privilege("stem"  );
+  private static final Privilege              STEM    = new Privilege("stem"  );  
+  /** */
+  private static final Privilege              STEM_ATTR_READ    = new Privilege("stemAttrRead"  );
+  /** */
+  private static final Privilege              STEM_ATTR_UPDATE    = new Privilege("stemAttrUpdate"  );
   /** */
   private static final Set<Privilege>         NAMING  = new LinkedHashSet<Privilege>();
   /** */
@@ -116,6 +120,10 @@ public class Privilege implements Serializable {
   /** */
   private static final Privilege              VIEW    = new Privilege("view"  );
   /** */
+  private static final Privilege              GROUP_ATTR_READ    = new Privilege("groupAttrRead"  );
+  /** */
+  private static final Privilege              GROUP_ATTR_UPDATE    = new Privilege("groupAttrUpdate"  );
+  /** */
   private static final Map<String,Privilege>  PRIVS   = new HashMap<String,Privilege>();
 
   /** */
@@ -130,7 +138,10 @@ public class Privilege implements Serializable {
   private static final Privilege              ATTR_UPDATE  = new Privilege("attrUpdate");
   /** */
   private static final Privilege              ATTR_VIEW    = new Privilege("attrView"  );
-
+  /** */
+  private static final Privilege              ATTR_DEF_ATTR_READ  = new Privilege("attrDefAttrRead");
+  /** */
+  private static final Privilege              ATTR_DEF_ATTR_UPDATE    = new Privilege("attrDefAttrUpdate"  );
   /** */
   private static final Privilege              SYSTEM  = new Privilege("system");
 
@@ -157,6 +168,14 @@ public class Privilege implements Serializable {
     ACCESS.add( UPDATE                      );
     PRIVS.put(  VIEW.toString()   , VIEW    );
     ACCESS.add( VIEW                        );
+    PRIVS.put(GROUP_ATTR_READ.toString(), GROUP_ATTR_READ);
+    ACCESS.add(GROUP_ATTR_READ);
+    PRIVS.put(GROUP_ATTR_UPDATE.toString(), GROUP_ATTR_UPDATE);
+    ACCESS.add(GROUP_ATTR_UPDATE);
+    PRIVS.put(STEM_ATTR_READ.toString(), STEM_ATTR_READ);
+    NAMING.add(STEM_ATTR_READ);
+    PRIVS.put(STEM_ATTR_UPDATE.toString(), STEM_ATTR_UPDATE);
+    NAMING.add(STEM_ATTR_UPDATE);
 
     PRIVS.put(  ATTR_OPTIN.toString()   , ATTR_OPTIN    );
     ATTRIBUTE_DEF.add( ATTR_OPTIN                        );
@@ -170,6 +189,10 @@ public class Privilege implements Serializable {
     ATTRIBUTE_DEF.add( ATTR_VIEW                        );
     PRIVS.put(  ATTR_ADMIN.toString()   , ATTR_ADMIN    );
     ATTRIBUTE_DEF.add( ATTR_ADMIN                        );
+    PRIVS.put(ATTR_DEF_ATTR_READ.toString(), ATTR_DEF_ATTR_READ);
+    ATTRIBUTE_DEF.add(ATTR_DEF_ATTR_READ);
+    PRIVS.put(ATTR_DEF_ATTR_UPDATE.toString(), ATTR_DEF_ATTR_UPDATE);
+    ATTRIBUTE_DEF.add(ATTR_DEF_ATTR_UPDATE);
 
   
   } // static

@@ -99,11 +99,17 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable {
 
   /** */
   public static final Privilege VIEW    = Privilege.getInstance("view");
+  
+  /** */
+  public static final Privilege GROUP_ATTR_READ    = Privilege.getInstance("groupAttrRead");
 
+  /** */
+  public static final Privilege GROUP_ATTR_UPDATE    = Privilege.getInstance("groupAttrUpdate");
+  
   /** any of these constitutes VIEW on a group
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> VIEW_PRIVILEGES = Collections.unmodifiableSet(
-      GrouperUtil.toSet(VIEW, READ, ADMIN, UPDATE, OPTIN, OPTOUT));
+      GrouperUtil.toSet(VIEW, READ, ADMIN, UPDATE, GROUP_ATTR_READ, GROUP_ATTR_UPDATE, OPTIN, OPTOUT));
 
   /** any of these constitutes VIEW on an entity
    * note, keep most common/likely privs toward the front  */
@@ -120,6 +126,8 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable {
     list2priv.put( Field.FIELD_NAME_READERS, AccessPrivilege.READ);
     list2priv.put( Field.FIELD_NAME_UPDATERS, AccessPrivilege.UPDATE);
     list2priv.put( Field.FIELD_NAME_VIEWERS, AccessPrivilege.VIEW);
+    list2priv.put( Field.FIELD_NAME_GROUP_ATTR_READERS, AccessPrivilege.GROUP_ATTR_READ);
+    list2priv.put( Field.FIELD_NAME_GROUP_ATTR_UPDATERS, AccessPrivilege.GROUP_ATTR_UPDATE);
   }
 
   /** convert a list to a priv */
@@ -132,6 +140,8 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable {
     priv2list.put(  AccessPrivilege.READ  , Field.FIELD_NAME_READERS   );
     priv2list.put(  AccessPrivilege.UPDATE, Field.FIELD_NAME_UPDATERS  );
     priv2list.put(  AccessPrivilege.VIEW  , Field.FIELD_NAME_VIEWERS   );
+    priv2list.put(  AccessPrivilege.GROUP_ATTR_READ  , Field.FIELD_NAME_GROUP_ATTR_READERS   );
+    priv2list.put(  AccessPrivilege.GROUP_ATTR_UPDATE  , Field.FIELD_NAME_GROUP_ATTR_UPDATERS   );
   }
   
   /**

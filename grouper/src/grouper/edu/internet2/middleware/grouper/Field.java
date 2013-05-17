@@ -99,8 +99,19 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
   
   /** field name for optouts */
   public static final String FIELD_NAME_OPTOUTS = "optouts";
-  
 
+  /** field name for groupAttrReaders */
+  public static final String FIELD_NAME_GROUP_ATTR_READERS = "groupAttrReaders";
+  
+  /** field name for groupAttrUpdaters */
+  public static final String FIELD_NAME_GROUP_ATTR_UPDATERS = "groupAttrUpdaters";
+
+  /** field name for stemAttrReaders */
+  public static final String FIELD_NAME_STEM_ATTR_READERS = "stemAttrReaders";
+  
+  /** field name for stemAttrUpdaters */
+  public static final String FIELD_NAME_STEM_ATTR_UPDATERS = "stemAttrUpdaters";
+  
   /** col */
   public static final String COLUMN_ID = "id";
 

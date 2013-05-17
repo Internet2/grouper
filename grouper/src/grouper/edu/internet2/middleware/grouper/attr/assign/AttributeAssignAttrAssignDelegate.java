@@ -67,7 +67,6 @@ public class AttributeAssignAttrAssignDelegate extends AttributeAssignBaseDelega
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     final Subject subject = grouperSession.getSubject();
     final boolean[] canReadAttributeAssigned = new boolean[1];
-    final boolean[] canReadAttributeToAssignTo = new boolean[1];
   
     //these need to be looked up as root
     GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
@@ -77,8 +76,7 @@ public class AttributeAssignAttrAssignDelegate extends AttributeAssignBaseDelega
        */
       public Object callback(GrouperSession rootSession) throws GrouperSessionException {
         canReadAttributeAssigned[0] = attributeDef.getPrivilegeDelegate().canAttrRead(subject);
-        canReadAttributeToAssignTo[0] = AttributeAssignAttrAssignDelegate.this.attributeAssignToAssignTo.getAttributeDef()
-          .getPrivilegeDelegate().canAttrRead(subject);
+
         return null;
       }
     });
@@ -87,11 +85,10 @@ public class AttributeAssignAttrAssignDelegate extends AttributeAssignBaseDelega
       throw new InsufficientPrivilegeException("Subject " + GrouperUtil.subjectToString(subject) 
           + " cannot read attributeDef " + attributeDef.getName());
     }
-  
-    if (!canReadAttributeToAssignTo[0]) {
-      throw new InsufficientPrivilegeException("Subject " + GrouperUtil.subjectToString(subject) 
-          + " cannot read attributeDef " + this.attributeAssignToAssignTo.getAttributeDef().getName());
-    }
+    
+    // check the attribute that is getting the assignment along with the underlying object...
+    AttributeAssignAttrAssignDelegate.this.attributeAssignToAssignTo.retrieveAttributeAssignable().getAttributeDelegate()
+      .assertCanReadAttributeDef(AttributeAssignAttrAssignDelegate.this.attributeAssignToAssignTo.getAttributeDef());
   }
 
   /**
@@ -104,7 +101,6 @@ public class AttributeAssignAttrAssignDelegate extends AttributeAssignBaseDelega
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     final Subject subject = grouperSession.getSubject();
     final boolean[] canUpdateAttributeAssigned = new boolean[1];
-    final boolean[] canUpdateAttributeToAssign = new boolean[1];
  
     //these need to be looked up as root
     GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
@@ -114,8 +110,7 @@ public class AttributeAssignAttrAssignDelegate extends AttributeAssignBaseDelega
        */
       public Object callback(GrouperSession rootSession) throws GrouperSessionException {
         canUpdateAttributeAssigned[0] = attributeDefAssigned.getPrivilegeDelegate().canAttrUpdate(subject);
-        canUpdateAttributeToAssign[0] = AttributeAssignAttrAssignDelegate.this.attributeAssignToAssignTo
-          .getAttributeDef().getPrivilegeDelegate().canAttrUpdate(subject);
+        
         return null;
       }
     });
@@ -125,11 +120,9 @@ public class AttributeAssignAttrAssignDelegate extends AttributeAssignBaseDelega
           + " cannot update attributeDef " + attributeDefAssigned.getName());
     }
 
-    if (!canUpdateAttributeToAssign[0]) {
-      throw new InsufficientPrivilegeException("Subject " + GrouperUtil.subjectToString(subject) 
-          + " cannot update attributeDef " + this.attributeAssignToAssignTo.getAttributeDef().getName());
-    }
-
+    // check the attribute that is getting the assignment along with the underlying object...
+    AttributeAssignAttrAssignDelegate.this.attributeAssignToAssignTo.retrieveAttributeAssignable().getAttributeDelegate()
+      .assertCanUpdateAttributeDefName(AttributeAssignAttrAssignDelegate.this.attributeAssignToAssignTo.getAttributeDefName());
   }
 
   /**

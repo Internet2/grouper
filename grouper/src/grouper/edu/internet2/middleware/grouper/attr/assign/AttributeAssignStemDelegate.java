@@ -64,7 +64,8 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     final Subject subject = grouperSession.getSubject();
     final boolean[] canReadAttribute = new boolean[1];
-  
+    final boolean[] canStemAttrRead = new boolean[1];
+
     //these need to be looked up as root
     GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
       
@@ -73,6 +74,15 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
        */
       public Object callback(GrouperSession rootSession) throws GrouperSessionException {
         canReadAttribute[0] = attributeDef.getPrivilegeDelegate().canAttrRead(subject);
+        
+        //can be stem or create or stemAttrRead to read an attribute
+        canStemAttrRead[0] = PrivilegeHelper.canStemAttrRead(rootSession, AttributeAssignStemDelegate.this.stem, subject);
+        if (!canStemAttrRead[0]) {
+          canStemAttrRead[0] = PrivilegeHelper.canCreate(rootSession, AttributeAssignStemDelegate.this.stem, subject);
+        }
+        if (!canStemAttrRead[0]) {
+          canStemAttrRead[0] = PrivilegeHelper.canStem(AttributeAssignStemDelegate.this.stem, subject);
+        }
         return null;
       }
     });
@@ -80,6 +90,11 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
     if (!canReadAttribute[0]) {
       throw new InsufficientPrivilegeException("Subject " + GrouperUtil.subjectToString(subject) 
           + " cannot read attributeDef " + attributeDef.getName());
+    }
+    
+    if (!canStemAttrRead[0]) {
+      throw new InsufficientPrivilegeException("Subject " + GrouperUtil.subjectToString(subject) 
+          + " cannot create/stem/stemAttrRead in stem " + stem.getName());
     }
   
   }
@@ -103,7 +118,7 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     final Subject subject = grouperSession.getSubject();
     final boolean[] canUpdateAttribute = new boolean[1];
-    final boolean[] canCreateInStem = new boolean[1];
+    final boolean[] canStemAttrUpdate = new boolean[1];
  
     //these need to be looked up as root
     GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
@@ -114,10 +129,13 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
       public Object callback(GrouperSession rootSession) throws GrouperSessionException {
         canUpdateAttribute[0] = attributeDef.getPrivilegeDelegate().canAttrUpdate(subject);
         
-        //can be stem or create to assign an attribute
-        canCreateInStem[0] = PrivilegeHelper.canCreate(rootSession, AttributeAssignStemDelegate.this.stem, subject);
-        if (!canCreateInStem[0]) {
-          canCreateInStem[0] = PrivilegeHelper.canStem(AttributeAssignStemDelegate.this.stem, subject);
+        //can be stem or create or stemAttrUpdate to assign an attribute
+        canStemAttrUpdate[0] = PrivilegeHelper.canStemAttrUpdate(rootSession, AttributeAssignStemDelegate.this.stem, subject);
+        if (!canStemAttrUpdate[0]) {
+          canStemAttrUpdate[0] = PrivilegeHelper.canCreate(rootSession, AttributeAssignStemDelegate.this.stem, subject);
+        }
+        if (!canStemAttrUpdate[0]) {
+          canStemAttrUpdate[0] = PrivilegeHelper.canStem(AttributeAssignStemDelegate.this.stem, subject);
         }
         return null;
       }
@@ -128,9 +146,9 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
           + " cannot update attributeDef " + attributeDef.getName());
     }
 
-    if (!canCreateInStem[0]) {
+    if (!canStemAttrUpdate[0]) {
       throw new InsufficientPrivilegeException("Subject " + GrouperUtil.subjectToString(subject) 
-          + " cannot create/stem in stem " + stem.getName());
+          + " cannot create/stem/stemAttrUpdate in stem " + stem.getName());
     }
 
   }

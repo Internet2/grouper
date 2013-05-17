@@ -217,8 +217,80 @@ public class PrivilegeHelper {
       || attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_READ)
       || attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_UPDATE)
       || attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_ADMIN)
+      || attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_DEF_ATTR_READ)
+      || attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE)
       || attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_OPTIN)
       || attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_OPTOUT);
+  } 
+  
+  /**
+   * @param s 
+   * @param group 
+   * @param subj 
+   * @return true if allowed
+   */
+  public static boolean canGroupAttrRead(GrouperSession s, Group group, Subject subj) {
+    AccessResolver resolver = s.getAccessResolver();
+    return resolver.hasPrivilege(group, subj, AccessPrivilege.GROUP_ATTR_READ)
+      || resolver.hasPrivilege(group, subj, AccessPrivilege.ADMIN);
+  } 
+  
+  /**
+   * @param s 
+   * @param group 
+   * @param subj 
+   * @return true if allowed
+   */
+  public static boolean canGroupAttrUpdate(GrouperSession s, Group group, Subject subj) {
+    AccessResolver resolver = s.getAccessResolver();
+    return resolver.hasPrivilege(group, subj, AccessPrivilege.GROUP_ATTR_UPDATE)
+      || resolver.hasPrivilege(group, subj, AccessPrivilege.ADMIN);
+  } 
+  
+  /**
+   * @param s 
+   * @param attributeDef 
+   * @param subj 
+   * @return true if allowed
+   */
+  public static boolean canAttrDefAttrRead(GrouperSession s, AttributeDef attributeDef, Subject subj) {
+    AttributeDefResolver resolver = s.getAttributeDefResolver();
+    return resolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_DEF_ATTR_READ)
+      || resolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_ADMIN);
+  } 
+  
+  /**
+   * @param s 
+   * @param attributeDef 
+   * @param subj 
+   * @return true if allowed
+   */
+  public static boolean canAttrDefAttrUpdate(GrouperSession s, AttributeDef attributeDef, Subject subj) {
+    AttributeDefResolver resolver = s.getAttributeDefResolver();
+    return resolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE)
+      || resolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_ADMIN);
+  } 
+  
+  /**
+   * @param s 
+   * @param stem 
+   * @param subj 
+   * @return true if allowed
+   */
+  public static boolean canStemAttrRead(GrouperSession s, Stem stem, Subject subj) {
+    NamingResolver resolver = s.getNamingResolver();
+    return resolver.hasPrivilege(stem, subj, NamingPrivilege.STEM_ATTR_READ);
+  } 
+  
+  /**
+   * @param s 
+   * @param stem 
+   * @param subj 
+   * @return true if allowed
+   */
+  public static boolean canStemAttrUpdate(GrouperSession s, Stem stem, Subject subj) {
+    NamingResolver resolver = s.getNamingResolver();
+    return resolver.hasPrivilege(stem, subj, NamingPrivilege.STEM_ATTR_UPDATE);
   } 
 
   /**
@@ -431,6 +503,10 @@ public class PrivilegeHelper {
       ||
       s.getAccessResolver().hasPrivilege(g, subj, AccessPrivilege.UPDATE)
       ||
+      s.getAccessResolver().hasPrivilege(g, subj, AccessPrivilege.GROUP_ATTR_READ)
+      ||
+      s.getAccessResolver().hasPrivilege(g, subj, AccessPrivilege.GROUP_ATTR_UPDATE)
+      ||
       s.getAccessResolver().hasPrivilege(g, subj, AccessPrivilege.OPTIN)
       ||
       s.getAccessResolver().hasPrivilege(g, subj, AccessPrivilege.OPTOUT)
@@ -600,6 +676,18 @@ public class PrivilegeHelper {
         msg = "subject " + subj.getId() + " cannot READ group: " + g.getName();
       }
     }
+    else if (priv.equals(AccessPrivilege.GROUP_ATTR_READ))   {
+      rv = PrivilegeHelper.canGroupAttrRead(s, g, subj);
+      if (!rv) {
+        msg = "subject " + subj.getId() + " cannot GROUP_ATTR_READ group: " + g.getName();
+      }
+    }
+    else if (priv.equals(AccessPrivilege.GROUP_ATTR_UPDATE))   {
+      rv = PrivilegeHelper.canGroupAttrUpdate(s, g, subj);
+      if (!rv) {
+        msg = "subject " + subj.getId() + " cannot GROUP_ATTR_UPDATE group: " + g.getName();
+      }
+    }
     else if (priv.equals(AccessPrivilege.VIEW))   {
       rv = PrivilegeHelper.canView( s, g, subj );
       if (!rv) {
@@ -657,6 +745,18 @@ public class PrivilegeHelper {
         msg = E.CANNOT_STEM;
       }
     }
+    else if (priv.equals(NamingPrivilege.STEM_ATTR_READ))   {
+      rv = PrivilegeHelper.canStemAttrRead(s, ns, subj);
+      if (!rv) {
+        msg = "subject " + subj.getId() + " cannot STEM_ATTR_READ stem: " + ns.getName();
+      }
+    }
+    else if (priv.equals(NamingPrivilege.STEM_ATTR_UPDATE))   {
+      rv = PrivilegeHelper.canStemAttrUpdate(s, ns, subj);
+      if (!rv) {
+        msg = "subject " + subj.getId() + " cannot STEM_ATTR_UPDATE stem: " + ns.getName();
+      }
+    }
     else {
       throw new SchemaException(E.UNKNOWN_PRIVILEGE + priv);
     }
@@ -708,6 +808,16 @@ public class PrivilegeHelper {
       rv = PrivilegeHelper.canAttrUpdate(s, attributeDef, subj);
       if (!rv) {
         msg = E.CANNOT_ATTR_UPDATE;
+      }
+    } else if (priv.equals(AttributeDefPrivilege.ATTR_DEF_ATTR_READ))   {
+      rv = PrivilegeHelper.canAttrDefAttrRead(s, attributeDef, subj);
+      if (!rv) {
+        msg = "subject " + subj.getId() + " cannot ATTR_DEF_ATTR_READ stem: " + attributeDef.getName();
+      }
+    } else if (priv.equals(AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE))   {
+      rv = PrivilegeHelper.canAttrDefAttrUpdate(s, attributeDef, subj);
+      if (!rv) {
+        msg = "subject " + subj.getId() + " cannot ATTR_DEF_ATTR_UPDATE stem: " + attributeDef.getName();
       }
     } else if (priv.equals(AttributeDefPrivilege.ATTR_VIEW))   {
       rv = PrivilegeHelper.canAttrView(s, attributeDef, subj);

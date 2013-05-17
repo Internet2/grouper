@@ -108,6 +108,8 @@ public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements Acce
     map.put(  AccessPrivilege.READ  , Field.FIELD_NAME_READERS   );
     map.put(  AccessPrivilege.UPDATE, Field.FIELD_NAME_UPDATERS  );
     map.put(  AccessPrivilege.VIEW  , Field.FIELD_NAME_VIEWERS   );
+    map.put(  AccessPrivilege.GROUP_ATTR_READ  , Field.FIELD_NAME_GROUP_ATTR_READERS   );
+    map.put(  AccessPrivilege.GROUP_ATTR_UPDATE  , Field.FIELD_NAME_GROUP_ATTR_UPDATERS   );
     priv2list = Collections.unmodifiableMap(new HashMap(map));
   } // static
 

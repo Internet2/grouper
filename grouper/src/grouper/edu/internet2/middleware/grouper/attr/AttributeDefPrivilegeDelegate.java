@@ -142,7 +142,89 @@ public class AttributeDefPrivilegeDelegate {
     AttributeDefResolver attributeDefResolver = GrouperSession.staticGrouperSession().getAttributeDefResolver();
     return attributeDefResolver.hasPrivilege(this.attributeDef, subj, AttributeDefPrivilege.ATTR_READ);
   } 
+  
+  /**
+   * Check whether the subject has ATTR_DEF_ATTR_UPDATE on this attributeDef, or something else
+   * that allows it (admin)
+   * <pre class="eg">
+   * if (attributeDef.getPrivilegeDelegate().canAttrDefAttrUpdate(subj)) {
+   *   // Has ATTR_DEF_ATTR_UPDATE
+   * }
+   * else {
+   *   // Does not have ATTR_DEF_ATTR_UPDATE
+   * }
+   * </pre>
+   * @param   subj  Check this subject.
+   * @return  Boolean true if subject has ATTR_DEF_ATTR_UPDATE.
+   */
+  public boolean canAttrDefAttrUpdate(Subject subj) {
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    PrivilegeHelper.dispatch(grouperSession, this.attributeDef, grouperSession.getSubject(), AttributeDefPrivilege.ATTR_ADMIN);
+    return PrivilegeHelper.canAttrDefAttrUpdate(grouperSession, this.attributeDef, subj);
+  }
+  
+  /**
+   * Check whether the subject has ATTR_DEF_ATTR_READ on this attributeDef, or something else
+   * that allows it (admin)
+   * <pre class="eg">
+   * if (attributeDef.getPrivilegeDelegate().canAttrDefAttrRead(subj)) {
+   *   // Has ATTR_DEF_ATTR_READ
+   * }
+   * else {
+   *   // Does not have ATTR_DEF_ATTR_READ
+   * }
+   * </pre>
+   * @param   subj  Check this subject.
+   * @return  Boolean true if subject has ATTR_DEF_ATTR_READ.
+   */
+  public boolean canAttrDefAttrRead(Subject subj) {
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    PrivilegeHelper.dispatch(grouperSession, this.attributeDef, grouperSession.getSubject(), AttributeDefPrivilege.ATTR_ADMIN);
+    return PrivilegeHelper.canAttrDefAttrRead(grouperSession, this.attributeDef, subj);
+  }
 
+  /**
+   * Check whether the subject has ATTR_DEF_ATTR_READ on this attributeDef.
+   * <pre class="eg">
+   * if (attributeDef.getPrivilegeDelegate().hasAttrDefAttrRead(subj)) {
+   *   // Has ATTR_DEF_ATTR_READ
+   * }
+   * else {
+   *   // Does not have ATTR_DEF_ATTR_READ
+   * }
+   * </pre>
+   * @param   subj  Check this subject.
+   * @return  Boolean true if subject has ATTR_DEF_ATTR_READ.
+   */
+  public boolean hasAttrDefAttrRead(Subject subj) {
+    
+    PrivilegeHelper.dispatch(GrouperSession.staticGrouperSession(), this.attributeDef, GrouperSession.staticGrouperSession().getSubject(), AttributeDefPrivilege.ATTR_ADMIN);
+    
+    AttributeDefResolver attributeDefResolver = GrouperSession.staticGrouperSession().getAttributeDefResolver();
+    return attributeDefResolver.hasPrivilege(this.attributeDef, subj, AttributeDefPrivilege.ATTR_DEF_ATTR_READ);
+  } 
+  
+  /**
+   * Check whether the subject has ATTR_DEF_ATTR_UPDATE on this attributeDef.
+   * <pre class="eg">
+   * if (attributeDef.getPrivilegeDelegate().hasAttrDefAttrUpdate(subj)) {
+   *   // Has ATTR_DEF_ATTR_UPDATE
+   * }
+   * else {
+   *   // Does not have ATTR_DEF_ATTR_UPDATE
+   * }
+   * </pre>
+   * @param   subj  Check this subject.
+   * @return  Boolean true if subject has ATTR_DEF_ATTR_UPDATE.
+   */
+  public boolean hasAttrDefAttrUpdate(Subject subj) {
+    
+    PrivilegeHelper.dispatch(GrouperSession.staticGrouperSession(), this.attributeDef, GrouperSession.staticGrouperSession().getSubject(), AttributeDefPrivilege.ATTR_ADMIN);
+    
+    AttributeDefResolver attributeDefResolver = GrouperSession.staticGrouperSession().getAttributeDefResolver();
+    return attributeDefResolver.hasPrivilege(this.attributeDef, subj, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE);
+  } 
+  
   /**
    * Check whether the subject has ATTR_UPDATE on this attributeDef.
    * <pre class="eg">

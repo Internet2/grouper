@@ -166,6 +166,12 @@ public class RegistryInstall {
     base.internal_addField( s, Field.FIELD_NAME_VIEWERS,  FieldType.ACCESS, AccessPrivilege.ADMIN,  
         AccessPrivilege.ADMIN,  false, false, false, changedArray, null );
     changed = changed || changedArray[0];
+    base.internal_addField( s, Field.FIELD_NAME_GROUP_ATTR_READERS,  FieldType.ACCESS, AccessPrivilege.ADMIN,  
+        AccessPrivilege.ADMIN,  false, false, false, changedArray, null );
+    changed = changed || changedArray[0];
+    base.internal_addField( s, Field.FIELD_NAME_GROUP_ATTR_UPDATERS,  FieldType.ACCESS, AccessPrivilege.ADMIN,  
+        AccessPrivilege.ADMIN,  false, false, false, changedArray, null );
+    changed = changed || changedArray[0];
 
     // reserve attributeDef privs
     GroupType attributeDefType  = GroupType.internal_createType(s, "attributeDef", false, true, false, changedArray, null);
@@ -187,6 +193,12 @@ public class RegistryInstall {
     attributeDefType.internal_addField( s, "attrViewers",  FieldType.ATTRIBUTE_DEF, AttributeDefPrivilege.ATTR_ADMIN,  
         AttributeDefPrivilege.ATTR_ADMIN,  false, false, false, changedArray, null );
     changed = changed || changedArray[0];
+    attributeDefType.internal_addField( s, "attrDefAttrReaders",  FieldType.ATTRIBUTE_DEF, AttributeDefPrivilege.ATTR_ADMIN,  
+        AttributeDefPrivilege.ATTR_ADMIN,  false, false, false, changedArray, null );
+    changed = changed || changedArray[0];
+    attributeDefType.internal_addField( s, "attrDefAttrUpdaters",  FieldType.ATTRIBUTE_DEF, AttributeDefPrivilege.ATTR_ADMIN,  
+        AttributeDefPrivilege.ATTR_ADMIN,  false, false, false, changedArray, null );
+    changed = changed || changedArray[0];
 
     GroupType naming  = GroupType.internal_createType(s, "naming", false, true, false, changedArray, null);
     changed = changed || changedArray[0];
@@ -195,6 +207,12 @@ public class RegistryInstall {
         NamingPrivilege.STEM, false, false, false, changedArray, null);
     changed = changed || changedArray[0];
     naming.internal_addField( s, Field.FIELD_NAME_STEMMERS, FieldType.NAMING, 
+        NamingPrivilege.STEM, NamingPrivilege.STEM, false, false, false, changedArray, null);
+    changed = changed || changedArray[0];
+    naming.internal_addField( s, Field.FIELD_NAME_STEM_ATTR_READERS, FieldType.NAMING, 
+        NamingPrivilege.STEM, NamingPrivilege.STEM, false, false, false, changedArray, null);
+    changed = changed || changedArray[0];
+    naming.internal_addField( s, Field.FIELD_NAME_STEM_ATTR_UPDATERS, FieldType.NAMING, 
         NamingPrivilege.STEM, NamingPrivilege.STEM, false, false, false, changedArray, null);
     changed = changed || changedArray[0];
     return changed;

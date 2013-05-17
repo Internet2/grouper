@@ -2002,7 +2002,7 @@ public enum GrouperDdl implements DdlVersionable {
   
   /**
    * <pre>
-   * Grouper 2.2: migrate from attributeDefType domain to service, add stem set table.
+   * Grouper 2.2: migrate from attributeDefType domain to service, add stem set table, add attribute read/update privs
    * </pre>
    */
   V27 {
@@ -2107,6 +2107,91 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdlUtils.ddlutilsDropIndexes(table, PITStem.COLUMN_START_TIME);
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(),
             "pit_stem_start_idx", true, PITStem.COLUMN_START_TIME, PITStem.COLUMN_SOURCE_ID);
+      }
+      
+
+      // add additional privileges for attribute read and update
+      boolean tableThere = GrouperDdlUtils.assertTablesThere(true, false, "grouper_fields");
+      if (tableThere) {
+        try {
+          String typeUuidGroup = HibernateSession.bySqlStatic().select(String.class, "select grouptype_uuid from grouper_fields where name='admins'");
+          String typeUuidStem = HibernateSession.bySqlStatic().select(String.class, "select grouptype_uuid from grouper_fields where name='stemmers'");
+          String typeUuidAttributeDef = HibernateSession.bySqlStatic().select(String.class, "select grouptype_uuid from grouper_fields where name='attrAdmins'");
+          
+          if (typeUuidGroup != null) {
+            int count = HibernateSession.bySqlStatic().select(int.class, 
+                "select count(*) from grouper_fields where name = 'groupAttrReaders'");
+            if (count == 0) {
+              ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_fields (id, grouptype_uuid, " +
+                  "is_nullable, name, read_privilege, type, write_privilege, hibernate_version_number, context_id) " +
+                  "values ('1d86d9c855804990850a4e1ba44c7776', '" + typeUuidGroup + "', " + 
+                  (GrouperDdlUtils.isPostgres() ? "true" : "1") 
+                  + ", 'groupAttrReaders', " +
+                  "'admin', 'access', 'admin', 0, '4fb2fba710bc42bdb9e1f01a65121f8c');\ncommit;\n\n");
+            }
+            
+            count = HibernateSession.bySqlStatic().select(int.class, 
+                "select count(*) from grouper_fields where name = 'groupAttrUpdaters'");
+            if (count == 0) {
+              ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_fields (id, grouptype_uuid, " +
+                  "is_nullable, name, read_privilege, type, write_privilege, hibernate_version_number, context_id) " +
+                  "values ('025402e07ae3462e8f8382aaab8b2acc', '" + typeUuidGroup + "', " + 
+                  (GrouperDdlUtils.isPostgres() ? "true" : "1") 
+                  + ", 'groupAttrUpdaters', " +
+                  "'admin', 'access', 'admin', 0, '4fb2fba710bc42bdb9e1f01a65121f8c');\ncommit;\n\n");
+            }
+          }
+          
+          if (typeUuidStem != null) {
+            int count = HibernateSession.bySqlStatic().select(int.class, 
+                "select count(*) from grouper_fields where name = 'stemAttrReaders'");
+            if (count == 0) {
+              ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_fields (id, grouptype_uuid, " +
+                  "is_nullable, name, read_privilege, type, write_privilege, hibernate_version_number, context_id) " +
+                  "values ('d0ad184aea2744f5a3a816874b15e44e', '" + typeUuidStem + "', " + 
+                  (GrouperDdlUtils.isPostgres() ? "true" : "1") 
+                  + ", 'stemAttrReaders', " +
+                  "'stem', 'naming', 'stem', 0, '4fb2fba710bc42bdb9e1f01a65121f8c');\ncommit;\n\n");
+            }
+            
+            count = HibernateSession.bySqlStatic().select(int.class, 
+                "select count(*) from grouper_fields where name = 'stemAttrUpdaters'");
+            if (count == 0) {
+              ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_fields (id, grouptype_uuid, " +
+                  "is_nullable, name, read_privilege, type, write_privilege, hibernate_version_number, context_id) " +
+                  "values ('67221f1d0bc749f899325a85ab1afa1a', '" + typeUuidStem + "', " + 
+                  (GrouperDdlUtils.isPostgres() ? "true" : "1") 
+                  + ", 'stemAttrUpdaters', " +
+                  "'stem', 'naming', 'stem', 0, '4fb2fba710bc42bdb9e1f01a65121f8c');\ncommit;\n\n");
+            }
+          }
+          
+          if (typeUuidAttributeDef != null) {
+            int count = HibernateSession.bySqlStatic().select(int.class, 
+                "select count(*) from grouper_fields where name = 'attrDefAttrReaders'");
+            if (count == 0) {
+              ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_fields (id, grouptype_uuid, " +
+                  "is_nullable, name, read_privilege, type, write_privilege, hibernate_version_number, context_id) " +
+                  "values ('e078ddef342943369fb5236d6124c990', '" + typeUuidAttributeDef + "', " + 
+                  (GrouperDdlUtils.isPostgres() ? "true" : "1") 
+                  + ", 'attrDefAttrReaders', " +
+                  "'attrAdmin', 'attributeDef', 'attrAdmin', 0, '4fb2fba710bc42bdb9e1f01a65121f8c');\ncommit;\n\n");
+            }
+            
+            count = HibernateSession.bySqlStatic().select(int.class, 
+                "select count(*) from grouper_fields where name = 'attrDefAttrUpdaters'");
+            if (count == 0) {
+              ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_fields (id, grouptype_uuid, " +
+                  "is_nullable, name, read_privilege, type, write_privilege, hibernate_version_number, context_id) " +
+                  "values ('6317e8811df448829c895b1f7f4bf5e0', '" + typeUuidAttributeDef + "', " + 
+                  (GrouperDdlUtils.isPostgres() ? "true" : "1") 
+                  + ", 'attrDefAttrUpdaters', " +
+                  "'attrAdmin', 'attributeDef', 'attrAdmin', 0, '4fb2fba710bc42bdb9e1f01a65121f8c');\ncommit;\n\n");
+            }
+          }
+        } catch (RuntimeException e) {
+          //dont worry if exception, the table probably isnt there,and will get initted in good time
+        }
       }
 
     }
@@ -8839,7 +8924,7 @@ public enum GrouperDdl implements DdlVersionable {
             "membership_id"),
         GrouperUtil.toSet("subject_id: of who has the priv", 
             "subject_source_id: source id of the subject with the priv", 
-            "field_name: field name of priv, e.g. attrView, attrRead, attrAdmin, attrUpdate, attrOptin, attrOptout",
+            "field_name: field name of priv, e.g. attrView, attrRead, attrAdmin, attrUpdate, attrOptin, attrOptout, attrDefAttrRead, attrDefAttrUpdate",
             "attribute_def_name: name of attribute definition",
             "attribute_def_description: description of the attribute def",
             "attribute_def_type: type of attribute, e.g. attribute, privilege, domain", 

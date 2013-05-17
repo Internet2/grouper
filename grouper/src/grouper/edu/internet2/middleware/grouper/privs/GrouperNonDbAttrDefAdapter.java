@@ -108,6 +108,8 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
     map.put(AttributeDefPrivilege.ATTR_READ, "attrReaders");
     map.put(AttributeDefPrivilege.ATTR_UPDATE, "attrUpdaters");
     map.put(AttributeDefPrivilege.ATTR_VIEW, "attrViewers");
+    map.put(AttributeDefPrivilege.ATTR_DEF_ATTR_READ, "attrDefAttrReaders");
+    map.put(AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, "attrDefAttrUpdaters");
     priv2list = Collections.unmodifiableMap(new HashMap(map));
   } // static
 

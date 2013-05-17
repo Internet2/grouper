@@ -3764,6 +3764,42 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     AccessResolver accessResolver = GrouperSession.staticGrouperSession().getAccessResolver();
     return accessResolver.hasPrivilege(this, subj, AccessPrivilege.ADMIN);
   } 
+  
+  /**
+   * Check whether the subject has GROUP_ATTR_READ on this group.
+   * <pre class="eg">
+   * if (g.hasGroupAttrRead(subj)) {
+   *   // Has GROUP_ATTR_READ
+   * }
+   * else {
+   *   // Does not have GROUP_ATTR_READ
+   * }
+   * </pre>
+   * @param   subj  Check this subject.
+   * @return  Boolean true if subject has GROUP_ATTR_READ.
+   */
+  public boolean hasGroupAttrRead(Subject subj) {
+    AccessResolver accessResolver = GrouperSession.staticGrouperSession().getAccessResolver();
+    return accessResolver.hasPrivilege(this, subj, AccessPrivilege.GROUP_ATTR_READ);
+  } 
+  
+  /**
+   * Check whether the subject has GROUP_ATTR_UPDATE on this group.
+   * <pre class="eg">
+   * if (g.hasGroupAttrUpdate(subj)) {
+   *   // Has GROUP_ATTR_UPDATE
+   * }
+   * else {
+   *   // Does not have GROUP_ATTR_UPDATE
+   * }
+   * </pre>
+   * @param   subj  Check this subject.
+   * @return  Boolean true if subject has GROUP_ATTR_UPDATE.
+   */
+  public boolean hasGroupAttrUpdate(Subject subj) {
+    AccessResolver accessResolver = GrouperSession.staticGrouperSession().getAccessResolver();
+    return accessResolver.hasPrivilege(this, subj, AccessPrivilege.GROUP_ATTR_UPDATE);
+  } 
 
   /**
    * Does this {@link Group} have a {@link Composite} membership.

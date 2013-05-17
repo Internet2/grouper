@@ -90,6 +90,12 @@ public class hasPriv {
         else if (priv.equals( AccessPrivilege.UPDATE )) {
           return g.hasUpdate(subj);
         }
+        else if (priv.equals( AccessPrivilege.GROUP_ATTR_READ )) {
+          return g.hasGroupAttrRead(subj);
+        }
+        else if (priv.equals( AccessPrivilege.GROUP_ATTR_UPDATE )) {
+          return g.hasGroupAttrUpdate(subj);
+        }
         else if (priv.equals( AccessPrivilege.VIEW   )) {
           return g.hasView(subj);
         } else {
@@ -99,6 +105,12 @@ public class hasPriv {
         Stem ns = StemFinder.findByName(s, name, true);
         if      (priv.equals( NamingPrivilege.CREATE )) {
           return ns.hasCreate(subj);
+        }
+        else if (priv.equals( NamingPrivilege.STEM_ATTR_READ )) {
+          return ns.hasStemAttrRead(subj);
+        }
+        else if (priv.equals( NamingPrivilege.STEM_ATTR_UPDATE )) {
+          return ns.hasStemAttrUpdate(subj);
         }
         else if (priv.equals( NamingPrivilege.STEM   )) {
           return ns.hasStem(subj);
@@ -117,6 +129,10 @@ public class hasPriv {
           return attributeDef.getPrivilegeDelegate().hasAttrRead(subj);
         } else if (priv.equals( AttributeDefPrivilege.ATTR_UPDATE )) {
           return attributeDef.getPrivilegeDelegate().hasAttrUpdate(subj);
+        } else if (priv.equals(AttributeDefPrivilege.ATTR_DEF_ATTR_READ)) {
+          return attributeDef.getPrivilegeDelegate().hasAttrDefAttrRead(subj);
+        } else if (priv.equals( AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE )) {
+          return attributeDef.getPrivilegeDelegate().hasAttrDefAttrUpdate(subj);
         } else if (priv.equals( AttributeDefPrivilege.ATTR_VIEW )) {
           return attributeDef.getPrivilegeDelegate().hasAttrView(subj);
         } else {

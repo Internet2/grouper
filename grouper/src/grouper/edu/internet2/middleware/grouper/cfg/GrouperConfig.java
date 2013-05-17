@@ -115,6 +115,8 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
   public static final String GCGAR         = "groups.create.grant.all.read";
   public static final String GCGAU         = "groups.create.grant.all.update";
   public static final String GCGAV         = "groups.create.grant.all.view";
+  public static final String GCGAGAR       = "groups.create.grant.all.groupAttrRead";
+  public static final String GCGAGAU       = "groups.create.grant.all.groupAttrUpdate";
 
   /** */
   public static final String ATTRIBUTE_DEFS_CREATE_GRANT_ALL_ATTR_ADMIN 
@@ -140,6 +142,13 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
   public static final String ATTRIBUTE_DEFS_CREATE_GRANT_ALL_ATTR_VIEW 
     = "attributeDefs.create.grant.all.attrView";
 
+  /** */
+  public static final String ATTRIBUTE_DEFS_CREATE_GRANT_ALL_ATTR_DEF_ATTR_READ 
+    = "attributeDefs.create.grant.all.attrDefAttrRead";
+  
+  /** */
+  public static final String ATTRIBUTE_DEFS_CREATE_GRANT_ALL_ATTR_DEF_ATTR_UPDATE 
+    = "attributeDefs.create.grant.all.attrDefAttrUpdate";
   
   public static final String IST           = "application";
   public static final String LIST          = "members";
@@ -149,6 +158,8 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
   public static final String ROOT_NAME          = "GrouperSysAdmin";
   public static final String SCGAC         = "stems.create.grant.all.create";
   public static final String SCGAS         = "stems.create.grant.all.stem";
+  public static final String SCGASAR       = "stems.create.grant.all.stemAttrRead";
+  public static final String SCGASAU       = "stems.create.grant.all.stemAttrUpdate";
   public static final String SCII          = "subjects.cache.id.interface";
   public static final String SCIDFRI       = "subjects.cache.identifier.interface";
   public static final String WHEEL_NAME          = "SysAdmin";

@@ -72,7 +72,7 @@ public class AttributeAssignGroupDelegate extends AttributeAssignBaseDelegate {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     final Subject subject = grouperSession.getSubject();
     final boolean[] canReadAttribute = new boolean[1];
-    final boolean[] canViewGroup = new boolean[1];
+    final boolean[] canGroupAttrRead = new boolean[1];
   
     //these need to be looked up as root
     GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
@@ -82,7 +82,7 @@ public class AttributeAssignGroupDelegate extends AttributeAssignBaseDelegate {
        */
       public Object callback(GrouperSession rootSession) throws GrouperSessionException {
         canReadAttribute[0] = attributeDef.getPrivilegeDelegate().canAttrRead(subject);
-        canViewGroup[0] = PrivilegeHelper.canView(rootSession, AttributeAssignGroupDelegate.this.group, subject);
+        canGroupAttrRead[0] = PrivilegeHelper.canGroupAttrRead(rootSession, AttributeAssignGroupDelegate.this.group, subject);
         return null;
       }
     });
@@ -92,9 +92,9 @@ public class AttributeAssignGroupDelegate extends AttributeAssignBaseDelegate {
           + " cannot read attributeDef " + attributeDef.getName());
     }
   
-    if (!canViewGroup[0]) {
+    if (!canGroupAttrRead[0]) {
       throw new InsufficientPrivilegeException("Subject " + GrouperUtil.subjectToString(subject) 
-          + " cannot view group " + this.group.getName());
+          + " cannot groupAttrRead " + this.group.getName());
     }
   }
 
@@ -109,7 +109,7 @@ public class AttributeAssignGroupDelegate extends AttributeAssignBaseDelegate {
     final Subject subject = grouperSession.getSubject();
     final boolean[] canUpdateAttribute = new boolean[1];
     //attributeDef.getPrivilegeDelegate().canAttrUpdate(subject);
-    final boolean[] canAdminGroup = new boolean[1];
+    final boolean[] canGroupAttrUpdate = new boolean[1];
     //this.group.hasAdmin(subject);
  
     //these need to be looked up as root
@@ -120,7 +120,7 @@ public class AttributeAssignGroupDelegate extends AttributeAssignBaseDelegate {
        */
       public Object callback(GrouperSession rootSession) throws GrouperSessionException {
         canUpdateAttribute[0] = attributeDef.getPrivilegeDelegate().canAttrUpdate(subject);
-        canAdminGroup[0] = PrivilegeHelper.canAdmin(rootSession, AttributeAssignGroupDelegate.this.group, subject);
+        canGroupAttrUpdate[0] = PrivilegeHelper.canGroupAttrUpdate(rootSession, AttributeAssignGroupDelegate.this.group, subject);
         return null;
       }
     });
@@ -130,9 +130,9 @@ public class AttributeAssignGroupDelegate extends AttributeAssignBaseDelegate {
           + " cannot update attributeDef " + attributeDef.getName());
     }
 
-    if (!canAdminGroup[0]) {
+    if (!canGroupAttrUpdate[0]) {
       throw new InsufficientPrivilegeException("Subject " + GrouperUtil.subjectToString(subject) 
-          + " cannot admin group " + this.group.getName());
+          + " cannot groupAttrUpdate " + this.group.getName());
     }
 
   }

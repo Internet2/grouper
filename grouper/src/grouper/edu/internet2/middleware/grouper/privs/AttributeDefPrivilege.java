@@ -94,10 +94,16 @@ public class AttributeDefPrivilege implements GrouperPrivilege, Comparable {
   /** */
   public static final Privilege ATTR_VIEW    = Privilege.getInstance("attrView");
 
+  /** */
+  public static final Privilege ATTR_DEF_ATTR_READ    = Privilege.getInstance("attrDefAttrRead");
+
+  /** */
+  public static final Privilege ATTR_DEF_ATTR_UPDATE    = Privilege.getInstance("attrDefAttrUpdate");
+  
   /** any of these constitutes VIEW on a group
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> VIEW_PRIVILEGES = Collections.unmodifiableSet(
-      GrouperUtil.toSet(ATTR_VIEW, ATTR_READ, ATTR_ADMIN, ATTR_UPDATE, ATTR_OPTIN, ATTR_OPTOUT));
+      GrouperUtil.toSet(ATTR_VIEW, ATTR_READ, ATTR_ADMIN, ATTR_UPDATE, ATTR_DEF_ATTR_READ, ATTR_DEF_ATTR_UPDATE, ATTR_OPTIN, ATTR_OPTOUT));
 
   /** convert a list to priv */
   private static Map<String,Privilege> list2priv = new HashMap<String, Privilege>();
@@ -109,6 +115,8 @@ public class AttributeDefPrivilege implements GrouperPrivilege, Comparable {
     list2priv.put( "attrReaders", AttributeDefPrivilege.ATTR_READ);
     list2priv.put( "attrUpdaters", AttributeDefPrivilege.ATTR_UPDATE);
     list2priv.put( "attrViewers", AttributeDefPrivilege.ATTR_VIEW);
+    list2priv.put( "attrDefAttrReaders", AttributeDefPrivilege.ATTR_DEF_ATTR_READ);
+    list2priv.put( "attrDefAttrUpdaters", AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE);
   }
 
   /** convert a list to a priv */
@@ -121,6 +129,8 @@ public class AttributeDefPrivilege implements GrouperPrivilege, Comparable {
     priv2list.put(  AttributeDefPrivilege.ATTR_READ  , "attrReaders"   );
     priv2list.put(  AttributeDefPrivilege.ATTR_UPDATE, "attrUpdaters"  );
     priv2list.put(  AttributeDefPrivilege.ATTR_VIEW  , "attrViewers"   );
+    priv2list.put(  AttributeDefPrivilege.ATTR_DEF_ATTR_READ  , "attrDefAttrReaders"   );
+    priv2list.put(  AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE  , "attrDefAttrUpdaters"   );
   }
   
   /**

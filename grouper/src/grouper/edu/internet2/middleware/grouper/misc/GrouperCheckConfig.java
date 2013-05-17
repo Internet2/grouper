@@ -336,9 +336,13 @@ public class GrouperCheckConfig {
     GrouperConfig.retrieveConfig().assertPropertyValueBoolean("groups.create.grant.all.read", true);
     GrouperConfig.retrieveConfig().assertPropertyValueBoolean("groups.create.grant.all.update", true);
     GrouperConfig.retrieveConfig().assertPropertyValueBoolean("groups.create.grant.all.view", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("groups.create.grant.all.groupAttrRead", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("groups.create.grant.all.groupAttrUpdate", true);
 
     GrouperConfig.retrieveConfig().assertPropertyValueBoolean("stems.create.grant.all.create", true);
     GrouperConfig.retrieveConfig().assertPropertyValueBoolean("stems.create.grant.all.stem", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("stems.create.grant.all.stemAttrRead", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("stems.create.grant.all.stemAttrUpdate", true);
 
     GrouperConfig.retrieveConfig().assertPropertyValueBoolean("groups.wheel.use", true);
 

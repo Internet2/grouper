@@ -1730,6 +1730,50 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     }
     return stems;
   } 
+  
+  /**
+   * Get stems where this member has the GROUP_ATTR_READ privilege of a group inside.
+   * <pre class="eg">
+   * Set<Stem> results = m.hasGroupAttrReadInStem();
+   * </pre>
+   * @return  Set of {@link Stem} objects.
+   * @throws  GrouperException
+   */
+  public Set<Stem> hasGroupAttrReadInStem() 
+      throws  GrouperException {
+    Set<Stem> stems = new LinkedHashSet();
+    try {
+      stems = GrouperSession.staticGrouperSession().getAccessResolver().getStemsWhereGroupThatSubjectHasPrivilege(
+                this.getSubject(), AccessPrivilege.GROUP_ATTR_READ
+              );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+    }
+    return stems;
+  } 
+  
+  /**
+   * Get stems where this member has the GROUP_ATTR_UPDATE privilege of a group inside.
+   * <pre class="eg">
+   * Set<Stem> results = m.hasGroupAttrUpdateInStem();
+   * </pre>
+   * @return  Set of {@link Stem} objects.
+   * @throws  GrouperException
+   */
+  public Set<Stem> hasGroupAttrUpdateInStem() 
+      throws  GrouperException {
+    Set<Stem> stems = new LinkedHashSet();
+    try {
+      stems = GrouperSession.staticGrouperSession().getAccessResolver().getStemsWhereGroupThatSubjectHasPrivilege(
+                this.getSubject(), AccessPrivilege.GROUP_ATTR_UPDATE
+              );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+    }
+    return stems;
+  } 
 
   /**
    * Get stems where this member has the OPTOUT privilege of a group inside.
@@ -2883,6 +2927,156 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       return false; 
     }
   }
+  
+  /**
+   * Can this {@link Member} <b>ATTR_DEF_ATTR_READ</b> on this {@link AttributeDef}.
+   * <pre class="eg">
+   * boolean rv = m.canAttrDefAttrRead(attributeDef);
+   * </pre>
+   * @param   attributeDef   Check privileges on this {@link AttributeDef}.
+   * @return true if allowed
+   * @throws  IllegalArgumentException if null {@link AttributeDef}
+   * @since   1.0
+   */
+  public boolean canAttrDefAttrRead(AttributeDef attributeDef) 
+    throws  IllegalArgumentException
+  {
+    NotNullValidator v = NotNullValidator.validate(attributeDef);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException(E.GROUP_NULL);
+    }
+    try {
+      return PrivilegeHelper.canAttrDefAttrRead( GrouperSession.staticGrouperSession(), attributeDef, this.getSubject() );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      return false; 
+    }
+  }
+  
+  /**
+   * Can this {@link Member} <b>ATTR_DEF_ATTR_UPDATE</b> on this {@link AttributeDef}.
+   * <pre class="eg">
+   * boolean rv = m.canAttrDefAttrUpdate(attributeDef);
+   * </pre>
+   * @param   attributeDef   Check privileges on this {@link AttributeDef}.
+   * @return true if allowed
+   * @throws  IllegalArgumentException if null {@link AttributeDef}
+   * @since   1.0
+   */
+  public boolean canAttrDefAttrUpdate(AttributeDef attributeDef) 
+    throws  IllegalArgumentException
+  {
+    NotNullValidator v = NotNullValidator.validate(attributeDef);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException(E.GROUP_NULL);
+    }
+    try {
+      return PrivilegeHelper.canAttrDefAttrUpdate( GrouperSession.staticGrouperSession(), attributeDef, this.getSubject() );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      return false; 
+    }
+  }
+  
+  /**
+   * Can this {@link Member} <b>GROUP_ATTR_UPDATE</b> on this {@link Group}.
+   * <pre class="eg">
+   * boolean rv = m.canGroupAttrUpdate(group);
+   * </pre>
+   * @param   group   Check privileges on this {@link Group}.
+   * @return true if allowed
+   * @throws  IllegalArgumentException if null {@link Group}
+   * @since   1.0
+   */
+  public boolean canGroupAttrUpdate(Group group) 
+    throws  IllegalArgumentException
+  {
+    NotNullValidator v = NotNullValidator.validate(group);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException(E.GROUP_NULL);
+    }
+    try {
+      return PrivilegeHelper.canGroupAttrUpdate( GrouperSession.staticGrouperSession(), group, this.getSubject() );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      return false; 
+    }
+  }
+  
+  /**
+   * Can this {@link Member} <b>GROUP_ATTR_READ</b> on this {@link Group}.
+   * <pre class="eg">
+   * boolean rv = m.canGroupAttrRead(group);
+   * </pre>
+   * @param   group   Check privileges on this {@link Group}.
+   * @return true if allowed
+   * @throws  IllegalArgumentException if null {@link Group}
+   * @since   1.0
+   */
+  public boolean canGroupAttrRead(Group group) 
+    throws  IllegalArgumentException
+  {
+    NotNullValidator v = NotNullValidator.validate(group);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException(E.GROUP_NULL);
+    }
+    try {
+      return PrivilegeHelper.canGroupAttrRead( GrouperSession.staticGrouperSession(), group, this.getSubject() );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      return false; 
+    }
+  }
+  
+  /**
+   * Can this {@link Member} <b>STEM_ATTR_READ</b> on this {@link Stem}.
+   * <pre class="eg">
+   * boolean rv = m.canStemAttrRead(stem);
+   * </pre>
+   * @param   stem   Check privileges on this {@link Stem}.
+   * @return true if allowed
+   * @throws  IllegalArgumentException if null {@link Stem}
+   * @since   1.0
+   */
+  public boolean canStemAttrRead(Stem stem) 
+    throws  IllegalArgumentException
+  {
+    NotNullValidator v = NotNullValidator.validate(stem);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException(E.GROUP_NULL);
+    }
+    try {
+      return PrivilegeHelper.canStemAttrRead( GrouperSession.staticGrouperSession(), stem, this.getSubject() );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      return false; 
+    }
+  }
+  
+  /**
+   * Can this {@link Member} <b>STEM_ATTR_UPDATE</b> on this {@link Stem}.
+   * <pre class="eg">
+   * boolean rv = m.canStemAttrUpdate(stem);
+   * </pre>
+   * @param   stem   Check privileges on this {@link Stem}.
+   * @return true if allowed
+   * @throws  IllegalArgumentException if null {@link Stem}
+   * @since   1.0
+   */
+  public boolean canStemAttrUpdate(Stem stem) 
+    throws  IllegalArgumentException
+  {
+    NotNullValidator v = NotNullValidator.validate(stem);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException(E.GROUP_NULL);
+    }
+    try {
+      return PrivilegeHelper.canStemAttrUpdate( GrouperSession.staticGrouperSession(), stem, this.getSubject() );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      return false; 
+    }
+  }
 
   /**
    * Can this {@link Member} <b>ATTR_OPTIN</b> on this {@link AttributeDef}.
@@ -3045,6 +3239,96 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   public boolean hasAttrAdmin(AttributeDef attributeDef) {
     return this._hasPriv(attributeDef, AttributeDefPrivilege.ATTR_ADMIN);
   } 
+  
+  /**
+   * Report whether this member has GROUP_ATTR_READ on the specified group.
+   * <pre class="eg">
+   * // Check whether this member has GROUP_ATTR_READ on the specified group.
+   * if (m.hasGroupAttrRead(group)) {
+   *   // Member has privilege
+   * }
+   * </pre>
+   * @param   group   Test for privilege on this {@link Group}
+   * @return true if the member has the privilege.
+   */
+  public boolean hasGroupAttrRead(Group group) {
+    return this._hasPriv(group, AccessPrivilege.GROUP_ATTR_READ);
+  } 
+  
+  /**
+   * Report whether this member has GROUP_ATTR_UPDATE on the specified group.
+   * <pre class="eg">
+   * // Check whether this member has GROUP_ATTR_UPDATE on the specified group.
+   * if (m.hasGroupAttrUpdate(group)) {
+   *   // Member has privilege
+   * }
+   * </pre>
+   * @param   group   Test for privilege on this {@link Group}
+   * @return true if the member has the privilege.
+   */
+  public boolean hasGroupAttrUpdate(Group group) {
+    return this._hasPriv(group, AccessPrivilege.GROUP_ATTR_UPDATE);
+  } 
+  
+  /**
+   * Report whether this member has STEM_ATTR_UPDATE on the specified stem.
+   * <pre class="eg">
+   * // Check whether this member has STEM_ATTR_UPDATE on the specified stem.
+   * if (m.hasStemAttrUpdate(stem)) {
+   *   // Member has privilege
+   * }
+   * </pre>
+   * @param   stem   Test for privilege on this {@link Stem}
+   * @return true if the member has the privilege.
+   */
+  public boolean hasStemAttrUpdate(Stem stem) {
+    return this._hasPriv(stem, NamingPrivilege.STEM_ATTR_UPDATE);
+  } 
+  
+  /**
+   * Report whether this member has STEM_ATTR_READ on the specified stem.
+   * <pre class="eg">
+   * // Check whether this member has STEM_ATTR_READ on the specified stem.
+   * if (m.hasStemAttrRead(stem)) {
+   *   // Member has privilege
+   * }
+   * </pre>
+   * @param   stem   Test for privilege on this {@link Stem}
+   * @return true if the member has the privilege.
+   */
+  public boolean hasStemAttrRead(Stem stem) {
+    return this._hasPriv(stem, NamingPrivilege.STEM_ATTR_READ);
+  } 
+  
+  /**
+   * Report whether this member has ATTR_DEF_ATTR_READ on the specified attributeDef.
+   * <pre class="eg">
+   * // Check whether this member has ATTR_DEF_ATTR_READ on the specified attributeDef.
+   * if (m.hasAttrDefAttrRead(stem)) {
+   *   // Member has privilege
+   * }
+   * </pre>
+   * @param   attributeDef   Test for privilege on this {@link AttributeDef}
+   * @return true if the member has the privilege.
+   */
+  public boolean hasAttrDefAttrRead(AttributeDef attributeDef) {
+    return this._hasPriv(attributeDef, AttributeDefPrivilege.ATTR_DEF_ATTR_READ);
+  } 
+  
+  /**
+   * Report whether this member has ATTR_DEF_ATTR_UPDATE on the specified attributeDef.
+   * <pre class="eg">
+   * // Check whether this member has ATTR_DEF_ATTR_UPDATE on the specified attributeDef.
+   * if (m.hasAttrDefAttrUpdate(stem)) {
+   *   // Member has privilege
+   * }
+   * </pre>
+   * @param   attributeDef   Test for privilege on this {@link AttributeDef}
+   * @return true if the member has the privilege.
+   */
+  public boolean hasAttrDefAttrUpdate(AttributeDef attributeDef) {
+    return this._hasPriv(attributeDef, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE);
+  } 
 
   /**
    * Get attribute defs where this member has the ATTR_OPTIN privilege.
@@ -3067,6 +3351,144 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return attributeDefs;
+  }
+  
+  /**
+   * Get attribute defs where this member has the ATTR_DEF_ATTR_READ privilege.
+   * <pre class="eg">
+   * Set<AttributeDef> results = m.hasAttrDefAttrRead();
+   * </pre>
+   * @return  Set of {@link AttributeDef} objects.
+   * @throws  GrouperException
+   */
+  public Set<AttributeDef> hasAttrDefAttrRead() 
+    throws  GrouperException
+  {
+    Set<AttributeDef> attributeDefs = new LinkedHashSet<AttributeDef>();
+    try {
+      attributeDefs = GrouperSession.staticGrouperSession().getAttributeDefResolver().getAttributeDefsWhereSubjectHasPrivilege(
+                this.getSubject(), AttributeDefPrivilege.ATTR_DEF_ATTR_READ
+              );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+    }
+    return attributeDefs;
+  }
+  
+  /**
+   * Get attribute defs where this member has the ATTR_DEF_ATTR_UPDATE privilege.
+   * <pre class="eg">
+   * Set<AttributeDef> results = m.hasAttrDefAttrUpdate();
+   * </pre>
+   * @return  Set of {@link AttributeDef} objects.
+   * @throws  GrouperException
+   */
+  public Set<AttributeDef> hasAttrDefAttrUpdate() 
+    throws  GrouperException
+  {
+    Set<AttributeDef> attributeDefs = new LinkedHashSet<AttributeDef>();
+    try {
+      attributeDefs = GrouperSession.staticGrouperSession().getAttributeDefResolver().getAttributeDefsWhereSubjectHasPrivilege(
+                this.getSubject(), AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE
+              );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+    }
+    return attributeDefs;
+  }
+  
+  /**
+   * Get groups where this member has the GROUP_ATTR_UPDATE privilege.
+   * <pre class="eg">
+   * Set<Group> results = m.hasGroupAttrUpdate();
+   * </pre>
+   * @return  Set of {@link Group} objects.
+   * @throws  GrouperException
+   */
+  public Set<Group> hasGroupAttrUpdate() 
+    throws  GrouperException
+  {
+    Set<Group> groups = new LinkedHashSet<Group>();
+    try {
+      groups = GrouperSession.staticGrouperSession().getAccessResolver().getGroupsWhereSubjectHasPrivilege(
+                this.getSubject(), AccessPrivilege.GROUP_ATTR_UPDATE
+              );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+    }
+    return groups;
+  }
+  
+  /**
+   * Get groups where this member has the GROUP_ATTR_READ privilege.
+   * <pre class="eg">
+   * Set<Group> results = m.hasGroupAttrRead();
+   * </pre>
+   * @return  Set of {@link Group} objects.
+   * @throws  GrouperException
+   */
+  public Set<Group> hasGroupAttrRead() 
+    throws  GrouperException
+  {
+    Set<Group> groups = new LinkedHashSet<Group>();
+    try {
+      groups = GrouperSession.staticGrouperSession().getAccessResolver().getGroupsWhereSubjectHasPrivilege(
+                this.getSubject(), AccessPrivilege.GROUP_ATTR_READ
+              );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+    }
+    return groups;
+  }
+  
+  /**
+   * Get stems where this member has the STEM_ATTR_READ privilege.
+   * <pre class="eg">
+   * Set<Stem> results = m.hasStemAttrRead();
+   * </pre>
+   * @return  Set of {@link Stem} objects.
+   * @throws  GrouperException
+   */
+  public Set<Stem> hasStemAttrRead() 
+    throws  GrouperException
+  {
+    Set<Stem> stems = new LinkedHashSet<Stem>();
+    try {
+      stems = GrouperSession.staticGrouperSession().getNamingResolver().getStemsWhereSubjectHasPrivilege(
+                this.getSubject(), NamingPrivilege.STEM_ATTR_READ
+              );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+    }
+    return stems;
+  }
+  
+  /**
+   * Get stems where this member has the STEM_ATTR_UPDATE privilege.
+   * <pre class="eg">
+   * Set<Stem> results = m.hasStemAttrUpdate();
+   * </pre>
+   * @return  Set of {@link Stem} objects.
+   * @throws  GrouperException
+   */
+  public Set<Stem> hasStemAttrUpdate() 
+    throws  GrouperException
+  {
+    Set<Stem> stems = new LinkedHashSet<Stem>();
+    try {
+      stems = GrouperSession.staticGrouperSession().getNamingResolver().getStemsWhereSubjectHasPrivilege(
+                this.getSubject(), NamingPrivilege.STEM_ATTR_UPDATE
+              );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+    }
+    return stems;
   }
 
   /**

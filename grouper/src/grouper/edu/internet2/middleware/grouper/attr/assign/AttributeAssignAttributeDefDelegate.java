@@ -72,7 +72,7 @@ public class AttributeAssignAttributeDefDelegate extends AttributeAssignBaseDele
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     final Subject subject = grouperSession.getSubject();
     final boolean[] canReadAttribute = new boolean[1];
-    final boolean[] canViewAttributeDefAssignTo = new boolean[1];
+    final boolean[] canAttrDefAttrRead = new boolean[1];
   
     //these need to be looked up as root
     GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
@@ -82,7 +82,7 @@ public class AttributeAssignAttributeDefDelegate extends AttributeAssignBaseDele
        */
       public Object callback(GrouperSession rootSession) throws GrouperSessionException {
         canReadAttribute[0] = attributeDefToAssign.getPrivilegeDelegate().canAttrRead(subject);
-        canViewAttributeDefAssignTo[0] = PrivilegeHelper.canAttrView(rootSession, AttributeAssignAttributeDefDelegate.this.attributeDef, subject);
+        canAttrDefAttrRead[0] = PrivilegeHelper.canAttrDefAttrRead(rootSession, AttributeAssignAttributeDefDelegate.this.attributeDef, subject);
         return null;
       }
     });
@@ -92,9 +92,9 @@ public class AttributeAssignAttributeDefDelegate extends AttributeAssignBaseDele
           + " cannot read attributeDef " + attributeDefToAssign.getName());
     }
   
-    if (!canViewAttributeDefAssignTo[0]) {
+    if (!canAttrDefAttrRead[0]) {
       throw new InsufficientPrivilegeException("Subject " + GrouperUtil.subjectToString(subject) 
-          + " cannot view attributeDef " + AttributeAssignAttributeDefDelegate.this.attributeDef.getName());
+          + " cannot attrDefAttrRead attributeDef " + AttributeAssignAttributeDefDelegate.this.attributeDef.getName());
     }
   }
 
@@ -108,7 +108,7 @@ public class AttributeAssignAttributeDefDelegate extends AttributeAssignBaseDele
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     final Subject subject = grouperSession.getSubject();
     final boolean[] canUpdateAttribute = new boolean[1];
-    final boolean[] canAdminAttributeDefToAssignTo = new boolean[1];
+    final boolean[] canAttrDefAttrUpdate = new boolean[1];
  
     //these need to be looked up as root
     GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
@@ -118,7 +118,7 @@ public class AttributeAssignAttributeDefDelegate extends AttributeAssignBaseDele
        */
       public Object callback(GrouperSession rootSession) throws GrouperSessionException {
         canUpdateAttribute[0] = attributeDefToAssign.getPrivilegeDelegate().canAttrUpdate(subject);
-        canAdminAttributeDefToAssignTo[0] = PrivilegeHelper.canAttrAdmin(rootSession, AttributeAssignAttributeDefDelegate.this.attributeDef, subject);
+        canAttrDefAttrUpdate[0] = PrivilegeHelper.canAttrDefAttrUpdate(rootSession, AttributeAssignAttributeDefDelegate.this.attributeDef, subject);
         return null;
       }
     });
@@ -128,9 +128,9 @@ public class AttributeAssignAttributeDefDelegate extends AttributeAssignBaseDele
           + " cannot update attributeDef " + attributeDefToAssign.getName());
     }
 
-    if (!canAdminAttributeDefToAssignTo[0]) {
+    if (!canAttrDefAttrUpdate[0]) {
       throw new InsufficientPrivilegeException("Subject " + GrouperUtil.subjectToString(subject) 
-          + " cannot admin attributeDef " + AttributeAssignAttributeDefDelegate.this.attributeDef.getName());
+          + " cannot attrDefAttrUpdate attributeDef " + AttributeAssignAttributeDefDelegate.this.attributeDef.getName());
     }
 
   }

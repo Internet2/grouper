@@ -61,6 +61,12 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable {
   /** can create stems in this stem */
   public static final Privilege STEM    = Privilege.getInstance("stem");
 
+  /** can read attributes on this stem */
+  public static final Privilege STEM_ATTR_READ    = Privilege.getInstance("stemAttrRead");
+
+  /** can update attributes on this stem */
+  public static final Privilege STEM_ATTR_UPDATE    = Privilege.getInstance("stemAttrUpdate");
+  
   /** any of these constitutes CREATE on a stem
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> CREATE_PRIVILEGES = Collections.unmodifiableSet(
@@ -72,6 +78,8 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable {
   static {
     list2priv.put( Field.FIELD_NAME_CREATORS,  NamingPrivilege.CREATE);
     list2priv.put( Field.FIELD_NAME_STEMMERS,  NamingPrivilege.STEM);
+    list2priv.put( Field.FIELD_NAME_STEM_ATTR_READERS,  NamingPrivilege.STEM_ATTR_READ);
+    list2priv.put( Field.FIELD_NAME_STEM_ATTR_UPDATERS,  NamingPrivilege.STEM_ATTR_UPDATE);
   }
 
   /** convert a list to a priv */
@@ -80,6 +88,8 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable {
   static {
     priv2list.put(  NamingPrivilege.CREATE , Field.FIELD_NAME_CREATORS    );
     priv2list.put(  NamingPrivilege.STEM , Field.FIELD_NAME_STEMMERS    );
+    priv2list.put(  NamingPrivilege.STEM_ATTR_READ , Field.FIELD_NAME_STEM_ATTR_READERS    );
+    priv2list.put(  NamingPrivilege.STEM_ATTR_UPDATE , Field.FIELD_NAME_STEM_ATTR_UPDATERS    );
   }
  
   /**
