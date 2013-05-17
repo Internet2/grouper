@@ -31,15 +31,16 @@ limitations under the License.
 */
 package edu.internet2.middleware.grouper.ui;
 
-import java.util.ResourceBundle;
+import java.util.ResourceBundle; 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
 import edu.internet2.middleware.grouper.ui.util.MembershipAsMap;
+import edu.internet2.middleware.grouper.ui.util.SubjectPrivilegeAsMap;
 
 
 /**
- * Implementation of ComparatorHelper used to sort Groups and GroupAsMaps. The context affects sorting thus:
+ * Implementation of ComparatorHelper used to sort Groups and GroupAsMaps. The context affects sorting thus :
  * <ul>
  * <li>If it starts 'search:', then anything following : is used as the sort field </li>
  * <li>If it equals 'flat', the media property 'group.sort.flat' is looked up. If that does not exist 'group.display.flat' is looked up</li>
@@ -77,6 +78,8 @@ public class GroupComparatorHelper implements GrouperComparatorHelper{
 			group = ((Membership)obj).getGroup();
 		}else if(obj instanceof MembershipAsMap) {
 			group = ((Membership)((MembershipAsMap)obj).getWrappedObject()).getGroup();
+		} else if (obj instanceof SubjectPrivilegeAsMap) {
+		  return new GroupOrStemComparatorHelper().getComparisonString(obj, config, context);
 		}else{
 			throw new IllegalArgumentException(obj + " is not a Group" + (obj == null ? null : obj.getClass()));
 		}

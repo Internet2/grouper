@@ -41,6 +41,14 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 public class GcGetMembers {
 
   /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    new GcGetMembers().addGroupName("test:testGroup").execute();
+  }
+  
+  /**
    * page size if paging
    */
   private Integer pageSize;

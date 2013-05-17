@@ -123,6 +123,20 @@ public interface MemberDAO extends GrouperDAO {
             ;
 
   /**
+   * find member by subject
+   * @param id
+   * @param src
+   * @param type
+   * @param exceptionIfNull
+   * @param queryOptions
+   * @return the member or null
+   * @throws GrouperDAOException
+   * @throws MemberNotFoundException
+   */
+  Member findBySubject(String id, String src, String type, boolean exceptionIfNull, QueryOptions queryOptions)
+    throws GrouperDAOException, MemberNotFoundException;
+
+  /**
    * find by subject id only (cant be duplicates)
    * @param subjectId
    * @return the member

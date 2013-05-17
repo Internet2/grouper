@@ -481,6 +481,23 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
     
     return groupSets;
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findMissingActivePITGroupSetsSecondPass()
+   */
+  public Set<GroupSet> findMissingActivePITGroupSetsSecondPass() {
+
+    Set<GroupSet> groupSets = HibernateSession
+      .byHqlStatic()
+      .createQuery("select g from GroupSet g where g.depth > '0' and " +
+          "not exists (select 1 from PITGroupSet pit where g.id = pit.sourceId) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp " +
+          "    where temp.string06 = g.ownerId or temp.string07 = g.ownerId)")
+      .setCacheable(false).setCacheRegion(KLASS + ".findMissingActivePITGroupSetsSecondPass")
+      .listSet(GroupSet.class);
+    
+    return groupSets;
+  }
 
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findMissingInactivePITGroupSets()
