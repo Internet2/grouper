@@ -744,7 +744,7 @@ public class RuleTest extends GrouperTest {
     Group stem1admins2 = new GroupSave(grouperSession).assignName("stem1:admins2").assignCreateParentStemsIfNotExist(true).save();
     Group stem2sub3wheel = new GroupSave(grouperSession).assignName("stem2:sub3wheel").assignCreateParentStemsIfNotExist(true).save();
 
-    ApiConfig.testConfig.put("groups.wheel.use", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "true");
     Group wheelGroup = new GroupSave(grouperSession).assignName("etc:sysadmingroup").assignCreateParentStemsIfNotExist(true).save();
 
     //subject 0 is wheel
@@ -1015,8 +1015,8 @@ public class RuleTest extends GrouperTest {
     GrouperSession.stopQuietly(grouperSession);
     
     //################################## SUBJ 4 stem2 NO WHEEL
-    ApiConfig.testConfig.put("groups.wheel.use", "false");
-    ApiConfig.testConfig.put("groups.wheel.group", "");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.group", "");
 
     initialFirings = RuleEngine.ruleFirings;
     
@@ -1056,7 +1056,7 @@ public class RuleTest extends GrouperTest {
     Group stem1admins2 = new GroupSave(grouperSession).assignName("stem1:admins2").assignCreateParentStemsIfNotExist(true).save();
     Group stem2sub3wheel = new GroupSave(grouperSession).assignName("stem2:sub3wheel").assignCreateParentStemsIfNotExist(true).save();
 
-    ApiConfig.testConfig.put("groups.wheel.use", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "true");
     Group wheelGroup = new GroupSave(grouperSession).assignName("etc:sysadmingroup").assignCreateParentStemsIfNotExist(true).save();
 
     //subject 0 is wheel
@@ -1317,8 +1317,8 @@ public class RuleTest extends GrouperTest {
 
     
     //################################## SUBJ 4 stem2 NO WHEEL
-    ApiConfig.testConfig.put("groups.wheel.use", "false");
-    ApiConfig.testConfig.put("groups.wheel.group", "");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.group", "");
 
     initialFirings = RuleEngine.ruleFirings;
     
@@ -5035,7 +5035,7 @@ public class RuleTest extends GrouperTest {
     Group stem1admins2 = new GroupSave(grouperSession).assignName("stem1:admins2").assignCreateParentStemsIfNotExist(true).save();
     Group stem2sub3wheel = new GroupSave(grouperSession).assignName("stem2:sub3wheel").assignCreateParentStemsIfNotExist(true).save();
   
-    ApiConfig.testConfig.put("groups.wheel.use", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "true");
     Group wheelGroup = new GroupSave(grouperSession).assignName("etc:sysadmingroup").assignCreateParentStemsIfNotExist(true).save();
   
     //subject 0 is wheel
@@ -5296,8 +5296,8 @@ public class RuleTest extends GrouperTest {
   
     
     //################################## SUBJ 4 stem2 NO WHEEL
-    ApiConfig.testConfig.put("groups.wheel.use", "false");
-    ApiConfig.testConfig.put("groups.wheel.group", "");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.group", "");
   
     initialFirings = RuleEngine.ruleFirings;
     
