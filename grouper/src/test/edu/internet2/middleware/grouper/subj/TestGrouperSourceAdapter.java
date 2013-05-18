@@ -32,6 +32,7 @@
 
 package edu.internet2.middleware.grouper.subj;
 import junit.framework.Assert;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -55,6 +56,10 @@ import edu.internet2.middleware.subject.SubjectType;
  */
 public class TestGrouperSourceAdapter extends GrouperTest {
 
+  public static void main(String[] args) {
+    TestRunner.run(new TestGrouperSourceAdapter("testSearch_PercentageParameter"));
+  }
+  
   private static final Log LOG = GrouperUtil.getLog(TestGrouperSourceAdapter.class);
 
   
@@ -164,6 +169,7 @@ public class TestGrouperSourceAdapter extends GrouperTest {
     try {
       LOG.info("testSearch_PercentageParameter");
       GrouperSourceAdapter gsa = new GrouperSourceAdapter();
+      //gsa.setId("g:gsa");
       gsa.search("%"); // this is competely undocumented behavior
       assertTrue("% parameter is not an error", true);
     }
