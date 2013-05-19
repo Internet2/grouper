@@ -4,6 +4,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * process a subject status
@@ -119,6 +121,11 @@ public class SubjectStatusProcessor {
    * if the originalQuery didnt have status info, and there was a default, then put that here
    */
   private String queryWithDefault = null;
+
+  /**
+   * 
+   */
+  private static Log log = LogFactory.getLog(SubjectStatusProcessor.class);
   
   
   
@@ -248,7 +255,15 @@ public class SubjectStatusProcessor {
   public SubjectStatusResult processSearch() {
     
     SubjectStatusResult subjectStatusResult = new SubjectStatusResult();
-    
+
+    //this should only be null if things arent configured properly...
+    if (this.subjectStatusConfig == null) {
+      log.info("Why is config null???");
+      subjectStatusResult.setAll(true);
+      subjectStatusResult.setStrippedQuery(this.originalQuery);
+      return subjectStatusResult;
+    }
+        
     this.processOriginalQuery();
 
     subjectStatusResult.setEquals(this.equalsFromUser);

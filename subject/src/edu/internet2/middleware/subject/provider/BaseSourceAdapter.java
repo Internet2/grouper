@@ -42,6 +42,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.SubjectUtils;
+import edu.internet2.middleware.subject.provider.SourceManager.SourceManagerStatusBean;
 
 /**
  * <pre>
@@ -62,7 +63,17 @@ public abstract class BaseSourceAdapter implements Source {
   public SubjectStatusConfig getSubjectStatusConfig() {
 
     //get the cached config for this source
-    return SourceManager.getInstance().getSourceManagerStatusBean().getSourceIdToStatusConfigs().get(this.getId());
+    SourceManager sourceManager = SourceManager.getInstance();
+    SourceManagerStatusBean sourceManagerStatusBean = sourceManager.getSourceManagerStatusBean();
+    Map<String, SubjectStatusConfig> sourceIdToStatusConfigs = sourceManagerStatusBean.getSourceIdToStatusConfigs();
+
+//    System.out.println(sourceManager.hashCode() + ", " 
+//        + sourceManagerStatusBean.hashCode() + ", " 
+//        + sourceIdToStatusConfigs.hashCode() + ", " 
+//        + sourceIdToStatusConfigs.size() + ", " 
+//        + sourceIdToStatusConfigs.get("g:gsa") + ", " + this.getId());
+    
+    return sourceIdToStatusConfigs.get(this.getId());
     
   }
 
