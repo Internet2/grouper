@@ -96,7 +96,7 @@ public class TestSubjectFinder extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(TestSubjectFinder.class);
-    TestRunner.run(new TestSubjectFinder("testFindByIds"));
+    TestRunner.run(new TestSubjectFinder("testFindByIdentifiers"));
   }
   
   /**
@@ -1350,6 +1350,8 @@ public class TestSubjectFinder extends GrouperTest {
     long initialQueryCount = GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting;
     Map<String, Subject> subjectMap = SubjectFinder.findByIdentifiers(identifiers);
     
+    assertNotNull("subjectMap is null??????", subjectMap);
+    
     assertEquals(identifiers.size()-1, subjectMap.size());
     assertEquals(SubjectTestHelper.SUBJ0_NAME, subjectMap.get(SubjectTestHelper.SUBJ0_IDENTIFIER).getName());
     
@@ -1433,7 +1435,7 @@ public class TestSubjectFinder extends GrouperTest {
         
     List<Group> groups = new ArrayList<Group>();
     
-    for (int i=0;i<10;i++) {
+    for (int i=0;i<50;i++) {
       
       Group group = new GroupSave(grouperSession)
         .assignName("test:testGroup" + i)
@@ -1464,7 +1466,7 @@ public class TestSubjectFinder extends GrouperTest {
     
     List<ExternalSubject> externalSubjects = new ArrayList<ExternalSubject>();
     
-    for (int i=0;i<8;i++) {
+    for (int i=0;i<50;i++) {
       ExternalSubject externalSubject = new ExternalSubject();
       externalSubject.setEmail("a" + i + "@b.c");
       externalSubject.setIdentifier("a" + i + "@id.b.c");
@@ -1505,13 +1507,15 @@ public class TestSubjectFinder extends GrouperTest {
     long initialQueryCount = GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting;
     Map<String, Subject> subjectMap = SubjectFinder.findByIdsOrIdentifiers(identifiers);
     
+    assertNotNull("subjectMap is null??????", subjectMap);
+    
     assertEquals(identifiers.size()-1, subjectMap.size());
     assertEquals(SubjectTestHelper.SUBJ0_NAME, subjectMap.get(SubjectTestHelper.SUBJ0_ID).getName());
     assertEquals(SubjectTestHelper.SUBJ1_NAME, subjectMap.get(SubjectTestHelper.SUBJ1_IDENTIFIER).getName());
     
     long numberOfQueries = (GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting) - initialQueryCount;
     
-    assertTrue("queries: " + numberOfQueries, numberOfQueries < 10);
+    assertTrue("queries: " + numberOfQueries, numberOfQueries < 20);
     assertTrue("queries: " + numberOfQueries, numberOfQueries > 0);
     
     GrouperSession.stopQuietly(grouperSession);
@@ -1529,12 +1533,12 @@ public class TestSubjectFinder extends GrouperTest {
     initialQueryCount = GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting;
     subjectMap = SubjectFinder.findByIdsOrIdentifiers(identifiers);
     
-    assertEquals((identifiers.size()-1) - 7, subjectMap.size());
+    assertEquals(65, subjectMap.size());
     assertEquals(SubjectTestHelper.SUBJ0_NAME, subjectMap.get(SubjectTestHelper.SUBJ0_ID).getName());
     
     numberOfQueries = (GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting) - initialQueryCount;
     
-    assertTrue("queries: " + numberOfQueries, numberOfQueries < 20);
+    assertTrue("queries: " + numberOfQueries, numberOfQueries < 30);
     assertTrue("queries: " + numberOfQueries, numberOfQueries > 0);
     
     System.out.println("Took: " + ((System.nanoTime() - start) / 1000000) + "ms");
