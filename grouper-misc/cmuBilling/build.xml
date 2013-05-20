@@ -38,7 +38,7 @@
     <mkdir dir="${main.outputDir}" />
     <mkdir dir="${main.binDir}" />
 
-    <javac  target="1.5" classpath=""
+    <javac  target="1.5"  source="1.5" classpath=""
       srcdir="${main.sourceDir}" destdir="${main.binDir}" debug="true" >
     	<classpath refid="main.classpath" />  	
   	</javac>
