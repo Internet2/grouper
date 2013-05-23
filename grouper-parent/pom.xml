@@ -12,11 +12,11 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>../morphString</module>
+        <module>../grouper-misc/morphString</module>
         <module>../subject</module>
-        <module>../grouperClient</module>
+        <module>../grouper-misc/grouperClient</module>
         <module>../grouper</module>
-        <module>../grouper-shib</module>
+        <module>../ldappcng/grouper-shib</module>
     </modules>
 
     <properties>

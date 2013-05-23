@@ -8,7 +8,7 @@
         <groupId>edu.internet2.middleware.grouper</groupId>
         <artifactId>grouper-parent</artifactId>
         <version>2.1.4</version>
-        <relativePath>../grouper-parent</relativePath>
+        <relativePath>../../grouper-parent</relativePath>
     </parent>
 
     <name>MorphString</name>
