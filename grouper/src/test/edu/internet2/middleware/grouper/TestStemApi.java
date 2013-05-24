@@ -1801,7 +1801,7 @@ public class TestStemApi extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_all() throws Exception {
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
 
     stem_copy_setup(r);
     Stem newStem = stem_copy_source.copy(stem_copy_target);
@@ -1838,7 +1838,7 @@ public class TestStemApi extends GrouperTest {
    * @throws Exception
    */
   public void testStemCopyAudit() throws Exception {
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
 
     stem_copy_setup(r);
     
@@ -1873,7 +1873,7 @@ public class TestStemApi extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_all2() throws Exception {
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
 
     stem_copy_setup(r);
     StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
@@ -1889,7 +1889,7 @@ public class TestStemApi extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_stem_privs_only() throws Exception {
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
 
     stem_copy_setup(r);
     StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
@@ -1905,7 +1905,7 @@ public class TestStemApi extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_group_privs_only() throws Exception {
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
 
     stem_copy_setup(r);
     StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
@@ -1921,7 +1921,7 @@ public class TestStemApi extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_members_only() throws Exception {
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
 
     stem_copy_setup(r);
     StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
@@ -1937,7 +1937,7 @@ public class TestStemApi extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_attrs_only() throws Exception {
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
 
     stem_copy_setup(r);
     StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
@@ -1953,7 +1953,7 @@ public class TestStemApi extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_minimum_nonadmin() throws Exception {
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
     Subject c = r.getSubject("c");
     GrouperSession nrs;
 
@@ -2041,7 +2041,7 @@ public class TestStemApi extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_insufficient_privilege_listGroupAsMember() throws Exception {
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
     Subject c = r.getSubject("c");
     GrouperSession nrs;
 
@@ -2080,7 +2080,7 @@ public class TestStemApi extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_insufficient_privilege_groupAsPrivilege_naming() throws Exception {
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
     Subject c = r.getSubject("c");
     GrouperSession nrs;
 
@@ -2123,7 +2123,7 @@ public class TestStemApi extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_insufficient_privilege_groupAsPrivilege_access() throws Exception {
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
     Subject c = r.getSubject("c");
     GrouperSession nrs;
 
@@ -2166,7 +2166,7 @@ public class TestStemApi extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_no_create_priv() throws Exception {
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
     Subject e = r.getSubject("e");
     GrouperSession nrs;
 
@@ -2202,7 +2202,7 @@ public class TestStemApi extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.group", wheel.getName());
 
     GrouperSession nrs;
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
 
     stem_copy_setup(r);
     
@@ -2250,7 +2250,7 @@ public class TestStemApi extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.group", wheel.getName());
 
     GrouperSession nrs;
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
 
     stem_copy_setup(r);
     
@@ -2297,6 +2297,8 @@ public class TestStemApi extends GrouperTest {
     Subject i = r.getSubject("i");
     Subject j = r.getSubject("j");
     Subject k = r.getSubject("k");
+    Subject l = r.getSubject("l");
+    Subject m = r.getSubject("m");
     
     type1 = GroupType.createType(s, "type1");
     type1attr1 = type1.addAttribute(s, "type1attr1", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN, true);
@@ -2374,6 +2376,8 @@ public class TestStemApi extends GrouperTest {
     level3Stem1.grantPriv(i, NamingPrivilege.CREATE);
     level3Stem1.grantPriv(j, NamingPrivilege.STEM);
     level3Stem1.grantPriv(k, NamingPrivilege.CREATE);
+    level3Stem1.grantPriv(l, NamingPrivilege.STEM_ATTR_READ);
+    level3Stem1.grantPriv(m, NamingPrivilege.STEM_ATTR_UPDATE);
     
     level3Group3.addType(type1);
     level3Group3.setAttribute("type1attr1", "test");
@@ -2400,6 +2404,8 @@ public class TestStemApi extends GrouperTest {
     Subject i = r.getSubject("i");
     Subject j = r.getSubject("j");
     Subject k = r.getSubject("k");
+    Subject l = r.getSubject("l");
+    Subject m = r.getSubject("m");
     
     // verify the new stem
     assertTrue(newStem.getChildGroups(Scope.SUB).size() == stem_copy_source.getChildGroups(Scope.SUB).size());
@@ -2449,6 +2455,8 @@ public class TestStemApi extends GrouperTest {
     assertTrue(level1Group1.getReaders().size() == 0);
     assertTrue(level1Group1.getOptins().size() == 0);
     assertTrue(level1Group1.getOptouts().size() == 0);
+    assertTrue(level1Group1.getGroupAttrReaders().size() == 0);
+    assertTrue(level1Group1.getGroupAttrUpdaters().size() == 0);
     assertTrue(level1Group1.getMembers().size() == 0);
     assertTrue(level1Group1.getTypes().size() == 1);
     assertTrue(level3Group2.getDisplayExtension().equals("level3Group2 display name"));
@@ -2458,6 +2466,8 @@ public class TestStemApi extends GrouperTest {
     assertTrue(level3Group2.getReaders().size() == 0);
     assertTrue(level3Group2.getOptins().size() == 0);
     assertTrue(level3Group2.getOptouts().size() == 0);
+    assertTrue(level3Group2.getGroupAttrReaders().size() == 0);
+    assertTrue(level3Group2.getGroupAttrUpdaters().size() == 0);
     assertTrue(level3Group2.getMembers().size() == 0);
     assertTrue(level3Group2.getTypes().size() == 1);
 
@@ -2486,12 +2496,18 @@ public class TestStemApi extends GrouperTest {
       assertTrue(newStem.hasStem(b) == true);
       assertTrue(level3Stem1.getStemmers().size() == 1);
       assertTrue(level3Stem1.getCreators().size() == 2);
+      assertTrue(level3Stem1.getStemAttrReaders().size() == 1);
+      assertTrue(level3Stem1.getStemAttrUpdaters().size() == 1);
       assertTrue(level3Stem1.hasCreate(i) == true);
       assertTrue(level3Stem1.hasCreate(k) == true);
       assertTrue(level3Stem1.hasStem(j) == true);
+      assertTrue(level3Stem1.hasStemAttrRead(l) == true);
+      assertTrue(level3Stem1.hasStemAttrUpdate(m) == true);
     } else {
       assertTrue(newStem.getStemmers().size() == 0);
       assertTrue(newStem.getCreators().size() == 0);
+      assertTrue(level3Stem1.getStemAttrReaders().size() == 0);
+      assertTrue(level3Stem1.getStemAttrUpdaters().size() == 0);
       assertTrue(level3Stem1.getStemmers().size() == 0);
       assertTrue(level3Stem1.getCreators().size() == 0);
     }

@@ -198,8 +198,8 @@ public class Test_privs_CachingAccessResolver extends GrouperTest {
   public void test_hasPrivilege_cacheSize() {
     resolver.hasPrivilege( this.g, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );
     //2007/12/03: Gary Brown
-	//hasPrivilege calls getPrivileges which caches all 6 ACCESS privs
-	assertEquals( 6, resolver.getStats(CachingAccessResolver.CACHE_HASPRIV).getSize() );
+	//hasPrivilege calls getPrivileges which caches all 8 ACCESS privs
+	assertEquals( 8, resolver.getStats(CachingAccessResolver.CACHE_HASPRIV).getSize() );
   }
 
 }

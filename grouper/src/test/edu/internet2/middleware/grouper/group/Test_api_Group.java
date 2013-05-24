@@ -952,7 +952,7 @@ public class Test_api_Group extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_all() throws Exception {
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
 
     group_copy_setup(r, false);
     Group newGroup = child_group.copy(top);
@@ -983,7 +983,7 @@ public class Test_api_Group extends GrouperTest {
    */
   public void testGroupCopyAudit() throws Exception {
 
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
     group_copy_setup(r, false);
 
     HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
@@ -1018,7 +1018,7 @@ public class Test_api_Group extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_all_2() throws Exception {
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
 
     group_copy_setup(r, false);
     GroupCopy groupCopy = new GroupCopy(child_group, top);
@@ -1034,7 +1034,7 @@ public class Test_api_Group extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_minimum() throws Exception {
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
 
     group_copy_setup(r, false);
     GroupCopy groupCopy = new GroupCopy(child_group, top);
@@ -1140,7 +1140,7 @@ public class Test_api_Group extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_members_only() throws Exception {
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
 
     group_copy_setup(r, false);
     GroupCopy groupCopy = new GroupCopy(child_group, top);
@@ -1156,7 +1156,7 @@ public class Test_api_Group extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_privs_only() throws Exception {
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
 
     group_copy_setup(r, false);
     GroupCopy groupCopy = new GroupCopy(child_group, top);
@@ -1172,7 +1172,7 @@ public class Test_api_Group extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_attrs_only() throws Exception {
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
 
     group_copy_setup(r, false);
     GroupCopy groupCopy = new GroupCopy(child_group, top);
@@ -1188,7 +1188,7 @@ public class Test_api_Group extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_group_exists() throws Exception {
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
     top.addChildGroup("child group", "child group");
 
     group_copy_setup(r, false);
@@ -1209,7 +1209,7 @@ public class Test_api_Group extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_group_is_factor() throws Exception {
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
 
     group_copy_setup(r, false);
     Group composite = top.addChildGroup("composite", "composite");
@@ -1231,7 +1231,7 @@ public class Test_api_Group extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_group_is_composite() throws Exception {
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
     Subject a = r.getSubject("a");
     Subject b = r.getSubject("b");
 
@@ -1257,7 +1257,7 @@ public class Test_api_Group extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_no_read_priv() throws Exception {
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
     Subject b = r.getSubject("b");
     GrouperSession nrs;
 
@@ -1284,7 +1284,7 @@ public class Test_api_Group extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_no_create_priv() throws Exception {
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
     Subject e = r.getSubject("e");
     GrouperSession nrs;
 
@@ -1312,7 +1312,7 @@ public class Test_api_Group extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_minimum_as_nonadmin() throws Exception {
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
     Subject k = r.getSubject("k");
     GrouperSession nrs;
 
@@ -1337,7 +1337,7 @@ public class Test_api_Group extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_all_as_nonadmin() throws Exception {
-    R r = R.populateRegistry(0, 0, 11);
+    R r = R.populateRegistry(0, 0, 13);
     Subject a = r.getSubject("a");
     GrouperSession nrs;
 
@@ -1594,6 +1594,8 @@ public class Test_api_Group extends GrouperTest {
     Subject i = r.getSubject("i");
     Subject j = r.getSubject("j");
     Subject k = r.getSubject("k");
+    Subject l = r.getSubject("l");
+    Subject m = r.getSubject("m");
     
     child_group.addType(type1);
     child_group.addType(type2);
@@ -1623,6 +1625,8 @@ public class Test_api_Group extends GrouperTest {
     child_group.setDescription("description test");
     child_group.setAttribute(type1attr1.getName(), "custom attr value 1");
     child_group.setAttribute(type2attr1.getName(), "custom attr value 2");
+    child_group.grantPriv(l, AccessPrivilege.GROUP_ATTR_READ);
+    child_group.grantPriv(m, AccessPrivilege.GROUP_ATTR_UPDATE);
     child_group.store();
   }
   
@@ -1641,6 +1645,8 @@ public class Test_api_Group extends GrouperTest {
     Subject h = r.getSubject("h");
     Subject i = r.getSubject("i");
     Subject j = r.getSubject("j");
+    Subject l = r.getSubject("l");
+    Subject m = r.getSubject("m");
     
     // let's do some quick checks to make sure the object that gets returned back is correct
     assertTrue(newGroup.getTypes().size() == 3);
@@ -1730,6 +1736,10 @@ public class Test_api_Group extends GrouperTest {
       assertGroupHasRead(newGroup, h, true);
       assertGroupHasRead(newGroup, SubjectFinder.findAllSubject(), true);
       assertTrue(newGroup.getReaders().size() == 2);
+      assertGroupHasGroupAttrRead(newGroup, l, true);
+      assertTrue(newGroup.getGroupAttrReaders().size() == 1);
+      assertGroupHasGroupAttrUpdate(newGroup, m, true);
+      assertTrue(newGroup.getGroupAttrUpdaters().size() == 1);
     } else {
       assertGroupHasAdmin(newGroup, a, false);
       assertGroupHasAdmin(newGroup, c, false);
@@ -1746,7 +1756,12 @@ public class Test_api_Group extends GrouperTest {
       assertTrue(newGroup.getViewers().size() == 1);
       assertGroupHasRead(newGroup, h, true);
       assertGroupHasRead(newGroup, SubjectFinder.findAllSubject(), true);
-      assertTrue(newGroup.getReaders().size() == 1);    }
+      assertTrue(newGroup.getReaders().size() == 1);    
+      assertGroupHasGroupAttrRead(newGroup, l, false);
+      assertTrue(newGroup.getGroupAttrReaders().size() == 0);
+      assertGroupHasGroupAttrUpdate(newGroup, m, false);
+      assertTrue(newGroup.getGroupAttrUpdaters().size() == 0);
+    }
     
     // groups with top:child group as a privilege
     if (groupAsPrivilege) {

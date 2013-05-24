@@ -1168,6 +1168,34 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   {
     return GrouperSession.staticGrouperSession().getNamingResolver().getSubjectsWithPrivilege(this, NamingPrivilege.STEM);
   } 
+  
+  /**
+   * Get subjects with STEM_ATTR_READ privilege on this stem.
+   * <pre class="eg">
+   * Set subjects = ns.getStemAttrReaders();
+   * </pre>
+   * @return  Set of {@link Subject} objects
+   * @throws  GrouperException
+   */
+  public Set getStemAttrReaders() 
+    throws  GrouperException
+  {
+    return GrouperSession.staticGrouperSession().getNamingResolver().getSubjectsWithPrivilege(this, NamingPrivilege.STEM_ATTR_READ);
+  } 
+  
+  /**
+   * Get subjects with STEM_ATTR_UPDATE privilege on this stem.
+   * <pre class="eg">
+   * Set subjects = ns.getStemAttrUpdaters();
+   * </pre>
+   * @return  Set of {@link Subject} objects
+   * @throws  GrouperException
+   */
+  public Set getStemAttrUpdaters() 
+    throws  GrouperException
+  {
+    return GrouperSession.staticGrouperSession().getNamingResolver().getSubjectsWithPrivilege(this, NamingPrivilege.STEM_ATTR_UPDATE);
+  } 
 
   /**
    * @return uuid

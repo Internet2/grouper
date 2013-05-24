@@ -98,7 +98,7 @@ public class TestGroup extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(new TestGroup("testNoLocking"));
     //TestRunner.run(TestGroup.class);
-    TestRunner.run(new TestGroup("testGetMembersAccess"));
+    TestRunner.run(new TestGroup("testGetTypes"));
     //TestRunner.run(TestGroup.class);
   }
   
@@ -277,6 +277,18 @@ public class TestGroup extends GrouperTest {
     }
     try {
       entity.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTOUT, false);
+      fail("shouldnt get here");
+    } catch (Exception e) {
+      //good
+    }
+    try {
+      entity.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ, false);
+      fail("shouldnt get here");
+    } catch (Exception e) {
+      //good
+    }
+    try {
+      entity.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_UPDATE, false);
       fail("shouldnt get here");
     } catch (Exception e) {
       //good
@@ -483,6 +495,16 @@ public class TestGroup extends GrouperTest {
         AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
       );
       FieldHelper.testField( 
+          (Field) fIter.next()   , 
+          Field.FIELD_NAME_GROUP_ATTR_READERS              , FieldType.ACCESS,
+          AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
+        );
+      FieldHelper.testField( 
+          (Field) fIter.next()   , 
+          Field.FIELD_NAME_GROUP_ATTR_UPDATERS              , FieldType.ACCESS,
+          AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
+        );
+      FieldHelper.testField( 
         (Field) fIter.next()   , 
         "members"             , FieldType.LIST,
         AccessPrivilege.READ  , AccessPrivilege.UPDATE
@@ -643,6 +665,8 @@ public class TestGroup extends GrouperTest {
       GroupHelper.addMember(i2, uofc.toSubject(), "members");
       MemberFinder.findBySubject(s, subj, true);
       PrivHelper.grantPriv(s, i2,   all,  AccessPrivilege.OPTIN);
+      PrivHelper.grantPriv(s, i2,   subj,  AccessPrivilege.GROUP_ATTR_READ);
+      PrivHelper.grantPriv(s, i2,   subj,  AccessPrivilege.GROUP_ATTR_UPDATE);
       PrivHelper.grantPriv(s, uofc, subj, AccessPrivilege.UPDATE);
 
       // Get access privs
@@ -652,6 +676,8 @@ public class TestGroup extends GrouperTest {
       Assert.assertTrue("readers/i2     == 1",  i2.getReaders().size()  == 1);
       Assert.assertTrue("updaters/i2    == 0",  i2.getUpdaters().size() == 0);
       Assert.assertTrue("viewers/i2     == 1",  i2.getViewers().size()  == 1);
+      Assert.assertTrue("groupAttrReaders/i2    == 1",  i2.getGroupAttrReaders().size() == 1);
+      Assert.assertTrue("groupAttrUpdaters/i2     == 1",  i2.getGroupAttrUpdaters().size()  == 1);
 
       Assert.assertTrue("admins/uofc    == 1",  uofc.getAdmins().size()   == 1);
       Assert.assertTrue("optins/uofc    == 0",  uofc.getOptins().size()   == 0);
@@ -659,7 +685,9 @@ public class TestGroup extends GrouperTest {
       Assert.assertTrue("readers/uofc   == 1",  uofc.getReaders().size()  == 1);
       Assert.assertTrue("updaters/uofc  == 1",  uofc.getUpdaters().size() == 1);
       Assert.assertTrue("viewers/uofc   == 1",  uofc.getViewers().size()  == 1);
-
+      Assert.assertTrue("groupAttrReaders/i2    == 0",  uofc.getGroupAttrReaders().size() == 0);
+      Assert.assertTrue("groupAttrUpdaters/i2     == 0",  uofc.getGroupAttrUpdaters().size()  == 0);
+      
       // Has access privs
       Assert.assertTrue("admin/i2/subj0",     !i2.hasAdmin(subj)      );
       Assert.assertTrue("admin/i2/subj1",     !i2.hasAdmin(subj1)     );
@@ -684,7 +712,15 @@ public class TestGroup extends GrouperTest {
       Assert.assertTrue("view/i2/subj0",      i2.hasView(subj)        );
       Assert.assertTrue("view/i2/subj1",      i2.hasView(subj1)       );
       Assert.assertTrue("view/i2/subjA",      i2.hasView(all)         );
+      
+      Assert.assertTrue("groupAttrRead/i2/subj0",      i2.hasGroupAttrRead(subj)        );
+      Assert.assertTrue("groupAttrRead/i2/subj1",      !i2.hasGroupAttrRead(subj1)       );
+      Assert.assertTrue("groupAttrRead/i2/subjA",      !i2.hasGroupAttrRead(all)         );
 
+      Assert.assertTrue("groupAttrUpdate/i2/subj0",      i2.hasGroupAttrUpdate(subj)        );
+      Assert.assertTrue("groupAttrUpdate/i2/subj1",      !i2.hasGroupAttrUpdate(subj1)       );
+      Assert.assertTrue("groupAttrUpdate/i2/subjA",      !i2.hasGroupAttrUpdate(all)         );
+      
       Assert.assertTrue("admin/uofc/subj0",   !uofc.hasAdmin(subj)    );
       Assert.assertTrue("admin/uofc/subj1",   !uofc.hasAdmin(subj1)   );
       Assert.assertTrue("admin/uofc/subjA",   !uofc.hasAdmin(all)     );
@@ -708,6 +744,14 @@ public class TestGroup extends GrouperTest {
       Assert.assertTrue("view/uofc/subj0",    uofc.hasView(subj)      );
       Assert.assertTrue("view/uofc/subj1",    uofc.hasView(subj1)     );
       Assert.assertTrue("view/uofc/subjA",    uofc.hasView(all)       );
+      
+      Assert.assertTrue("groupAttrRead/uofc/subj0",      !uofc.hasGroupAttrRead(subj)        );
+      Assert.assertTrue("groupAttrRead/uofc/subj1",      !uofc.hasGroupAttrRead(subj1)       );
+      Assert.assertTrue("groupAttrRead/uofc/subjA",      !uofc.hasGroupAttrRead(all)         );
+
+      Assert.assertTrue("groupAttrUpdate/uofc/subj0",      !uofc.hasGroupAttrUpdate(subj)        );
+      Assert.assertTrue("groupAttrUpdate/uofc/subj1",      !uofc.hasGroupAttrUpdate(subj1)       );
+      Assert.assertTrue("groupAttrUpdate/uofc/subjA",      !uofc.hasGroupAttrUpdate(all)         );
 
       s.stop();
     }

@@ -462,6 +462,24 @@ public class GrouperTest extends TestCase {
   } // public void assertGroupHasRead(g, subj, exp)
 
   /**
+   * @param g
+   * @param subj
+   * @param exp
+   */
+  public void assertGroupHasGroupAttrRead(Group g, Subject subj, boolean exp) {
+    _assertPriv(G, g.getName(), subj, "GROUP_ATTR_READ", exp, g.hasGroupAttrRead(subj));
+  }
+
+  /**
+   * @param g
+   * @param subj
+   * @param exp
+   */
+  public void assertGroupHasGroupAttrUpdate(Group g, Subject subj, boolean exp) {
+    _assertPriv(G, g.getName(), subj, "GROUP_ATTR_UPDATE", exp, g.hasGroupAttrUpdate(subj));
+  }
+  
+  /**
    * @since   1.1.0
    */
   public void assertGroupHasType(Group g, GroupType type, boolean exp) {

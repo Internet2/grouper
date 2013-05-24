@@ -174,6 +174,24 @@ public class AttributeDefTest extends GrouperTest {
     } catch (InsufficientPrivilegeException e) {
       //good
     }
+    
+    try {
+      attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, true);
+      fail("This shouldnt be allowed");
+    } catch (GrantPrivilegeException e) {
+      //ok
+    } catch (InsufficientPrivilegeException e) {
+      //good
+    }
+    
+    try {
+      attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, true);
+      fail("This shouldnt be allowed");
+    } catch (GrantPrivilegeException e) {
+      //ok
+    } catch (InsufficientPrivilegeException e) {
+      //good
+    }
 
     try {
       attributeDef.getPrivilegeDelegate().hasAttrRead(SubjectTestHelper.SUBJ1);
@@ -183,9 +201,45 @@ public class AttributeDefTest extends GrouperTest {
     } catch (InsufficientPrivilegeException e) {
       //good
     }
+    
+    try {
+      attributeDef.getPrivilegeDelegate().hasAttrDefAttrRead(SubjectTestHelper.SUBJ1);
+      fail("This shouldnt be allowed");
+    } catch (GrantPrivilegeException e) {
+      //ok
+    } catch (InsufficientPrivilegeException e) {
+      //good
+    }
+    
+    try {
+      attributeDef.getPrivilegeDelegate().hasAttrDefAttrUpdate(SubjectTestHelper.SUBJ1);
+      fail("This shouldnt be allowed");
+    } catch (GrantPrivilegeException e) {
+      //ok
+    } catch (InsufficientPrivilegeException e) {
+      //good
+    }
 
     try {
       attributeDef.getPrivilegeDelegate().revokePriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_READ, true);
+      fail("This shouldnt be allowed");
+    } catch (RevokePrivilegeException e) {
+      //ok
+    } catch (InsufficientPrivilegeException e) {
+      //good
+    }
+    
+    try {
+      attributeDef.getPrivilegeDelegate().revokePriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, true);
+      fail("This shouldnt be allowed");
+    } catch (RevokePrivilegeException e) {
+      //ok
+    } catch (InsufficientPrivilegeException e) {
+      //good
+    }
+    
+    try {
+      attributeDef.getPrivilegeDelegate().revokePriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, true);
       fail("This shouldnt be allowed");
     } catch (RevokePrivilegeException e) {
       //ok
@@ -213,7 +267,45 @@ public class AttributeDefTest extends GrouperTest {
     }
     
     try {
+      
+      attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, true);
+      fail("This shouldnt be allowed");
+    } catch (GrantPrivilegeException e) {
+      //ok
+    } catch (InsufficientPrivilegeException e) {
+      //good
+    }
+    
+    try {
+      
+      attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, true);
+      fail("This shouldnt be allowed");
+    } catch (GrantPrivilegeException e) {
+      //ok
+    } catch (InsufficientPrivilegeException e) {
+      //good
+    }
+    
+    try {
       attributeDef.getPrivilegeDelegate().hasAttrRead(SubjectTestHelper.SUBJ1);
+      fail("This shouldnt be allowed");
+    } catch (GrantPrivilegeException e) {
+      //ok
+    } catch (InsufficientPrivilegeException e) {
+      //good
+    }
+    
+    try {
+      attributeDef.getPrivilegeDelegate().hasAttrDefAttrRead(SubjectTestHelper.SUBJ1);
+      fail("This shouldnt be allowed");
+    } catch (GrantPrivilegeException e) {
+      //ok
+    } catch (InsufficientPrivilegeException e) {
+      //good
+    }
+    
+    try {
+      attributeDef.getPrivilegeDelegate().hasAttrDefAttrUpdate(SubjectTestHelper.SUBJ1);
       fail("This shouldnt be allowed");
     } catch (GrantPrivilegeException e) {
       //ok
@@ -223,6 +315,24 @@ public class AttributeDefTest extends GrouperTest {
 
     try {
       attributeDef.getPrivilegeDelegate().revokePriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_READ, true);
+      fail("This shouldnt be allowed");
+    } catch (RevokePrivilegeException e) {
+      //ok
+    } catch (InsufficientPrivilegeException e) {
+      //good
+    }
+    
+    try {
+      attributeDef.getPrivilegeDelegate().revokePriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, true);
+      fail("This shouldnt be allowed");
+    } catch (RevokePrivilegeException e) {
+      //ok
+    } catch (InsufficientPrivilegeException e) {
+      //good
+    }
+    
+    try {
+      attributeDef.getPrivilegeDelegate().revokePriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, true);
       fail("This shouldnt be allowed");
     } catch (RevokePrivilegeException e) {
       //ok
@@ -240,10 +350,16 @@ public class AttributeDefTest extends GrouperTest {
     this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ0 );
     
     attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_READ, true);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, true);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, true);
     
     attributeDef.getPrivilegeDelegate().hasAttrRead(SubjectTestHelper.SUBJ1);
+    attributeDef.getPrivilegeDelegate().hasAttrDefAttrRead(SubjectTestHelper.SUBJ1);
+    attributeDef.getPrivilegeDelegate().hasAttrDefAttrUpdate(SubjectTestHelper.SUBJ1);
 
     assertTrue(attributeDef.getPrivilegeDelegate().revokePriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_READ, true));
+    assertTrue(attributeDef.getPrivilegeDelegate().revokePriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, true));
+    assertTrue(attributeDef.getPrivilegeDelegate().revokePriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, true));
   }
   
   /**

@@ -91,6 +91,12 @@ public class PrivHelper {
     else if (priv.equals(AccessPrivilege.VIEW)  ) {
       subjects = g.getViewers();
     } 
+    else if (priv.equals(AccessPrivilege.GROUP_ATTR_READ)  ) {
+      subjects = g.getGroupAttrReaders();
+    } 
+    else if (priv.equals(AccessPrivilege.GROUP_ATTR_UPDATE)  ) {
+      subjects = g.getGroupAttrUpdaters();
+    } 
     else {
       Assert.fail("invalid privilege: " + priv);
     }
@@ -266,6 +272,14 @@ public class PrivHelper {
     else if (priv.equals(AccessPrivilege.VIEW)) {
       Assert.assertTrue(msg + " VIEW",    g.hasView(subj)   == has  );
       Assert.assertTrue(msg + " VIEW",    m.hasView(g)      == has  );
+    }
+    else if (priv.equals(AccessPrivilege.GROUP_ATTR_READ)) {
+      Assert.assertTrue(msg + " GROUP_ATTR_READ",    g.hasGroupAttrRead(subj)   == has  );
+      Assert.assertTrue(msg + " GROUP_ATTR_READ",    m.hasGroupAttrRead(g)      == has  );
+    }
+    else if (priv.equals(AccessPrivilege.GROUP_ATTR_UPDATE)) {
+      Assert.assertTrue(msg + " GROUP_ATTR_UPDATE",    g.hasGroupAttrUpdate(subj)   == has  );
+      Assert.assertTrue(msg + " GROUP_ATTR_UPDATE",    m.hasGroupAttrUpdate(g)      == has  );
     }
     else {
       Assert.fail("unable test priv '" + priv + "'");

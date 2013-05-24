@@ -3459,6 +3459,34 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   {
     return GrouperSession.staticGrouperSession().getAccessResolver().getSubjectsWithPrivilege(this, AccessPrivilege.OPTOUT);
   } 
+  
+  /**
+   * Get subjects with the GROUP_ATTR_READ privilege on this group.
+   * <pre class="eg">
+   * Set subjects = g.getGroupAttrReaders();
+   * </pre>
+   * @return  Set of subjects with GROUP_ATTR_READ
+   * @throws  GrouperException
+   */
+  public Set<Subject> getGroupAttrReaders() 
+    throws  GrouperException
+  {
+    return GrouperSession.staticGrouperSession().getAccessResolver().getSubjectsWithPrivilege(this, AccessPrivilege.GROUP_ATTR_READ);
+  } 
+  
+  /**
+   * Get subjects with the GROUP_ATTR_UPDATE privilege on this group.
+   * <pre class="eg">
+   * Set subjects = g.getGroupAttrUpdaters();
+   * </pre>
+   * @return  Set of subjects with GROUP_ATTR_UPDATE
+   * @throws  GrouperException
+   */
+  public Set<Subject> getGroupAttrUpdaters() 
+    throws  GrouperException
+  {
+    return GrouperSession.staticGrouperSession().getAccessResolver().getSubjectsWithPrivilege(this, AccessPrivilege.GROUP_ATTR_UPDATE);
+  } 
 
   /**
    * get the name of the parent stem

@@ -87,7 +87,7 @@ public class TestField extends TestCase {
 
   public void testFields() {
     Set       fields  = FieldFinder.findAll();
-    Assert.assertEquals("fields", 15, fields.size());
+    Assert.assertEquals("fields", 21, fields.size());
     Iterator  iter    = fields.iterator();
     FieldHelper.testField( 
       (Field) iter.next()   , 
@@ -97,6 +97,18 @@ public class TestField extends TestCase {
     FieldHelper.testField( 
         (Field) iter.next()   , 
         "attrAdmins"              , FieldType.ATTRIBUTE_DEF,
+        AttributeDefPrivilege.ATTR_ADMIN , AttributeDefPrivilege.ATTR_ADMIN
+      );
+    
+    FieldHelper.testField( 
+        (Field) iter.next()   , 
+        "attrDefAttrReaders"              , FieldType.ATTRIBUTE_DEF,
+        AttributeDefPrivilege.ATTR_ADMIN , AttributeDefPrivilege.ATTR_ADMIN
+      );
+    
+    FieldHelper.testField( 
+        (Field) iter.next()   , 
+        "attrDefAttrUpdaters"              , FieldType.ATTRIBUTE_DEF,
         AttributeDefPrivilege.ATTR_ADMIN , AttributeDefPrivilege.ATTR_ADMIN
       );
     FieldHelper.testField( 
@@ -130,6 +142,16 @@ public class TestField extends TestCase {
       NamingPrivilege.STEM  , NamingPrivilege.STEM
     );
     FieldHelper.testField( 
+        (Field) iter.next()   , 
+        Field.FIELD_NAME_GROUP_ATTR_READERS              , FieldType.ACCESS,
+        AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
+      );
+    FieldHelper.testField( 
+        (Field) iter.next()   , 
+        Field.FIELD_NAME_GROUP_ATTR_UPDATERS              , FieldType.ACCESS,
+        AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
+      );
+    FieldHelper.testField( 
       (Field) iter.next()   , 
       "members"             , FieldType.LIST,
       AccessPrivilege.READ  , AccessPrivilege.UPDATE
@@ -149,6 +171,16 @@ public class TestField extends TestCase {
       "readers"             , FieldType.ACCESS,
       AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
     );
+    FieldHelper.testField( 
+        (Field) iter.next()   , 
+        Field.FIELD_NAME_STEM_ATTR_READERS          , FieldType.NAMING,
+        NamingPrivilege.STEM  , NamingPrivilege.STEM
+      );
+    FieldHelper.testField( 
+        (Field) iter.next()   , 
+        Field.FIELD_NAME_STEM_ATTR_UPDATERS            , FieldType.NAMING,
+        NamingPrivilege.STEM  , NamingPrivilege.STEM
+      );
     FieldHelper.testField( 
       (Field) iter.next()   , 
       Field.FIELD_NAME_STEMMERS            , FieldType.NAMING,

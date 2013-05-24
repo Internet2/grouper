@@ -955,16 +955,20 @@ public class TestMember extends GrouperTest {
     Member          m     = MemberFinder.findBySubject(s, subj, true);
     root.grantPriv( subj, NamingPrivilege.CREATE );
     edu.grantPriv( all, NamingPrivilege.STEM );
+    root.grantPriv( subj, NamingPrivilege.STEM_ATTR_UPDATE );
+    edu.grantPriv( all, NamingPrivilege.STEM_ATTR_READ );
     i2.grantPriv( all, AccessPrivilege.OPTIN );
     uofc.grantPriv( subj, AccessPrivilege.UPDATE );
+    i2.grantPriv( all, AccessPrivilege.GROUP_ATTR_READ );
+    uofc.grantPriv( subj, AccessPrivilege.GROUP_ATTR_UPDATE );
 
     // Get naming privs
-    assertEquals( "getPrivs/root", 1, m.getPrivs(root).size() );
-    assertEquals( "getprivs/edu", 1, m.getPrivs(edu).size() ); 
+    assertEquals( "getPrivs/root", 2, m.getPrivs(root).size() );
+    assertEquals( "getprivs/edu", 2, m.getPrivs(edu).size() ); 
 
     // Get access privs
-    assertEquals( "getprivs/i2", 3, m.getPrivs(i2).size() );
-    assertEquals( "getprivs/uofc", 3, m.getPrivs(uofc).size() );
+    assertEquals( "getprivs/i2", 4, m.getPrivs(i2).size() );
+    assertEquals( "getprivs/uofc", 4, m.getPrivs(uofc).size() );
 
     // Has naming privs
     Assert.assertTrue("hasCreate == 1",   m.hasCreate().size() == 1);
@@ -974,6 +978,14 @@ public class TestMember extends GrouperTest {
     Assert.assertTrue("hasStem == 1",     m.hasStem().size() == 1);
     Assert.assertTrue("!hasStem: root",   !m.hasStem(root));
     Assert.assertTrue("hasStem: edu",     m.hasStem(edu));
+    
+    Assert.assertTrue("hasStemAttrRead == 1",     m.hasStemAttrRead().size() == 1);
+    Assert.assertTrue("!hasStemAttrRead: root",   !m.hasStemAttrRead(root));
+    Assert.assertTrue("hasStemAttrRead: edu",     m.hasStemAttrRead(edu));
+    
+    Assert.assertTrue("hasStemAttrUpdate == 1",     m.hasStemAttrUpdate().size() == 1);
+    Assert.assertTrue("hasStemAttrUpdate: root",   m.hasStemAttrUpdate(root));
+    Assert.assertTrue("!hasStemAttrUpdate: edu",     !m.hasStemAttrUpdate(edu));
 
     // Has access privs
     Assert.assertTrue("hasAdmin == 0",    m.hasAdmin().size() == 0);
@@ -1000,6 +1012,14 @@ public class TestMember extends GrouperTest {
     Assert.assertTrue("hasView: i2",      m.hasView(i2));
     Assert.assertTrue("hasView: uofc",    m.hasView(uofc));
 
+    Assert.assertTrue("hasGroupAttrRead == 1",   m.hasGroupAttrRead().size() == 1);
+    Assert.assertTrue("hasGroupAttrRead: i2",   m.hasGroupAttrRead(i2));
+    Assert.assertTrue("!hasGroupAttrRead: uofc",  !m.hasGroupAttrRead(uofc));
+    
+    Assert.assertTrue("hasGroupAttrUpdate == 1",   m.hasGroupAttrUpdate().size() == 1);
+    Assert.assertTrue("!hasGroupAttrUpdate: i2",   !m.hasGroupAttrUpdate(i2));
+    Assert.assertTrue("hasGroupAttrUpdate: uofc",  m.hasGroupAttrUpdate(uofc));
+    
     s.stop();
   }
 
@@ -1052,6 +1072,40 @@ public class TestMember extends GrouperTest {
     }
   } // public void testFailCanCreateWhenNoPriv()
 
+  /**
+   * 
+   */
+  public void testFailCanStemAttrReadWhenNoPriv() {
+    LOG.info("testFailCanCreateWhenNoPriv");
+    try {
+      R       r   = R.populateRegistry(1, 0, 1);
+      Stem    a   = r.getStem("a");
+      Member  m   = MemberFinder.findBySubject(r.rs, r.getSubject("a"), true);
+      Assert.assertFalse("OK: cannot stemAttrRead", m.canStemAttrRead(a));
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  }
+  
+  /**
+   * 
+   */
+  public void testFailCanStemAttrUpdateWhenNoPriv() {
+    LOG.info("testFailCanCreateWhenNoPriv");
+    try {
+      R       r   = R.populateRegistry(1, 0, 1);
+      Stem    a   = r.getStem("a");
+      Member  m   = MemberFinder.findBySubject(r.rs, r.getSubject("a"), true);
+      Assert.assertFalse("OK: cannot stemAttrUpdate", m.canStemAttrUpdate(a));
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  }
+  
   /**
    * 
    */
@@ -1145,6 +1199,40 @@ public class TestMember extends GrouperTest {
       T.e(e);
     }
   } // public void testFailCanOptoutWhenNull()
+  
+  /**
+   * 
+   */
+  public void testFailCanGroupAttrReadWhenNoPriv() {
+    LOG.info("testFailCanOptoutWhenNoPriv");
+    try {
+      R       r   = R.populateRegistry(1, 1, 1);
+      Group   a   = r.getGroup("a", "a");
+      Member  m   = MemberFinder.findBySubject(r.rs, r.getSubject("a"), true);
+      Assert.assertFalse("OK: cannot groupAttrRead", m.canGroupAttrRead(a));
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  }
+
+  /**
+   * 
+   */
+  public void testFailCanGroupAttrUpdateWhenNoPriv() {
+    LOG.info("testFailCanOptoutWhenNoPriv");
+    try {
+      R       r   = R.populateRegistry(1, 1, 1);
+      Group   a   = r.getGroup("a", "a");
+      Member  m   = MemberFinder.findBySubject(r.rs, r.getSubject("a"), true);
+      Assert.assertFalse("OK: cannot groupAttrUpdate", m.canGroupAttrUpdate(a));
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  }
 
   public void testFailCanReadWhenNoPriv() {
     LOG.info("testFailCanReadWhenNoPriv");
@@ -1332,6 +1420,40 @@ public class TestMember extends GrouperTest {
     }
   } // public void testPassCanCreateWhenRoot()
 
+  /**
+   * 
+   */
+  public void testPassCanStemAttrReadWhenRoot() {
+    LOG.info("testPassCanCreateWhenRoot");
+    try {
+      R       r   = R.populateRegistry(1, 0, 0);
+      Stem    a   = r.getStem("a");
+      Member  m   = r.rs.getMember();
+      Assert.assertTrue("OK: can stemAttrRead", m.canStemAttrRead(a));
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  }
+  
+  /**
+   * 
+   */
+  public void testPassCanStemAttrUpdateWhenRoot() {
+    LOG.info("testPassCanCreateWhenRoot");
+    try {
+      R       r   = R.populateRegistry(1, 0, 0);
+      Stem    a   = r.getStem("a");
+      Member  m   = r.rs.getMember();
+      Assert.assertTrue("OK: can stemAttrUpdate", m.canStemAttrUpdate(a));
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  }
+  
   public void testPassCanOptinWhenRoot() {
     LOG.info("testPassCanOptinWhenRoot");
     try {
@@ -1360,6 +1482,40 @@ public class TestMember extends GrouperTest {
     }
   } // public void testPassCanOptoutWhenRoot()
 
+  /**
+   * 
+   */
+  public void testPassCanGroupAttrReadWhenRoot() {
+    LOG.info("testPassCanOptoutWhenRoot");
+    try {
+      R       r   = R.populateRegistry(1, 1, 0);
+      Group   a   = r.getGroup("a", "a");
+      Member  m   = r.rs.getMember();
+      Assert.assertTrue("OK: can groupAttrRead", m.canGroupAttrRead(a));
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  }
+  
+  /**
+   * 
+   */
+  public void testPassCanGroupAttrUpdateWhenRoot() {
+    LOG.info("testPassCanOptoutWhenRoot");
+    try {
+      R       r   = R.populateRegistry(1, 1, 0);
+      Group   a   = r.getGroup("a", "a");
+      Member  m   = r.rs.getMember();
+      Assert.assertTrue("OK: can groupAttrUpdate", m.canGroupAttrUpdate(a));
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  }
+  
   public void testPassCanReadWhenRoot() {
     LOG.info("testPassCanReadWhenRoot");
     try {

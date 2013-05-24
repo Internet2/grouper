@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 
 
@@ -116,7 +117,13 @@ public class RuleHookTest extends GrouperTest {
     actAsGroupA.addMember(SubjectTestHelper.SUBJ6);
     actAsGroupB.addMember(SubjectTestHelper.SUBJ7);
     
-
+    group.grantPriv(SubjectTestHelper.SUBJ4, AccessPrivilege.GROUP_ATTR_READ);
+    group.grantPriv(SubjectTestHelper.SUBJ4, AccessPrivilege.GROUP_ATTR_UPDATE);
+    group.grantPriv(SubjectTestHelper.SUBJ5, AccessPrivilege.GROUP_ATTR_READ);
+    group.grantPriv(SubjectTestHelper.SUBJ5, AccessPrivilege.GROUP_ATTR_UPDATE);
+    group.grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.GROUP_ATTR_READ);
+    group.grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.GROUP_ATTR_UPDATE);
+    
     AttributeAssign attributeAssign = group.getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleActAsSubjectSourceIdName(), "jdbc");
     

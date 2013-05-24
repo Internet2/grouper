@@ -77,26 +77,26 @@ public class QuerySortTest extends GrouperTest {
     List<Field> fields = HibernateSession.byHqlStatic().createQuery(
         "from Field where type = 'access'")
         .options(new QueryOptions().sortAsc("name")).list(Field.class);
-    assertEquals("admins, optins, optouts, readers, updaters, viewers", 
+    assertEquals("admins, groupAttrReaders, groupAttrUpdaters, optins, optouts, readers, updaters, viewers", 
         Field.fieldNames(fields));
     
     fields = HibernateSession.byHqlStatic().createQuery(
       "from Field where type = 'access'")
       .options(new QueryOptions().sortDesc("name")).list(Field.class);
-    assertEquals("viewers, updaters, readers, optouts, optins, admins", 
+    assertEquals("viewers, updaters, readers, optouts, optins, groupAttrUpdaters, groupAttrReaders, admins", 
         Field.fieldNames(fields));
 
     //try with criteria
     fields = HibernateSession.byCriteriaStatic()
       .options(new QueryOptions().sortAsc("name"))
       .list(Field.class, HibUtils.listCrit(Restrictions.eq("typeString", "access")));
-    assertEquals("admins, optins, optouts, readers, updaters, viewers", 
+    assertEquals("admins, groupAttrReaders, groupAttrUpdaters, optins, optouts, readers, updaters, viewers", 
         Field.fieldNames(fields));
 
     fields = HibernateSession.byCriteriaStatic()
       .options(new QueryOptions().sortDesc("name"))
       .list(Field.class, HibUtils.listCrit(Restrictions.eq("typeString", "access")));
-      assertEquals("viewers, updaters, readers, optouts, optins, admins", 
+      assertEquals("viewers, updaters, readers, optouts, optins, groupAttrUpdaters, groupAttrReaders, admins", 
         Field.fieldNames(fields));
     
   }

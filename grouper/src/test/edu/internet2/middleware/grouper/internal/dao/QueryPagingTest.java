@@ -109,20 +109,20 @@ public class QueryPagingTest extends GrouperTest {
     //viewers, updaters, readers, optouts, optins, admins
     List<Field> fields = HibernateSession.byHqlStatic().createQuery(
         "from Field where typeString = 'access'").options(new QueryOptions().sortAsc("name").paging(2,1, false)).list(Field.class);
-    assertEquals("admins, optins", Field.fieldNames(fields));
+    assertEquals("admins, groupAttrReaders", Field.fieldNames(fields));
     
     fields = HibernateSession.byHqlStatic().createQuery(
       "from Field where typeString = 'access'").options(new QueryOptions().sortAsc("name").paging(2,2, false)).list(Field.class);
-    assertEquals("optouts, readers", Field.fieldNames(fields));
+    assertEquals("groupAttrUpdaters, optins", Field.fieldNames(fields));
     
     fields = HibernateSession.byHqlStatic().createQuery(
       "from Field where typeString = 'access'").options(new QueryOptions().sortDesc("name").paging(3,2, false)).list(Field.class);
-    assertEquals("optouts, optins, admins", Field.fieldNames(fields));
+    assertEquals("optouts, optins, groupAttrUpdaters", Field.fieldNames(fields));
 
     //try with criteria
     fields = HibernateSession.byCriteriaStatic().options(new QueryOptions().sortAsc("name").paging(2,1, false))
         .list(Field.class, HibUtils.listCrit(Restrictions.eq("typeString", "access")));
-    assertEquals("admins, optins", 
+    assertEquals("admins, groupAttrReaders", 
         Field.fieldNames(fields));
 
     fields = HibernateSession.byCriteriaStatic().options(new QueryOptions().sortDesc("name").paging(2,2, false))
@@ -134,19 +134,19 @@ public class QueryPagingTest extends GrouperTest {
     QueryPaging queryPaging = new QueryPaging(2, 1, true);
     fields = HibernateSession.byHqlStatic().createQuery(
         "from Field where typeString = 'access'").options(new QueryOptions().sortAsc("name").paging(queryPaging)).list(Field.class);
-    assertEquals("admins, optins", Field.fieldNames(fields));
+    assertEquals("admins, groupAttrReaders", Field.fieldNames(fields));
     
-    assertEquals(6, queryPaging.getTotalRecordCount());
-    assertEquals(3, queryPaging.getNumberOfPages());
+    assertEquals(8, queryPaging.getTotalRecordCount());
+    assertEquals(4, queryPaging.getNumberOfPages());
     
     //try it with criteria
     queryPaging = new QueryPaging(2, 1, true);
     fields = HibernateSession.byCriteriaStatic().options(new QueryOptions().sortAsc("name").paging(queryPaging))
       .list(Field.class, HibUtils.listCrit(Restrictions.eq("typeString", "access")));
-    assertEquals("admins, optins", Field.fieldNames(fields));
+    assertEquals("admins, groupAttrReaders", Field.fieldNames(fields));
     
-    assertEquals(6, queryPaging.getTotalRecordCount());
-    assertEquals(3, queryPaging.getNumberOfPages());
+    assertEquals(8, queryPaging.getTotalRecordCount());
+    assertEquals(4, queryPaging.getNumberOfPages());
 
     int queryCount = ByHql.queryCountQueries;
     
@@ -156,10 +156,10 @@ public class QueryPagingTest extends GrouperTest {
         "select field\n from Field field where field.typeString = 'access'")
         .options(new QueryOptions().sortAsc("name").paging(queryPaging))
         .list(Field.class);
-    assertEquals("admins, optins", Field.fieldNames(fields));
+    assertEquals("admins, groupAttrReaders", Field.fieldNames(fields));
     
-    assertEquals(6, queryPaging.getTotalRecordCount());
-    assertEquals(3, queryPaging.getNumberOfPages());
+    assertEquals(8, queryPaging.getTotalRecordCount());
+    assertEquals(4, queryPaging.getNumberOfPages());
     assertEquals(queryCount+1, ByHql.queryCountQueries);
 
     queryCount = ByHql.queryCountQueries;
@@ -178,7 +178,7 @@ public class QueryPagingTest extends GrouperTest {
         "select field\n from Field field where field.typeString = 'access'")
         .options(new QueryOptions().sortAsc("name").paging(queryPaging)).list(Field.class);
 
-    assertEquals(6, queryPaging.getTotalRecordCount());
+    assertEquals(8, queryPaging.getTotalRecordCount());
     assertEquals(1, queryPaging.getNumberOfPages());
     //this should not cause another query
     assertEquals(queryCount, ByHql.queryCountQueries);
@@ -189,10 +189,10 @@ public class QueryPagingTest extends GrouperTest {
     fields = HibernateSession.byCriteriaStatic()
       .options(new QueryOptions().sortAsc("name").paging(queryPaging))
       .list(Field.class, HibUtils.listCrit(Restrictions.eq("typeString", "access")));
-    assertEquals("admins, optins", Field.fieldNames(fields));
+    assertEquals("admins, groupAttrReaders", Field.fieldNames(fields));
     
-    assertEquals(6, queryPaging.getTotalRecordCount());
-    assertEquals(3, queryPaging.getNumberOfPages());
+    assertEquals(8, queryPaging.getTotalRecordCount());
+    assertEquals(4, queryPaging.getNumberOfPages());
     assertEquals(queryCount+1, ByCriteriaStatic.queryCountQueries);
 
     queryCount = ByCriteriaStatic.queryCountQueries;
@@ -211,7 +211,7 @@ public class QueryPagingTest extends GrouperTest {
     .options(new QueryOptions().sortAsc("name").paging(queryPaging))
       .list(Field.class, HibUtils.listCrit(Restrictions.eq("typeString", "access")));
     
-    assertEquals(6, queryPaging.getTotalRecordCount());
+    assertEquals(8, queryPaging.getTotalRecordCount());
     assertEquals(1, queryPaging.getNumberOfPages());
     //this should not cause another query
     assertEquals(queryCount, ByCriteriaStatic.queryCountQueries);
