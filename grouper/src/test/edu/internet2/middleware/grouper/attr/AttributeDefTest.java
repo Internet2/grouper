@@ -267,7 +267,7 @@ public class AttributeDefTest extends GrouperTest {
     int newGrouperGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_group_set");
     int newGrouperMembershipCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_memberships");
     
-    assertEquals("Should make 6 group sets for permissions", grouperGroupSetCount + 6, newGrouperGroupSetCount);
+    assertEquals("Should make 6 group sets for permissions", grouperGroupSetCount + 8, newGrouperGroupSetCount);
     assertEquals("Should make a memberships for owner", grouperMembershipCount + 1, newGrouperMembershipCount);
 
     //#############################################
@@ -287,7 +287,7 @@ public class AttributeDefTest extends GrouperTest {
     newGrouperGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_group_set");
     newGrouperMembershipCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_memberships");
     
-    assertEquals("Should make 6 group sets for permissions", grouperGroupSetCount + 6, newGrouperGroupSetCount);
+    assertEquals("Should make 6 group sets for permissions", grouperGroupSetCount + 8, newGrouperGroupSetCount);
     assertEquals("Should make a memberships for owner, and 2 for grouperAll", grouperMembershipCount + 3, newGrouperMembershipCount);
     
     //################################################

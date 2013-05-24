@@ -475,7 +475,7 @@ public class TestGroup extends GrouperTest {
       Assert.assertTrue("type instanceof GroupType", type instanceof GroupType);
       Assert.assertTrue("type name == base", type.getName().equals("base"));
       Set fields = type.getFields();
-      Assert.assertEquals("type has 7 fields", 7, fields.size());
+      Assert.assertEquals("type has 9 fields", 9, fields.size());
       Iterator  fIter = fields.iterator();
       FieldHelper.testField( 
         (Field) fIter.next()   , 

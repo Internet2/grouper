@@ -132,34 +132,43 @@ public class AttributeDefAttributeSecurityTest extends GrouperTest {
     this.attributeDefName2_1 = this.top.addChildAttributeDefName(attributeDef2, "testName2_1", "test name2_1");
     this.attributeDefName2_2 = this.top.addChildAttributeDefName(attributeDef2, "testName2_2", "test name2_2");
   
-    //subj0 cant admin group or update the attribute (def1)
-    //subj1 can admin group but nothing on attribute (def1)
-    //subj2 cant admin group, can update attribute (def1)
+    //subj0 cant attrDefAttrRead/attrDefAttrUpdate group or update the attribute (def1)
+    //subj1 can attrDefAttrRead/attrDefAttrUpdate group but nothing on attribute (def1)
+    //subj2 cant attrDefAttrRead/attrDefAttrUpdate group, can update attribute (def1)
     //subj3 is wheel group
-    //subj4 can admin group and admin attribute (def1)
-    //subj5 can update group and admin attribute (def1)
-    //subj6 can admin group and update attribute (not read) (def1)
+    //subj4 can attrDefAttrRead/attrDefAttrUpdate group and admin attribute (def1)
+    //subj5 can update/attrDefAttrRead group and admin attribute (def1)
+    //subj6 can attrDefAttrRead/attrDefAttrUpdate group and update attribute (not read) (def1)
+    //subj7 can attrDefAttrRead/attrDefAttrUpdate group and update/read attribute (def1)
     //subj7 can admin group and update/read attribute (def1)
     
-    this.attributeDefToAssignTo.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_ADMIN, true);
+    this.attributeDefToAssignTo.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, true);
+    this.attributeDefToAssignTo.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, true);
     
     this.attributeDef1.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ2, AttributeDefPrivilege.ATTR_UPDATE, true);
     
     this.wheel.addMember(SubjectTestHelper.SUBJ3);
 
-    this.attributeDefToAssignTo.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ4, AttributeDefPrivilege.ATTR_ADMIN, true);
+    this.attributeDefToAssignTo.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ4, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, true);
+    this.attributeDefToAssignTo.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ4, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, true);
     this.attributeDef1.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ4, AttributeDefPrivilege.ATTR_ADMIN, true);
     
     this.attributeDefToAssignTo.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ5, AttributeDefPrivilege.ATTR_UPDATE, true);
+    this.attributeDefToAssignTo.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ5, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, true);
     this.attributeDef1.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ5, AttributeDefPrivilege.ATTR_ADMIN, true);
     
-    this.attributeDefToAssignTo.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ6, AttributeDefPrivilege.ATTR_ADMIN, true);
+    this.attributeDefToAssignTo.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ6, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, true);
+    this.attributeDefToAssignTo.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ6, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, true);
     this.attributeDef1.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ6, AttributeDefPrivilege.ATTR_UPDATE, true);
 
-    this.attributeDefToAssignTo.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_ADMIN, true);
+    this.attributeDefToAssignTo.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, true);
+    this.attributeDefToAssignTo.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, true);
     this.attributeDef1.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_UPDATE, true);
     this.attributeDef1.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_READ, true);
 
+    this.attributeDefToAssignTo.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ8, AttributeDefPrivilege.ATTR_ADMIN, true);
+    this.attributeDef1.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ8, AttributeDefPrivilege.ATTR_UPDATE, true);
+    this.attributeDef1.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ8, AttributeDefPrivilege.ATTR_READ, true);
   }
 
   /**
@@ -218,7 +227,7 @@ public class AttributeDefAttributeSecurityTest extends GrouperTest {
   }
   
   /**
-   * subj0 cant admin group or update the attribute (def1)
+   * subj0 cant attrDefAttrRead/attrDefAttrUpdate group or update the attribute (def1)
    * @throws Exception 
    */
   public void testSecuritySubj0() throws Exception {
@@ -363,7 +372,7 @@ public class AttributeDefAttributeSecurityTest extends GrouperTest {
   }
 
   /**
-   * subj1 can admin group but nothing on attribute (def1)
+   * subj1 can attrDefAttrRead/attrDefAttrUpdate group but nothing on attribute (def1)
    * @throws Exception 
    */
   public void testSecuritySubj1() throws Exception {
@@ -508,7 +517,7 @@ public class AttributeDefAttributeSecurityTest extends GrouperTest {
   }
 
   /**
-   * subj2 cant admin group, can update attribute (def1)
+   * subj2 cant attrDefAttrRead/attrDefAttrUpdate group, can update attribute (def1)
    * @throws Exception 
    */
   public void testSecuritySubj2() throws Exception {
@@ -711,7 +720,7 @@ public class AttributeDefAttributeSecurityTest extends GrouperTest {
   }
 
   /**
-   * subj4 can admin group and admin attribute (def1)
+   * subj4 can attrDefAttrRead/attrDefAttrUpdate group and admin attribute (def1)
    * @throws Exception 
    */
   public void testSecuritySubj4() throws Exception {
@@ -799,7 +808,7 @@ public class AttributeDefAttributeSecurityTest extends GrouperTest {
   }
 
   /**
-   * subj5 can update group and admin attribute (def1)
+   * subj5 can update/attrDefAttrRead group and admin attribute (def1)
    * @throws Exception 
    */
   public void testSecuritySubj5() throws Exception {
@@ -893,7 +902,7 @@ public class AttributeDefAttributeSecurityTest extends GrouperTest {
   }
 
   /**
-   * subj6 can admin group and update attribute (not read) (def1)
+   * subj6 can attrDefAttrRead/attrDefAttrUpdate group and update attribute (not read) (def1)
    * @throws Exception 
    */
   public void testSecuritySubj6() throws Exception {
@@ -993,7 +1002,7 @@ public class AttributeDefAttributeSecurityTest extends GrouperTest {
   }
 
   /**
-   * subj7 can admin group and update/read attribute (def1)
+   * subj7 can attrDefAttrRead/attrDefAttrUpdate group and update/read attribute (def1)
    * @throws Exception 
    */
   public void testSecuritySubj7() throws Exception {
@@ -1080,4 +1089,91 @@ public class AttributeDefAttributeSecurityTest extends GrouperTest {
     
   }
   
+  /**
+   * subj8 can admin group and update/read attribute (def1)
+   * @throws Exception 
+   */
+  public void testSecuritySubj8() throws Exception {
+  
+    //###################
+    // assign an attribute
+  
+    this.grouperSession.stop();
+    this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ8 );
+  
+    //assign these
+    assertTrue(this.attributeDefToAssignTo.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
+    try {
+      this.attributeDefToAssignTo.getAttributeDelegate().assignAttribute(attributeDefName2_1);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    try {
+      this.attributeDefToAssignTo.getAttributeDelegate().assignAttribute(attributeDefName2_2);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
+    
+    assertTrue(this.attributeDefToAssignTo.getAttributeDelegate().hasAttribute(attributeDefName1_1));
+    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().hasAttribute(attributeDefName1_2));
+    
+    assertEquals(1, this.attributeDefToAssignTo.getAttributeDelegate().retrieveAttributes(attributeDef1).size());
+    try {
+      this.attributeDefToAssignTo.getAttributeDelegate().retrieveAttributes(attributeDef2);
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException ipe) {
+      //good
+    }
+    assertEquals(1, this.attributeDefToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDef1).size());
+    try {
+      this.attributeDefToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDef2);
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException ipe) {
+      //good
+    }
+  
+    assertEquals(1, this.attributeDefToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDefName1_1).size());
+    assertEquals(0, this.attributeDefToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDefName1_2).size());
+    try {
+      this.attributeDefToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDefName2_1);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    try {
+      this.attributeDefToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDefName2_2);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    
+    assertTrue(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
+    try {
+      this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName2_1);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    try {
+      this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName2_2);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+  
+    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().hasAttribute(attributeDefName1_1));
+    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().hasAttribute(attributeDefName1_2));
+    
+    assertEquals(0, this.attributeDefToAssignTo.getAttributeDelegate().retrieveAttributes(attributeDef1).size());
+    assertEquals(0, this.attributeDefToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDef1).size());
+    assertEquals(0, this.attributeDefToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDefName1_1).size());
+    assertEquals(0, this.attributeDefToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDefName1_2).size());
+    
+    
+  }
 }

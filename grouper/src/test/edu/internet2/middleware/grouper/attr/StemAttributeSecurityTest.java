@@ -134,34 +134,45 @@ public class StemAttributeSecurityTest extends GrouperTest {
     this.attributeDefName2_1 = this.top.addChildAttributeDefName(attributeDef2, "testName2_1", "test name2_1");
     this.attributeDefName2_2 = this.top.addChildAttributeDefName(attributeDef2, "testName2_2", "test name2_2");
   
-    //subj0 cant create in stem or update the attribute (def1)
-    //subj1 can create in stem but nothing on attribute (def1)
-    //subj2 cant create in stem, can update attribute (def1)
+    //subj0 cant stemAttrRead/stemAttrUpdate in stem or update the attribute (def1)
+    //subj1 can stemAttrRead/stemAttrUpdate in stem but nothing on attribute (def1)
+    //subj2 cant stemAttrRead/stemAttrUpdate in stem, can update attribute (def1)
     //subj3 is wheel group
-    //subj4 can create in stem and admin attribute (def1)
+    //subj4 can stemAttrRead/stemAttrUpdate in stem and admin attribute (def1)
     //subj5 can stem in stem and admin attribute (def1)
-    //subj6 can create in stem and update attribute (not read) (def1)
-    //subj7 can create in stem and update/read attribute (def1)
-    
-    this.stem.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.CREATE);
+    //subj6 can stemAttrRead/stemAttrUpdate in stem and update attribute (not read) (def1)
+    //subj7 can stemAttrRead/stemAttrUpdate in stem and update/read attribute (def1)
+    //subj8 can create in stem and admin attribute (def1)
+    //subj9 can stemAttrRead in stem and admin attribute (def1)
+
+    this.stem.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM_ATTR_READ);
+    this.stem.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM_ATTR_UPDATE);
     
     this.attributeDef1.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ2, AttributeDefPrivilege.ATTR_UPDATE, true);
     
     this.wheel.addMember(SubjectTestHelper.SUBJ3);
 
-    this.stem.grantPriv(SubjectTestHelper.SUBJ4, NamingPrivilege.CREATE);
+    this.stem.grantPriv(SubjectTestHelper.SUBJ4, NamingPrivilege.STEM_ATTR_READ);
+    this.stem.grantPriv(SubjectTestHelper.SUBJ4, NamingPrivilege.STEM_ATTR_UPDATE);
     this.attributeDef1.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ4, AttributeDefPrivilege.ATTR_ADMIN, true);
     
     this.stem.grantPriv(SubjectTestHelper.SUBJ5, NamingPrivilege.STEM);
     this.attributeDef1.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ5, AttributeDefPrivilege.ATTR_ADMIN, true);
     
-    this.stem.grantPriv(SubjectTestHelper.SUBJ6, NamingPrivilege.CREATE);
+    this.stem.grantPriv(SubjectTestHelper.SUBJ6, NamingPrivilege.STEM_ATTR_READ);
+    this.stem.grantPriv(SubjectTestHelper.SUBJ6, NamingPrivilege.STEM_ATTR_UPDATE);
     this.attributeDef1.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ6, AttributeDefPrivilege.ATTR_UPDATE, true);
 
-    this.stem.grantPriv(SubjectTestHelper.SUBJ7, NamingPrivilege.CREATE);
+    this.stem.grantPriv(SubjectTestHelper.SUBJ7, NamingPrivilege.STEM_ATTR_READ);
+    this.stem.grantPriv(SubjectTestHelper.SUBJ7, NamingPrivilege.STEM_ATTR_UPDATE);
     this.attributeDef1.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_UPDATE, true);
     this.attributeDef1.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_READ, true);
 
+    this.stem.grantPriv(SubjectTestHelper.SUBJ8, NamingPrivilege.CREATE);
+    this.attributeDef1.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ8, AttributeDefPrivilege.ATTR_ADMIN, true);
+    
+    this.stem.grantPriv(SubjectTestHelper.SUBJ9, NamingPrivilege.STEM_ATTR_READ);
+    this.attributeDef1.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ9, AttributeDefPrivilege.ATTR_ADMIN, true);
   }
 
   /**
@@ -220,7 +231,7 @@ public class StemAttributeSecurityTest extends GrouperTest {
   }
   
   /**
-   * subj0 cant create in stem or update the attribute (def1)
+   * subj0 cant stemAttrRead/stemAttrUpdate in stem or update the attribute (def1)
    * @throws Exception 
    */
   public void testSecuritySubj0() throws Exception {
@@ -498,6 +509,20 @@ public class StemAttributeSecurityTest extends GrouperTest {
     } catch (InsufficientPrivilegeException ipe) {
       //good
     }
+    
+    this.grouperSession.stop();
+    this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ8 );
+  
+    //subj8 can create the stem and admin attribute (def1)
+    this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1);
+  
+    //subj8 can create the stem and admin attribute (def1)
+    try {
+      this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_1);
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException ipe) {
+      //good
+    }
   
     this.grouperSession.stop();
     this.grouperSession = GrouperSession.startRootSession();
@@ -557,7 +582,7 @@ public class StemAttributeSecurityTest extends GrouperTest {
   }
 
   /**
-   * subj1 can create in stem but nothing on attribute (def1)
+   * subj1 can stemAttrRead/stemAttrUpdate in stem but nothing on attribute (def1)
    * @throws Exception 
    */
   public void testSecuritySubj1() throws Exception {
@@ -702,7 +727,7 @@ public class StemAttributeSecurityTest extends GrouperTest {
   }
 
   /**
-   * subj2 cant create in stem, can update attribute (def1)
+   * subj2 cant stemAttrRead/stemAttrUpdate in stem, can update attribute (def1)
    * @throws Exception 
    */
   public void testSecuritySubj2() throws Exception {
@@ -905,7 +930,7 @@ public class StemAttributeSecurityTest extends GrouperTest {
   }
 
   /**
-   * subj4 can create in stem and admin attribute (def1)
+   * subj4 can stemAttrRead/stemAttrUpdate in stem and admin attribute (def1)
    * @throws Exception 
    */
   public void testSecuritySubj4() throws Exception {
@@ -1085,7 +1110,7 @@ public class StemAttributeSecurityTest extends GrouperTest {
   }
 
   /**
-   * subj6 can create in stem and update attribute (not read) (def1)
+   * subj6 can stemAttrRead/stemAttrUpdate in stem and update attribute (not read) (def1)
    * @throws Exception 
    */
   public void testSecuritySubj6() throws Exception {
@@ -1185,7 +1210,7 @@ public class StemAttributeSecurityTest extends GrouperTest {
   }
 
   /**
-   * subj7 can create in stem and update/read attribute (def1)
+   * subj7 can stemAttrRead/stemAttrUpdate in stem and update/read attribute (def1)
    * @throws Exception 
    */
   public void testSecuritySubj7() throws Exception {
@@ -1272,4 +1297,194 @@ public class StemAttributeSecurityTest extends GrouperTest {
     
   }
   
+  /**
+   * subj8 can create in stem and admin attribute (def1)
+   * @throws Exception 
+   */
+  public void testSecuritySubj8() throws Exception {
+  
+    //###################
+    // assign an attribute
+  
+    this.grouperSession.stop();
+    this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ8 );
+
+    //assign these
+    assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
+
+    try {
+      this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_1);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    try {
+      this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_2);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    
+    assertTrue(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_1));
+    assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_2));
+    
+    assertEquals(1, this.stem.getAttributeDelegate().retrieveAttributes(attributeDef1).size());
+    try {
+      this.stem.getAttributeDelegate().retrieveAttributes(attributeDef2);
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException ipe) {
+      //good
+    }
+    assertEquals(1, this.stem.getAttributeDelegate().retrieveAssignments(attributeDef1).size());
+    try {
+      this.stem.getAttributeDelegate().retrieveAssignments(attributeDef2);
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException ipe) {
+      //good
+    }
+
+    assertEquals(1, this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName1_1).size());
+    assertEquals(0, this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName1_2).size());
+    try {
+      this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName2_1);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    try {
+      this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName2_2);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    
+    AttributeAssignResult attributeAssignResult = this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1);
+
+    assertTrue(attributeAssignResult.isChanged());
+    
+    attributeAssignResult = this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_2);
+
+    assertFalse(attributeAssignResult.isChanged());
+
+    try {
+      this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_1);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    try {
+      this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_2);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+  
+    assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_1));
+    assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_2));
+    
+    assertEquals(0, this.stem.getAttributeDelegate().retrieveAttributes(attributeDef1).size());
+    assertEquals(0, this.stem.getAttributeDelegate().retrieveAssignments(attributeDef1).size());
+    assertEquals(0, this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName1_1).size());
+    assertEquals(0, this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName1_2).size());
+    
+  }
+  
+  /**
+   * subj9 can stemAttrRead in stem and admin attribute (def1)
+   * @throws Exception 
+   */
+  public void testSecuritySubj9() throws Exception {
+  
+    //###################
+    // assign an attribute
+  
+    this.grouperSession.stop();
+    this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ9 );
+
+    try {
+      this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1);
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException adnfe) {
+      //good
+    }
+    try {
+      this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_1);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    try {
+      this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_2);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    
+    assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_1));
+    assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_2));
+    
+    assertEquals(0, this.stem.getAttributeDelegate().retrieveAttributes(attributeDef1).size());
+    try {
+      this.stem.getAttributeDelegate().retrieveAttributes(attributeDef2);
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException ipe) {
+      //good
+    }
+    assertEquals(0, this.stem.getAttributeDelegate().retrieveAssignments(attributeDef1).size());
+    try {
+      this.stem.getAttributeDelegate().retrieveAssignments(attributeDef2);
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException ipe) {
+      //good
+    }
+
+    assertEquals(0, this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName1_1).size());
+    assertEquals(0, this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName1_2).size());
+    try {
+      this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName2_1);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    try {
+      this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName2_2);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    
+    try {
+      this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1);
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException adnfe) {
+      //good
+    }
+    try {
+      this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_2);
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException adnfe) {
+      //good
+    }
+    try {
+      this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_1);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    try {
+      this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_2);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+  
+    assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_1));
+    assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_2));
+    
+    assertEquals(0, this.stem.getAttributeDelegate().retrieveAttributes(attributeDef1).size());
+    assertEquals(0, this.stem.getAttributeDelegate().retrieveAssignments(attributeDef1).size());
+    assertEquals(0, this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName1_1).size());
+    assertEquals(0, this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName1_2).size());
+    
+  }
 }

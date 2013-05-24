@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.subject.Subject;
 
@@ -147,15 +148,26 @@ public class AttrAssignAttributeSecurityTest extends GrouperTest {
     this.attributeDefName2_1 = this.top.addChildAttributeDefName(attributeDef2, "testName2_1", "test name2_1");
     this.attributeDefName2_2 = this.top.addChildAttributeDefName(attributeDef2, "testName2_2", "test name2_2");
   
-    //subj0 cant update/read attributeToAssignTo or update the attribute (def1)
-    //subj1 can update/read attributeToAssignTo but nothing on attribute (def1)
-    //subj2 cant update/read attributeToAssignTo, can update attribute (def1)
+    //subj0 cant update/read attributeToAssignTo or update the attribute (def1), subject has admin on group
+    //subj1 can update/read attributeToAssignTo but nothing on attribute (def1), subject has admin on group
+    //subj2 cant update/read attributeToAssignTo, can update attribute (def1), subject has admin on group
     //subj3 is wheel group
-    //subj4 can update/read attributeToAssignTo and admin attribute (def1)
-    //subj5 can read attributeToAssignTo and admin attribute (def1)
-    //subj6 can update/read attributeToAssignTo and update attribute (not read) (def1)
-    //subj7 can update/read attributeToAssignTo and update/read attribute (def1)
+    //subj4 can update/read attributeToAssignTo and admin attribute (def1), subject has admin on group
+    //subj5 can read attributeToAssignTo and admin attribute (def1), subject has admin on group
+    //subj6 can update/read attributeToAssignTo and update attribute (not read) (def1), subject has admin on group
+    //subj7 can update/read attributeToAssignTo and update/read attribute (def1), subject has admin on group
+    //subj8 can admin attributeToAssignTo and admin the attribute (def1) but nothing on group
+    //subj9 can admin attributeToAssignTo and admin the attribute (def1) and groupAttrRead on group
     
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN);
+    group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN);
+    group.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.ADMIN);
+    group.grantPriv(SubjectTestHelper.SUBJ4, AccessPrivilege.ADMIN);
+    group.grantPriv(SubjectTestHelper.SUBJ5, AccessPrivilege.ADMIN);
+    group.grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.ADMIN);
+    group.grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.ADMIN);
+    group.grantPriv(SubjectTestHelper.SUBJ9, AccessPrivilege.GROUP_ATTR_READ);
+
     metaAttributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_UPDATE, true);
     metaAttributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_READ, true);
     
@@ -178,6 +190,12 @@ public class AttrAssignAttributeSecurityTest extends GrouperTest {
     metaAttributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_READ, true);
     this.attributeDef1.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_UPDATE, true);
     this.attributeDef1.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_READ, true);
+
+    metaAttributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ8, AttributeDefPrivilege.ATTR_ADMIN, true);
+    this.attributeDef1.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ8, AttributeDefPrivilege.ATTR_ADMIN, true);
+    
+    metaAttributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ9, AttributeDefPrivilege.ATTR_ADMIN, true);
+    this.attributeDef1.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ9, AttributeDefPrivilege.ATTR_ADMIN, true);
 
   }
 
@@ -540,7 +558,7 @@ public class AttrAssignAttributeSecurityTest extends GrouperTest {
     try {
       this.attrAssignToAssignTo.getAttributeDelegate().assignAttribute(attributeDefName1_1);
       fail("Not allowed");
-    } catch (InsufficientPrivilegeException ipe) {
+    } catch (AttributeDefNotFoundException ipe) {
       //good
     }
     //subj0 cant even update/admin the attribute, or admin the group
@@ -633,13 +651,13 @@ public class AttrAssignAttributeSecurityTest extends GrouperTest {
     try {
       this.attrAssignToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1);
       fail("Not allowed");
-    } catch (InsufficientPrivilegeException ipe) {
+    } catch (AttributeDefNotFoundException ipe) {
       //good
     }
     try {
       this.attrAssignToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_2);
       fail("Not allowed");
-    } catch (InsufficientPrivilegeException ipe) {
+    } catch (AttributeDefNotFoundException ipe) {
       //good
     }
     try {
@@ -657,7 +675,7 @@ public class AttrAssignAttributeSecurityTest extends GrouperTest {
     try {
       this.attrAssignToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1);
       fail("Not allowed");
-    } catch (InsufficientPrivilegeException ipe) {
+    } catch (AttributeDefNotFoundException ipe) {
       //good
     }
     try {
@@ -1097,4 +1115,242 @@ public class AttrAssignAttributeSecurityTest extends GrouperTest {
     
   }
   
+
+  /**
+   * subj8 can admin attributeToAssignTo, can admin attribute (def1), but nothing on group
+   * @throws Exception 
+   */
+  public void testSecuritySubj8() throws Exception {
+  
+    //###################
+    // assign an attribute
+  
+    this.grouperSession.stop();
+    this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ8 );
+  
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().assignAttribute(attributeDefName1_1);
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException ipe) {
+      //good
+    }
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().assignAttribute(attributeDefName2_1);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+  
+    //############################################
+    // Try to read an attribute
+    
+    
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().hasAttribute(attributeDefName1_1);
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException ipe) {
+      //good
+    }
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().hasAttribute(attributeDefName1_2);
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException ipe) {
+      //good
+    }
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().hasAttribute(attributeDefName2_1);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().hasAttribute(attributeDefName2_2);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().retrieveAttributes(attributeDef1).size();
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException ipe) {
+      //good
+    }
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().retrieveAttributes(attributeDef2).size();
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException ipe) {
+      //good
+    }
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDef1).size();
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException ipe) {
+      //good
+    }
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDef2).size();
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException ipe) {
+      //good
+    }
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDefName1_1).size();
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException ipe) {
+      //good
+    }
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDefName1_2).size();
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException ipe) {
+      //good
+    }
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDefName2_1).size();
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDefName2_2).size();
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    
+    //##############################
+    // remove attributes
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1);
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException ipe) {
+      //good
+    }
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_2);
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException ipe) {
+      //good
+    }
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName2_1);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName2_2);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1);
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException ipe) {
+      //good
+    }
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName2_2);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    
+  }
+  
+
+  /**
+   * subj9 can admin attributeToAssignTo and admin attribute (def1), but only groupAttrRead on group
+   * @throws Exception 
+   */
+  public void testSecuritySubj9() throws Exception {
+  
+    //###################
+    // assign an attribute
+  
+    this.grouperSession.stop();
+    this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ9 );
+
+    //assign these
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().assignAttribute(attributeDefName1_1);
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException ipe) {
+      //good
+    }
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().assignAttribute(attributeDefName2_1);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().assignAttribute(attributeDefName2_2);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+
+    assertFalse(this.attrAssignToAssignTo.getAttributeDelegate().hasAttribute(attributeDefName1_1));
+    assertFalse(this.attrAssignToAssignTo.getAttributeDelegate().hasAttribute(attributeDefName1_2));
+    
+    assertEquals(0, this.attrAssignToAssignTo.getAttributeDelegate().retrieveAttributes(attributeDef1).size());
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().retrieveAttributes(attributeDef2);
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException ipe) {
+      //good
+    }
+  
+    assertEquals(0, this.attrAssignToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDefName1_1).size());
+    assertEquals(0, this.attrAssignToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDefName1_2).size());
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDefName2_1);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDefName2_2);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1);
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException ipe) {
+      //good
+    }
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_2);
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException ipe) {
+      //good
+    }
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName2_1);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    try {
+      this.attrAssignToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName2_2);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+  
+    assertFalse(this.attrAssignToAssignTo.getAttributeDelegate().hasAttribute(attributeDefName1_1));
+    assertFalse(this.attrAssignToAssignTo.getAttributeDelegate().hasAttribute(attributeDefName1_2));
+    
+    assertEquals(0, this.attrAssignToAssignTo.getAttributeDelegate().retrieveAttributes(attributeDef1).size());
+    assertEquals(0, this.attrAssignToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDef1).size());
+    assertEquals(0, this.attrAssignToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDefName1_1).size());
+    assertEquals(0, this.attrAssignToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDefName1_2).size());
+    
+    
+  }
 }
