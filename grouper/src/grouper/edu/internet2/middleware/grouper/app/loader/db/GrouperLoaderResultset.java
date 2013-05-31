@@ -168,6 +168,16 @@ public class GrouperLoaderResultset {
   /**
    * 
    */
+  public static final String GROUP_ATTR_READERS_COL = "GROUP_ATTR_READERS";
+  
+  /**
+   * 
+   */
+  public static final String GROUP_ATTR_UPDATERS_COL = "GROUP_ATTR_UPDATERS";
+  
+  /**
+   * 
+   */
   public static final String SUBJECT_SOURCE_ID_COL = "SUBJECT_SOURCE_ID";
 
   /**

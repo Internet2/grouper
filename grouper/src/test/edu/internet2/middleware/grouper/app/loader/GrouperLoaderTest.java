@@ -248,10 +248,14 @@ public class GrouperLoaderTest extends GrouperTest {
     assertNull(optins);
     Group optouts = GroupFinder.findByName(this.grouperSession, "loaderSecurity:optouts", false);
     assertNull(optouts);
+    Group groupAttrReaders = GroupFinder.findByName(this.grouperSession, "loaderSecurity:groupAttrReaders", false);
+    assertNull(groupAttrReaders);
+    Group groupAttrUpdaters = GroupFinder.findByName(this.grouperSession, "loaderSecurity:groupAttrUpdaters", false);
+    assertNull(groupAttrUpdaters);
     
     //change the query to include all these groups
     loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY,
-      "select group_name, group_display_name, group_description, 'loaderSecurity:admins' as admins, 'loaderSecurity:readers' as readers, 'loaderSecurity:viewers' as viewers, 'loaderSecurity:updaters' as updaters, 'loaderSecurity:optins' as optins, 'loaderSecurity:optouts' as optouts from testgrouper_loader_groups");
+      "select group_name, group_display_name, group_description, 'loaderSecurity:groupAttrReaders' as group_attr_readers, 'loaderSecurity:groupAttrUpdaters' as group_attr_updaters, 'loaderSecurity:admins' as admins, 'loaderSecurity:readers' as readers, 'loaderSecurity:viewers' as viewers, 'loaderSecurity:updaters' as updaters, 'loaderSecurity:optins' as optins, 'loaderSecurity:optouts' as optouts from testgrouper_loader_groups");
     loaderGroup.store();
     
     GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
@@ -268,6 +272,10 @@ public class GrouperLoaderTest extends GrouperTest {
     assertNotNull(optins);
     optouts = GroupFinder.findByName(this.grouperSession, "loaderSecurity:optouts", false);
     assertNotNull(optouts);
+    groupAttrReaders = GroupFinder.findByName(this.grouperSession, "loaderSecurity:groupAttrReaders", false);
+    assertNotNull(groupAttrReaders);
+    groupAttrUpdaters = GroupFinder.findByName(this.grouperSession, "loaderSecurity:groupAttrUpdaters", false);
+    assertNotNull(groupAttrUpdaters);
     
     //make sure they have the privilege
     overallGroup4 = GroupFinder.findByName(this.grouperSession, "loader:group4", true);
@@ -279,6 +287,10 @@ public class GrouperLoaderTest extends GrouperTest {
     assertTrue(overallGroup4.hasOptin(optins.toSubject()));
     assertTrue(overallGroup4.hasOptout(optouts.toSubject()));
     assertTrue(overallGroup4.hasAdmin(admins.toSubject()));
+    assertTrue(overallGroup4.hasGroupAttrRead(groupAttrReaders.toSubject()));
+    assertTrue(overallGroup4.hasGroupAttrUpdate(groupAttrUpdaters.toSubject()));
+    assertFalse(overallGroup4.hasGroupAttrRead(groupAttrUpdaters.toSubject()));
+    assertFalse(overallGroup4.hasGroupAttrUpdate(groupAttrReaders.toSubject()));
     
     Group includesGroup4 = GroupFinder.findByName(this.grouperSession, "loader:group4_includes", true);
     assertTrue(includesGroup4.hasRead(readers.toSubject()));
@@ -289,7 +301,11 @@ public class GrouperLoaderTest extends GrouperTest {
     assertTrue(includesGroup4.hasOptin(optins.toSubject()));
     assertTrue(includesGroup4.hasOptout(optouts.toSubject()));
     assertTrue(includesGroup4.hasAdmin(admins.toSubject()));
-
+    assertTrue(includesGroup4.hasGroupAttrRead(groupAttrReaders.toSubject()));
+    assertTrue(includesGroup4.hasGroupAttrUpdate(groupAttrUpdaters.toSubject()));
+    assertFalse(includesGroup4.hasGroupAttrRead(groupAttrUpdaters.toSubject()));
+    assertFalse(includesGroup4.hasGroupAttrUpdate(groupAttrReaders.toSubject()));
+    
     Group excludesGroup4 = GroupFinder.findByName(this.grouperSession, "loader:group4_excludes", true);
     assertTrue(excludesGroup4.hasRead(readers.toSubject()));
     assertFalse(excludesGroup4.hasAdmin(viewers.toSubject()));
@@ -299,6 +315,10 @@ public class GrouperLoaderTest extends GrouperTest {
     assertTrue(excludesGroup4.hasOptin(optins.toSubject()));
     assertTrue(excludesGroup4.hasOptout(optouts.toSubject()));
     assertTrue(excludesGroup4.hasAdmin(admins.toSubject()));
+    assertTrue(excludesGroup4.hasGroupAttrRead(groupAttrReaders.toSubject()));
+    assertTrue(excludesGroup4.hasGroupAttrUpdate(groupAttrUpdaters.toSubject()));
+    assertFalse(excludesGroup4.hasGroupAttrRead(groupAttrUpdaters.toSubject()));
+    assertFalse(excludesGroup4.hasGroupAttrUpdate(groupAttrReaders.toSubject()));
 
     systemOfRecordGroup4 = GroupFinder.findByName(this.grouperSession, "loader:group4_systemOfRecord", true);
     assertTrue(systemOfRecordGroup4.hasRead(readers.toSubject()));
@@ -309,6 +329,10 @@ public class GrouperLoaderTest extends GrouperTest {
     assertTrue(systemOfRecordGroup4.hasOptin(optins.toSubject()));
     assertTrue(systemOfRecordGroup4.hasOptout(optouts.toSubject()));
     assertTrue(systemOfRecordGroup4.hasAdmin(admins.toSubject()));
+    assertTrue(systemOfRecordGroup4.hasGroupAttrRead(groupAttrReaders.toSubject()));
+    assertTrue(systemOfRecordGroup4.hasGroupAttrUpdate(groupAttrUpdaters.toSubject()));
+    assertFalse(systemOfRecordGroup4.hasGroupAttrRead(groupAttrUpdaters.toSubject()));
+    assertFalse(systemOfRecordGroup4.hasGroupAttrUpdate(groupAttrReaders.toSubject()));
 
     
     //make sure they have the privilege -- check group with no members
@@ -321,6 +345,10 @@ public class GrouperLoaderTest extends GrouperTest {
     assertTrue(overallGroup7.hasOptin(optins.toSubject()));
     assertTrue(overallGroup7.hasOptout(optouts.toSubject()));
     assertTrue(overallGroup7.hasAdmin(admins.toSubject()));
+    assertTrue(overallGroup7.hasGroupAttrRead(groupAttrReaders.toSubject()));
+    assertTrue(overallGroup7.hasGroupAttrUpdate(groupAttrUpdaters.toSubject()));
+    assertFalse(overallGroup7.hasGroupAttrRead(groupAttrUpdaters.toSubject()));
+    assertFalse(overallGroup7.hasGroupAttrUpdate(groupAttrReaders.toSubject()));
     
     Group includesGroup7 = GroupFinder.findByName(this.grouperSession, "loader:group7_includes", true);
     assertTrue(includesGroup7.hasRead(readers.toSubject()));
@@ -331,7 +359,11 @@ public class GrouperLoaderTest extends GrouperTest {
     assertTrue(includesGroup7.hasOptin(optins.toSubject()));
     assertTrue(includesGroup7.hasOptout(optouts.toSubject()));
     assertTrue(includesGroup7.hasAdmin(admins.toSubject()));
-
+    assertTrue(includesGroup7.hasGroupAttrRead(groupAttrReaders.toSubject()));
+    assertTrue(includesGroup7.hasGroupAttrUpdate(groupAttrUpdaters.toSubject()));
+    assertFalse(includesGroup7.hasGroupAttrRead(groupAttrUpdaters.toSubject()));
+    assertFalse(includesGroup7.hasGroupAttrUpdate(groupAttrReaders.toSubject()));
+    
     Group excludesGroup7 = GroupFinder.findByName(this.grouperSession, "loader:group7_excludes", true);
     assertTrue(excludesGroup7.hasRead(readers.toSubject()));
     assertFalse(excludesGroup7.hasAdmin(viewers.toSubject()));
@@ -341,7 +373,11 @@ public class GrouperLoaderTest extends GrouperTest {
     assertTrue(excludesGroup7.hasOptin(optins.toSubject()));
     assertTrue(excludesGroup7.hasOptout(optouts.toSubject()));
     assertTrue(excludesGroup7.hasAdmin(admins.toSubject()));
-
+    assertTrue(excludesGroup7.hasGroupAttrRead(groupAttrReaders.toSubject()));
+    assertTrue(excludesGroup7.hasGroupAttrUpdate(groupAttrUpdaters.toSubject()));
+    assertFalse(excludesGroup7.hasGroupAttrRead(groupAttrUpdaters.toSubject()));
+    assertFalse(excludesGroup7.hasGroupAttrUpdate(groupAttrReaders.toSubject()));
+    
     Group systemOfRecordGroup7 = GroupFinder.findByName(this.grouperSession, "loader:group7_systemOfRecord", true);
     assertTrue(systemOfRecordGroup7.hasRead(readers.toSubject()));
     assertFalse(systemOfRecordGroup7.hasAdmin(viewers.toSubject()));
@@ -351,7 +387,11 @@ public class GrouperLoaderTest extends GrouperTest {
     assertTrue(systemOfRecordGroup7.hasOptin(optins.toSubject()));
     assertTrue(systemOfRecordGroup7.hasOptout(optouts.toSubject()));
     assertTrue(systemOfRecordGroup7.hasAdmin(admins.toSubject()));
-  
+    assertTrue(systemOfRecordGroup7.hasGroupAttrRead(groupAttrReaders.toSubject()));
+    assertTrue(systemOfRecordGroup7.hasGroupAttrUpdate(groupAttrUpdaters.toSubject()));
+    assertFalse(systemOfRecordGroup7.hasGroupAttrRead(groupAttrUpdaters.toSubject()));
+    assertFalse(systemOfRecordGroup7.hasGroupAttrUpdate(groupAttrReaders.toSubject()));
+    
     // add a member to group7 and make sure it gets deleted by the loader job
     systemOfRecordGroup7.addMember(SubjectTestHelper.SUBJ0);
     

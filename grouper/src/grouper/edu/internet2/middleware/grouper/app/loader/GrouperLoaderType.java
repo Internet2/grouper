@@ -477,6 +477,20 @@ public enum GrouperLoaderType {
                   privsToAddForGroup.put(AccessPrivilege.OPTOUT, optoutSubjects);
                 }
               }
+              {
+                String groupAttrReaders = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_ATTR_READERS_COL, false);
+                if (!StringUtils.isBlank(groupAttrReaders)) {
+                  List<Subject> groupAttrReadSubjects = lookupSubject(subjectCache, groupAttrReaders);
+                  privsToAddForGroup.put(AccessPrivilege.GROUP_ATTR_READ, groupAttrReadSubjects);
+                }
+              }
+              {
+                String groupAttrUpdaters = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_ATTR_UPDATERS_COL, false);
+                if (!StringUtils.isBlank(groupAttrUpdaters)) {
+                  List<Subject> groupAttrUpdateSubjects = lookupSubject(subjectCache, groupAttrUpdaters);
+                  privsToAddForGroup.put(AccessPrivilege.GROUP_ATTR_UPDATE, groupAttrUpdateSubjects);
+                }
+              }
             }
             
           }
@@ -788,6 +802,8 @@ public enum GrouperLoaderType {
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapUpdatersName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapOptinsName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapOptoutsName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupAttrReadersName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupAttrUpdatersName(), attributeName)
             ;
         
         //not allowed: StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupAttributeName(), attributeName)
@@ -857,6 +873,8 @@ public enum GrouperLoaderType {
           initPrivilegesForGroup(grouperLoaderResultsetOverall, privsToAdd, subjectCache, AccessPrivilege.UPDATE, loaderJobBean.getLdapGroupUpdaters());
           initPrivilegesForGroup(grouperLoaderResultsetOverall, privsToAdd, subjectCache, AccessPrivilege.OPTIN, loaderJobBean.getLdapGroupOptins());
           initPrivilegesForGroup(grouperLoaderResultsetOverall, privsToAdd, subjectCache, AccessPrivilege.OPTOUT, loaderJobBean.getLdapGroupOptouts());
+          initPrivilegesForGroup(grouperLoaderResultsetOverall, privsToAdd, subjectCache, AccessPrivilege.GROUP_ATTR_READ, loaderJobBean.getLdapGroupAttrReaders());
+          initPrivilegesForGroup(grouperLoaderResultsetOverall, privsToAdd, subjectCache, AccessPrivilege.GROUP_ATTR_UPDATE, loaderJobBean.getLdapGroupAttrUpdaters());
           
           if (LOG.isDebugEnabled()) {
             LOG.debug(groupNameOverall + ": start syncing membership");
@@ -921,6 +939,8 @@ public enum GrouperLoaderType {
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapUpdatersName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapOptinsName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapOptoutsName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupAttrReadersName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupAttrUpdatersName(), attributeName)
             ;
         
         //not allowed: || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapExtraAttributesName(), attributeName)
@@ -989,6 +1009,8 @@ public enum GrouperLoaderType {
           initPrivilegesForGroup(grouperLoaderResultsetOverall, privsToAdd, subjectCache, AccessPrivilege.UPDATE, loaderJobBean.getLdapGroupUpdaters());
           initPrivilegesForGroup(grouperLoaderResultsetOverall, privsToAdd, subjectCache, AccessPrivilege.OPTIN, loaderJobBean.getLdapGroupOptins());
           initPrivilegesForGroup(grouperLoaderResultsetOverall, privsToAdd, subjectCache, AccessPrivilege.OPTOUT, loaderJobBean.getLdapGroupOptouts());
+          initPrivilegesForGroup(grouperLoaderResultsetOverall, privsToAdd, subjectCache, AccessPrivilege.GROUP_ATTR_READ, loaderJobBean.getLdapGroupAttrReaders());
+          initPrivilegesForGroup(grouperLoaderResultsetOverall, privsToAdd, subjectCache, AccessPrivilege.GROUP_ATTR_UPDATE, loaderJobBean.getLdapGroupAttrUpdaters());
 
           if (LOG.isDebugEnabled()) {
             LOG.debug(groupNameOverall + ": start syncing membership");
@@ -3338,6 +3360,10 @@ public enum GrouperLoaderType {
               LoaderLdapUtils.grouperLoaderLdapOptinsName());
           grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
               LoaderLdapUtils.grouperLoaderLdapOptoutsName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapGroupAttrReadersName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapGroupAttrUpdatersName());
           
           scheduleJob(jobName, false, "CRON", grouperLoaderQuartzCron,
               null, grouperLoaderPriority);

@@ -240,11 +240,41 @@ public class LoaderJobBean {
   
   /**
    * optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+   * Comma separated list of subjectIds or subjectIdentifiers who can GROUP_ATTR_READ
+   */
+  private String ldapGroupAttrReaders;
+  
+  /**
+   * optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+   * Comma separated list of subjectIds or subjectIdentifiers who can GROUP_ATTR_UPDATE
+   */
+  private String ldapGroupAttrUpdaters;
+  
+  /**
+   * optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
    * Comma separated list of subjectIds or subjectIdentifiers who can OPTOUT their group membership
    * @return optouts
    */
   public String getLdapGroupOptouts() {
     return this.ldapGroupOptouts;
+  }
+  
+  /**
+   * optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+   * Comma separated list of subjectIds or subjectIdentifiers who can GROUP_ATTR_READ
+   * @return optouts
+   */
+  public String getLdapGroupAttrReaders() {
+    return this.ldapGroupAttrReaders;
+  }
+  
+  /**
+   * optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+   * Comma separated list of subjectIds or subjectIdentifiers who can GROUP_ATTR_UPDATE
+   * @return optouts
+   */
+  public String getLdapGroupAttrUpdaters() {
+    return this.ldapGroupAttrUpdaters;
   }
 
   /**
@@ -254,6 +284,24 @@ public class LoaderJobBean {
    */
   public void setLdapGroupOptouts(String ldapGroupOptouts1) {
     this.ldapGroupOptouts = ldapGroupOptouts1;
+  }
+  
+  /**
+   * optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+   * Comma separated list of subjectIds or subjectIdentifiers who can GROUP_ATTR_READ
+   * @param ldapGroupAttrReaders1
+   */
+  public void setLdapGroupAttrReaders(String ldapGroupAttrReaders1) {
+    this.ldapGroupAttrReaders = ldapGroupAttrReaders1;
+  }
+  
+  /**
+   * optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+   * Comma separated list of subjectIds or subjectIdentifiers who can GROUP_ATTR_UPDATE
+   * @param ldapGroupAttrUpdaters1
+   */
+  public void setLdapGroupAttrUpdate(String ldapGroupAttrUpdaters1) {
+    this.ldapGroupAttrUpdaters = ldapGroupAttrUpdaters1;
   }
 
   /**
@@ -1015,6 +1063,9 @@ public class LoaderJobBean {
    * @param ldapGroupUpdaters1 
    * @param ldapGroupOptins1 
    * @param ldapGroupOptouts1 
+   * @param ldapGroupAttrReaders1
+   * @param ldapGroupAttrUpdaters1
+   * @param groupsLike1 
    */
   public LoaderJobBean(String ldapType1, String ldapServerId1, String ldapFilter1,
       String ldapSubjectAttribute1, String ldapSearchDn1, String ldapSourceId1,
@@ -1026,7 +1077,7 @@ public class LoaderJobBean {
       String ldapGroupDisplayExtensionExpression1, String ldapGroupDescriptionExpression1,
       String ldapSubjectExpression1, List<GroupType> groupTypes1, String ldapGroupReaders1,
       String ldapGroupViewers1, String ldapGroupAdmins1, String ldapGroupUpdaters1, String ldapGroupOptins1,
-      String ldapGroupOptouts1, String groupsLike1
+      String ldapGroupOptouts1, String ldapGroupAttrReaders1, String ldapGroupAttrUpdaters1, String groupsLike1
       ) {
     super();
     this.ldapType = ldapType1;
@@ -1053,6 +1104,8 @@ public class LoaderJobBean {
     this.groupTypes = groupTypes1;
     this.ldapGroupOptins = ldapGroupOptins1;
     this.ldapGroupOptouts = ldapGroupOptouts1;
+    this.ldapGroupAttrReaders = ldapGroupAttrReaders1;
+    this.ldapGroupAttrUpdaters = ldapGroupAttrUpdaters1;
     this.ldapGroupViewers = ldapGroupViewers1;
     this.ldapGroupReaders = ldapGroupReaders1;
     this.ldapGroupAdmins = ldapGroupAdmins1;

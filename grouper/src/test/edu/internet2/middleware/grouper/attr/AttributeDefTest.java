@@ -51,7 +51,7 @@ public class AttributeDefTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefTest("testHibernateSecurityWheel"));
+    TestRunner.run(new AttributeDefTest("testDeleteWithPrivileges"));
   }
   
   /**
@@ -1190,6 +1190,8 @@ public class AttributeDefTest extends GrouperTest {
     group1.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.ADMIN);
 
     attributeDef.getPrivilegeDelegate().grantPriv(group1.toSubject(), AttributeDefPrivilege.ATTR_ADMIN, true);
+    attributeDef.getPrivilegeDelegate().grantPriv(group1.toSubject(), AttributeDefPrivilege.ATTR_DEF_ATTR_READ, true);
+    attributeDef.getPrivilegeDelegate().grantPriv(group1.toSubject(), AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, true);
 
     attributeDef.delete();
     

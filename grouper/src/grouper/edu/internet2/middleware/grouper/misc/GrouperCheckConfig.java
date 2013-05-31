@@ -45,7 +45,6 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -80,7 +79,6 @@ import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataUtils;
@@ -2081,6 +2079,16 @@ public class GrouperCheckConfig {
             checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_OPTOUTS, 
                 "Grouper loader LDAP group optouts", 
                 "Comma separated subjectIds or subjectIdentifiers who will be allowed to OPT OUT of the group membership list.  " +
+                "optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES", 
+                wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_GROUP_ATTR_READERS, 
+                "Grouper loader LDAP group attribute readers", 
+                "Comma separated subjectIds or subjectIdentifiers who will be allowed to GROUP_ATTR_READ on the group.  " +
+                "optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES", 
+                wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_GROUP_ATTR_UPDATERS, 
+                "Grouper loader LDAP group attribute updaters", 
+                "Comma separated subjectIds or subjectIdentifiers who will be allowed to GROUP_ATTR_UPDATE on the group.  " +
                 "optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES", 
                 wasInCheckConfig);
           }

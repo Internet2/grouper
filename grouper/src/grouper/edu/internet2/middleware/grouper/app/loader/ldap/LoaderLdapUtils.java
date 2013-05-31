@@ -887,4 +887,54 @@ public class LoaderLdapUtils {
 
   
   
+  /** Attribute name of groupAttrReaders  */
+  public static final String ATTR_DEF_EXTENSION_LDAP_GROUP_ATTR_READERS = "grouperLoaderLdapGroupAttrReaders";
+
+  /** attribute def name of groupAttrReaders */
+  private static String grouperLoaderLdapGroupAttrReadersName;
+
+  /**
+   * attribute def name of groupAttrReaders
+   * @return name
+   */
+  public static String grouperLoaderLdapGroupAttrReadersName() {
+    if (grouperLoaderLdapGroupAttrReadersName == null) {
+      grouperLoaderLdapGroupAttrReadersName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_LDAP_GROUP_ATTR_READERS;
+    }
+    return grouperLoaderLdapGroupAttrReadersName;
+  }
+  
+  /**
+   * return attribute def name for groupAttrReaders
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapGroupAttrReadersAttributeDefName() {
+    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapGroupAttrReadersName(), true);
+  }
+  
+  
+  /** Attribute name of groupAttrUpdaters  */
+  public static final String ATTR_DEF_EXTENSION_LDAP_GROUP_ATTR_UPDATERS = "grouperLoaderLdapGroupAttrUpdaters";
+
+  /** attribute def name of groupAttrUpdaters */
+  private static String grouperLoaderLdapGroupAttrUpdatersName;
+
+  /**
+   * attribute def name of groupAttrUpdaters
+   * @return name
+   */
+  public static String grouperLoaderLdapGroupAttrUpdatersName() {
+    if (grouperLoaderLdapGroupAttrUpdatersName == null) {
+      grouperLoaderLdapGroupAttrUpdatersName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_LDAP_GROUP_ATTR_UPDATERS;
+    }
+    return grouperLoaderLdapGroupAttrUpdatersName;
+  }
+  
+  /**
+   * return attribute def name for groupAttrUpdaters
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapGroupAttrUpdatersAttributeDefName() {
+    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapGroupAttrUpdatersName(), true);
+  }
 }

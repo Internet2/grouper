@@ -2842,6 +2842,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
               try {
                 Stem.this.revokePriv(NamingPrivilege.CREATE);
                 Stem.this.revokePriv(NamingPrivilege.STEM);
+                Stem.this.revokePriv(NamingPrivilege.STEM_ATTR_READ);
+                Stem.this.revokePriv(NamingPrivilege.STEM_ATTR_UPDATE);
                 return null;
               } catch (InsufficientPrivilegeException ipe) {
                 throw new GrouperSessionException(ipe);

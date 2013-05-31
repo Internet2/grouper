@@ -96,7 +96,7 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testGetAllStemsSplitScopeSecure"));
+    TestRunner.run(new TestStem("testDeleteWithAttrPrivs"));
     //TestRunner.run(TestStem.class);
   }
 
@@ -1047,6 +1047,20 @@ public class TestStem extends GrouperTest {
     }
   } // public void testDeleteEmptyStem()
 
+  /**
+   * 
+   */
+  public void testDeleteWithAttrPrivs() {
+    Subject subj0 = SubjectTestHelper.SUBJ0;
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    
+    stem.grantPriv(subj0, NamingPrivilege.STEM_ATTR_READ);
+    stem.grantPriv(subj0, NamingPrivilege.STEM_ATTR_UPDATE);
+    
+    stem.delete();
+  }
+  
   public void testDeleteEmptyStemInNewSession() {
     LOG.info("testDeleteEmptyStemInNewSession");
     try {

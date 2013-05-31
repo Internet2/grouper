@@ -51,6 +51,12 @@ public enum PrivilegeType {
       if (StringUtils.equalsIgnoreCase(name, AccessPrivilege.OPTOUT.getName())) {
         return AccessPrivilege.OPTOUT;
       }
+      if (StringUtils.equalsIgnoreCase(name, AccessPrivilege.GROUP_ATTR_READ.getName())) {
+        return AccessPrivilege.GROUP_ATTR_READ;
+      }
+      if (StringUtils.equalsIgnoreCase(name, AccessPrivilege.GROUP_ATTR_UPDATE.getName())) {
+        return AccessPrivilege.GROUP_ATTR_UPDATE;
+      }
       if (StringUtils.isBlank(name)) {
         return null;
       }
@@ -72,6 +78,12 @@ public enum PrivilegeType {
       }
       if (StringUtils.equalsIgnoreCase(name, NamingPrivilege.STEM.getName())) {
         return NamingPrivilege.STEM;
+      }
+      if (StringUtils.equalsIgnoreCase(name, NamingPrivilege.STEM_ATTR_READ.getName())) {
+        return NamingPrivilege.STEM_ATTR_READ;
+      }
+      if (StringUtils.equalsIgnoreCase(name, NamingPrivilege.STEM_ATTR_UPDATE.getName())) {
+        return NamingPrivilege.STEM_ATTR_UPDATE;
       }
       if (StringUtils.isBlank(name)) {
         return null;

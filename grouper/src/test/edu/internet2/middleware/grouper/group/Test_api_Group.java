@@ -105,7 +105,7 @@ public class Test_api_Group extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new Test_api_Group("testRemoveRequiredAttributeType"));
+    TestRunner.run(new Test_api_Group("test_delete_where_group_has_privileges"));
   }
   
   private Group           top_group, child_group;
@@ -259,18 +259,22 @@ public class Test_api_Group extends GrouperTest {
     
     Group groupToDelete = stem.addChildGroup("groupToDelete", "groupToDelete");
     groupToDelete.grantPriv(b, AccessPrivilege.ADMIN);
+    groupToDelete.grantPriv(b, AccessPrivilege.GROUP_ATTR_READ);
+    groupToDelete.grantPriv(b, AccessPrivilege.GROUP_ATTR_UPDATE);
     Subject groupToDeleteSubject = groupToDelete.toSubject();
     
     stem.grantPriv(a, NamingPrivilege.CREATE);
     stem.grantPriv(groupToDeleteSubject, NamingPrivilege.CREATE);
     group.grantPriv(a, AccessPrivilege.UPDATE);
     group.grantPriv(groupToDeleteSubject, AccessPrivilege.UPDATE);
+    group.grantPriv(groupToDeleteSubject, AccessPrivilege.GROUP_ATTR_READ);
     
     assertTrue(stem.hasCreate(a));
     assertTrue(stem.hasCreate(groupToDeleteSubject));
     assertEquals(1, stem.getStemmers().size());
     assertTrue(group.hasUpdate(a));
     assertTrue(group.hasUpdate(groupToDeleteSubject));
+    assertTrue(group.hasGroupAttrRead(groupToDeleteSubject));
     assertEquals(1, group.getAdmins().size());
     
     GrouperSession session = GrouperSession.start(b);
@@ -284,6 +288,7 @@ public class Test_api_Group extends GrouperTest {
     assertEquals(1, stem.getStemmers().size());
     assertTrue(group.hasUpdate(a));
     assertFalse(group.hasUpdate(groupToDeleteSubject));
+    assertFalse(group.hasGroupAttrRead(groupToDeleteSubject));
     assertEquals(1, group.getAdmins().size());
     
     session.stop();

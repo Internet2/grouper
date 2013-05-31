@@ -5087,6 +5087,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             Group.this.revokePriv(AccessPrivilege.READ);
             Group.this.revokePriv(AccessPrivilege.UPDATE);
             Group.this.revokePriv(AccessPrivilege.VIEW);
+            Group.this.revokePriv(AccessPrivilege.GROUP_ATTR_READ);
+            Group.this.revokePriv(AccessPrivilege.GROUP_ATTR_UPDATE);
           } catch (InsufficientPrivilegeException ipe) {
             throw new GrouperSessionException(ipe);
           } catch (SchemaException ipe) {
