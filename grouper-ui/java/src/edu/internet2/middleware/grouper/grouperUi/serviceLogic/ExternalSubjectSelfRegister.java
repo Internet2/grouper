@@ -56,6 +56,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -76,7 +77,7 @@ public class ExternalSubjectSelfRegister {
    */
   public void delete(HttpServletRequest request, HttpServletResponse response) {
 
-    if (!TagUtils.mediaResourceBoolean("externalMembers.allowSelfDelete", false)) {
+    if (!GrouperUiConfig.retrieveConfig().propertyValueBoolean("externalMembers.allowSelfDelete", false)) {
       throw new RuntimeException("Not sure why delete was pressed, it is not allowed, and shouldnt show the button");
     }
     
@@ -138,7 +139,7 @@ public class ExternalSubjectSelfRegister {
               auditDescription = emailBody.toString();
               {
                 //send an audit to admins perhaps
-                String emailAddressesForAdmins = TagUtils.mediaResourceString("externalMembers.emailAdminsAddressesAfterActions");
+                String emailAddressesForAdmins = GrouperUiConfig.retrieveConfig().propertyValueString("externalMembers.emailAdminsAddressesAfterActions");
                 if (!StringUtils.isBlank(emailAddressesForAdmins)) {
                   emailBody
                     .insert(0,"Hey,\n\nThe Grouper external person registration screen was used by " + identifier + "\n\n");
@@ -226,7 +227,7 @@ public class ExternalSubjectSelfRegister {
 
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
     
-    if (!TagUtils.mediaResourceBoolean("externalMembers.enabledRegistration", false)) {
+    if (!GrouperUiConfig.retrieveConfig().propertyValueBoolean("externalMembers.enabledRegistration", false)) {
       //=Error: your invitation cannot be found or is expired.  You are not allowed to register without 
       //a valid invitation.  Contact the person who invited you to issue another invitation.
       String message = TagUtils.navResourceString("externalSubjectSelfRegister.notAllowed");
@@ -676,7 +677,7 @@ public class ExternalSubjectSelfRegister {
               }
 
               {
-                String emailAddressesForAdmins = TagUtils.mediaResourceString("externalMembers.emailAdminsAddressesAfterActions");
+                String emailAddressesForAdmins = GrouperUiConfig.retrieveConfig().propertyValueString("externalMembers.emailAdminsAddressesAfterActions");
                 if (!StringUtils.isBlank(emailAddressesForAdmins)) {
                   emailBody.insert(0, "Hey,\n\nThe Grouper external person registration screen was used by " + identifier + "\n\n");
                   

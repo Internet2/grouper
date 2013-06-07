@@ -54,6 +54,7 @@ import edu.internet2.middleware.grouper.grouperUi.serviceLogic.InviteExternalSub
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -264,7 +265,7 @@ public class DefaultUIGroupPrivilegeResolver implements
     try {
     
       //if it is altogether enabled
-      boolean mediaEnableInvitation = TagUtils.mediaResourceBoolean("inviteExternalMembers.enableInvitation", false);
+      boolean mediaEnableInvitation = GrouperUiConfig.retrieveConfig().propertyValueBoolean("inviteExternalMembers.enableInvitation", false);
       if (LOG.isDebugEnabled()) {
         logMessage.append("media.properties enableInvitation: ").append(mediaEnableInvitation).append(", ");
       }
@@ -296,7 +297,7 @@ public class DefaultUIGroupPrivilegeResolver implements
         return false;
       }
       
-      final String requireGroupName = TagUtils.mediaResourceString("require.group.for.inviteExternalSubjects.logins");
+      final String requireGroupName = GrouperUiConfig.retrieveConfig().propertyValueString("require.group.for.inviteExternalSubjects.logins");
       if (!StringUtils.isBlank(requireGroupName)) {
         GrouperSession grouperSession = this.s;
         final Subject currentUser = this.s.getSubject();

@@ -852,7 +852,7 @@ public class GrouperUiUtils {
       return subjects;
     }
     
-    int maxSubjectSortSize = TagUtils.mediaResourceInt("comparator.sort.limit", 400);
+    int maxSubjectSortSize = GrouperUiConfig.retrieveConfig().propertyValueInt("comparator.sort.limit", 400);
     
     //see if we should sort
     if (subjects.size() < maxSubjectSortSize) {
@@ -912,7 +912,7 @@ public class GrouperUiUtils {
       return members;
     }
     
-    int maxSubjectSortSize = TagUtils.mediaResourceInt("comparator.sort.limit", 200);
+    int maxSubjectSortSize = GrouperUiConfig.retrieveConfig().propertyValueInt("comparator.sort.limit", 200);
     
     //see if we should sort
     if (members.size() < maxSubjectSortSize) {
@@ -1513,8 +1513,8 @@ public class GrouperUiUtils {
     String result = responseWrapper.resultString();
     
     //see if we are logging
-    if (TagUtils.mediaResourceBoolean("grouperUi.logHtml", false)) {
-      String logDir = TagUtils.mediaResourceString("grouperUi.logHtmlDir");
+    if (GrouperUiConfig.retrieveConfig().propertyValueBoolean("grouperUi.logHtml", false)) {
+      String logDir = GrouperUiConfig.retrieveConfig().propertyValueString("grouperUi.logHtmlDir");
       
       if (StringUtils.isBlank(logDir)) {
         throw new RuntimeException("Cant log html to file with dir to put files in: grouperUi.logHtmlDir");

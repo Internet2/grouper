@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 
 
@@ -63,7 +64,7 @@ public class GuiGroup implements Serializable {
       //default to false
       this.hasMembershipConfigUrl = false;
       
-      if (TagUtils.mediaResourceBoolean("simpleMembershipUpdate.allowExternalUrlProperties", false)) {
+      if (GrouperUiConfig.retrieveConfig().propertyValueBoolean("simpleMembershipUpdate.allowExternalUrlProperties", false)) {
         
         final GroupType groupType = GroupTypeFinder.find("grouperGroupMembershipSettings", false);
         

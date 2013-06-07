@@ -61,6 +61,7 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SearchPageResult;
@@ -120,14 +121,16 @@ public class SubjectPicker {
       for (int i=0;i<100;i++) {
         
         try {
-          String currentSourceId = TagUtils.mediaResourceString("subjectPicker.defaultSettings.sourceProperties.sourceId." + i);
+          String currentSourceId = GrouperUiConfig.retrieveConfig().propertyValueString("subjectPicker.defaultSettings.sourceProperties.sourceId." + i);
           if (StringUtils.isBlank(currentSourceId)) {
             break;
           }
           if (StringUtils.equals(sourceId, currentSourceId)) {
             //we found it
-            String subjectElForSource = TagUtils.mediaResourceString("subjectPicker.defaultSettings.sourceProperties.subjectElForSource." + i);
-            subjectPickerSourceProperties.setSubjectElForSource(subjectElForSource);
+            String subjectElForSource = GrouperUiConfig.retrieveConfig().propertyValueString("subjectPicker.defaultSettings.sourceProperties.subjectElForSource." + i);
+            if (!StringUtils.isBlank(subjectElForSource)) {
+              subjectPickerSourceProperties.setSubjectElForSource(subjectElForSource);
+            }
             break;
           }
         } catch (MissingResourceException mre) {
@@ -243,7 +246,7 @@ public class SubjectPicker {
         //just ignore
       }
       if (configFile == null) {
-        String configDir = TagUtils.mediaResourceString("subjectPicker.confDir");
+        String configDir = GrouperUiConfig.retrieveConfig().propertyValueStringRequired("subjectPicker.confDir");
         if (!configDir.endsWith("/") && !configDir.endsWith("\\")) {
           configDir += File.separator;
         }

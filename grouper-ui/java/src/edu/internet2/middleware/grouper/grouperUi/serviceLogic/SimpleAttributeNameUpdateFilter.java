@@ -34,11 +34,11 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -115,7 +115,7 @@ public class SimpleAttributeNameUpdateFilter {
               GrouperUiUtils.message("simpleAttributeNameUpdate.errorNotEnoughChars", false), "bullet_error.png");
         } else {
           queryOptions = new QueryOptions()
-            .paging(TagUtils.mediaResourceInt("simpleAttributeNameUpdate.attributeDefNameComboboxResultSize", 200), 1, true)
+            .paging(GrouperUiConfig.retrieveConfig().propertyValueInt("simpleAttributeNameUpdate.attributeDefNameComboboxResultSize", 200), 1, true)
             .sortAsc("theAttributeDefName.displayNameDb");
           attributeDefNames = GrouperDAOFactory.getFactory().getAttributeDefName().findAllAttributeNamesSplitScopeSecure(
               searchTerm, grouperSession, attributeDefId, loggedInSubject, 

@@ -40,6 +40,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.strutsel.taglib.utils.EvalHelper;
 
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 
 /**
  * <pre>
@@ -106,7 +107,7 @@ public class GrouperInfodotTag extends BodyTagSupport {
   public int doEndTag() throws JspException {
 
     //if not enabled, then dont display anything
-    if (!TagUtils.mediaResourceBoolean("infodot.enable",
+    if (!GrouperUiConfig.retrieveConfig().propertyValueBoolean("infodot.enable",
         true)) {
       return Tag.EVAL_PAGE;
     }

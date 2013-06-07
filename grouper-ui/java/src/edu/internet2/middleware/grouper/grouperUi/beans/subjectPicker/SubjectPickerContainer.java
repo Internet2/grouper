@@ -30,6 +30,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SubjectPicker;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -65,11 +66,11 @@ public class SubjectPickerContainer implements Serializable {
       //try the default
       String mediaPropertiesKey = "subjectPicker.defaultSettings." + key;
       try {
-        value = TagUtils.mediaResourceString(mediaPropertiesKey);
-      } catch (MissingResourceException mre) {
+        value = GrouperUiConfig.retrieveConfig().propertyValueString(mediaPropertiesKey);
+      } catch (RuntimeException mre) {
         if (exceptionIfNotThere) {
           throw new  RuntimeException("cant find config for key '" + key + "' in subjectPicker config"
-              + " (or default in media.properties: " + mediaPropertiesKey + "), and subjectPickerName: " 
+              + " (or default in grouper-ui.properties: " + mediaPropertiesKey + "), and subjectPickerName: " 
               + subjectPickerName + ".\n" + ExceptionUtils.getFullStackTrace(spcnfe) , mre);
         }
       }

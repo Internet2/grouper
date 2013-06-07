@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.privs.PrivilegeSubjectContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.MapWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -581,7 +582,7 @@ public class AttributeUpdateRequestContainer implements Serializable {
     @Override
     public Boolean get(Object key) {
       Integer theInt = GrouperUtil.intObjectValue(key, false);
-      int repeatAfterRows = TagUtils.mediaResourceInt("simpleAttributeUpdate.repeatPrivilegeHeaderAfterRows", 20);
+      int repeatAfterRows = GrouperUiConfig.retrieveConfig().propertyValueInt("simpleAttributeUpdate.repeatPrivilegeHeaderAfterRows", 20);
 
       if (theInt % repeatAfterRows == 0) {
         return true;

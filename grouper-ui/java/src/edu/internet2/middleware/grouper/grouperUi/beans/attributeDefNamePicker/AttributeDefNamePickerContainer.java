@@ -30,6 +30,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.AttributeDefNamePicker;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -65,11 +66,11 @@ public class AttributeDefNamePickerContainer implements Serializable {
       //try the default
       String mediaPropertiesKey = "attributeDefNamePicker.defaultSettings." + key;
       try {
-        value = TagUtils.mediaResourceString(mediaPropertiesKey);
-      } catch (MissingResourceException mre) {
+        value = GrouperUiConfig.retrieveConfig().propertyValueStringRequired(mediaPropertiesKey);
+      } catch (RuntimeException mre) {
         if (exceptionIfNotThere) {
           throw new  RuntimeException("cant find config for key '" + key + "' in attributeDefNamePicker config"
-              + " (or default in media.properties: " + mediaPropertiesKey + "), and attributeDefNamePickerName: " 
+              + " (or default in grouper-ui.properties: " + mediaPropertiesKey + "), and attributeDefNamePickerName: " 
               + attributeDefNamePickerName + ".\n" + ExceptionUtils.getFullStackTrace(spcnfe) , mre);
         }
       }

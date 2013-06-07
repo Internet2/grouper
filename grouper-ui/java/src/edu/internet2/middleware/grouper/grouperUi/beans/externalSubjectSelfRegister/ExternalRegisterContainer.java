@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 
 
@@ -65,7 +66,7 @@ public class ExternalRegisterContainer implements Serializable {
    * @return if should show
    */
   public boolean isShowDeleteButton() {
-    return !this.isInsert() && TagUtils.mediaResourceBoolean("externalMembers.allowSelfDelete", false);
+    return !this.isInsert() && GrouperUiConfig.retrieveConfig().propertyValueBoolean("externalMembers.allowSelfDelete", false);
   }
   
   /**

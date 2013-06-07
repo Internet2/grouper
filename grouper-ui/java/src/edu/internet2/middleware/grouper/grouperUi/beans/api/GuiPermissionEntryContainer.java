@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionTy
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -263,7 +264,7 @@ public class GuiPermissionEntryContainer implements Serializable, Comparable<Gui
       
       screenLabel = this.guiSubject.getScreenLabel();
       
-      int maxWidth = TagUtils.mediaResourceInt("simplePermissionUpdate.maxOwnerSubjectChars", 50);
+      int maxWidth = GrouperUiConfig.retrieveConfig().propertyValueInt("simplePermissionUpdate.maxOwnerSubjectChars", 50);
       if (maxWidth == -1) {
         this.screenLabelShort = screenLabel;
       } else {

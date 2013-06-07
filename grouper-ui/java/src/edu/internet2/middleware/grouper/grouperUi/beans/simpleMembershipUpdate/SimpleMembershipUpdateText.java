@@ -24,6 +24,7 @@ import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperHtmlFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -58,7 +59,7 @@ public class SimpleMembershipUpdateText {
   @SuppressWarnings("unchecked")
   private static GrouperHtmlFilter grouperHtmlFilter() {
     if (!grouperHtmlFilterFound) {
-      String grouperHtmlFilterString = TagUtils.mediaResourceString("simpleMembershipUpdate.externalUrlTextProperties.grouperHtmlFilter");
+      String grouperHtmlFilterString = GrouperUiConfig.retrieveConfig().propertyValueStringRequired("simpleMembershipUpdate.externalUrlTextProperties.grouperHtmlFilter");
       Class<GrouperHtmlFilter> grouperHtmlFilterClass = GrouperUtil.forName(grouperHtmlFilterString);
       grouperHtmlFilter = GrouperUtil.newInstance(grouperHtmlFilterClass);
       grouperHtmlFilterFound = true;

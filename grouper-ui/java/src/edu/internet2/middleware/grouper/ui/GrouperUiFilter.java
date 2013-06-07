@@ -94,7 +94,6 @@ import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
-import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -386,7 +385,7 @@ public class GrouperUiFilter implements Filter {
   private static String requireUiGroup(String mediaKeyOfGroup, Subject subjectLoggedIn) {
     
     //see if member of login group
-    String groupToRequire = TagUtils.mediaResourceString(mediaKeyOfGroup);
+    String groupToRequire = GrouperUiConfig.retrieveConfig().propertyValueString(mediaKeyOfGroup);
     if (LOG.isDebugEnabled()) {
       LOG.debug("mediaKeyOfGroup: " + mediaKeyOfGroup + ", groupToRequire: " + groupToRequire + ", subject: " + GrouperUtil.subjectToString(subjectLoggedIn));
     }
@@ -851,7 +850,7 @@ public class GrouperUiFilter implements Filter {
       httpServletRequest = initRequest(httpServletRequest, response);
   
       try {
-        boolean debugSessionSerialization = TagUtils.mediaResourceBoolean("debugSessionSerialization", false);
+        boolean debugSessionSerialization = GrouperUiConfig.retrieveConfig().propertyValueBoolean("debugSessionSerialization", false);
 
         if (debugSessionSerialization) {
           //TEMPORARY TO SEE WHAT IS NOT SERIALIZIBLE
@@ -1020,7 +1019,7 @@ public class GrouperUiFilter implements Filter {
       String error = (String)httpServletRequest.getAttribute("error");
       if (!StringUtils.isBlank(error)) {
         
-        String errorMailAddresses = TagUtils.mediaResourceString("errorMailAddresses");
+        String errorMailAddresses = GrouperUiConfig.retrieveConfig().propertyValueString("errorMailAddresses");
 
         if (!StringUtils.isBlank(errorMailAddresses)) {
           

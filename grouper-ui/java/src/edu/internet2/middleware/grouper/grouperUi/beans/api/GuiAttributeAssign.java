@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -185,7 +186,7 @@ public class GuiAttributeAssign implements Serializable {
             String screenLabel = guiSubject.getScreenLabel();
             
             this.screenLabelLong = screenLabel;
-            int maxWidth = TagUtils.mediaResourceInt("simpleAttributeUpdate.maxOwnerSubjectChars", 50);
+            int maxWidth = GrouperUiConfig.retrieveConfig().propertyValueInt("simpleAttributeUpdate.maxOwnerSubjectChars", 50);
             if (maxWidth == -1) {
               this.screenLabelShort = screenLabel;
             } else {
@@ -214,7 +215,7 @@ public class GuiAttributeAssign implements Serializable {
     String screenLabel = guiSubject.getScreenLabel();
     
     this.screenLabelLong = group.getDisplayName() + " - " + screenLabel;
-    int maxWidth = TagUtils.mediaResourceInt("simpleAttributeUpdate.maxOwnerSubjectChars", 50);
+    int maxWidth = GrouperUiConfig.retrieveConfig().propertyValueInt("simpleAttributeUpdate.maxOwnerSubjectChars", 50);
     String abbreviatedSubject = null;
     if (maxWidth == -1) {
       abbreviatedSubject = screenLabel;

@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.subject.Subject;
 
@@ -73,7 +74,7 @@ public class InviteExternalSubjectsContainer {
    * @return true if allow invite by identifier
    */
   public boolean isAllowInviteByIdentifier() {
-    return TagUtils.mediaResourceBoolean("inviteExternalMembers.allowInviteByIdentifier", false);
+    return GrouperUiConfig.retrieveConfig().propertyValueBoolean("inviteExternalMembers.allowInviteByIdentifier", false);
   }
   
   /**

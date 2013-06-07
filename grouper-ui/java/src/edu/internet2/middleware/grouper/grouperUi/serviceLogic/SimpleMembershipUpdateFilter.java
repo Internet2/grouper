@@ -51,6 +51,7 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -107,7 +108,7 @@ public class SimpleMembershipUpdateFilter {
         GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
             GrouperUiUtils.message("simpleMembershipUpdate.errorNotEnoughGroupChars", false), "bullet_error.png");
       } else {
-        queryOptions = new QueryOptions().paging(TagUtils.mediaResourceInt("simpleMembershipUpdate.groupComboboxResultSize", 200), 1, true).sortAsc("theGroup.displayNameDb");
+        queryOptions = new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("simpleMembershipUpdate.groupComboboxResultSize", 200), 1, true).sortAsc("theGroup.displayNameDb");
         groups = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSecure("%" + searchTerm + "%", grouperSession, loggedInSubject, 
             GrouperUtil.toSet(AccessPrivilege.ADMIN, AccessPrivilege.UPDATE), queryOptions, TypeOfGroup.GROUP_OR_ROLE_SET);
         
@@ -192,7 +193,7 @@ public class SimpleMembershipUpdateFilter {
       } else {
         GuiPaging guiPaging = new GuiPaging();
         guiPaging.setPageNumber(1);
-        int maxSubjectsDropDown = TagUtils.mediaResourceInt("simpleMembershipUpdate.subjectComboboxResultSize", 50);
+        int maxSubjectsDropDown = GrouperUiConfig.retrieveConfig().propertyValueInt("simpleMembershipUpdate.subjectComboboxResultSize", 50);
         guiPaging.setPageSize(maxSubjectsDropDown);
         Set<Member> members = retrieveMembersFilter(guiPaging, group, searchTerm, tooManyResults);
         subjects = GrouperUiUtils.convertMembersToSubject(members);
@@ -207,7 +208,7 @@ public class SimpleMembershipUpdateFilter {
   
         GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, value, label, imageName);
       }
-      int maxSubjectsSort = TagUtils.mediaResourceInt("comparator.sort.limit", 200);
+      int maxSubjectsSort = GrouperUiConfig.retrieveConfig().propertyValueInt("comparator.sort.limit", 200);
       
       //this might not be correct, but probably is
       if (tooManyResults[0] || (!notEnoughChars && GrouperUtil.length(subjects) == maxSubjectsSort)) {
@@ -306,7 +307,7 @@ public class SimpleMembershipUpdateFilter {
             
           }
           
-          String maxSubjectsDropDownString = TagUtils.mediaResourceString("simpleMembershipUpdate.subjectComboboxResultSize");
+          String maxSubjectsDropDownString = GrouperUiConfig.retrieveConfig().propertyValueString("simpleMembershipUpdate.subjectComboboxResultSize");
           int maxSubjectsDropDown = GrouperUtil.intValue(maxSubjectsDropDownString, 250);
     
           queryPaging = new QueryPaging(maxSubjectsDropDown, 1, true);
@@ -379,14 +380,14 @@ public class SimpleMembershipUpdateFilter {
       SimpleMembershipUpdateContainer.retrieveFromSession();
     
     //lets do the subject search
-    if (StringUtils.defaultString(filterString).length() < TagUtils.mediaResourceInt("simpleMembershipUpdate.filterComboMinChars", 3)) {
+    if (StringUtils.defaultString(filterString).length() < GrouperUiConfig.retrieveConfig().propertyValueInt("simpleMembershipUpdate.filterComboMinChars", 3)) {
       guiResponseJs.addAction(GuiScreenAction.newAlert(
           simpleMembershipUpdateContainer.getText().getErrorNotEnoughFilterCharsAlert()));
       return members;
     }
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    int maxSubjectsSort = TagUtils.mediaResourceInt("comparator.sort.limit", 200);  // used if we're not doing sorting using member attributes
+    int maxSubjectsSort = GrouperUiConfig.retrieveConfig().propertyValueInt("comparator.sort.limit", 200);  // used if we're not doing sorting using member attributes
     SortStringEnum sortStringEnum = simpleMembershipUpdateContainer.getSelectedSortStringEnum();
     SearchStringEnum searchStringEnum = simpleMembershipUpdateContainer.getSearchStringEnum();
     boolean useMemberSortAndSearch = sortStringEnum != null && searchStringEnum != null;
@@ -415,7 +416,7 @@ public class SimpleMembershipUpdateFilter {
       } catch (SubjectTooManyResults stmr) {
         tooManyResults = true;
       }
-      if (tooManyResults || GrouperUtil.length(subjects) > TagUtils.mediaResourceInt("simpleMembershipUpdate.filterMaxSearchSubjects", 1000)) {
+      if (tooManyResults || GrouperUtil.length(subjects) > GrouperUiConfig.retrieveConfig().propertyValueInt("simpleMembershipUpdate.filterMaxSearchSubjects", 1000)) {
         if (GrouperUtil.length(tooManyResultsArray) > 0) {
           tooManyResultsArray[0] = true;
         }
@@ -445,7 +446,7 @@ public class SimpleMembershipUpdateFilter {
         int totalSize = queryOptions.getCount() == null ? 0 : queryOptions.getCount().intValue();
         
         // check if too many results...
-        if (totalSize > TagUtils.mediaResourceInt("simpleMembershipUpdate.filterMaxSearchSubjects", 1000)) {
+        if (totalSize > GrouperUiConfig.retrieveConfig().propertyValueInt("simpleMembershipUpdate.filterMaxSearchSubjects", 1000)) {
           if (GrouperUtil.length(tooManyResultsArray) > 0) {
             tooManyResultsArray[0] = true;
           }

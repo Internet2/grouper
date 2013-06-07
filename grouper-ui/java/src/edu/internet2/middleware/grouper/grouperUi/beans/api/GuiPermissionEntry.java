@@ -28,6 +28,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.MapWrapper;
 import edu.internet2.middleware.subject.Subject;
 
@@ -302,7 +303,7 @@ public class GuiPermissionEntry implements Serializable {
       String screenLabel = guiSubject.getScreenLabel();
             
       this.screenLabelLong = screenLabel;
-      int maxWidth = TagUtils.mediaResourceInt("simplePermissionUpdate.maxOwnerSubjectChars", 50);
+      int maxWidth = GrouperUiConfig.retrieveConfig().propertyValueInt("simplePermissionUpdate.maxOwnerSubjectChars", 50);
       if (maxWidth == -1) {
         this.screenLabelShort = screenLabel;
       } else {
@@ -321,7 +322,7 @@ public class GuiPermissionEntry implements Serializable {
       GuiSubject guiSubject = new GuiSubject((Subject)key);
       String screenLabel = guiSubject.getScreenLabel();
       
-      int maxWidth = TagUtils.mediaResourceInt("simplePermissionUpdate.maxOwnerSubjectChars", 50);
+      int maxWidth = GrouperUiConfig.retrieveConfig().propertyValueInt("simplePermissionUpdate.maxOwnerSubjectChars", 50);
       if (maxWidth == -1) {
         return screenLabel;
       }
@@ -353,7 +354,7 @@ public class GuiPermissionEntry implements Serializable {
     public String get(Object key) { 
       GuiSubject guiSubject = new GuiSubject((Subject)key);
       String screenLabel = guiSubject.getScreenLabel();
-      int maxWidth = TagUtils.mediaResourceInt("simplePermissionUpdate.maxOwnerSubjectChars", 50);
+      int maxWidth = GrouperUiConfig.retrieveConfig().propertyValueInt("simplePermissionUpdate.maxOwnerSubjectChars", 50);
       //this means the whole thing was printed in the screen, we dont need a tooltip
       if (maxWidth == -1 || screenLabel == null || screenLabel.length() <= maxWidth) {
         return null;

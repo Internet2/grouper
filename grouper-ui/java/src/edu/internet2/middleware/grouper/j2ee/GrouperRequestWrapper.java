@@ -45,6 +45,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.SessionContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.SessionInitialiser;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.MapWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -253,7 +254,7 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
     if (fileItemFactory == null) {
       
       // the location for saving data that is larger than getSizeThreshold()
-      String tempDir = TagUtils.mediaResourceString("file.upload.temp.dir");
+      String tempDir = GrouperUiConfig.retrieveConfig().propertyValueString("file.upload.temp.dir");
 
       File tempDirFile = null;
       
@@ -273,7 +274,7 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
       staticServletFileUpload = new ServletFileUpload(fileItemFactory);
 
       int maxBytes = 
-          TagUtils.mediaResourceInt("file.upload.max.bytes", 10000000);
+          GrouperUiConfig.retrieveConfig().propertyValueInt("file.upload.max.bytes", 10000000);
       
       //10 megs
       staticServletFileUpload.setSizeMax(maxBytes);
@@ -392,7 +393,7 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
   
     if (!this.multipart) {
       String param = this.wrapped.getParameter(name);
-      if (param != null && StringUtils.equals("GET", this.getMethod()) && TagUtils.mediaResourceBoolean("convertInputToUtf8", true)) {
+      if (param != null && StringUtils.equals("GET", this.getMethod()) && GrouperUiConfig.retrieveConfig().propertyValueBoolean("convertInputToUtf8", true)) {
         try {
           byte[] bytes = param.getBytes("ISO-8859-1");
           param = new String(bytes, "UTF-8");

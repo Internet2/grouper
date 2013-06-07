@@ -41,6 +41,7 @@ import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitInterf
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.MapWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -448,7 +449,7 @@ public class PermissionUpdateRequestContainer implements Serializable {
     @Override
     public Boolean get(Object key) {
       Integer theInt = GrouperUtil.intObjectValue(key, false);
-      int repeatAfterRows = TagUtils.mediaResourceInt("simplePermissionUpdate.repeatPermissionHeaderAfterRows", 20);
+      int repeatAfterRows = GrouperUiConfig.retrieveConfig().propertyValueInt("simplePermissionUpdate.repeatPermissionHeaderAfterRows", 20);
 
       boolean result = theInt % repeatAfterRows == 0;
       //System.out.println("Row: " + theInt + ": " + result);

@@ -59,6 +59,7 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
@@ -461,7 +462,7 @@ public class SimpleMembershipUpdate {
     
     //if there are less than the sort limit, then just get all, no problem 
     //  -- applies only if we're not doing sorting based on member attributes
-    int sortLimit = TagUtils.mediaResourceInt("comparator.sort.limit", 200);
+    int sortLimit = GrouperUiConfig.retrieveConfig().propertyValueInt("comparator.sort.limit", 200);
     SortStringEnum sortStringEnum = simpleMembershipUpdateContainer.getSelectedSortStringEnum();
     
     QueryPaging queryPaging = new QueryPaging();

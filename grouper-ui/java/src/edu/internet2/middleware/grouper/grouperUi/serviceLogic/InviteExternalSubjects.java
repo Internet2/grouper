@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
@@ -132,7 +133,7 @@ public class InviteExternalSubjects {
         GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
             GrouperUiUtils.message("inviteExternalSubjects.errorNotEnoughGroupChars", false), "bullet_error.png");
       } else {
-        queryOptions = new QueryOptions().paging(TagUtils.mediaResourceInt("inviteExternalMembers.groupComboboxResultSize", 200), 1, true).sortAsc("theGroup.displayNameDb");
+        queryOptions = new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("inviteExternalMembers.groupComboboxResultSize", 200), 1, true).sortAsc("theGroup.displayNameDb");
         groups = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSecure("%" + searchTerm + "%", grouperSession, loggedInSubject, 
             GrouperUtil.toSet(AccessPrivilege.ADMIN, AccessPrivilege.UPDATE), queryOptions);
         
@@ -196,9 +197,9 @@ public class InviteExternalSubjects {
    * @return true if filter, false if not
    */
   public static boolean filterGroup(Group group) {
-    boolean allowWheel = TagUtils.mediaResourceBoolean("inviteExternalMembers.allowWheelInInvite", false);
-    boolean useWheel = GrouperConfig.getPropertyBoolean("groups.wheel.use", false);
-    String wheelName = GrouperConfig.getProperty("groups.wheel.group");
+    boolean allowWheel = GrouperUiConfig.retrieveConfig().propertyValueBoolean("inviteExternalMembers.allowWheelInInvite", false);
+    boolean useWheel = GrouperConfig.retrieveConfig().propertyValueBoolean("groups.wheel.use", false);
+    String wheelName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.group");
     
     if (!allowWheel && useWheel && !StringUtils.isBlank(wheelName) && StringUtils.equals(wheelName, group.getName())) {
       return true;
@@ -215,7 +216,7 @@ public class InviteExternalSubjects {
     
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
     
-    if (!TagUtils.mediaResourceBoolean("inviteExternalMembers.enableInvitation", false)) {
+    if (!GrouperUiConfig.retrieveConfig().propertyValueBoolean("inviteExternalMembers.enableInvitation", false)) {
       String message = TagUtils.navResourceString("inviteExternalSubjects.notAllowed");
       guiResponseJs.addAction(GuiScreenAction.newAlert(message));
       return false;
@@ -594,7 +595,7 @@ public class InviteExternalSubjects {
               
               //send an audit to admins perhaps
               {
-                String emailAddressesForAdmins = TagUtils.mediaResourceString("inviteExternalMembers.emailAdminsAddressesAfterActions");
+                String emailAddressesForAdmins = GrouperUiConfig.retrieveConfig().propertyValueString("inviteExternalMembers.emailAdminsAddressesAfterActions");
                 if (!StringUtils.isBlank(emailAddressesForAdmins)) {
                   String loggedInSubjectDescription = loggedInSubject.getDescription();
                   if (StringUtils.isBlank(loggedInSubjectDescription)) {

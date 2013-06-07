@@ -23,6 +23,7 @@ import java.io.Serializable;
 
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -115,7 +116,7 @@ public class GuiPaging implements Serializable {
     GuiPaging guiPaging = new GuiPaging();
     
     //lets see what the default page size is
-    String pageSizeDefaultString = TagUtils.mediaResourceString("pager.pagesize.default");
+    String pageSizeDefaultString = GrouperUiConfig.retrieveConfig().propertyValueString("pager.pagesize.default");
     
     guiPaging.setPageSize(GrouperUtil.intValue(pageSizeDefaultString));
 

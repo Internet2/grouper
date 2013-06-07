@@ -27,6 +27,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -52,7 +53,7 @@ public class GuiSubject implements Serializable {
       
       screenLabel = GrouperUiUtils.convertSubjectToLabel(this.subject);
       
-      int maxWidth = TagUtils.mediaResourceInt("subject.maxChars", 100);
+      int maxWidth = GrouperUiConfig.retrieveConfig().propertyValueInt("subject.maxChars", 100);
       if (maxWidth == -1) {
         this.screenLabelShort = screenLabel;
       } else {

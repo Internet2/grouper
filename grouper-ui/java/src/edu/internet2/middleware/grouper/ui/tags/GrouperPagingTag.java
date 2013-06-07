@@ -28,6 +28,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -86,7 +87,7 @@ public class GrouperPagingTag extends SimpleTagSupport  {
       
       
       
-      String pageSizeOptionsString = TagUtils.mediaResourceString("pager.pagesize.selection");
+      String pageSizeOptionsString = GrouperUiConfig.retrieveConfig().propertyValueStringRequired("pager.pagesize.selection");
       String[] pageSizeOptionsStringArray = GrouperUtil.splitTrim(pageSizeOptionsString, " ");
       
       result.append("<select class=\"pagingDropdown\" id=\"").append(id).append("\" onchange=\"return guiPageSize('").append(this.pagingName)

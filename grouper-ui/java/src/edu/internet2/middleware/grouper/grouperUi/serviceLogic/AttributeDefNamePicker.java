@@ -48,6 +48,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -90,7 +91,7 @@ public class AttributeDefNamePicker {
         //just ignore
       }
       if (configFile == null) {
-        String configDir = TagUtils.mediaResourceString("attributeDefNamePicker.confDir");
+        String configDir = GrouperUiConfig.retrieveConfig().propertyValueStringRequired("attributeDefNamePicker.confDir");
         if (!configDir.endsWith("/") && !configDir.endsWith("\\")) {
           configDir += File.separator;
         }

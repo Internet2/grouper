@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.member.SortStringEnum;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -427,11 +428,11 @@ public class SimpleMembershipUpdateContainer implements Serializable {
 
     //try the default
     try {
-      value = TagUtils.mediaResourceString(key);
-    } catch (MissingResourceException mre) {
+      value = GrouperUiConfig.retrieveConfig().propertyValueString(key);
+    } catch (RuntimeException mre) {
       if (exceptionIfNotThere) {
         throw new  RuntimeException("cant find config for key '" + key + "' in membershipLite config"
-            + " (or default in media.properties: " + key + "), and membershipLiteName: " 
+            + " (or default in grouper-ui.properties: " + key + "), and membershipLiteName: " 
             + membershipLiteName + ", urlConfig: " + urlConfig, mre);
       }
     }
@@ -540,7 +541,7 @@ public class SimpleMembershipUpdateContainer implements Serializable {
         //just ignore
       }
       if (configFile == null) {
-        String configDir = TagUtils.mediaResourceString("simpleMembershipUpdate.confDir");
+        String configDir = GrouperUiConfig.retrieveConfig().propertyValueString("simpleMembershipUpdate.confDir");
         if (!configDir.endsWith("/") && !configDir.endsWith("\\")) {
           configDir += File.separator;
         }

@@ -46,6 +46,7 @@ import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -86,7 +87,7 @@ public class SimplePermissionUpdateFilter {
         GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
             GrouperUiUtils.message("simplePermissionUpdate.errorNotEnoughChars", false), "bullet_error.png");
       } else {
-        queryOptions = new QueryOptions().paging(TagUtils.mediaResourceInt("simplePermissionUpdate.attributeDefComboboxResultSize", 200), 1, true).sortAsc("theAttributeDef.nameDb");
+        queryOptions = new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("simplePermissionUpdate.attributeDefComboboxResultSize", 200), 1, true).sortAsc("theAttributeDef.nameDb");
         attributeDefs = GrouperDAOFactory.getFactory().getAttributeDef().getAllAttributeDefsSplitScopeSecure(searchTerm, grouperSession, loggedInSubject, 
             GrouperUtil.toSet(AttributeDefPrivilege.ATTR_ADMIN, AttributeDefPrivilege.ATTR_UPDATE), queryOptions, null, AttributeDefType.perm);
         
@@ -190,7 +191,7 @@ public class SimplePermissionUpdateFilter {
               GrouperUiUtils.message("simplePermissionUpdate.errorNotEnoughChars", false), "bullet_error.png");
         } else {
           queryOptions = new QueryOptions()
-            .paging(TagUtils.mediaResourceInt("simplePermissionUpdate.permissionResourceComboboxResultSize", 200), 1, true)
+            .paging(GrouperUiConfig.retrieveConfig().propertyValueInt("simplePermissionUpdate.permissionResourceComboboxResultSize", 200), 1, true)
             .sortAsc("theAttributeDefName.displayNameDb");
           attributeDefNames = GrouperDAOFactory.getFactory().getAttributeDefName().findAllAttributeNamesSplitScopeSecure(
               searchTerm, grouperSession, attributeDefId, loggedInSubject, 
@@ -269,7 +270,7 @@ public class SimplePermissionUpdateFilter {
         GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
             GrouperUiUtils.message("simpleGroupUpdate.errorNotEnoughChars", false), "bullet_error.png");
       } else {
-        queryOptions = new QueryOptions().paging(TagUtils.mediaResourceInt("simpleGroupUpdate.groupComboboxResultSize", 200), 1, true).sortAsc("theGroup.displayNameDb");
+        queryOptions = new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("simpleGroupUpdate.groupComboboxResultSize", 200), 1, true).sortAsc("theGroup.displayNameDb");
         groups = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSplitScopeSecure(searchTerm, grouperSession, loggedInSubject, 
             GrouperUtil.toSet(AccessPrivilege.ADMIN), queryOptions, TypeOfGroup.role);
         
@@ -379,7 +380,7 @@ public class SimplePermissionUpdateFilter {
           }
           
           //dont allow groups here...  its too confusing, why would you do this?
-          if (!TagUtils.mediaResourceBoolean("simplePermissionUpdate.allowGroupsInSubjectResults", false)) {
+          if (!GrouperUiConfig.retrieveConfig().propertyValueBoolean("simplePermissionUpdate.allowGroupsInSubjectResults", false)) {
             Iterator<Subject> iterator = subjects.iterator();
             while (iterator.hasNext()) {
               Subject subject = iterator.next();
@@ -389,7 +390,7 @@ public class SimplePermissionUpdateFilter {
                   
             }
           }
-          int maxSubjectsDropDown = TagUtils.mediaResourceInt("simplePermissionUpdate.subjectComboboxResultSize", 50);
+          int maxSubjectsDropDown = GrouperUiConfig.retrieveConfig().propertyValueInt("simplePermissionUpdate.subjectComboboxResultSize", 50);
   
           queryPaging = new QueryPaging(maxSubjectsDropDown, 1, true);
         
@@ -626,7 +627,7 @@ public class SimplePermissionUpdateFilter {
               GrouperUiUtils.message("simplePermissionUpdate.errorNotEnoughChars", false), "bullet_error.png");
         } else {
           queryOptions = new QueryOptions()
-            .paging(TagUtils.mediaResourceInt("simplePermissionUpdate.permissionResourceComboboxResultSize", 200), 1, true)
+            .paging(GrouperUiConfig.retrieveConfig().propertyValueInt("simplePermissionUpdate.permissionResourceComboboxResultSize", 200), 1, true)
             .sortAsc("theAttributeDefName.displayNameDb");
           attributeDefNames = GrouperDAOFactory.getFactory().getAttributeDefName().findAllAttributeNamesSplitScopeSecure(
               searchTerm, grouperSession, attributeDefId, loggedInSubject, 
@@ -703,7 +704,7 @@ public class SimplePermissionUpdateFilter {
         GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
             GrouperUiUtils.message("simplePermissionUpdate.errorNotEnoughChars", false), "bullet_error.png");
       } else {
-        queryOptions = new QueryOptions().paging(TagUtils.mediaResourceInt("simplePermissionUpdate.attributeDefComboboxResultSize", 200), 1, true).sortAsc("theAttributeDef.nameDb");
+        queryOptions = new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("simplePermissionUpdate.attributeDefComboboxResultSize", 200), 1, true).sortAsc("theAttributeDef.nameDb");
         attributeDefs = GrouperDAOFactory.getFactory().getAttributeDef().getAllAttributeDefsSplitScopeSecure(searchTerm, grouperSession, loggedInSubject, 
             GrouperUtil.toSet(AttributeDefPrivilege.ATTR_ADMIN,AttributeDefPrivilege.ATTR_UPDATE), queryOptions, null, AttributeDefType.limit);
         

@@ -47,6 +47,7 @@ import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.tags.menu.DhtmlxMenu;
 import edu.internet2.middleware.grouper.ui.tags.menu.DhtmlxMenuItem;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -202,7 +203,7 @@ public class SimpleMembershipUpdateMenu {
     
     {
       //see if we can invite
-      if (canInviteOthers && TagUtils.mediaResourceBoolean("inviteExternalPeople.link-from-lite-ui", false)) {
+      if (canInviteOthers && GrouperUiConfig.retrieveConfig().propertyValueBoolean("inviteExternalPeople.link-from-lite-ui", false)) {
         DhtmlxMenuItem memberInviteMenuItem = new DhtmlxMenuItem();
         memberInviteMenuItem.setId("inviteLink");
         memberInviteMenuItem.setText(TagUtils.navResourceString("ui-lite.invite-menu"));
@@ -396,7 +397,7 @@ public class SimpleMembershipUpdateMenu {
       String order = null;
       
       try {
-        order = TagUtils.mediaResourceString( 
+        order = GrouperUiConfig.retrieveConfig().propertyValueString( 
             "subject.attributes.order." + subject.getSource().getId());
       } catch (MissingResourceException mre) {
         //thats ok, go with default

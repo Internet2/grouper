@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.grouperUi.GrouperUiCustomizer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -61,7 +62,7 @@ public class Misc {
   public void logout(HttpServletRequest request, HttpServletResponse response) {
     
     //see if cookies
-    String cookiePrefix = TagUtils.mediaResourceString("grouperUi.logout.cookie.prefix");
+    String cookiePrefix = GrouperUiConfig.retrieveConfig().propertyValueString("grouperUi.logout.cookie.prefix");
     if (!StringUtils.isBlank(cookiePrefix)) {
       String[] cookiePrefixes = GrouperUtil.splitTrim(cookiePrefix, ",");
       for (String theCookiePrefix : cookiePrefixes) {
