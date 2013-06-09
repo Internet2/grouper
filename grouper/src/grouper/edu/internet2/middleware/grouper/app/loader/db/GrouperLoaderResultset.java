@@ -916,7 +916,9 @@ public class GrouperLoaderResultset {
                         attributeNameToGroupNameMap.put((String)attributeValue, groupName);
                         
                         //init the subject list
-                        result.put(groupName, new ArrayList<String>());
+                        if (!result.containsKey(groupName)) {
+                          result.put(groupName, new ArrayList<String>());
+                        }
                       }
                       //get the "row" for the group
                       List<String> valueResults = result.get(groupName);
