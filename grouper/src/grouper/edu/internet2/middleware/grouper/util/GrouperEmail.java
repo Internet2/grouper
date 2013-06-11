@@ -264,7 +264,10 @@ public class GrouperEmail {
       String theSubject = StringUtils.defaultString(subjectPrefix) + this.subject;
       message.setSubject(theSubject);
       
-      message.setContent(this.body, "text/plain");
+      //GRP-912: mail body is badly quoted-printable encoded => accents issues
+      String emailContentType = GrouperConfig.getProperty("grouperEmailContentType");
+      emailContentType = StringUtils.isBlank(emailContentType) ? "text/plain; charset=utf-8" : emailContentType;
+      message.setContent(this.body, emailContentType);
       
       testingEmailCount++;
       
