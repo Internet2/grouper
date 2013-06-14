@@ -312,6 +312,10 @@
 		<copy todir="${webapp.class.folder}/resources" overwrite="true" filtering="on">
 			<fileset dir="${ui.folder}/conf/resources"/>
 		</copy>
+
+		<copy file="${ui.folder}/conf/grouper-ui.properties" todir="${webapp.class.folder}" overwrite="true"/>
+		<copy file="${ui.folder}/conf/grouper-ui.base.properties" todir="${webapp.class.folder}" overwrite="true"/>
+
 		<!-- If configured call a site specific build script -->
 		<antcall target="-additional-build">
 			<param name="target" value="resources"/>
