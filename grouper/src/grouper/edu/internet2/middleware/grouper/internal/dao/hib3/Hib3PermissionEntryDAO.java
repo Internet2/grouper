@@ -207,7 +207,7 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
       
       boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
           grouperSessionSubject, byHqlStatic, 
-          sqlTables, "pea.roleId", AccessPrivilege.READ_PRIVILEGES);
+          sqlTables, "pea.roleId", AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES);
 
       StringBuilder sql;
       if (changedQuery) {
@@ -550,7 +550,7 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
     
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
         grouperSessionSubject, byHqlStatic, 
-        sqlTables, "pea.roleId", AccessPrivilege.READ_PRIVILEGES);
+        sqlTables, "pea.roleId", AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES);
 
     StringBuilder sql;
     if (changedQuery) {
@@ -659,7 +659,7 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
     
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
         grouperSessionSubject, byHqlStatic, 
-        sqlTables, "pea.roleId", AccessPrivilege.READ_PRIVILEGES);
+        sqlTables, "pea.roleId", AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES);
 
     StringBuilder sql;
     if (changedQuery) {
@@ -790,7 +790,7 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
     
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
         grouperSessionSubject, byHqlStatic, 
-        sqlTables, "pea.roleId", AccessPrivilege.READ_PRIVILEGES);
+        sqlTables, "pea.roleId", AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES);
 
     StringBuilder sql;
     if (changedQuery) {

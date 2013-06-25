@@ -83,7 +83,7 @@ public class Hib3PITPermissionAllViewDAO extends Hib3DAO implements PITPermissio
     
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
         grouperSessionSubject, byHqlStatic, 
-        sqlTables, "pea.roleSourceId", AccessPrivilege.READ_PRIVILEGES);
+        sqlTables, "pea.roleSourceId", AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES);
 
     StringBuilder sql;
     if (sqlWhereClause.length() > 0) {

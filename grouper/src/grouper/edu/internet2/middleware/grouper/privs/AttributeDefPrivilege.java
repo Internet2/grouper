@@ -104,7 +104,12 @@ public class AttributeDefPrivilege implements GrouperPrivilege, Comparable {
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> VIEW_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(ATTR_VIEW, ATTR_READ, ATTR_ADMIN, ATTR_UPDATE, ATTR_DEF_ATTR_READ, ATTR_DEF_ATTR_UPDATE, ATTR_OPTIN, ATTR_OPTOUT));
-
+  
+  /** any of these constitutes ATTR_DEF_ATTR_READ on a group
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> ATTRIBUTE_READ_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ATTR_DEF_ATTR_READ, ATTR_ADMIN));
+  
   /** convert a list to priv */
   private static Map<String,Privilege> list2priv = new HashMap<String, Privilege>();
 

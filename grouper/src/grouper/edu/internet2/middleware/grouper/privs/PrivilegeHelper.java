@@ -459,6 +459,20 @@ public class PrivilegeHelper {
     // TODO 20070820 perform query for all privs and compare internally
     return GrouperSession.staticGrouperSession().getNamingResolver().hasPrivilege(ns, subj, NamingPrivilege.STEM);
   } 
+  
+  /**
+   * TODO 20070823 find a real home for this and/or add tests
+   * @param s 
+   * @param ns 
+   * @param subj 
+   * @return can stem
+   * @since   1.2.1
+   */
+  public static boolean canStem(GrouperSession s, Stem ns, Subject subj) {
+    // TODO 20070820 deprecate
+    // TODO 20070820 perform query for all privs and compare internally
+    return s.getNamingResolver().hasPrivilege(ns, subj, NamingPrivilege.STEM);
+  } 
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
@@ -1099,11 +1113,15 @@ public class PrivilegeHelper {
       
       switch (attributeAssignType) {
         case group:
-          dispatch(grouperSession, attributeAssign.getOwnerGroup(), grouperSession.getSubject(), AccessPrivilege.VIEW);
+          dispatch(grouperSession, attributeAssign.getOwnerGroup(), grouperSession.getSubject(), AccessPrivilege.GROUP_ATTR_READ);
           break;
 
         case stem:
-          //no need to check stem, everyone can view all stems
+          if (!PrivilegeHelper.canStemAttrRead(grouperSession, attributeAssign.getOwnerStem(), grouperSession.getSubject()) &&
+              !PrivilegeHelper.canStem(grouperSession, attributeAssign.getOwnerStem(), grouperSession.getSubject()) &&
+              !PrivilegeHelper.canCreate(grouperSession, attributeAssign.getOwnerStem(), grouperSession.getSubject())) {
+            return false;
+          }
           break;
           
         case member:
@@ -1111,7 +1129,7 @@ public class PrivilegeHelper {
           break;
           
         case attr_def:
-          dispatch(grouperSession, attributeAssign.getOwnerAttributeDef(), grouperSession.getSubject(), AttributeDefPrivilege.ATTR_VIEW);
+          dispatch(grouperSession, attributeAssign.getOwnerAttributeDef(), grouperSession.getSubject(), AttributeDefPrivilege.ATTR_DEF_ATTR_READ);
           break;
           
         case imm_mem:
@@ -1201,7 +1219,9 @@ public class PrivilegeHelper {
       }
       
       Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(permissionEntry.getRoleId(), true);
-      if (!canRead(grouperSession, group, grouperSession.getSubject())) {
+      
+      // ok to assume that permissions now require groupAttrRead instead of read??
+      if (!canGroupAttrRead(grouperSession, group, grouperSession.getSubject())) {
         continue;
       }      
       AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findById(permissionEntry.getAttributeDefId(), true);
