@@ -219,23 +219,23 @@ public class PermissionEntryTest extends GrouperTest {
     roleChild2.addMember(SubjectTestHelper.SUBJ9, false);
     roleChild2.getPermissionRoleDelegate().assignSubjectRolePermission("actionChild", attrDefNameChild, SubjectTestHelper.SUBJ9);
 
-    //test subject 0 can READ and read
-    ((Group)roleParent).grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.READ);
-    ((Group)roleParent2).grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.READ);
-    ((Group)roleChild).grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.READ);
-    ((Group)roleChild2).grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.READ);
+    //test subject 0 can GROUP_ATTR_READ and read
+    ((Group)roleParent).grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.GROUP_ATTR_READ);
+    ((Group)roleParent2).grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.GROUP_ATTR_READ);
+    ((Group)roleChild).grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.GROUP_ATTR_READ);
+    ((Group)roleChild2).grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.GROUP_ATTR_READ);
     attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, false);
 
-    //test subject 1 can READ not read
-    ((Group)roleParent).grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.READ);
-    ((Group)roleParent2).grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.READ);
-    ((Group)roleChild).grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.READ);
-    ((Group)roleChild2).grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.READ);
+    //test subject 1 can GROUP_ATTR_READ not read
+    ((Group)roleParent).grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.GROUP_ATTR_READ);
+    ((Group)roleParent2).grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.GROUP_ATTR_READ);
+    ((Group)roleChild).grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.GROUP_ATTR_READ);
+    ((Group)roleChild2).grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.GROUP_ATTR_READ);
 
-    //test subject 2 can read not READ
+    //test subject 2 can read not GROUP_ATTR_READ
     attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ2, AttributeDefPrivilege.ATTR_READ, false);
 
-    //test subject 3 can not read or READ
+    //test subject 3 can not read or GROUP_ATTR_READ
 
     //test subject 4 can read and read
     ((Group)roleParent).grantPriv(SubjectTestHelper.SUBJ4, AccessPrivilege.READ);
@@ -412,7 +412,7 @@ public class PermissionEntryTest extends GrouperTest {
 
     //NOTE THAT WAS GENERATED
     
-    //test subject 0 can READ and read
+    //test subject 0 can GROUP_ATTR_READ and read
     GrouperSession.stopQuietly(this.grouperSession);
     this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
     
@@ -421,7 +421,7 @@ public class PermissionEntryTest extends GrouperTest {
 
     assertEquals(35, GrouperUtil.length(permissionEntriesSet));
 
-    //test subject 1 can READ not read
+    //test subject 1 can GROUP_ATTR_READ not read
     GrouperSession.stopQuietly(this.grouperSession);
     this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
     
@@ -430,7 +430,7 @@ public class PermissionEntryTest extends GrouperTest {
 
     assertEquals(0, GrouperUtil.length(permissionEntriesSet));
 
-    //test subject 2 can read not READ
+    //test subject 2 can read not GROUP_ATTR_READ
     GrouperSession.stopQuietly(this.grouperSession);
     this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ2);
     
@@ -439,7 +439,7 @@ public class PermissionEntryTest extends GrouperTest {
 
     assertEquals(0, GrouperUtil.length(permissionEntriesSet));
 
-    //test subject 3 can not read or READ
+    //test subject 3 can not read or GROUP_ATTR_READ
     GrouperSession.stopQuietly(this.grouperSession);
     this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ3);
     
@@ -455,7 +455,7 @@ public class PermissionEntryTest extends GrouperTest {
     permissionEntriesSet = GrouperDAOFactory.getFactory().getPermissionEntry().findPermissions(
         GrouperUtil.toSet(attributeDef.getId()), null, null, null, null, null);
 
-    assertEquals(35, GrouperUtil.length(permissionEntriesSet));
+    assertEquals(0, GrouperUtil.length(permissionEntriesSet));
 
     //test subject 5 can update and read
     GrouperSession.stopQuietly(this.grouperSession);

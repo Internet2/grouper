@@ -1219,8 +1219,6 @@ public class PrivilegeHelper {
       }
       
       Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(permissionEntry.getRoleId(), true);
-      
-      // ok to assume that permissions now require groupAttrRead instead of read??
       if (!canGroupAttrRead(grouperSession, group, grouperSession.getSubject())) {
         continue;
       }      

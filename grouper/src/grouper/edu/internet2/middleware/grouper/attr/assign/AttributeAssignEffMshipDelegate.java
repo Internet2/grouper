@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.group.GroupMember;
@@ -116,6 +117,8 @@ public class AttributeAssignEffMshipDelegate extends AttributeAssignBaseDelegate
     final boolean[] canReadAttribute = new boolean[1];
     final boolean[] canReadGroup = new boolean[1];
   
+    final boolean isPermission = AttributeDefType.perm.equals(attributeDef.getAttributeDefType());
+
     //these need to be looked up as root
     GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
       
@@ -124,8 +127,12 @@ public class AttributeAssignEffMshipDelegate extends AttributeAssignBaseDelegate
        */
       public Object callback(GrouperSession rootSession) throws GrouperSessionException {
         canReadAttribute[0] = attributeDef.getPrivilegeDelegate().canAttrRead(subject);
-        canReadGroup[0] = PrivilegeHelper.canRead(rootSession, 
-            AttributeAssignEffMshipDelegate.this.group, subject);
+        
+        if (isPermission) {
+          canReadGroup[0] = PrivilegeHelper.canGroupAttrRead(rootSession, AttributeAssignEffMshipDelegate.this.group, subject);
+        } else {
+          canReadGroup[0] = PrivilegeHelper.canRead(rootSession, AttributeAssignEffMshipDelegate.this.group, subject);
+        }
         return null;
       }
     });
@@ -154,6 +161,8 @@ public class AttributeAssignEffMshipDelegate extends AttributeAssignBaseDelegate
     //attributeDef.getPrivilegeDelegate().canAttrUpdate(subject);
     final boolean[] canUpdateGroup = new boolean[1];
     //this.group.hasAdmin(subject);
+    
+    final boolean isPermission = AttributeDefType.perm.equals(attributeDefName.getAttributeDef().getAttributeDefType());
  
     //these need to be looked up as root
     GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
@@ -163,7 +172,12 @@ public class AttributeAssignEffMshipDelegate extends AttributeAssignBaseDelegate
        */
       public Object callback(GrouperSession rootSession) throws GrouperSessionException {
         canUpdateAttribute[0] = attributeDef.getPrivilegeDelegate().canAttrUpdate(subject);
-        canUpdateGroup[0] = PrivilegeHelper.canUpdate(rootSession, AttributeAssignEffMshipDelegate.this.group, subject);
+        
+        if (isPermission) {
+          canUpdateGroup[0] = PrivilegeHelper.canGroupAttrUpdate(rootSession, AttributeAssignEffMshipDelegate.this.group, subject);
+        } else {
+          canUpdateGroup[0] = PrivilegeHelper.canUpdate(rootSession, AttributeAssignEffMshipDelegate.this.group, subject);
+        }
         return null;
       }
     });

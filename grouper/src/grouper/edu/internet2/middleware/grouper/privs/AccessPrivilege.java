@@ -178,7 +178,7 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable {
   /** any of these constitutes MANAGE on a group
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> MANAGE_PRIVILEGES = Collections.unmodifiableSet(
-      GrouperUtil.toSet(ADMIN, UPDATE));
+      GrouperUtil.toSet(ADMIN, UPDATE, GROUP_ATTR_UPDATE));
 
   /** */
   private Group   group;

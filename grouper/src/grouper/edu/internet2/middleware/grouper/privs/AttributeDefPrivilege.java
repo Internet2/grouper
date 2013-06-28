@@ -166,7 +166,7 @@ public class AttributeDefPrivilege implements GrouperPrivilege, Comparable {
   /** any of these constitutes MANAGE on a group
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> MANAGE_PRIVILEGES = Collections.unmodifiableSet(
-      GrouperUtil.toSet(ATTR_ADMIN, ATTR_UPDATE));
+      GrouperUtil.toSet(ATTR_ADMIN, ATTR_UPDATE, ATTR_DEF_ATTR_UPDATE));
 
   /** */
   private AttributeDef attributeDef;
