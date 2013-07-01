@@ -777,5 +777,47 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     return byHqlStatic.listSet(Member.class);  
   }
 
+  /**
+   * @see MemberDAO#findByIds(Collection, QueryOptions)
+   */
+  @Override
+  public Set<Member> findByIds(Collection<String> ids,
+      QueryOptions queryOptions) {
+
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(ids, 180);
+    
+    Set<Member> members = new HashSet<Member>();
+    
+    List<String> idsList = GrouperUtil.listFromCollection(ids);
+    
+    for (int i=0;i<numberOfBatches;i++) {
+      
+      List<String> uuidsBatch = GrouperUtil.batchList(idsList, 180, i);
+      
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+      StringBuilder sql = new StringBuilder("select distinct theMember from Member as theMember ");
+      
+      sql.append(" where ");
+      
+      sql.append(" theMember.id in ( ");
+      
+      sql.append(HibUtils.convertToInClause(uuidsBatch, byHqlStatic)).append(" ) ");
+      
+      byHqlStatic
+        .createQuery(sql.toString())
+        .setCacheable(true)
+        .options(queryOptions)
+        .setCacheRegion(KLASS + ".FindByUuidsSecure");
+      
+      Set<Member> membersBatch = byHqlStatic.listSet(Member.class);
+      
+      members.addAll(GrouperUtil.nonNull(membersBatch));
+      
+    }
+    
+    return members;
+  }
+
 } 
 

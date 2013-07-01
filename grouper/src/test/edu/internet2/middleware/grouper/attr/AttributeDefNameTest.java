@@ -33,8 +33,10 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameAddException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -48,7 +50,7 @@ public class AttributeDefNameTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefNameTest("testXmlDifferentUpdateProperties"));
+    TestRunner.run(new AttributeDefNameTest("testFindByIdsSecure"));
   }
   
   /**
@@ -505,6 +507,64 @@ public class AttributeDefNameTest extends GrouperTest {
     
     }
 
+  }
+
+  /**
+   * testFindByIdsSecure
+   */
+  public void testFindByIdsSecure() {
+    
+    AttributeDef attributeDefAb = new AttributeDefSave(this.grouperSession).assignName("a:b").assignCreateParentStemsIfNotExist(true).save();
+    attributeDefAb.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_VIEW, false);
+    
+    AttributeDefName attributeDefNameAb = new AttributeDefNameSave(this.grouperSession, attributeDefAb).assignName("a:theB").save();
+    
+    AttributeDef attributeDefAc = new AttributeDefSave(this.grouperSession).assignName("a:c").assignCreateParentStemsIfNotExist(true).save();
+    attributeDefAc.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_VIEW, false);
+
+    AttributeDefName attributeDefNameAc = new AttributeDefNameSave(this.grouperSession, attributeDefAc).assignName("a:theC").save();
+    
+    AttributeDef attributeDefAd = new AttributeDefSave(this.grouperSession).assignName("a:d").assignCreateParentStemsIfNotExist(true).save();
+    attributeDefAd.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, false);
+    attributeDefAd.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_READ, false);
+
+    AttributeDefName attributeDefNameAd = new AttributeDefNameSave(this.grouperSession, attributeDefAd).assignName("a:theD").save();
+
+    AttributeDef attributeDefAe = new AttributeDefSave(this.grouperSession).assignName("a:e").assignCreateParentStemsIfNotExist(true).save();
+    attributeDefAe.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_UPDATE, false);
+
+    AttributeDefName attributeDefNameAe = new AttributeDefNameSave(this.grouperSession, attributeDefAe).assignName("a:theE").save();
+
+    AttributeDef attributeDefAf = new AttributeDefSave(this.grouperSession).assignName("a:f").assignCreateParentStemsIfNotExist(true).save();
+    attributeDefAf.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_ADMIN, false);
+
+    AttributeDefName attributeDefNameAf = new AttributeDefNameSave(this.grouperSession, attributeDefAf).assignName("a:theF").save();
+
+    this.grouperSession.stop();
+    this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ0 );
+    
+    Set<AttributeDefName> attributeDefNames = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdsSecure(
+        GrouperUtil.toSet(attributeDefNameAb.getId(), attributeDefNameAc.getId(), attributeDefNameAd.getId(), attributeDefNameAe.getId(), attributeDefNameAf.getId()), null);
+    
+    assertEquals(GrouperUtil.toStringForLog(attributeDefNames), 4, GrouperUtil.length(attributeDefNames));
+    assertTrue(attributeDefNames.contains(attributeDefNameAb));
+    assertTrue(attributeDefNames.contains(attributeDefNameAd));
+    assertTrue(attributeDefNames.contains(attributeDefNameAe));
+    assertTrue(attributeDefNames.contains(attributeDefNameAf));
+    
+    //####################################
+    //see about subject 1
+    this.grouperSession.stop();
+    this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ1);
+    
+    attributeDefNames = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdsSecure(
+        GrouperUtil.toSet(attributeDefNameAb.getId(), attributeDefNameAc.getId(), attributeDefNameAd.getId(), attributeDefNameAe.getId(), attributeDefNameAf.getId()), null);
+    
+    assertEquals(2, GrouperUtil.length(attributeDefNames));
+    assertTrue(attributeDefNames.contains(attributeDefNameAc));
+    assertTrue(attributeDefNames.contains(attributeDefNameAd));
+
+    
   }
 
 

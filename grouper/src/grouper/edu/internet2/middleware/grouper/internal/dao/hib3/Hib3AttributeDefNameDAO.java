@@ -14,7 +14,10 @@
  * limitations under the License.
  ******************************************************************************/
 package edu.internet2.middleware.grouper.internal.dao.hib3;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -671,6 +674,63 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       AttributeAssignType attributeAssignType, AttributeDefType attributeDefType) {
     return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, subject, 
         privileges, queryOptions, true, attributeAssignType, attributeDefType, null);
+  }
+
+  /**
+   * @see AttributeDefNameDAO#findByIdsSecure(Collection, QueryOptions)
+   */
+  @Override
+  public Set<AttributeDefName> findByIdsSecure(Collection<String> ids,
+      QueryOptions queryOptions) {
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(ids, 180);
+    
+    Set<AttributeDefName> attributeDefNames = new HashSet<AttributeDefName>();
+    
+    List<String> idsList = GrouperUtil.listFromCollection(ids);
+    
+    for (int i=0;i<numberOfBatches;i++) {
+      
+      List<String> uuidsBatch = GrouperUtil.batchList(idsList, 180, i);
+      
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+      StringBuilder sql = new StringBuilder("select distinct theAttributeDefName from AttributeDef as theAttributeDef, " +
+      		"AttributeDefName as theAttributeDefName ");
+      
+      StringBuilder whereClause = new StringBuilder();
+      
+      //see if we are adding more to the query
+      grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
+          grouperSession.getSubject(), byHqlStatic, 
+          sql, whereClause, "theAttributeDef.id", AttributeDefPrivilege.VIEW_PRIVILEGES);
+
+      sql.append(" where ").append(whereClause);
+      
+      if (whereClause.length() > 0) {
+        sql.append(" and ");
+      }
+      
+      sql.append(" theAttributeDef.id = theAttributeDefName.attributeDefId and ");
+      
+      sql.append(" theAttributeDefName.id in ( ");
+      
+      sql.append(HibUtils.convertToInClause(uuidsBatch, byHqlStatic)).append(" ) ");
+      
+      byHqlStatic
+        .createQuery(sql.toString())
+        .setCacheable(true)
+        .options(queryOptions)
+        .setCacheRegion(KLASS + ".FindByUuidsSecure");
+      
+      Set<AttributeDefName> attributeDefNamesBatch = byHqlStatic.listSet(AttributeDefName.class);
+      
+      attributeDefNames.addAll(GrouperUtil.nonNull(attributeDefNamesBatch));
+      
+    }
+    
+    return attributeDefNames;
   }
 
 } 

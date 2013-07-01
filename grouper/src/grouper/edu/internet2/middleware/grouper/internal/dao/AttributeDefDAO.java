@@ -19,6 +19,7 @@
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
+import java.util.Collection;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -49,6 +50,14 @@ public interface AttributeDefDAO extends GrouperDAO {
    */
   public AttributeDef findByIdSecure(String id, boolean exceptionIfNotFound);
   
+  /**
+   * find by ids secure
+   * @param ids
+   * @param queryOptions
+   * @return the attributeDefs or null or exception
+   */
+  Set<AttributeDef> findByIdsSecure(Collection<String> ids, QueryOptions queryOptions);
+
   /**
    * find by id.  This is a secure method, a grouperSession needs to be open
    * @param id

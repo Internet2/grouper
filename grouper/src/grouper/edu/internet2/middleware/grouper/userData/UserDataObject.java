@@ -14,7 +14,7 @@ public class UserDataObject {
   public UserDataObject(String uuid, long theTimestamp) {
     super();
     this.uuid = uuid;
-    this.theTimestamp = theTimestamp;
+    this.timestamp = theTimestamp;
   }
 
   /**
@@ -41,7 +41,7 @@ public class UserDataObject {
   /**
    * timestamp that the thing was last favorited or whatever
    */
-  private long theTimestamp;
+  private Long timestamp;
 
 
   /**
@@ -64,16 +64,16 @@ public class UserDataObject {
    * timestamp that the thing was last favorited or whatever
    * @return timestamp in millis since 1970
    */
-  public long getTheTimestamp() {
-    return theTimestamp;
+  public Long getTimestamp() {
+    return this.timestamp;
   }
 
   /**
    * timestamp that the thing was last favorited or whatever
-   * @param theTimestamp1 in millis since 1970
+   * @param timestamp1 in millis since 1970
    */
-  public void setTheTimestamp(long theTimestamp1) {
-    this.theTimestamp = theTimestamp1;
+  public void setTimestamp(Long timestamp1) {
+    this.timestamp = timestamp1;
   }
   
 }

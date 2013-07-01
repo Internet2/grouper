@@ -19,12 +19,17 @@
  */
 package edu.internet2.middleware.grouper.userData;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -38,99 +43,6 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class GrouperUserDataUtils {
 
-  /**
-   * cache the group that the memberships are in
-   */
-  private static GrouperCache<String, Group> userDataGroupCache = null;
-  
-  /**
-   * get the cache for groups and init if needed
-   * @return the cache
-   */
-  private static GrouperCache<String, Group> userDataGroupCache() {
-    if (userDataGroupCache == null) {
-      synchronized (GrouperUserDataUtils.class) {
-        if (userDataGroupCache == null) {
-          userDataGroupCache = new GrouperCache(GrouperUserDataUtils.class.getName() + ".userDataGroupCache");
-        }        
-      }
-    }
-    return userDataGroupCache;
-  }
-  
-  /**
-   * cache the memberships for a group and subject.  MultiKey is the group name, subject source, and subject
-   */
-  private static GrouperCache<String, Group> userDataMembershipCache = null;
-  
-  /**
-   * get the cache for groups and init if needed
-   * @return the cache
-   */
-  private static GrouperCache<String, Group> userDataMembershipCache() {
-    if (userDataGroupCache == null) {
-      synchronized (GrouperUserDataUtils.class) {
-        if (userDataGroupCache == null) {
-          userDataGroupCache = new GrouperCache(GrouperUserDataUtils.class.getName() + ".userDataGroupCache");
-        }        
-      }
-    }
-    return userDataGroupCache;
-  }
-  
-  /**
-   * get the group that user data uses, will cache this for 10 minutes by default
-   * @param groupName
-   * @return the group
-   */
-  private static Group userDataGroup(String groupName) {
- 
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession(true);
-    if (!PrivilegeHelper.isRoot(grouperSession)) {
-      throw new RuntimeException("Grouper session must be root in user data! " + GrouperUtil.subjectToString(grouperSession.getSubject()));
-    }
-    
-    Group group = userDataGroupCache().get(groupName);
-    
-    if (group == null) {
-      
-      synchronized (GrouperUserDataUtils.class) {
-        group = userDataGroupCache().get(groupName);
-        
-        if (group == null) {
-          
-          group = new GroupSave(grouperSession).assignName(groupName).assignDescription(
-              "Internal group for grouper which has user data stored in membership attributes for " + GrouperUtil.extensionFromName(groupName) ).save();
-
-          //this is an internal group, other people do not need to read or view it
-          group.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
-          group.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
-          
-          userDataGroupCache().put(groupName, group);
-          
-        }
-      }
-      
-    }
-    
-    return group;
-    
-  }
-  
-  
-  
-  /**
-   * @param subjectToAddTo
-   * @param userDataGroupName
-   * @param groupUuid
-   */
-  public static void addFavoriteGroup(String userDataGroupName, Subject subjectToAddTo, String groupUuid) {
-    
-    
-    
-    
-  }
-  
   /** user data def extension */
   public static final String USER_DATA_DEF = "grouperUserDataDef";
 

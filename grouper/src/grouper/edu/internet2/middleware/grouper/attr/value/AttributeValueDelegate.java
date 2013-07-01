@@ -346,6 +346,23 @@ public class AttributeValueDelegate {
   }
 
   /**
+   * get the attribute assign value
+   * if attribute not assigned, return null
+   * @param attributeDefNameName 
+   * @return the attribute assign value
+   */
+  public AttributeAssignValue retrieveAttributeAssignValue(String attributeDefNameName) {
+    
+    AttributeAssign attributeAssign = retrieveAssignmentForRead(attributeDefNameName);
+    
+    if (attributeAssign == null) {
+      return null;
+    }
+    
+    return attributeAssign.getValueDelegate().retrieveValue();
+  }
+
+  /**
    * get the member value (must be member type).
    * if attribute not assigned, return null
    * @param attributeDefNameName 

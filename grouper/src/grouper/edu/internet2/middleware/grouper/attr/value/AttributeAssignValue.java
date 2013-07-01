@@ -1090,6 +1090,7 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
   
+    //TODO have a switch to turn this off?
     new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE, 
         ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.id.name(), this.getId(), 
         ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeAssignId.name(), this.getAttributeAssignId(), 
@@ -1154,6 +1155,7 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
     }
     this.setLastUpdatedDb(now);
     
+    //TODO have a switch to turn this off?
     new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD, 
         ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.id.name(), this.getId(), 
         ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeAssignId.name(), this.getAttributeAssignId(), 

@@ -18,6 +18,8 @@
  */
 package edu.internet2.middleware.grouper.attr;
 
+import java.util.Set;
+
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -39,6 +41,7 @@ import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author mchyzer
@@ -174,7 +177,7 @@ public class AttributeDefTest extends GrouperTest {
     } catch (InsufficientPrivilegeException e) {
       //good
     }
-    
+
     try {
       attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, true);
       fail("This shouldnt be allowed");
@@ -201,7 +204,7 @@ public class AttributeDefTest extends GrouperTest {
     } catch (InsufficientPrivilegeException e) {
       //good
     }
-    
+
     try {
       attributeDef.getPrivilegeDelegate().hasAttrDefAttrRead(SubjectTestHelper.SUBJ1);
       fail("This shouldnt be allowed");
@@ -228,7 +231,7 @@ public class AttributeDefTest extends GrouperTest {
     } catch (InsufficientPrivilegeException e) {
       //good
     }
-    
+
     try {
       attributeDef.getPrivilegeDelegate().revokePriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, true);
       fail("This shouldnt be allowed");
@@ -294,7 +297,7 @@ public class AttributeDefTest extends GrouperTest {
     } catch (InsufficientPrivilegeException e) {
       //good
     }
-    
+
     try {
       attributeDef.getPrivilegeDelegate().hasAttrDefAttrRead(SubjectTestHelper.SUBJ1);
       fail("This shouldnt be allowed");
@@ -321,7 +324,7 @@ public class AttributeDefTest extends GrouperTest {
     } catch (InsufficientPrivilegeException e) {
       //good
     }
-    
+
     try {
       attributeDef.getPrivilegeDelegate().revokePriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, true);
       fail("This shouldnt be allowed");
@@ -1173,6 +1176,51 @@ public class AttributeDefTest extends GrouperTest {
       assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
     
     }
+  }
+
+  /**
+   * testFindByIdsSecure
+   */
+  public void testFindByIdsSecure() {
+    
+    AttributeDef attributeDefAb = new AttributeDefSave(this.grouperSession).assignName("a:b").assignCreateParentStemsIfNotExist(true).save();
+    attributeDefAb.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_VIEW, false);
+    AttributeDef attributeDefAc = new AttributeDefSave(this.grouperSession).assignName("a:c").assignCreateParentStemsIfNotExist(true).save();
+    attributeDefAc.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_VIEW, false);
+    AttributeDef attributeDefAd = new AttributeDefSave(this.grouperSession).assignName("a:d").assignCreateParentStemsIfNotExist(true).save();
+    attributeDefAd.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, false);
+    attributeDefAd.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_READ, false);
+    AttributeDef attributeDefAe = new AttributeDefSave(this.grouperSession).assignName("a:e").assignCreateParentStemsIfNotExist(true).save();
+    attributeDefAe.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_UPDATE, false);
+    AttributeDef attributeDefAf = new AttributeDefSave(this.grouperSession).assignName("a:f").assignCreateParentStemsIfNotExist(true).save();
+    attributeDefAf.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_ADMIN, false);
+
+    this.grouperSession.stop();
+    this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ0 );
+    
+    Set<AttributeDef> attributeDefs = GrouperDAOFactory.getFactory().getAttributeDef().findByIdsSecure(
+        GrouperUtil.toSet(attributeDefAb.getId(), attributeDefAc.getId(), attributeDefAd.getId(), attributeDefAe.getId(), attributeDefAf.getId()), null);
+    
+    assertEquals(4, GrouperUtil.length(attributeDefs));
+    assertTrue(attributeDefs.contains(attributeDefAb));
+    assertTrue(attributeDefs.contains(attributeDefAd));
+    assertTrue(attributeDefs.contains(attributeDefAe));
+    assertTrue(attributeDefs.contains(attributeDefAf));
+    
+    //####################################
+    //see about subject 1
+    this.grouperSession.stop();
+    this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ1);
+    
+    attributeDefs = GrouperDAOFactory.getFactory().getAttributeDef().findByIdsSecure(
+        GrouperUtil.toSet(attributeDefAb.getId(), attributeDefAc.getId(), attributeDefAd.getId(), attributeDefAe.getId(), attributeDefAf.getId()), null);
+    
+    assertEquals(2, GrouperUtil.length(attributeDefs));
+    assertTrue(attributeDefs.contains(attributeDefAc));
+    assertTrue(attributeDefs.contains(attributeDefAd));
+    
+
+    
   }
 
 

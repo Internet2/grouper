@@ -13,6 +13,7 @@ public class AllUserDataTests extends TestCase {
   public static Test suite() {
     TestSuite suite = new TestSuite(AllUserDataTests.class.getName());
     //$JUnit-BEGIN$
+    suite.addTestSuite(GrouperUserDataApiTest.class);
     suite.addTestSuite(UserDataListTest.class);
     //$JUnit-END$
     return suite;

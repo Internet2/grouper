@@ -14,6 +14,8 @@
  * limitations under the License.
  ******************************************************************************/
 package edu.internet2.middleware.grouper.internal.dao.hib3;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,8 +25,8 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
@@ -34,6 +36,7 @@ import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -608,6 +611,60 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     }
     return attributeDef;
     
+  }
+
+  /**
+   * @see AttributeDefDAO#findByIdsSecure(Collection, QueryOptions)
+   */
+  @Override
+  public Set<AttributeDef> findByIdsSecure(Collection<String> ids,
+      QueryOptions queryOptions) {
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(ids, 180);
+    
+    Set<AttributeDef> attributeDefs = new HashSet<AttributeDef>();
+    
+    List<String> idsList = GrouperUtil.listFromCollection(ids);
+    
+    for (int i=0;i<numberOfBatches;i++) {
+      
+      List<String> uuidsBatch = GrouperUtil.batchList(idsList, 180, i);
+      
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+      StringBuilder sql = new StringBuilder("select distinct theAttributeDef from AttributeDef as theAttributeDef ");
+      
+      StringBuilder whereClause = new StringBuilder();
+      
+      //see if we are adding more to the query
+      boolean changedQuery = grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
+          grouperSession.getSubject(), byHqlStatic, 
+          sql, whereClause, "theAttributeDef.id", AttributeDefPrivilege.VIEW_PRIVILEGES);
+
+      sql.append(" where ").append(whereClause);
+      
+      if (whereClause.length() > 0) {
+        sql.append(" and ");
+      }
+      
+      sql.append(" theAttributeDef.id in ( ");
+      
+      sql.append(HibUtils.convertToInClause(uuidsBatch, byHqlStatic)).append(" ) ");
+      
+      byHqlStatic
+        .createQuery(sql.toString())
+        .setCacheable(true)
+        .options(queryOptions)
+        .setCacheRegion(KLASS + ".FindByUuidsSecure");
+      
+      Set<AttributeDef> attributeDefsBatch = byHqlStatic.listSet(AttributeDef.class);
+      
+      attributeDefs.addAll(GrouperUtil.nonNull(attributeDefsBatch));
+      
+    }
+    
+    return attributeDefs;
   }
 
 

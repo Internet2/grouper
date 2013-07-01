@@ -53,6 +53,14 @@ import edu.internet2.middleware.subject.Subject;
 public interface MemberDAO extends GrouperDAO {
 
   /**
+   * find by ids secure
+   * @param ids
+   * @param queryOptions
+   * @return the members empty set or exception
+   */
+  Set<Member> findByIds(Collection<String> ids, QueryOptions queryOptions);
+
+  /**
    * @since   1.2.0
    */
   void create(Member _m) 
