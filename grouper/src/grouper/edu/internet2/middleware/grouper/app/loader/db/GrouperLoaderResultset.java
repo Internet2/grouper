@@ -684,7 +684,7 @@ public class GrouperLoaderResultset {
         "loader.ldap.requireTopStemAsStemFromConfigGroup", true);
 
     String groupParentFolderNameTemp = requireTopStemAsStemFromConfigGroup ? (GrouperUtil.parentStemNameFromName(overallGroupName) + ":") : "";
-    if (!groupParentFolderNameTemp.endsWith(":")) {
+    if (!StringUtils.isBlank(groupParentFolderNameTemp) && !groupParentFolderNameTemp.endsWith(":")) {
       groupParentFolderNameTemp += ":";
     }
     final String groupParentFolderName = groupParentFolderNameTemp;
