@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+    version="2.4">
+
+  <filter-mapping>
+    <filter-name>GrouperUi</filter-name>
+    <url-pattern>/grouperUi/app/*</url-pattern>
+  </filter-mapping>
+    <filter-mapping>
+    <filter-name>GrouperUi</filter-name>
+    <url-pattern>/grouperUi/appHtml/*</url-pattern>
+  </filter-mapping>
+
+  <filter-mapping>
+    <filter-name>GrouperUi</filter-name>
+    <url-pattern>/grouperExternal/app/*</url-pattern>
+  </filter-mapping>
+    <filter-mapping>
+    <filter-name>GrouperUi</filter-name>
+    <url-pattern>/grouperExternal/appHtml/*</url-pattern>
+  </filter-mapping>
+
+
+
+
+<servlet>
+  <!-- Map the filter to a Servlet or URL -->
+
+    <servlet-name>UiServlet</servlet-name>
+    <servlet-class>edu.internet2.middleware.grouper.j2ee.GrouperUiRestServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>UiServlet</servlet-name>
+    <url-pattern>/grouperUi/app/*</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>UiServlet</servlet-name>
+    <url-pattern>/grouperExternal/app/*</url-pattern>
+  </servlet-mapping>
+
+
+</web-app>
