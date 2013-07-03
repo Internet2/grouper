@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
+
 <!DOCTYPE web-app PUBLIC 
           "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
           "http://java.sun.com/dtd/web-app_2_3.dtd">
@@ -20,17 +21,17 @@
     <filter-name>Grouper service filter</filter-name>
     <url-pattern>/servicesRest/*</url-pattern>
   </filter-mapping>
-        <servlet>
-                <servlet-name>AxisServlet</servlet-name>
-                <display-name>Apache-Axis Servlet</display-name>
-                <servlet-class>edu.internet2.middleware.grouper.ws.GrouperServiceAxisServlet</servlet-class>
-                <load-on-startup>1</load-on-startup>
+	<servlet>
+		<servlet-name>AxisServlet</servlet-name>
+		<display-name>Apache-Axis Servlet</display-name>
+		<servlet-class>edu.internet2.middleware.grouper.ws.GrouperServiceAxisServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
     <!-- hint that this is the wssec servlet -->
     <!-- init-param>
       <param-name>wssec</param-name>
       <param-value>true</param-value>
     </init-param --> 
-        </servlet>
+	</servlet>
   <servlet>
     <servlet-name>RestServlet</servlet-name>
     <display-name>WS REST Servlet</display-name>
