@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
@@ -62,7 +63,7 @@ public class PermissionEntryTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PermissionEntryTest("testHierarchies"));
+    TestRunner.run(new PermissionEntryTest("testPermissionAssignUnassignSecurity"));
   }
 
   /**
@@ -160,6 +161,546 @@ public class PermissionEntryTest extends GrouperTest {
     }
     
     
+  }
+  
+  /**
+   * 
+   */
+  public void testPermissionRetrieveSecurity() {
+
+    Role role = this.top.addChildRole("role", "role");
+    Role role2 = this.top.addChildRole("role2", "role2");
+
+    Member member3 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ3, true);
+    ((Group)role).addMember(SubjectTestHelper.SUBJ0);
+    ((Group)role).addMember(SubjectTestHelper.SUBJ1);
+    ((Group)role).addMember(SubjectTestHelper.SUBJ2);
+    ((Group)role2).addMember(SubjectTestHelper.SUBJ3);
+    
+    AttributeDef attributeDef = this.top.addChildAttributeDef("attributeDef", AttributeDefType.perm);
+    attributeDef.setAssignToEffMembership(true);
+    attributeDef.setAssignToGroup(true);
+    attributeDef.store();
+    AttributeDefName attrDefName = this.top.addChildAttributeDefName(attributeDef, "attrDefName", "attrDefName");
+
+    role.getPermissionRoleDelegate().assignRolePermission(attrDefName, PermissionAllowed.ALLOWED);
+    role2.getPermissionRoleDelegate().assignSubjectRolePermission(attrDefName, SubjectTestHelper.SUBJ3, PermissionAllowed.ALLOWED);
+
+    //test subject 0 can GROUP_ATTR_READ and read
+    ((Group)role).grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.GROUP_ATTR_READ);
+    ((Group)role2).grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.GROUP_ATTR_READ);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, false);
+
+    //test subject 1 can GROUP_ATTR_READ not read
+    ((Group)role).grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.GROUP_ATTR_READ);
+    ((Group)role2).grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.GROUP_ATTR_READ);
+
+    //test subject 2 can read not GROUP_ATTR_READ
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ2, AttributeDefPrivilege.ATTR_READ, false);
+
+    //test subject 3 can not read or GROUP_ATTR_READ
+
+    //test subject 4 can read and read
+    ((Group)role).grantPriv(SubjectTestHelper.SUBJ4, AccessPrivilege.READ);
+    ((Group)role2).grantPriv(SubjectTestHelper.SUBJ4, AccessPrivilege.READ);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ4, AttributeDefPrivilege.ATTR_READ, false);
+
+    //test subject 5 can update and read
+    ((Group)role).grantPriv(SubjectTestHelper.SUBJ5, AccessPrivilege.UPDATE);
+    ((Group)role2).grantPriv(SubjectTestHelper.SUBJ5, AccessPrivilege.UPDATE);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ5, AttributeDefPrivilege.ATTR_READ, false);
+
+    //test subject 6 can admin and read
+    ((Group)role).grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.ADMIN);
+    ((Group)role2).grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.ADMIN);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ6, AttributeDefPrivilege.ATTR_READ, false);
+
+    //test subject 7 can view and update
+    ((Group)role).grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.VIEW);
+    ((Group)role2).grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.VIEW);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_UPDATE, false);
+
+    //test subject 8 can view and admin
+    ((Group)role).grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.VIEW);
+    ((Group)role2).grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.VIEW);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ8, AttributeDefPrivilege.ATTR_ADMIN, false);
+    
+    //test subject 9 can view and view
+    ((Group)role).grantPriv(SubjectTestHelper.SUBJ9, AccessPrivilege.VIEW);
+    ((Group)role2).grantPriv(SubjectTestHelper.SUBJ9, AccessPrivilege.VIEW);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ9, AttributeDefPrivilege.ATTR_VIEW, false);
+
+    
+    //test subject 0 can GROUP_ATTR_READ and read
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    
+    AttributeAssign assignment = role2.getPermissionRoleDelegate().retrieveAssignment(member3, "assign", attrDefName, true, false);
+    assertNotNull(assignment);
+    
+    Set<AttributeAssign> assignments = ((Group)role).getAttributeDelegate().retrieveAssignments();
+    assertEquals(1, assignments.size());
+    
+    assignments = ((Group)role2).getAttributeDelegateEffMship(member3).retrieveAssignments(attributeDef);
+    assertEquals(1, assignments.size());
+    
+
+    //test subject 1 can GROUP_ATTR_READ not read
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+    
+    try {
+      assignment = role2.getPermissionRoleDelegate().retrieveAssignment(member3, "assign", attrDefName, true, false);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    assignments = ((Group)role).getAttributeDelegate().retrieveAssignments();
+    assertEquals(0, assignments.size());
+    
+    try {
+      assignments = ((Group)role2).getAttributeDelegateEffMship(member3).retrieveAssignments(attributeDef);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    //test subject 2 can read not GROUP_ATTR_READ
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ2);
+    
+    try {
+      assignment = role2.getPermissionRoleDelegate().retrieveAssignment(member3, "assign", attrDefName, true, false);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    assignments = ((Group)role).getAttributeDelegate().retrieveAssignments();
+    assertEquals(0, assignments.size());
+    
+    try {
+      assignments = ((Group)role2).getAttributeDelegateEffMship(member3).retrieveAssignments(attributeDef);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    
+    //test subject 3 can not read or GROUP_ATTR_READ
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ3);
+    
+    try {
+      assignment = role2.getPermissionRoleDelegate().retrieveAssignment(member3, "assign", attrDefName, true, false);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    assignments = ((Group)role).getAttributeDelegate().retrieveAssignments();
+    assertEquals(0, assignments.size());
+    
+    try {
+      assignments = ((Group)role2).getAttributeDelegateEffMship(member3).retrieveAssignments(attributeDef);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    //test subject 4 can read and read
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ4);
+    
+    try {
+      assignment = role2.getPermissionRoleDelegate().retrieveAssignment(member3, "assign", attrDefName, true, false);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    assignments = ((Group)role).getAttributeDelegate().retrieveAssignments();
+    assertEquals(0, assignments.size());
+    
+    try {
+      assignments = ((Group)role2).getAttributeDelegateEffMship(member3).retrieveAssignments(attributeDef);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    //test subject 5 can update and read
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ5);
+    
+    try {
+      assignment = role2.getPermissionRoleDelegate().retrieveAssignment(member3, "assign", attrDefName, true, false);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    assignments = ((Group)role).getAttributeDelegate().retrieveAssignments();
+    assertEquals(0, assignments.size());
+    
+    try {
+      assignments = ((Group)role2).getAttributeDelegateEffMship(member3).retrieveAssignments(attributeDef);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    //test subject 6 can admin and read
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ6);
+    
+    assignment = role2.getPermissionRoleDelegate().retrieveAssignment(member3, "assign", attrDefName, true, false);
+    assertNotNull(assignment);
+    
+    assignments = ((Group)role).getAttributeDelegate().retrieveAssignments();
+    assertEquals(1, assignments.size());
+    
+    assignments = ((Group)role2).getAttributeDelegateEffMship(member3).retrieveAssignments(attributeDef);
+    assertEquals(1, assignments.size());
+    
+    
+    //test subject 7 can view and update
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ7);
+    
+    try {
+      assignment = role2.getPermissionRoleDelegate().retrieveAssignment(member3, "assign", attrDefName, true, false);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    assignments = ((Group)role).getAttributeDelegate().retrieveAssignments();
+    assertEquals(0, assignments.size());
+    
+    try {
+      assignments = ((Group)role2).getAttributeDelegateEffMship(member3).retrieveAssignments(attributeDef);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    //test subject 8 can view and admin
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ8);
+    
+    try {
+      assignment = role2.getPermissionRoleDelegate().retrieveAssignment(member3, "assign", attrDefName, true, false);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    assignments = ((Group)role).getAttributeDelegate().retrieveAssignments();
+    assertEquals(0, assignments.size());
+    
+    try {
+      assignments = ((Group)role2).getAttributeDelegateEffMship(member3).retrieveAssignments(attributeDef);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    //test subject 9 can view and view
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ9);
+    
+    try {
+      assignment = role2.getPermissionRoleDelegate().retrieveAssignment(member3, "assign", attrDefName, true, false);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    assignments = ((Group)role).getAttributeDelegate().retrieveAssignments();
+    assertEquals(0, assignments.size());
+    
+    try {
+      assignments = ((Group)role2).getAttributeDelegateEffMship(member3).retrieveAssignments(attributeDef);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+  }
+  
+  /**
+   * 
+   */
+  public void testPermissionAssignUnassignSecurity() {
+
+    Role role = this.top.addChildRole("role", "role");
+    Role role2 = this.top.addChildRole("role2", "role2");
+
+    Member member3 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ3, true);
+    ((Group)role2).addMember(SubjectTestHelper.SUBJ0);
+    ((Group)role2).addMember(SubjectTestHelper.SUBJ1);
+    
+    AttributeDef attributeDef = this.top.addChildAttributeDef("attributeDef", AttributeDefType.perm);
+    attributeDef.setAssignToEffMembership(true);
+    attributeDef.setAssignToGroup(true);
+    attributeDef.store();
+    AttributeDefName attrDefName = this.top.addChildAttributeDefName(attributeDef, "attrDefName", "attrDefName");
+
+    role.getPermissionRoleDelegate().assignRolePermission(attrDefName, PermissionAllowed.ALLOWED);
+    role2.getPermissionRoleDelegate().assignSubjectRolePermission(attrDefName, SubjectTestHelper.SUBJ0, PermissionAllowed.ALLOWED);
+
+
+    //test subject 0 can GROUP_ATTR_UPDATE and update
+    ((Group)role).grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.GROUP_ATTR_UPDATE);
+    ((Group)role2).grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.GROUP_ATTR_UPDATE);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_UPDATE, false);
+
+    //test subject 1 can GROUP_ATTR_UPDATE not update
+    ((Group)role).grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.GROUP_ATTR_UPDATE);
+    ((Group)role2).grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.GROUP_ATTR_UPDATE);
+
+    //test subject 2 can update not GROUP_ATTR_UPDATE
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ2, AttributeDefPrivilege.ATTR_UPDATE, false);
+
+    //test subject 3 can not GROUP_ATTR_UPDATE or update
+
+    //test subject 4 can update and update
+    ((Group)role).grantPriv(SubjectTestHelper.SUBJ4, AccessPrivilege.UPDATE);
+    ((Group)role2).grantPriv(SubjectTestHelper.SUBJ4, AccessPrivilege.UPDATE);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ4, AttributeDefPrivilege.ATTR_UPDATE, false);
+
+    //test subject 5 can GROUP_ATTR_READ and update
+    ((Group)role).grantPriv(SubjectTestHelper.SUBJ5, AccessPrivilege.GROUP_ATTR_READ);
+    ((Group)role2).grantPriv(SubjectTestHelper.SUBJ5, AccessPrivilege.GROUP_ATTR_READ);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ5, AttributeDefPrivilege.ATTR_UPDATE, false);
+
+    //test subject 6 can read and update
+    ((Group)role).grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.READ);
+    ((Group)role2).grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.READ);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ6, AttributeDefPrivilege.ATTR_UPDATE, false);
+    
+    //test subject 7 can admin and update
+    ((Group)role).grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.ADMIN);
+    ((Group)role2).grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.ADMIN);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_UPDATE, false);
+
+    
+    //test subject 0 can GROUP_ATTR_UPDATE and update
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+   
+    role2.getPermissionRoleDelegate().assignRolePermission(attrDefName, PermissionAllowed.ALLOWED);
+    role2.getPermissionRoleDelegate().assignSubjectRolePermission(attrDefName, SubjectTestHelper.SUBJ1, PermissionAllowed.ALLOWED);
+    role2.getPermissionRoleDelegate().removeRolePermission(attrDefName);
+    role2.getPermissionRoleDelegate().removeSubjectRolePermission(attrDefName, SubjectTestHelper.SUBJ1);
+
+    
+    //test subject 1 can GROUP_ATTR_UPDATE not update
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+   
+    try {
+      role2.getPermissionRoleDelegate().assignRolePermission(attrDefName, PermissionAllowed.ALLOWED);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    try {
+      role2.getPermissionRoleDelegate().assignSubjectRolePermission(attrDefName, SubjectTestHelper.SUBJ1, PermissionAllowed.ALLOWED);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    try {
+      role.getPermissionRoleDelegate().removeRolePermission(attrDefName);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    try {
+      role2.getPermissionRoleDelegate().removeSubjectRolePermission(attrDefName, SubjectTestHelper.SUBJ0);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    
+    //test subject 2 can update not GROUP_ATTR_UPDATE
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ2);
+   
+    try {
+      role2.getPermissionRoleDelegate().assignRolePermission(attrDefName, PermissionAllowed.ALLOWED);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    try {
+      role2.getPermissionRoleDelegate().assignSubjectRolePermission(attrDefName, SubjectTestHelper.SUBJ1, PermissionAllowed.ALLOWED);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    try {
+      role.getPermissionRoleDelegate().removeRolePermission(attrDefName);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    try {
+      role2.getPermissionRoleDelegate().removeSubjectRolePermission(attrDefName, SubjectTestHelper.SUBJ0);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    
+    //test subject 3 can not GROUP_ATTR_UPDATE or update
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ3);
+   
+    try {
+      role2.getPermissionRoleDelegate().assignRolePermission(attrDefName, PermissionAllowed.ALLOWED);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    try {
+      role2.getPermissionRoleDelegate().assignSubjectRolePermission(attrDefName, SubjectTestHelper.SUBJ1, PermissionAllowed.ALLOWED);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    try {
+      role.getPermissionRoleDelegate().removeRolePermission(attrDefName);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    try {
+      role2.getPermissionRoleDelegate().removeSubjectRolePermission(attrDefName, SubjectTestHelper.SUBJ0);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    
+    //test subject 4 can update and update
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ4);
+   
+    try {
+      role2.getPermissionRoleDelegate().assignRolePermission(attrDefName, PermissionAllowed.ALLOWED);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    try {
+      role2.getPermissionRoleDelegate().assignSubjectRolePermission(attrDefName, SubjectTestHelper.SUBJ1, PermissionAllowed.ALLOWED);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    try {
+      role.getPermissionRoleDelegate().removeRolePermission(attrDefName);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    try {
+      role2.getPermissionRoleDelegate().removeSubjectRolePermission(attrDefName, SubjectTestHelper.SUBJ0);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    
+    //test subject 5 can GROUP_ATTR_READ and update
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ5);
+   
+    try {
+      role2.getPermissionRoleDelegate().assignRolePermission(attrDefName, PermissionAllowed.ALLOWED);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    try {
+      role2.getPermissionRoleDelegate().assignSubjectRolePermission(attrDefName, SubjectTestHelper.SUBJ1, PermissionAllowed.ALLOWED);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    try {
+      role.getPermissionRoleDelegate().removeRolePermission(attrDefName);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    try {
+      role2.getPermissionRoleDelegate().removeSubjectRolePermission(attrDefName, SubjectTestHelper.SUBJ0);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    
+    //test subject 6 can read and update
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ6);
+   
+    try {
+      role2.getPermissionRoleDelegate().assignRolePermission(attrDefName, PermissionAllowed.ALLOWED);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    try {
+      role2.getPermissionRoleDelegate().assignSubjectRolePermission(attrDefName, SubjectTestHelper.SUBJ1, PermissionAllowed.ALLOWED);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    try {
+      role.getPermissionRoleDelegate().removeRolePermission(attrDefName);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    try {
+      role2.getPermissionRoleDelegate().removeSubjectRolePermission(attrDefName, SubjectTestHelper.SUBJ0);
+      fail();
+    } catch (InsufficientPrivilegeException e) {
+      // ok
+    }
+    
+    //test subject 7 can admin and update
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ7);
+   
+    role2.getPermissionRoleDelegate().assignRolePermission(attrDefName, PermissionAllowed.ALLOWED);
+    role2.getPermissionRoleDelegate().assignSubjectRolePermission(attrDefName, SubjectTestHelper.SUBJ1, PermissionAllowed.ALLOWED);
+    role2.getPermissionRoleDelegate().removeRolePermission(attrDefName);
+    role2.getPermissionRoleDelegate().removeSubjectRolePermission(attrDefName, SubjectTestHelper.SUBJ1);
   }
   
   /**

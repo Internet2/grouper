@@ -1704,7 +1704,7 @@ public class PITPermissionTests extends GrouperTest {
     s.stop();
     
     s = GrouperSession.startRootSession();
-    group.grantPriv(member0.getSubject(), AccessPrivilege.READ);
+    group.grantPriv(member0.getSubject(), AccessPrivilege.GROUP_ATTR_READ);
     s = GrouperSession.start(member0.getSubject());
     perms = new PermissionFinder()
       .addPermissionDefId(attributeDef.getId())
