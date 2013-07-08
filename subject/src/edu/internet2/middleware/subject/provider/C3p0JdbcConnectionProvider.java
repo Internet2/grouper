@@ -22,6 +22,7 @@ package edu.internet2.middleware.subject.provider;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -146,6 +147,51 @@ public class C3p0JdbcConnectionProvider implements JdbcConnectionProvider {
     checkoutTimeout = checkoutTimeout < 0 ? (5 * 60 * 1000) : checkoutTimeout; 
     this.comboPooledDataSource.setCheckoutTimeout(checkoutTimeout);
     this.connectionReadOnly = SubjectUtils.defaultIfNull(readOnly, readOnlyDefault);
+    
+    {
+      //max connection age is if the connection should eventually be thrown out (e.g. for firewalls)
+      String maxConnectionAgeString = SourceManager.getInstance().getSource(sourceId).getInitParam("maxConnectionAge");
+      
+      if (!StringUtils.isBlank(maxConnectionAgeString)) {
+        int maxConnectionAgeInteger = SubjectUtils.intValue(maxConnectionAgeString);
+        this.comboPooledDataSource.setMaxConnectionAge(maxConnectionAgeInteger);
+      }
+    }
+    
+    {
+      //if connections should be tested on checkout
+      String testConnectionOnCheckoutString = SourceManager.getInstance().getSource(sourceId).getInitParam("testConnectionOnCheckout");
+      
+      if (!StringUtils.isBlank(testConnectionOnCheckoutString)) {
+        boolean testConnectionOnCheckout = SubjectUtils.booleanValue(testConnectionOnCheckoutString);
+        this.comboPooledDataSource.setTestConnectionOnCheckout(testConnectionOnCheckout);
+      }
+            
+    }
+    
+    {
+      //test query in database
+      String preferredTestQuery = SourceManager.getInstance().getSource(sourceId).getInitParam("preferredTestQuery");
+      
+      if (!StringUtils.isBlank(preferredTestQuery)) {
+        this.comboPooledDataSource.setPreferredTestQuery(preferredTestQuery);
+      }
+            
+    }
+
+    
+    {
+      //number of seconds to test connections in pool
+      String idleConnectionTestPeriodString = SourceManager.getInstance().getSource(sourceId).getInitParam("idleConnectionTestPeriod");
+      
+      if (!StringUtils.isBlank(idleConnectionTestPeriodString)) {
+        int idleConnectionTestPeriodInteger = SubjectUtils.intValue(idleConnectionTestPeriodString);
+        this.comboPooledDataSource.setIdleConnectionTestPeriod(idleConnectionTestPeriodInteger);
+      }
+            
+    }
+    
+    
   }
 
   /**
