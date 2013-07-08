@@ -21,6 +21,7 @@ package edu.internet2.middleware.subject.provider;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -116,9 +117,9 @@ public class C3p0JdbcConnectionProvider implements JdbcConnectionProvider {
   }
 
   /**
-   * @see edu.internet2.middleware.subject.provider.JdbcConnectionProvider#init(java.lang.String, java.lang.String, java.lang.Integer, int, java.lang.Integer, int, java.lang.Integer, int, java.lang.String, java.lang.String, java.lang.String, java.lang.Boolean, boolean)
+   * @see edu.internet2.middleware.subject.provider.JdbcConnectionProvider#init(Properties, java.lang.String, java.lang.String, java.lang.Integer, int, java.lang.Integer, int, java.lang.Integer, int, java.lang.String, java.lang.String, java.lang.String, java.lang.Boolean, boolean)
    */
-  public void init(String sourceId, String driver, Integer maxActive, int defaultMaxActive,
+  public void init(Properties properties, String sourceId, String driver, Integer maxActive, int defaultMaxActive,
       Integer maxIdle, int defaultMaxIdle, Integer maxWaitSeconds,
       int defaultMaxWaitSeconds, String dbUrl, String dbUser, String dbPassword,
       Boolean readOnly, boolean readOnlyDefault) throws SourceUnavailableException {
@@ -150,7 +151,7 @@ public class C3p0JdbcConnectionProvider implements JdbcConnectionProvider {
     
     {
       //max connection age is if the connection should eventually be thrown out (e.g. for firewalls)
-      String maxConnectionAgeString = SourceManager.getInstance().getSource(sourceId).getInitParam("maxConnectionAge");
+      String maxConnectionAgeString = properties.getProperty("maxConnectionAge");
       
       if (!StringUtils.isBlank(maxConnectionAgeString)) {
         int maxConnectionAgeInteger = SubjectUtils.intValue(maxConnectionAgeString);
@@ -160,7 +161,7 @@ public class C3p0JdbcConnectionProvider implements JdbcConnectionProvider {
     
     {
       //if connections should be tested on checkout
-      String testConnectionOnCheckoutString = SourceManager.getInstance().getSource(sourceId).getInitParam("testConnectionOnCheckout");
+      String testConnectionOnCheckoutString = properties.getProperty("testConnectionOnCheckout");
       
       if (!StringUtils.isBlank(testConnectionOnCheckoutString)) {
         boolean testConnectionOnCheckout = SubjectUtils.booleanValue(testConnectionOnCheckoutString);
@@ -171,7 +172,7 @@ public class C3p0JdbcConnectionProvider implements JdbcConnectionProvider {
     
     {
       //test query in database
-      String preferredTestQuery = SourceManager.getInstance().getSource(sourceId).getInitParam("preferredTestQuery");
+      String preferredTestQuery = properties.getProperty("preferredTestQuery");
       
       if (!StringUtils.isBlank(preferredTestQuery)) {
         this.comboPooledDataSource.setPreferredTestQuery(preferredTestQuery);
@@ -182,7 +183,7 @@ public class C3p0JdbcConnectionProvider implements JdbcConnectionProvider {
     
     {
       //number of seconds to test connections in pool
-      String idleConnectionTestPeriodString = SourceManager.getInstance().getSource(sourceId).getInitParam("idleConnectionTestPeriod");
+      String idleConnectionTestPeriodString = properties.getProperty("idleConnectionTestPeriod");
       
       if (!StringUtils.isBlank(idleConnectionTestPeriodString)) {
         int idleConnectionTestPeriodInteger = SubjectUtils.intValue(idleConnectionTestPeriodString);

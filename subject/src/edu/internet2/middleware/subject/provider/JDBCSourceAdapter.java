@@ -895,7 +895,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
     }
 
     this.jdbcConnectionProvider = SubjectUtils.newInstance(jdbcConnectionProviderClass);
-    this.jdbcConnectionProvider.init(this.getId(), driver, maxActive, 2, maxIdle, 2,
+    this.jdbcConnectionProvider.init(props, this.getId(), driver, maxActive, 2, maxIdle, 2,
         maxWaitSeconds, 5, dbUrl, dbUser, dbPwd, readOnly, true);
 
     log.info("Data Source initialized.");

@@ -21,6 +21,7 @@ package edu.internet2.middleware.grouper.subj;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -92,9 +93,9 @@ public class GrouperJdbcConnectionProvider implements JdbcConnectionProvider {
   private static Log log = GrouperUtil.getLog(GrouperJdbcConnectionProvider.class);
 
   /**
-   * @see edu.internet2.middleware.subject.provider.JdbcConnectionProvider#init(java.lang.String, java.lang.String, java.lang.Integer, int, java.lang.Integer, int, java.lang.Integer, int, java.lang.String, java.lang.String, java.lang.String, java.lang.Boolean, boolean)
+   * @see edu.internet2.middleware.subject.provider.JdbcConnectionProvider#init(Properties, java.lang.String, java.lang.String, java.lang.Integer, int, java.lang.Integer, int, java.lang.Integer, int, java.lang.String, java.lang.String, java.lang.String, java.lang.Boolean, boolean)
    */
-  public void init(String sourceId, String driver, Integer maxActive, int defaultMaxActive,
+  public void init(Properties properties, String sourceId, String driver, Integer maxActive, int defaultMaxActive,
       Integer maxIdle, int defaultMaxIdle, Integer maxWaitSeconds,
       int defaultMaxWaitSeconds, String dbUrl, String dbUser, String dbPassword,
       Boolean readOnly, boolean readOnlyDefault) throws SourceUnavailableException {

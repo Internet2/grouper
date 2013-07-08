@@ -20,6 +20,7 @@
 package edu.internet2.middleware.subject.provider;
 
 import java.sql.SQLException;
+import java.util.Properties;
 
 import edu.internet2.middleware.subject.SourceUnavailableException;
 
@@ -38,6 +39,7 @@ public interface JdbcConnectionProvider {
   
   /** 
    * init the pool 
+   * @param properties 
    * @param sourceId mainly for logging
    * @param driver driver
    * @param maxActive max active connection if pool
@@ -53,7 +55,7 @@ public interface JdbcConnectionProvider {
    * @param readOnlyDefault default if not specified and needed
    * @throws SourceUnavailableException if something is not right or not available
    */
-  public void init(String sourceId, String driver, Integer maxActive, int defaultMaxActive, Integer maxIdle, int defaultMaxIdle,
+  public void init(Properties properties, String sourceId, String driver, Integer maxActive, int defaultMaxActive, Integer maxIdle, int defaultMaxIdle,
       Integer maxWaitSeconds, int defaultMaxWaitSeconds, String dbUrl, String dbUser, 
       String dbPassword, Boolean readOnly, boolean readOnlyDefault) throws SourceUnavailableException;
   
