@@ -19,23 +19,9 @@
  */
 package edu.internet2.middleware.grouper.userData;
 
-import org.apache.commons.collections.keyvalue.MultiKey;
-
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupSave;
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.MembershipFinder;
-import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.cache.GrouperCache;
-import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -227,7 +213,17 @@ public class GrouperUserDataUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperUserDataRecentAttributeDefsAttributeDefName() {
+
     return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataRecentAttributeDefsName(), true);
+
+    //return (AttributeDefName)GrouperSession.callbackGrouperSession(
+    //    GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    //  
+    //  @Override
+    //  public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+    //    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataRecentAttributeDefsName(), true);
+    //  }
+    //});
   }
 
 

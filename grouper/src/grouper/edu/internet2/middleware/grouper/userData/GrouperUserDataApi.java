@@ -164,7 +164,7 @@ public class GrouperUserDataApi {
     /**
      * recent subject
      */
-    recentSubject {
+    recentMember {
 
       /**
        * @see GrouperUserDataType#attributeDefName()
@@ -374,7 +374,18 @@ public class GrouperUserDataApi {
   @SuppressWarnings("unchecked")
   public static Set<Group> favoriteGroups(String userDataGroupName, Subject subject) {
 
-    UserDataList userDataList = GrouperUserDataType.favoriteGroup.retrieve(userDataGroupName, subject);
+    return groupList(GrouperUserDataType.favoriteGroup, userDataGroupName, subject);
+  }
+
+  /**
+   * list groups
+   * @param groupUserDataType
+   * @param userDataGroupName
+   * @param subject
+   * @return the groups
+   */
+  private static Set<Group> groupList(GrouperUserDataType groupUserDataType, String userDataGroupName, Subject subject) {
+    UserDataList userDataList = groupUserDataType.retrieve(userDataGroupName, subject);
 
     //convert to groups
     Set<Group> groups = null;
@@ -417,7 +428,7 @@ public class GrouperUserDataApi {
           allowedGroupIds.add(group.getId());
         }
 
-        GrouperUserDataType.favoriteGroup.replace(userDataGroupName, subject, allowedGroupIds);
+        groupUserDataType.replace(userDataGroupName, subject, allowedGroupIds);
         
       }
       
@@ -425,7 +436,7 @@ public class GrouperUserDataApi {
     return groups;
     
   }
-
+  
   /**
    * cache the group that the memberships are in
    */
@@ -752,55 +763,7 @@ public class GrouperUserDataApi {
   @SuppressWarnings("unchecked")
   public static Set<Group> recentlyUsedGroups(String userDataGroupName, Subject subject) {
 
-    UserDataList userDataList = GrouperUserDataType.recentGroup.retrieve(userDataGroupName, subject);
-
-    //convert to groups
-    Set<Group> groups = null;
-
-    if (userDataList != null) {
-
-      final Set<String> uuids = new LinkedHashSet<String>();
-      
-      //these are the ones currently in the list
-      for (UserDataObject userDataObject : GrouperUtil.nonNull(userDataList.getList(), UserDataObject.class)) {
-        
-        String uuid = userDataObject.getUuid();
-        uuids.add(uuid);
-  
-      }
-  
-      //these are the ones the user is allowed to see
-      GrouperSession userSession = GrouperSession.start(subject, false);
-  
-      try {
-        groups = (Set<Group>)GrouperSession.callbackGrouperSession(userSession, new GrouperSessionHandler() {
-  
-          @Override
-          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-  
-            return GrouperDAOFactory.getFactory().getGroup().findByUuidsSecure(uuids, null, TypeOfGroup.GROUP_OR_ROLE_SET);
-  
-          }
-        });
-      } finally {
-        GrouperSession.stopQuietly(userSession);
-      }
-      
-      //remove the not allowed ones?
-      if (groups.size() != uuids.size()) {
-  
-        //lets remove stuff that isnt allowed
-        Set<String> allowedGroupIds = new HashSet<String>();
-        for (Group group : GrouperUtil.nonNull(groups)) {
-          allowedGroupIds.add(group.getId());
-        }
-  
-        GrouperUserDataType.recentGroup.replace(userDataGroupName, subject, allowedGroupIds);
-        
-      }
-      
-    }
-    return groups;
+    return groupList(GrouperUserDataType.recentGroup, userDataGroupName, subject);
     
   }
 
@@ -867,8 +830,21 @@ public class GrouperUserDataApi {
   @SuppressWarnings("unchecked")
   public static Set<AttributeDef> favoriteAttributeDefs(String userDataGroupName, Subject subject) {
   
-    UserDataList userDataList = GrouperUserDataType.favoriteAttributeDef.retrieve(userDataGroupName, subject);
-  
+    return attributeDefList(GrouperUserDataType.favoriteAttributeDef, userDataGroupName, subject);
+    
+  }
+
+  /**
+   * attribute def list
+   * @param attributeDefUserDataType
+   * @param userDataGroupName
+   * @param subject
+   * @return the set of attribute defs
+   */
+  private static Set<AttributeDef> attributeDefList(GrouperUserDataType attributeDefUserDataType, String userDataGroupName, Subject subject) {
+    
+    UserDataList userDataList = attributeDefUserDataType.retrieve(userDataGroupName, subject);
+    
     //convert to groups
     Set<AttributeDef> attributeDefs = null;
   
@@ -910,15 +886,16 @@ public class GrouperUserDataApi {
           allowedAttributeDefIds.add(attributeDef.getId());
         }
   
-        GrouperUserDataType.favoriteAttributeDef.replace(userDataGroupName, subject, allowedAttributeDefIds);
+        attributeDefUserDataType.replace(userDataGroupName, subject, allowedAttributeDefIds);
         
       }
       
     }
     return attributeDefs;
+
     
   }
-
+  
   /**
    * @param subjectToAddTo
    * @param userDataGroupName
@@ -965,9 +942,21 @@ public class GrouperUserDataApi {
    */
   @SuppressWarnings("unchecked")
   public static Set<AttributeDefName> favoriteAttributeDefNames(String userDataGroupName, Subject subject) {
-  
-    UserDataList userDataList = GrouperUserDataType.favoriteAttributeDefName.retrieve(userDataGroupName, subject);
-  
+
+    return attributeDefNameList(GrouperUserDataType.favoriteAttributeDefName, userDataGroupName, subject);
+    
+  }
+
+  /**
+   * list attribute def names base on the user data type
+   * @param attributeDefNameUserDataType
+   * @param userDataGroupName
+   * @param subject
+   * @return the attribute def names
+   */
+  private static Set<AttributeDefName> attributeDefNameList(GrouperUserDataType attributeDefNameUserDataType, String userDataGroupName, Subject subject) {
+    UserDataList userDataList = attributeDefNameUserDataType.retrieve(userDataGroupName, subject);
+    
     //convert to groups
     Set<AttributeDefName> attributeDefNames = null;
   
@@ -1009,15 +998,15 @@ public class GrouperUserDataApi {
           allowedAttributeDefNameIds.add(attributeDefName.getId());
         }
   
-        GrouperUserDataType.favoriteAttributeDefName.replace(userDataGroupName, subject, allowedAttributeDefNameIds);
+        attributeDefNameUserDataType.replace(userDataGroupName, subject, allowedAttributeDefNameIds);
         
       }
       
     }
     return attributeDefNames;
-    
-  }
 
+  }
+  
   /**
    * @param subjectToAddTo
    * @param userDataGroupName
@@ -1061,8 +1050,19 @@ public class GrouperUserDataApi {
   @SuppressWarnings("unchecked")
   public static Set<Stem> favoriteStems(String userDataGroupName, Subject subject) {
   
-    UserDataList userDataList = GrouperUserDataType.favoriteStem.retrieve(userDataGroupName, subject);
-  
+    return stemList(GrouperUserDataType.favoriteStem, userDataGroupName, subject);
+  }
+
+  /**
+   * handle a listing of stems
+   * @param stemDataType
+   * @param userDataGroupName
+   * @param subject
+   * @return the stems
+   */
+  private static Set<Stem> stemList(GrouperUserDataType stemDataType, String userDataGroupName, Subject subject) {
+    UserDataList userDataList = stemDataType.retrieve(userDataGroupName, subject);
+    
     //convert to stems
     Set<Stem> stems = null;
   
@@ -1104,15 +1104,15 @@ public class GrouperUserDataApi {
           allowedStemIds.add(stem.getUuid());
         }
   
-        GrouperUserDataType.favoriteStem.replace(userDataGroupName, subject, allowedStemIds);
+        stemDataType.replace(userDataGroupName, subject, allowedStemIds);
         
       }
       
     }
     return stems;
-    
-  }
 
+  }
+  
   /**
    * @param subjectToAddTo
    * @param userDataGroupName
@@ -1153,9 +1153,14 @@ public class GrouperUserDataApi {
    */
   @SuppressWarnings("unchecked")
   public static Set<Member> favoriteMembers(String userDataGroupName, Subject subject) {
-  
-    UserDataList userDataList = GrouperUserDataType.favoriteMember.retrieve(userDataGroupName, subject);
-  
+    
+    return memberList(GrouperUserDataType.favoriteMember, userDataGroupName, subject);
+    
+  }
+
+  private static Set<Member> memberList(GrouperUserDataType memberUserDataType, String userDataGroupName, Subject subject) {
+    UserDataList userDataList = memberUserDataType.retrieve(userDataGroupName, subject);
+    
     //convert to subjects
     Set<Member> members = null;
   
@@ -1197,12 +1202,205 @@ public class GrouperUserDataApi {
           allowedMemberIds.add(member.getUuid());
         }
   
-        GrouperUserDataType.favoriteMember.replace(userDataGroupName, subject, allowedMemberIds);
+        memberUserDataType.replace(userDataGroupName, subject, allowedMemberIds);
         
       }
       
     }
     return members;
+
+  }
+  
+  /**
+   * @param subjectToAddTo
+   * @param userDataGroupName
+   * @param stem
+   */
+  public static void recentlyUsedStemAdd(String userDataGroupName, Subject subjectToAddTo, Stem stem) {
+    
+    if (stem == null) {
+      throw new NullPointerException("Why is stem null?");
+    }
+    
+    //no need to check security
+    
+    GrouperUserDataType.recentStem.add(userDataGroupName, subjectToAddTo, stem.getUuid());
+    
+  }
+
+  /**
+   * @param subjectToAddTo
+   * @param userDataGroupName
+   * @param stem
+   */
+  public static void recentlyUsedStemRemove(String userDataGroupName, Subject subjectToAddTo, Stem stem) {
+    
+    if (stem == null) {
+      throw new NullPointerException("Why is stem null?");
+    }
+    
+    //no need to check security
+    
+    GrouperUserDataType.recentStem.remove(userDataGroupName, subjectToAddTo, stem.getUuid());
+    
+  }
+
+  /**
+   * @param subject
+   * @param userDataGroupName
+   * @param stem
+   * @return the recently used stems for a user
+   */
+  @SuppressWarnings("unchecked")
+  public static Set<Stem> recentlyUsedStems(String userDataGroupName, Subject subject) {
+  
+    return stemList(GrouperUserDataType.recentStem, userDataGroupName, subject);
+    
+  }
+
+  /**
+   * @param subjectToAddTo
+   * @param userDataGroupName
+   * @param attributeDef
+   */
+  public static void recentlyUsedAttributeDefAdd(String userDataGroupName, Subject subjectToAddTo, AttributeDef attributeDef) {
+    
+    if (attributeDef == null) {
+      throw new NullPointerException("Why is attributeDef null?");
+    }
+    
+    //check security
+    if (!attributeDef.getPrivilegeDelegate().canAttrView(subjectToAddTo)) {
+      throw new InsufficientPrivilegeException("Subject: " + GrouperUtil.subjectToString(subjectToAddTo) 
+          + " does not have view on attributeDef " + attributeDef.getName());
+    }
+    
+    GrouperUserDataType.recentAttributeDef.add(userDataGroupName, subjectToAddTo, attributeDef.getUuid());
+    
+  }
+
+  /**
+   * @param subjectToAddTo
+   * @param userDataGroupName
+   * @param attributeDef
+   */
+  public static void recentlyUsedAttributeDefRemove(String userDataGroupName, Subject subjectToAddTo, AttributeDef attributeDef) {
+    
+    if (attributeDef == null) {
+      throw new NullPointerException("Why is attributeDef null?");
+    }
+    
+    //no need to check security
+    
+    GrouperUserDataType.recentAttributeDef.remove(userDataGroupName, subjectToAddTo, attributeDef.getUuid());
+    
+  }
+
+  /**
+   * @param subject
+   * @param userDataGroupName
+   * @return the favorite attributeDefs for a user
+   */
+  @SuppressWarnings("unchecked")
+  public static Set<AttributeDef> recentlyUsedAttributeDefs(String userDataGroupName, Subject subject) {
+  
+    return attributeDefList(GrouperUserDataType.recentAttributeDef, userDataGroupName, subject);
+    
+  }
+
+  /**
+   * @param subjectToAddTo
+   * @param userDataGroupName
+   * @param attributeDefName
+   */
+  public static void recentlyUsedAttributeDefNameAdd(String userDataGroupName, Subject subjectToAddTo, AttributeDefName attributeDefName) {
+    
+    if (attributeDefName == null) {
+      throw new NullPointerException("Why is attributeDefName null?");
+    }
+    
+    //check security
+    if (!attributeDefName.getAttributeDef().getPrivilegeDelegate().canAttrView(subjectToAddTo)) {
+      throw new InsufficientPrivilegeException("Subject: " + GrouperUtil.subjectToString(subjectToAddTo) 
+          + " does not have view on attributeDef " + attributeDefName.getAttributeDef().getName()
+          + " for attributeDefName: " + attributeDefName.getName());
+    }
+    
+    GrouperUserDataType.recentAttributeDefName.add(userDataGroupName, subjectToAddTo, attributeDefName.getId());
+    
+  }
+
+  /**
+   * @param subjectToAddTo
+   * @param userDataGroupName
+   * @param attributeDefName
+   */
+  public static void recentlyUsedAttributeDefNameRemove(String userDataGroupName, Subject subjectToAddTo, AttributeDefName attributeDefName) {
+    
+    if (attributeDefName == null) {
+      throw new NullPointerException("Why is attributeDefName null?");
+    }
+    
+    //no need to check security
+    
+    GrouperUserDataType.recentAttributeDefName.remove(userDataGroupName, subjectToAddTo, attributeDefName.getId());
+    
+  }
+
+  /**
+   * @param subject
+   * @param userDataGroupName
+   * @return the recent attributeDefNames for a user
+   */
+  @SuppressWarnings("unchecked")
+  public static Set<AttributeDefName> recentlyUsedAttributeDefNames(String userDataGroupName, Subject subject) {
+  
+    return attributeDefNameList(GrouperUserDataType.recentAttributeDefName, userDataGroupName, subject);
+    
+  }
+
+  /**
+   * @param subjectToAddTo
+   * @param userDataGroupName
+   * @param member
+   */
+  public static void recentlyUsedMemberAdd(String userDataGroupName, Subject subjectToAddTo, Member member) {
+    
+    if (member == null) {
+      throw new NullPointerException("Why is member null?");
+    }
+    
+    //no need to check security
+    GrouperUserDataType.recentMember.add(userDataGroupName, subjectToAddTo, member.getUuid());
+    
+  }
+
+  /**
+   * @param subjectToAddTo
+   * @param userDataGroupName
+   * @param member
+   */
+  public static void recentlyUsedMemberRemove(String userDataGroupName, Subject subjectToAddTo, Member member) {
+    
+    if (member == null) {
+      throw new NullPointerException("Why is member null?");
+    }
+    
+    //no need to check security
+    
+    GrouperUserDataType.recentMember.remove(userDataGroupName, subjectToAddTo, member.getUuid());
+    
+  }
+
+  /**
+   * @param subject
+   * @param userDataGroupName
+   * @return the favorite members for a user
+   */
+  @SuppressWarnings("unchecked")
+  public static Set<Member> recentlyUsedMembers(String userDataGroupName, Subject subject) {
+    
+    return memberList(GrouperUserDataType.recentMember, userDataGroupName, subject);
     
   }
 

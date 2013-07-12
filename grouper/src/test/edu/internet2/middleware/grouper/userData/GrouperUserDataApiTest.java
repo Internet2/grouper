@@ -6,6 +6,8 @@ import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -44,7 +46,7 @@ public class GrouperUserDataApiTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperUserDataApiTest("testFavoriteStems"));
+    TestRunner.run(new GrouperUserDataApiTest("testRecentlyUsedMembers"));
   }
 
 
@@ -423,6 +425,342 @@ public class GrouperUserDataApiTest extends GrouperTest {
     
     assertEquals(1, GrouperUtil.length(favoriteStems));
     assertTrue(favoriteStems.contains(favorite1));
+  
+    GrouperSession.stopQuietly(grouperSession);
+  }
+
+  /**
+   * 
+   */
+  public void testRecentlyUsedStems() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Stem recentlyUsed0 = new StemSave(grouperSession).assignName("test:recentlyUsed0").assignCreateParentStemsIfNotExist(true).save();
+    Stem recentlyUsed1 = new StemSave(grouperSession).assignName("test:recentlyUsed1").assignCreateParentStemsIfNotExist(true).save();
+    Stem recentlyUsed2 = new StemSave(grouperSession).assignName("test:recentlyUsed2").assignCreateParentStemsIfNotExist(true).save();
+    
+    String userDataGroupName = "test:testUserData";
+    
+    GrouperUserDataApi.recentlyUsedStemAdd(userDataGroupName, SubjectTestHelper.SUBJ0, recentlyUsed0);
+    GrouperUserDataApi.recentlyUsedStemAdd(userDataGroupName, SubjectTestHelper.SUBJ0, recentlyUsed1);
+    GrouperUserDataApi.recentlyUsedStemAdd(userDataGroupName, SubjectTestHelper.SUBJ1, recentlyUsed0);
+    
+    //############ subj0 has 0 and 1 as recentlyUsed groups
+    Set<Stem> recentlyUsedStems = GrouperUserDataApi.recentlyUsedStems(userDataGroupName, SubjectTestHelper.SUBJ0);
+    
+    assertEquals(2, GrouperUtil.length(recentlyUsedStems));
+    assertTrue(recentlyUsedStems.contains(recentlyUsed0));
+    assertTrue(recentlyUsedStems.contains(recentlyUsed1));
+  
+    //############ subj1 has 0 as recentlyUsed group
+    recentlyUsedStems = GrouperUserDataApi.recentlyUsedStems(userDataGroupName, SubjectTestHelper.SUBJ1);    
+      
+    assertEquals(1, GrouperUtil.length(recentlyUsedStems));
+    assertTrue(recentlyUsedStems.contains(recentlyUsed0));
+  
+    //############# subj2 has no recentlyUseds
+    recentlyUsedStems = GrouperUserDataApi.recentlyUsedStems(userDataGroupName, SubjectTestHelper.SUBJ2);    
+    
+    assertEquals(0, GrouperUtil.length(recentlyUsedStems));
+    
+    //############# add same recentlyUsed again
+    GrouperUserDataApi.recentlyUsedStemAdd(userDataGroupName, SubjectTestHelper.SUBJ0, recentlyUsed0);
+    recentlyUsedStems = GrouperUserDataApi.recentlyUsedStems(userDataGroupName, SubjectTestHelper.SUBJ0);    
+    
+    assertEquals(2, GrouperUtil.length(recentlyUsedStems));
+    assertTrue(recentlyUsedStems.contains(recentlyUsed0));
+    assertTrue(recentlyUsedStems.contains(recentlyUsed1));
+    
+    //############# remove one that isnt there
+    GrouperUserDataApi.recentlyUsedStemRemove(userDataGroupName, SubjectTestHelper.SUBJ0, recentlyUsed2);
+    recentlyUsedStems = GrouperUserDataApi.recentlyUsedStems(userDataGroupName, SubjectTestHelper.SUBJ0);    
+    
+    assertEquals(2, GrouperUtil.length(recentlyUsedStems));
+    assertTrue(recentlyUsedStems.contains(recentlyUsed0));
+    assertTrue(recentlyUsedStems.contains(recentlyUsed1));
+  
+    //############# remove one that is there
+    GrouperUserDataApi.recentlyUsedStemRemove(userDataGroupName, SubjectTestHelper.SUBJ0, recentlyUsed0);
+    recentlyUsedStems = GrouperUserDataApi.recentlyUsedStems(userDataGroupName, SubjectTestHelper.SUBJ0);    
+    
+    assertEquals(1, GrouperUtil.length(recentlyUsedStems));
+    assertTrue(recentlyUsedStems.contains(recentlyUsed1));
+  
+    GrouperSession.stopQuietly(grouperSession);
+  }
+
+  /**
+   * 
+   */
+  public void testRecentlyUsedAttributeDefs() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    AttributeDef recent0 = new AttributeDefSave(grouperSession).assignName("test:recent0").assignCreateParentStemsIfNotExist(true).save();
+    
+    recent0.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_VIEW, false);
+    recent0.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_VIEW, false);
+    
+    AttributeDef recent1 = new AttributeDefSave(grouperSession).assignName("test:recent1").assignCreateParentStemsIfNotExist(true).save();
+  
+    recent1.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, false);
+    recent1.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_READ, false);
+  
+    AttributeDef recent2 = new AttributeDefSave(grouperSession).assignName("test:recent2").assignCreateParentStemsIfNotExist(true).save();
+    
+    recent2.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_UPDATE, false);
+    recent2.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_UPDATE, false);
+    
+    
+    String userDataGroupName = "test:testUserData";
+    
+    GrouperUserDataApi.recentlyUsedAttributeDefAdd(userDataGroupName, SubjectTestHelper.SUBJ0, recent0);
+    GrouperUserDataApi.recentlyUsedAttributeDefAdd(userDataGroupName, SubjectTestHelper.SUBJ0, recent1);
+    GrouperUserDataApi.recentlyUsedAttributeDefAdd(userDataGroupName, SubjectTestHelper.SUBJ1, recent0);
+    
+    //############ subj0 has 0 and 1 as recent groups
+    Set<AttributeDef> recentAttributeDefs = GrouperUserDataApi.recentlyUsedAttributeDefs(userDataGroupName, SubjectTestHelper.SUBJ0);
+    
+    assertEquals(2, GrouperUtil.length(recentAttributeDefs));
+    assertTrue(recentAttributeDefs.contains(recent0));
+    assertTrue(recentAttributeDefs.contains(recent1));
+  
+    //############ subj1 has 0 as recent group
+    recentAttributeDefs = GrouperUserDataApi.recentlyUsedAttributeDefs(userDataGroupName, SubjectTestHelper.SUBJ1);    
+      
+    assertEquals(1, GrouperUtil.length(recentAttributeDefs));
+    assertTrue(recentAttributeDefs.contains(recent0));
+  
+    //############# subj2 has no recents
+    recentAttributeDefs = GrouperUserDataApi.recentlyUsedAttributeDefs(userDataGroupName, SubjectTestHelper.SUBJ2);    
+    
+    assertEquals(0, GrouperUtil.length(recentAttributeDefs));
+    
+    //############# add same recent again
+    GrouperUserDataApi.recentlyUsedAttributeDefAdd(userDataGroupName, SubjectTestHelper.SUBJ0, recent0);
+    recentAttributeDefs = GrouperUserDataApi.recentlyUsedAttributeDefs(userDataGroupName, SubjectTestHelper.SUBJ0);    
+    
+    assertEquals(2, GrouperUtil.length(recentAttributeDefs));
+    assertTrue(recentAttributeDefs.contains(recent0));
+    assertTrue(recentAttributeDefs.contains(recent1));
+    
+    //############# remove one that isnt there
+    GrouperUserDataApi.recentlyUsedAttributeDefRemove(userDataGroupName, SubjectTestHelper.SUBJ0, recent2);
+    recentAttributeDefs = GrouperUserDataApi.recentlyUsedAttributeDefs(userDataGroupName, SubjectTestHelper.SUBJ0);    
+    
+    assertEquals(2, GrouperUtil.length(recentAttributeDefs));
+    assertTrue(recentAttributeDefs.contains(recent0));
+    assertTrue(recentAttributeDefs.contains(recent1));
+  
+    //############# remove one that is there
+    GrouperUserDataApi.recentlyUsedAttributeDefRemove(userDataGroupName, SubjectTestHelper.SUBJ0, recent0);
+    recentAttributeDefs = GrouperUserDataApi.recentlyUsedAttributeDefs(userDataGroupName, SubjectTestHelper.SUBJ0);    
+    
+    assertEquals(1, GrouperUtil.length(recentAttributeDefs));
+    assertTrue(recentAttributeDefs.contains(recent1));
+  
+    GrouperSession.stopQuietly(grouperSession);
+  }
+
+  /**
+   * 
+   */
+  public void testRecentlyUsedAttributeDefNames() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    AttributeDef recent0def = new AttributeDefSave(grouperSession).assignName("test:recent0def").assignCreateParentStemsIfNotExist(true).save();
+    AttributeDefName recent0 = new AttributeDefNameSave(grouperSession, recent0def).assignName("test:recent0").assignCreateParentStemsIfNotExist(true).save();
+    
+    recent0def.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_VIEW, false);
+    recent0def.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_VIEW, false);
+    
+    AttributeDef recent1def = new AttributeDefSave(grouperSession).assignName("test:recent1def").assignCreateParentStemsIfNotExist(true).save();
+    AttributeDefName recent1 = new AttributeDefNameSave(grouperSession, recent1def).assignName("test:recent1").assignCreateParentStemsIfNotExist(true).save();
+  
+    recent1def.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, false);
+    recent1def.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_READ, false);
+  
+    AttributeDef recent2def = new AttributeDefSave(grouperSession).assignName("test:recent2def").assignCreateParentStemsIfNotExist(true).save();
+    AttributeDefName recent2 = new AttributeDefNameSave(grouperSession, recent2def).assignName("test:recent2").assignCreateParentStemsIfNotExist(true).save();
+    
+    recent2def.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_UPDATE, false);
+    recent2def.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_UPDATE, false);
+    
+    
+    String userDataGroupName = "test:testUserData";
+    
+    GrouperUserDataApi.recentlyUsedAttributeDefNameAdd(userDataGroupName, SubjectTestHelper.SUBJ0, recent0);
+    GrouperUserDataApi.recentlyUsedAttributeDefNameAdd(userDataGroupName, SubjectTestHelper.SUBJ0, recent1);
+    GrouperUserDataApi.recentlyUsedAttributeDefNameAdd(userDataGroupName, SubjectTestHelper.SUBJ1, recent0);
+    
+    //############ subj0 has 0 and 1 as recent groups
+    Set<AttributeDefName> recentAttributeDefNames = GrouperUserDataApi.recentlyUsedAttributeDefNames(userDataGroupName, SubjectTestHelper.SUBJ0);
+    
+    assertEquals(2, GrouperUtil.length(recentAttributeDefNames));
+    assertTrue(recentAttributeDefNames.contains(recent0));
+    assertTrue(recentAttributeDefNames.contains(recent1));
+  
+    //############ subj1 has 0 as recent group
+    recentAttributeDefNames = GrouperUserDataApi.recentlyUsedAttributeDefNames(userDataGroupName, SubjectTestHelper.SUBJ1);    
+      
+    assertEquals(1, GrouperUtil.length(recentAttributeDefNames));
+    assertTrue(recentAttributeDefNames.contains(recent0));
+  
+    //############# subj2 has no recents
+    recentAttributeDefNames = GrouperUserDataApi.recentlyUsedAttributeDefNames(userDataGroupName, SubjectTestHelper.SUBJ2);    
+    
+    assertEquals(0, GrouperUtil.length(recentAttributeDefNames));
+    
+    //############# add same recent again
+    GrouperUserDataApi.recentlyUsedAttributeDefNameAdd(userDataGroupName, SubjectTestHelper.SUBJ0, recent0);
+    recentAttributeDefNames = GrouperUserDataApi.recentlyUsedAttributeDefNames(userDataGroupName, SubjectTestHelper.SUBJ0);    
+    
+    assertEquals(2, GrouperUtil.length(recentAttributeDefNames));
+    assertTrue(recentAttributeDefNames.contains(recent0));
+    assertTrue(recentAttributeDefNames.contains(recent1));
+    
+    //############# remove one that isnt there
+    GrouperUserDataApi.recentlyUsedAttributeDefNameRemove(userDataGroupName, SubjectTestHelper.SUBJ0, recent2);
+    recentAttributeDefNames = GrouperUserDataApi.recentlyUsedAttributeDefNames(userDataGroupName, SubjectTestHelper.SUBJ0);    
+    
+    assertEquals(2, GrouperUtil.length(recentAttributeDefNames));
+    assertTrue(recentAttributeDefNames.contains(recent0));
+    assertTrue(recentAttributeDefNames.contains(recent1));
+  
+    //############# remove one that is there
+    GrouperUserDataApi.recentlyUsedAttributeDefNameRemove(userDataGroupName, SubjectTestHelper.SUBJ0, recent0);
+    recentAttributeDefNames = GrouperUserDataApi.recentlyUsedAttributeDefNames(userDataGroupName, SubjectTestHelper.SUBJ0);    
+    
+    assertEquals(1, GrouperUtil.length(recentAttributeDefNames));
+    assertTrue(recentAttributeDefNames.contains(recent1));
+  
+    GrouperSession.stopQuietly(grouperSession);
+  }
+
+  /**
+   * 
+   */
+  public void testFavoriteMembers() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Member member7 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ7, true);
+    Member member8 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ8, true);
+    Member member9 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ9, true);
+        
+    new StemSave(grouperSession).assignName("test").save();
+    
+    String userDataGroupName = "test:testUserData";
+    
+    GrouperUserDataApi.favoriteMemberAdd(userDataGroupName, SubjectTestHelper.SUBJ0, member7);
+    GrouperUserDataApi.favoriteMemberAdd(userDataGroupName, SubjectTestHelper.SUBJ0, member8);
+    GrouperUserDataApi.favoriteMemberAdd(userDataGroupName, SubjectTestHelper.SUBJ1, member7);
+    
+    //############ subj0 has 0 and 1 as favorite groups
+    Set<Member> favoriteMembers = GrouperUserDataApi.favoriteMembers(userDataGroupName, SubjectTestHelper.SUBJ0);
+    
+    assertEquals(2, GrouperUtil.length(favoriteMembers));
+    assertTrue(favoriteMembers.contains(member7));
+    assertTrue(favoriteMembers.contains(member8));
+  
+    //############ subj1 has 0 as favorite group
+    favoriteMembers = GrouperUserDataApi.favoriteMembers(userDataGroupName, SubjectTestHelper.SUBJ1);    
+      
+    assertEquals(1, GrouperUtil.length(favoriteMembers));
+    assertTrue(favoriteMembers.contains(member7));
+  
+    //############# subj2 has no favorites
+    favoriteMembers = GrouperUserDataApi.favoriteMembers(userDataGroupName, SubjectTestHelper.SUBJ2);    
+    
+    assertEquals(0, GrouperUtil.length(favoriteMembers));
+    
+    //############# add same favorite again
+    GrouperUserDataApi.favoriteMemberAdd(userDataGroupName, SubjectTestHelper.SUBJ0, member7);
+    favoriteMembers = GrouperUserDataApi.favoriteMembers(userDataGroupName, SubjectTestHelper.SUBJ0);    
+    
+    assertEquals(2, GrouperUtil.length(favoriteMembers));
+    assertTrue(favoriteMembers.contains(member7));
+    assertTrue(favoriteMembers.contains(member8));
+    
+    //############# remove one that isnt there
+    GrouperUserDataApi.favoriteMemberRemove(userDataGroupName, SubjectTestHelper.SUBJ0, member9);
+    favoriteMembers = GrouperUserDataApi.favoriteMembers(userDataGroupName, SubjectTestHelper.SUBJ0);    
+    
+    assertEquals(2, GrouperUtil.length(favoriteMembers));
+    assertTrue(favoriteMembers.contains(member7));
+    assertTrue(favoriteMembers.contains(member8));
+  
+    //############# remove one that is there
+    GrouperUserDataApi.favoriteMemberRemove(userDataGroupName, SubjectTestHelper.SUBJ0, member7);
+    favoriteMembers = GrouperUserDataApi.favoriteMembers(userDataGroupName, SubjectTestHelper.SUBJ0);    
+    
+    assertEquals(1, GrouperUtil.length(favoriteMembers));
+    assertTrue(favoriteMembers.contains(member8));
+  
+    GrouperSession.stopQuietly(grouperSession);
+  }
+
+  /**
+   * 
+   */
+  public void testRecentlyUsedMembers() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Member member7 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ7, true);
+    Member member8 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ8, true);
+    Member member9 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ9, true);
+        
+    new StemSave(grouperSession).assignName("test").save();
+    
+    String userDataGroupName = "test:testUserData";
+    
+    GrouperUserDataApi.recentlyUsedMemberAdd(userDataGroupName, SubjectTestHelper.SUBJ0, member7);
+    GrouperUserDataApi.recentlyUsedMemberAdd(userDataGroupName, SubjectTestHelper.SUBJ0, member8);
+    GrouperUserDataApi.recentlyUsedMemberAdd(userDataGroupName, SubjectTestHelper.SUBJ1, member7);
+    
+    //############ subj0 has 0 and 1 as recentlyUsed groups
+    Set<Member> recentlyUsedMembers = GrouperUserDataApi.recentlyUsedMembers(userDataGroupName, SubjectTestHelper.SUBJ0);
+    
+    assertEquals(2, GrouperUtil.length(recentlyUsedMembers));
+    assertTrue(recentlyUsedMembers.contains(member7));
+    assertTrue(recentlyUsedMembers.contains(member8));
+  
+    //############ subj1 has 0 as recentlyUsed group
+    recentlyUsedMembers = GrouperUserDataApi.recentlyUsedMembers(userDataGroupName, SubjectTestHelper.SUBJ1);    
+      
+    assertEquals(1, GrouperUtil.length(recentlyUsedMembers));
+    assertTrue(recentlyUsedMembers.contains(member7));
+  
+    //############# subj2 has no recentlyUseds
+    recentlyUsedMembers = GrouperUserDataApi.recentlyUsedMembers(userDataGroupName, SubjectTestHelper.SUBJ2);    
+    
+    assertEquals(0, GrouperUtil.length(recentlyUsedMembers));
+    
+    //############# add same recentlyUsed again
+    GrouperUserDataApi.recentlyUsedMemberAdd(userDataGroupName, SubjectTestHelper.SUBJ0, member7);
+    recentlyUsedMembers = GrouperUserDataApi.recentlyUsedMembers(userDataGroupName, SubjectTestHelper.SUBJ0);    
+    
+    assertEquals(2, GrouperUtil.length(recentlyUsedMembers));
+    assertTrue(recentlyUsedMembers.contains(member7));
+    assertTrue(recentlyUsedMembers.contains(member8));
+    
+    //############# remove one that isnt there
+    GrouperUserDataApi.recentlyUsedMemberRemove(userDataGroupName, SubjectTestHelper.SUBJ0, member9);
+    recentlyUsedMembers = GrouperUserDataApi.recentlyUsedMembers(userDataGroupName, SubjectTestHelper.SUBJ0);    
+    
+    assertEquals(2, GrouperUtil.length(recentlyUsedMembers));
+    assertTrue(recentlyUsedMembers.contains(member7));
+    assertTrue(recentlyUsedMembers.contains(member8));
+  
+    //############# remove one that is there
+    GrouperUserDataApi.recentlyUsedMemberRemove(userDataGroupName, SubjectTestHelper.SUBJ0, member7);
+    recentlyUsedMembers = GrouperUserDataApi.recentlyUsedMembers(userDataGroupName, SubjectTestHelper.SUBJ0);    
+    
+    assertEquals(1, GrouperUtil.length(recentlyUsedMembers));
+    assertTrue(recentlyUsedMembers.contains(member8));
   
     GrouperSession.stopQuietly(grouperSession);
   }

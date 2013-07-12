@@ -2140,6 +2140,9 @@ public class GrouperCheckConfig {
             checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_FAVORITE_GROUPS, 
                 "Grouper user data favorite groups", 
                 "A list of group ids and metadata in json format that are the favorites for a user", wasInCheckConfig);
+            checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_FAVORITE_SUBJECTS, 
+                "Grouper user data favorite subjects", 
+                "A list of member ids and metadata in json format that are the favorites for a user", wasInCheckConfig);
             checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_RECENT_GROUPS, 
                 "Grouper user data recent groups", 
                 "A list of group ids and metadata in json format that are the recently used groups for a user", wasInCheckConfig);
@@ -2149,6 +2152,15 @@ public class GrouperCheckConfig {
             checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_RECENT_STEMS, 
                 "Grouper user data recent folders", 
                 "A list of folder ids and metadata in json format that are the recently used folders for a user", wasInCheckConfig);
+            checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_RECENT_ATTIRBUTE_DEFS, 
+                "Grouper user data recent attribute definitions", 
+                "A list of attribute definition ids and metadata in json format that are the recently used attribute definitions for a user", wasInCheckConfig);
+            checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_RECENT_ATTRIBUTE_DEF_NAMES, 
+                "Grouper user data recent attribute definition names", 
+                "A list of attribute definition name ids and metadata in json format that are the recently used attribute definition names for a user", wasInCheckConfig);
+            checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_RECENT_SUBJECTS, 
+                "Grouper user data recent subjects", 
+                "A list of attribute member ids and metadata in json format that are the recently used subjects for a user", wasInCheckConfig);
             checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_FAVORITE_ATTIRBUTE_DEFS, 
                 "Grouper user data favorite attribute definitions", 
                 "A list of attribute definition ids and metadata in json format that are the favorites for a user", wasInCheckConfig);
