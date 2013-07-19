@@ -268,4 +268,74 @@ public class LazySource implements Source, Serializable {
   public Set<String> getInternalAttributes() {
     return this.getSource().getInternalAttributes();
   }
+
+  /**
+   * @see edu.internet2.middleware.subject.Source#getSubject(java.lang.String, boolean, java.lang.String)
+   */
+  @Override
+  public Subject getSubject(String id, boolean exceptionIfNull, String realm)
+      throws SubjectNotFoundException, SubjectNotUniqueException {
+    return this.getSource().getSubject(id, exceptionIfNull, realm);
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Source#getSubjectByIdOrIdentifier(java.lang.String, boolean, java.lang.String)
+   */
+  @Override
+  public Subject getSubjectByIdOrIdentifier(String idOrIdentifier,
+      boolean exceptionIfNull, String realm) throws SubjectNotFoundException,
+      SubjectNotUniqueException {
+    return this.getSource().getSubjectByIdOrIdentifier(idOrIdentifier, exceptionIfNull, realm);
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Source#getSubjectByIdentifier(java.lang.String, boolean, java.lang.String)
+   */
+  @Override
+  public Subject getSubjectByIdentifier(String id, boolean exceptionIfNull, String realm)
+      throws SubjectNotFoundException, SubjectNotUniqueException {
+    return this.getSource().getSubjectByIdentifier(id, exceptionIfNull, realm);
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Source#getSubjectsByIdentifiers(java.util.Collection, java.lang.String)
+   */
+  @Override
+  public Map<String, Subject> getSubjectsByIdentifiers(Collection<String> identifiers,
+      String realm) {
+    return this.getSource().getSubjectsByIdentifiers(identifiers, realm);
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Source#getSubjectsByIds(java.util.Collection, java.lang.String)
+   */
+  @Override
+  public Map<String, Subject> getSubjectsByIds(Collection<String> ids, String realm) {
+    return this.getSource().getSubjectsByIds(ids, realm);
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Source#getSubjectsByIdsOrIdentifiers(java.util.Collection, java.lang.String)
+   */
+  @Override
+  public Map<String, Subject> getSubjectsByIdsOrIdentifiers(
+      Collection<String> idsOrIdentifiers, String realm) {
+    return this.getSource().getSubjectsByIdsOrIdentifiers(idsOrIdentifiers, realm);
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Source#search(java.lang.String, java.lang.String)
+   */
+  @Override
+  public Set<Subject> search(String searchValue, String realm) {
+    return this.getSource().search(searchValue, realm);
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Source#searchPage(java.lang.String, java.lang.String)
+   */
+  @Override
+  public SearchPageResult searchPage(String searchValue, String realm) {
+    return this.getSource().searchPage(searchValue, realm);
+  }
 }

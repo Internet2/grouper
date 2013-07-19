@@ -55,6 +55,11 @@ import edu.internet2.middleware.subject.util.SubjectApiUtils;
  */
 public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
 
+  /**
+   * threadlocal for realm
+   */
+  private static ThreadLocal<String> threadLocalRealm = new ThreadLocal<String>();
+  
   /** 
    * table or view where each row is a subject
    * <param-name>dbTableOrView</param-name> 
@@ -292,6 +297,311 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
   }
 
   /**
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#getSubject(java.lang.String, boolean, java.lang.String)
+   */
+  @Override
+  public Subject getSubject(String id1, boolean exceptionIfNull, String realm)
+      throws SubjectNotFoundException, SubjectNotUniqueException {
+    
+    boolean needsRealm = threadLocalRealm.get() == null;
+    if (needsRealm) {
+      threadLocalRealm.set(StringUtils.defaultString(realm));
+    }
+    try {
+      Map<String, Subject> subjectMap = getSubjectsByIds(SubjectApiUtils.toSet(id1));
+      
+      if (SubjectApiUtils.length(subjectMap) > 1) {
+        throw new RuntimeException("Why are there more than one result??? " + id1 + ", " + SubjectApiUtils.length(subjectMap));
+      }
+      
+      Subject subject = null;
+      
+      if (SubjectApiUtils.length(subjectMap) == 1) {
+        subject = subjectMap.values().iterator().next();
+      }
+      
+      if (subject == null && exceptionIfNull) {
+        throw new SubjectNotFoundException("Subject not found by id: " + id1);
+      }
+      return subject;
+    } finally {
+      if (needsRealm) {
+        threadLocalRealm.remove();
+      }
+    }
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#getSubjectByIdentifier(java.lang.String, boolean, java.lang.String)
+   */
+  @Override
+  public Subject getSubjectByIdentifier(String identifier, boolean exceptionIfNull, String realm)
+      throws SubjectNotFoundException, SubjectNotUniqueException {
+
+    boolean needsRealm = threadLocalRealm.get() == null;
+    if (needsRealm) {
+      threadLocalRealm.set(StringUtils.defaultString(realm));
+    }
+    try {
+
+      Map<String, Subject> subjectMap = getSubjectsByIdentifiers(SubjectApiUtils.toSet(identifier));
+  
+      if (SubjectApiUtils.length(subjectMap) > 1) {
+        throw new RuntimeException("Why are there more than one result??? " + identifier + ", " + SubjectApiUtils.length(subjectMap));
+      }
+  
+      Subject subject = null;
+  
+      if (SubjectApiUtils.length(subjectMap) == 1) {
+        subject = subjectMap.values().iterator().next();
+      }
+  
+      if (subject == null && exceptionIfNull) {
+        throw new SubjectNotFoundException("Subject not found by identifier: " + identifier);
+      }
+      return subject;
+    } finally {
+      if (needsRealm) {
+        threadLocalRealm.remove();
+      }
+    }
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#getSubjectByIdOrIdentifier(java.lang.String, boolean, java.lang.String)
+   */
+  @Override
+  public Subject getSubjectByIdOrIdentifier(String idOrIdentifier,
+      boolean exceptionIfNull, String realm) throws SubjectNotFoundException,
+      SubjectNotUniqueException {
+    boolean needsRealm = threadLocalRealm.get() == null;
+    if (needsRealm) {
+      threadLocalRealm.set(StringUtils.defaultString(realm));
+    }
+    try {
+      return super.getSubjectByIdOrIdentifier(idOrIdentifier, exceptionIfNull);
+    } finally {
+      if (needsRealm) {
+        threadLocalRealm.remove();
+      }
+    }
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#getSubjectByIdOrIdentifier(java.lang.String, boolean)
+   */
+  @Override
+  public Subject getSubjectByIdOrIdentifier(String idOrIdentifier, boolean exceptionIfNull)
+      throws SubjectNotFoundException, SubjectNotUniqueException {
+    return this.getSubjectByIdOrIdentifier(idOrIdentifier, exceptionIfNull, null);
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#getSubjectsByIdentifiers(java.util.Collection, java.lang.String)
+   */
+  @Override
+  public Map<String, Subject> getSubjectsByIdentifiers(Collection<String> identifiers,
+      String realm) {
+
+    boolean needsRealm = threadLocalRealm.get() == null;
+    if (needsRealm) {
+      threadLocalRealm.set(StringUtils.defaultString(realm));
+    }
+    try {
+      if (identifiers == null) {
+        return null;
+      }
+  
+      Map<String, Subject> results = new HashMap<String, Subject>();
+      
+      if (SubjectApiUtils.length(identifiers) > 0) {
+  
+        //if no identifier col, just get by id
+        if (this.subjectIdentifierCols.size() == 0) {
+          return this.getSubjectsByIds(identifiers);
+        }
+  
+        StringBuilder theSelectCols = new StringBuilder(StringUtils.join(this.selectCols.iterator(), ","));
+        
+        for (String subjectIdentifier : this.subjectIdentifierCols) {
+          
+          if (!this.selectCols.contains(subjectIdentifier)) {
+            theSelectCols.append(", ").append(subjectIdentifier);
+          }
+          
+        }
+  
+        int batchSize = 180 / this.subjectIdentifierCols.size();
+        int numberOfBatches = SubjectApiUtils.batchNumberOfBatches(identifiers, batchSize);
+        
+        List<String> identifiersList = new ArrayList<String>(identifiers);
+        
+        for (int i=0;i<numberOfBatches;i++) {
+          
+          List<String> identifiersBatch = SubjectApiUtils.batchList(identifiersList, batchSize, i);        
+  
+        
+          //we need the select cols, and the identifier cols so we can match the results with the identifiers
+          StringBuilder query = new StringBuilder("select "
+              + theSelectCols.toString() + " from "
+              + dbTableOrView() + " where ");
+    
+          List<String> args = new ArrayList<String>();
+    
+          int identifierIndex = 0;
+          for (String identifier : identifiersBatch) {
+            
+            if (identifierIndex > 0) {
+              
+              query.append(" or ");
+              
+            }
+            
+            query.append(" ( ");
+            
+            int index = 0;
+            for (String subjectIdentifierCol : this.subjectIdentifierCols) {
+              query.append(subjectIdentifierCol + " = ?");
+              if (index != this.subjectIdentifierCols.size() - 1) {
+                query.append(" or ");
+              }
+              args.add(identifier);
+              index++;
+            }
+            
+            query.append(" ) ");
+            identifierIndex++;
+          }
+          
+          
+          this.search(query.toString(), args, false, false, false, null, identifiersBatch, results);
+          
+        }      
+        
+      }
+      return results;
+    } finally {
+      if (needsRealm) {
+        threadLocalRealm.remove();
+      }
+    }
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#getSubjectsByIds(java.util.Collection, java.lang.String)
+   */
+  @Override
+  public Map<String, Subject> getSubjectsByIds(Collection<String> ids, String realm) {
+
+    boolean needsRealm = threadLocalRealm.get() == null;
+    if (needsRealm) {
+      threadLocalRealm.set(StringUtils.defaultString(realm));
+    }
+    try {
+  
+      if (ids == null) {
+        return null;
+      }
+      
+      Map<String, Subject> results = new HashMap<String, Subject>();
+      
+      if (ids.size() > 0) {
+        
+        int batchSize = 180;
+        int numberOfBatches = SubjectApiUtils.batchNumberOfBatches(ids, batchSize);
+        
+        List<String> idsList = new ArrayList<String>(ids);
+        
+        for (int i=0;i<numberOfBatches;i++) {
+  
+          List<String> idsBatch = SubjectApiUtils.batchList(idsList, batchSize, i);        
+  
+          String query = "select " + StringUtils.join(this.selectCols.iterator(), ",")
+            + " from " + dbTableOrView() + " where " + this.subjectIdCol + " in ("
+            + SubjectApiUtils.convertToInClauseForSqlStatic(idsBatch) + ")";
+      
+          List<String> args = new ArrayList<String>(idsBatch);
+    
+          Set<Subject> subjects = this.search(query.toString(), args, false, false, false, null, null, null);
+          
+          for (Subject subject : SubjectApiUtils.nonNull(subjects)) {
+            results.put(subject.getId(), subject);
+          }
+        }
+      }
+      return results;
+    } finally {
+      if (needsRealm) {
+        threadLocalRealm.remove();
+      }
+    }
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#getSubjectsByIdsOrIdentifiers(java.util.Collection, java.lang.String)
+   */
+  @Override
+  public Map<String, Subject> getSubjectsByIdsOrIdentifiers(
+      Collection<String> idsOrIdentifiers, String realm) {
+    boolean needsRealm = threadLocalRealm.get() == null;
+    if (needsRealm) {
+      threadLocalRealm.set(StringUtils.defaultString(realm));
+    }
+    try {
+      return super.getSubjectsByIdsOrIdentifiers(idsOrIdentifiers);
+    } finally {
+      if (needsRealm) {
+        threadLocalRealm.remove();
+      }
+    }
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#getSubjectsByIdsOrIdentifiers(java.util.Collection)
+   */
+  @Override
+  public Map<String, Subject> getSubjectsByIdsOrIdentifiers(
+      Collection<String> idsOrIdentifiers) {
+    return this.getSubjectsByIdsOrIdentifiers(idsOrIdentifiers, null);
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#search(java.lang.String, java.lang.String)
+   */
+  @Override
+  public Set<Subject> search(String searchValue, String realm) {
+    boolean needsRealm = threadLocalRealm.get() == null;
+    if (needsRealm) {
+      threadLocalRealm.set(StringUtils.defaultString(realm));
+    }
+    try {
+      return searchHelper(searchValue, false).getResults();
+    } finally {
+      if (needsRealm) {
+        threadLocalRealm.remove();
+      }
+    }
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#searchPage(java.lang.String, java.lang.String)
+   */
+  @Override
+  public SearchPageResult searchPage(String searchValue, String realm) {
+    boolean needsRealm = threadLocalRealm.get() == null;
+    if (needsRealm) {
+      threadLocalRealm.set(StringUtils.defaultString(realm));
+    }
+    try {
+      return searchHelper(searchValue, true);
+    } finally {
+      if (needsRealm) {
+        threadLocalRealm.remove();
+      }
+    }
+  }
+
+  /**
    * DataSource connection pool setup.
    * @param props 
    * @throws SourceUnavailableException
@@ -452,79 +762,8 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
    */
   @Override
   public Map<String, Subject> getSubjectsByIdentifiers(Collection<String> identifiers) {
+    return this.getSubjectsByIdentifiers(identifiers, null);
 
-    if (identifiers == null) {
-      return null;
-    }
-
-    Map<String, Subject> results = new HashMap<String, Subject>();
-    
-    if (SubjectApiUtils.length(identifiers) > 0) {
-
-      //if no identifier col, just get by id
-      if (this.subjectIdentifierCols.size() == 0) {
-        return this.getSubjectsByIds(identifiers);
-      }
-
-      StringBuilder theSelectCols = new StringBuilder(StringUtils.join(this.selectCols.iterator(), ","));
-      
-      for (String subjectIdentifier : this.subjectIdentifierCols) {
-        
-        if (!this.selectCols.contains(subjectIdentifier)) {
-          theSelectCols.append(", ").append(subjectIdentifier);
-        }
-        
-      }
-
-      int batchSize = 180 / this.subjectIdentifierCols.size();
-      int numberOfBatches = SubjectApiUtils.batchNumberOfBatches(identifiers, batchSize);
-      
-      List<String> identifiersList = new ArrayList<String>(identifiers);
-      
-      for (int i=0;i<numberOfBatches;i++) {
-        
-        List<String> identifiersBatch = SubjectApiUtils.batchList(identifiersList, batchSize, i);        
-
-      
-        //we need the select cols, and the identifier cols so we can match the results with the identifiers
-        StringBuilder query = new StringBuilder("select "
-            + theSelectCols.toString() + " from "
-            + this.dbTableOrView + " where ");
-  
-        List<String> args = new ArrayList<String>();
-  
-        int identifierIndex = 0;
-        for (String identifier : identifiersBatch) {
-          
-          if (identifierIndex > 0) {
-            
-            query.append(" or ");
-            
-          }
-          
-          query.append(" ( ");
-          
-          int index = 0;
-          for (String subjectIdentifierCol : this.subjectIdentifierCols) {
-            query.append(subjectIdentifierCol + " = ?");
-            if (index != this.subjectIdentifierCols.size() - 1) {
-              query.append(" or ");
-            }
-            args.add(identifier);
-            index++;
-          }
-          
-          query.append(" ) ");
-          identifierIndex++;
-        }
-        
-        
-        this.search(query.toString(), args, false, false, false, null, identifiersBatch, results);
-        
-      }      
-      
-    }
-    return results;
   }
 
   /**
@@ -532,38 +771,8 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
    */
   @Override
   public Map<String, Subject> getSubjectsByIds(Collection<String> ids) {
-    
-    if (ids == null) {
-      return null;
-    }
-    
-    Map<String, Subject> results = new HashMap<String, Subject>();
-    
-    if (ids.size() > 0) {
-      
-      int batchSize = 180;
-      int numberOfBatches = SubjectApiUtils.batchNumberOfBatches(ids, batchSize);
-      
-      List<String> idsList = new ArrayList<String>(ids);
-      
-      for (int i=0;i<numberOfBatches;i++) {
+    return this.getSubjectsByIds(ids, null);
 
-        List<String> idsBatch = SubjectApiUtils.batchList(idsList, batchSize, i);        
-
-        String query = "select " + StringUtils.join(this.selectCols.iterator(), ",")
-          + " from " + this.dbTableOrView + " where " + this.subjectIdCol + " in ("
-          + SubjectApiUtils.convertToInClauseForSqlStatic(idsBatch) + ")";
-    
-        List<String> args = new ArrayList<String>(idsBatch);
-  
-        Set<Subject> subjects = this.search(query.toString(), args, false, false, false, null, null, null);
-        
-        for (Subject subject : SubjectApiUtils.nonNull(subjects)) {
-          results.put(subject.getId(), subject);
-        }
-      }
-    }
-    return results;
   }
 
   /**
@@ -571,25 +780,10 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
    * @see edu.internet2.middleware.subject.provider.JDBCSourceAdapter#getSubject(java.lang.String, boolean)
    */
   @Override
-  public Subject getSubject(String id, boolean exceptionIfNull) throws SubjectNotFoundException,
+  public Subject getSubject(String id1, boolean exceptionIfNull) throws SubjectNotFoundException,
       SubjectNotUniqueException {
+    return this.getSubject(id1, exceptionIfNull, null);
 
-    Map<String, Subject> subjectMap = getSubjectsByIds(SubjectApiUtils.toSet(id));
-    
-    if (SubjectApiUtils.length(subjectMap) > 1) {
-      throw new RuntimeException("Why are there more than one result??? " + id + ", " + SubjectApiUtils.length(subjectMap));
-    }
-    
-    Subject subject = null;
-    
-    if (SubjectApiUtils.length(subjectMap) == 1) {
-      subject = subjectMap.values().iterator().next();
-    }
-    
-    if (subject == null && exceptionIfNull) {
-      throw new SubjectNotFoundException("Subject not found by id: " + id);
-    }
-    return subject;
   }
 
   /**
@@ -597,7 +791,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
    */
   @Override
   public SearchPageResult searchPage(String searchValue) {
-    return searchHelper(searchValue, true);
+    return this.searchPage(searchValue, null);
   }
 
   /**
@@ -606,9 +800,26 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
    */
   @Override
   public Set<Subject> search(String searchValue) {
-    return searchHelper(searchValue, false).getResults();
+    return this.search(searchValue, null);
   }
 
+  /**
+   * get the db table or view, considering realm
+   * @return the db table or view
+   */
+  protected String dbTableOrView() {
+    String realm = threadLocalRealm.get();
+    if (StringUtils.isBlank(realm)) {
+      return this.dbTableOrView;
+    }
+    String key = "realm__" + realm + "__dbTableOrView";
+    String thisDbTableOrView = this.getInitParams().getProperty(key);
+    if (StringUtils.isBlank(thisDbTableOrView)) {
+      throw new RuntimeException("You are calling this source with a realm that is not configured: " + this.getId() + ", " + realm + ", " + key);
+    }
+    return thisDbTableOrView;
+  }
+  
   /**
    * @param searchValue 
    * @param firstPageOnly 
@@ -642,7 +853,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
 
     StringBuilder query = new StringBuilder("select "
         + StringUtils.join(this.selectCols.iterator(), ",") + " from "
-        + this.dbTableOrView + " where ");
+        + dbTableOrView() + " where ");
 
     List<String> args = new ArrayList<String>();
 
@@ -704,22 +915,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
   public Subject getSubjectByIdentifier(String identifier, boolean exceptionIfNull) throws SubjectNotFoundException,
       SubjectNotUniqueException {
 
-    Map<String, Subject> subjectMap = getSubjectsByIdentifiers(SubjectApiUtils.toSet(identifier));
-
-    if (SubjectApiUtils.length(subjectMap) > 1) {
-      throw new RuntimeException("Why are there more than one result??? " + identifier + ", " + SubjectApiUtils.length(subjectMap));
-    }
-
-    Subject subject = null;
-
-    if (SubjectApiUtils.length(subjectMap) == 1) {
-      subject = subjectMap.values().iterator().next();
-    }
-
-    if (subject == null && exceptionIfNull) {
-      throw new SubjectNotFoundException("Subject not found by identifier: " + identifier);
-    }
-    return subject;
+    return this.getSubjectByIdentifier(identifier, exceptionIfNull, null);
 
   }
 
