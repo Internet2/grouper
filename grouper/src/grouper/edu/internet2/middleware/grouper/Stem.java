@@ -109,6 +109,7 @@ import edu.internet2.middleware.grouper.log.EventLog;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.M;
@@ -159,7 +160,8 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, 
-    Hib3GrouperVersioned, Comparable<Stem>, XmlImportable<Stem>, AttributeAssignable, GrouperSetElement {
+    Hib3GrouperVersioned, Comparable<Stem>, XmlImportable<Stem>, AttributeAssignable, GrouperSetElement,
+    GrouperObject {
 
   /** table for stems table in the db */
   public static final String TABLE_GROUPER_STEMS = "grouper_stems";

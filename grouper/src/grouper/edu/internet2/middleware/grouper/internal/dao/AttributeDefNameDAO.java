@@ -209,11 +209,12 @@ public interface AttributeDefNameDAO extends GrouperDAO {
    * @param queryOptions
    * @param attributeAssignType
    * @param attributeDefType
+   * @param anyServiceRole will see if the user has any role in a service, and return those services
    * @return set of attribute defs
    */
   public Set<AttributeDefName> findAllAttributeNamesSecure(String scope, boolean splitScope,
       GrouperSession grouperSession, String attributeDefId, 
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, AttributeAssignType attributeAssignType,
-      AttributeDefType attributeDefType, ServiceRole serviceRole);
+      AttributeDefType attributeDefType, ServiceRole serviceRole, boolean anyServiceRole);
 
 }

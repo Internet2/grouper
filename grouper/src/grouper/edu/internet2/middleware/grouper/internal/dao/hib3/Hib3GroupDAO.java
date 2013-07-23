@@ -2408,7 +2408,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     sql.append(whereClause);
 
     TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, sql, byHqlStatic);
-    
+
     if (queryOptions != null) {
       massageSortFields(queryOptions.getQuerySort());
     }

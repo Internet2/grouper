@@ -31,19 +31,23 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Find groups within the Groups Registry.
@@ -453,7 +457,150 @@ public class GroupFinder {
     GrouperSession.validate(GrouperSession.staticGrouperSession());
     Group g = GrouperDAOFactory.getFactory().getGroup().findByIdIndexSecure(idIndex, exceptionIfNotFound, queryOptions);
     return g;
+  }
+
+  /**
+   * find groups where the static grouper session has certain privileges on the results
+   */
+  private Set<Privilege> privileges;
+
+  /**
+   * if sorting or paging
+   */
+  private QueryOptions queryOptions;
+
+  /**
+   * scope to look for groups Wildcards will be appended or percent is the wildcard
+   */
+  private String scope;
+
+  /**
+   * if the scope has spaces in it, then split by whitespace, and find results that contain all of the scope strings
+   */
+  private boolean splitScope;
+
+  /**
+   * this is the subject that has certain privileges
+   */
+  private Subject subject;
+
+  /**
+   * add a privilege to filter by that the subject has on the group
+   * @param privilege should be AccessPrivilege
+   * @return this for chaining
+   */
+  public GroupFinder addPrivilege(Privilege privilege) {
+    
+    if (this.privileges == null) {
+      this.privileges = new HashSet<Privilege>();
+    }
+    
+    this.privileges.add(privilege);
+    
+    return this;
+  }
+
+  /**
+   * assign privileges to filter by that the subject has on the group
+   * @param theGroups
+   * @return this for chaining
+   */
+  public GroupFinder assignPrivileges(Set<Privilege> theGroups) {
+    this.privileges = theGroups;
+    return this;
+  }
+
+  /**
+   * if sorting, paging, caching, etc
+   * @param theQueryOptions
+   * @return this for chaining
+   */
+  public GroupFinder assignQueryOptions(QueryOptions theQueryOptions) {
+    this.queryOptions = theQueryOptions;
+    return this;
   } 
+
+  /**
+   * find all the group
+   * @return the set of groups or the empty set if none found
+   */
+  public Set<Group> findGroups() {
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+   
+    return GrouperDAOFactory.getFactory().getGroup()
+      .getAllGroupsSplitScopeSecure(this.scope, grouperSession, this.subject, this.privileges, this.queryOptions, this.typeOfGroups);
+  }
+
+  /**
+   * type of groups to query, if null, qill query just groups and roles and groups that hold people
+   */
+  private Set<TypeOfGroup> typeOfGroups = new HashSet<TypeOfGroup>();
+
+  /**
+   * default constructor
+   */
+  public GroupFinder() {
+    this.typeOfGroups.addAll(TypeOfGroup.GROUP_OR_ROLE_SET);
+  }
+  
+  /**
+   * 
+   * @param theTypeOfGroups 
+   * @return this for chaining
+   */
+  public GroupFinder assignTypeOfGroups(Set<TypeOfGroup> theTypeOfGroups) {
+    
+    if (theTypeOfGroups == null) {
+      theTypeOfGroups = new HashSet<TypeOfGroup>();
+    }
+    
+    this.typeOfGroups = theTypeOfGroups;
+    
+    return this;
+    
+  }
+  
+  /**
+   * 
+   * @param typeOfGroup
+   * @return
+   */
+  public GroupFinder addTypeOfGroup(TypeOfGroup typeOfGroup) {
+    
+    this.typeOfGroups.add(typeOfGroup);
+    return this;
+    
+  }
+  
+  /**
+   * scope to look for groups  Wildcards will be appended or percent is the wildcard
+   * @param theScope
+   * @return this for chaining
+   */
+  public GroupFinder assignScope(String theScope) {
+    this.scope = theScope;
+    return this;
+  }
+
+  /**
+   * if the scope has spaces in it, then split by whitespace, and find results that contain all of the scope strings
+   * @param theSplitScope
+   * @return this for chaining
+   */
+  public GroupFinder assignSplitScope(boolean theSplitScope) {
+    this.splitScope = theSplitScope;
+    return this;
+  }
+
+  /**
+   * this is the subject that has certain privileges or is in the query
+   * @param theSubject
+   * @return this for chaining
+   */
+  public GroupFinder assignSubject(Subject theSubject) {
+    this.subject = theSubject;
+    return this;
+  }
 
 }
 

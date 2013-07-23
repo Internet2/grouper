@@ -64,6 +64,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
@@ -79,7 +80,8 @@ import edu.internet2.middleware.subject.Subject;
  */
 @SuppressWarnings("serial")
 public class AttributeDefName extends GrouperAPI 
-    implements GrouperHasContext, Hib3GrouperVersioned, GrouperSetElement, XmlImportable<AttributeDefName>, Comparable<AttributeDefName> {
+    implements GrouperHasContext, Hib3GrouperVersioned, GrouperSetElement, 
+    XmlImportable<AttributeDefName>, Comparable<AttributeDefName>, GrouperObject {
 
   /** name of the groups attribute def name table in the db */
   public static final String TABLE_GROUPER_ATTRIBUTE_DEF_NAME = "grouper_attribute_def_name";

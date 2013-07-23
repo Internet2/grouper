@@ -126,6 +126,7 @@ import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.M;
@@ -180,7 +181,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner, 
-    Hib3GrouperVersioned, Comparable, XmlImportable<Group>, AttributeAssignable, Entity {
+    Hib3GrouperVersioned, Comparable, XmlImportable<Group>, AttributeAssignable, Entity, GrouperObject {
 
   /** name of the groups table in the db */
   public static final String TABLE_GROUPER_GROUPS = "grouper_groups";

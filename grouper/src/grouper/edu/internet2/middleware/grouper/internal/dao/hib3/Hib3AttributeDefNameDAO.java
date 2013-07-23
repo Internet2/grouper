@@ -400,13 +400,14 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
    * service, or folders which have the service, or attribute definitions which have the service,
    * or the view privilege set
    * @param serviceRole if filtering by services the user has in a certain role
+   * @param anyServiceRole true if services should be returned where the user has any role
    * @return  attribute def names
    * 
    */
   private Set<AttributeDefName> findAllAttributeNamesSecureHelper(String scope,
       GrouperSession grouperSession, String attributeDefId, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions, boolean splitScope, AttributeAssignType attributeAssignType,
-      AttributeDefType attributeDefType, ServiceRole serviceRole) {
+      AttributeDefType attributeDefType, ServiceRole serviceRole, boolean anyServiceRole) {
     
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
@@ -420,7 +421,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
     StringBuilder sql = new StringBuilder(
         "select distinct theAttributeDefName from AttributeDefName theAttributeDefName, AttributeDef theAttributeDef ");
 
-    if (serviceRole != null) {
+    if (serviceRole != null || anyServiceRole) {
       sql.append(", ServiceRoleView theServiceRoleView ");
     }
     
@@ -428,7 +429,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
   
     StringBuilder whereClause = new StringBuilder(" theAttributeDefName.attributeDefId = theAttributeDef.id ");
 
-    if (serviceRole != null) {
+    if (serviceRole != null || anyServiceRole) {
       if (attributeDefType == null) {
         attributeDefType = AttributeDefType.service;
       }
@@ -544,7 +545,11 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
   
     boolean changedQuery = false;
     
-    if (serviceRole != null) {
+    if (serviceRole != null || anyServiceRole) {
+      
+      if (serviceRole != null && anyServiceRole) {
+        throw new RuntimeException("Cant set serviceRole and anyServiceRole, they are mutually exclusive");
+      }
       
       if (member == null) {
         throw new RuntimeException("If filtering by serviceRole: " + serviceRole + ", then pass in a subject who can see the services");
@@ -558,7 +563,9 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
           sql, "theServiceRoleView.groupId", AccessPrivilege.READ_PRIVILEGES);
       
       //fields for the service role
-      HibUtils.convertFieldsToSqlInString(serviceRole.fieldsForGroupQuery(), byHqlStatic, whereClause, "theServiceRoleView.fieldId");
+      HibUtils.convertFieldsToSqlInString(
+          anyServiceRole ? ServiceRole.allFieldsForGroupQuery() : serviceRole.fieldsForGroupQuery(), 
+          byHqlStatic, whereClause, "theServiceRoleView.fieldId");
 
       whereClause.append(" and theServiceRoleView.memberId = :groupMemberId ");
       byHqlStatic.setString("groupMemberId", member.getUuid());
@@ -605,7 +612,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       AttributeAssignType attributeAssignType, AttributeDefType attributeDefType) {
     return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, 
         subject, privileges, queryOptions, splitScope, attributeAssignType, attributeDefType,
-        null);
+        null, false);
   }
 
   /**
@@ -652,16 +659,16 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
   }
 
   /**
-   * @see AttributeDefNameDAO#findAllAttributeNamesSecure(String, boolean, GrouperSession, String, Subject, Set, QueryOptions, AttributeAssignType, AttributeDefType, ServiceRole)
+   * @see AttributeDefNameDAO#findAllAttributeNamesSecure(String, boolean, GrouperSession, String, Subject, Set, QueryOptions, AttributeAssignType, AttributeDefType, ServiceRole, boolean)
    */
   @Override
   public Set<AttributeDefName> findAllAttributeNamesSecure(String scope,
       boolean splitScope, GrouperSession grouperSession, String attributeDefId,
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions,
       AttributeAssignType attributeAssignType, AttributeDefType attributeDefType,
-      ServiceRole serviceRole) {
+      ServiceRole serviceRole, boolean anyServiceRole) {
     return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, subject, 
-        privileges, queryOptions, true, attributeAssignType, attributeDefType, serviceRole);
+        privileges, queryOptions, true, attributeAssignType, attributeDefType, serviceRole, anyServiceRole);
   }
 
   /**
@@ -673,7 +680,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       Set<Privilege> privileges, QueryOptions queryOptions,
       AttributeAssignType attributeAssignType, AttributeDefType attributeDefType) {
     return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, subject, 
-        privileges, queryOptions, true, attributeAssignType, attributeDefType, null);
+        privileges, queryOptions, true, attributeAssignType, attributeDefType, null, false);
   }
 
   /**

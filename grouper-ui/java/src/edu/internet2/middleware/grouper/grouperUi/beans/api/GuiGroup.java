@@ -25,7 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
-import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 
@@ -36,7 +36,8 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
  * 
  * @author mchyzer
  */
-public class GuiGroup implements Serializable {
+@SuppressWarnings("serial")
+public class GuiGroup extends GuiObjectBase implements Serializable {
 
   /** group */
   private Group group;
@@ -86,15 +87,6 @@ public class GuiGroup implements Serializable {
     return this.group;
   }
 
-  /**
-   * 
-   * @see java.lang.Object#toString()
-   */
-  @Override
-  public String toString() {
-    return "" + this.group;
-  }
-  
   /**
    * 
    */
@@ -153,4 +145,13 @@ public class GuiGroup implements Serializable {
     return "groupExportAll_" + groupExtensionFileName + ".csv";
  
   }
+  
+  /**
+   * @see GuiObjectBase#getGrouperObject()
+   */
+  @Override
+  public GrouperObject getGrouperObject() {
+    return this.group;
+  }
+  
 }

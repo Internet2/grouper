@@ -90,7 +90,10 @@ public enum TypeOfGroup {
   public static void appendHqlQuery(String groupAlias, Set<TypeOfGroup> typeOfGroups, StringBuilder hql, HqlQuery hqlQuery) {
     if (GrouperUtil.length(typeOfGroups) > 0) {
       if (hql.indexOf(" where ") > 0) {
-        hql.append(" and ");
+        String lowerTrimmed = hql.toString().trim().toLowerCase();
+        if (!lowerTrimmed.endsWith(" and") && !lowerTrimmed.endsWith(" where")) {
+          hql.append(" and ");
+        }
       } else {
         hql.append(" where ");
       }

@@ -73,7 +73,7 @@ public class AttributeDefNameFinder {
   /**
    * if filtering by service, this is the role, or null for all
    */
-  ServiceRole serviceRole;
+  private ServiceRole serviceRole;
   
   /**
    * if filtering by service, this is the service role, or null for all
@@ -205,7 +205,22 @@ public class AttributeDefNameFinder {
           this.attributeDefId, this.subject, this.privileges, 
           this.queryOptions, this.attributeAssignType, 
           this.attributeDefType, 
-          this.serviceRole);
+          this.serviceRole, this.anyServiceRole);
+  }
+  
+  /**
+   * mutually exclusive with serviceRole... this is true if looking for services where the user has any role
+   */
+  private boolean anyServiceRole = false;
+
+  /**
+   * mutually exclusive with serviceRole... this is true if looking for services where the user has any role
+   * @param theAnyRole
+   * @return this for chaining
+   */
+  public AttributeDefNameFinder assignAnyRole(boolean theAnyRole) {
+    this.anyServiceRole = theAnyRole;
+    return this;
   }
   
   /**
