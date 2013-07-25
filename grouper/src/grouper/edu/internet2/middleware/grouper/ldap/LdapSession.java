@@ -305,12 +305,16 @@ public class LdapSession {
               Object attributeValue = GrouperUtil.typeCast(nameInNamespace, returnType);
               result.add((R)attributeValue);
             } else {
-              for (int i=0;i<attribute.size();i++) {
-  
-                Object attributeValue = attribute.get(i);
-                attributeValue = GrouperUtil.typeCast(attributeValue, returnType);
-                if (attributeValue != null) {
-                  result.add((R)attributeValue);
+              
+              //GRP-921 - ldap session list throws an error if the attribute does not exist on the server
+              if (attribute != null) {
+                for (int i=0;i<attribute.size();i++) {
+    
+                  Object attributeValue = attribute.get(i);
+                  attributeValue = GrouperUtil.typeCast(attributeValue, returnType);
+                  if (attributeValue != null) {
+                    result.add((R)attributeValue);
+                  }
                 }
               }
             }

@@ -7547,7 +7547,7 @@ public class GrouperUtil {
   }
   
   /**
-   * find the length of ascii chars (non ascii are counted as two)
+   * find the length of ascii chars (non ascii are counted as three)
    * @param input is the string to operate on
    * @param requiredLength length we need the string to be
    * @return the length of ascii chars
