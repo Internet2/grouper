@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.entity.EntityUtils;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -177,10 +178,24 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
+            
             hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             ByObject byObject = hibernateSession.byObject();
-            
+
+            if (GrouperConfig.getPropertyBoolean("grouperDeleteAttributesTypesOnGroupDeleteForChangeLog", false)) {
+              for (String attributeName : _g.getAttributesMap(false).keySet()) {
+                
+                _g.deleteAttribute(attributeName, false);
+                
+              }
+              for (GroupType groupType : _g.getTypes()) {
+                
+                GrouperDAOFactory.getFactory().getGroup().deleteType( _g, groupType );
+                
+              }
+            }            
+
             // delete attributes
             ByHql byHql = hibernateSession.byHql();
             byHql.createQuery("delete from Attribute where group_id = :group");
