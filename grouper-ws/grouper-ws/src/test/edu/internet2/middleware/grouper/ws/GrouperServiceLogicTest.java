@@ -166,7 +166,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testGetAttributeAssignmentsGroup"));
+    TestRunner.run(new GrouperServiceLogicTest("testGetGrouperPrivilegesLite"));
   }
 
   /**
@@ -2424,6 +2424,47 @@ public class GrouperServiceLogicTest extends GrouperTest {
         wsGetPermissionAssignmentsResults.getResultMetadata().getResultCode());
 
     assertEquals(0, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsPermissionAssigns()));
+  }
+  
+  /**
+   * test grouper privileges
+   */
+  public void testGetGrouperPrivilegesLite() {
+
+//    groupName = "test:testPrivilegeIssue";
+//    subjectIdWithAdminPriv = "test.subject.0";
+//    subjectIdWithUpdatePriv = "test.subject.1";
+//    subjectIdNoPrivs = "test.subject.2";
+//    grouperSession = GrouperSession.startRootSession();
+//    group = new GroupSave(grouperSession).assignName(groupName).assignCreateParentStemsIfNotExist(true).save();
+//    subjectWithAdminPriv = SubjectFinder.findByIdOrIdentifier(subjectIdWithAdminPriv, true);
+//    subjectWithUpdatePriv = SubjectFinder.findByIdOrIdentifier(subjectIdWithUpdatePriv, true);
+//    subjectNoPrivs = SubjectFinder.findByIdOrIdentifier(subjectIdNoPrivs, true);
+//    group.grantPriv(subjectWithAdminPriv, AccessPrivilege.ADMIN);
+//    group.grantPriv(subjectWithUpdatePriv, AccessPrivilege.UPDATE);
+
+    String groupName = "test:testPrivilegeIssue";
+    String subjectIdWithAdminPriv = "test.subject.0";
+    String subjectIdWithUpdatePriv = "test.subject.1";
+    String subjectIdNoPrivs = "test.subject.2";
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    Group group = new GroupSave(GrouperServiceUtils.testSession).assignName(groupName).assignCreateParentStemsIfNotExist(true).save();
+    Subject subjectWithAdminPriv = SubjectFinder.findByIdOrIdentifier(subjectIdWithAdminPriv, true);
+    Subject subjectWithUpdatePriv = SubjectFinder.findByIdOrIdentifier(subjectIdWithUpdatePriv, true);
+    Subject subjectNoPrivs = SubjectFinder.findByIdOrIdentifier(subjectIdNoPrivs, true);
+    group.grantPriv(subjectWithAdminPriv, AccessPrivilege.ADMIN);
+    group.grantPriv(subjectWithUpdatePriv, AccessPrivilege.UPDATE);
+    
+    //#################################
+    //## test that an unprivileged user cannot see privileges
+
+    GrouperServiceUtils.testSession = GrouperSession.start(subjectNoPrivs);
+
+//    WsGetAttributeAssignmentsResults wsGetAttributeAssignmentsResults = GrouperServiceLogic.getGrouperPrivilegesLite(
+//        GROUPER_VERSION, subjectWithAdminPriv.getId(), null, null, groupName, 
+//        null, null, null, null, null, null, null, null, null, false, false, null, null, null);
+
+    
   }
   
   /**
