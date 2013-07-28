@@ -76,6 +76,11 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable {
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> ATTRIBUTE_READ_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(STEM, CREATE, STEM_ATTR_READ));
+  
+  /** any of these constitutes STEM_ATTR_UPDATE on a group
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> ATTRIBUTE_UPDATE_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(STEM, CREATE, STEM_ATTR_UPDATE));
 
   /** convert a list to priv */
   private static Map<String,Privilege> list2priv = new HashMap<String, Privilege>();

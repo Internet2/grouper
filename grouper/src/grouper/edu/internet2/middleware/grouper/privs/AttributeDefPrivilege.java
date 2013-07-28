@@ -110,6 +110,11 @@ public class AttributeDefPrivilege implements GrouperPrivilege, Comparable {
   public static Set<Privilege> ATTRIBUTE_READ_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(ATTR_DEF_ATTR_READ, ATTR_ADMIN));
   
+  /** any of these constitutes ATTR_DEF_ATTR_UPDATE on a group
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> ATTRIBUTE_UPDATE_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ATTR_DEF_ATTR_UPDATE, ATTR_ADMIN));
+  
   /** convert a list to priv */
   private static Map<String,Privilege> list2priv = new HashMap<String, Privilege>();
 

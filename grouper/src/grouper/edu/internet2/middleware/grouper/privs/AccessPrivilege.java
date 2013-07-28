@@ -115,12 +115,22 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable {
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> ATTRIBUTE_READ_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(GROUP_ATTR_READ, ADMIN));
+  
+  /** any of these constitutes GROUP_ATTR_UPDATE on a group
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> ATTRIBUTE_UPDATE_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(GROUP_ATTR_UPDATE, ADMIN));
+
+  /** any of these constitutes UPDATE on a group
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> UPDATE_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(UPDATE, ADMIN));
 
 
   /** any of these constitutes VIEW on an entity
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> VIEW_ENTITY_PRIVILEGES = Collections.unmodifiableSet(
-      GrouperUtil.toSet(VIEW, ADMIN));
+      GrouperUtil.toSet(VIEW, ADMIN, GROUP_ATTR_READ, GROUP_ATTR_UPDATE));
 
   /** convert a list to priv */
   private static Map<String,Privilege> list2priv = new HashMap<String, Privilege>();
