@@ -38,6 +38,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -46,8 +47,8 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
@@ -85,9 +86,9 @@ import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.permissions.PermissionAssignOperation;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.PermissionFinder;
 import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
-import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.PITMember;
@@ -103,85 +104,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeType;
 import edu.internet2.middleware.grouper.service.ServiceRole;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchEntry;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesBatchResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesLiteResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsLiteResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssign;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignValue;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefName;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameToSave;
-import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetGrouperPrivilegesLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetPermissionAssignmentsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetSubjectsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupToSave;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGrouperPrivilegeResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubject;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipAnyLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
-import edu.internet2.middleware.grouper.ws.coresoap.WsPermissionEnvVar;
-import edu.internet2.middleware.grouper.ws.coresoap.WsQueryFilter;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStem;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemQueryFilter;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemToSave;
-import edu.internet2.middleware.grouper.ws.coresoap.WsSubject;
-import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.*;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult.WsAddMemberResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults.WsAddMemberResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults.WsAssignAttributeDefNameInheritanceResultsCode;
@@ -3329,7 +3252,7 @@ public class GrouperServiceLogic {
       AccessResolver accessResolver = session.getAccessResolver();
       NamingResolver namingResolver = session.getNamingResolver();
       
-      TreeSet<GrouperPrivilege> privileges = new TreeSet<GrouperPrivilege>();
+      Set<GrouperPrivilege> privileges = new TreeSet<GrouperPrivilege>();
       if (hasGroup) {
         
         Group group = wsGroupLookup.retrieveGroupIfNeeded(session, "wsGroupLookup");
@@ -3467,6 +3390,8 @@ public class GrouperServiceLogic {
           }          
         }
 
+        removePrivsNotAllowedToSee(privileges);
+
         WsGrouperPrivilegeResult[] privilegeResults = new WsGrouperPrivilegeResult[privileges.size()];
         if (privileges.size() > 0) {
           
@@ -3557,6 +3482,123 @@ public class GrouperServiceLogic {
   
     return wsGetGrouperPrivilegesLiteResult;
 
+    
+  }
+
+  /**
+   * remove privileges not allowed to see
+   * @param privileges
+   */
+  public static void removePrivsNotAllowedToSee(Set<GrouperPrivilege> privileges) {
+    
+    int originalNumberOfPrivileges = GrouperUtil.length(privileges);
+    
+    if (privileges != null) {
+      
+      //subject who is making the query
+      final Subject grouperSessionSubject = GrouperSession.staticGrouperSession().getSubject();
+      
+      //if this change breaks an app, and you need a quick fix, you can whitelist users
+      final String groupNameOfUsersWhoCanCheckAllPrivileges = GrouperWsConfig.retrieveConfig().propertyValueString("ws.groupNameOfUsersWhoCanCheckAllPrivileges");
+      
+      //if there is a whitelist to preserve old broken behavior
+      if (!StringUtils.isBlank(groupNameOfUsersWhoCanCheckAllPrivileges)) {
+        
+        //do this as root since the user who is allowed might not be able to read the whitelist group...
+        boolean done = (Boolean)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+          
+          @Override
+          public Object callback(GrouperSession grouperSession1) throws GrouperSessionException {
+            
+            Group groupOfUsersWhoCanCheckAllPrivileges = GroupFinder.findByName(grouperSession1, groupNameOfUsersWhoCanCheckAllPrivileges, false);
+            
+            if (groupOfUsersWhoCanCheckAllPrivileges != null) {
+              
+              //if the subject in the grouper session is in the whitelist group, then allow the query without filtering privileges
+              if (groupOfUsersWhoCanCheckAllPrivileges.hasMember(grouperSessionSubject)) {
+                return true;
+              }
+              
+            } else {
+              
+              //it is misconfigured, just keep going, but filter privileges based on calling user
+              LOG.error("Why is ws.groupNameOfUsersWhoCanCheckAllPrivileges: " + groupNameOfUsersWhoCanCheckAllPrivileges + ", not found????");
+            }
+            return false;
+          }
+        });
+        
+        //this means the calling user is in the whitelist for the old bad logic...
+        if (done) {
+          return;
+        }
+      }
+      
+      //map of group name to if the user is allowed to see privileges
+      Map<String, Boolean> groupPrivilegeCache = new HashMap<String, Boolean>();
+
+      //map of stem name to if the user is allowed to see privileges
+      Map<String, Boolean> stemPrivilegeCache = new HashMap<String, Boolean>();
+          
+      Iterator<GrouperPrivilege> iterator = privileges.iterator();
+      
+      while (iterator.hasNext()) {
+        GrouperPrivilege grouperPrivilege = iterator.next();
+        
+        GrouperAPI grouperApi = grouperPrivilege.getGrouperApi();
+        if (grouperApi instanceof Group) {
+          
+          Group group = (Group)grouperApi;
+          String groupName = group.getName();
+          
+          //check the cache
+          Boolean allowed = groupPrivilegeCache.get(groupName);
+          if (allowed == null) {
+            //not in cache
+            //see if allowed
+            allowed = group.hasAdmin(grouperSessionSubject);
+            
+            //add back to cache
+            groupPrivilegeCache.put(group.getName(), allowed);
+            
+          }
+          
+          if (!allowed) {
+            iterator.remove();
+          }
+          
+        } else if (grouperApi instanceof Stem) {
+
+          Stem stem = (Stem)grouperApi;
+          String stemName = stem.getName();
+          
+          //check the cache
+          Boolean allowed = stemPrivilegeCache.get(stemName);
+          if (allowed == null) {
+            //not in cache
+            //see if allowed
+            allowed = stem.hasStem(grouperSessionSubject);
+            
+            //add back to cache
+            stemPrivilegeCache.put(stem.getName(), allowed);
+            
+          }
+          
+          if (!allowed) {
+            iterator.remove();
+          }
+
+        } else {
+          //this should never happen
+          throw new RuntimeException("Not expecting GrouperAPI of type: " + grouperApi.getClass() + ", " + grouperApi);
+        }
+        
+      }
+    }
+    
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("removePrivsNotAllowedToSee() from " + originalNumberOfPrivileges + " to " + GrouperUtil.length(privileges) + " privileges");
+    }
     
   }
 
@@ -7256,7 +7298,7 @@ public class GrouperServiceLogic {
         
         attributeDefNames.addAll(GrouperDAOFactory.getFactory().getAttributeDefName().findAllAttributeNamesSecure(
             scope, true, session, attributeDefId, subject, AttributeDefPrivilege.VIEW_PRIVILEGES, 
-            queryOptions, attributeAssignType, attributeDefType, serviceRole));
+            queryOptions, attributeAssignType, attributeDefType, serviceRole, false));
       }
       
       if (hasLookupQuery) {
