@@ -161,7 +161,7 @@ public class PopulateCreateGroupAction extends GrouperCapableAction {
 		List privileges = new ArrayList();
 		String[] accessPrivs = GrouperHelper.getGroupPrivs(grouperSession);
 		for(int i=0;i<accessPrivs.length;i++) {
-			privileges.add(accessPrivs[i].toLowerCase());
+			privileges.add(accessPrivs[i]);
 		}
 		
 		Map selected = GrouperHelper.getDefaultAccessPrivsForUI(GrouperUiFilter.retrieveSessionMediaResourceBundle());

@@ -103,19 +103,6 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 
 public class GrouperHelper {
 	protected static final Log LOG = LogFactory.getLog(GrouperHelper.class);
-	public static HashMap list2privMap;
-	static {
-		list2privMap = new HashMap();
-		list2privMap.put("admins","admin");
-		list2privMap.put("optins","optin");
-		list2privMap.put("optouts","optout");
-		list2privMap.put("readers","read");
-		list2privMap.put("updaters","update");
-		list2privMap.put("viewers","view");
-		list2privMap.put("stemmers","stem");
-		list2privMap.put("creators","create");
-		list2privMap.put("members","MEMBER");
-	}
 
 	private static Map superPrivs = null; //Privs automatically granted to the
 										  // system user
@@ -127,34 +114,35 @@ public class GrouperHelper {
 																// (name
 																// separator)
 	public static final String NS_ROOT = "Grouper.NS_ROOT";
-	//List names for access privileges
-	private static final String[] listNames = new String[] { "members",
-			"admins", "updaters", "readers", "viewers", "optins", "optouts" };
-	
+
 	//Initialise system user privs
 	static {
 		superPrivs = new HashMap();
-		superPrivs.put("READ", Boolean.TRUE);
-		superPrivs.put("VIEW", Boolean.TRUE);
-		superPrivs.put("UPDATE", Boolean.TRUE);
-		superPrivs.put("ADMIN", Boolean.TRUE);
-		superPrivs.put("CREATE", Boolean.TRUE);
-		superPrivs.put("STEM", Boolean.TRUE);
+		superPrivs.put("read", Boolean.TRUE);
+		superPrivs.put("view", Boolean.TRUE);
+		superPrivs.put("update", Boolean.TRUE);
+    superPrivs.put("admin", Boolean.TRUE);
+    superPrivs.put("groupAttrRead", Boolean.TRUE);
+    superPrivs.put("groupAttrUpdate", Boolean.TRUE);
+		superPrivs.put("create", Boolean.TRUE);
+    superPrivs.put("stem", Boolean.TRUE);
+    superPrivs.put("stemAttrRead", Boolean.TRUE);
+    superPrivs.put("stemAttrUpdate", Boolean.TRUE);
 		//superPrivs.put("OPTIN", Boolean.TRUE);
 		//superPrivs.put("OPTOUT", Boolean.TRUE);
 	}
 	
 	//Privs which relate to Groups - access privileges
-	private static String[] groupPrivs = { "ADMIN", "UPDATE","READ","VIEW","OPTIN","OPTOUT" };
+	private static String[] groupPrivs = { "admin", "update","read","view","optin","optout","groupAttrRead","groupAttrUpdate" };
 	
 //	Privs which relate to Groups - access privileges + member
-	private static String[] groupPrivsWithMember = { "MEMBER", "ADMIN", "UPDATE","READ","VIEW","OPTIN","OPTOUT"};
+	private static String[] groupPrivsWithMember = { "member", "admin", "update","read","view","optin","optout","groupAttrRead","groupAttrUpdate"};
 	
 	//Privs which relate to Stems - naming privileges
 	//CH 20080324 change for UI from:  "STEM", "CREATE" 
 	//private static String[] stemPrivs = {"Create Group", "Create Folder"};
 	//GB 20080415 changed back, but UI looks up display name now for select options 
-	private static String[] stemPrivs = {"CREATE", "STEM"};
+	private static String[] stemPrivs = {"create", "stem", "stemAttrRead", "stemAttrUpdate"};
 	public static void main(String args[]) throws Exception{
 		Subject subj = SubjectFinder.findById("GrouperSystem", true);
 		GrouperSession s = GrouperSession.start(subj);
@@ -447,11 +435,11 @@ public class GrouperHelper {
 				g = groupOrStem.getGroup();
 				
 				if (g.hasMember(s.getSubject())) {
-					privs.put("MEMBER", Boolean.TRUE);
+					privs.put("member", Boolean.TRUE);
 				}
 			} else {
 				stem = groupOrStem.getStem();
-				if(stem.isRootStem()) privs.remove("CREATE");
+				if(stem.isRootStem()) privs.remove("create");
 			}
 			if (privs == null)
 				privs = superPrivs;
@@ -460,9 +448,9 @@ public class GrouperHelper {
 		if("GrouperSystem".equals(s.getSubject().getId())
 				||isActiveWheelGroupMember) {
 			privs = new HashMap();
-			privs.put("STEM",Boolean.TRUE);
+			privs.put("stem",Boolean.TRUE);
 			if(groupOrStem!=null && groupOrStem.isStem()&& !"".equals(groupOrStem.getStem().getName())) {
-				privs.put("CREATE",Boolean.TRUE);
+				privs.put("create",Boolean.TRUE);
 			}
 			return privs;
 		}
@@ -485,9 +473,9 @@ public class GrouperHelper {
 			while(it.hasNext()){
 				p=it.next();
 				if(p instanceof AccessPrivilege) {
-					privs.put(((AccessPrivilege)p).getName().toUpperCase(), Boolean.TRUE);
+					privs.put(((AccessPrivilege)p).getName(), Boolean.TRUE);
 				}else if(p instanceof NamingPrivilege) {
-					privs.put(((NamingPrivilege)p).getName().toUpperCase(), Boolean.TRUE);
+					privs.put(((NamingPrivilege)p).getName(), Boolean.TRUE);
 				}else{
 					privs.put(it.next(), Boolean.TRUE);
 				}
@@ -496,7 +484,7 @@ public class GrouperHelper {
 		if (g != null) {
 			
 			if (g.hasMember(s.getSubject()))
-				privs.put("MEMBER", Boolean.TRUE);
+				privs.put("member", Boolean.TRUE);
 		}
 		return privs;
 	}
@@ -540,11 +528,11 @@ public class GrouperHelper {
 			}else{
 				p = ((NamingPrivilege)obj).getName();
 			}
-			privs.put(p.toUpperCase(), Boolean.TRUE);
+			privs.put(p, Boolean.TRUE);
 		}
 		if (group != null) {
 			if (group.hasMember(member.getSubject(),field))
-				privs.put("MEMBER", Boolean.TRUE);
+				privs.put("member", Boolean.TRUE);
 		}
 
 		return privs;
@@ -921,10 +909,10 @@ public class GrouperHelper {
 							group.addMember(subject,field);						
 						}
 					} else if (groupOrStem.isStem()) {
-						stem.grantPriv(subject,Privilege.getInstance(privileges[j].toLowerCase()));
+						stem.grantPriv(subject,Privilege.getInstance(privileges[j]));
 
 					} else if(!"member".equals(privileges[j].toLowerCase())){
-						group.grantPriv(subject,Privilege.getInstance(privileges[j].toLowerCase()));
+						group.grantPriv(subject,Privilege.getInstance(privileges[j]));
 
 					}
 				} catch (GrantPrivilegeException e) {
@@ -1113,6 +1101,28 @@ public class GrouperHelper {
 		}
 		return privs;
 	}
+	
+	 /**
+   * Return a Collection of all access privileges
+   * @param bundle ResourceBundle to lookup display name
+   * @return Collection of Maps of privilege names and display names
+   */
+  public static Collection getGroupPrivsWithLabels(ResourceBundle bundle) {
+    List<Map<String,String>> privs = new ArrayList<Map<String,String>>();
+    
+    String displayName=null;
+    for(int i=0;i<groupPrivs.length;i++){
+      Map priv = new HashMap();
+      displayName=groupPrivs[i];
+      try {
+        displayName=bundle.getString("priv." + groupPrivs[i]);
+      }catch(MissingResourceException mre){}
+      priv.put("value", groupPrivs[i]);
+      priv.put("label", displayName);
+      privs.add(priv);
+    }
+    return privs;
+  }
 
 	
 	/**
@@ -1462,7 +1472,7 @@ public class GrouperHelper {
 		
 		Member member = MemberFinder.findBySubject(s,s.getSubject());
 		for (int i = 0; i < privs.length; i++) {
-			allSet.addAll(getGroupsWhereMemberHasPriv(member,privs[i].toLowerCase()));
+			allSet.addAll(getGroupsWhereMemberHasPriv(member,privs[i]));
 		}
 
 		int end = start + pageSize;
@@ -1527,7 +1537,7 @@ public class GrouperHelper {
 		
 		Member member = MemberFinder.findBySubject(s,s.getSubject());
 		for (int i = 0; i < privs.length; i++) {
-			allSet.addAll(getGroupsOrStemsWhereMemberHasPriv(member,privs[i].toLowerCase()));
+			allSet.addAll(getGroupsOrStemsWhereMemberHasPriv(member,privs[i]));
 		}
 		int end = start + pageSize;
 		if (end > allSet.size())
@@ -1958,7 +1968,7 @@ public class GrouperHelper {
 		boolean isEffective = false;
 		if(groupOrStem.isGroup() && member.isImmediateMember(groupOrStem.getGroup(),field)) {
 			privs = new HashMap();
-			privs.put("MEMBER",Boolean.TRUE);
+			privs.put("member",Boolean.TRUE);
 			results.put("subject",privs);
 		}
 		
@@ -1981,17 +1991,17 @@ public class GrouperHelper {
 					if(isEffective) {
 						try{
 							privs.put("group",group2Map(s,GroupFinder.findByUuid(s,priv.getOwner().getId())));
-							privs.put(priv.getName().toUpperCase(),Boolean.TRUE);
+							privs.put(priv.getName(),Boolean.TRUE);
 							if(effectiveMemberships.containsKey(priv.getOwner())) {
-								privs.put("MEMBER",Boolean.TRUE);
+								privs.put("member",Boolean.TRUE);
 								effectiveMemberships.remove(priv.getOwner());
 							}
 						}catch(GroupNotFoundException e){}
-						effectivePrivs.put(priv.getName().toUpperCase(),Boolean.TRUE);
+						effectivePrivs.put(priv.getName(),Boolean.TRUE);
 					}
 					
 				
-				privs.put(priv.getName().toUpperCase()
+				privs.put(priv.getName()
 						,Boolean.TRUE);
 			}else{
 				nPriv = (NamingPrivilege)it.next();
@@ -2011,16 +2021,16 @@ public class GrouperHelper {
 						if(isEffective) {
 							try{
 								if(effectiveMemberships.containsKey(nPriv.getOwner())) {
-									privs.put("MEMBER",Boolean.TRUE);
+									privs.put("member",Boolean.TRUE);
 									effectiveMemberships.remove(nPriv.getOwner());
 								}
 								privs.put("group",group2Map(s,GroupFinder.findByUuid(s,nPriv.getOwner().getId())));
 							}catch(GroupNotFoundException e){}
-							effectivePrivs.put(nPriv.getName().toUpperCase(),Boolean.TRUE);
+							effectivePrivs.put(nPriv.getName(),Boolean.TRUE);
 						}
 						
 					
-					privs.put(nPriv.getName().toUpperCase(),Boolean.TRUE);
+					privs.put(nPriv.getName(),Boolean.TRUE);
 			}
 		}
 		Map.Entry entry;
@@ -2033,7 +2043,7 @@ public class GrouperHelper {
 			if(privs==null) {
 				privs=new HashMap();
 				privs.put("group",group2Map(s,effGroup));
-				privs.put("MEMBER",Boolean.TRUE);
+				privs.put("member",Boolean.TRUE);
 				results.put(effGroup.getUuid(),privs);
 			}
 			
@@ -2074,13 +2084,14 @@ public class GrouperHelper {
 	 * @return Set of subjects with specified privilege for specified group
 	 */
 	public static Set getSubjectsWithPriv(Group group,String privilege) {
-		privilege = privilege.toLowerCase();
 		if(privilege.equals("admin")) return group.getAdmins();
 		if(privilege.equals("update")) return group.getUpdaters();
 		if(privilege.equals("read")) return group.getReaders();
 		if(privilege.equals("view")) return group.getViewers();
 		if(privilege.equals("optin")) return group.getOptins();
-		if(privilege.equals("optout")) return group.getOptouts();
+    if(privilege.equals("optout")) return group.getOptouts();
+    if(privilege.equals("groupAttrRead")) return group.getGroupAttrReaders();
+    if(privilege.equals("groupAttrUpdate")) return group.getGroupAttrUpdaters();
 		return new HashSet();
 	}
 	
@@ -2091,15 +2102,18 @@ public class GrouperHelper {
 	 * @return Set of groups where specified member has the specified privilege
 	 */
 	public static Set getGroupsOrStemsWhereMemberHasPriv(Member member,String privilege) {
-		privilege=privilege.toLowerCase();
 		if(privilege.equals("admin")) return member.hasAdmin();
 		if(privilege.equals("update")) return member.hasUpdate();
 		if(privilege.equals("read")) return member.hasRead();
 		if(privilege.equals("view")) return member.hasView();
 		if(privilege.equals("optin")) return member.hasOptin();
 		if(privilege.equals("optout")) return member.hasOptout();
+    if(privilege.equals("groupAttrRead")) return member.hasGroupAttrRead();
+    if(privilege.equals("groupAttrUpdate")) return member.hasGroupAttrUpdate();
 		if(privilege.equals("create")) return member.hasCreate();
 		if(privilege.equals("stem")) return member.hasStem();
+    if(privilege.equals("stemAttrRead")) return member.hasStemAttrRead();
+    if(privilege.equals("stemAttrUpdate")) return member.hasStemAttrUpdate();
 		return new HashSet();
 	}
 	
@@ -2110,13 +2124,14 @@ public class GrouperHelper {
 	 * @return Set of groups where specified member has the specified privilege
 	 */
 	public static Set getGroupsWhereMemberHasPriv(Member member,String privilege) {
-		privilege=privilege.toLowerCase();
 		if(privilege.equals("admin")) return member.hasAdmin();
 		if(privilege.equals("update")) return member.hasUpdate();
 		if(privilege.equals("read")) return member.hasRead();
 		if(privilege.equals("view")) return member.hasView();
 		if(privilege.equals("optin")) return member.hasOptin();
 		if(privilege.equals("optout")) return member.hasOptout();
+    if(privilege.equals("groupAttrRead")) return member.hasGroupAttrRead();
+    if(privilege.equals("groupAttrUpdate")) return member.hasGroupAttrUpdate();
 		return new HashSet();
 	}
 	
@@ -2127,10 +2142,11 @@ public class GrouperHelper {
 	 * @return Set of groups where specified member has the specified privilege
 	 */
 	public static Set getStemsWhereMemberHasPriv(Member member,String privilege) {
-		privilege=privilege.toLowerCase();
 
 		if(privilege.equals("create")) return member.hasCreate();
 		if(privilege.equals("stem")) return member.hasStem();
+    if(privilege.equals("stemAttrRead")) return member.hasStemAttrRead();
+    if(privilege.equals("stemAttrUpdate")) return member.hasStemAttrUpdate();
 		return new HashSet();
 	}
 	
@@ -2141,9 +2157,10 @@ public class GrouperHelper {
 	 * @return Set of subjects with a specified Nmaing privilege for a specified stem
 	 */
 	public static Set getSubjectsWithPriv(Stem stem,String privilege) {
-		privilege=privilege.toLowerCase();
 		if(privilege.equals("stem")) return stem.getStemmers();
 		if(privilege.equals("create")) return stem.getCreators();
+    if(privilege.equals("stemAttrRead")) return stem.getStemAttrReaders();
+    if(privilege.equals("stemAttrUpdate")) return stem.getStemAttrUpdaters();
 		return new HashSet();
 	}
 	
@@ -2158,7 +2175,7 @@ public class GrouperHelper {
 	 */
 	public static boolean hasSubjectImmPrivForGroup(GrouperSession s,Subject subject,Group group,String privilege) throws MemberNotFoundException,SchemaException{
 		Map privs = getImmediateHas(s,GroupOrStem.findByGroup(s,group),MemberFinder.findBySubject(s,subject));
-		return privs.containsKey(privilege.toUpperCase());
+		return privs.containsKey(privilege);
 	}
 	
 	/**
@@ -2172,7 +2189,7 @@ public class GrouperHelper {
 	 */
 	public static boolean hasSubjectImmPrivForStem(GrouperSession s,Subject subject,Stem stem,String privilege) throws MemberNotFoundException,SchemaException{
 		Map privs = getImmediateHas(s,GroupOrStem.findByStem(s,stem),MemberFinder.findBySubject(s,subject));
-		return privs.containsKey(privilege.toUpperCase());
+		return privs.containsKey(privilege);
 	}
 	
 	/**
@@ -2423,7 +2440,7 @@ public class GrouperHelper {
 		if("none".equals(privStr)) return privs;
 		String[] privArr = privStr.split(" ");
 		for(int i=0;i<privArr.length;i++) {
-			privs.put(privArr[i].toLowerCase(),Boolean.TRUE);
+			privs.put(privArr[i],Boolean.TRUE);
 		}
 		return privs;
 	}
@@ -2435,10 +2452,11 @@ public class GrouperHelper {
 	 */
 	public static Map getDefaultAccessPrivsForGrouperAPI() {
 		Map privs = new HashMap();
-		String priv;
+    String priv;
 		
 		for(int i=0;i<groupPrivs.length;i++){
-			priv = groupPrivs[i].toLowerCase();
+      priv = groupPrivs[i];
+
 			if("true".equals(GrouperConfig.getProperty("groups.create.grant.all." + priv))){
 				privs.put(priv,Boolean.TRUE);
 			}
@@ -2949,7 +2967,9 @@ public class GrouperHelper {
 						group.hasUpdate(subject)||
 						group.hasRead(subject)||
 						group.hasOptin(subject)||
-						group.hasOptout(subject)
+            group.hasOptout(subject) ||
+            group.hasGroupAttrRead(subject) ||
+            group.hasGroupAttrUpdate(subject)
 						) {
 					ok.add(group);
 				}

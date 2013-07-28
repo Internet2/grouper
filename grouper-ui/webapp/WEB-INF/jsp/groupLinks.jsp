@@ -11,7 +11,7 @@
 <div class="groupLinks">
 <div class="linkButton">
 
-<c:if test="${groupPrivs.ADMIN}">
+<c:if test="${groupPrivs.admin}">
 		<tiles:insert definition="selectGroupPrivilegeDef"/>
 	</c:if>
 	   <c:if test="${groupPrivResolver.canEditGroup}">
@@ -41,7 +41,7 @@
 	
 	
 	
-	<c:if test="${groupPrivs.ADMIN  || groupPrivs.READ}">
+	<c:if test="${groupPrivs.admin || groupPrivs.read}">
 		
 			<html:link page="/populateGroupMembers.do"  name="group">
 				<grouper:message key="groups.action.edit-members"/>
@@ -77,31 +77,31 @@
 				<grouper:message key="groups.action.as-factor"/>
 			</html:link>
 		</c:if>
-	<c:if test="${groupPrivs.OPTIN && !groupPrivs.MEMBER}">
+	<c:if test="${groupPrivs.optin && !groupPrivs.member}">
 		
 			<html:link page="/joinGroup.do"  name="group">
 				<grouper:message key="groups.action.join"/>
 			</html:link>
 		
 	</c:if>
-	<c:if test="${groupPrivs.OPTOUT && groupPrivs.MEMBER}">
+	<c:if test="${groupPrivs.optout && groupPrivs.member}">
 		
 			<html:link page="/leaveGroup.do"  name="group">
 				<grouper:message key="groups.action.leave"/>
 			</html:link>
 		
 	</c:if>
-	<c:if test="${groupPrivs.ADMIN}">
+	<c:if test="${groupPrivs.admin}">
 		<html:link page="/populateMoveGroup.do"  name="group">
 			<grouper:message key="groups.action.move"/>
 		</html:link>
 	</c:if>
-	<c:if test="${groupPrivs.ADMIN || groupPrivs.READ}">
+	<c:if test="${groupPrivs.admin || groupPrivs.read}">
 		<html:link page="/populateCopyGroup.do"  name="group">
 			<grouper:message key="groups.action.copy"/>
 		</html:link>
 	</c:if>
-	<c:if test="${groupPrivs.ADMIN}">
+	<c:if test="${groupPrivs.admin}">
 		<jsp:useBean id="auditParams" class="java.util.HashMap" scope="page"></jsp:useBean>
 		<c:set target="${auditParams}" property="origCallerPageId" value="${thisPageId}"/>
 		<c:set target="${auditParams}" property="groupId" value="${group.id}"/>

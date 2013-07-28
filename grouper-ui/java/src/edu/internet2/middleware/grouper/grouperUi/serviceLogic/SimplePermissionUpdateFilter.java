@@ -45,7 +45,6 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
-import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.HttpContentType;
@@ -272,7 +271,7 @@ public class SimplePermissionUpdateFilter {
       } else {
         queryOptions = new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("simpleGroupUpdate.groupComboboxResultSize", 200), 1, true).sortAsc("theGroup.displayNameDb");
         groups = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSplitScopeSecure(searchTerm, grouperSession, loggedInSubject, 
-            GrouperUtil.toSet(AccessPrivilege.ADMIN), queryOptions, TypeOfGroup.role);
+            AccessPrivilege.ATTRIBUTE_UPDATE_PRIVILEGES, queryOptions, TypeOfGroup.role);
         
         if (GrouperUtil.length(groups) == 0) {
           GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 

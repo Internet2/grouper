@@ -713,7 +713,7 @@ public class SimplePermissionUpdate {
       {
         String roleId = matcher.group(1);
         role = GroupFinder.findByUuid(grouperSession, roleId, true);
-        if (!((Group)role).hasAdmin(loggedInSubject)) {
+        if (!((Group)role).hasGroupAttrUpdate(loggedInSubject)) {
           guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantManageRole", false)));
           return;
         }
@@ -900,7 +900,7 @@ public class SimplePermissionUpdate {
             Role role = null;
             {
               role = GroupFinder.findByUuid(grouperSession, roleId, true);
-              if (!((Group)role).hasAdmin(loggedInSubject)) {
+              if (!((Group)role).hasGroupAttrUpdate(loggedInSubject)) {
                 guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantManageRole", false)));
                 return;
               }
@@ -1034,7 +1034,7 @@ public class SimplePermissionUpdate {
       {
         String roleId = attributeAssign.getOwnerGroupId();
         role = GroupFinder.findByUuid(grouperSession, roleId, true);
-        if (!((Group)role).hasAdmin(loggedInSubject)) {
+        if (!((Group)role).hasGroupAttrUpdate(loggedInSubject)) {
           guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantManageRole", false)));
           return;
         }
@@ -1294,7 +1294,7 @@ public class SimplePermissionUpdate {
       {
         String roleId = permissionAssign.getOwnerGroupId();
         role = GroupFinder.findByUuid(grouperSession, roleId, true);
-        if (!((Group)role).hasAdmin(loggedInSubject)) {
+        if (!((Group)role).hasGroupAttrUpdate(loggedInSubject)) {
           guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantManageRole", false)));
           return;
         }
@@ -1351,7 +1351,7 @@ public class SimplePermissionUpdate {
       {
         String roleId = permissionAssign.getOwnerGroupId();
         role = GroupFinder.findByUuid(grouperSession, roleId, true);
-        if (!((Group)role).hasAdmin(loggedInSubject)) {
+        if (!((Group)role).hasGroupAttrUpdate(loggedInSubject)) {
           guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantManageRole", false)));
           return;
         }
@@ -1562,7 +1562,7 @@ public class SimplePermissionUpdate {
       {
         String roleId = limitAssign.getOwnerAttributeAssign().getOwnerGroupId();
         role = GroupFinder.findByUuid(grouperSession, roleId, true);
-        if (!((Group)role).hasAdmin(loggedInSubject)) {
+        if (!((Group)role).hasGroupAttrUpdate(loggedInSubject)) {
           guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantManageRole", false)));
           return;
         }
@@ -1646,7 +1646,7 @@ public class SimplePermissionUpdate {
       {
         String roleId = limitAssign.getOwnerAttributeAssign().getOwnerGroupId();
         role = GroupFinder.findByUuid(grouperSession, roleId, true);
-        if (!((Group)role).hasAdmin(loggedInSubject)) {
+        if (!((Group)role).hasGroupAttrUpdate(loggedInSubject)) {
           guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantManageRole", false)));
           return;
         }
@@ -1724,7 +1724,7 @@ public class SimplePermissionUpdate {
         Role role = null;
         String roleId = limitAssign.getOwnerAttributeAssign().getOwnerGroupId();
         role = GroupFinder.findByUuid(grouperSession, roleId, true);
-        if (!((Group)role).hasAdmin(loggedInSubject)) {
+        if (!((Group)role).hasGroupAttrUpdate(loggedInSubject)) {
           guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantManageRole", false)));
           return;
         }
@@ -1789,7 +1789,7 @@ public class SimplePermissionUpdate {
         Role role = null;
         String roleId = limitAssign.getOwnerAttributeAssign().getOwnerGroupId();
         role = GroupFinder.findByUuid(grouperSession, roleId, true);
-        if (!((Group)role).hasAdmin(loggedInSubject)) {
+        if (!((Group)role).hasGroupAttrUpdate(loggedInSubject)) {
           guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantManageRole", false)));
           return;
         }
@@ -1870,7 +1870,7 @@ public class SimplePermissionUpdate {
         Role role = null;
         String roleId = limitAssign.getOwnerAttributeAssign().getOwnerGroupId();
         role = GroupFinder.findByUuid(grouperSession, roleId, true);
-        if (!((Group)role).hasAdmin(loggedInSubject)) {
+        if (!((Group)role).hasGroupAttrUpdate(loggedInSubject)) {
           guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simplePermissionUpdate.errorCantManageRole", false)));
           return;
         }

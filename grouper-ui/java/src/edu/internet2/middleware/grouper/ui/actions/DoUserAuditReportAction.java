@@ -402,12 +402,12 @@ public class DoUserAuditReportAction extends GrouperCapableAction {
 			}
 			infoKey ="audit.query.info.schema";
 			entity = "";
-		}else if(!isEmpty(groupId) && privs.containsKey("ADMIN")) {
+		}else if(!isEmpty(groupId) && privs.containsKey("admin")) {
 			query=query.addAuditTypeFieldValue("groupId", groupId);
 			infoKey ="audit.query.info.actions-on";
 			Group group = GroupFinder.findByUuid(grouperSession, groupId,true);
 			entity = group.getDisplayExtension();
-		}else if(!isEmpty(stemId) && (privs.containsKey("CREATE") || privs.containsKey("STEM"))) {
+		}else if(!isEmpty(stemId) && (privs.containsKey("create") || privs.containsKey("stem"))) {
 			query=query.addAuditTypeFieldValue("stemId", stemId);
 			infoKey ="audit.query.info.actions-on";
 			Stem stem = StemFinder.findByUuid(grouperSession, stemId,true);

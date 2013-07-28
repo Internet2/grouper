@@ -18,7 +18,7 @@
 </h2>
 <c:set var="subject" value="${subject}" scope="request"/>
 
-<c:if test="${authUserPriv.CREATE || authUserPriv.STEM}">
+<c:if test="${authUserPriv.create || authUserPriv.stem}">
 	<tiles:insert definition="stemMemberPrivsDef"/>
 </c:if>
 <div class="linkButton">

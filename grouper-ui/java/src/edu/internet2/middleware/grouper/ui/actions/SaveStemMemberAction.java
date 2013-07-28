@@ -198,7 +198,7 @@ public class SaveStemMemberAction extends GrouperCapableAction {
 		while (it.hasNext()) {
 			key = (String) it.next();
 			if (!newPrivs.containsKey(key)) {
-				curStem.revokePriv(member.getSubject(),Privilege.getInstance(key.toLowerCase()));
+				curStem.revokePriv(member.getSubject(),Privilege.getInstance(key));
 			}
 		}
 		//Assign privileges

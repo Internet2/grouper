@@ -543,7 +543,7 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 			request.setAttribute("memberOfListFields",memberOfListFields);
 		}
 		
-		String[] accessPrivs = GrouperHelper.getGroupPrivs(grouperSession);
+		Collection accessPrivs = GrouperHelper.getGroupPrivsWithLabels(GrouperUiFilter.retrieveSessionNavResourceBundle());
 		Collection namingPrivs = GrouperHelper.getStemPrivsWithLabels(GrouperUiFilter.retrieveSessionNavResourceBundle());
 		request.setAttribute("allAccessPrivs",accessPrivs);
 		request.setAttribute("allNamingPrivs",namingPrivs);

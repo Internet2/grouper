@@ -16,7 +16,7 @@
 /></div>
 </div>
 <c:choose>
-  <c:when test="${authUserPriv.UPDATE || authUserPriv.ADMIN}">
+  <c:when test="${authUserPriv.update || authUserPriv.admin}">
     <div class="section">
     <c:set var="groupMemberSubtitle">
       <grouper:message key="find.heading.select-privs">

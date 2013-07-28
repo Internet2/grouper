@@ -39,7 +39,6 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.privs.PrivilegeSubjectContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
-import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.MapWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -567,6 +566,12 @@ public class AttributeUpdateRequestContainer implements Serializable {
         if (StringUtils.equals(priv, "attrOptout")) {
           return AttributeUpdateRequestContainer.this.isAllowAllOptout();
         }
+        if (StringUtils.equals(priv, "attrDefAttrRead")) {
+          return AttributeUpdateRequestContainer.this.isAllowAllAttrDefAttrRead();
+        }
+        if (StringUtils.equals(priv, "attrDefAttrUpdate")) {
+          return AttributeUpdateRequestContainer.this.isAllowAllAttrDefAttrUpdate();
+        }
         throw new RuntimeException("Not expecting string");
       }
       
@@ -621,6 +626,12 @@ public class AttributeUpdateRequestContainer implements Serializable {
   /** if update should be checked on edit jsp */
   private boolean allowAllUpdate;
 
+  /** if attrDefAttrRead should be checked on edit jsp */
+  private boolean allowAllAttrDefAttrRead;
+  
+  /** if attrDefAttrUpdate should be checked on edit jsp */
+  private boolean allowAllAttrDefAttrUpdate;
+  
   /**
    * directed graph nodes from
    */
@@ -651,7 +662,39 @@ public class AttributeUpdateRequestContainer implements Serializable {
   public void setAllowAllOptin(boolean editAttributeDefOptin1) {
     this.allowAllOptin = editAttributeDefOptin1;
   }
+  
+  /**
+   * if attrDefAttrRead should be checked on edit jsp
+   * @return the editAttributeDefAttrRead
+   */
+  public boolean isAllowAllAttrDefAttrRead() {
+    return this.allowAllAttrDefAttrRead;
+  }
+  
+  /**
+   * if attrDefAttrRead should be checked on edit jsp
+   * @param editAttributeDefAttrRead1 the editAttributeDefAttrRead to set
+   */
+  public void setAllowAllAttrDefAttrRead(boolean editAttributeDefAttrRead1) {
+    this.allowAllAttrDefAttrRead = editAttributeDefAttrRead1;
+  }
+  
+  /**
+   * if attrDefAttrUpdate should be checked on edit jsp
+   * @return the editAttributeDefAttrUpdate
+   */
+  public boolean isAllowAllAttrDefAttrUpdate() {
+    return this.allowAllAttrDefAttrUpdate;
+  }
 
+  /**
+   * if attrDefAttrUpdate should be checked on edit jsp
+   * @param editAttributeDefAttrUpdate1 the editAttributeDefAttrUpdate to set
+   */
+  public void setAllowAllAttrDefAttrUpdate(boolean editAttributeDefAttrUpdate1) {
+    this.allowAllAttrDefAttrUpdate = editAttributeDefAttrUpdate1;
+  }
+  
   
   /**
    * if optout should be checked on edit jsp

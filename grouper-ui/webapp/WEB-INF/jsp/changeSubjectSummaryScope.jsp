@@ -37,7 +37,7 @@
 	<span class="membershipListScope">
 		<html:radio property="membershipListScope" value="access"/> <grouper:message key="subject.list-access.scope.priv"/>
 		<html:select property="accessPriv">
-			<html:options name="allAccessPrivs"/>
+			<html:optionsCollection name="allAccessPrivs"/>
 		</html:select>
     <grouper:infodot hideShowHtmlId="accessPrivInfodot" />
 	</span>

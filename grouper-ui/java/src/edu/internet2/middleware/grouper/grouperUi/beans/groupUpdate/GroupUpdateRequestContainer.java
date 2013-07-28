@@ -33,7 +33,6 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.PrivilegeSubjectContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
-import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.MapWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -55,6 +54,12 @@ public class GroupUpdateRequestContainer implements Serializable {
 
   /** if optin should be checked on edit jsp */
   private boolean allowAllOptin;
+  
+  /** if groupAttrRead should be checked on edit jsp */
+  private boolean allowAllGroupAttrRead;
+  
+  /** if groupAttrUpdate should be checked on edit jsp */
+  private boolean allowAllGroupAttrUpdate;
 
   /** if optout should be checked on edit jsp */
   private boolean allowAllOptout;
@@ -159,6 +164,22 @@ public class GroupUpdateRequestContainer implements Serializable {
   public boolean isAllowAllOptin() {
     return this.allowAllOptin;
   }
+  
+  /**
+   * if groupAttrRead should be checked on edit jsp
+   * @return the editGroupAttrRead
+   */
+  public boolean isAllowAllGroupAttrRead() {
+    return this.allowAllGroupAttrRead;
+  }
+  
+  /**
+   * if groupAttrUpdate should be checked on edit jsp
+   * @return the editGroupAttrUpdate
+   */
+  public boolean isAllowAllGroupAttrUpdate() {
+    return this.allowAllGroupAttrUpdate;
+  }
 
   /**
    * if optout should be checked on edit jsp
@@ -206,6 +227,22 @@ public class GroupUpdateRequestContainer implements Serializable {
    */
   public void setAllowAllOptin(boolean editGroupOptin1) {
     this.allowAllOptin = editGroupOptin1;
+  }
+  
+  /**
+   * if groupAttrRead should be checked on edit jsp
+   * @param editGroupAttrRead1 the editGroupAttrRead to set
+   */
+  public void setAllowAllGroupAttrRead(boolean editGroupAttrRead1) {
+    this.allowAllGroupAttrRead = editGroupAttrRead1;
+  }
+  
+  /**
+   * if groupAttrUpdate should be checked on edit jsp
+   * @param editGroupAttrUpdate1 the editGroupAttrUpdate to set
+   */
+  public void setAllowAllGroupAttrUpdate(boolean editGroupAttrUpdate1) {
+    this.allowAllGroupAttrUpdate = editGroupAttrUpdate1;
   }
 
   /**

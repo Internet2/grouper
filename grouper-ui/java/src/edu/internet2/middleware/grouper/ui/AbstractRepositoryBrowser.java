@@ -258,7 +258,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
         totalCount),request,context, -1, null));
 			return new LinkedHashSet(l);
 		}
-		if(flatPrivs.length==1 && flatPrivs[0].equals("MEMBER")) {
+		if(flatPrivs.length==1 && flatPrivs[0].equals("member")) {
 			/*Set tmp = GrouperHelper.getMembershipsSet(getGrouperSession(),start, pageSize, totalCount);*/
 			Set tmp = GrouperHelper.getMembershipsSet(getGrouperSession());
 			totalCount.append("" + tmp.size());

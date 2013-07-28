@@ -190,7 +190,7 @@ public class PopulateEditGroupAction extends GrouperCapableAction {
 		List privileges = new ArrayList();
 		String[] accessPrivs = GrouperHelper.getGroupPrivs(grouperSession);
 		for(int i=0;i<accessPrivs.length;i++) {
-			privileges.add(accessPrivs[i].toLowerCase());
+			privileges.add(accessPrivs[i]);
 		}
 		
 		Subject grouperAll = SubjectFinder.findById("GrouperAll", true);
@@ -202,7 +202,7 @@ public class PopulateEditGroupAction extends GrouperCapableAction {
 		while(it.hasNext()) {
 			entry = (Map.Entry)it.next();
 			key = (String)entry.getKey();
-			selected.put(key.toLowerCase(),entry.getValue());
+			selected.put(key,entry.getValue());
 		}
 		
 		request.setAttribute("privileges",privileges);

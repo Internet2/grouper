@@ -32,6 +32,7 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -296,7 +297,7 @@ public class PopulateGroupSummaryAction extends GrouperCapableAction {
 		Map privs = GrouperHelper.hasAsMap(grouperSession, GroupOrStem.findByGroup(grouperSession,group));
 		request.setAttribute("groupPrivs", privs);
 
-		String[] allGroupPrivs = GrouperHelper.getGroupPrivs(grouperSession);
+		Collection allGroupPrivs = GrouperHelper.getGroupPrivsWithLabels(GrouperUiFilter.retrieveSessionNavResourceBundle());
 		request.setAttribute("allGroupPrivs", allGroupPrivs);
 		List listFields = GrouperHelper.getReadableListFieldsForGroup(grouperSession,group);
 		request.setAttribute("listFields",listFields);

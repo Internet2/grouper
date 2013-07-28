@@ -14,7 +14,7 @@
 	<input type="submit" class="blueButton" value="<grouper:message key="priv.show-subjects-with"/>"/>
 	<label class="noCSSOnly" for="privilege"><grouper:message key="priv.show-subjects-with"/></label> 
 	<html:select property="privilege" styleId="privilege">
-		<html:options name="allGroupPrivs" />
+		<html:optionsCollection name="allGroupPrivs" />
 	</html:select> <grouper:message key="priv.privilege"/>
 	</fieldset>
 </html:form>

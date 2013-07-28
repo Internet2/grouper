@@ -371,6 +371,28 @@ public class SimpleAttributeUpdate {
         }
       }
       {
+        boolean attributeDefToEditAllowAllAttrDefAttrRead = GrouperUtil.booleanValue(httpServletRequest.getParameter("attributeDefToEditAllowAllAttrDefAttrRead"), false);
+        attributeUpdateRequestContainer.setAllowAllAttrDefAttrRead(attributeDefToEditAllowAllAttrDefAttrRead);
+        if (attributeDefToEditAllowAllAttrDefAttrRead != attributeDef.getPrivilegeDelegate().hasAttrDefAttrRead(everyEntitySubject)) {
+          if (attributeDefToEditAllowAllAttrDefAttrRead) {
+            attributeDef.getPrivilegeDelegate().grantPriv(everyEntitySubject, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, false);
+          } else{
+            attributeDef.getPrivilegeDelegate().revokePriv(everyEntitySubject, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, false);
+          }
+        }
+      }
+      {
+        boolean attributeDefToEditAllowAllAttrDefAttrUpdate = GrouperUtil.booleanValue(httpServletRequest.getParameter("attributeDefToEditAllowAllAttrDefAttrUpdate"), false);
+        attributeUpdateRequestContainer.setAllowAllAttrDefAttrUpdate(attributeDefToEditAllowAllAttrDefAttrUpdate);
+        if (attributeDefToEditAllowAllAttrDefAttrUpdate != attributeDef.getPrivilegeDelegate().hasAttrDefAttrUpdate(everyEntitySubject)) {
+          if (attributeDefToEditAllowAllAttrDefAttrUpdate) {
+            attributeDef.getPrivilegeDelegate().grantPriv(everyEntitySubject, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, false);
+          } else{
+            attributeDef.getPrivilegeDelegate().revokePriv(everyEntitySubject, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, false);
+          }
+        }
+      }
+      {
         boolean attributeDefToEditAllowAllOptout = GrouperUtil.booleanValue(httpServletRequest.getParameter("attributeDefToEditAllowAllOptout"), false);
         attributeUpdateRequestContainer.setAllowAllOptout(attributeDefToEditAllowAllOptout);
         if (attributeDefToEditAllowAllOptout != attributeDef.getPrivilegeDelegate().hasAttrOptout(everyEntitySubject)) {
@@ -979,7 +1001,9 @@ public class SimpleAttributeUpdate {
       boolean allowAllView = attributeDef.getPrivilegeDelegate().hasAttrView(everyEntitySubject);
       boolean allowAllOptin = attributeDef.getPrivilegeDelegate().hasAttrOptin(everyEntitySubject);
       boolean allowAllOptout = attributeDef.getPrivilegeDelegate().hasAttrOptout(everyEntitySubject);
-      
+      boolean allowAllAttrDefAttrRead = attributeDef.getPrivilegeDelegate().hasAttrDefAttrRead(everyEntitySubject);
+      boolean allowAllAttrDefAttrUpdate = attributeDef.getPrivilegeDelegate().hasAttrDefAttrUpdate(everyEntitySubject);
+
       //lets setup the hierarchies, inheritance, from allow all, and actions which imply other actions
       for (PrivilegeSubjectContainer privilegeSubjectContainer : GrouperUtil.nonNull(privilegeSubjectContainers)) {
         if (privilegeSubjectContainer.getPrivilegeContainers() == null) {
@@ -1050,6 +1074,38 @@ public class SimpleAttributeUpdate {
             }
           }
         }
+        boolean canAttrDefAttrRead = false;
+        {
+          PrivilegeContainer attrDefAttrRead = privilegeSubjectContainer.getPrivilegeContainers().get("attrDefAttrRead");
+          canAttrDefAttrRead = attrDefAttrRead != null || allowAllAttrDefAttrRead || canAdmin;
+          //see if inheriting
+          if (allowAllAttrDefAttrRead || canAdmin) {
+            if (attrDefAttrRead == null) {
+              attrDefAttrRead = new PrivilegeContainerImpl();
+              attrDefAttrRead.setPrivilegeName(AttributeDefPrivilege.ATTR_DEF_ATTR_READ.getName());
+              privilegeSubjectContainer.getPrivilegeContainers().put(AttributeDefPrivilege.ATTR_DEF_ATTR_READ.getName(), attrDefAttrRead);
+              attrDefAttrRead.setPrivilegeAssignType(PrivilegeAssignType.EFFECTIVE);
+            } else {
+              attrDefAttrRead.setPrivilegeAssignType(PrivilegeAssignType.convert(attrDefAttrRead.getPrivilegeAssignType(), PrivilegeAssignType.EFFECTIVE));
+            }
+          }
+        }
+        boolean canAttrDefAttrUpdate = false;
+        {
+          PrivilegeContainer attrDefAttrUpdate = privilegeSubjectContainer.getPrivilegeContainers().get("attrDefAttrUpdate");
+          canAttrDefAttrUpdate = attrDefAttrUpdate != null || allowAllAttrDefAttrUpdate || canAdmin;
+          //see if inheriting
+          if (allowAllAttrDefAttrUpdate || canAdmin) {
+            if (attrDefAttrUpdate == null) {
+              attrDefAttrUpdate = new PrivilegeContainerImpl();
+              attrDefAttrUpdate.setPrivilegeName(AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE.getName());
+              privilegeSubjectContainer.getPrivilegeContainers().put(AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE.getName(), attrDefAttrUpdate);
+              attrDefAttrUpdate.setPrivilegeAssignType(PrivilegeAssignType.EFFECTIVE);
+            } else {
+              attrDefAttrUpdate.setPrivilegeAssignType(PrivilegeAssignType.convert(attrDefAttrUpdate.getPrivilegeAssignType(), PrivilegeAssignType.EFFECTIVE));
+            }
+          }
+        }
         boolean canOptout = false;
         {
           PrivilegeContainer attrOptout = privilegeSubjectContainer.getPrivilegeContainers().get("attrOptout");
@@ -1070,7 +1126,7 @@ public class SimpleAttributeUpdate {
           PrivilegeContainer attrView = privilegeSubjectContainer.getPrivilegeContainers().get("attrView");
           //boolean canView = attrView != null || allowAllView || canAdmin || canUpdate || canRead || canOptin || canOptout;
           //see if inheriting
-          if (allowAllView || canAdmin || canUpdate || canRead || canOptin || canOptout) {
+          if (allowAllView || canAdmin || canUpdate || canRead || canOptin || canOptout || canAttrDefAttrRead || canAttrDefAttrUpdate) {
             if (attrView == null) {
               attrView = new PrivilegeContainerImpl();
               attrView.setPrivilegeName(AttributeDefPrivilege.ATTR_VIEW.getName());

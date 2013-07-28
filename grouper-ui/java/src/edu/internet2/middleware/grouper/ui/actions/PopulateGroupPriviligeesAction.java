@@ -248,7 +248,7 @@ public class PopulateGroupPriviligeesAction extends GrouperCapableAction {
 		request.setAttribute("memberLinkMode", "privilege");
 		
 		request.setAttribute("allGroupPrivs", GrouperHelper
-				.getGroupPrivs(grouperSession));
+				.getGroupPrivsWithLabels(GrouperUiFilter.retrieveSessionNavResourceBundle()));
 		
 		request.setAttribute("groupPrivResolver", resolver.asMap());
 		

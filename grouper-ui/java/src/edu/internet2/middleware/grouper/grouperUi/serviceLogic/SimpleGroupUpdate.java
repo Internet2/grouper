@@ -314,6 +314,28 @@ public class SimpleGroupUpdate {
           }
         }
         {
+          boolean groupToEditAllowAllGroupAttrRead = GrouperUtil.booleanValue(httpServletRequest.getParameter("groupToEditAllowAllGroupAttrRead"), false);
+          groupUpdateRequestContainer.setAllowAllGroupAttrRead(groupToEditAllowAllGroupAttrRead);
+          if (groupToEditAllowAllGroupAttrRead != group.hasGroupAttrRead(everyEntitySubject)) {
+            if (groupToEditAllowAllGroupAttrRead) {
+              group.grantPriv(everyEntitySubject, AccessPrivilege.GROUP_ATTR_READ, false);
+            } else{
+              group.revokePriv(everyEntitySubject, AccessPrivilege.GROUP_ATTR_READ, false);
+            }
+          }
+        }
+        {
+          boolean groupToEditAllowAllGroupAttrUpdate = GrouperUtil.booleanValue(httpServletRequest.getParameter("groupToEditAllowAllGroupAttrUpdate"), false);
+          groupUpdateRequestContainer.setAllowAllGroupAttrUpdate(groupToEditAllowAllGroupAttrUpdate);
+          if (groupToEditAllowAllGroupAttrUpdate != group.hasGroupAttrUpdate(everyEntitySubject)) {
+            if (groupToEditAllowAllGroupAttrUpdate) {
+              group.grantPriv(everyEntitySubject, AccessPrivilege.GROUP_ATTR_UPDATE, false);
+            } else{
+              group.revokePriv(everyEntitySubject, AccessPrivilege.GROUP_ATTR_UPDATE, false);
+            }
+          }
+        }
+        {
           boolean groupToEditAllowAllOptout = GrouperUtil.booleanValue(httpServletRequest.getParameter("groupToEditAllowAllOptout"), false);
           groupUpdateRequestContainer.setAllowAllOptout(groupToEditAllowAllOptout);
           if (groupToEditAllowAllOptout != group.hasOptout(everyEntitySubject)) {
@@ -538,7 +560,9 @@ public class SimpleGroupUpdate {
       boolean allowAllView = group.hasView(everyEntitySubject);
       boolean allowAllOptin = group.hasOptin(everyEntitySubject);
       boolean allowAllOptout = group.hasOptout(everyEntitySubject);
-      
+      boolean allowAllGroupAttrRead = group.hasGroupAttrRead(everyEntitySubject);
+      boolean allowAllGroupAttrUpdate = group.hasGroupAttrUpdate(everyEntitySubject);
+
       //lets setup the hierarchies, inheritance, from allow all, and actions which imply other actions
       for (PrivilegeSubjectContainer privilegeSubjectContainer : GrouperUtil.nonNull(privilegeSubjectContainers)) {
         if (privilegeSubjectContainer.getPrivilegeContainers() == null) {
@@ -609,6 +633,38 @@ public class SimpleGroupUpdate {
             }
           }
         }
+        boolean canGroupAttrRead = false;
+        {
+          PrivilegeContainer groupAttrRead = privilegeSubjectContainer.getPrivilegeContainers().get(AccessPrivilege.GROUP_ATTR_READ.getName());
+          canGroupAttrRead = groupAttrRead != null || allowAllGroupAttrRead || canAdmin;
+          //see if inheriting
+          if (allowAllGroupAttrRead || canAdmin) {
+            if (groupAttrRead == null) {
+              groupAttrRead = new PrivilegeContainerImpl();
+              groupAttrRead.setPrivilegeName(AccessPrivilege.GROUP_ATTR_READ.getName());
+              privilegeSubjectContainer.getPrivilegeContainers().put(AccessPrivilege.GROUP_ATTR_READ.getName(), groupAttrRead);
+              groupAttrRead.setPrivilegeAssignType(PrivilegeAssignType.EFFECTIVE);
+            } else {
+              groupAttrRead.setPrivilegeAssignType(PrivilegeAssignType.convert(groupAttrRead.getPrivilegeAssignType(), PrivilegeAssignType.EFFECTIVE));
+            }
+          }
+        }
+        boolean canGroupAttrUpdate = false;
+        {
+          PrivilegeContainer groupAttrUpdate = privilegeSubjectContainer.getPrivilegeContainers().get(AccessPrivilege.GROUP_ATTR_UPDATE.getName());
+          canGroupAttrUpdate = groupAttrUpdate != null || allowAllGroupAttrUpdate || canAdmin;
+          //see if inheriting
+          if (allowAllGroupAttrUpdate || canAdmin) {
+            if (groupAttrUpdate == null) {
+              groupAttrUpdate = new PrivilegeContainerImpl();
+              groupAttrUpdate.setPrivilegeName(AccessPrivilege.GROUP_ATTR_UPDATE.getName());
+              privilegeSubjectContainer.getPrivilegeContainers().put(AccessPrivilege.GROUP_ATTR_UPDATE.getName(), groupAttrUpdate);
+              groupAttrUpdate.setPrivilegeAssignType(PrivilegeAssignType.EFFECTIVE);
+            } else {
+              groupAttrUpdate.setPrivilegeAssignType(PrivilegeAssignType.convert(groupAttrUpdate.getPrivilegeAssignType(), PrivilegeAssignType.EFFECTIVE));
+            }
+          }
+        }
         boolean canOptout = false;
         {
           PrivilegeContainer optout = privilegeSubjectContainer.getPrivilegeContainers().get(AccessPrivilege.OPTOUT.getName());
@@ -628,7 +684,7 @@ public class SimpleGroupUpdate {
         {
           PrivilegeContainer view = privilegeSubjectContainer.getPrivilegeContainers().get(AccessPrivilege.VIEW.getName());
           //see if inheriting
-          if (allowAllView || canAdmin || canUpdate || canRead || canOptin || canOptout) {
+          if (allowAllView || canAdmin || canUpdate || canRead || canOptin || canOptout || canGroupAttrRead || canGroupAttrUpdate) {
             if (view == null) {
               view = new PrivilegeContainerImpl();
               view.setPrivilegeName(AccessPrivilege.VIEW.getName());

@@ -23,7 +23,7 @@
 	  <tiles:put name="view" value="searchResultItem"/>
   </tiles:insert>
   </td>
-  <c:forTokens var="priv" items="MEMBER ADMIN UPDATE READ VIEW OPTIN OPTOUT" delims=" ">
+  <c:forTokens var="priv" items="member admin updaet read view optin optout groupAttrRead groupAttrUpdate" delims=" ">
   	<td>
 	<c:set var="hasPriv" value="false"/>
 	<c:choose>

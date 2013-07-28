@@ -97,7 +97,7 @@ public class ManageRepositoryBrowser extends AbstractRepositoryBrowser{
 	 */
 	protected boolean isValidSearchResult(Group searchResult) throws Exception {
 		Subject subj = getGrouperSession().getSubject();
-		return (searchResult.hasAdmin(subj)|| searchResult.hasUpdate(subj));
+		return (searchResult.hasAdmin(subj)|| searchResult.hasUpdate(subj) || searchResult.hasGroupAttrUpdate(subj));
 	}
 
 	/* (non-Javadoc)
@@ -111,7 +111,8 @@ public class ManageRepositoryBrowser extends AbstractRepositoryBrowser{
 		Member member = MemberFinder.findBySubject(s,s.getSubject(), true);
 		
 		groups.addAll(member.hasAdminInStem());
-		groups.addAll(member.hasUpdateInStem());
+    groups.addAll(member.hasUpdateInStem());
+    groups.addAll(member.hasGroupAttrUpdateInStem());
 	  
 		groups.addAll(member.hasStem());
 		groups.addAll(member.hasCreate());

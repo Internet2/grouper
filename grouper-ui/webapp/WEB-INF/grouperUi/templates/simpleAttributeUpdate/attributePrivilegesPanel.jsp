@@ -88,7 +88,7 @@
               <c:set var="guiMember" value="${attributeUpdateRequestContainer.privilegeSubjectContainerGuiMembers[row]}" />
               <c:if test="${attributeUpdateRequestContainer.showPrivilegeHeader[row]}">
                 <tr>
-                  <c:forTokens var="privilegeName" items="attrAdmin attrRead attrUpdate attrOptin attrOptout attrView" delims=" ">
+                  <c:forTokens var="privilegeName" items="attrAdmin attrRead attrUpdate attrDefAttrRead attrDefAttrUpdate attrOptin attrOptout attrView" delims=" ">
                     <th class="privilegeHeader"><grouper:message key="priv.${privilegeName}" /></grou></th>
                   </c:forTokens>
                   <th class="privilegeHeader" style="text-align: left">
@@ -97,7 +97,7 @@
                 </tr>
               </c:if>
               <tr  ${row % 2 == 1 ? 'class="alternate"' : ''}>
-                <c:forTokens var="privilegeName" items="attrAdmin attrRead attrUpdate attrOptin attrOptout attrView" delims=" ">
+                <c:forTokens var="privilegeName" items="attrAdmin attrRead attrUpdate attrDefAttrRead attrDefAttrUpdate attrOptin attrOptout attrView" delims=" ">
                   <c:set var="privilegeAssignType" value="${privilegeSubjectContainer.privilegeContainers[privilegeName].privilegeAssignType}" />
                   <td class="privilegeRow">
                     <%-- keep the previous state so we know what the user changed --%>

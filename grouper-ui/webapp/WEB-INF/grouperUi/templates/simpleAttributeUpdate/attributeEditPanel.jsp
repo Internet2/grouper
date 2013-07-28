@@ -261,7 +261,23 @@
              <grouper:message key="priv.attrReadLower" /> 
              
              &nbsp;
-             
+
+            <input type="checkbox" name="attributeDefToEditAllowAllAttrDefAttrUpdate"
+              value="true"
+              ${attributeUpdateRequestContainer.allowAllAttrDefAttrUpdate ? 'checked="checked"' : '' } />
+
+             <grouper:message key="priv.attrDefAttrUpdateLower" />
+
+             &nbsp;
+
+            <input type="checkbox" name="attributeDefToEditAllowAllAttrDefAttrRead"
+              value="true"
+              ${attributeUpdateRequestContainer.allowAllAttrDefAttrRead ? 'checked="checked"' : '' } />
+
+             <grouper:message key="priv.attrDefAttrReadLower" />
+
+             &nbsp;
+
             <input type="checkbox" name="attributeDefToEditAllowAllView" 
               value="true" 
               ${attributeUpdateRequestContainer.allowAllView ? 'checked="checked"' : '' } />

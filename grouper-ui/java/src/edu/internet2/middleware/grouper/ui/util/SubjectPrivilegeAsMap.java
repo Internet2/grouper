@@ -114,7 +114,7 @@ public class SubjectPrivilegeAsMap extends ObjectAsMap {
 				if(subject instanceof LazySubject) return GrouperHelper.isDirect((LazySubject)subject);
 				try {
 					Map tmpPrivMap = GrouperHelper.getImmediateHas(s,groupOrStem,MemberFinder.findBySubject(s,subject, true));
-					Boolean answer = new Boolean(tmpPrivMap.containsKey(privilege.toUpperCase()));
+					Boolean answer = new Boolean(tmpPrivMap.containsKey(privilege));
 					put("isDirect",answer);
 					return answer;
 				}catch(Exception e) {

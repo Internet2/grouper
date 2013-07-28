@@ -179,6 +179,22 @@
              
             <c:if test="${groupUpdateRequestContainer.groupToEdit.typeOfGroupDb != 'entity'}" >
                &nbsp;
+
+            <input type="checkbox" name="groupToEditAllowAllGroupAttrRead"
+              value="true"
+              ${groupUpdateRequestContainer.allowAllGroupAttrRead ? 'checked="checked"' : '' } />
+
+             <grouper:message key="priv.groupAttrRead" />
+
+             &nbsp;
+
+            <input type="checkbox" name="groupToEditAllowAllGroupAttrUpdate"
+              value="true"
+              ${groupUpdateRequestContainer.allowAllGroupAttrUpdate ? 'checked="checked"' : '' } />
+
+            <grouper:message key="priv.groupAttrUpdate" />
+
+            &nbsp;
                
               <input type="checkbox" name="groupToEditAllowAllOptin" 
                 value="true" 

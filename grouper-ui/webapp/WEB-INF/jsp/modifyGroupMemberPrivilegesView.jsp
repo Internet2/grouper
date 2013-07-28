@@ -36,10 +36,10 @@
 			<c:set var="disabled"><c:out value="${!groupPrivResolver.canManageField[listField]}"/></c:set>
 		</c:otherwise>
 	</c:choose>
-	<html:multibox property="privileges" value="MEMBER" disabled="${disabled}"/> <c:out value="${label}" escapeXml="false"/>
+	<html:multibox property="privileges" value="member" disabled="${disabled}"/> <c:out value="${label}" escapeXml="false"/>
 	<br/>
 	</c:if>
-	<c:if test="${authUserPriv.ADMIN}">
+	<c:if test="${authUserPriv.admin}">
 	<c:set var="disabled">true</c:set>
 	<c:if test="${groupPrivResolver.canManagePrivileges}">
 	<c:set var="disabled">false</c:set>

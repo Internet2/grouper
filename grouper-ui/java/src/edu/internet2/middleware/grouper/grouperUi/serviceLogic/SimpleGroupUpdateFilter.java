@@ -103,7 +103,11 @@ public class SimpleGroupUpdateFilter {
           group.hasOptin(everyEntity));
       groupUpdateRequestContainer.setAllowAllOptout(
           group.hasOptout(everyEntity));
-
+      groupUpdateRequestContainer.setAllowAllGroupAttrRead(
+          group.hasGroupAttrRead(everyEntity));
+      groupUpdateRequestContainer.setAllowAllGroupAttrUpdate(
+          group.hasGroupAttrUpdate(everyEntity));
+      
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupEditPanel", 
         "/WEB-INF/grouperUi/templates/groupUpdate/groupEditPanel.jsp"));
   
@@ -263,6 +267,10 @@ public class SimpleGroupUpdateFilter {
           GrouperConfig.getPropertyBoolean("groups.create.grant.all.optin", false));
       groupUpdateRequestContainer.setAllowAllOptout(
           GrouperConfig.getPropertyBoolean("groups.create.grant.all.optout", false));
+      groupUpdateRequestContainer.setAllowAllGroupAttrRead(
+          GrouperConfig.getPropertyBoolean("groups.create.grant.all.groupAttrRead", false));
+      groupUpdateRequestContainer.setAllowAllGroupAttrUpdate(
+          GrouperConfig.getPropertyBoolean("groups.create.grant.all.groupAttrUpdate", false));
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupEditPanel", 
         "/WEB-INF/grouperUi/templates/groupUpdate/groupEditPanel.jsp"));

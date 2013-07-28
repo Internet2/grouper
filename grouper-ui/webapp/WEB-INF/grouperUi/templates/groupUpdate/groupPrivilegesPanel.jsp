@@ -93,8 +93,8 @@
               <c:set var="guiMember" value="${groupUpdateRequestContainer.privilegeSubjectContainerGuiMembers[row]}" />
               <c:if test="${groupUpdateRequestContainer.showPrivilegeHeader[row]}">
                 <tr>
-                  <c:forTokens var="privilegeName" items="admin read update optin optout view" delims=" ">
-                    <c:if test="${groupUpdateRequestContainer.groupToEdit.typeOfGroupDb != 'entity' || privilegeName == 'admin' || privilegeName == 'view'}" >
+                  <c:forTokens var="privilegeName" items="admin read update groupAttrRead groupAttrUpdate optin optout view" delims=" ">
+                    <c:if test="${groupUpdateRequestContainer.groupToEdit.typeOfGroupDb != 'entity' || privilegeName == 'admin' || privilegeName == 'view' || privilegeName == 'groupAttrRead' || privilegeName == 'groupAttrUpdate'}" >
                       <th class="privilegeHeader"><grouper:message key="priv.${privilegeName}" /></grou></th>
                     </c:if>
                   </c:forTokens>
@@ -104,9 +104,9 @@
                 </tr>
               </c:if>
               <tr  ${row % 2 == 1 ? 'class="alternate"' : ''}>
-                <c:forTokens var="privilegeName" items="admin read update optin optout view" delims=" ">
+                <c:forTokens var="privilegeName" items="admin read update groupAttrRead groupAttrUpdate optin optout view" delims=" ">
                 
-                  <c:if test="${groupUpdateRequestContainer.groupToEdit.typeOfGroupDb != 'entity' || privilegeName == 'admin' || privilegeName == 'view'}" >
+                  <c:if test="${groupUpdateRequestContainer.groupToEdit.typeOfGroupDb != 'entity' || privilegeName == 'admin' || privilegeName == 'view' || privilegeName == 'groupAttrRead' || privilegeName == 'groupAttrUpdate'}" >
                   
                     <c:set var="privilegeAssignType" value="${privilegeSubjectContainer.privilegeContainers[privilegeName].privilegeAssignType}" />
                     <td class="privilegeRow">

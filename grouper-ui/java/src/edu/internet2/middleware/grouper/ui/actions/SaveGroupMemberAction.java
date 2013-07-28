@@ -224,7 +224,7 @@ public class SaveGroupMemberAction extends GrouperCapableAction {
 		Map newPrivs = new HashMap();
 		int newPrivsCount = 0;
 		for (int i = 0; i < privileges.length; i++) {
-			newPrivs.put(privileges[i].toLowerCase(), Boolean.TRUE);
+			newPrivs.put(privileges[i], Boolean.TRUE);
 			if (!privs.containsKey(privileges[i])) {
 				newPrivsCount++;
 			}
@@ -235,7 +235,7 @@ public class SaveGroupMemberAction extends GrouperCapableAction {
 		int newCount = 0;
 		for (int i = 0; i < privileges.length; i++) {
 			if (!privs.containsKey(privileges[i])) {
-				newPrivileges[newCount++] = privileges[i].toLowerCase();
+				newPrivileges[newCount++] = privileges[i];
 			}
 		}
 		
@@ -251,7 +251,7 @@ public class SaveGroupMemberAction extends GrouperCapableAction {
 		Iterator it = privs.keySet().iterator();
 		String key;
 		while (it.hasNext()) {
-			key = ((String) it.next()).toLowerCase();
+			key = ((String) it.next());
 			if (!newPrivs.containsKey(key)) {
 				if (key.toLowerCase().equals("member")) {
 					if(!membershipField.equals("members") || !curGroup.hasComposite()) {

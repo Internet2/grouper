@@ -83,7 +83,7 @@
       </td>
       <td class="formTableRight">
          <grouper:combobox 
-           filterOperation="SimpleAttributeUpdateFilter.filterGroups" 
+           filterOperation="SimpleAttributeUpdateFilter.filterGroupsForMembershipAssignment" 
            id="attributeAssignMembershipGroup" 
            width="700"/>
       </td>

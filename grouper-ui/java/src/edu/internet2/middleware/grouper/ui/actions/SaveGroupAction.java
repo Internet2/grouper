@@ -268,7 +268,7 @@ public class SaveGroupAction extends GrouperCapableAction {
 			while(it.hasNext()) {
 				entry = (Map.Entry)it.next();
 				key = (String)entry.getKey();
-				assignedPrivs.put(key.toLowerCase(),entry.getValue());
+				assignedPrivs.put(key,entry.getValue());
 			}
 		} else {
 			GroupOrStem curGos = GroupOrStem.findByID(grouperSession,curNode);

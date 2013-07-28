@@ -93,7 +93,7 @@ public class SimpleAttributeUpdateFilter {
       } else {
         queryOptions = new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("simpleAttributeUpdate.attributeDefComboboxResultSize", 200), 1, true).sortAsc("theAttributeDef.nameDb");
         attributeDefs = GrouperDAOFactory.getFactory().getAttributeDef().getAllAttributeDefsSplitScopeSecure(searchTerm, grouperSession, loggedInSubject, 
-            GrouperUtil.toSet(AttributeDefPrivilege.ATTR_ADMIN), queryOptions, null, null);
+            AttributeDefPrivilege.ATTRIBUTE_UPDATE_PRIVILEGES, queryOptions, null, null);
         
         if (GrouperUtil.length(attributeDefs) == 0) {
           GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
@@ -594,7 +594,11 @@ public class SimpleAttributeUpdateFilter {
           attributeDef.getPrivilegeDelegate().hasAttrOptin(everyEntity));
       attributeUpdateRequestContainer.setAllowAllOptout(
           attributeDef.getPrivilegeDelegate().hasAttrOptout(everyEntity));
-
+      attributeUpdateRequestContainer.setAllowAllAttrDefAttrRead(
+          attributeDef.getPrivilegeDelegate().hasAttrDefAttrRead(everyEntity));
+      attributeUpdateRequestContainer.setAllowAllAttrDefAttrUpdate(
+          attributeDef.getPrivilegeDelegate().hasAttrDefAttrUpdate(everyEntity));
+      
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeEditPanel", 
         "/WEB-INF/grouperUi/templates/simpleAttributeUpdate/attributeEditPanel.jsp"));
   
@@ -639,6 +643,10 @@ public class SimpleAttributeUpdateFilter {
           GrouperConfig.getPropertyBoolean("attributeDefs.create.grant.all.attrOptin", false));
       attributeUpdateRequestContainer.setAllowAllOptout(
           GrouperConfig.getPropertyBoolean("attributeDefs.create.grant.all.attrOptout", false));
+      attributeUpdateRequestContainer.setAllowAllAttrDefAttrRead(
+          GrouperConfig.getPropertyBoolean("attributeDefs.create.grant.all.attrDefAttrRead", false));
+      attributeUpdateRequestContainer.setAllowAllAttrDefAttrUpdate(
+          GrouperConfig.getPropertyBoolean("attributeDefs.create.grant.all.attrDefAttrUpdate", false));
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#attributeEditPanel", 
         "/WEB-INF/grouperUi/templates/simpleAttributeUpdate/attributeEditPanel.jsp"));
@@ -754,7 +762,7 @@ public class SimpleAttributeUpdateFilter {
       } else {
         queryOptions = new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("simpleGroupUpdate.groupComboboxResultSize", 200), 1, true).sortAsc("theGroup.displayNameDb");
         groups = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSplitScopeSecure(searchTerm, grouperSession, loggedInSubject, 
-            GrouperUtil.toSet(AccessPrivilege.ADMIN), queryOptions, (TypeOfGroup)null);
+            AccessPrivilege.ATTRIBUTE_UPDATE_PRIVILEGES, queryOptions, (TypeOfGroup)null);
         
         if (GrouperUtil.length(groups) == 0) {
           GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
@@ -806,14 +814,156 @@ public class SimpleAttributeUpdateFilter {
   }
 
   /**
+   * filter groups to pick one to edit
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void filterGroupsForMembershipAssignment(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    String searchTerm = httpServletRequest.getParameter("mask");
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      
+      Set<Group> groups = null;
+      
+      StringBuilder xmlBuilder = new StringBuilder(GrouperUiUtils.DHTMLX_OPTIONS_START);
+  
+      QueryOptions queryOptions = null;
+      
+      if (StringUtils.defaultString(searchTerm).length() < 2) {
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+            GrouperUiUtils.message("simpleGroupUpdate.errorNotEnoughChars", false), "bullet_error.png");
+      } else {
+        queryOptions = new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("simpleGroupUpdate.groupComboboxResultSize", 200), 1, true).sortAsc("theGroup.displayNameDb");
+        groups = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSplitScopeSecure(searchTerm, grouperSession, loggedInSubject, 
+            AccessPrivilege.UPDATE_PRIVILEGES, queryOptions, (TypeOfGroup)null);
+        
+        if (GrouperUtil.length(groups) == 0) {
+          GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+              GrouperUiUtils.message("simpleGroupUpdate.errorNoGroupsFound", false), "bullet_error.png");
+        }
+      }
+      
+      for (Group group : GrouperUtil.nonNull(groups)) {
+  
+        String value = group.getId();
+        String label = GrouperUiUtils.escapeHtml(group.getDisplayName(), true);
+        String imageName = null;
+        if (group.getTypeOfGroup() == TypeOfGroup.role) {
+          imageName = GrouperUiUtils.imageFromSubjectSource("g:rsa");
+        } else {
+          imageName = GrouperUiUtils.imageFromSubjectSource("g:gsa");
+        }
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, value, label, imageName);
+      }
+  
+      //add one more for more options if we didnt get them all
+      if (queryOptions != null && queryOptions.getCount() != null 
+          && groups != null && queryOptions.getCount() > groups.size()) {
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+            GrouperUiUtils.message("simpleGroupUpdate.errorTooManyGroups", false), "bullet_error.png");
+      }
+      
+      
+      xmlBuilder.append(GrouperUiUtils.DHTMLX_OPTIONS_END);
+      
+      GrouperUiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
+  
+    } catch (Exception se) {
+      LOG.error("Error searching for group: '" + searchTerm + "', " + se.getMessage(), se);
+      
+      //dont rethrow or the control will get confused
+      StringBuilder xmlBuilder = new StringBuilder(GrouperUiUtils.DHTMLX_OPTIONS_START);
+      GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, null, 
+          GrouperUiUtils.escapeHtml("Error searching for groups: " + searchTerm + ", " + se.getMessage(), true), null);
+      xmlBuilder.append(GrouperUiUtils.DHTMLX_OPTIONS_END);
+      GrouperUiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+  
+    //dont print the regular JSON
+    throw new ControllerDone();
+  
+  }
+  
+  /**
    * filter stems to pick one to view/assign
    * @param httpServletRequest
    * @param httpServletResponse
    */
   public void filterStems(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
 
-    new SimpleAttributeUpdateFilter().filterCreatableNamespace(httpServletRequest, httpServletResponse);
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
   
+    String searchTerm = httpServletRequest.getParameter("mask");
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      Set<Stem> stems = null;
+      
+      StringBuilder xmlBuilder = new StringBuilder(GrouperUiUtils.DHTMLX_OPTIONS_START);
+  
+      QueryOptions queryOptions = null;
+      
+      if (StringUtils.defaultString(searchTerm).length() < 2) {
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+            GrouperUiUtils.message("simpleAttributeUpdate.errorNotEnoughChars", false), "bullet_error.png");
+      } else {
+        queryOptions = new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("simpleAttributeUpdate.attributeDefComboboxResultSize", 200), 1, true).sortAsc("name");
+        stems = GrouperDAOFactory.getFactory().getStem().getAllStemsSplitScopeSecure(searchTerm, grouperSession, loggedInSubject, 
+            NamingPrivilege.ATTRIBUTE_UPDATE_PRIVILEGES, queryOptions);
+        
+        if (GrouperUtil.length(stems) == 0) {
+          GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+              GrouperUiUtils.message("simpleAttributeUpdate.errorNoFoldersFound", false), "bullet_error.png");
+        }
+      }
+      
+      for (Stem stem : GrouperUtil.nonNull(stems)) {
+  
+        String value = stem.getUuid();
+        String label = GrouperUiUtils.escapeHtml(stem.getName(), true);
+        String imageName = "../../grouperExternal/public/assets/images/folder.gif";
+  
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, value, label, imageName);
+      }
+  
+      //add one more for more options if we didnt get them all
+      if (queryOptions != null && queryOptions.getCount() != null 
+          && stems != null && queryOptions.getCount() > stems.size()) {
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+            GrouperUiUtils.message("simpleAttributeUpdate.errorTooManyFolders", false), "bullet_error.png");
+      }
+      
+      
+      xmlBuilder.append(GrouperUiUtils.DHTMLX_OPTIONS_END);
+      
+      GrouperUiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
+  
+    } catch (Exception se) {
+      LOG.error("Error searching for folder: '" + searchTerm + "', " + se.getMessage(), se);
+      
+      //dont rethrow or the control will get confused
+      StringBuilder xmlBuilder = new StringBuilder(GrouperUiUtils.DHTMLX_OPTIONS_START);
+      GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, null, 
+          GrouperUiUtils.escapeHtml("Error searching for folders: " + searchTerm + ", " + se.getMessage(), true), null);
+      xmlBuilder.append(GrouperUiUtils.DHTMLX_OPTIONS_END);
+      GrouperUiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+  
+    //dont print the regular JSON
+    throw new ControllerDone();  
   }
 
   /**

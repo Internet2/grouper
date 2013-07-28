@@ -304,7 +304,7 @@ public class PopulateChainsAction extends GrouperCapableAction {
 		request.setAttribute("groupMemberParams",groupMemberParams);
 		request.setAttribute("subject",GrouperHelper.subject2Map(subject));
 		Map privs = GrouperHelper.hasAsMap(grouperSession,GroupOrStem.findByGroup(grouperSession,group),MemberFinder.findBySubject(grouperSession,subject, true),FieldFinder.find("members", true));
-		privs.remove("MEMBER");
+		privs.remove("member");
 		request.setAttribute("privs",privs.keySet());
 		request.setAttribute("privsSize",new Integer(privs.size()));
 		
