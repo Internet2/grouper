@@ -3217,12 +3217,12 @@ public class GrouperServiceLogic {
           
         if (hasGroup && !groupPrivilege) {
             throw new WsInvalidQueryException("If you are querying a group, you need to pass in an " +
-              "access privilege type: '" + privilegeType + "', e.g. admin|view|read|optin|optout|update");
+              "access privilege type: '" + privilegeType + "', e.g. admin|view|read|optin|optout|update|groupAttrRead|groupAttrUpdate");
           }
 
         if (hasStem && !stemPrivilege) {
           throw new WsInvalidQueryException("If you are querying a stem, you need to pass in a " +
-              "naming privilege type: '" + privilegeType + "', e.g. stem|create");
+              "naming privilege type: '" + privilegeType + "', e.g. stem|create|stemAttrRead|stemAttrUpdate");
         }
       }
 
@@ -3281,6 +3281,12 @@ public class GrouperServiceLogic {
           if (privilegeName == null || AccessPrivilege.OPTOUT.equals(privilegeName)) { 
             subjects.addAll(GrouperUtil.nonNull(accessResolver.getSubjectsWithPrivilege(group, AccessPrivilege.OPTOUT)));
           } 
+          if (privilegeName == null || AccessPrivilege.GROUP_ATTR_READ.equals(privilegeName)) { 
+            subjects.addAll(GrouperUtil.nonNull(accessResolver.getSubjectsWithPrivilege(group, AccessPrivilege.GROUP_ATTR_READ)));
+          } 
+          if (privilegeName == null || AccessPrivilege.GROUP_ATTR_UPDATE.equals(privilegeName)) { 
+            subjects.addAll(GrouperUtil.nonNull(accessResolver.getSubjectsWithPrivilege(group, AccessPrivilege.GROUP_ATTR_UPDATE)));
+          } 
           if (privilegeName == null || AccessPrivilege.READ.equals(privilegeName)) {
             subjects.addAll(GrouperUtil.nonNull(accessResolver.getSubjectsWithPrivilege(group, AccessPrivilege.READ)));
           } 
@@ -3322,6 +3328,12 @@ public class GrouperServiceLogic {
           if (privilegeName == null || NamingPrivilege.STEM.equals(privilegeName)) { 
             subjects.addAll(GrouperUtil.nonNull(namingResolver.getSubjectsWithPrivilege(stem, NamingPrivilege.STEM)));
           } 
+          if (privilegeName == null || NamingPrivilege.STEM_ATTR_READ.equals(privilegeName)) { 
+            subjects.addAll(GrouperUtil.nonNull(namingResolver.getSubjectsWithPrivilege(stem, NamingPrivilege.STEM_ATTR_READ)));
+          } 
+          if (privilegeName == null || NamingPrivilege.STEM_ATTR_UPDATE.equals(privilegeName)) { 
+            subjects.addAll(GrouperUtil.nonNull(namingResolver.getSubjectsWithPrivilege(stem, NamingPrivilege.STEM_ATTR_UPDATE)));
+          } 
           //make it a little more efficient, note subjects dont have equals and hashcode, cant just use set
           SubjectHelper.removeDuplicates(subjects);
           //add privs
@@ -3348,6 +3360,12 @@ public class GrouperServiceLogic {
             if (privilegeName == null || AccessPrivilege.OPTOUT.equals(privilegeName)) { 
               groups.addAll(member.hasOptout());
             } 
+            if (privilegeName == null || AccessPrivilege.GROUP_ATTR_READ.equals(privilegeName)) { 
+              groups.addAll(member.hasGroupAttrRead());
+            } 
+            if (privilegeName == null || AccessPrivilege.GROUP_ATTR_UPDATE.equals(privilegeName)) { 
+              groups.addAll(member.hasGroupAttrUpdate());
+            } 
             if (privilegeName == null || AccessPrivilege.READ.equals(privilegeName)) { 
               groups.addAll(member.hasRead());
             } 
@@ -3371,6 +3389,12 @@ public class GrouperServiceLogic {
             } 
             if (privilegeName == null || NamingPrivilege.STEM.equals(privilegeName)) { 
               stems.addAll(member.hasStem());
+            } 
+            if (privilegeName == null || NamingPrivilege.STEM_ATTR_READ.equals(privilegeName)) { 
+              stems.addAll(member.hasStemAttrRead());
+            } 
+            if (privilegeName == null || NamingPrivilege.STEM_ATTR_UPDATE.equals(privilegeName)) { 
+              stems.addAll(member.hasStemAttrUpdate());
             } 
             //from there lets get the privilege
             for (Stem stem : stems) {
