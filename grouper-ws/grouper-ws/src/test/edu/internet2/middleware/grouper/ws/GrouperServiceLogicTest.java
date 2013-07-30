@@ -172,7 +172,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testGetGrouperPrivilegesLite"));
+    TestRunner.run(new GrouperServiceLogicTest("testGetAttributeAssignmentsGroup"));
   }
 
   /**
@@ -2919,7 +2919,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
       .assignDescription("description").save();
 
     //test subject 0 can view and read
-    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.GROUP_ATTR_READ);
     group2.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.VIEW);
     attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, false);
 
