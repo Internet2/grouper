@@ -2186,18 +2186,17 @@ public class SimpleAttributeUpdate {
       }
 
       AttributeAssign attributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(attributeAssignId, true, false);
-      
+
       //now we need to check security
-      if (!PrivilegeHelper.canAttrUpdate(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
-        
+      try {
+        attributeAssign.retrieveAttributeAssignable().getAttributeDelegate().assertCanUpdateAttributeDefName(attributeAssign.getAttributeDefName());
+      } catch (InsufficientPrivilegeException e) {
         String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
         notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);
         guiResponseJs.addAction(GuiScreenAction.newAlert(notAllowed));
         return;
       }
       
-      //todo check more security, e.g. where it is assigned
-
       String attributeAssignValueId = httpServletRequest.getParameter("attributeAssignValueId");
       
       if (StringUtils.isBlank(attributeAssignValueId)) {
@@ -2643,15 +2642,14 @@ public class SimpleAttributeUpdate {
       AttributeAssign attributeAssign = AttributeAssignFinder.findById(attributeAssignId, true);
   
       //now we need to check security
-      if (!PrivilegeHelper.canAttrUpdate(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
-        
+      try {
+        attributeAssign.retrieveAttributeAssignable().getAttributeDelegate().assertCanUpdateAttributeDefName(attributeAssign.getAttributeDefName());
+      } catch (InsufficientPrivilegeException e) {
         String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
         notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);
         guiResponseJs.addAction(GuiScreenAction.newAlert(notAllowed));
         return;
       }
-
-      //todo check more security, e.g. where it is assigned
 
       String attributeAssignValueId = httpServletRequest.getParameter("attributeAssignValueId");
       
