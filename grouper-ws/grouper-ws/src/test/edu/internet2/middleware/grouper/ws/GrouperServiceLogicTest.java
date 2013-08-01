@@ -172,7 +172,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testGetAttributeAssignmentsGroup"));
+    TestRunner.run(new GrouperServiceLogicTest("testAssignAttributes"));
   }
 
   /**
@@ -4329,6 +4329,194 @@ public class GrouperServiceLogicTest extends GrouperTest {
     attributeAssigns = group.getAttributeDelegate().retrieveAssignments(attributeDefName);
     assertEquals(0, GrouperUtil.length(attributeAssigns));
     
+    /*
+     *  test security -- make sure privileges are checked when deleting an assignment
+     */
+    
+    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
+        GROUPER_VERSION, AttributeAssignType.group, 
+        new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(attributeDefName.getName(), null)}, 
+        AttributeAssignOperation.add_attr, 
+        null, 
+        null, null, null, null, null, null, 
+        new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, 
+        null, null, null, 
+        null, null, null, null, null, false, null, false, null, null, null, null);
+    
+    assertEquals(WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsAssignAttributesResults.getResultMetadata().getResultCode());
+    assertEquals("T", wsAssignAttributesResults.getWsAttributeAssignResults()[0].getChanged());
+    
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssigns = group.getAttributeDelegate().retrieveAssignments(attributeDefName);
+    assertEquals(1, GrouperUtil.length(attributeAssigns));
+    String attributeAssignId = attributeAssigns.iterator().next().getId();
+
+    Subject subjectWithGroupAdminPriv = SubjectFinder.findByIdOrIdentifier("test.subject.0", true);
+    Subject subjectWithAttrDefAdminPriv = SubjectFinder.findByIdOrIdentifier("test.subject.1", true);
+    Subject subjectWithBothAdminPriv = SubjectFinder.findByIdOrIdentifier("test.subject.2", true);
+    Subject subjectWithNoAdminPriv = SubjectFinder.findByIdOrIdentifier("test.subject.3", true);
+
+    group.grantPriv(subjectWithGroupAdminPriv, AccessPrivilege.ADMIN, false);
+    group.grantPriv(subjectWithBothAdminPriv, AccessPrivilege.ADMIN, false);
+    group.grantPriv(subjectWithNoAdminPriv, AccessPrivilege.READ, false);
+    group.grantPriv(subjectWithAttrDefAdminPriv, AccessPrivilege.READ, false);
+    attributeDefName.getAttributeDef().getPrivilegeDelegate().grantPriv(subjectWithAttrDefAdminPriv, AttributeDefPrivilege.ATTR_ADMIN, false);
+    attributeDefName.getAttributeDef().getPrivilegeDelegate().grantPriv(subjectWithBothAdminPriv, AttributeDefPrivilege.ATTR_ADMIN, false);
+    attributeDefName.getAttributeDef().getPrivilegeDelegate().grantPriv(subjectWithNoAdminPriv, AttributeDefPrivilege.ATTR_READ, false);
+    attributeDefName.getAttributeDef().getPrivilegeDelegate().grantPriv(subjectWithGroupAdminPriv, AttributeDefPrivilege.ATTR_READ, false);
+    
+    // 1.  Test removing assignment with no privileges
+    GrouperServiceUtils.testSession = GrouperSession.start(subjectWithNoAdminPriv);
+    
+    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
+        GROUPER_VERSION, AttributeAssignType.group, 
+        new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(attributeDefName.getName(), null)}, 
+        AttributeAssignOperation.remove_attr, 
+        null, 
+        null, null, null, null, null, null, 
+        new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, 
+        null, null, null, 
+        null, null, null, null, null, false, null, false, null, null, null, null);
+    
+    assertEquals(WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
+        wsAssignAttributesResults.getResultMetadata().getResultCode());
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssigns = group.getAttributeDelegate().retrieveAssignments(attributeDefName);
+    assertEquals(1, GrouperUtil.length(attributeAssigns));
+    
+    // 2.  Test removing assignment with no privileges - specify attributeAssignId
+    GrouperServiceUtils.testSession = GrouperSession.start(subjectWithNoAdminPriv);
+    
+    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
+        GROUPER_VERSION, AttributeAssignType.group, 
+        null, 
+        AttributeAssignOperation.remove_attr, 
+        null, 
+        null, null, null, null, null, 
+        new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssignId, null)}, 
+        null, 
+        null, null, null, 
+        null, null, null, null, null, false, null, false, null, null, null, null);
+
+    assertEquals(WsGetAttributeAssignmentsResultsCode.EXCEPTION.name(), 
+        wsAssignAttributesResults.getResultMetadata().getResultCode());
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssigns = group.getAttributeDelegate().retrieveAssignments(attributeDefName);
+    assertEquals(1, GrouperUtil.length(attributeAssigns));
+    
+    // 3.  Test removing assignment with group privileges only
+    GrouperServiceUtils.testSession = GrouperSession.start(subjectWithGroupAdminPriv);
+    
+    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
+        GROUPER_VERSION, AttributeAssignType.group, 
+        new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(attributeDefName.getName(), null)}, 
+        AttributeAssignOperation.remove_attr, 
+        null, 
+        null, null, null, null, null, null, 
+        new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, 
+        null, null, null, 
+        null, null, null, null, null, false, null, false, null, null, null, null);
+    
+    assertEquals(WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
+        wsAssignAttributesResults.getResultMetadata().getResultCode());
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssigns = group.getAttributeDelegate().retrieveAssignments(attributeDefName);
+    assertEquals(1, GrouperUtil.length(attributeAssigns));
+    
+    // 4.  Test removing assignment with group privileges only - specify attributeAssignId
+    GrouperServiceUtils.testSession = GrouperSession.start(subjectWithGroupAdminPriv);
+    
+    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
+        GROUPER_VERSION, AttributeAssignType.group, 
+        null, 
+        AttributeAssignOperation.remove_attr, 
+        null, 
+        null, null, null, null, null, 
+        new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssignId, null)}, 
+        null, 
+        null, null, null, 
+        null, null, null, null, null, false, null, false, null, null, null, null);
+
+    assertEquals(WsGetAttributeAssignmentsResultsCode.EXCEPTION.name(), 
+        wsAssignAttributesResults.getResultMetadata().getResultCode());
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssigns = group.getAttributeDelegate().retrieveAssignments(attributeDefName);
+    assertEquals(1, GrouperUtil.length(attributeAssigns));
+    
+    // 5.  Test removing assignment with attributeDef privileges only
+    GrouperServiceUtils.testSession = GrouperSession.start(subjectWithAttrDefAdminPriv);
+    
+    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
+        GROUPER_VERSION, AttributeAssignType.group, 
+        new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(attributeDefName.getName(), null)}, 
+        AttributeAssignOperation.remove_attr, 
+        null, 
+        null, null, null, null, null, null, 
+        new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, 
+        null, null, null, 
+        null, null, null, null, null, false, null, false, null, null, null, null);
+    
+    assertEquals(WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
+        wsAssignAttributesResults.getResultMetadata().getResultCode());
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssigns = group.getAttributeDelegate().retrieveAssignments(attributeDefName);
+    assertEquals(1, GrouperUtil.length(attributeAssigns));
+    
+    // 6.  Test removing assignment with attributeDef privileges only - specify attributeAssignId
+    GrouperServiceUtils.testSession = GrouperSession.start(subjectWithAttrDefAdminPriv);
+    
+    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
+        GROUPER_VERSION, AttributeAssignType.group, 
+        null, 
+        AttributeAssignOperation.remove_attr, 
+        null, 
+        null, null, null, null, null, 
+        new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssignId, null)}, 
+        null, 
+        null, null, null, 
+        null, null, null, null, null, false, null, false, null, null, null, null);
+
+    assertEquals(WsGetAttributeAssignmentsResultsCode.EXCEPTION.name(), 
+        wsAssignAttributesResults.getResultMetadata().getResultCode());
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssigns = group.getAttributeDelegate().retrieveAssignments(attributeDefName);
+    assertEquals(1, GrouperUtil.length(attributeAssigns));
+    
+    // 7.  Test removing assignment with appropriate privileges - specify attributeAssignId
+    GrouperServiceUtils.testSession = GrouperSession.start(subjectWithBothAdminPriv);
+    
+    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
+        GROUPER_VERSION, AttributeAssignType.group, 
+        null, 
+        AttributeAssignOperation.remove_attr, 
+        null, 
+        null, null, null, null, null, 
+        new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssignId, null)}, 
+        null, 
+        null, null, null, 
+        null, null, null, null, null, false, null, false, null, null, null, null);
+
+    assertEquals(WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsAssignAttributesResults.getResultMetadata().getResultCode());
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssigns = group.getAttributeDelegate().retrieveAssignments(attributeDefName);
+    assertEquals(0, GrouperUtil.length(attributeAssigns));
   }
 
   /**
