@@ -4360,8 +4360,8 @@ public class GrouperServiceLogicTest extends GrouperTest {
 
     group.grantPriv(subjectWithGroupAdminPriv, AccessPrivilege.ADMIN, false);
     group.grantPriv(subjectWithBothAdminPriv, AccessPrivilege.ADMIN, false);
-    group.grantPriv(subjectWithNoAdminPriv, AccessPrivilege.READ, false);
-    group.grantPriv(subjectWithAttrDefAdminPriv, AccessPrivilege.READ, false);
+    group.grantPriv(subjectWithNoAdminPriv, AccessPrivilege.GROUP_ATTR_READ, false);
+    group.grantPriv(subjectWithAttrDefAdminPriv, AccessPrivilege.GROUP_ATTR_READ, false);
     attributeDefName.getAttributeDef().getPrivilegeDelegate().grantPriv(subjectWithAttrDefAdminPriv, AttributeDefPrivilege.ATTR_ADMIN, false);
     attributeDefName.getAttributeDef().getPrivilegeDelegate().grantPriv(subjectWithBothAdminPriv, AttributeDefPrivilege.ATTR_ADMIN, false);
     attributeDefName.getAttributeDef().getPrivilegeDelegate().grantPriv(subjectWithNoAdminPriv, AttributeDefPrivilege.ATTR_READ, false);
