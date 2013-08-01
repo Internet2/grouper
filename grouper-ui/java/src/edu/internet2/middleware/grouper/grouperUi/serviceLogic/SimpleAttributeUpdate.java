@@ -2324,18 +2324,17 @@ public class SimpleAttributeUpdate {
 
       AttributeAssign attributeAssign = AttributeAssignFinder.findById(attributeAssignId, true);
       
-      attributeAssign.delete();
-      
-      //now we need to check security
-      if (!PrivilegeHelper.canAttrAdmin(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
-        
+      // check security
+      try {
+        attributeAssign.retrieveAttributeAssignable().getAttributeDelegate().assertCanUpdateAttributeDefName(attributeAssign.getAttributeDefName());
+      } catch (InsufficientPrivilegeException e) {
         String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
         notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);
         guiResponseJs.addAction(GuiScreenAction.newAlert(notAllowed));
         return;
       }
       
-      //todo check more security, e.g. where it is assigned
+      attributeAssign.delete();
       
       String successMessage = TagUtils.navResourceString("simpleAttributeUpdate.assignSuccessDelete");
       successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
