@@ -402,6 +402,8 @@ public class WsAssignAttributeLogic {
               
               break;
             case remove_attr:
+              // the delete method doesn't check security so need to do it here...
+              attributeAssign.retrieveAttributeAssignable().getAttributeDelegate().assertCanUpdateAttributeDefName(attributeAssign.getAttributeDefName());
               attributeAssign.delete();
               wsAssignAttributeResult.setDeleted("T");
               wsAssignAttributeResult.setChanged("T");
