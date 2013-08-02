@@ -237,7 +237,7 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
         
-        List<Membership> memberships = GrouperDAOFactory.getFactory().getMembership().findAllByAttrDefOwnerAsList(attributeDef.getId(), false);
+        List<Membership> memberships = GrouperDAOFactory.getFactory().getMembership().findAllImmediateByAttrDefOwnerAsList(attributeDef.getId(), false);
         
         
         hibernateHandlerBean.getHibernateSession().byObject().setEntityName("ImmediateMembershipEntry").delete(memberships);

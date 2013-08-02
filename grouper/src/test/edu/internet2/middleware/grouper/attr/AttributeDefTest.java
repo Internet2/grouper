@@ -36,7 +36,7 @@ public class AttributeDefTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefTest("testHibernateSecurityAdmin"));
+    TestRunner.run(new AttributeDefTest("testDeleteWithPrivileges"));
   }
   
   /**
@@ -1039,6 +1039,27 @@ public class AttributeDefTest extends GrouperTest {
     }
   }
 
+  /**
+   * Test to verify GRP-880
+   */
+  public void testDeleteWithPrivileges() {
+    AttributeDef attributeDef = top.addChildAttributeDef("test", AttributeDefType.attr);
+    Group group1 = top.addChildGroup("group1", "group1");
+    Group group2 = top.addChildGroup("group2", "group2");
 
+    group1.addMember(group2.toSubject());
+    group1.addMember(SubjectTestHelper.SUBJ0);
+    group2.addMember(SubjectTestHelper.SUBJ1);
+    group1.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.ADMIN);
+
+    attributeDef.getPrivilegeDelegate().grantPriv(group1.toSubject(), AttributeDefPrivilege.ATTR_ADMIN, true);
+
+    attributeDef.delete();
+
+    assertTrue(group1.hasMember(group2.toSubject()));
+    assertTrue(group1.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(group2.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(group1.hasAdmin(SubjectTestHelper.SUBJ2));
+  }
   
 }
