@@ -815,6 +815,15 @@ TODO update for 1.5
     throws  GrouperDAOException;
 
   /**
+   * @param attrDefId
+   * @param enabledOnly
+   * @return list
+   * @throws GrouperDAOException
+   */
+  List<Membership> findAllImmediateByAttrDefOwnerAsList(String attrDefId, boolean enabledOnly)
+    throws  GrouperDAOException;
+  
+  /**
    * @param memberUUID 
    * @param enabledOnly 
    * @return set
