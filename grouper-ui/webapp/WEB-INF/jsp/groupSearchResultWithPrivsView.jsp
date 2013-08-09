@@ -23,7 +23,7 @@
 	  <tiles:put name="view" value="searchResultItem"/>
   </tiles:insert>
   </td>
-  <c:forTokens var="priv" items="member admin updaet read view optin optout groupAttrRead groupAttrUpdate" delims=" ">
+  <c:forTokens var="priv" items="member admin update read view optin optout groupAttrRead groupAttrUpdate" delims=" ">
   	<td>
 	<c:set var="hasPriv" value="false"/>
 	<c:choose>
@@ -39,7 +39,7 @@
 	</c:choose>
 	
 	<c:if test="${hasPriv != 'false'}">
-		<span class="has<c:out value="${hasPriv}"/>PrivForGroup"><grouper:message key="${priv}"/></span>
+		<span class="has<c:out value="${hasPriv}"/>PrivForGroup"><grouper:message key="priv.${priv}"/></span>
 	</c:if>
 	</td>
   </c:forTokens>
