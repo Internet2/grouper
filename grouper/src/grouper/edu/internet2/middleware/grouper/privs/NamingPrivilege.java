@@ -66,6 +66,11 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable {
   public static Set<Privilege> CREATE_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(CREATE, STEM));
 
+  /** any of these constitutes ADMIN on a stem
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> ADMIN_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(STEM));
+
   /** convert a list to priv */
   private static Map<String,Privilege> list2priv = new HashMap<String, Privilege>();
 
