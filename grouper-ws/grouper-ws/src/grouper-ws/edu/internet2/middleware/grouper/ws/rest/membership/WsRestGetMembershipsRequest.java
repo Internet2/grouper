@@ -20,6 +20,7 @@
 package edu.internet2.middleware.grouper.ws.rest.membership;
 
 import edu.internet2.middleware.grouper.ws.GrouperServiceLogic;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
@@ -39,7 +40,45 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
   
   /** are groups to look in */
   private WsGroupLookup[] wsGroupLookups;
+
+  /** stem lookups if looking for memberships on certain stems */
+  private WsStemLookup[] wsOwnerStemLookups;
   
+  /** attribute definition lookups if looking for memberships on certain attribute definitions */
+  private WsAttributeDefLookup[] wsOwnerAttributeDefLookups;
+
+  /**
+   * stem lookups if looking for memberships on certain stems
+   * @return stem lookups
+   */
+  public WsStemLookup[] getWsOwnerStemLookups() {
+    return this.wsOwnerStemLookups;
+  }
+
+  /**
+   * stem lookups if looking for memberships on certain stems
+   * @param wsStemLookups1
+   */
+  public void setWsOwnerStemLookups(WsStemLookup[] wsStemLookups1) {
+    this.wsOwnerStemLookups = wsStemLookups1;
+  }
+
+  /**
+   * attribute definition lookups if looking for memberships on certain attribute definitions
+   * @return attributeDef lookups
+   */
+  public WsAttributeDefLookup[] getWsOwnerAttributeDefLookups() {
+    return this.wsOwnerAttributeDefLookups;
+  }
+
+  /**
+   * attribute definition lookups if looking for memberships on certain attribute definitions
+   * @param wsAttributeDefLookups1
+   */
+  public void setWsOwnerAttributeDefLookups(WsAttributeDefLookup[] wsAttributeDefLookups1) {
+    this.wsOwnerAttributeDefLookups = wsAttributeDefLookups1;
+  }
+
   /** must be one of All, Effective, Immediate, Composite, NonImmediate */
   private String memberFilter;
   

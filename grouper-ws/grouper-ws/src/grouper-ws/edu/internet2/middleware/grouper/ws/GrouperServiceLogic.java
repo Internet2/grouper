@@ -47,8 +47,8 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
@@ -59,10 +59,12 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignOperation;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueOperation;
+import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
 import edu.internet2.middleware.grouper.filter.QueryFilter;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
@@ -86,9 +88,9 @@ import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.permissions.PermissionAssignOperation;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.PermissionFinder;
 import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
-import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.PITMember;
@@ -103,85 +105,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.privs.PrivilegeType;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchEntry;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesBatchResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesLiteResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsLiteResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssign;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignValue;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefName;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameToSave;
-import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetGrouperPrivilegesLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetPermissionAssignmentsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetSubjectsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupToSave;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGrouperPrivilegeResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubject;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipAnyLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
-import edu.internet2.middleware.grouper.ws.coresoap.WsPermissionEnvVar;
-import edu.internet2.middleware.grouper.ws.coresoap.WsQueryFilter;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStem;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemQueryFilter;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemToSave;
-import edu.internet2.middleware.grouper.ws.coresoap.WsSubject;
-import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.*;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult.WsAddMemberResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults.WsAddMemberResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults.WsAssignAttributeDefNameInheritanceResultsCode;
@@ -1619,6 +1543,8 @@ public class GrouperServiceLogic {
    * @param stemScope is StemScope to search only in one stem or in substems: ONE_LEVEL, ALL_IN_SUBTREE
    * @param enabled is A for all, T or null for enabled only, F for disabled 
    * @param membershipIds are the ids to search for if they are known
+   * @param wsOwnerStemLookups stem lookups if looking for memberships on certain stems
+   * @param wsOwnerAttributeDefLookups attribute definition lookups if looking for memberships on certain attribute definitions
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -1627,7 +1553,8 @@ public class GrouperServiceLogic {
       WsSubjectLookup actAsSubjectLookup, Field fieldName, boolean includeSubjectDetail,
       String[] subjectAttributeNames, boolean includeGroupDetail, final WsParam[] params, 
       String[] sourceIds, String scope, 
-      WsStemLookup wsStemLookup, StemScope stemScope, String enabled, String[] membershipIds) {  
+      WsStemLookup wsStemLookup, StemScope stemScope, String enabled, String[] membershipIds,
+      WsStemLookup[] wsOwnerStemLookups, WsAttributeDefLookup[] wsOwnerAttributeDefLookups) {  
 
     WsGetMembershipsResults wsGetMembershipsResults = new WsGetMembershipsResults();
   
@@ -1646,7 +1573,9 @@ public class GrouperServiceLogic {
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100) + "\n, wsSubjectLookups: "
           + GrouperUtil.toStringForLog(wsSubjectLookups, 200) + "\n, sourceIds: " + GrouperUtil.toStringForLog(sourceIds, 100)
           + "\n, scope: " + scope + ", wsStemLookup: " + wsStemLookup + ", stemScope: " + stemScope + ", enabled: " + enabled
-          + "\n, membershipIds: " + GrouperUtil.toStringForLog(membershipIds, 200);
+          + "\n, membershipIds: " + GrouperUtil.toStringForLog(membershipIds, 200)
+          + "\n, wsStemLookups: " + GrouperUtil.toStringForLog(wsOwnerStemLookups, 200)
+          + "\n, wsAttributeDefLookups: " + GrouperUtil.toStringForLog(wsOwnerAttributeDefLookups, 200);
   
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -1687,6 +1616,59 @@ public class GrouperServiceLogic {
           
         }
         groupsOk = groupCount == 0 || groupIds.size() > 0;
+      }
+
+      //get all the stems
+      //we could probably batch these to get better performance.  And we dont even have to lookup uuids
+      Set<String> stemIds = null;
+      boolean stemsOk = GrouperUtil.length(wsOwnerStemLookups) == 0;
+
+      if (GrouperUtil.length(wsOwnerStemLookups) > 0) {
+        stemsOk = false;
+        stemIds = new LinkedHashSet<String>();
+        int stemCount = 0;
+        for (WsStemLookup wsLocalStemLookup : wsOwnerStemLookups) {
+          
+          if (wsLocalStemLookup == null) {
+            continue;
+          }
+          stemCount++;
+          wsLocalStemLookup.retrieveStemIfNeeded(session, false);
+          Stem stem = wsLocalStemLookup.retrieveStem();
+          if (stem == null) {
+            throw new StemNotFoundException("Could not find stem: " + wsLocalStemLookup);
+          }
+          stemIds.add(stem.getUuid());
+          
+        }
+        stemsOk = stemCount == 0 || stemIds.size() > 0;
+      }
+
+
+      //get all the attributeDefs
+      //we could probably batch these to get better performance.  And we dont even have to lookup uuids
+      Set<String> attributeDefIds = null;
+      boolean attributeDefsOk = GrouperUtil.length(wsOwnerAttributeDefLookups) == 0;
+
+      if (GrouperUtil.length(wsOwnerAttributeDefLookups) > 0) {
+        attributeDefsOk = false;
+        attributeDefIds = new LinkedHashSet<String>();
+        int attributeDefCount = 0;
+        for (WsAttributeDefLookup wsLocalAttributeDefLookup : wsOwnerAttributeDefLookups) {
+          
+          if (wsLocalAttributeDefLookup == null) {
+            continue;
+          }
+          attributeDefCount++;
+          wsLocalAttributeDefLookup.retrieveAttributeDefIfNeeded(session, "attributeDef");
+          AttributeDef attributeDef = wsLocalAttributeDefLookup.retrieveAttributeDef();
+          if (attributeDef == null) {
+            throw new AttributeDefNotFoundException("Could not find attributeDef: " + wsLocalAttributeDefLookup);
+          }
+          attributeDefIds.add(attributeDef.getUuid());
+          
+        }
+        attributeDefsOk = attributeDefCount == 0 || attributeDefIds.size() > 0;
       }
 
       //get all the members
@@ -1733,7 +1715,7 @@ public class GrouperServiceLogic {
       }
       
       //if filtering by stem, and stem not found, then dont find any memberships
-      if ((wsStemLookup == null || stem != null) && membersOk && groupsOk) {
+      if ((wsStemLookup == null || stem != null) && membersOk && groupsOk && stemsOk && attributeDefsOk) {
         Set<Source> sources = GrouperUtil.convertSources(sourceIds);
         
         Set<String> membershipIdSet = null;
@@ -1742,8 +1724,44 @@ public class GrouperServiceLogic {
         }
         
         // lets get the members, cant be null
-        Set<Object[]> membershipObjects = MembershipFinder.findMemberships(groupIds, memberIds, membershipIdSet, 
-            membershipType, fieldName, sources, scope, stem, stemScope == null ? null : stemScope.convertToScope(), enabledBoolean);
+        Set<Object[]> membershipObjects = null;
+        
+        Scope stemScopeEnum = stemScope == null ? null : stemScope.convertToScope();
+        
+        if (GrouperWsConfig.getPropertyBoolean("grouperWsGetMembership_2.1.4_orBefore", false)) {
+          //can change to chaining at some point
+          membershipObjects = MembershipFinder.findMemberships(groupIds, memberIds, membershipIdSet, 
+              membershipType, fieldName, sources, scope, stem, stemScopeEnum, enabledBoolean);
+        } else {
+          MembershipFinder membershipFinder = new MembershipFinder();
+          membershipFinder.assignMemberIds(memberIds);
+          membershipFinder.assignMembershipIds(membershipIdSet);
+          membershipFinder.assignMembershipType(membershipType);
+          membershipFinder.assignField(fieldName);
+          
+          membershipFinder.assignSources(sources);
+          membershipFinder.assignScope(scope);
+          membershipFinder.assignStem(stem);
+          membershipFinder.assignStemScope(stemScopeEnum);
+          membershipFinder.assignEnabled(enabledBoolean);
+          
+          if (fieldName == null || fieldName.isGroupListField()) {
+            membershipFinder.assignGroupIds(groupIds);
+            membershipObjects = membershipFinder.findMembershipsMembers();
+          } else if (fieldName.isStemListField()) {
+            membershipFinder.assignStemIds(stemIds);
+            membershipObjects = membershipFinder.findMembershipsMembers();
+          } else if (fieldName.isAttributeDefListField()) {
+            membershipFinder.assignAttributeDefIds(attributeDefIds);
+            membershipObjects = membershipFinder.findMembershipsMembers();
+            
+          } else {
+            throw new WsInvalidQueryException("Invalid field: " + fieldName);
+          }
+        }
+        
+        
+        
         Membership.resolveSubjects(membershipObjects);
         
         //calculate and return the results
@@ -1816,6 +1834,10 @@ public class GrouperServiceLogic {
    * @param stemScope to specify if we are searching in or under the stem
    * @param enabled A for all, null or T for enabled only, F for disabled only
    * @param membershipIds comma separated list of membershipIds to retrieve
+   * @param ownerStemName if looking for privileges on stems, put the stem name to look for here
+   * @param ownerStemUuid if looking for privileges on stems, put the stem uuid here
+   * @param nameOfOwnerAttributeDef if looking for privileges on attribute definitions, put the name of the attribute definition here
+   * @param ownerAttributeDefUuid if looking for privileges on attribute definitions, put the uuid of the attribute definition here
    * @return the memberships, or none if none found
    */
   public static WsGetMembershipsResults getMembershipsLite(final GrouperVersion clientVersion,
@@ -1825,7 +1847,8 @@ public class GrouperServiceLogic {
       String actAsSubjectIdentifier, Field fieldName, String subjectAttributeNames,
       boolean includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1, String sourceIds, String scope, String stemName, 
-      String stemUuid, StemScope stemScope, String enabled, String membershipIds) {
+      String stemUuid, StemScope stemScope, String enabled, String membershipIds,
+      String ownerStemName, String ownerStemUuid, String nameOfOwnerAttributeDef, String ownerAttributeDefUuid) {
   
     // setup the group lookup
     WsGroupLookup wsGroupLookup = null;
@@ -1833,7 +1856,21 @@ public class GrouperServiceLogic {
     if (StringUtils.isNotBlank(groupName) || StringUtils.isNotBlank(groupUuid)) {
       wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
     }
-  
+
+    // setup the stem lookup
+    WsStemLookup wsOwnerStemLookup = null;
+    
+    if (StringUtils.isNotBlank(stemName) || StringUtils.isNotBlank(stemUuid)) {
+      wsOwnerStemLookup = new WsStemLookup(stemName, stemUuid);
+    }
+
+    // setup the attributeDef lookup
+    WsAttributeDefLookup wsAttributeDefLookup = null;
+    
+    if (StringUtils.isNotBlank(nameOfOwnerAttributeDef) || StringUtils.isNotBlank(ownerAttributeDefUuid)) {
+      wsAttributeDefLookup = new WsAttributeDefLookup(nameOfOwnerAttributeDef, ownerAttributeDefUuid);
+    }
+
     WsSubjectLookup wsSubjectLookup = WsSubjectLookup.createIfNeeded(subjectId, sourceId, subjectIdentifier);
     
     WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
@@ -1845,6 +1882,8 @@ public class GrouperServiceLogic {
   
     // pass through to the more comprehensive method
     WsGroupLookup[] wsGroupLookups = wsGroupLookup == null ? null : new WsGroupLookup[]{wsGroupLookup};
+    WsStemLookup[] wsStemLookups = wsOwnerStemLookup == null ? null : new WsStemLookup[]{wsOwnerStemLookup};
+    WsAttributeDefLookup[] wsAttributeDefLookups = wsAttributeDefLookup == null ? null : new WsAttributeDefLookup[]{wsAttributeDefLookup};
     WsSubjectLookup[] wsSubjectLookups = wsSubjectLookup == null ? null : new WsSubjectLookup[]{wsSubjectLookup};
     
     String[] sourceIdArray = GrouperUtil.splitTrim(sourceIds, ",");
@@ -1856,7 +1895,8 @@ public class GrouperServiceLogic {
     WsGetMembershipsResults wsGetMembershipsResults = getMemberships(clientVersion,
         wsGroupLookups, wsSubjectLookups, wsMemberFilter, actAsSubjectLookup, fieldName,
         includeSubjectDetail, subjectAttributeArray, includeGroupDetail,
-        params, sourceIdArray, scope, wsStemLookup, stemScope, enabled, membershipIdArray);
+        params, sourceIdArray, scope, wsStemLookup, stemScope, enabled, membershipIdArray,
+        wsStemLookups, wsAttributeDefLookups);
   
     return wsGetMembershipsResults;
   }

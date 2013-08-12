@@ -25,6 +25,8 @@ import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -83,6 +85,88 @@ public class WsMembership implements Comparable<WsMembership> {
   /** group uuid of the group */
   private String groupId = null;
   
+  /** uuid of the stem for stem privileges */
+  private String ownerStemId = null;
+  
+  /** name of the stem for stem privileges */
+  private String ownerStemName = null;
+  
+  /**
+   * id of the attribute def for attribute def privileges
+   */
+  private String ownerIdOfAttributeDef = null;
+
+  /**
+   * name of the attribute def for attribute def privileges
+   */
+  private String ownerNameOfAttributeDef = null;
+
+  
+  
+  /**
+   * uuid of the stem for stem privileges
+   * @return uuid
+   */
+  public String getOwnerStemId() {
+    return this.ownerStemId;
+  }
+
+  /**
+   * uuid of the stem for stem privileges
+   * @param stemId1
+   */
+  public void setOwnerStemId(String stemId1) {
+    this.ownerStemId = stemId1;
+  }
+
+  /**
+   * name of the stem for stem privileges
+   * @return the name
+   */
+  public String getOwnerStemName() {
+    return this.ownerStemName;
+  }
+
+  /**
+   * name of the stem for stem privileges
+   * @param stemName1
+   */
+  public void setOwnerStemName(String stemName1) {
+    this.ownerStemName = stemName1;
+  }
+
+  /**
+   * id of the attr def for attr def privileges
+   * @return id
+   */
+  public String getOwnerIdOfAttributeDef() {
+    return this.ownerIdOfAttributeDef;
+  }
+
+  /**
+   * id of the attr def for attr def privileges
+   * @param idOfAttributeDef1
+   */
+  public void setOwnerIdOfAttributeDef(String idOfAttributeDef1) {
+    this.ownerIdOfAttributeDef = idOfAttributeDef1;
+  }
+
+  /**
+   * name of the attr def for attr def privileges
+   * @return name
+   */
+  public String getOwnerNameOfAttributeDef() {
+    return this.ownerNameOfAttributeDef;
+  }
+
+  /**
+   * name of the attr def for attr def privileges
+   * @param nameOfAttributeDef1
+   */
+  public void setOwnerNameOfAttributeDef(String nameOfAttributeDef1) {
+    this.ownerNameOfAttributeDef = nameOfAttributeDef1;
+  }
+
   /** subject id of the subject involved */
   private String subjectId = null;
   
@@ -251,9 +335,9 @@ public class WsMembership implements Comparable<WsMembership> {
    * @param membership
    */
   public WsMembership(Membership membership) {
-    this(membership, null, null);
+    this(membership, (Group)null, null);
   }
-  
+
   /**
    * construct with membership and other objects to set internal fields
    * 
@@ -261,7 +345,7 @@ public class WsMembership implements Comparable<WsMembership> {
    * @param group 
    * @param member 
    */
-  public WsMembership(Membership membership, Group group, Member member) {
+  private WsMembership(Membership membership, Member member) {
     this.setMembershipId(membership.getUuid());
     this.setMembershipType(membership.getType());
     this.setCreateTime(GrouperServiceUtils.dateToString(membership.getCreateTime()));
@@ -277,10 +361,9 @@ public class WsMembership implements Comparable<WsMembership> {
       this.setEnabled("T");
     }
     this.setGroupId(membership.getOwnerGroupId());
+    this.setOwnerStemId(membership.getOwnerStemId());
+    this.setOwnerIdOfAttributeDef(membership.getOwnerAttrDefId());
     
-    group = group == null ? membership.getGroup() : group;
-    
-    this.setGroupName(group.getName());
     this.setMemberId(membership.getMemberUuid());
     
     member = member == null ? membership.getMember() : member;
@@ -292,6 +375,63 @@ public class WsMembership implements Comparable<WsMembership> {
     if (clientVersion != null && GrouperVersion.valueOfIgnoreCase("v1_6_000").lessThanArg(clientVersion, true)) {
       this.setImmediateMembershipId(membership.getImmediateMembershipId());
     }
+    
+  }
+
+  /**
+   * construct with membership and other objects to set internal fields
+   * 
+   * @param membership
+   * @param group 
+   * @param member 
+   */
+  public WsMembership(Membership membership, Group group, Member member) {
+    this(membership, member);
+    group = group == null ? membership.getOwnerGroup() : group;
+    
+    this.setGroupName(group.getName());
+    
+  }
+  
+  /**
+   * construct with membership and other objects to set internal fields
+   * 
+   * @param membership
+   * @param stem 
+   * @param member 
+   */
+  public WsMembership(Membership membership, Stem stem, Member member) {
+    this(membership, member);
+    
+    if (!GrouperWsVersionUtils.retrieveCurrentClientVersion()
+        .greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("v2_1_005"))) {
+      throw new RuntimeException("Clients 2.1.4 or less cannot query for stem privileges: " + GrouperWsVersionUtils.retrieveCurrentClientVersion());
+    }
+
+    stem = stem == null ? membership.getOwnerStem() : stem;
+    
+    this.setOwnerStemName(stem.getName());
+    
+  }
+
+  /**
+   * construct with membership and other objects to set internal fields
+   * 
+   * @param membership
+   * @param attributeDef 
+   * @param member 
+   */
+  public WsMembership(Membership membership, AttributeDef attributeDef, Member member) {
+    this(membership, member);
+
+    if (!GrouperWsVersionUtils.retrieveCurrentClientVersion()
+        .greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("v2_1_005"))) {
+      throw new RuntimeException("Clients 2.1.4 or less cannot query for attributeDef privileges");
+    }
+
+    attributeDef = attributeDef == null ? membership.getOwnerAttributeDef() : attributeDef;
+    
+    this.setOwnerStemName(attributeDef.getName());
     
   }
 
@@ -376,13 +516,15 @@ public class WsMembership implements Comparable<WsMembership> {
    * @param membershipSet should be the membership, group, and member objects in a row
    * @param returnedGroups pass in a set for groups, add any groups in there which arent
    * there already
+   * @param returnedAttributeDefs set for attributeDefs, add any attribute defs in there which arent there already
+   * @param returnedStems set for stems, add any stems in there which arent there already
    * @param returnedMembers psas in a set for members, add any members in there which arent
    * there already 
    * @param includeSubjectDetail 
    * @return the subject results
    */
   public static WsMembership[] convertMembers(Set<Object[]> membershipSet,
-      Set<Group> returnedGroups, Set<Member> returnedMembers) {
+      Set<Group> returnedGroups, Set<Stem> returnedStems, Set<AttributeDef> returnedAttributeDefs, Set<Member> returnedMembers) {
     int memberSetLength = GrouperUtil.length(membershipSet);
     if (memberSetLength == 0) {
       return null;
@@ -393,15 +535,44 @@ public class WsMembership implements Comparable<WsMembership> {
     for (Object[] objects : membershipSet) {
       
       Membership membership = (Membership)objects[0];
-      Group group = (Group)objects[1];
+      
+      Object object = objects[1];
       Member member = (Member)objects[2];
-      
-      wsGetMembershipsResultArray[index++] = new WsMembership(membership, group, 
-          member);
-      
-      if (!returnedGroups.contains(group)) {
-        returnedGroups.add(group);
+
+      if (object instanceof Group) {
+        Group group = (Group)object;
+
+        wsGetMembershipsResultArray[index++] = new WsMembership(membership, group, 
+            member);
+
+        if (!returnedGroups.contains(group)) {
+          returnedGroups.add(group);
+        }
+
+      } else if (object instanceof Stem) {
+        Stem stem = (Stem)object;
+
+        wsGetMembershipsResultArray[index++] = new WsMembership(membership, stem, 
+            member);
+
+        if (!returnedStems.contains(stem)) {
+          returnedStems.add(stem);
+        }
+        
+      } else if (object instanceof AttributeDef) {
+        AttributeDef attributeDef = (AttributeDef)object;
+
+        wsGetMembershipsResultArray[index++] = new WsMembership(membership, attributeDef, 
+            member);
+
+        if (!returnedAttributeDefs.contains(attributeDef)) {
+          returnedAttributeDefs.add(attributeDef);
+        }
+
+      } else {
+        throw new RuntimeException("Not expecting object of type: " + (object == null ? null : object.getClass().getName()));
       }
+      
       
       if (!returnedMembers.contains(member)) {
         returnedMembers.add(member);
@@ -414,6 +585,7 @@ public class WsMembership implements Comparable<WsMembership> {
   /**
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
+  @Override
   public int compareTo(WsMembership o2) {
     if (this == o2) {
       return 0;

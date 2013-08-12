@@ -34,7 +34,98 @@ public class WsRestGetMembershipsLiteRequest implements WsRequestBean {
   
   /** group uuid to look in */
   private String groupUuid;
+
+  /** 
+   * if looking for privileges on stems, put the stem name to look for here
+   */
+  private String ownerStemName;
   
+  /**
+   * if looking for privileges on stems, put the stem uuid here
+   */
+  private String ownerStemUuid;
+  
+  /**
+   * if looking for privileges on attribute definitions, put the name of the attribute definition here
+   */
+  private String nameOfOwnerAttributeDef;
+  
+  /**
+   * if looking for privileges on attribute definitions, put the uuid of the attribute definition here
+   */
+  private String ownerAttributeDefUuid;
+
+  /**
+   * if looking for privileges on stems, put the stem name to look for here
+   * @return stem name
+   */
+  public String getOwnerStemName() {
+    return this.ownerStemName;
+  }
+
+
+  /**
+   * if looking for privileges on stems, put the stem name to look for here
+   * @param ownerStemName1
+   */
+  public void setOwnerStemName(String ownerStemName1) {
+    this.ownerStemName = ownerStemName1;
+  }
+
+  /**
+   * if looking for privileges on stems, put the stem uuid here
+   * @return privs on stems
+   */
+  public String getOwnerStemUuid() {
+    return this.ownerStemUuid;
+  }
+
+
+  /**
+   * if looking for privileges on stems, put the stem uuid here
+   * @param ownerStemUuid1
+   */
+  public void setOwnerStemUuid(String ownerStemUuid1) {
+    this.ownerStemUuid = ownerStemUuid1;
+  }
+
+
+  /**
+   * if looking for privileges on attribute definitions, put the name of the attribute definition here
+   * @return name
+   */
+  public String getNameOfOwnerAttributeDef() {
+    return this.nameOfOwnerAttributeDef;
+  }
+
+
+  /**
+   * if looking for privileges on attribute definitions, put the name of the attribute definition here
+   * @param nameOfOwnerAttributeDef1
+   */
+  public void setNameOfOwnerAttributeDef(String nameOfOwnerAttributeDef1) {
+    this.nameOfOwnerAttributeDef = nameOfOwnerAttributeDef1;
+  }
+
+
+  /**
+   * if looking for privileges on attribute definitions, put the uuid of the attribute definition here
+   * @return uuid
+   */
+  public String getOwnerAttributeDefUuid() {
+    return this.ownerAttributeDefUuid;
+  }
+
+
+  /**
+   * if looking for privileges on attribute definitions, put the uuid of the attribute definition here
+   * @param ownerAttributeDefUuid1
+   */
+  public void setOwnerAttributeDefUuid(String ownerAttributeDefUuid1) {
+    this.ownerAttributeDefUuid = ownerAttributeDefUuid1;
+  }
+
+
   /** retrieveSubjectDetail */
   private String retrieveSubjectDetail;
 
