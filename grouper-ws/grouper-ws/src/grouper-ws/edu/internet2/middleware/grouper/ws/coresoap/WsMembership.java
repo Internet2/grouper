@@ -20,6 +20,8 @@ package edu.internet2.middleware.grouper.ws.coresoap;
 
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
@@ -39,6 +41,40 @@ import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
  */
 public class WsMembership implements Comparable<WsMembership> {
 
+  /**
+   * @see Object#toString()
+   */
+  @Override
+  public String toString() {
+    
+    StringBuilder result = new StringBuilder();
+    
+    result.append("membership (type: ");
+    if (!StringUtils.isBlank(this.ownerStemId)) {
+      result.append("stem");
+    } else if (!StringUtils.isBlank(this.groupId)) {
+      result.append("group");
+    } else if (!StringUtils.isBlank(this.ownerIdOfAttributeDef)) {
+      result.append("attributeDef");
+    } else {
+      result.append("unknown");
+    }
+    result.append(", ownerName: ");
+    if (!StringUtils.isBlank(this.ownerStemId)) {
+      result.append(this.ownerStemName);
+    } else if (!StringUtils.isBlank(this.groupId)) {
+      result.append(this.groupName);
+    } else if (!StringUtils.isBlank(this.ownerIdOfAttributeDef)) {
+      result.append(this.ownerNameOfAttributeDef);
+    } else {
+      result.append("unknown");
+    }
+    
+    result.append(", list: ").append(this.listName).append(", subjectId: ").append(this.subjectId);
+    result.append(")");
+    return result.toString();
+  }
+  
   /** id of the membership */
   private String membershipId = null;
 
@@ -431,7 +467,7 @@ public class WsMembership implements Comparable<WsMembership> {
 
     attributeDef = attributeDef == null ? membership.getOwnerAttributeDef() : attributeDef;
     
-    this.setOwnerStemName(attributeDef.getName());
+    this.setOwnerNameOfAttributeDef(attributeDef.getName());
     
   }
 

@@ -166,6 +166,30 @@ public class WsRestGetMembershipsLiteRequest implements WsRequestBean {
    * of the group (certain list) */
   private String fieldName;
 
+  /**
+   * fieldType is the type of field to look at, e.g. list (default, memberships), 
+   * access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)
+   */
+  private String fieldType;
+
+  /**
+   * fieldType is the type of field to look at, e.g. list (default, memberships), 
+   * access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)
+   * @return field type
+   */
+  public String getFieldType() {
+    return this.fieldType;
+  }
+
+  /**
+   * fieldType is the type of field to look at, e.g. list (default, memberships), 
+   * access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)
+   * @param fieldType1
+   */
+  public void setFieldType(String fieldType1) {
+    this.fieldType = fieldType1;
+  }
+
   /** T|F, for if the extended subject information should be
    * returned (anything more than just the id) */
   private String includeSubjectDetail;

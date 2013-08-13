@@ -2736,6 +2736,8 @@ public class GrouperClient {
 
     String fieldName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "fieldName", false);
 
+    String fieldType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "fieldType", false);
+
     List<String> groupNames = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "groupNames", false);
     List<String> groupUuids = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "groupUuids", false);
   
@@ -2783,7 +2785,9 @@ public class GrouperClient {
     }
     
     gcGetMemberships.assignFieldName(fieldName);
-    
+
+    gcGetMemberships.assignFieldType(fieldType);
+
     if (GrouperClientUtils.length(groupNames) > 0) {
       for (String groupName: groupNames) {
         gcGetMemberships.addGroupName(groupName);

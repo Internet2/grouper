@@ -35,6 +35,9 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
 /** 
  * Field Type.
  * <p/>
@@ -57,6 +60,35 @@ public enum FieldType implements Serializable {
 
   /** */
   NAMING("naming");
+  
+  /**
+   * 
+   * @param type
+   * @param exceptionIfNotFound
+   * @return
+   */
+  public static FieldType valueOfIgnoreCase(String type, boolean exceptionOnNull) {
+
+    FieldType fieldType = GrouperUtil.enumValueOfIgnoreCase(FieldType.class, 
+          type, exceptionOnNull);
+    
+    if (fieldType != null) {
+      return fieldType;
+    }
+    
+    for (FieldType localFieldType : FieldType.values()) {
+      if (StringUtils.equalsIgnoreCase(type, localFieldType.getType())) {
+        return localFieldType;
+      }
+    }
+      
+    if (exceptionOnNull) {
+      throw new RuntimeException("Cant find type: " + type);
+    }
+    
+    return null;
+    
+  }
   
   /**
    * 

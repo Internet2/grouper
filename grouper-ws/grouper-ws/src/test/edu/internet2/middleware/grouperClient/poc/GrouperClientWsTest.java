@@ -99,7 +99,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testAssignAttributesBatchGroup"));
+    TestRunner.run(new GrouperClientWsTest("testGetMemberships"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -7060,10 +7060,10 @@ public class GrouperClientWsTest extends GrouperTest {
   
       String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
   
-      // match: Index: 0: group: aStem:aGroup, subject: GrouperSystem, list: members, type: immediate, enabled: T
-      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      // match: Index: 0: type: group, ownerName: aStem:aGroup, subject: GrouperSystem, list: members, type: immediate, enabled: T
+      // match: ^Index: (\d+)\: type: group, ownerName\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
       Pattern pattern = Pattern
-          .compile("^Index: (\\d+)\\: group\\: (.+), subject\\: (.+), list: (.+), type\\: (.+), enabled\\: (T|F)$");
+          .compile("^Index: (\\d+)\\: type\\: group, ownerName\\: (.+), subject\\: (.+), list: (.+), type\\: (.+), enabled\\: (T|F)$");
       String outputLine = outputLines[0];
 
       Matcher matcher = pattern.matcher(outputLines[0]);

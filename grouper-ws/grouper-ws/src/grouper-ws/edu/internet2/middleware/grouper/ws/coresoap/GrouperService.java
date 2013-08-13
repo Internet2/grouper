@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -38,8 +39,8 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.PermissionAssignOperation;
-import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
+import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -2385,6 +2386,8 @@ public class GrouperService {
    * @param membershipIds are the ids to search for if they are known
    * @param wsOwnerStemLookups are the stem lookups if looking for stem privileges
    * @param wsOwnerAttributeDefLookups are the attribute definition lookups if looking for attribute definition privileges
+   * @param fieldType is the type of field to look at, e.g. list (default, memberships), 
+   * access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -2394,7 +2397,7 @@ public class GrouperService {
       String[] subjectAttributeNames, String includeGroupDetail, final WsParam[] params, 
       String[] sourceIds, String scope, 
       WsStemLookup wsStemLookup, String stemScope, String enabled, String[] membershipIds,
-      WsStemLookup[] wsOwnerStemLookups, WsAttributeDefLookup[] wsOwnerAttributeDefLookups) {  
+      WsStemLookup[] wsOwnerStemLookups, WsAttributeDefLookup[] wsOwnerAttributeDefLookups, String fieldType) {  
   
     WsGetMembershipsResults wsGetMembershipsResults = new WsGetMembershipsResults();
   
@@ -2413,6 +2416,8 @@ public class GrouperService {
       //get the field or null or invalid query exception
       Field field = GrouperServiceUtils.retrieveField(fieldName);
       
+      FieldType fieldTypeEnum = GrouperServiceUtils.retrieveFieldType(fieldType);
+      
       StemScope theStemScope = StringUtils.isBlank(stemScope) ? null : StemScope.valueOfIgnoreCase(stemScope);
 
       //if its blank it is a placeholder for axis, just null it out
@@ -2423,7 +2428,8 @@ public class GrouperService {
       wsGetMembershipsResults = GrouperServiceLogic.getMemberships(grouperWsVersion, wsGroupLookups, 
           wsSubjectLookups, memberFilter, actAsSubjectLookup, field, includeSubjectDetailBoolean, 
           subjectAttributeNames, includeGroupDetailBoolean, params, sourceIds, scope, wsStemLookup, theStemScope, enabled, membershipIds,
-          wsOwnerStemLookups, wsOwnerAttributeDefLookups);
+          wsOwnerStemLookups, wsOwnerAttributeDefLookups, fieldTypeEnum);
+
     } catch (Exception e) {
       wsGetMembershipsResults.assignResultCodeException(null, null, e);
     }
@@ -2488,6 +2494,8 @@ public class GrouperService {
    * @param ownerStemUuid if looking for privileges on stems, put the stem uuid here
    * @param nameOfOwnerAttributeDef if looking for privileges on attribute definitions, put the name of the attribute definition here
    * @param ownerAttributeDefUuid if looking for privileges on attribute definitions, put the uuid of the attribute definition here
+   * @param fieldType is the type of field to look at, e.g. list (default, memberships), 
+   * access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)
    * @return the memberships, or none if none found
    */
   public WsGetMembershipsResults getMembershipsLite(final String clientVersion,
@@ -2498,7 +2506,8 @@ public class GrouperService {
       String includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1, String sourceIds, String scope, String stemName, 
       String stemUuid, String stemScope, String enabled, String membershipIds,
-      String ownerStemName, String ownerStemUuid, String nameOfOwnerAttributeDef, String ownerAttributeDefUuid) {
+      String ownerStemName, String ownerStemUuid, String nameOfOwnerAttributeDef, 
+      String ownerAttributeDefUuid, String fieldType) {
   
     WsGetMembershipsResults wsGetMembershipsResults = new WsGetMembershipsResults();
     try {
@@ -2514,7 +2523,8 @@ public class GrouperService {
       
       //get the field or null or invalid query exception
       Field field = GrouperServiceUtils.retrieveField(fieldName);
-      
+      FieldType fieldTypeEnum = GrouperServiceUtils.retrieveFieldType(fieldType);
+
       StemScope theStemScope = StringUtils.isBlank(stemScope) ? null : StemScope.valueOfIgnoreCase(stemScope);
       
       wsGetMembershipsResults = GrouperServiceLogic.getMembershipsLite(grouperWsVersion, groupName,
@@ -2522,7 +2532,7 @@ public class GrouperService {
           actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier, field, subjectAttributeNames, 
           includeGroupDetailBoolean, paramName0, paramValue1, paramName1, paramValue1, sourceIds, scope, 
           stemName, stemUuid, theStemScope, enabled, membershipIds, ownerStemName, ownerStemUuid, 
-          nameOfOwnerAttributeDef, ownerAttributeDefUuid);
+          nameOfOwnerAttributeDef, ownerAttributeDefUuid, fieldTypeEnum);
 
     } catch (Exception e) {
       wsGetMembershipsResults.assignResultCodeException(null, null, e);

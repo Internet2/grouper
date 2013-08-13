@@ -416,12 +416,7 @@ public class MembershipFinder {
    * @return the set of arrays never null
    */
   public Set<Object[]> findMembershipsMembers() {
-    if ((this.field == null && this.fieldType == null) 
-        || this.fieldType == FieldType.ACCESS || this.fieldType == FieldType.LIST
-        || (this.field != null && this.field.isGroupListField())
-        || GrouperUtil.length(this.groupIds) > 0) {
-      return this.findMembershipsGroupsMembers();
-    } else if ((this.fieldType != null && this.fieldType == FieldType.NAMING )
+    if ((this.fieldType != null && this.fieldType == FieldType.NAMING )
         || (this.field != null && this.field.isStemListField())
         || GrouperUtil.length(this.stemIds) > 0) {
       return this.findMembershipsStemsMembers();
@@ -429,6 +424,11 @@ public class MembershipFinder {
         || (this.field != null && this.field.isAttributeDefListField())
         || GrouperUtil.length(this.attributeDefIds) > 0) {
       return this.findMembershipsAttributeDefsMembers();
+    } else if ((this.field == null && this.fieldType == null) 
+        || this.fieldType == FieldType.ACCESS || this.fieldType == FieldType.LIST
+        || (this.field != null && this.field.isGroupListField())
+        || GrouperUtil.length(this.groupIds) > 0) {
+      return this.findMembershipsGroupsMembers();
     } else {
       throw new RuntimeException("Not expecting field / fieldType: " + this.field + ", " + this.fieldType);
     }
@@ -441,7 +441,7 @@ public class MembershipFinder {
   private Set<Object[]> findMembershipsGroupsMembers() {
 
     //validate that we are looking at groups
-    if (this.field != null && !this.field.isGroupAccessField()) {
+    if (this.field != null && !this.field.isGroupAccessField() && !this.field.isGroupListField()) {
       throw new RuntimeException("Not expecting field: " + this.field +
           ", expecting a group field since other part of the query involve group memberships");
     }

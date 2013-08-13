@@ -232,7 +232,23 @@ public class GcGetMemberships {
   
   /** field name to add member */
   private String fieldName;
-  
+
+  /**
+   * fieldType is the type of field to look at, e.g. list (default, memberships), 
+   * access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)
+   */
+  private String fieldType;
+
+  /**
+   * fieldType is the type of field to look at, e.g. list (default, memberships), 
+   * access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)
+   * @param fieldType1
+   */
+  public GcGetMemberships assignFieldType(String fieldType1) {
+    this.fieldType = fieldType1;
+    return this;
+  }
+
   /** sql like string where percent will be added to the end, this limits the memberships */
   private String scope;
   
@@ -344,8 +360,9 @@ public class GcGetMemberships {
       getMemberships.setActAsSubjectLookup(this.actAsSubject);
 
       getMemberships.setEnabled(this.enabled);
-      
+
       getMemberships.setFieldName(this.fieldName);
+      getMemberships.setFieldType(this.fieldType);
 
       {
         List<WsGroupLookup> groupLookups = new ArrayList<WsGroupLookup>();

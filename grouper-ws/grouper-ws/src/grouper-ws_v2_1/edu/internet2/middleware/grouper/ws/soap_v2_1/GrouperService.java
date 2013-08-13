@@ -21,6 +21,8 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 
@@ -1561,6 +1563,10 @@ public class GrouperService {
    * @param stemScope is StemScope to search only in one stem or in substems: ONE_LEVEL, ALL_IN_SUBTREE
    * @param enabled is A for all, T or null for enabled only, F for disabled 
    * @param membershipIds are the ids to search for if they are known
+   * @param wsOwnerStemLookups are the stem lookups if looking for stem privileges
+   * @param wsOwnerAttributeDefLookups are the attribute definition lookups if looking for attribute definition privileges
+   * @param fieldType is the type of field to look at, e.g. list (default, memberships), 
+   * access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)
    * @return the results
    */
 
@@ -1569,7 +1575,8 @@ public class GrouperService {
       WsSubjectLookup actAsSubjectLookup, String fieldName, String includeSubjectDetail,
       String[] subjectAttributeNames, String includeGroupDetail, final WsParam[] params, 
       String[] sourceIds, String scope, 
-      WsStemLookup wsStemLookup, String stemScope, String enabled, String[] membershipIds) {  
+      WsStemLookup wsStemLookup, String stemScope, String enabled, String[] membershipIds,
+      WsStemLookup[] wsOwnerStemLookups, WsAttributeDefLookup[] wsOwnerAttributeDefLookups, String fieldType) {  
   
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "getMemberships",
@@ -1588,7 +1595,10 @@ public class GrouperService {
       GrouperUtil.changeToVersion(wsStemLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
       stemScope, 
       enabled, 
-      membershipIds});
+      membershipIds,
+      GrouperUtil.changeToVersion(wsOwnerStemLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(wsOwnerAttributeDefLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      fieldType});
     
     return (WsGetMembershipsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   
@@ -1643,6 +1653,12 @@ public class GrouperService {
    * @param stemScope to specify if we are searching in or under the stem
    * @param enabled A for all, null or T for enabled only, F for disabled only
    * @param membershipIds comma separated list of membershipIds to retrieve
+   * @param ownerStemName if looking for privileges on stems, put the stem name to look for here
+   * @param ownerStemUuid if looking for privileges on stems, put the stem uuid here
+   * @param nameOfOwnerAttributeDef if looking for privileges on attribute definitions, put the name of the attribute definition here
+   * @param ownerAttributeDefUuid if looking for privileges on attribute definitions, put the uuid of the attribute definition here
+   * @param fieldType is the type of field to look at, e.g. list (default, memberships), 
+   * access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)
    * @return the memberships, or none if none found
    */
   public WsGetMembershipsResults getMembershipsLite(final String clientVersion,
@@ -1652,7 +1668,9 @@ public class GrouperService {
       String actAsSubjectIdentifier, String fieldName, String subjectAttributeNames,
       String includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1, String sourceIds, String scope, String stemName, 
-      String stemUuid, String stemScope, String enabled, String membershipIds) {
+      String stemUuid, String stemScope, String enabled, String membershipIds,
+      String ownerStemName, String ownerStemUuid, String nameOfOwnerAttributeDef, 
+      String ownerAttributeDefUuid, String fieldType) {
   
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "getMembershipsLite",
@@ -1663,7 +1681,9 @@ public class GrouperService {
       actAsSubjectIdentifier, fieldName, subjectAttributeNames,
       includeGroupDetail, paramName0, paramValue0,
       paramName1, paramValue1, sourceIds, scope, stemName, 
-      stemUuid, stemScope, enabled, membershipIds});
+      stemUuid, stemScope, enabled, membershipIds, ownerStemName, 
+      ownerStemUuid, nameOfOwnerAttributeDef, 
+      ownerAttributeDefUuid, fieldType});
     
     return (WsGetMembershipsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
   }

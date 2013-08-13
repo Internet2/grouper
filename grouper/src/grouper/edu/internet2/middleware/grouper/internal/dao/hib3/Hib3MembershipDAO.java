@@ -3214,7 +3214,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             byHqlStatic.setString("fieldId", field.getUuid());
           } else {
             //add on the column
-            sql.append(" and ms.fieldId = f.uuid and f.typeString = 'list' ");
+            sql.append(" and ms.fieldId = f.uuid and f.typeString = 'naming' ");
           }
           if (stemIdsSize > 0) {
             sql.append(" and ms.ownerStemId in (");
@@ -3329,11 +3329,11 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
     Set<Object[]> totalResults = new HashSet<Object[]>();
     
-    int groupBatches = GrouperUtil.batchNumberOfBatches(totalAttributeDefIds, 100);
+    int attrDefBatches = GrouperUtil.batchNumberOfBatches(totalAttributeDefIds, 100);
     
-    for (int groupIndex = 0; groupIndex < groupBatches; groupIndex++) {
+    for (int attrDefIndex = 0; attrDefIndex < attrDefBatches; attrDefIndex++) {
       
-      List<String> attributeDefIds = GrouperUtil.batchList(totalAttributeDefIdsList, 100, groupIndex);
+      List<String> attributeDefIds = GrouperUtil.batchList(totalAttributeDefIdsList, 100, attrDefIndex);
       
       int memberBatches = GrouperUtil.batchNumberOfBatches(totalMemberIds, 100);
 
@@ -3359,7 +3359,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           String selectPrefix = "select ms, a, m ";
           String countPrefix = "select count(*) ";
           
-          StringBuilder sqlTables = new StringBuilder(" from AttributeDef a, MembershipEntry ms, Group g ");
+          StringBuilder sqlTables = new StringBuilder(" from AttributeDef a, MembershipEntry ms, Member m ");
           
           //we need to make sure it is a list type field
           if (field == null) {
@@ -3367,27 +3367,20 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           }
           
           //maybe we are checking security, maybe not
-          boolean changedQuery = false;
-          StringBuilder sqlWhereClause = new StringBuilder();
+          StringBuilder sqlWhereClause = new StringBuilder(" ms.ownerAttrDefId = a.id "
+              + " and ms.memberUuid = m.uuid ");
           
           if (checkSecurity) { 
             
-            changedQuery = grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
+            grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
                 grouperSessionSubject, byHqlStatic, 
                 sqlTables, sqlWhereClause, "ms.ownerAttrDefId", AttributeDefPrivilege.ADMIN_PRIVILEGES);
             
           }
           
           StringBuilder sql;
-          if (changedQuery) {
-            sqlTables.append(" and ");
-          } else {
-            sqlTables.append(" where ");
-          }
-          sql = sqlTables.append(sqlWhereClause);
+          sql = sqlTables.append(" where ").append(sqlWhereClause);
           
-          sql.append(" ms.ownerAttrDefId = a.id "
-              + " and ms.memberUuid = m.uuid ");
           if (enabled != null && enabled) {
             sql.append(" and ms.enabledDb = 'T' ");
           }
@@ -3432,7 +3425,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             byHqlStatic.setString("fieldId", field.getUuid());
           } else {
             //add on the column
-            sql.append(" and ms.fieldId = f.uuid and f.typeString = 'list' ");
+            sql.append(" and ms.fieldId = f.uuid and f.typeString = 'attributeDef' ");
           }
           if (attributeDefIdsSize > 0) {
             sql.append(" and ms.ownerAttrDefId in (");
