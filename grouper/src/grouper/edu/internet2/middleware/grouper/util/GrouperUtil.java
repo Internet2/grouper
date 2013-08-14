@@ -1711,7 +1711,7 @@ public class GrouperUtil {
           result.append("Array size: ").append(length).append(": ");
           for (int i = 0; i < length; i++) {
             result.append("[").append(i).append("]: ").append(
-                Array.get(object, i)).append("\n");
+                toStringForLog(Array.get(object, i), maxChars)).append("\n");
             if (maxChars != -1 && result.length() > maxChars) {
               return;
             }
@@ -1728,7 +1728,7 @@ public class GrouperUtil {
           int i=0;
           for (Object collectionObject : collection) {
             result.append("[").append(i).append("]: ").append(
-                collectionObject).append("\n");
+                toStringForLog(collectionObject, maxChars)).append("\n");
             if (maxChars != -1 && result.length() > maxChars) {
               return;
             }

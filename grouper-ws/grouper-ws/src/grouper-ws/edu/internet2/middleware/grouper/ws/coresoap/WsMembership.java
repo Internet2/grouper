@@ -634,6 +634,14 @@ public class WsMembership implements Comparable<WsMembership> {
     if (compare != 0) {
       return compare;
     }
+    compare = GrouperUtil.compare(this.getOwnerStemName(), o2.getOwnerStemName());
+    if (compare != 0) {
+      return compare;
+    }
+    compare = GrouperUtil.compare(this.getOwnerNameOfAttributeDef(), o2.getOwnerNameOfAttributeDef());
+    if (compare != 0) {
+      return compare;
+    }
     compare = GrouperUtil.compare(this.getSubjectSourceId(), o2.getSubjectSourceId());
     if (compare != 0) {
       return compare;

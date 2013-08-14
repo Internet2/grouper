@@ -36,6 +36,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
 import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -73,6 +74,7 @@ import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 import edu.internet2.middleware.grouperClient.GrouperClient;
@@ -7024,25 +7026,60 @@ public class GrouperClientWsTest extends GrouperTest {
         "aStem:aGroup", "aGroup", null, null, true);
     Group group2 = Group.saveGroup(grouperSession, "aStem:aGroup2", null,
         "aStem:aGroup2", "aGroup2", null, null, true);
-  
+    
+    Stem stem = new StemSave(grouperSession).assignName("aStem1").assignCreateParentStemsIfNotExist(true).save();
+    Stem stem2 = new StemSave(grouperSession).assignName("aStem2").assignCreateParentStemsIfNotExist(true).save();
+    
+    AttributeDef attributeDef = new AttributeDefSave(grouperSession).assignName("aStem1:attributeDef1").assignCreateParentStemsIfNotExist(true).save();
+    AttributeDef attributeDef2 = new AttributeDefSave(grouperSession).assignName("aStem2:attributeDef2").assignCreateParentStemsIfNotExist(true).save();
+    
     // give permissions
     String wsUserLabel = GrouperClientUtils.propertiesValue(
         "grouperClient.webService.user.label", true);
     String wsUserString = GrouperClientUtils.propertiesValue(
         "grouperClient.webService." + wsUserLabel, true);
     Subject wsUser = SubjectFinder.findByIdOrIdentifier(wsUserString, true);
-  
-    group.grantPriv(wsUser, AccessPrivilege.READ, false);
-    group.grantPriv(wsUser, AccessPrivilege.VIEW, false);
-    group2.grantPriv(wsUser, AccessPrivilege.READ, false);
-    group2.grantPriv(wsUser, AccessPrivilege.VIEW, false);
-  
+
+    group.grantPriv(wsUser, AccessPrivilege.ADMIN, false);
+    group2.grantPriv(wsUser, AccessPrivilege.ADMIN, false);
+    stem.grantPriv(wsUser, NamingPrivilege.STEM, false);
+    stem2.grantPriv(wsUser, NamingPrivilege.STEM, false);
+    attributeDef.getPrivilegeDelegate().grantPriv(wsUser, AttributeDefPrivilege.ATTR_ADMIN, false);
+    attributeDef2.getPrivilegeDelegate().grantPriv(wsUser, AttributeDefPrivilege.ATTR_ADMIN, false);
+
     // add some subjects
     group.addMember(SubjectTestHelper.SUBJ0, false);
     group.addMember(SubjectTestHelper.SUBJ1, false);
     group2.addMember(SubjectTestHelper.SUBJ2, false);
     group2.addMember(SubjectTestHelper.SUBJ3, false);
-  
+
+    group.grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.UPDATE, false);
+    group.grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.ADMIN, false);
+    group2.grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.UPDATE, false);
+    group2.grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.ADMIN, false);
+
+    stem.grantPriv(SubjectTestHelper.SUBJ7, NamingPrivilege.CREATE, false);
+    stem.grantPriv(SubjectTestHelper.SUBJ8, NamingPrivilege.STEM, false);
+    stem2.grantPriv(SubjectTestHelper.SUBJ7, NamingPrivilege.CREATE, false);
+    stem2.grantPriv(SubjectTestHelper.SUBJ8, NamingPrivilege.STEM, false);
+
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_READ, false);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ8, AttributeDefPrivilege.ATTR_UPDATE, false);
+    attributeDef2.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_READ, false);
+    attributeDef2.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ8, AttributeDefPrivilege.ATTR_UPDATE, false);
+    
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(wsUser);
+    
+    Set<Object[]> results = new MembershipFinder().addSubject(SubjectTestHelper.SUBJ7)
+        .addSubject(SubjectTestHelper.SUBJ8).assignFieldType(FieldType.ACCESS).findMembershipsMembers();
+    
+    assertEquals(GrouperUtil.toStringForLog(results), 4, GrouperUtil.length(results));
+    
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.startRootSession();
+    
+    
     PrintStream systemOut = System.out;
   
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -7130,745 +7167,745 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
   
-      // ######################################################
-      // Try a sourceId
-  
-      baos = new ByteArrayOutputStream();
-      System.setOut(new PrintStream(baos));
-      
-      GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --sourceIds=jdbc,g:gsa",
-          " "));
-  
-      System.out.flush();
-      output = new String(baos.toByteArray());
-  
-      System.setOut(systemOut);
-  
-      outputLines = GrouperClientUtils.splitTrim(output, "\n");
-  
-      assertEquals(4, GrouperUtil.length(outputLines));
-
-      //##########################################################
-      //Try a source id with no results
-      
-      baos = new ByteArrayOutputStream();
-      System.setOut(new PrintStream(baos));
-      
-      GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --sourceIds=g:gsa",
-          " "));
-  
-      System.out.flush();
-      output = new String(baos.toByteArray());
-  
-      System.setOut(systemOut);
-  
-      outputLines = GrouperClientUtils.splitTrim(output, "\n");
-  
-      assertEquals(0, GrouperUtil.length(outputLines));
-      
-      
-      // ######################################################
-      // Try uuid
-  
-      baos = new ByteArrayOutputStream();
-      System.setOut(new PrintStream(baos));
-      
-      Group aGroup = GroupFinder.findByName(grouperSession, "aStem:aGroup", true);
-      Group aGroup2 = GroupFinder.findByName(grouperSession, "aStem:aGroup2", true);
-      
-      GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=getMembershipsWs --groupUuids=" + aGroup.getUuid() + "," + aGroup2.getUuid(),
-          " "));
-  
-      System.out.flush();
-      output = new String(baos.toByteArray());
-  
-      System.setOut(systemOut);
-  
-      outputLines = GrouperClientUtils.splitTrim(output, "\n");
-  
-      assertEquals(4, GrouperUtil.length(outputLines));
-      
-      
-      // ######################################################
-      // Try a subject attribute name with custom template
-  
-      baos = new ByteArrayOutputStream();
-      System.setOut(new PrintStream(baos));
-  
-      GrouperClient
-          .main(GrouperClientUtils
-              .splitTrim(
-                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --subjectAttributeNames=a,name --outputTemplate=${wsSubject.getAttributeValue(1)}$newline$",
-                  " "));
-      System.out.flush();
-      output = new String(baos.toByteArray());
-  
-      System.setOut(systemOut);
-  
-      outputLines = GrouperClientUtils.splitTrim(output, "\n");
-  
-      Arrays.sort(outputLines);
-  
-      assertEquals(outputLines[0], "my name is test.subject.0");
-      assertEquals(outputLines[1], "my name is test.subject.1");
-      assertEquals(outputLines[2], "my name is test.subject.2");
-      assertEquals(outputLines[3], "my name is test.subject.3");
-  
-      // #######################################################
-      // try member filter
-  
-      baos = new ByteArrayOutputStream();
-      System.setOut(new PrintStream(baos));
-  
-      GrouperClient
-          .main(GrouperClientUtils
-              .splitTrim(
-                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --memberFilter=Effective",
-                  " "));
-      System.out.flush();
-      output = new String(baos.toByteArray());
-      
-      System.setOut(systemOut);
-  
-      outputLines = GrouperClientUtils.splitTrim(output, "\n");
-  
-      assertEquals(0, GrouperUtil.length(outputLines));
-  
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("memberFilter"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("params"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
-  
-      // #######################################################
-      // try member filter nonimmediate
-  
-      baos = new ByteArrayOutputStream();
-      System.setOut(new PrintStream(baos));
-  
-      GrouperClient
-          .main(GrouperClientUtils
-              .splitTrim(
-                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --memberFilter=NonImmediate",
-                  " "));
-      System.out.flush();
-      output = new String(baos.toByteArray());
-      
-      System.setOut(systemOut);
-  
-      outputLines = GrouperClientUtils.splitTrim(output, "\n");
-  
-      assertEquals(0, GrouperUtil.length(outputLines));
-  
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("memberFilter"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("params"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
-  
-      // #######################################################
-      // try includeGroupDetail
-  
-      baos = new ByteArrayOutputStream();
-      System.setOut(new PrintStream(baos));
-  
-      GrouperClient
-          .main(GrouperClientUtils
-              .splitTrim(
-                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --includeGroupDetail=true",
-                  " "));
-      System.out.flush();
-      output = new String(baos.toByteArray());
-      
-      System.setOut(systemOut);
-  
-      outputLines = GrouperClientUtils.splitTrim(output, "\n");
-  
-      assertEquals(4, GrouperUtil.length(outputLines));
-  
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("params"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
-  
-      // #######################################################
-      // try includeSubjectDetail
-  
-      baos = new ByteArrayOutputStream();
-      System.setOut(new PrintStream(baos));
-  
-      GrouperClient
-          .main(GrouperClientUtils
-              .splitTrim(
-                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --includeSubjectDetail=true",
-                  " "));
-      System.out.flush();
-      output = new String(baos.toByteArray());
-      
-      System.setOut(systemOut);
-  
-      outputLines = GrouperClientUtils.splitTrim(output, "\n");
-  
-      assertEquals(4, GrouperUtil.length(outputLines));
-  
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("params"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
-  
-      // #######################################################
-      // try subjectAttributeNames
-  
-      baos = new ByteArrayOutputStream();
-      System.setOut(new PrintStream(baos));
-  
-      GrouperClient
-          .main(GrouperClientUtils
-              .splitTrim(
-                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --subjectAttributeNames=name",
-                  " "));
-      System.out.flush();
-      output = new String(baos.toByteArray());
-      
-      System.setOut(systemOut);
-  
-      outputLines = GrouperClientUtils.splitTrim(output, "\n");
-  
-      assertEquals(4, GrouperUtil.length(outputLines));
-  
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("params"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
-  
-      // #######################################################
-      // try params
-  
-      baos = new ByteArrayOutputStream();
-      System.setOut(new PrintStream(baos));
-  
-      GrouperClient
-          .main(GrouperClientUtils
-              .splitTrim(
-                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --paramName0=someParam --paramValue0=someValue",
-                  " "));
-      System.out.flush();
-      output = new String(baos.toByteArray());
-      
-      System.setOut(systemOut);
-  
-      outputLines = GrouperClientUtils.splitTrim(output, "\n");
-  
-      assertEquals(4, GrouperUtil.length(outputLines));
-  
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("someParam")
-              && GrouperClientWs.mostRecentRequest.toLowerCase().contains(
-                  "params")
-              && GrouperClientWs.mostRecentRequest.contains("someValue"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
-  
-      // #######################################################
-      // try fieldName
-  
-      baos = new ByteArrayOutputStream();
-      System.setOut(new PrintStream(baos));
-  
-      GrouperClient
-          .main(GrouperClientUtils
-              .splitTrim(
-                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --fieldName=members",
-                  " "));
-      System.out.flush();
-      output = new String(baos.toByteArray());
-      
-      System.setOut(systemOut);
-  
-      outputLines = GrouperClientUtils.splitTrim(output, "\n");
-  
-      assertEquals(4, GrouperUtil.length(outputLines));
-  
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("params"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("fieldName")
-              && GrouperClientWs.mostRecentRequest.contains("members"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
-  
-      // #######################################################
-      // try actAsSubject
-  
-      baos = new ByteArrayOutputStream();
-      System.setOut(new PrintStream(baos));
-  
-      GrouperClient
-          .main(GrouperClientUtils
-              .splitTrim(
-                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --actAsSubjectId=GrouperSystem",
-                  " "));
-      System.out.flush();
-      output = new String(baos.toByteArray());
-      
-      System.setOut(systemOut);
-  
-      outputLines = GrouperClientUtils.splitTrim(output, "\n");
-  
-      assertEquals(4, GrouperUtil.length(outputLines));
-  
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("params"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("actAsSubject")
-              && GrouperClientWs.mostRecentRequest.contains("GrouperSystem"));
-  
-      // #######################################################
-      // try actAsSubject but with alias
-  
-      baos = new ByteArrayOutputStream();
-      System.setOut(new PrintStream(baos));
-  
-      GrouperClient
-          .main(GrouperClientUtils
-              .splitTrim(
-                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --actAsPennId=GrouperSystem",
-                  " "));
-      System.out.flush();
-      output = new String(baos.toByteArray());
-      
-      System.setOut(systemOut);
-  
-      outputLines = GrouperClientUtils.splitTrim(output, "\n");
-  
-      assertEquals(4, GrouperUtil.length(outputLines));
-  
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("params"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("actAsSubject")
-              && GrouperClientWs.mostRecentRequest.contains("GrouperSystem"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("enabled"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("scope"));
-      //subjectSources
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("sourceIds"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("wsStemLookup"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("stemScope"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("wsSubjectLookup"));
-
-      
-      // #######################################################
-      // try enabled
-  
-      baos = new ByteArrayOutputStream();
-      System.setOut(new PrintStream(baos));
-  
-      GrouperClient
-          .main(GrouperClientUtils
-              .splitTrim(
-                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --enabled=F",
-                  " "));
-      System.out.flush();
-      output = new String(baos.toByteArray());
-      
-      System.setOut(systemOut);
-  
-      outputLines = GrouperClientUtils.splitTrim(output, "\n");
-  
-      assertEquals(0, GrouperUtil.length(outputLines));
-  
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("params"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("enabled"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("scope"));
-      //subjectSources
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("sourceIds"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("wsStemLookup"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("stemScope"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("wsSubjectLookup"));
-
-      // #######################################################
-      // try membership ids
-  
-      baos = new ByteArrayOutputStream();
-      System.setOut(new PrintStream(baos));
-  
-      GrouperClient
-          .main(GrouperClientUtils
-              .splitTrim(
-                  "--operation=getMembershipsWs --membershipIds=123",
-                  " "));
-      System.out.flush();
-      output = new String(baos.toByteArray());
-      
-      System.setOut(systemOut);
-  
-      outputLines = GrouperClientUtils.splitTrim(output, "\n");
-  
-      assertEquals(0, GrouperUtil.length(outputLines));
-  
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("params"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("enabled"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("membershipIds"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("scope"));
-      //subjectSources
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("sourceIds"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("wsStemLookup"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("stemScope"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("wsSubjectLookup"));
-
-      // #######################################################
-      // try scope
-  
-      baos = new ByteArrayOutputStream();
-      System.setOut(new PrintStream(baos));
-  
-      GrouperClient
-          .main(GrouperClientUtils
-              .splitTrim(
-                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --scope=abc",
-                  " "));
-      System.out.flush();
-      output = new String(baos.toByteArray());
-      
-      System.setOut(systemOut);
-  
-      outputLines = GrouperClientUtils.splitTrim(output, "\n");
-  
-      assertEquals(0, GrouperUtil.length(outputLines));
-  
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("params"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("enabled"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("scope"));
-      //subjectSources
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("sourceIds"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("wsStemLookup"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("stemScope"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("wsSubjectLookup"));
-
-      // #######################################################
-      // try subjectSources
-  
-      baos = new ByteArrayOutputStream();
-      System.setOut(new PrintStream(baos));
-  
-      GrouperClient
-          .main(GrouperClientUtils
-              .splitTrim(
-                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --sourceIds=g:gsa",
-                  " "));
-      System.out.flush();
-      output = new String(baos.toByteArray());
-      
-      System.setOut(systemOut);
-  
-      outputLines = GrouperClientUtils.splitTrim(output, "\n");
-  
-      assertEquals(0, GrouperUtil.length(outputLines));
-  
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("params"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("enabled"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("scope"));
-      //subjectSources
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("sourceIds"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("wsStemLookup"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("stemScope"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("wsSubjectLookup"));
-
-      // #######################################################
-      // try one level stem
-  
-      baos = new ByteArrayOutputStream();
-      System.setOut(new PrintStream(baos));
-  
-      GrouperClient
-          .main(GrouperClientUtils
-              .splitTrim(
-                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --stemName=aStem --stemScope=ONE_LEVEL",
-                  " "));
-      System.out.flush();
-      output = new String(baos.toByteArray());
-      
-      System.setOut(systemOut);
-  
-      outputLines = GrouperClientUtils.splitTrim(output, "\n");
-  
-      assertEquals(4, GrouperUtil.length(outputLines));
-  
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("params"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("enabled"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("scope"));
-      //subjectSources
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("sourceIds"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("wsStemLookup"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("stemScope"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("ONE_LEVEL"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("wsSubjectLookup"));
-
-      // #######################################################
-      // try all in subtree
-  
-      baos = new ByteArrayOutputStream();
-      System.setOut(new PrintStream(baos));
-  
-      GrouperClient
-          .main(GrouperClientUtils
-              .splitTrim(
-                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --stemName=aStem --stemScope=ALL_IN_SUBTREE",
-                  " "));
-      System.out.flush();
-      output = new String(baos.toByteArray());
-      
-      System.setOut(systemOut);
-  
-      outputLines = GrouperClientUtils.splitTrim(output, "\n");
-  
-      assertEquals(4, GrouperUtil.length(outputLines));
-  
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("params"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("enabled"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("scope"));
-      //subjectSources
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("sourceIds"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("wsStemLookup"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("stemScope"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("ALL_IN_SUBTREE"));
-      assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("wsSubjectLookup"));
+//      // ######################################################
+//      // Try a sourceId
+//  
+//      baos = new ByteArrayOutputStream();
+//      System.setOut(new PrintStream(baos));
+//      
+//      GrouperClient.main(GrouperClientUtils.splitTrim(
+//          "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --sourceIds=jdbc,g:gsa",
+//          " "));
+//  
+//      System.out.flush();
+//      output = new String(baos.toByteArray());
+//  
+//      System.setOut(systemOut);
+//  
+//      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+//  
+//      assertEquals(4, GrouperUtil.length(outputLines));
+//
+//      //##########################################################
+//      //Try a source id with no results
+//      
+//      baos = new ByteArrayOutputStream();
+//      System.setOut(new PrintStream(baos));
+//      
+//      GrouperClient.main(GrouperClientUtils.splitTrim(
+//          "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --sourceIds=g:gsa",
+//          " "));
+//  
+//      System.out.flush();
+//      output = new String(baos.toByteArray());
+//  
+//      System.setOut(systemOut);
+//  
+//      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+//  
+//      assertEquals(0, GrouperUtil.length(outputLines));
+//      
+//      
+//      // ######################################################
+//      // Try uuid
+//  
+//      baos = new ByteArrayOutputStream();
+//      System.setOut(new PrintStream(baos));
+//      
+//      Group aGroup = GroupFinder.findByName(grouperSession, "aStem:aGroup", true);
+//      Group aGroup2 = GroupFinder.findByName(grouperSession, "aStem:aGroup2", true);
+//      
+//      GrouperClient.main(GrouperClientUtils.splitTrim(
+//          "--operation=getMembershipsWs --groupUuids=" + aGroup.getUuid() + "," + aGroup2.getUuid(),
+//          " "));
+//  
+//      System.out.flush();
+//      output = new String(baos.toByteArray());
+//  
+//      System.setOut(systemOut);
+//  
+//      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+//  
+//      assertEquals(4, GrouperUtil.length(outputLines));
+//      
+//      
+//      // ######################################################
+//      // Try a subject attribute name with custom template
+//  
+//      baos = new ByteArrayOutputStream();
+//      System.setOut(new PrintStream(baos));
+//  
+//      GrouperClient
+//          .main(GrouperClientUtils
+//              .splitTrim(
+//                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --subjectAttributeNames=a,name --outputTemplate=${wsSubject.getAttributeValue(1)}$newline$",
+//                  " "));
+//      System.out.flush();
+//      output = new String(baos.toByteArray());
+//  
+//      System.setOut(systemOut);
+//  
+//      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+//  
+//      Arrays.sort(outputLines);
+//  
+//      assertEquals(outputLines[0], "my name is test.subject.0");
+//      assertEquals(outputLines[1], "my name is test.subject.1");
+//      assertEquals(outputLines[2], "my name is test.subject.2");
+//      assertEquals(outputLines[3], "my name is test.subject.3");
+//  
+//      // #######################################################
+//      // try member filter
+//  
+//      baos = new ByteArrayOutputStream();
+//      System.setOut(new PrintStream(baos));
+//  
+//      GrouperClient
+//          .main(GrouperClientUtils
+//              .splitTrim(
+//                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --memberFilter=Effective",
+//                  " "));
+//      System.out.flush();
+//      output = new String(baos.toByteArray());
+//      
+//      System.setOut(systemOut);
+//  
+//      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+//  
+//      assertEquals(0, GrouperUtil.length(outputLines));
+//  
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          GrouperClientWs.mostRecentRequest.contains("memberFilter"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("params"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
+//  
+//      // #######################################################
+//      // try member filter nonimmediate
+//  
+//      baos = new ByteArrayOutputStream();
+//      System.setOut(new PrintStream(baos));
+//  
+//      GrouperClient
+//          .main(GrouperClientUtils
+//              .splitTrim(
+//                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --memberFilter=NonImmediate",
+//                  " "));
+//      System.out.flush();
+//      output = new String(baos.toByteArray());
+//      
+//      System.setOut(systemOut);
+//  
+//      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+//  
+//      assertEquals(0, GrouperUtil.length(outputLines));
+//  
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          GrouperClientWs.mostRecentRequest.contains("memberFilter"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("params"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
+//  
+//      // #######################################################
+//      // try includeGroupDetail
+//  
+//      baos = new ByteArrayOutputStream();
+//      System.setOut(new PrintStream(baos));
+//  
+//      GrouperClient
+//          .main(GrouperClientUtils
+//              .splitTrim(
+//                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --includeGroupDetail=true",
+//                  " "));
+//      System.out.flush();
+//      output = new String(baos.toByteArray());
+//      
+//      System.setOut(systemOut);
+//  
+//      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+//  
+//      assertEquals(4, GrouperUtil.length(outputLines));
+//  
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("params"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
+//  
+//      // #######################################################
+//      // try includeSubjectDetail
+//  
+//      baos = new ByteArrayOutputStream();
+//      System.setOut(new PrintStream(baos));
+//  
+//      GrouperClient
+//          .main(GrouperClientUtils
+//              .splitTrim(
+//                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --includeSubjectDetail=true",
+//                  " "));
+//      System.out.flush();
+//      output = new String(baos.toByteArray());
+//      
+//      System.setOut(systemOut);
+//  
+//      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+//  
+//      assertEquals(4, GrouperUtil.length(outputLines));
+//  
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("params"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
+//  
+//      // #######################################################
+//      // try subjectAttributeNames
+//  
+//      baos = new ByteArrayOutputStream();
+//      System.setOut(new PrintStream(baos));
+//  
+//      GrouperClient
+//          .main(GrouperClientUtils
+//              .splitTrim(
+//                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --subjectAttributeNames=name",
+//                  " "));
+//      System.out.flush();
+//      output = new String(baos.toByteArray());
+//      
+//      System.setOut(systemOut);
+//  
+//      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+//  
+//      assertEquals(4, GrouperUtil.length(outputLines));
+//  
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("params"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
+//  
+//      // #######################################################
+//      // try params
+//  
+//      baos = new ByteArrayOutputStream();
+//      System.setOut(new PrintStream(baos));
+//  
+//      GrouperClient
+//          .main(GrouperClientUtils
+//              .splitTrim(
+//                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --paramName0=someParam --paramValue0=someValue",
+//                  " "));
+//      System.out.flush();
+//      output = new String(baos.toByteArray());
+//      
+//      System.setOut(systemOut);
+//  
+//      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+//  
+//      assertEquals(4, GrouperUtil.length(outputLines));
+//  
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          GrouperClientWs.mostRecentRequest.contains("someParam")
+//              && GrouperClientWs.mostRecentRequest.toLowerCase().contains(
+//                  "params")
+//              && GrouperClientWs.mostRecentRequest.contains("someValue"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
+//  
+//      // #######################################################
+//      // try fieldName
+//  
+//      baos = new ByteArrayOutputStream();
+//      System.setOut(new PrintStream(baos));
+//  
+//      GrouperClient
+//          .main(GrouperClientUtils
+//              .splitTrim(
+//                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --fieldName=members",
+//                  " "));
+//      System.out.flush();
+//      output = new String(baos.toByteArray());
+//      
+//      System.setOut(systemOut);
+//  
+//      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+//  
+//      assertEquals(4, GrouperUtil.length(outputLines));
+//  
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("params"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          GrouperClientWs.mostRecentRequest.contains("fieldName")
+//              && GrouperClientWs.mostRecentRequest.contains("members"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
+//  
+//      // #######################################################
+//      // try actAsSubject
+//  
+//      baos = new ByteArrayOutputStream();
+//      System.setOut(new PrintStream(baos));
+//  
+//      GrouperClient
+//          .main(GrouperClientUtils
+//              .splitTrim(
+//                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --actAsSubjectId=GrouperSystem",
+//                  " "));
+//      System.out.flush();
+//      output = new String(baos.toByteArray());
+//      
+//      System.setOut(systemOut);
+//  
+//      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+//  
+//      assertEquals(4, GrouperUtil.length(outputLines));
+//  
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("params"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          GrouperClientWs.mostRecentRequest.contains("actAsSubject")
+//              && GrouperClientWs.mostRecentRequest.contains("GrouperSystem"));
+//  
+//      // #######################################################
+//      // try actAsSubject but with alias
+//  
+//      baos = new ByteArrayOutputStream();
+//      System.setOut(new PrintStream(baos));
+//  
+//      GrouperClient
+//          .main(GrouperClientUtils
+//              .splitTrim(
+//                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --actAsPennId=GrouperSystem",
+//                  " "));
+//      System.out.flush();
+//      output = new String(baos.toByteArray());
+//      
+//      System.setOut(systemOut);
+//  
+//      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+//  
+//      assertEquals(4, GrouperUtil.length(outputLines));
+//  
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("params"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          GrouperClientWs.mostRecentRequest.contains("actAsSubject")
+//              && GrouperClientWs.mostRecentRequest.contains("GrouperSystem"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("scope"));
+//      //subjectSources
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("sourceIds"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("wsStemLookup"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("stemScope"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("wsSubjectLookup"));
+//
+//      
+//      // #######################################################
+//      // try enabled
+//  
+//      baos = new ByteArrayOutputStream();
+//      System.setOut(new PrintStream(baos));
+//  
+//      GrouperClient
+//          .main(GrouperClientUtils
+//              .splitTrim(
+//                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --enabled=F",
+//                  " "));
+//      System.out.flush();
+//      output = new String(baos.toByteArray());
+//      
+//      System.setOut(systemOut);
+//  
+//      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+//  
+//      assertEquals(0, GrouperUtil.length(outputLines));
+//  
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("params"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          GrouperClientWs.mostRecentRequest.contains("enabled"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("scope"));
+//      //subjectSources
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("sourceIds"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("wsStemLookup"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("stemScope"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("wsSubjectLookup"));
+//
+//      // #######################################################
+//      // try membership ids
+//  
+//      baos = new ByteArrayOutputStream();
+//      System.setOut(new PrintStream(baos));
+//  
+//      GrouperClient
+//          .main(GrouperClientUtils
+//              .splitTrim(
+//                  "--operation=getMembershipsWs --membershipIds=123",
+//                  " "));
+//      System.out.flush();
+//      output = new String(baos.toByteArray());
+//      
+//      System.setOut(systemOut);
+//  
+//      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+//  
+//      assertEquals(0, GrouperUtil.length(outputLines));
+//  
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("params"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          GrouperClientWs.mostRecentRequest.contains("membershipIds"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("scope"));
+//      //subjectSources
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("sourceIds"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("wsStemLookup"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("stemScope"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("wsSubjectLookup"));
+//
+//      // #######################################################
+//      // try scope
+//  
+//      baos = new ByteArrayOutputStream();
+//      System.setOut(new PrintStream(baos));
+//  
+//      GrouperClient
+//          .main(GrouperClientUtils
+//              .splitTrim(
+//                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --scope=abc",
+//                  " "));
+//      System.out.flush();
+//      output = new String(baos.toByteArray());
+//      
+//      System.setOut(systemOut);
+//  
+//      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+//  
+//      assertEquals(0, GrouperUtil.length(outputLines));
+//  
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("params"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          GrouperClientWs.mostRecentRequest.contains("scope"));
+//      //subjectSources
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("sourceIds"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("wsStemLookup"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("stemScope"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("wsSubjectLookup"));
+//
+//      // #######################################################
+//      // try subjectSources
+//  
+//      baos = new ByteArrayOutputStream();
+//      System.setOut(new PrintStream(baos));
+//  
+//      GrouperClient
+//          .main(GrouperClientUtils
+//              .splitTrim(
+//                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --sourceIds=g:gsa",
+//                  " "));
+//      System.out.flush();
+//      output = new String(baos.toByteArray());
+//      
+//      System.setOut(systemOut);
+//  
+//      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+//  
+//      assertEquals(0, GrouperUtil.length(outputLines));
+//  
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("params"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("scope"));
+//      //subjectSources
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          GrouperClientWs.mostRecentRequest.contains("sourceIds"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("wsStemLookup"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("stemScope"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("wsSubjectLookup"));
+//
+//      // #######################################################
+//      // try one level stem
+//  
+//      baos = new ByteArrayOutputStream();
+//      System.setOut(new PrintStream(baos));
+//  
+//      GrouperClient
+//          .main(GrouperClientUtils
+//              .splitTrim(
+//                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --stemName=aStem --stemScope=ONE_LEVEL",
+//                  " "));
+//      System.out.flush();
+//      output = new String(baos.toByteArray());
+//      
+//      System.setOut(systemOut);
+//  
+//      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+//  
+//      assertEquals(4, GrouperUtil.length(outputLines));
+//  
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("params"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("scope"));
+//      //subjectSources
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("sourceIds"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          GrouperClientWs.mostRecentRequest.contains("wsStemLookup"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          GrouperClientWs.mostRecentRequest.contains("stemScope"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          GrouperClientWs.mostRecentRequest.contains("ONE_LEVEL"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("wsSubjectLookup"));
+//
+//      // #######################################################
+//      // try all in subtree
+//  
+//      baos = new ByteArrayOutputStream();
+//      System.setOut(new PrintStream(baos));
+//  
+//      GrouperClient
+//          .main(GrouperClientUtils
+//              .splitTrim(
+//                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --stemName=aStem --stemScope=ALL_IN_SUBTREE",
+//                  " "));
+//      System.out.flush();
+//      output = new String(baos.toByteArray());
+//      
+//      System.setOut(systemOut);
+//  
+//      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+//  
+//      assertEquals(4, GrouperUtil.length(outputLines));
+//  
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("params"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("scope"));
+//      //subjectSources
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("sourceIds"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          GrouperClientWs.mostRecentRequest.contains("wsStemLookup"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          GrouperClientWs.mostRecentRequest.contains("stemScope"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          GrouperClientWs.mostRecentRequest.contains("ALL_IN_SUBTREE"));
+//      assertTrue(GrouperClientWs.mostRecentRequest,
+//          !GrouperClientWs.mostRecentRequest.contains("wsSubjectLookup"));
 
       // #######################################################
       // try all in subtree
@@ -7924,7 +7961,374 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(GrouperClientWs.mostRecentRequest,
           GrouperClientWs.mostRecentRequest.contains("wsSubjectLookup"));
 
+      // #######################################################
+      // try privs in a group
       
+      //group.grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.UPDATE, false);
+      //group.grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.ADMIN, false);
+      //group2.grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.UPDATE, false);
+      //group2.grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.ADMIN, false);
+      //
+      //stem.grantPriv(SubjectTestHelper.SUBJ7, NamingPrivilege.CREATE, false);
+      //stem.grantPriv(SubjectTestHelper.SUBJ7, NamingPrivilege.STEM, false);
+      //stem2.grantPriv(SubjectTestHelper.SUBJ8, NamingPrivilege.CREATE, false);
+      //stem2.grantPriv(SubjectTestHelper.SUBJ8, NamingPrivilege.STEM, false);
+      //
+      //attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_READ, false);
+      //attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ8, AttributeDefPrivilege.ATTR_UPDATE, false);
+      //attributeDef2.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_READ, false);
+      //attributeDef2.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ8, AttributeDefPrivilege.ATTR_UPDATE, false);
+
+      // match: ^Index: (\d+)\: type: group, ownerName\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      pattern = Pattern
+          .compile("^Index: (\\d+)\\: type\\: (.+), ownerName\\: (.+), subject\\: (.+), list: (.+), type\\: (.+), enabled\\: (T|F)$");
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+  
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=getMembershipsWs --subjectIds=test.subject.7,test.subject.8 --fieldType=access",
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+      
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      assertEquals(4, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "group", matcher.group(2));
+      assertEquals(outputLine, "aStem:aGroup", matcher.group(3));
+      assertEquals(outputLine, "test.subject.7", matcher.group(4));
+      assertEquals(outputLine, "updaters", matcher.group(5));
+      assertEquals(outputLine, "immediate", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      
+      outputLine = outputLines[1];
+
+      matcher = pattern.matcher(outputLine);
+  
+      assertTrue(outputLine, matcher.matches());
+  
+      assertEquals(outputLine, "1", matcher.group(1));
+      assertEquals(outputLine, "group", matcher.group(2));
+      assertEquals(outputLine, "aStem:aGroup", matcher.group(3));
+      assertEquals(outputLine, "test.subject.8", matcher.group(4));
+      assertEquals(outputLine, "admins", matcher.group(5));
+      assertEquals(outputLine, "immediate", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+  
+      outputLine = outputLines[2];
+
+      matcher = pattern.matcher(outputLine);
+  
+      assertTrue(outputLine, matcher.matches());
+  
+      assertEquals(outputLine, "2", matcher.group(1));
+      assertEquals(outputLine, "group", matcher.group(2));
+      assertEquals(outputLine, "aStem:aGroup2", matcher.group(3));
+      assertEquals(outputLine, "test.subject.7", matcher.group(4));
+      assertEquals(outputLine, "updaters", matcher.group(5));
+      assertEquals(outputLine, "immediate", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+
+      outputLine = outputLines[3];
+
+      matcher = pattern.matcher(outputLine);
+  
+      assertTrue(outputLine, matcher.matches());
+  
+      assertEquals(outputLine, "3", matcher.group(1));
+      assertEquals(outputLine, "group", matcher.group(2));
+      assertEquals(outputLine, "aStem:aGroup2", matcher.group(3));
+      assertEquals(outputLine, "test.subject.8", matcher.group(4));
+      assertEquals(outputLine, "admins", matcher.group(5));
+      assertEquals(outputLine, "immediate", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("scope"));
+      //subjectSources
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("sourceIds"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsStemLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("stemScope"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("ALL_IN_SUBTREE"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("fieldType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("access"));
+
+      // #######################################################
+      // try privs in a stem
+      
+      //stem.grantPriv(SubjectTestHelper.SUBJ7, NamingPrivilege.CREATE, false);
+      //stem.grantPriv(SubjectTestHelper.SUBJ7, NamingPrivilege.STEM, false);
+      //stem2.grantPriv(SubjectTestHelper.SUBJ8, NamingPrivilege.CREATE, false);
+      //stem2.grantPriv(SubjectTestHelper.SUBJ8, NamingPrivilege.STEM, false);
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+  
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=getMembershipsWs --subjectIds=test.subject.7,test.subject.8 --fieldType=naming",
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+      
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      assertEquals(4, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "folder", matcher.group(2));
+      assertEquals(outputLine, "aStem1", matcher.group(3));
+      assertEquals(outputLine, "test.subject.7", matcher.group(4));
+      assertEquals(outputLine, "creators", matcher.group(5));
+      assertEquals(outputLine, "immediate", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      
+      outputLine = outputLines[1];
+
+      matcher = pattern.matcher(outputLine);
+  
+      assertTrue(outputLine, matcher.matches());
+  
+      assertEquals(outputLine, "1", matcher.group(1));
+      assertEquals(outputLine, "folder", matcher.group(2));
+      assertEquals(outputLine, "aStem1", matcher.group(3));
+      assertEquals(outputLine, "test.subject.8", matcher.group(4));
+      assertEquals(outputLine, "stemmers", matcher.group(5));
+      assertEquals(outputLine, "immediate", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+  
+      outputLine = outputLines[2];
+
+      matcher = pattern.matcher(outputLine);
+  
+      assertTrue(outputLine, matcher.matches());
+  
+      assertEquals(outputLine, "2", matcher.group(1));
+      assertEquals(outputLine, "folder", matcher.group(2));
+      assertEquals(outputLine, "aStem2", matcher.group(3));
+      assertEquals(outputLine, "test.subject.7", matcher.group(4));
+      assertEquals(outputLine, "creators", matcher.group(5));
+      assertEquals(outputLine, "immediate", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+
+      outputLine = outputLines[3];
+
+      matcher = pattern.matcher(outputLine);
+  
+      assertTrue(outputLine, matcher.matches());
+  
+      assertEquals(outputLine, "3", matcher.group(1));
+      assertEquals(outputLine, "folder", matcher.group(2));
+      assertEquals(outputLine, "aStem2", matcher.group(3));
+      assertEquals(outputLine, "test.subject.8", matcher.group(4));
+      assertEquals(outputLine, "stemmers", matcher.group(5));
+      assertEquals(outputLine, "immediate", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("scope"));
+      //subjectSources
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("sourceIds"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsStemLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("stemScope"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("ALL_IN_SUBTREE"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("fieldType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("naming"));
+
+      // #######################################################
+      // try privs in an attributeDef
+      
+      //attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_READ, false);
+      //attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ8, AttributeDefPrivilege.ATTR_UPDATE, false);
+      //attributeDef2.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_READ, false);
+      //attributeDef2.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ8, AttributeDefPrivilege.ATTR_UPDATE, false);
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+  
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=getMembershipsWs --subjectIds=test.subject.7,test.subject.8 --fieldType=attributeDef",
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+      
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      assertEquals(4, GrouperUtil.length(outputLines));
+      
+      outputLine = outputLines[0];
+
+      matcher = pattern.matcher(outputLine);
+
+      assertTrue(outputLine, matcher.matches());
+      assertEquals(outputLine, "0", matcher.group(1));
+      assertEquals(outputLine, "attributeDef", matcher.group(2));
+      assertEquals(outputLine, "aStem1:attributeDef1", matcher.group(3));
+      assertEquals(outputLine, "test.subject.7", matcher.group(4));
+      assertEquals(outputLine, "attrReaders", matcher.group(5));
+      assertEquals(outputLine, "immediate", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+      
+      outputLine = outputLines[1];
+
+      matcher = pattern.matcher(outputLine);
+  
+      assertTrue(outputLine, matcher.matches());
+  
+      assertEquals(outputLine, "1", matcher.group(1));
+      assertEquals(outputLine, "attributeDef", matcher.group(2));
+      assertEquals(outputLine, "aStem1:attributeDef1", matcher.group(3));
+      assertEquals(outputLine, "test.subject.8", matcher.group(4));
+      assertEquals(outputLine, "attrUpdaters", matcher.group(5));
+      assertEquals(outputLine, "immediate", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+  
+      outputLine = outputLines[2];
+
+      matcher = pattern.matcher(outputLine);
+  
+      assertTrue(outputLine, matcher.matches());
+  
+      assertEquals(outputLine, "2", matcher.group(1));
+      assertEquals(outputLine, "attributeDef", matcher.group(2));
+      assertEquals(outputLine, "aStem2:attributeDef2", matcher.group(3));
+      assertEquals(outputLine, "test.subject.7", matcher.group(4));
+      assertEquals(outputLine, "attrReaders", matcher.group(5));
+      assertEquals(outputLine, "immediate", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+
+      outputLine = outputLines[3];
+
+      matcher = pattern.matcher(outputLine);
+  
+      assertTrue(outputLine, matcher.matches());
+  
+      assertEquals(outputLine, "3", matcher.group(1));
+      assertEquals(outputLine, "attributeDef", matcher.group(2));
+      assertEquals(outputLine, "aStem2:attributeDef2", matcher.group(3));
+      assertEquals(outputLine, "test.subject.8", matcher.group(4));
+      assertEquals(outputLine, "attrUpdaters", matcher.group(5));
+      assertEquals(outputLine, "immediate", matcher.group(6));
+      assertEquals(outputLine, "T", matcher.group(7));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("params"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("fieldName"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("actAsSubject"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("enabled"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("scope"));
+      //subjectSources
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("sourceIds"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("wsStemLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("stemScope"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          !GrouperClientWs.mostRecentRequest.contains("ALL_IN_SUBTREE"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsSubjectLookup"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("fieldType"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("attributeDef"));
+
     } finally {
       System.setOut(systemOut);
     }

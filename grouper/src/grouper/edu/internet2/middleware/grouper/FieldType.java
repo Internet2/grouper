@@ -64,13 +64,19 @@ public enum FieldType implements Serializable {
   /**
    * 
    * @param type
-   * @param exceptionIfNotFound
-   * @return
+   * @param exceptionOnNull
+   * @return field type
    */
   public static FieldType valueOfIgnoreCase(String type, boolean exceptionOnNull) {
 
-    FieldType fieldType = GrouperUtil.enumValueOfIgnoreCase(FieldType.class, 
-          type, exceptionOnNull);
+    FieldType fieldType = null;
+    
+    try {
+      fieldType = GrouperUtil.enumValueOfIgnoreCase(FieldType.class, 
+          type, false);
+    } catch (Exception e) {
+      //ignore this
+    }
     
     if (fieldType != null) {
       return fieldType;

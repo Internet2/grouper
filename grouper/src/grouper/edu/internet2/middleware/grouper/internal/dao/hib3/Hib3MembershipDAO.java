@@ -519,15 +519,31 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     
   }
     
+  
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean, Boolean)
+   */
+  @Override
+  public Set<Object[]> findAllByGroupOwnerOptions(Collection<String> totalGroupIds, Collection<String> totalMemberIds,
+      Collection<String> totalMembershipIds, MembershipType membershipType,
+      Field field,  
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean checkSecurity) {
+  
+    return findAllByGroupOwnerOptions(totalGroupIds, totalMemberIds, totalMembershipIds, membershipType, field, sources, 
+        scope, stem, stemScope, enabled, checkSecurity, null);
+    
+  }
     
   /**
    * 
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean, Boolean)
    */
+  @Override
   public Set<Object[]> findAllByGroupOwnerOptions(Collection<String> totalGroupIds, Collection<String> totalMemberIds,
       Collection<String> totalMembershipIds, MembershipType membershipType,
       Field field,  
-      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean checkSecurity) {
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean checkSecurity, FieldType fieldType) {
     
     if (checkSecurity == null) {
       checkSecurity = Boolean.TRUE;
@@ -580,7 +596,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           StringBuilder sql = new StringBuilder(" from Member m, MembershipEntry ms, Group g ");
           
           //we need to make sure it is a list type field
-          if (field == null) {
+          if (field == null || fieldType != null) {
             sql.append(", Field f ");
           }
           
@@ -638,6 +654,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           if (membershipType != null) {
             sql.append(" and ms.type ").append(membershipType.queryClause()).append(" ");
           }
+          
+          if (field == null || fieldType != null) {
+            sql.append(" and ms.fieldId = f.uuid ");
+          }
           if (field != null) {
             //needs to be a members field
             //if (!StringUtils.equals("list",field.getTypeString())) {
@@ -645,10 +665,19 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             //}
             sql.append(" and ms.fieldId = :fieldId ");
             byHqlStatic.setString("fieldId", field.getUuid());
-          } else {
-            //add on the column
-            sql.append(" and ms.fieldId = f.uuid and f.typeString = 'list' ");
           }
+          if (field == null && (fieldType == null || fieldType == FieldType.LIST)) {
+            //add on the column
+            sql.append(" and f.typeString = 'list' ");
+          }
+          if (fieldType == FieldType.ACCESS) {
+            //add on the column
+            sql.append(" and f.typeString = 'access' ");
+          }
+          if (fieldType != null && fieldType != FieldType.ACCESS && fieldType != FieldType.LIST) {
+            throw new RuntimeException("Cant have fieldType which is not null, access or list: " + fieldType);
+          }
+          
           if (groupIdsSize > 0) {
             sql.append(" and ms.ownerGroupId in (");
             sql.append(HibUtils.convertToInClause(groupIds, byHqlStatic));
@@ -3488,4 +3517,5 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     //we should be down to the cesure list
     return totalResults;
   }
+
 }
