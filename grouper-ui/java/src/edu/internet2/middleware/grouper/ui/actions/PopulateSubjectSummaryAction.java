@@ -35,6 +35,7 @@ package edu.internet2.middleware.grouper.ui.actions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -476,6 +477,10 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		}else if("access".equals(membershipListScope)) {
 			
 			subjectScopes = GrouperHelper.getGroupsOrStemsWhereMemberHasPriv(member,accessPriv);
+			
+	     // filter out groups where the subject can't see privs
+      removeObjectsNotAllowedToSeePrivs(subjectScopes);
+      
 			subjectScopeMaps = GrouperHelper.subjects2SubjectPrivilegeMaps(grouperSession,subjectScopes,subject,accessPriv);
 			listViews.put("titleKey","subject.summary.access-privs");
 			listViews.put("noResultsKey","subject.list-access.none");
@@ -484,6 +489,10 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		}else {
 			sortOverrideClass=Stem.class;
 			subjectScopes = GrouperHelper.getGroupsOrStemsWhereMemberHasPriv(member,namingPriv);
+			
+      // filter out stems where the subject can't see privs
+      removeObjectsNotAllowedToSeePrivs(subjectScopes);
+      
 			subjectScopeMaps = GrouperHelper.subjects2SubjectPrivilegeMaps(grouperSession,subjectScopes,subject,namingPriv);
 			listViews.put("titleKey","subject.summary.naming-privs");
 			listViews.put("noResultsKey","subject.list-naming.none");
@@ -550,4 +559,42 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		
 		return mapping.findForward(FORWARD_SubjectSummary);
 	}
+	
+  /**
+   * remove objects not allowed to see privileges on
+   * @param groupsAndStems
+   */
+  public static void removeObjectsNotAllowedToSeePrivs(Set<?> groupsAndStems) {
+    
+    if (groupsAndStems == null) {
+      return;
+    }
+
+    //subject who is making the query
+    final Subject grouperSessionSubject = GrouperSession.staticGrouperSession().getSubject();
+
+    Iterator<?> iterator = groupsAndStems.iterator();
+
+    while (iterator.hasNext()) {
+      Object groupOrStem = iterator.next();
+
+      if (groupOrStem instanceof Group) {
+        
+        Group group = (Group)groupOrStem;
+        if (!group.hasAdmin(grouperSessionSubject)) {
+          iterator.remove();
+        }
+      } else if (groupOrStem instanceof Stem) {
+
+        Stem stem = (Stem)groupOrStem;
+        if (!stem.hasStem(grouperSessionSubject)) {
+          iterator.remove();
+        }
+
+      } else {
+        //this should never happen
+        throw new RuntimeException("Not expecting object of type: " + groupOrStem.getClass() + ", " + groupOrStem);
+      }
+    }   
+  }
 }
