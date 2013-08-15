@@ -20,6 +20,7 @@ package edu.internet2.middleware.grouper.ui.actions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,10 +39,12 @@ import org.apache.struts.action.DynaActionForm;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -458,6 +461,10 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		}else if("access".equals(membershipListScope)) {
 			
 			subjectScopes = GrouperHelper.getGroupsOrStemsWhereMemberHasPriv(member,accessPriv);
+
+			// filter out groups where the subject can't see privs
+			removeObjectsNotAllowedToSeePrivs(subjectScopes);
+
 			subjectScopeMaps = GrouperHelper.subjects2SubjectPrivilegeMaps(grouperSession,subjectScopes,subject,accessPriv);
 			listViews.put("titleKey","subject.summary.access-privs");
 			listViews.put("noResultsKey","subject.list-access.none");
@@ -465,6 +472,10 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 			listViews.put("itemView","subjectSummaryPrivilege");
 		}else {
 			subjectScopes = GrouperHelper.getGroupsOrStemsWhereMemberHasPriv(member,namingPriv);
+
+      // filter out stems where the subject can't see privs
+			removeObjectsNotAllowedToSeePrivs(subjectScopes);
+
 			subjectScopeMaps = GrouperHelper.subjects2SubjectPrivilegeMaps(grouperSession,subjectScopes,subject,namingPriv);
 			listViews.put("titleKey","subject.summary.naming-privs");
 			listViews.put("noResultsKey","subject.list-naming.none");
@@ -527,4 +538,42 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		
 		return mapping.findForward(FORWARD_SubjectSummary);
 	}
+
+  /**
+   * remove objects not allowed to see privileges on
+   * @param groupsAndStems
+   */
+  public static void removeObjectsNotAllowedToSeePrivs(Set<?> groupsAndStems) {
+    
+    if (groupsAndStems == null) {
+      return;
+    }
+
+    //subject who is making the query
+    final Subject grouperSessionSubject = GrouperSession.staticGrouperSession().getSubject();
+
+    Iterator<?> iterator = groupsAndStems.iterator();
+
+    while (iterator.hasNext()) {
+      Object groupOrStem = iterator.next();
+
+      if (groupOrStem instanceof Group) {
+        
+        Group group = (Group)groupOrStem;
+        if (!group.hasAdmin(grouperSessionSubject)) {
+          iterator.remove();
+        }
+      } else if (groupOrStem instanceof Stem) {
+
+        Stem stem = (Stem)groupOrStem;
+        if (!stem.hasStem(grouperSessionSubject)) {
+          iterator.remove();
+        }
+
+      } else {
+        //this should never happen
+        throw new RuntimeException("Not expecting object of type: " + groupOrStem.getClass() + ", " + groupOrStem);
+      }
+    }   
+  }
 }
