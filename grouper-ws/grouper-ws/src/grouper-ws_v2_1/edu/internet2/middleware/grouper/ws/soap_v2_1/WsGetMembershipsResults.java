@@ -15,8 +15,6 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.soap_v2_1;
 
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDef;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStem;
 
 
 
