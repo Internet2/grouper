@@ -51,6 +51,7 @@ import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
@@ -620,6 +621,7 @@ public class GrouperTest extends TestCase {
     //remove any settings in testconfig
     ApiConfig.testConfig.clear();
     GrouperLoaderConfig.testConfig.clear();
+    SubjectFinder.internalClearSubjectCustomizerCache();
 
     for (int i=0;i<20;i++) {
       ApiConfig.testConfig.put("configuration.autocreate.group.name." + i, null);
