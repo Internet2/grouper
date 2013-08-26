@@ -19,14 +19,23 @@
  */
 package edu.internet2.middleware.grouper.audit;
 
+import java.util.Set;
+
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AuditEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.AuditTypeDAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 
 
 /**
@@ -39,7 +48,7 @@ public class AuditEntryTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AuditEntryTest("testXmlDifferentUpdateProperties"));
+    TestRunner.run(new AuditEntryTest("testFindByActingUserId"));
   }
 
   /**
@@ -50,6 +59,38 @@ public class AuditEntryTest extends GrouperTest {
     
   }
 
+  /**
+   * test
+   */
+  public void testFindByActingUserId() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    
+    stem.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.CREATE);
+    stem.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM);
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    
+    new GroupSave(grouperSession).assignName("test:testGroup").save();
+    new GroupSave(grouperSession).assignName("test:testGroup2").save();
+
+    GrouperSession.stopQuietly(grouperSession);
+
+    grouperSession = GrouperSession.startRootSession();
+
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, false);
+    
+    Set<AuditEntry> auditEntries = GrouperDAOFactory.getFactory().getAuditEntry().findByActingUser(member.getUuid(), null);
+    
+    
+    
+    
+  }
+  
   /**
    * 
    */

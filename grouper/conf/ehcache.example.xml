@@ -1191,7 +1191,14 @@
     statistics="false"
   />
 
-
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AuditEntryDAO.FindByActingUser"
+    maxElementsInMemory="1000"
+    eternal="false"
+    timeToIdleSeconds="120"
+    timeToLiveSeconds="120"
+    overflowToDisk="false"
+    statistics="false"
+  />
 
   <!-- @see   CachingAccessResolver#hasPrivilege(...) -->
   <cache  name="edu.internet2.middleware.grouper.privs.CachingAccessResolver.HasPrivilege"
