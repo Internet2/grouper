@@ -162,7 +162,7 @@ public class GrouperStatusServlet extends HttpServlet {
 
       // See if there was an error, in the last day store the results if so.
       if (diagnosticErrorCount > 0 && lastDiagnosticsErrorDate != null 
-          && System.currentTimeMillis() - lastDiagnosticsErrorDate < 24 * 60 * 60 * 1000 ) {
+          && System.currentTimeMillis() - lastDiagnosticsErrorDate < (long)24 * 60 * 60 * 1000 ) {
         result.append("\nLast diagnostics error date: ")
           .append(lastDiagnosticsErrorDateString)
           .append("\nLast diagnostics error message: ")

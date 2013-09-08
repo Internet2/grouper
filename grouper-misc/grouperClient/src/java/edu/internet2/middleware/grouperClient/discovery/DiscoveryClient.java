@@ -804,7 +804,7 @@ public class DiscoveryClient {
         Date date = dateFormat.parse(datePart);
 
         //see if more than 20 minutes old
-        if (System.currentTimeMillis() - date.getTime() < 20 * 60 * 1000) {
+        if (System.currentTimeMillis() - date.getTime() < (long)20 * 60 * 1000) {
           continue;
         }
         
