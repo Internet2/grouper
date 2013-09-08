@@ -84,7 +84,7 @@ public enum GrouperLoaderScheduleType {
       
       //start time is the interval seconds / 5, rand
       int startSeconds = (int)(Math.random() * intervalSeconds);
-      Date startTime = new Date(System.currentTimeMillis() + (startSeconds*1000));
+      Date startTime = new Date(System.currentTimeMillis() + ((long)startSeconds*1000));
       
       simpleTrigger.setStartTime(startTime);
       return simpleTrigger;
