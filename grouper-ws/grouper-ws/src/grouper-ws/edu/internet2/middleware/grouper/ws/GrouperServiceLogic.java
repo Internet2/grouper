@@ -1711,14 +1711,14 @@ public class GrouperServiceLogic {
       
       Stem stem = null;
       
-      if (wsStemLookup != null) {
+      if (wsStemLookup != null && !wsStemLookup.blank()) {
         wsStemLookup.retrieveStemIfNeeded(session, true);
         stem = wsStemLookup.retrieveStem();
 
       }
       
       //if filtering by stem, and stem not found, then dont find any memberships
-      if ((wsStemLookup == null || stem != null) && membersOk && groupsOk && stemsOk && attributeDefsOk) {
+      if ((wsStemLookup == null || wsStemLookup.blank() || stem != null) && membersOk && groupsOk && stemsOk && attributeDefsOk) {
         Set<Source> sources = GrouperUtil.convertSources(sourceIds);
         
         Set<String> membershipIdSet = null;
@@ -1858,8 +1858,8 @@ public class GrouperServiceLogic {
     // setup the stem lookup
     WsStemLookup wsOwnerStemLookup = null;
     
-    if (StringUtils.isNotBlank(stemName) || StringUtils.isNotBlank(stemUuid)) {
-      wsOwnerStemLookup = new WsStemLookup(stemName, stemUuid);
+    if (StringUtils.isNotBlank(ownerStemName) || StringUtils.isNotBlank(ownerStemUuid)) {
+      wsOwnerStemLookup = new WsStemLookup(ownerStemName, ownerStemUuid);
     }
 
     // setup the attributeDef lookup
