@@ -30,6 +30,14 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
  */
 public abstract class ConfigPropertiesCascadeBase {
 
+  /**
+   * help subclasses manipulate properties.  note, this is only for subclasses...
+   * @return properties
+   */
+  protected Properties internalProperties() {
+    return this.properties;
+  }
+  
   /** if a key ends with this, then it is an EL property */
   private static final String EL_CONFIG_SUFFIX = ".elConfig";
 
@@ -744,7 +752,7 @@ public abstract class ConfigPropertiesCascadeBase {
     return result;
     
   }
-  
+    
   /**
    * make sure LOG is there, after things are initialized
    * @param logMessage
@@ -780,65 +788,64 @@ public abstract class ConfigPropertiesCascadeBase {
     
     try {
     
-      if (configFileCache == null) {
+    if (configFileCache == null) {
         if (LOG != null && LOG.isDebugEnabled()) {
           debugMap.put("configFileCache", null);
         }
         
-        configFileCache = 
-          new HashMap<Class<? extends ConfigPropertiesCascadeBase>, ConfigPropertiesCascadeBase>();
-      }
+      configFileCache = 
+        new HashMap<Class<? extends ConfigPropertiesCascadeBase>, ConfigPropertiesCascadeBase>();
+    }
+    
+    ConfigPropertiesCascadeBase configObject = configFileCache.get(this.getClass());
+    
+    if (configObject == null) {
       
-      ConfigPropertiesCascadeBase configObject = configFileCache.get(this.getClass());
-      
-      if (configObject == null) {
-        
         if (LOG != null && LOG.isDebugEnabled()) {
           debugMap.put("configObject", null);
         }
         if (LOG != null && LOG.isDebugEnabled()) {
           debugMap.put("mainConfigClasspath", this.getMainConfigClasspath());
         }
+      
+      configObject = retrieveFromConfigFiles();
+      configFileCache.put(this.getClass(), configObject);
+      
+    } else {
+      
+      //see if that much time has passed
+      if (configObject.needToCheckIfFilesNeedReloading()) {
         
-        configObject = retrieveFromConfigFiles();
-        
-        configFileCache.put(this.getClass(), configObject);
-        
-      } else {
-        
-        //see if that much time has passed
-        if (configObject.needToCheckIfFilesNeedReloading()) {
-          
           if (LOG != null && LOG.isDebugEnabled()) {
             debugMap.put("needToCheckIfFilesNeedReloading", true);
           }
-          synchronized (configObject) {
+        synchronized (configObject) {
+          
+          configObject = configFileCache.get(this.getClass());
+          
+          //check again in case another thread did it
+          if (configObject.needToCheckIfFilesNeedReloading()) {
             
-            configObject = configFileCache.get(this.getClass());
-            
-            //check again in case another thread did it
-            if (configObject.needToCheckIfFilesNeedReloading()) {
-              
               if (LOG != null && LOG.isDebugEnabled()) {
                 debugMap.put("needToCheckIfFilesNeedReloading2", true);
               }
-              if (configObject.filesNeedReloadingBasedOnContents()) {
+            if (configObject.filesNeedReloadingBasedOnContents()) {
                 if (LOG != null && LOG.isDebugEnabled()) {
                   debugMap.put("filesNeedReloadingBasedOnContents", true);
                 }
-                configObject = retrieveFromConfigFiles();
-                configFileCache.put(this.getClass(), configObject);
-              }
+              configObject = retrieveFromConfigFiles();
+              configFileCache.put(this.getClass(), configObject);
             }
           }
         }
       }
+    }
       if (LOG != null && LOG.isDebugEnabled()) {
         debugMap.put("configObjectPropertyCount", configObject == null ? null 
             : (configObject.properties() == null ? "propertiesNull" : configObject.properties().size()));
       }
-      
-      return configObject;
+    
+    return configObject;
     } finally {
       if (LOG != null && LOG.isDebugEnabled()) {
         LOG.debug(GrouperClientUtils.mapToString(debugMap));
