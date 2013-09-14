@@ -9,8 +9,11 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
@@ -42,7 +45,18 @@ public class IndexContainer {
    */
   public Set<GuiAuditEntry> getGuiAuditEntriesRecentActivity() {
     if (this.guiAuditEntriesRecentActivity == null) {
-      //GrouperDAOFactory.getFactory().getAuditEntry().
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+      Member member = MemberFinder.findBySubject(grouperSession, grouperSession.getSubject(), true);
+      QueryOptions queryOptions = new QueryOptions();
+      queryOptions.paging(6, 1, false);
+      Set<AuditEntry> auditEntries = GrouperDAOFactory.getFactory().getAuditEntry().findByActingUser(member.getUuid(), queryOptions);
+
+      this.guiAuditEntriesRecentActivity = new LinkedHashSet<GuiAuditEntry>();
+      
+      for (AuditEntry auditEntry : GrouperUtil.nonNull(auditEntries)) {
+        this.guiAuditEntriesRecentActivity.add(new GuiAuditEntry(auditEntry));
+      }
+
     }
     return this.guiAuditEntriesRecentActivity;
   }

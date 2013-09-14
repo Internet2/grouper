@@ -38,7 +38,24 @@
             </div>
             <div class="row-fluid">
               <div class="span12">
-                <h3>Recent Activity</h3>
+                <h3>${textContainer.text['indexRecentActivity']}<!-- Recent activity --></h3>
+
+                <table class="table table-bottom-borders">
+                  <thead></thead>
+                  <tbody>
+                    <c:forEach items="${grouperRequestContainer.indexContainer.guiAuditEntriesRecentActivity}" var="guiAuditEntry">
+
+                      <tr>
+                        <td><strong>Added</strong> <a href="#">John Smith</a> as a member of the&nbsp;<a href="#" rel="tooltip" data-html="true" data-delay-show='200' data-placement="right" title="&lt;strong&gt;FOLDER:&lt;/strong&gt;&lt;br /&gt;Full : Path : To : The : Entity&lt;br /&gt;&lt;br /&gt;This is the description for this entity. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.">Editors</a>&nbsp;group.
+                        </td>
+                        <td>${guiAuditEntry.guiDate}</td>
+                      </tr>                    
+                    
+                    </c:forEach>
+                  </tbody>
+                </table>
+
+                <%--
                 <table class="table table-bottom-borders">
                   <thead></thead>
                   <tbody>
@@ -63,6 +80,7 @@
                     </tr>
                   </tbody>
                 </table>
+                --%>
                 <div class="row-fluid">     
                   <div class="span4 well well-widget">
                     <div class="pull-right">
