@@ -322,7 +322,7 @@
 
 		<copy todir="${webapp.class.folder}">
       <fileset dir="${ui.folder}/conf">
-        <include name="grouperText"/>
+        <include name="grouperText/*"/>
       </fileset>
     </copy>
 
