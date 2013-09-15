@@ -402,10 +402,10 @@
     </copy>
 
     <copy file="${dist.binary.zip}/conf/ehcache.example.xml" tofile="${dist.binary.zip}/conf/ehcache.xml" />
-    <copy file="${dist.binary.zip}/conf/grouper.example.properties" tofile="${dist.binary.zip}/conf/grouper.properties" />
-    <copy file="${dist.binary.zip}/conf/grouper.client.example.properties" tofile="${dist.binary.zip}/conf/grouper.client.properties" />
-    <copy file="${dist.binary.zip}/conf/grouper.hibernate.example.properties" tofile="${dist.binary.zip}/conf/grouper.hibernate.properties" />
-    <copy file="${dist.binary.zip}/conf/grouper-loader.example.properties" tofile="${dist.binary.zip}/conf/grouper-loader.properties" />
+    <copy file="${dist.binary.zip}/misc/grouper.example.properties" tofile="${dist.binary.zip}/conf/grouper.properties" />
+    <copy file="${dist.binary.zip}/misc/grouper.client.example.properties" tofile="${dist.binary.zip}/conf/grouper.client.properties" />
+    <copy file="${dist.binary.zip}/misc/grouper.hibernate.example.properties" tofile="${dist.binary.zip}/conf/grouper.hibernate.properties" />
+    <copy file="${dist.binary.zip}/misc/grouper-loader.example.properties" tofile="${dist.binary.zip}/conf/grouper-loader.properties" />
     <copy file="${dist.binary.zip}/conf/log4j.example.properties" tofile="${dist.binary.zip}/conf/log4j.properties" />
     <copy file="${dist.binary.zip}/conf/morphString.example.properties" tofile="${dist.binary.zip}/conf/morphString.properties" />
     <copy file="${dist.binary.zip}/conf/server.example.properties" tofile="${dist.binary.zip}/conf/server.properties" />
