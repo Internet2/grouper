@@ -33,6 +33,10 @@
     <then><copy file="misc/grouper-ui.example.properties" 
       tofile="conf/grouper-ui.properties" /></then>
   </if> 
+  <if><not><available file="conf/grouperText/grouper.text.en.us.properties" /></not>
+    <then><copy file="misc/grouper.text.en.us.example.properties" 
+      tofile="conf/grouperText/grouper.text.en.us.properties" /></then>
+  </if> 
 
 	<filter filtersfile="build.properties"/>
 	<property file=".lastbuild.properties"/>
@@ -315,6 +319,12 @@
 
 		<copy file="${ui.folder}/conf/grouper-ui.properties" todir="${webapp.class.folder}" overwrite="true"/>
 		<copy file="${ui.folder}/conf/grouper-ui.base.properties" todir="${webapp.class.folder}" overwrite="true"/>
+
+		<copy todir="${webapp.class.folder}">
+      <fileset dir="${ui.folder}/conf">
+        <include name="grouperText"/>
+      </fileset>
+    </copy>
 
 		<!-- If configured call a site specific build script -->
 		<antcall target="-additional-build">
