@@ -9,14 +9,21 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
+import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -26,6 +33,33 @@ import edu.internet2.middleware.subject.Subject;
  *
  */
 public class IndexContainer {
+
+  /**
+   * recent activity
+   */
+  private Set<GuiAuditEntry> guiAuditEntriesRecentActivity;
+  
+  /**
+   * recent activity
+   * @return audits
+   */
+  public Set<GuiAuditEntry> getGuiAuditEntriesRecentActivity() {
+    if (this.guiAuditEntriesRecentActivity == null) {
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+      Member member = MemberFinder.findBySubject(grouperSession, grouperSession.getSubject(), true);
+      QueryOptions queryOptions = new QueryOptions();
+      queryOptions.paging(6, 1, false);
+      Set<AuditEntry> auditEntries = GrouperDAOFactory.getFactory().getAuditEntry().findByActingUser(member.getUuid(), queryOptions);
+
+      this.guiAuditEntriesRecentActivity = new LinkedHashSet<GuiAuditEntry>();
+      
+      for (AuditEntry auditEntry : GrouperUtil.nonNull(auditEntries)) {
+        this.guiAuditEntriesRecentActivity.add(new GuiAuditEntry(auditEntry));
+      }
+
+    }
+    return this.guiAuditEntriesRecentActivity;
+  }
 
   /**
    * for index page, this is a short list of groups the user manages
@@ -47,13 +81,39 @@ public class IndexContainer {
       
       this.guiGroupsUserManagesAbbreviated = new LinkedHashSet<GuiGroup>();
       
-      for (Group group : groups) {
+      for (Group group : GrouperUtil.nonNull(groups)) {
         this.guiGroupsUserManagesAbbreviated.add(new GuiGroup(group));
       }
       
     }
     
     return this.guiGroupsUserManagesAbbreviated;
+  }
+
+  /**
+   * for index page, this is a short list of groups the user has favorited
+   */
+  private Set<GuiGroup> guiGroupsMyFavorites;
+
+  /**
+   * for index page, this is a short list of groups the user has favorited, lazy load if null
+   * @return the list of groups
+   */
+  public Set<GuiGroup> getGuiGroupsMyFavorites() {
+    
+    if (this.guiGroupsMyFavorites == null) {
+      
+      Set<Group> groups = GrouperUserDataApi.favoriteGroups(GrouperUiUserData.grouperUiGroupNameForUserData(), GrouperSession.staticGrouperSession().getSubject());
+      
+      this.guiGroupsMyFavorites = new LinkedHashSet<GuiGroup>();
+      
+      for (Group group : GrouperUtil.nonNull(groups)) {
+        this.guiGroupsMyFavorites.add(new GuiGroup(group));
+      }
+      
+    }
+    
+    return this.guiGroupsMyFavorites;
   }
 
   /**
@@ -83,7 +143,7 @@ public class IndexContainer {
               
           IndexContainer.this.guiAttributeDefNamesMyServices = new LinkedHashSet<GuiAttributeDefName>();
           
-          for (AttributeDefName attributeDefName : attributeDefNames) {
+          for (AttributeDefName attributeDefName : GrouperUtil.nonNull(attributeDefNames)) {
             IndexContainer.this.guiAttributeDefNamesMyServices.add(new GuiAttributeDefName(attributeDefName));
           }
 

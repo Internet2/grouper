@@ -463,7 +463,7 @@ public class GrouperUserDataApi {
         
         if (group == null) {
           
-          group = new GroupSave(grouperSession).assignName(groupName).assignDescription(
+          group = new GroupSave(grouperSession).assignName(groupName).assignCreateParentStemsIfNotExist(true).assignDescription(
               "Internal group for grouper which has user data stored in membership attributes for " + GrouperUtil.extensionFromName(groupName) ).save();
   
           //this is an internal group, other people do not need to read or view it

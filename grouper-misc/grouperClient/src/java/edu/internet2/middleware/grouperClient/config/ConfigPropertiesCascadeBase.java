@@ -30,6 +30,14 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
  */
 public abstract class ConfigPropertiesCascadeBase {
 
+  /**
+   * help subclasses manipulate properties.  note, this is only for subclasses...
+   * @return properties
+   */
+  protected Properties internalProperties() {
+    return this.properties;
+  }
+  
   /** if a key ends with this, then it is an EL property */
   private static final String EL_CONFIG_SUFFIX = ".elConfig";
 
@@ -748,16 +756,6 @@ public abstract class ConfigPropertiesCascadeBase {
   /**
    * make sure LOG is there, after things are initialized
    * @param logMessage
-   */
-  protected static void logDebug(String logMessage) {
-    if (LOG != null && LOG.isDebugEnabled()) {
-      LOG.debug(logMessage); 
-    }
-  }
-  
-  /**
-   * make sure LOG is there, after things are initialized
-   * @param logMessage
    * @param t 
    */
   protected static void logInfo(String logMessage, Throwable t) {
@@ -786,7 +784,15 @@ public abstract class ConfigPropertiesCascadeBase {
    */
   protected ConfigPropertiesCascadeBase retrieveFromConfigFileOrCache() {
     
+    Map<String, Object> debugMap = (LOG != null && LOG.isDebugEnabled()) ? new LinkedHashMap<String, Object>() : null;
+    
+    try {
+    
     if (configFileCache == null) {
+        if (LOG != null && LOG.isDebugEnabled()) {
+          debugMap.put("configFileCache", null);
+        }
+        
       configFileCache = 
         new HashMap<Class<? extends ConfigPropertiesCascadeBase>, ConfigPropertiesCascadeBase>();
     }
@@ -795,7 +801,12 @@ public abstract class ConfigPropertiesCascadeBase {
     
     if (configObject == null) {
       
-      logDebug("Config file has not be created yet, will create now: " + this.getMainConfigClasspath());
+        if (LOG != null && LOG.isDebugEnabled()) {
+          debugMap.put("configObject", null);
+        }
+        if (LOG != null && LOG.isDebugEnabled()) {
+          debugMap.put("mainConfigClasspath", this.getMainConfigClasspath());
+        }
       
       configObject = retrieveFromConfigFiles();
       configFileCache.put(this.getClass(), configObject);
@@ -805,6 +816,9 @@ public abstract class ConfigPropertiesCascadeBase {
       //see if that much time has passed
       if (configObject.needToCheckIfFilesNeedReloading()) {
         
+          if (LOG != null && LOG.isDebugEnabled()) {
+            debugMap.put("needToCheckIfFilesNeedReloading", true);
+          }
         synchronized (configObject) {
           
           configObject = configFileCache.get(this.getClass());
@@ -812,7 +826,13 @@ public abstract class ConfigPropertiesCascadeBase {
           //check again in case another thread did it
           if (configObject.needToCheckIfFilesNeedReloading()) {
             
+              if (LOG != null && LOG.isDebugEnabled()) {
+                debugMap.put("needToCheckIfFilesNeedReloading2", true);
+              }
             if (configObject.filesNeedReloadingBasedOnContents()) {
+                if (LOG != null && LOG.isDebugEnabled()) {
+                  debugMap.put("filesNeedReloadingBasedOnContents", true);
+                }
               configObject = retrieveFromConfigFiles();
               configFileCache.put(this.getClass(), configObject);
             }
@@ -820,8 +840,17 @@ public abstract class ConfigPropertiesCascadeBase {
         }
       }
     }
+      if (LOG != null && LOG.isDebugEnabled()) {
+        debugMap.put("configObjectPropertyCount", configObject == null ? null 
+            : (configObject.properties() == null ? "propertiesNull" : configObject.properties().size()));
+      }
     
     return configObject;
+    } finally {
+      if (LOG != null && LOG.isDebugEnabled()) {
+        LOG.debug(GrouperClientUtils.mapToString(debugMap));
+      }
+    }
   }
   
   /**

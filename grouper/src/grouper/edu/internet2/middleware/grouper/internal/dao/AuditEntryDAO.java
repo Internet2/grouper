@@ -19,6 +19,8 @@
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
+import java.util.Set;
+
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 
 
@@ -26,9 +28,15 @@ import edu.internet2.middleware.grouper.audit.AuditEntry;
  * audit entry data access methods
  */
 public interface AuditEntryDAO extends GrouperDAO {
+ 
+  /**
+   * audits for a user
+   * @return the audits that that user performed
+   */
+  public Set<AuditEntry> findByActingUser(String actAsMemberId, QueryOptions queryOptions);
   
   /** 
-   * insert or update an audit entry object 
+     * insert or update an audit entry object 
    * @param auditEntry 
    */
   public void saveOrUpdate(AuditEntry auditEntry);

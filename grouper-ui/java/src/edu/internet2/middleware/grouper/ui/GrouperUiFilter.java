@@ -81,6 +81,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.RequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.SessionContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.ExternalSubjectSelfRegister;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.InviteExternalSubjects;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
@@ -898,6 +899,8 @@ public class GrouperUiFilter implements Filter {
         UiSection uiSection = uiSectionForRequest();
         ensureUserAllowedInSection(uiSection, subjectLoggedIn);
       }
+
+      TextContainer.retrieveFromRequest();
       
       filterChain.doFilter(httpServletRequest, response);
       
