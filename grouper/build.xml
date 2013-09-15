@@ -400,7 +400,14 @@
         <include name="*.example.*"/>
       </fileset>
     </copy>
-
+  	
+    <mkdir dir="${dist.binary.zip}/misc"/>
+    <copy todir="${dist.binary.zip}/misc">
+      <fileset dir="misc">
+        <include name="*.example.*"/>
+      </fileset>
+    </copy>
+    
     <copy file="${dist.binary.zip}/conf/ehcache.example.xml" tofile="${dist.binary.zip}/conf/ehcache.xml" />
     <copy file="${dist.binary.zip}/misc/grouper.example.properties" tofile="${dist.binary.zip}/conf/grouper.properties" />
     <copy file="${dist.binary.zip}/misc/grouper.client.example.properties" tofile="${dist.binary.zip}/conf/grouper.client.properties" />
