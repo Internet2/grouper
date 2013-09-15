@@ -398,6 +398,7 @@
     <copy todir="${dist.binary.zip}/conf">
       <fileset dir="conf">
         <include name="*.example.*"/>
+        <include name="*.base.*"/>
       </fileset>
     </copy>
   	
