@@ -5,12 +5,12 @@ var guiAjaxSessionProblem = "There was an error communicating with the server.  
 function guiRoundCorners() {
   //round those corners
   //IE messes up
-  if (!jQuery.browser.msie) {
-    Nifty("div.sectionBody", "bottom");   
-    Nifty("div.sectionHeader", "top");   
+//  if (!jQuery.browser.msie) {
+//    Nifty("div.sectionBody", "bottom");   
+//    Nifty("div.sectionHeader", "top");   
     //this leaves a white line for some reason...
     //Nifty("div#navbar"); 
-  }  
+//  }  
 }
 
 $(document).ready(function(){
