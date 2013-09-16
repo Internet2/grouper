@@ -40,6 +40,14 @@ public class GuiSubject implements Serializable {
   
   /** subject */
   private Subject subject;
+
+  /**
+   * e.g. &lt;a href="#"&gt;John Smith&lt;/a&gt;
+   * @return short link
+   */
+  public String getShortLink() {
+    return this.getScreenLabel();
+  }
   
   /**
    * init screen labels

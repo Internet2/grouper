@@ -13,6 +13,27 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 public class GrouperRequestContainer {
 
   /**
+   * current gui audit entry  being displayed
+   */
+  public GuiAuditEntry guiAuditEntry = null;
+
+  /**
+   * current gui audit entry  being displayed
+   * @return audit
+   */
+  public GuiAuditEntry getGuiAuditEntry() {
+    return this.guiAuditEntry;
+  }
+
+  /**
+   * current gui audit entry  being displayed
+   * @param guiAuditEntry1
+   */
+  public void setGuiAuditEntry(GuiAuditEntry guiAuditEntry1) {
+    this.guiAuditEntry = guiAuditEntry1;
+  }
+
+  /**
    * retrieveFromSession, cannot be null
    * @return the app state in request scope
    */

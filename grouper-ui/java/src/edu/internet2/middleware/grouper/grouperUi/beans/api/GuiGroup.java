@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
@@ -39,6 +40,20 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 @SuppressWarnings("serial")
 public class GuiGroup extends GuiObjectBase implements Serializable {
 
+  /**
+   * &lt;a href="#" rel="tooltip" data-html="true" data-delay-show='200' data-placement="right" title="&amp;lt;strong&amp;gt;FOLDER:&amp;lt;/strong&amp;gt;&amp;lt;br /&amp;gt;Full : Path : To : The : Entity&lt;br /&gt;&lt;br /&gt;This is the description for this entity. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.">Editors</a>
+   * @return short link
+   */
+  public String getShortLink() {
+    
+    if (this.group == null) {
+      return TextContainer.retrieveFromRequest().getText().get("guiGroupUnknownGroup");
+    }
+
+    return this.group.getDisplayExtension();
+    
+  }
+  
   /** group */
   private Group group;
   

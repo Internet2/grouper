@@ -26,6 +26,8 @@ import java.text.SimpleDateFormat;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.SimpleMembershipUpdateContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 
@@ -95,6 +97,26 @@ public class GuiMember implements Serializable {
    */
   public boolean isHasDisabledString() {
     return this.membership != null && this.membership.getDisabledTime() != null;
+  }
+  
+  /**
+   * 
+   * @return the short link for a webpage for this member
+   */
+  public String getShortLink() {
+    Member theMember = this.getMember();
+
+    GuiSubject guiSubject = null;
+
+    if (theMember != null) {
+      guiSubject = this.getGuiSubject();
+    }
+    
+    if (guiSubject == null) { 
+      return TextContainer.retrieveFromRequest().getText().get("guiMemberUnknownMember");
+    }
+    
+    return this.getGuiSubject().getShortLink();
   }
   
   /**

@@ -102,6 +102,8 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 public class GrouperHelper {
+  
+  /** logger */
 	protected static final Log LOG = LogFactory.getLog(GrouperHelper.class);
 
 	private static Map superPrivs = null; //Privs automatically granted to the
