@@ -3,8 +3,13 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -44,21 +49,53 @@ public class IndexContainer {
    * @return audits
    */
   public Set<GuiAuditEntry> getGuiAuditEntriesRecentActivity() {
-    if (this.guiAuditEntriesRecentActivity == null) {
-      GrouperSession grouperSession = GrouperSession.staticGrouperSession();
-      Member member = MemberFinder.findBySubject(grouperSession, grouperSession.getSubject(), true);
-      QueryOptions queryOptions = new QueryOptions();
-      queryOptions.paging(6, 1, false);
-      Set<AuditEntry> auditEntries = GrouperDAOFactory.getFactory().getAuditEntry().findByActingUser(member.getUuid(), queryOptions);
+    
+    Map<String, Object> debugLog = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+    try {
+      if (this.guiAuditEntriesRecentActivity == null) {
+        if (LOG.isDebugEnabled()) {
+          debugLog.put("inittingRecentActivity", true);
+        }
+        GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+        Subject subject = grouperSession.getSubject();
 
-      this.guiAuditEntriesRecentActivity = new LinkedHashSet<GuiAuditEntry>();
-      
-      for (AuditEntry auditEntry : GrouperUtil.nonNull(auditEntries)) {
-        this.guiAuditEntriesRecentActivity.add(new GuiAuditEntry(auditEntry));
+        if (LOG.isDebugEnabled()) {
+          debugLog.put("userName", subject == null ? null : subject.getId() + " - " + subject.getName());
+        }
+        
+        Member member = MemberFinder.findBySubject(grouperSession, subject, true);
+
+        QueryOptions queryOptions = new QueryOptions();
+        queryOptions.paging(6, 1, false);
+
+        Set<AuditEntry> auditEntries = GrouperDAOFactory.getFactory().getAuditEntry().findByActingUser(member.getUuid(), queryOptions);
+  
+        if (LOG.isDebugEnabled()) {
+          debugLog.put("resultsFromDb", GrouperUtil.length(auditEntries));
+        }
+        
+        this.guiAuditEntriesRecentActivity = new LinkedHashSet<GuiAuditEntry>();
+        
+        for (AuditEntry auditEntry : GrouperUtil.nonNull(auditEntries)) {
+          this.guiAuditEntriesRecentActivity.add(new GuiAuditEntry(auditEntry));
+        }
+  
+      } else {
+        if (LOG.isDebugEnabled()) {
+          debugLog.put("inittingRecentActivity", false);
+        }
       }
 
+      if (LOG.isDebugEnabled()) {
+        debugLog.put("recentActivitySize", GrouperUtil.length(this.guiAuditEntriesRecentActivity));
+      }
+      
+      return this.guiAuditEntriesRecentActivity;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugLog));
+      }
     }
-    return this.guiAuditEntriesRecentActivity;
   }
 
   /**
@@ -120,6 +157,8 @@ public class IndexContainer {
    * 
    */
   private Set<GuiAttributeDefName> guiAttributeDefNamesMyServices;
+  /** logger */
+  protected static final Log LOG = LogFactory.getLog(IndexContainer.class);
 
   /**
    * for index page, this is a short list of user's services, lazy load if null
