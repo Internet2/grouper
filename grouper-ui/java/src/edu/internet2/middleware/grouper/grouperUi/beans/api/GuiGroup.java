@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -50,7 +51,12 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
       return TextContainer.retrieveFromRequest().getText().get("guiGroupUnknownGroup");
     }
 
-    return this.group.getDisplayExtension();
+    return "<a href=\"#\" rel=\"tooltip\" data-html=\"true\" data-delay-show=\"200\" data-placement=\"right\" title=\"&lt;strong&gt;" 
+      + TextContainer.retrieveFromRequest().getTextEscapeDouble().get("guiGroupTooltipFolderLabel") 
+      + ":&lt;/strong&gt;&lt;br /&gt;" 
+      + GrouperUtil.xmlEscape(GrouperUtil.parentStemNameFromName(group.getDisplayName()), true) 
+      + "&lt;br /&gt;&lt;br /&gt;" + GrouperUtil.xmlEscape(group.getDescription(), true) + "\">" 
+      + GrouperUtil.xmlEscape(this.group.getDisplayExtension(), true) + "</a>";
     
   }
   

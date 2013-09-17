@@ -116,7 +116,7 @@ public class GuiMember implements Serializable {
       return TextContainer.retrieveFromRequest().getText().get("guiMemberUnknownMember");
     }
     
-    return this.getGuiSubject().getShortLink();
+    return guiSubject.getShortLink();
   }
   
   /**

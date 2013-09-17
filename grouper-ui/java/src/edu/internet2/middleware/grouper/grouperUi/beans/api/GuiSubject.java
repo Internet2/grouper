@@ -26,7 +26,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -46,7 +45,8 @@ public class GuiSubject implements Serializable {
    * @return short link
    */
   public String getShortLink() {
-    return this.getScreenLabel();
+    this.initScreenLabels();
+    return this.screenLabelShort2html;
   }
   
   /**
@@ -66,6 +66,21 @@ public class GuiSubject implements Serializable {
         this.screenLabelShort = screenLabel;
       } else {
         this.screenLabelShort = StringUtils.abbreviate(screenLabel, maxWidth);
+      }
+
+      screenLabel = GrouperUiUtils.convertSubjectToLabelHtmlConfigured2(this.subject);
+      
+      maxWidth = GrouperUiConfig.retrieveConfig().propertyValueInt("subject2.maxChars", 40);
+      if (maxWidth == -1) {
+        this.screenLabelShort2 = screenLabel;
+      } else {
+        this.screenLabelShort2 = StringUtils.abbreviate(screenLabel, maxWidth);
+      }
+      boolean hasTooltip = !StringUtils.isBlank(subject.getDescription()) && !StringUtils.equals(subject.getName(), subject.getDescription());
+      if (hasTooltip) {
+        this.screenLabelShort2html = "<a href=\"view-subject.html\" rel=\"tooltip\" data-html=\"true\" data-delay-show=\"200\" data-placement=\"right\" title=\"" + GrouperUtil.xmlEscape(subject.getDescription(), true)  + "\">" + this.screenLabelShort2 + "</a>";
+      } else {
+        this.screenLabelShort2html = "<a href=\"view-subject.html\" data-html=\"true\" data-delay-show=\"200\" data-placement=\"right\">" + this.screenLabelShort2 + "</a>";
       }
     }
   }
@@ -107,6 +122,16 @@ public class GuiSubject implements Serializable {
    */
   private String screenLabelShort = null;
 
+  /**
+   * new short label in v2
+   */
+  private String screenLabelShort2 = null;
+  
+  /**
+   * new short label in v2 with html tooltip and link
+   */
+  private String screenLabelShort2html = null;
+  
   /**
    * subject
    * @return the subject

@@ -127,16 +127,35 @@ public class GuiAuditEntry {
   }
   
   /**
+   * enum for this audit category and action
+   */
+  private AuditTypeBuiltin auditTypeBuiltin = null;
+  
+  /**
+   * enum for this audit category and action
+   * @return enum
+   */
+  private AuditTypeBuiltin getAuditTypeBuiltin() {
+    if (this.auditTypeBuiltin == null) {
+      this.auditTypeBuiltin = AuditTypeBuiltin.valueOfIgnoreCase(this.auditEntry.getAuditType().getAuditCategory(), 
+          this.auditEntry.getAuditType().getActionName(), false);
+      
+    }
+    return this.auditTypeBuiltin;
+  }
+  
+  /**
    * convert the audit to an audit line for screen
    * @return the audit line
    */
   public String getAuditLine() {
+
     String actionName = this.auditEntry.getAuditType().getActionName();
     String category = this.auditEntry.getAuditType().getAuditCategory();
     
-    AuditTypeBuiltin auditTypeBuiltin = AuditTypeBuiltin.valueOfIgnoreCase(category, actionName, false);
+    AuditTypeBuiltin theAuditTypeBuiltin = this.getAuditTypeBuiltin();
     
-    if (auditTypeBuiltin == null) {
+    if (theAuditTypeBuiltin == null) {
       LOG.error("Cant find audit builtin for category: " + category + " and action: " + actionName);
       return TextContainer.retrieveFromRequest().getText().get("auditsUndefinedAction");
     }
@@ -144,7 +163,7 @@ public class GuiAuditEntry {
     //set this so it can be accessed from text
     GrouperRequestContainer.retrieveFromRequestOrCreate().setGuiAuditEntry(this);
     
-    switch (auditTypeBuiltin) {
+    switch (theAuditTypeBuiltin) {
       
       case ATTRIBUTE_ASSIGN_ANYMSHIP_ADD:
         
@@ -324,8 +343,10 @@ public class GuiAuditEntry {
       
       case GROUP_ADD:
         
-        break;
-      
+        this.setupGroup();
+        
+        return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_ADD");
+
       case GROUP_ATTRIBUTE_ADD:
         
         break;
@@ -395,29 +416,20 @@ public class GuiAuditEntry {
         break;
       
       case GROUP_UPDATE:
+
+        this.setupGroup();
         
-        break;
+        return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_UPDATE");
       
       case MEMBER_CHANGE_SUBJECT:
         
         break;
       
       case MEMBERSHIP_GROUP_ADD:
-
-        String groupId = this.auditEntry.retrieveStringValue("groupId");
-        String memberId = this.auditEntry.retrieveStringValue("memberId");
         
-        Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, false);
+        this.setupGroup();
         
-        Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), memberId, false);
-
-        GuiGroup guiGroup = new GuiGroup(group);
-        
-        this.setGuiGroup(guiGroup);
-        
-        GuiMember guiMember = new GuiMember(member);
-
-        this.setGuiMember(guiMember);
+        this.setupMember();
         
         return TextContainer.retrieveFromRequest().getText().get("audits_MEMBERSHIP_GROUP_ADD");
         
@@ -498,6 +510,33 @@ public class GuiAuditEntry {
     LOG.error("Cant find audit builtin for category: " + category + " and action: " + actionName);
     return TextContainer.retrieveFromRequest().getText().get("auditsUndefinedAction");
     
+  }
+
+  /**
+   * setup a group from an audit
+   */
+  private void setupGroup() {
+    String groupIdName = "groupId";
+    AuditTypeBuiltin theAuditTypeBuiltin = this.getAuditTypeBuiltin();
+    if (theAuditTypeBuiltin == AuditTypeBuiltin.GROUP_ADD || theAuditTypeBuiltin == AuditTypeBuiltin.GROUP_DELETE
+        || theAuditTypeBuiltin == AuditTypeBuiltin.GROUP_UPDATE) {
+      groupIdName = "id";
+    }
+    String groupId = this.auditEntry.retrieveStringValue(groupIdName);
+    Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, false);
+    GuiGroup guiGroup = new GuiGroup(group);
+    this.setGuiGroup(guiGroup);
+    
+  }
+  
+  /**
+   * setup a member from an audit
+   */
+  private void setupMember() {
+    String memberId = this.auditEntry.retrieveStringValue("memberId");
+    Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), memberId, false);
+    GuiMember guiMember = new GuiMember(member);
+    this.setGuiMember(guiMember);
   }
   
 }

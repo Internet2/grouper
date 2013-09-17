@@ -391,6 +391,9 @@ public class GrouperUiUtils {
   /** map from source to subject screen EL */
   private static Map<String, String> subjectToScreenEl = null;
 
+  /** map from source to subject screen EL */
+  private static Map<String, String> subjectToScreenEl2 = null;
+
   /** map from source to subject screen EL the long version */
   private static Map<String, String> subjectToScreenElLong = null;
 
@@ -1290,6 +1293,62 @@ public class GrouperUiUtils {
       if (StringUtils.isBlank(label)) {
 
         label = subject.getSourceId() + " - " + subject.getId() + " - " + subject.getName();
+      }
+
+      return label;
+
+    }
+    //run the screen EL
+    Map<String, Object> variableMap = new HashMap<String, Object>();
+    variableMap.put("subject", subject);
+    variableMap.put("grouperUiUtils", new GrouperUiUtils());
+    String result = GrouperUtil.substituteExpressionLanguage(screenEl, variableMap, false, true, true);
+    return result;
+  }
+
+  /**
+   * get a v2 label from a subject based on grouper-ui.properties
+   * @param subject
+   * @return the subject html string
+   */
+  public static String convertSubjectToLabelHtmlConfigured2(Subject subject) {
+    if (subject == null) {
+      return "";
+    }
+  
+    if (subjectToScreenEl2 == null) {
+      {
+        Map<String, String> theSubjectToScreenEl = new HashMap<String, String>();
+        Properties propertiesSettings = GrouperUiConfig.retrieveConfig().properties();
+        
+        int index = 0;
+        while (true) {
+        
+          String sourceName = GrouperUtil.propertiesValue(propertiesSettings, 
+              "grouperUi.screenLabel2.sourceId." + index);
+          String screenEl = GrouperUtil.propertiesValue(propertiesSettings, 
+              "grouperUi.screenLabel2.screenEl." + index);
+          
+          if (StringUtils.isBlank(sourceName)) {
+            break;
+          }
+          if (!StringUtils.isBlank(screenEl)) {
+            theSubjectToScreenEl.put(sourceName, screenEl);
+          }
+          
+          index++;
+        }
+        subjectToScreenEl2 = theSubjectToScreenEl;
+      }
+    }
+    String screenEl = subjectToScreenEl2.get(subject.getSource().getId());
+
+    if (StringUtils.isBlank(screenEl)) {
+
+      String label = subject.getName();
+      if (StringUtils.isBlank(label)) {
+
+        label = subject.getSourceId() + " - " + subject.getId();
       }
 
       return label;
