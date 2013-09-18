@@ -315,6 +315,31 @@ public class GrouperUtil {
   }
 
   /**
+   * escape single quotes in javascript
+   * @param string
+   * @return the escaped string
+   */
+  public static String escapeSingleQuotes(String string) {
+    if (string == null) {
+      return string;
+    }
+    return string.replace("'", "\'");
+  }
+  
+  /**
+   * escape double quotes in javascript
+   * @param string
+   * @return the escaped string
+   */
+  public static String escapeDoubleQuotes(String string) {
+    if (string == null) {
+      return string;
+    }
+    return string.replace("\"", "&quot;");
+  }
+  
+
+  /**
    * e.g. ('g:gsa', 'jdbc')
    * @param sources
    * @return the in string, of sources sorted alphabetically
