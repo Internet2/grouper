@@ -17,8 +17,11 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -29,6 +32,29 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
  *
  */
 public class GuiAuditEntry {
+
+  /**
+   * gui attribute def name for the audit if applicable
+   */
+  private GuiAttributeDefName guiAttributeDefName;
+  
+  
+  
+  /**
+   * gui attribute def name for the audit if applicable
+   * @return attr def name
+   */
+  public GuiAttributeDefName getGuiAttributeDefName() {
+    return this.guiAttributeDefName;
+  }
+
+  /**
+   * gui attribute def name for the audit if applicable
+   * @param guiAttributeDefName1
+   */
+  public void setGuiAttributeDefName(GuiAttributeDefName guiAttributeDefName1) {
+    this.guiAttributeDefName = guiAttributeDefName1;
+  }
 
   /**
    * gui group for the audit if applicable
@@ -214,9 +240,12 @@ public class GuiAuditEntry {
         break;
       
       case ATTRIBUTE_ASSIGN_IMMMSHIP_ADD:
+        this.setupMember();
+        this.setupAttributeDefName();
         
-        break;
-      
+        return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_IMMMSHIP_ADD");
+
+        
       case ATTRIBUTE_ASSIGN_IMMMSHIP_DELETE:
         
         break;
@@ -528,12 +557,32 @@ public class GuiAuditEntry {
     this.setGuiGroup(guiGroup);
     
   }
-  
+
+
+  /**
+   * setup a group from an audit
+   */
+  private void setupAttributeDefName() {
+    String attributeDefNameIdName = "attributeDefNameId";
+    String attributeDefNameId = this.auditEntry.retrieveStringValue(attributeDefNameIdName);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, false);
+    GuiAttributeDefName guiAttributeDefName = new GuiAttributeDefName(attributeDefName);
+    this.setGuiAttributeDefName(guiAttributeDefName);
+    
+  }
+
   /**
    * setup a member from an audit
    */
   private void setupMember() {
-    String memberId = this.auditEntry.retrieveStringValue("memberId");
+    
+    String memberIdName = "memberId";
+    AuditTypeBuiltin theAuditTypeBuiltin = this.getAuditTypeBuiltin();
+    if (theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_IMMMSHIP_ADD || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_IMMMSHIP_DELETE
+        || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_IMMMSHIP_UPDATE) {
+      memberIdName = "ownerMemberId";
+    }
+    String memberId = this.auditEntry.retrieveStringValue(memberIdName);
     Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), memberId, false);
     GuiMember guiMember = new GuiMember(member);
     this.setGuiMember(guiMember);

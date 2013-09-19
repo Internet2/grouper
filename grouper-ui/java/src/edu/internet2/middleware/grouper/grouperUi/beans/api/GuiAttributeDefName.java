@@ -21,6 +21,8 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 import java.io.Serializable;
 
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 
 
@@ -31,6 +33,66 @@ import edu.internet2.middleware.grouper.misc.GrouperObject;
  */
 @SuppressWarnings("serial")
 public class GuiAttributeDefName extends GuiObjectBase implements Serializable {
+
+  /**
+   * &lt;a href="#" rel="tooltip" data-html="true" data-delay-show='200' data-placement="right" title="&amp;lt;strong&amp;gt;FOLDER:&amp;lt;/strong&amp;gt;&amp;lt;br /&amp;gt;Full : Path : To : The : Entity&lt;br /&gt;&lt;br /&gt;This is the description for this entity. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.">Editors</a>
+   * @return short link
+   */
+  public String getShortLink() {
+    
+    return shortLinkHelper(false, false);
+  }
+  
+  /**
+   * display short link with image next to it in li
+   * &lt;a href="#" rel="tooltip" data-html="true" data-delay-show='200' data-placement="right" title="&amp;lt;strong&amp;gt;FOLDER:&amp;lt;/strong&amp;gt;&amp;lt;br /&amp;gt;Full : Path : To : The : Entity&lt;br /&gt;&lt;br /&gt;This is the description for this entity. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.">Editors</a>
+   * @return short link
+   */
+  public String getShortLinkWithIcon() {
+    
+    return shortLinkHelper(true, false);
+  }
+
+  /**
+   * display short link with image next to it in li and the path info below it
+   * &lt;a href="#" rel="tooltip" data-html="true" data-delay-show='200' data-placement="right" title="&amp;lt;strong&amp;gt;FOLDER:&amp;lt;/strong&amp;gt;&amp;lt;br /&amp;gt;Full : Path : To : The : Entity&lt;br /&gt;&lt;br /&gt;This is the description for this entity. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.">Editors</a>
+   * @return short link
+   */
+  public String getShortLinkWithIconAndPath() {
+    
+    return shortLinkHelper(true, true);
+  }
+
+  /**
+   * 
+   * @param showIcon
+   * @return the link
+   */
+  private String shortLinkHelper(boolean showIcon, boolean showPath) {
+    
+    if (this.attributeDefName == null) {
+      //TODO put icon here?
+      return TextContainer.retrieveFromRequest().getText().get("guiAttributeDefNameUnknownAttributeDefName");
+    }
+    
+    GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiAttributeDefName(this);
+    GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowIcon(showIcon);
+    GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowPath(showPath);
+    
+    try {
+      
+      String result = TextContainer.retrieveFromRequest().getText().get("guiAttributeDefNameShortLink");
+      return result;
+      
+    } finally {
+
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiAttributeDefName(null);
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowIcon(false);
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowPath(false);
+
+    }
+
+  }
 
   /** folder */
   private AttributeDefName attributeDefName;

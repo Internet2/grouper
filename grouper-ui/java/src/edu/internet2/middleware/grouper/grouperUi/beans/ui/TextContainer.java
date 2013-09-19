@@ -85,30 +85,6 @@ public class TextContainer {
   }
   
   /**
-   * escape single quotes in javascript
-   * @param string
-   * @return the escaped string
-   */
-  private static String escapeSingleQuotes(String string) {
-    if (string == null) {
-      return string;
-    }
-    return string.replace("'", "\'");
-  }
-  
-  /**
-   * escape double quotes in javascript
-   * @param string
-   * @return the escaped string
-   */
-  private static String escapeDoubleQuotes(String string) {
-    if (string == null) {
-      return string;
-    }
-    return string.replace("\"", "&quot;");
-  }
-  
-  /**
    * text map
    */
   @SuppressWarnings("serial")
@@ -135,7 +111,7 @@ public class TextContainer {
      */
     @Override
     public String get(Object key) {
-      return escapeSingleQuotes(textValue((String)key));
+      return GrouperUtil.escapeSingleQuotes(textValue((String)key));
     }
 
   };
@@ -167,7 +143,7 @@ public class TextContainer {
      */
     @Override
     public String get(Object key) {
-      return escapeDoubleQuotes(textValue((String)key));
+      return GrouperUtil.escapeDoubleQuotes(textValue((String)key));
     }
 
   };
@@ -183,7 +159,7 @@ public class TextContainer {
      */
     @Override
     public String get(Object key) {
-      return escapeSingleQuotes(escapeDoubleQuotes(textValue((String)key)));
+      return GrouperUtil.escapeSingleQuotes(GrouperUtil.escapeDoubleQuotes(textValue((String)key)));
     }
 
   };

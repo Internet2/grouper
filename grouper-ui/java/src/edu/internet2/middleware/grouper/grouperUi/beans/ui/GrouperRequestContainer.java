@@ -13,9 +13,33 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 public class GrouperRequestContainer {
 
   /**
+   * common request bean
+   */
+  private CommonRequestContainer commonRequestContainer;
+  
+  /**
+   * common request bean
+   * @return common request bean
+   */
+  public CommonRequestContainer getCommonRequestContainer() {
+    if (this.commonRequestContainer == null) {
+      this.commonRequestContainer = new CommonRequestContainer();
+    }
+    return this.commonRequestContainer;
+  }
+
+  /**
+   * common request bean
+   * @param commonRequestBean1
+   */
+  public void setCommonRequestContainer(CommonRequestContainer commonRequestBean1) {
+    this.commonRequestContainer = commonRequestBean1;
+  }
+
+  /**
    * current gui audit entry  being displayed
    */
-  public GuiAuditEntry guiAuditEntry = null;
+  private GuiAuditEntry guiAuditEntry = null;
 
   /**
    * current gui audit entry  being displayed

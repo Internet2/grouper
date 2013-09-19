@@ -26,6 +26,8 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -35,6 +37,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * subject for gui has all attributes etc, and getter to be accessed from screen
  */
+@SuppressWarnings("serial")
 public class GuiSubject implements Serializable {
   
   /** subject */
@@ -77,12 +80,32 @@ public class GuiSubject implements Serializable {
         this.screenLabelShort2 = StringUtils.abbreviate(screenLabel, maxWidth);
       }
       boolean hasTooltip = !StringUtils.isBlank(subject.getDescription()) && !StringUtils.equals(subject.getName(), subject.getDescription());
-      if (hasTooltip) {
-        this.screenLabelShort2html = "<a href=\"view-subject.html\" rel=\"tooltip\" data-html=\"true\" data-delay-show=\"200\" data-placement=\"right\" title=\"" + GrouperUtil.xmlEscape(subject.getDescription(), true)  + "\">" + this.screenLabelShort2 + "</a>";
-      } else {
-        this.screenLabelShort2html = "<a href=\"view-subject.html\" data-html=\"true\" data-delay-show=\"200\" data-placement=\"right\">" + this.screenLabelShort2 + "</a>";
+      
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiSubject(this);
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowTooltip(hasTooltip);
+      
+      try {
+        
+        //"<a href=\"view-subject.html\" rel=\"tooltip\" data-html=\"true\" data-delay-show=\"200\" data-placement=\"right\" title=\"" + GrouperUtil.xmlEscape(subject.getDescription(), true)  + "\">" + this.screenLabelShort2 + "</a>";
+        //"<a href=\"view-subject.html\" data-html=\"true\" data-delay-show=\"200\" data-placement=\"right\">" + this.screenLabelShort2 + "</a>";
+        this.screenLabelShort2html = TextContainer.retrieveFromRequest().getText().get("guiSubjectShortLink");
+        
+      } finally {
+
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiSubject(null);
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowTooltip(false);
+
       }
+
     }
+  }
+
+  /**
+   * short screen label for ui v2
+   * @return label
+   */
+  public String getScreenLabelShort2() {
+    return this.screenLabelShort2;
   }
 
   /**
