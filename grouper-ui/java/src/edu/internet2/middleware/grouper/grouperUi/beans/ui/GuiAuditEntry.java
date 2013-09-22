@@ -17,6 +17,8 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
@@ -24,6 +26,7 @@ import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 
 
@@ -61,8 +64,28 @@ public class GuiAuditEntry {
    */
   private GuiGroup guiGroup;
 
-  
-  
+
+  /**
+   * gui stem for the audit if applicable
+   */
+  private GuiStem guiStem;
+
+  /**
+   * gui stem for the audit if applicable
+   * @return stem
+   */
+  public GuiStem getGuiStem() {
+    return this.guiStem;
+  }
+
+  /**
+   * gui stem for the audit if applicable
+   * @param guiStem1
+   */
+  public void setGuiStem(GuiStem guiStem1) {
+    this.guiStem = guiStem1;
+  }
+
   /**
    * gui group for the audit if applicable
    * @return the gui group
@@ -240,6 +263,7 @@ public class GuiAuditEntry {
         break;
       
       case ATTRIBUTE_ASSIGN_IMMMSHIP_ADD:
+
         this.setupMember();
         this.setupAttributeDefName();
         
@@ -247,12 +271,18 @@ public class GuiAuditEntry {
 
         
       case ATTRIBUTE_ASSIGN_IMMMSHIP_DELETE:
+
+        this.setupMember();
+        this.setupAttributeDefName();
         
-        break;
-      
+        return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_IMMMSHIP_DELETE");
+
       case ATTRIBUTE_ASSIGN_IMMMSHIP_UPDATE:
         
-        break;
+        this.setupMember();
+        this.setupAttributeDefName();
+        
+        return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_IMMMSHIP_UPDATE");
       
       case ATTRIBUTE_ASSIGN_MEMBER_ADD:
         
@@ -405,9 +435,11 @@ public class GuiAuditEntry {
         break;
       
       case GROUP_DELETE:
+
+        this.setupGroup();
         
-        break;
-      
+        return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_DELETE");
+              
       case GROUP_FIELD_ADD:
         
         break;
@@ -472,11 +504,19 @@ public class GuiAuditEntry {
         
       case MEMBERSHIP_GROUP_DELETE:
         
-        break;
+        this.setupGroup();
+        
+        this.setupMember();
+        
+        return TextContainer.retrieveFromRequest().getText().get("audits_MEMBERSHIP_GROUP_DELETE");
       
       case MEMBERSHIP_GROUP_UPDATE:
         
-        break;
+        this.setupGroup();
+        
+        this.setupMember();
+        
+        return TextContainer.retrieveFromRequest().getText().get("audits_MEMBERSHIP_GROUP_UPDATE");
       
       case PRIVILEGE_GROUP_ADD:
         
@@ -492,19 +532,33 @@ public class GuiAuditEntry {
         
       case PRIVILEGE_STEM_ADD:
         
-        break;
-      
+        this.setupStem();
+        this.setupMember();
+        this.setupPrivilege();
+          
+        return TextContainer.retrieveFromRequest().getText().get("audits_PRIVILEGE_STEM_ADD");
+
       case PRIVILEGE_STEM_DELETE:
         
-        break;
+        this.setupStem();
+        this.setupMember();
+        this.setupPrivilege();
+          
+        return TextContainer.retrieveFromRequest().getText().get("audits_PRIVILEGE_STEM_DELETE");
       
       case PRIVILEGE_STEM_UPDATE:
         
-        break;
+        this.setupStem();
+        this.setupMember();
+        this.setupPrivilege();
+          
+        return TextContainer.retrieveFromRequest().getText().get("audits_PRIVILEGE_STEM_UPDATE");
       
       case STEM_ADD:
+
+        this.setupStem();
         
-        break;
+        return TextContainer.retrieveFromRequest().getText().get("audits_STEM_ADD");
       
       case STEM_COPY:
         
@@ -512,7 +566,9 @@ public class GuiAuditEntry {
       
       case STEM_DELETE:
         
-        break;
+        this.setupStem();
+        
+        return TextContainer.retrieveFromRequest().getText().get("audits_STEM_DELETE");
       
       case STEM_MOVE:
         
@@ -520,7 +576,9 @@ public class GuiAuditEntry {
       
       case STEM_UPDATE:
         
-        break;
+        this.setupStem();
+        
+        return TextContainer.retrieveFromRequest().getText().get("audits_STEM_UPDATE");
       
       case XML_IMPORT:
         
@@ -586,6 +644,47 @@ public class GuiAuditEntry {
     Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), memberId, false);
     GuiMember guiMember = new GuiMember(member);
     this.setGuiMember(guiMember);
+  }
+  
+  /**
+   * privilege name for audit
+   */
+  private String privilegeName = null;
+  
+  /**
+   * privilegeName for audit
+   * @return the privilege name
+   */
+  public String getPrivilegeName() {
+    return this.privilegeName;
+  }
+
+  /**
+   * setup privilege
+   */
+  private void setupPrivilege() {
+
+    String privilegeNameLabel = "privilegeName";
+    
+    this.privilegeName = this.auditEntry.retrieveStringValue(privilegeNameLabel);
+    
+  }
+  
+  /**
+   * setup a group from an audit
+   */
+  private void setupStem() {
+    String stemIdName = "stemId";
+    AuditTypeBuiltin theAuditTypeBuiltin = this.getAuditTypeBuiltin();
+    if (theAuditTypeBuiltin == AuditTypeBuiltin.STEM_ADD || theAuditTypeBuiltin == AuditTypeBuiltin.STEM_DELETE
+        || theAuditTypeBuiltin == AuditTypeBuiltin.STEM_UPDATE) {
+      stemIdName = "id";
+    }
+    String stemId = this.auditEntry.retrieveStringValue(stemIdName);
+    Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemId, false);
+    GuiStem guiStem = new GuiStem(stem);
+    this.setGuiStem(guiStem);
+    
   }
   
 }

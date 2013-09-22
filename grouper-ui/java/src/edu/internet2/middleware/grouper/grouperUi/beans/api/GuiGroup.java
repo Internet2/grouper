@@ -79,7 +79,7 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
     
     if (this.group == null) {
       //TODO put icon here?
-      return TextContainer.retrieveFromRequest().getText().get("guiGroupUnknownGroup");
+      return TextContainer.retrieveFromRequest().getText().get("guiObjectUnknown");
     }
     
     GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiGroup(this);

@@ -72,7 +72,7 @@ public class GuiAttributeDefName extends GuiObjectBase implements Serializable {
     
     if (this.attributeDefName == null) {
       //TODO put icon here?
-      return TextContainer.retrieveFromRequest().getText().get("guiAttributeDefNameUnknownAttributeDefName");
+      return TextContainer.retrieveFromRequest().getText().get("guiPrivilegeUnknownPrivilege");
     }
     
     GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiAttributeDefName(this);

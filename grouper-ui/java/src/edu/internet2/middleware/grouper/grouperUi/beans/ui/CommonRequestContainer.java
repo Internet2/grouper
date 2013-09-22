@@ -3,6 +3,8 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPrivilege;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 
 
@@ -95,6 +97,27 @@ public class CommonRequestContainer {
   }
 
   /**
+   * gui stem
+   */
+  private GuiStem guiStem;
+
+  /**
+   * gui stem
+   * @return gui stem
+   */
+  public GuiStem getGuiStem() {
+    return this.guiStem;
+  }
+
+  /**
+   * gui stem
+   * @param guiStem1
+   */
+  public void setGuiStem(GuiStem guiStem1) {
+    this.guiStem = guiStem1;
+  }
+
+  /**
    * gui group
    */
   private GuiGroup guiGroup;
@@ -115,6 +138,27 @@ public class CommonRequestContainer {
     this.guiGroup = guiGroup1;
   }
   
+  /**
+   * gui privilege
+   */
+  private GuiPrivilege guiPrivilege;
+  
+  /**
+   * gui privilege
+   * @return priv
+   */
+  public GuiPrivilege getGuiPrivilege() {
+    return this.guiPrivilege;
+  }
+
+  /**
+   * gui privilege
+   * @param guiPrivilege1
+   */
+  public void setGuiPrivilege(GuiPrivilege guiPrivilege1) {
+    this.guiPrivilege = guiPrivilege1;
+  }
+
   /**
    * gui member
    */
