@@ -261,6 +261,9 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 			searchObj.put("subjectSource", subjectSource);
 			searchObj.put("searchInNameOrExtension", searchInNameOrExtension);
 			searchObj.put("searchInDisplayNameOrExtension", searchInDisplayNameOrExtension);
+			if (forStem) {
+				searchObj.put("forStem", "true");
+			}
 		} else {
 			//Retrieve last search
 			searchObj = (Map) session.getAttribute("searchObj");
@@ -270,6 +273,7 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 			subjectSource = (String) searchObj.get("subjectSource");
 			searchInNameOrExtension = (String) searchObj.get("searchInNameOrExtension");
 			searchInDisplayNameOrExtension = (String) searchObj.get("searchInDisplayNameOrExtension");
+			forStem = "true".equals(searchObj.get("forStem"));
 		}
 		//Deal with paging
 		String startStr = request.getParameter("start");
