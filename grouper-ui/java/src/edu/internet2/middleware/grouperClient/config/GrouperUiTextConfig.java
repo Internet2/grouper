@@ -4,12 +4,16 @@
  */
 package edu.internet2.middleware.grouperClient.config;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,7 +22,9 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.tags.GrouperMessageTag;
 import edu.internet2.middleware.grouper.ui.text.TextBundleBean;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -45,6 +51,36 @@ public class GrouperUiTextConfig extends ConfigPropertiesCascadeBase {
    * the name of the file on classpath, e.g. grouperText/grouper.text.en.us.base.properties
    */
   private String mainExampleConfigClasspath;
+
+  /** tooltip keys */
+  private List<String> tooltipKeys = null;
+
+  /** tooltip values in order of keys */
+  private List<String> tooltipValues = null;
+
+  /** in the text file, terms must start with this prefix.  multiple terms can exist for one tooltip */
+  public static final String TERM_PREFIX = "term.";
+
+  /** in the text file, tooltips must start with this prefix.  there should be one and only one tooltip for a term.
+   * tooltips and terms are linked by the common name, which is the suffix of the text file key.
+   * e.g. tooltip.group=A group is a collection
+   * term.group=Group
+   * term.group=group
+   * 
+   * these are linked because they all end in "group"
+   */
+  public static final String TOOLTIP_PREFIX = "tooltip.";
+
+  /**
+   * target a tooltip on a certain message
+   */
+  public static final String TOOLTIP_TARGETTED_PREFIX = "tooltipTargetted.";
+
+  /**
+   * target a tooltip on a certain message, and make the value of the tooltip
+   * a reference to another tooltip
+   */
+  public static final String TOOLTIP_TARGETTED_REF_PREFIX = "tooltipTargettedRef.";
 
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperUiTextConfig.class);
@@ -349,4 +385,120 @@ public class GrouperUiTextConfig extends ConfigPropertiesCascadeBase {
     
     return configObject;
   }
+  
+  /**
+   * init and return the tooltip keys
+   * @return the list of keys
+   */
+  public List<String> tooltipKeys() {
+
+    if (this.tooltipKeys == null) {
+
+      //add properties to map
+      Properties propertiesFromConfig = properties();
+
+      Set<Object> propertiesKeys = propertiesFromConfig.keySet();
+      Map<String, String> propertiesMap = null;
+
+      //loop through the tooltips
+      if (propertiesKeys != null) {
+        propertiesMap = new HashMap<String, String>();
+        for (Object propertiesKeyObject : propertiesKeys) {
+          
+          String propertiesKey = (String)propertiesKeyObject;
+          
+          //see if a key
+          boolean isTerm = propertiesKey.startsWith(TERM_PREFIX);
+                    
+          //if isValue, continue on
+          if (!isTerm) {
+            continue;
+          }
+          
+          //if term then get the term
+          String term = propertiesFromConfig.getProperty(propertiesKey);
+          String termId = propertiesKey.substring(TERM_PREFIX.length());
+          
+          //strip off the .1, .2, etc if it exists
+          if (termId.matches("^.*\\.[0-9]+$")) {
+            int lastDot = termId.lastIndexOf('.');
+            termId = termId.substring(0,lastDot);
+          }
+          
+          String tooltipKey = GrouperMessageTag.TOOLTIP_PREFIX + termId;
+          String tooltip = propertiesFromConfig.getProperty(tooltipKey);
+          
+          //tooltipKeys.add(term);
+          tooltip = TextContainer.convertTooltipTextToHtml(tooltip, term, false);
+
+          //tooltipValues.add(tooltip);
+          propertiesMap.put(term, tooltip);
+        }
+        
+        propertiesMap = sortMapBySubstringFirst(propertiesMap);
+        //convert back to lists
+        this.tooltipKeys = new ArrayList<String>(propertiesMap.keySet());
+        this.tooltipValues = new ArrayList<String>(propertiesMap.values());
+        
+      }
+      
+    }
+    return this.tooltipKeys;
+  }
+
+  /**
+   * convert the properties configuration object to a map object (tree map)
+   * @param inputMap 
+   * @return the 
+   */
+  static Map<String, String> sortMapBySubstringFirst(Map<String, String> inputMap) {
+    if (inputMap == null) {
+      return null;
+    }
+    Map<String, String> resultMap = new TreeMap<String, String>(new Comparator<String>() {
+
+      /**
+       * comparator that puts substrings last
+       * @param o1
+       * @param o2
+       * @return comparison
+       */
+      public int compare(String o1, String o2) {
+        if (o1 == o2) {
+          return 0;
+        }
+        if (o1 == null) {
+          return -1;
+        }
+        if (o2 == null) {
+          return 1;
+        }
+        if (o1.equals(o2)) {
+          return 0;
+        }
+        if (o1.contains(o2)) {
+          return -1;
+        }
+        if (o2.contains(o1)) {
+          return 1;
+        }
+        return o1.compareTo(o2);
+      }
+      
+    });
+    resultMap.putAll(inputMap);
+    return resultMap;
+  }
+
+  /**
+   * init and return the tooltip keys
+   * @return the list of keys
+   */
+  public List<String> tooltipValues() {
+    //init everything
+    tooltipKeys();
+    return this.tooltipValues;
+  }
+
+  
 }

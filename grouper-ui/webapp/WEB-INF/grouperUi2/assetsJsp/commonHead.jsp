@@ -2,6 +2,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- Le styles -->
+<link href="../../grouperExternal/public/assets/css/grouperTooltip.css" rel="stylesheet">
 <link href="../../grouperExternal/public/assets/css/bootstrap.css?updated=02132013_2" rel="stylesheet">
 <link href="../../grouperExternal/public/assets/css/responsive.css" rel="stylesheet">
 <link href="../../grouperExternal/public/assets/css/font-awesome.css" rel="stylesheet">

@@ -26,7 +26,9 @@ import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPrivilege;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 
 
@@ -64,6 +66,26 @@ public class GuiAuditEntry {
    */
   private GuiGroup guiGroup;
 
+  /**
+   * gui privilege
+   */
+  private GuiPrivilege guiPrivilege;
+
+  /**
+   * gui privilege
+   * @return privilege
+   */
+  public GuiPrivilege getGuiPrivilege() {
+    return this.guiPrivilege;
+  }
+
+  /**
+   * gui privilege
+   * @param guiPrivilege1
+   */
+  public void setGuiPrivilege(GuiPrivilege guiPrivilege1) {
+    this.guiPrivilege = guiPrivilege1;
+  }
 
   /**
    * gui stem for the audit if applicable
@@ -647,26 +669,19 @@ public class GuiAuditEntry {
   }
   
   /**
-   * privilege name for audit
-   */
-  private String privilegeName = null;
-  
-  /**
-   * privilegeName for audit
-   * @return the privilege name
-   */
-  public String getPrivilegeName() {
-    return this.privilegeName;
-  }
-
-  /**
    * setup privilege
    */
   private void setupPrivilege() {
 
     String privilegeNameLabel = "privilegeName";
     
-    this.privilegeName = this.auditEntry.retrieveStringValue(privilegeNameLabel);
+    String privilegeName = this.auditEntry.retrieveStringValue(privilegeNameLabel);
+    
+    Privilege privilege = Privilege.getInstance(privilegeName);
+    
+    GuiPrivilege guiPrivilege = new GuiPrivilege(privilege);
+    
+    this.setGuiPrivilege(guiPrivilege);
     
   }
   

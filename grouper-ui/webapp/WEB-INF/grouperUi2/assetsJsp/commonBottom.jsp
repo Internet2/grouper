@@ -5,3 +5,6 @@
 <script src="../../grouperExternal/public/assets/js/footable-0.1.js"></script>
 <script src="../../grouperExternal/public/assets/js/jquery.cookie.js"></script>
 <script src="../../grouperExternal/public/assets/js/grouper.js"></script>
+<script src="../../grouperExternal/public/assets/js/grouperUi.js"></script>
+<script src="../../grouperExternal/public/assets/js/wz_tooltip.js"></script>
+

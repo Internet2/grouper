@@ -20,10 +20,8 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.io.Serializable;
 
-import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
-import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.privs.Privilege;
 
 
@@ -74,7 +72,8 @@ public class GuiPrivilege implements Serializable {
     
     try {
       
-      String result = TextContainer.retrieveFromRequest().getText().get("guiPrivilegeShortLink");
+      String privTextKey = "priv." + this.privilege.getName();
+      String result = TextContainer.retrieveFromRequest().getTextWithTooltip().get(privTextKey);
       return result;
       
     } finally {
