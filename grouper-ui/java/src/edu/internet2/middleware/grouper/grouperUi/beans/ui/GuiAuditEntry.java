@@ -19,11 +19,17 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
+import edu.internet2.middleware.grouper.entity.Entity;
+import edu.internet2.middleware.grouper.entity.EntityFinder;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiEntity;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPrivilege;
@@ -37,6 +43,25 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
  *
  */
 public class GuiAuditEntry {
+
+  /** gui attribute def */
+  private GuiAttributeDef guiAttributeDef;
+  
+  /**
+   * gui attribute def
+   * @return gui attribute def
+   */
+  public GuiAttributeDef getGuiAttributeDef() {
+    return this.guiAttributeDef;
+  }
+
+  /**
+   * gui attribute def
+   * @param guiAttributeDef1
+   */
+  public void setGuiAttributeDef(GuiAttributeDef guiAttributeDef1) {
+    this.guiAttributeDef = guiAttributeDef1;
+  }
 
   /**
    * gui attribute def name for the audit if applicable
@@ -65,6 +90,27 @@ public class GuiAuditEntry {
    * gui group for the audit if applicable
    */
   private GuiGroup guiGroup;
+
+  /**
+   * gui entity for the audit if applicable
+   */
+  private GuiEntity guiEntity;
+  
+  /**
+   * gui entity for the audit if applicable
+   * @return entity
+   */
+  public GuiEntity getGuiEntity() {
+    return this.guiEntity;
+  }
+
+  /**
+   * gui entity for the audit if applicable
+   * @param guiEntity1
+   */
+  public void setGuiEntity(GuiEntity guiEntity1) {
+    this.guiEntity = guiEntity1;
+  }
 
   /**
    * gui privilege
@@ -234,384 +280,485 @@ public class GuiAuditEntry {
     //set this so it can be accessed from text
     GrouperRequestContainer.retrieveFromRequestOrCreate().setGuiAuditEntry(this);
     
-    switch (theAuditTypeBuiltin) {
-      
-      case ATTRIBUTE_ASSIGN_ANYMSHIP_ADD:
-        
-        break;
-        
-      case ATTRIBUTE_ASSIGN_ANYMSHIP_DELETE:
-      
-        break;
-      
-      case ATTRIBUTE_ASSIGN_ANYMSHIP_UPDATE:
-        
-        break;
-      
-      case ATTRIBUTE_ASSIGN_ASSIGN_ADD:
-        
-        break;
-      
-      case ATTRIBUTE_ASSIGN_ASSIGN_DELETE:
-        
-        break;
-      
-      case ATTRIBUTE_ASSIGN_ASSIGN_UPDATE:
-        
-        break;
-      
-      case ATTRIBUTE_ASSIGN_ATTRDEF_ADD:
-        
-        break;
-      
-      case ATTRIBUTE_ASSIGN_ATTRDEF_DELETE:
-        
-        break;
-      
-      case ATTRIBUTE_ASSIGN_ATTRDEF_UPDATE:
-        
-        break;
-      
-      case ATTRIBUTE_ASSIGN_GROUP_ADD:
-        
-        break;
-      
-      case ATTRIBUTE_ASSIGN_GROUP_DELETE:
-        
-        break;
-      
-      case ATTRIBUTE_ASSIGN_GROUP_UPDATE:
-        
-        break;
-      
-      case ATTRIBUTE_ASSIGN_IMMMSHIP_ADD:
-
-        this.setupMember();
-        this.setupAttributeDefName();
-        
-        return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_IMMMSHIP_ADD");
-
-        
-      case ATTRIBUTE_ASSIGN_IMMMSHIP_DELETE:
-
-        this.setupMember();
-        this.setupAttributeDefName();
-        
-        return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_IMMMSHIP_DELETE");
-
-      case ATTRIBUTE_ASSIGN_IMMMSHIP_UPDATE:
-        
-        this.setupMember();
-        this.setupAttributeDefName();
-        
-        return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_IMMMSHIP_UPDATE");
-      
-      case ATTRIBUTE_ASSIGN_MEMBER_ADD:
-        
-        break;
-      
-      case ATTRIBUTE_ASSIGN_MEMBER_DELETE:
-        
-        break;
-      
-      case ATTRIBUTE_ASSIGN_MEMBER_UPDATE:
-        
-        break;
-      
-      case ATTRIBUTE_ASSIGN_STEM_ADD:
-        
-        break;
-      
-      case ATTRIBUTE_ASSIGN_STEM_DELETE:
-        
-        break;
-      
-      case ATTRIBUTE_ASSIGN_STEM_UPDATE:
-        
-        break;
-      
-      case ATTRIBUTE_ASSIGN_VALUE_ADD:
-        
-        break;
-      
-      case ATTRIBUTE_ASSIGN_VALUE_DELETE:
-        
-        break;
-      
-      case ATTRIBUTE_ASSIGN_VALUE_UPDATE:
-        
-        break;
-      
-      case ATTRIBUTE_DEF_ADD:
-        
-        break;
-      
-      case ATTRIBUTE_DEF_DELETE:
-        
-        break;
-      
-      case ATTRIBUTE_DEF_NAME_ADD:
-        
-        break;
-      
-      case ATTRIBUTE_DEF_NAME_DELETE:
-        
-        break;
-      
-      case ATTRIBUTE_DEF_NAME_UPDATE:
-        
-        break;
-      
-      case ATTRIBUTE_DEF_UPDATE:
-        
-        break;
-      
-      case ENTITY_ADD:
-        
-        break;
-      
-      case ENTITY_DELETE:
-        
-        break;
-      
-      case ENTITY_UPDATE:
-        
-        break;
-      
-      case EXTERNAL_SUBJ_ATTR_ADD:
-        
-        break;
-      
-      case EXTERNAL_SUBJ_ATTR_DELETE:
-        
-        break;
-      
-      case EXTERNAL_SUBJ_ATTR_UPDATE:
-        
-        break;
-      
-      case EXTERNAL_SUBJECT_ADD:
-        
-        break;
-      
-      case EXTERNAL_SUBJECT_DELETE:
-        
-        break;
-      
-      case EXTERNAL_SUBJECT_INVITE_EMAIL:
-        
-        break;
-      
-      case EXTERNAL_SUBJECT_INVITE_IDENTIFIER:
-        
-        break;
-      
-      case EXTERNAL_SUBJECT_REGISTER_ADD:
-        
-        break;
-      
-      case EXTERNAL_SUBJECT_REGISTER_DELETE:
-        
-        break;
-      
-      case EXTERNAL_SUBJECT_REGISTER_UPDATE:
-        
-        break;
-      
-      case EXTERNAL_SUBJECT_UPDATE:
-        
-        break;
-      
-      case GROUP_ADD:
-        
-        this.setupGroup();
-        
-        return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_ADD");
-
-      case GROUP_ATTRIBUTE_ADD:
-        
-        break;
-      
-      case GROUP_ATTRIBUTE_DELETE:
-        
-        break;
-      
-      case GROUP_ATTRIBUTE_UPDATE:
-        
-        break;
-      
-      case GROUP_COMPOSITE_ADD:
-        
-        break;
-      
-      case GROUP_COMPOSITE_DELETE:
-        
-        break;
-      
-      case GROUP_COMPOSITE_UPDATE:
-        
-        break;
-      
-      case GROUP_COPY:
-        
-        break;
-      
-      case GROUP_DELETE:
-
-        this.setupGroup();
-        
-        return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_DELETE");
-              
-      case GROUP_FIELD_ADD:
-        
-        break;
-      
-      case GROUP_FIELD_DELETE:
-        
-        break;
-      
-      case GROUP_FIELD_UPDATE:
-        
-        break;
-      
-      case GROUP_MOVE:
-        
-        break;
-      
-      case GROUP_TYPE_ADD:
-        
-        break;
-      
-      case GROUP_TYPE_ASSIGN:
-        
-        break;
-      
-      case GROUP_TYPE_DELETE:
-        
-        break;
-      
-      case GROUP_TYPE_UNASSIGN:
-        
-        break;
-      
-      case GROUP_TYPE_UPDATE:
-        
-        break;
-      
-      case GROUP_UPDATE:
-
-        this.setupGroup();
-        
-        return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_UPDATE");
-      
-      case MEMBER_CHANGE_SUBJECT:
-        
-        break;
-      
-      case MEMBERSHIP_GROUP_ADD:
-        
-        this.setupGroup();
-        
-        this.setupMember();
-        
-        return TextContainer.retrieveFromRequest().getText().get("audits_MEMBERSHIP_GROUP_ADD");
-        
-        // <%-- <strong>Added</strong> <a href="#">John Smith</a> as a member of 
-        // the&nbsp;<a href="#" rel="tooltip" data-html="true" data-delay-show='200' 
-        // data-placement="right" title="&lt;strong&gt;FOLDER:&lt;/strong&gt;&lt;br 
-        // /&gt;Full : Path : To : The : Entity&lt;br /&gt;&lt;br /&gt;This is the 
-        // description for this entity. Lorem ipsum dolor sit amet, consectetur 
-        // adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.">Editors</a>&nbsp;group. --%>
-
-        
-      case MEMBERSHIP_GROUP_DELETE:
-        
-        this.setupGroup();
-        
-        this.setupMember();
-        
-        return TextContainer.retrieveFromRequest().getText().get("audits_MEMBERSHIP_GROUP_DELETE");
-      
-      case MEMBERSHIP_GROUP_UPDATE:
-        
-        this.setupGroup();
-        
-        this.setupMember();
-        
-        return TextContainer.retrieveFromRequest().getText().get("audits_MEMBERSHIP_GROUP_UPDATE");
-      
-      case PRIVILEGE_GROUP_ADD:
-        
-        break;
-      
-      case PRIVILEGE_GROUP_DELETE:
-        
-        break;
-      
-      case PRIVILEGE_GROUP_UPDATE:
-        
-        break;
-        
-      case PRIVILEGE_STEM_ADD:
-        
-        this.setupStem();
-        this.setupMember();
-        this.setupPrivilege();
-          
-        return TextContainer.retrieveFromRequest().getText().get("audits_PRIVILEGE_STEM_ADD");
-
-      case PRIVILEGE_STEM_DELETE:
-        
-        this.setupStem();
-        this.setupMember();
-        this.setupPrivilege();
-          
-        return TextContainer.retrieveFromRequest().getText().get("audits_PRIVILEGE_STEM_DELETE");
-      
-      case PRIVILEGE_STEM_UPDATE:
-        
-        this.setupStem();
-        this.setupMember();
-        this.setupPrivilege();
-          
-        return TextContainer.retrieveFromRequest().getText().get("audits_PRIVILEGE_STEM_UPDATE");
-      
-      case STEM_ADD:
-
-        this.setupStem();
-        
-        return TextContainer.retrieveFromRequest().getText().get("audits_STEM_ADD");
-      
-      case STEM_COPY:
-        
-        break;
-      
-      case STEM_DELETE:
-        
-        this.setupStem();
-        
-        return TextContainer.retrieveFromRequest().getText().get("audits_STEM_DELETE");
-      
-      case STEM_MOVE:
-        
-        break;
-      
-      case STEM_UPDATE:
-        
-        this.setupStem();
-        
-        return TextContainer.retrieveFromRequest().getText().get("audits_STEM_UPDATE");
-      
-      case XML_IMPORT:
-        
-        break;
-      
-      default:
-        LOG.error("Cant find audit builtin for category: " + category + " and action: " + actionName);
-        return TextContainer.retrieveFromRequest().getText().get("auditsUndefinedAction");
-        
-    }
+    try {
     
+      switch (theAuditTypeBuiltin) {
+        
+        case ATTRIBUTE_ASSIGN_ANYMSHIP_ADD:
+          
+          this.setupMember();
+          this.setupAttributeDefName();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ANYMSHIP_ADD");
+          
+        case ATTRIBUTE_ASSIGN_ANYMSHIP_DELETE:
+        
+          this.setupMember();
+          this.setupAttributeDefName();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ANYMSHIP_DELETE");
+        
+        case ATTRIBUTE_ASSIGN_ANYMSHIP_UPDATE:
+          
+          this.setupMember();
+          this.setupAttributeDefName();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ANYMSHIP_UPDATE");
+        
+        case ATTRIBUTE_ASSIGN_ASSIGN_ADD:
+          
+          this.setupAttributeDefName();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ASSIGN_ADD");
+        
+        case ATTRIBUTE_ASSIGN_ASSIGN_DELETE:
+          
+          this.setupAttributeDefName();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ASSIGN_DELETE");
+        
+        case ATTRIBUTE_ASSIGN_ASSIGN_UPDATE:
+          
+          this.setupAttributeDefName();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ASSIGN_UPDATE");
+        
+        case ATTRIBUTE_ASSIGN_ATTRDEF_ADD:
+          
+          this.setupAttributeDefName();
+          this.setupAttributeDef();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ATTRDEF_ADD");
+        
+        case ATTRIBUTE_ASSIGN_ATTRDEF_DELETE:
+          
+          this.setupAttributeDefName();
+          this.setupAttributeDef();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ATTRDEF_DELETE");
+        
+        case ATTRIBUTE_ASSIGN_ATTRDEF_UPDATE:
+          
+          this.setupAttributeDefName();
+          this.setupAttributeDef();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ATTRDEF_UPDATE");
+        
+        case ATTRIBUTE_ASSIGN_GROUP_ADD:
+          
+          this.setupAttributeDefName();
+          this.setupGroup();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_GROUP_ADD");
+        
+        case ATTRIBUTE_ASSIGN_GROUP_DELETE:
+          
+          this.setupAttributeDefName();
+          this.setupGroup();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_GROUP_DELETE");
+        
+        case ATTRIBUTE_ASSIGN_GROUP_UPDATE:
+          
+          this.setupAttributeDefName();
+          this.setupGroup();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_GROUP_UPDATE");
+        
+        case ATTRIBUTE_ASSIGN_IMMMSHIP_ADD:
+  
+          this.setupMember();
+          this.setupAttributeDefName();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_IMMMSHIP_ADD");
+  
+          
+        case ATTRIBUTE_ASSIGN_IMMMSHIP_DELETE:
+  
+          this.setupMember();
+          this.setupAttributeDefName();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_IMMMSHIP_DELETE");
+  
+        case ATTRIBUTE_ASSIGN_IMMMSHIP_UPDATE:
+          
+          this.setupMember();
+          this.setupAttributeDefName();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_IMMMSHIP_UPDATE");
+        
+        case ATTRIBUTE_ASSIGN_MEMBER_ADD:
+          
+          this.setupMember();
+          this.setupAttributeDefName();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_MEMBER_ADD");
+        
+        case ATTRIBUTE_ASSIGN_MEMBER_DELETE:
+          
+          this.setupMember();
+          this.setupAttributeDefName();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_MEMBER_DELETE");
+        
+        case ATTRIBUTE_ASSIGN_MEMBER_UPDATE:
+          
+          this.setupMember();
+          this.setupAttributeDefName();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_MEMBER_UPDATE");
+        
+        case ATTRIBUTE_ASSIGN_STEM_ADD:
+          
+          this.setupStem();
+          this.setupAttributeDefName();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_STEM_ADD");
+        
+        case ATTRIBUTE_ASSIGN_STEM_DELETE:
+          
+          this.setupStem();
+          this.setupAttributeDefName();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_STEM_DELETE");
+        
+        case ATTRIBUTE_ASSIGN_STEM_UPDATE:
+          
+          this.setupStem();
+          this.setupAttributeDefName();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_STEM_UPDATE");
+        
+        case ATTRIBUTE_ASSIGN_VALUE_ADD:
+          
+          this.setupAttributeDefName();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_VALUE_ADD");
+        
+        case ATTRIBUTE_ASSIGN_VALUE_DELETE:
+          
+          this.setupAttributeDefName();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_VALUE_DELETE");
+        
+        case ATTRIBUTE_ASSIGN_VALUE_UPDATE:
+          
+          this.setupAttributeDefName();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_VALUE_UPDATE");
+        
+        case ATTRIBUTE_DEF_ADD:
+          
+          this.setupAttributeDef();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_DEF_ADD");
+        
+        case ATTRIBUTE_DEF_DELETE:
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_DEF_DELETE");
+        
+        case ATTRIBUTE_DEF_NAME_ADD:
+          
+          this.setupAttributeDefName();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_DEF_NAME_ADD");
+        
+        case ATTRIBUTE_DEF_NAME_DELETE:
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_DEF_NAME_DELETE");
+        
+        case ATTRIBUTE_DEF_NAME_UPDATE:
+          
+          this.setupAttributeDefName();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_DEF_NAME_UPDATE");
+        
+        case ATTRIBUTE_DEF_UPDATE:
+          
+          this.setupAttributeDef();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_DEF_UPDATE");
+        
+        case ENTITY_ADD:
+          
+          this.setupEntity();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ENTITY_ADD");
+        
+        case ENTITY_DELETE:
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ENTITY_DELETE");
+        
+        case ENTITY_UPDATE:
+          
+          this.setupEntity();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_ENTITY_UPDATE");
+        
+        case EXTERNAL_SUBJ_ATTR_ADD:
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_EXTERNAL_SUBJ_ATTR_ADD");
+        
+        case EXTERNAL_SUBJ_ATTR_DELETE:
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_EXTERNAL_SUBJ_ATTR_DELETE");
+        
+        case EXTERNAL_SUBJ_ATTR_UPDATE:
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_EXTERNAL_SUBJ_ATTR_UPDATE");
+        
+        case EXTERNAL_SUBJECT_ADD:
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_EXTERNAL_SUBJECT_ADD");
+        
+        case EXTERNAL_SUBJECT_DELETE:
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_EXTERNAL_SUBJECT_DELETE");
+        
+        case EXTERNAL_SUBJECT_INVITE_EMAIL:
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_EXTERNAL_SUBJECT_INVITE_EMAIL");
+        
+        case EXTERNAL_SUBJECT_INVITE_IDENTIFIER:
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_EXTERNAL_SUBJECT_INVITE_IDENTIFIER");
+        
+        case EXTERNAL_SUBJECT_REGISTER_ADD:
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_EXTERNAL_SUBJECT_REGISTER_ADD");
+        
+        case EXTERNAL_SUBJECT_REGISTER_DELETE:
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_EXTERNAL_SUBJECT_REGISTER_DELETE");
+        
+        case EXTERNAL_SUBJECT_REGISTER_UPDATE:
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_EXTERNAL_SUBJECT_REGISTER_UPDATE");
+        
+        case EXTERNAL_SUBJECT_UPDATE:
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_EXTERNAL_SUBJECT_UPDATE");
+        
+        case GROUP_ADD:
+          
+          this.setupGroup();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_ADD");
+  
+        case GROUP_ATTRIBUTE_ADD:
+          
+          this.setupGroup();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_ATTRIBUTE_ADD");
+        
+        case GROUP_ATTRIBUTE_DELETE:
+          
+          this.setupGroup();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_ATTRIBUTE_DELETE");
+        
+        case GROUP_ATTRIBUTE_UPDATE:
+          
+          this.setupGroup();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_ATTRIBUTE_UPDATE");
+        
+        case GROUP_COMPOSITE_ADD:
+          
+          this.setupGroup();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_COMPOSITE_ADD");
+        
+        case GROUP_COMPOSITE_DELETE:
+          
+          this.setupGroup();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_COMPOSITE_DELETE");
+        
+        case GROUP_COMPOSITE_UPDATE:
+          
+          this.setupGroup();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_COMPOSITE_UPDATE");
+        
+        case GROUP_COPY:
+          
+          this.setupGroup();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_COPY");
+        
+        case GROUP_DELETE:
+  
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_DELETE");
+                
+        case GROUP_FIELD_ADD:
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_FIELD_ADD");
+        
+        case GROUP_FIELD_DELETE:
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_FIELD_DELETE");
+        
+        case GROUP_FIELD_UPDATE:
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_FIELD_UPDATE");
+        
+        case GROUP_MOVE:
+          
+          this.setupGroup();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_MOVE");
+        
+        case GROUP_TYPE_ADD:
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_TYPE_ADD");
+        
+        case GROUP_TYPE_ASSIGN:
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_TYPE_ASSIGN");
+        
+        case GROUP_TYPE_DELETE:
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_TYPE_DELETE");
+        
+        case GROUP_TYPE_UNASSIGN:
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_TYPE_UNASSIGN");
+        
+        case GROUP_TYPE_UPDATE:
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_TYPE_UPDATE");
+        
+        case GROUP_UPDATE:
+  
+          this.setupGroup();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_UPDATE");
+        
+        case MEMBER_CHANGE_SUBJECT:
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_MEMBER_CHANGE_SUBJECT");
+        
+        case MEMBERSHIP_GROUP_ADD:
+          
+          this.setupGroup();
+          
+          this.setupMember();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_MEMBERSHIP_GROUP_ADD");
+          
+          // <%-- <strong>Added</strong> <a href="#">John Smith</a> as a member of 
+          // the&nbsp;<a href="#" rel="tooltip" data-html="true" data-delay-show='200' 
+          // data-placement="right" title="&lt;strong&gt;FOLDER:&lt;/strong&gt;&lt;br 
+          // /&gt;Full : Path : To : The : Entity&lt;br /&gt;&lt;br /&gt;This is the 
+          // description for this entity. Lorem ipsum dolor sit amet, consectetur 
+          // adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.">Editors</a>&nbsp;group. --%>
+  
+          
+        case MEMBERSHIP_GROUP_DELETE:
+          
+          this.setupGroup();
+          
+          this.setupMember();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_MEMBERSHIP_GROUP_DELETE");
+        
+        case MEMBERSHIP_GROUP_UPDATE:
+          
+          this.setupGroup();
+          
+          this.setupMember();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_MEMBERSHIP_GROUP_UPDATE");
+        
+        case PRIVILEGE_GROUP_ADD:
+          
+          this.setupGroup();
+          this.setupMember();
+          this.setupPrivilege();
+            
+          return TextContainer.retrieveFromRequest().getText().get("audits_PRIVILEGE_GROUP_ADD");
+          
+        case PRIVILEGE_GROUP_DELETE:
+          
+          this.setupGroup();
+          this.setupMember();
+          this.setupPrivilege();
+            
+          return TextContainer.retrieveFromRequest().getText().get("audits_PRIVILEGE_GROUP_DELETE");
+          
+        case PRIVILEGE_GROUP_UPDATE:
+          
+          this.setupGroup();
+          this.setupMember();
+          this.setupPrivilege();
+            
+          return TextContainer.retrieveFromRequest().getText().get("audits_PRIVILEGE_GROUP_UPDATE");
+          
+        case PRIVILEGE_STEM_ADD:
+          
+          this.setupStem();
+          this.setupMember();
+          this.setupPrivilege();
+            
+          return TextContainer.retrieveFromRequest().getText().get("audits_PRIVILEGE_STEM_ADD");
+  
+        case PRIVILEGE_STEM_DELETE:
+          
+          this.setupStem();
+          this.setupMember();
+          this.setupPrivilege();
+            
+          return TextContainer.retrieveFromRequest().getText().get("audits_PRIVILEGE_STEM_DELETE");
+        
+        case PRIVILEGE_STEM_UPDATE:
+          
+          this.setupStem();
+          this.setupMember();
+          this.setupPrivilege();
+            
+          return TextContainer.retrieveFromRequest().getText().get("audits_PRIVILEGE_STEM_UPDATE");
+        
+        case STEM_ADD:
+  
+          this.setupStem();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_STEM_ADD");
+        
+        case STEM_COPY:
+          
+          this.setupStem();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_STEM_COPY");
+        
+        case STEM_DELETE:
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_STEM_DELETE");
+        
+        case STEM_MOVE:
+          
+          this.setupStem();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_STEM_MOVE");
+        
+        case STEM_UPDATE:
+          
+          this.setupStem();
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_STEM_UPDATE");
+        
+        case XML_IMPORT:
+          
+          return TextContainer.retrieveFromRequest().getText().get("audits_XML_IMPORT");
+        
+        default:
+          LOG.error("Cant find audit builtin for category: " + category + " and action: " + actionName);
+          return TextContainer.retrieveFromRequest().getText().get("auditsUndefinedAction");
+          
+      }
+    } catch (RuntimeException re) {
+      LOG.error("Problem displaying audit for category: " + category + " and action: " + actionName, re);
+    }
     if (actionName != null) {
       return category + " - " + actionName;
     }
@@ -627,9 +774,23 @@ public class GuiAuditEntry {
   private void setupGroup() {
     String groupIdName = "groupId";
     AuditTypeBuiltin theAuditTypeBuiltin = this.getAuditTypeBuiltin();
-    if (theAuditTypeBuiltin == AuditTypeBuiltin.GROUP_ADD || theAuditTypeBuiltin == AuditTypeBuiltin.GROUP_DELETE
+    if (theAuditTypeBuiltin == AuditTypeBuiltin.GROUP_ADD 
+        || theAuditTypeBuiltin == AuditTypeBuiltin.GROUP_DELETE
         || theAuditTypeBuiltin == AuditTypeBuiltin.GROUP_UPDATE) {
       groupIdName = "id";
+    }
+    if (theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_GROUP_ADD 
+        || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_GROUP_DELETE
+        || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_GROUP_UPDATE) {
+      groupIdName = "ownerGroupId";
+    }
+    if (theAuditTypeBuiltin == AuditTypeBuiltin.GROUP_COMPOSITE_ADD 
+        || theAuditTypeBuiltin == AuditTypeBuiltin.GROUP_COMPOSITE_DELETE
+        || theAuditTypeBuiltin == AuditTypeBuiltin.GROUP_COMPOSITE_UPDATE) {
+      groupIdName = "ownerId";
+    }
+    if (theAuditTypeBuiltin == AuditTypeBuiltin.GROUP_COPY) {
+      groupIdName = "oldGroupId";
     }
     String groupId = this.auditEntry.retrieveStringValue(groupIdName);
     Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, false);
@@ -638,12 +799,41 @@ public class GuiAuditEntry {
     
   }
 
+  /**
+   * setup an attribute def from an audit
+   */
+  private void setupAttributeDef() {
+    String attributeDefIdName = "attributeDefId";
+    AuditTypeBuiltin theAuditTypeBuiltin = this.getAuditTypeBuiltin();
+    if (theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_DEF_ADD 
+        || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_DEF_UPDATE
+        || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_DEF_DELETE) {
+      attributeDefIdName = "id";
+    }
+    if (theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_ATTRDEF_ADD 
+        || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_ATTRDEF_DELETE
+        || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_ATTRDEF_UPDATE) {
+      attributeDefIdName = "ownerAttributeDefId";
+    }
+
+    String attributeDefId = this.auditEntry.retrieveStringValue(attributeDefIdName);
+    AttributeDef attributeDef = AttributeDefFinder.findById(attributeDefId, false);
+    GuiAttributeDef guiAttributeDef = new GuiAttributeDef(attributeDef);
+    this.setGuiAttributeDef(guiAttributeDef);
+    
+  }
 
   /**
    * setup a group from an audit
    */
   private void setupAttributeDefName() {
     String attributeDefNameIdName = "attributeDefNameId";
+    AuditTypeBuiltin theAuditTypeBuiltin = this.getAuditTypeBuiltin();
+    if (theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_DEF_NAME_ADD 
+        || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_DEF_NAME_UPDATE
+        || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_DEF_NAME_DELETE) {
+      attributeDefNameIdName = "id";
+    }
     String attributeDefNameId = this.auditEntry.retrieveStringValue(attributeDefNameIdName);
     AttributeDefName attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, false);
     GuiAttributeDefName guiAttributeDefName = new GuiAttributeDefName(attributeDefName);
@@ -660,6 +850,11 @@ public class GuiAuditEntry {
     AuditTypeBuiltin theAuditTypeBuiltin = this.getAuditTypeBuiltin();
     if (theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_IMMMSHIP_ADD || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_IMMMSHIP_DELETE
         || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_IMMMSHIP_UPDATE) {
+      memberIdName = "ownerMemberId";
+    }
+    if (theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_MEMBER_ADD 
+        || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_MEMBER_DELETE
+        || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_MEMBER_UPDATE) {
       memberIdName = "ownerMemberId";
     }
     String memberId = this.auditEntry.retrieveStringValue(memberIdName);
@@ -695,10 +890,35 @@ public class GuiAuditEntry {
         || theAuditTypeBuiltin == AuditTypeBuiltin.STEM_UPDATE) {
       stemIdName = "id";
     }
+    if (theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_STEM_ADD || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_STEM_DELETE
+        || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_STEM_UPDATE) {
+      stemIdName = "ownerStemId";
+    }
+    if (theAuditTypeBuiltin == AuditTypeBuiltin.STEM_COPY) {
+      stemIdName = "oldStemId";
+    }
     String stemId = this.auditEntry.retrieveStringValue(stemIdName);
     Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemId, false);
     GuiStem guiStem = new GuiStem(stem);
     this.setGuiStem(guiStem);
+    
+  }
+
+  /**
+   * setup a entity from an audit
+   */
+  private void setupEntity() {
+    String entityIdName = "entityId";
+    AuditTypeBuiltin theAuditTypeBuiltin = this.getAuditTypeBuiltin();
+    if (theAuditTypeBuiltin == AuditTypeBuiltin.ENTITY_ADD 
+        || theAuditTypeBuiltin == AuditTypeBuiltin.ENTITY_DELETE
+        || theAuditTypeBuiltin == AuditTypeBuiltin.ENTITY_UPDATE) {
+      entityIdName = "id";
+    }
+    String entityId = this.auditEntry.retrieveStringValue(entityIdName);
+    Entity entity = new EntityFinder().addId(entityId).findEntity(false);
+    GuiEntity guiEntity = new GuiEntity(entity);
+    this.setGuiEntity(guiEntity);
     
   }
   

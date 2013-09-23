@@ -1,6 +1,8 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiEntity;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPrivilege;
@@ -9,6 +11,27 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 
 
 public class CommonRequestContainer {
+
+  /**
+   * gui entity
+   */
+  private GuiEntity guiEntity;
+  
+  /**
+   * gui entity
+   * @return entity
+   */
+  public GuiEntity getGuiEntity() {
+    return this.guiEntity;
+  }
+
+  /**
+   * gui entity
+   * @param guiEntity1
+   */
+  public void setGuiEntity(GuiEntity guiEntity1) {
+    this.guiEntity = guiEntity1;
+  }
 
   /**
    * if tooltip should be shown
@@ -78,8 +101,27 @@ public class CommonRequestContainer {
    */
   private GuiAttributeDefName guiAttributeDefName;
   
+  /**
+   * gui attribute def
+   */
+  private GuiAttributeDef guiAttributeDef;
   
-  
+  /**
+   * gui attribute def
+   * @return gui attribute def
+   */
+  public GuiAttributeDef getGuiAttributeDef() {
+    return this.guiAttributeDef;
+  }
+
+  /**
+   * gui attribute def
+   * @param guiAttributeDef1
+   */
+  public void setGuiAttributeDef(GuiAttributeDef guiAttributeDef1) {
+    this.guiAttributeDef = guiAttributeDef1;
+  }
+
   /**
    * gui attribute def name
    * @return gui attribute def name

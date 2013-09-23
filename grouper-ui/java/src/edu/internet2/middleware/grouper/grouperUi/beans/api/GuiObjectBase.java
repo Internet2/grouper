@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -50,7 +51,9 @@ public abstract class GuiObjectBase {
     
     StringBuilder result = new StringBuilder();
     
-    result.append("<strong>FOLDER</string><br />").append(GrouperUtil.xmlEscape(this.getPathColonSpaceSeparated(), true));
+    result.append("<strong>").append(
+        TextContainer.retrieveFromRequest().getText().get("guiTooltipFolderLabel"))
+        .append("</string><br />").append(GrouperUtil.xmlEscape(this.getPathColonSpaceSeparated(), true));
     result.append("<br />");
     result.append(GrouperUtil.xmlEscape(StringUtils.abbreviate(StringUtils.defaultString(this.getGrouperObject().getDescription()), 100), true));
     

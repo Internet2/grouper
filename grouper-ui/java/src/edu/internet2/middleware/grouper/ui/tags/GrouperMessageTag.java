@@ -511,7 +511,7 @@ public class GrouperMessageTag extends MessageTag {
     //the class="tooltip" is substituted later, so if this is changed, change in other places as well
     String escapedTooltipText = StringUtils.replace(tooltipText, "'", "&#39;");
     escapedTooltipText = GrouperUiUtils.escapeHtml(escapedTooltipText, true, true);
-    tooltipText = "<span " + (isIgnoreTooltipStyle ? "" : "class=\"tooltip\" ") 
+    tooltipText = "<span " + (isIgnoreTooltipStyle ? "" : "class=\"grouperTooltip\" ") 
       + "onmouseover=\"grouperTooltip('" 
       + escapedTooltipText + "');\" onmouseout=\"UnTip()\">" + term + "</span>";
     return tooltipText;
@@ -614,7 +614,7 @@ public class GrouperMessageTag extends MessageTag {
     
     //maybe take out styles
     if (isIgnoreTooltipStyle) {
-      result = StringUtils.replace(result, "class=\"tooltip\" ", "");
+      result = StringUtils.replace(result, "class=\"grouperTooltip\" ", "");
     }
     
     //TODO cache this result if possible, check in properties file if contains vars

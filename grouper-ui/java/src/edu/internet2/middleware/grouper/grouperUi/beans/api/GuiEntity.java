@@ -20,19 +20,19 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.io.Serializable;
 
-import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.entity.Entity;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 
 
 /**
- * Result of one attribute def name being retrieved
+ * Result of one entity retrieved.
  * 
  * @author mchyzer
  */
 @SuppressWarnings("serial")
-public class GuiAttributeDefName extends GuiObjectBase implements Serializable {
+public class GuiEntity extends GuiObjectBase implements Serializable {
 
   /**
    * &lt;a href="#" rel="tooltip" data-html="true" data-delay-show='200' data-placement="right" title="&amp;lt;strong&amp;gt;FOLDER:&amp;lt;/strong&amp;gt;&amp;lt;br /&amp;gt;Full : Path : To : The : Entity&lt;br /&gt;&lt;br /&gt;This is the description for this entity. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.">Editors</a>
@@ -70,23 +70,23 @@ public class GuiAttributeDefName extends GuiObjectBase implements Serializable {
    */
   private String shortLinkHelper(boolean showIcon, boolean showPath) {
     
-    if (this.attributeDefName == null) {
+    if (this.entity == null) {
       //TODO put icon here?
       return TextContainer.retrieveFromRequest().getText().get("guiObjectUnknown");
     }
     
-    GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiAttributeDefName(this);
+    GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiEntity(this);
     GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowIcon(showIcon);
     GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowPath(showPath);
     
     try {
       
-      String result = TextContainer.retrieveFromRequest().getText().get("guiAttributeDefNameShortLink");
+      String result = TextContainer.retrieveFromRequest().getText().get("guiEntityShortLink");
       return result;
       
     } finally {
 
-      GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiAttributeDefName(null);
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiEntity(null);
       GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowIcon(false);
       GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowPath(false);
 
@@ -94,39 +94,39 @@ public class GuiAttributeDefName extends GuiObjectBase implements Serializable {
 
   }
 
-  /** folder */
-  private AttributeDefName attributeDefName;
   
-
+  /** entity */
+  private Entity entity;
+  
   /**
-   * return the attribute def name
-   * @return the attribute def name
+   * return the entity
+   * @return the entity
    */
-  public AttributeDefName getAttributeDefName() {
-    return this.attributeDefName;
+  public Entity getEntity() {
+    return this.entity;
   }
 
   /**
    * 
    */
-  public GuiAttributeDefName() {
+  public GuiEntity() {
     
   }
   
   /**
    * 
-   * @param theAttributeDefName
+   * @param theEntity
    */
-  public GuiAttributeDefName(AttributeDefName theAttributeDefName) {
-    this.attributeDefName = theAttributeDefName;
+  public GuiEntity(Entity theEntity) {
+    this.entity = theEntity;
   }
   
   /**
-   * @see GuiObjectBase#getObject()
+   * @see GuiObjectBase#getGrouperObject()
    */
   @Override
   public GrouperObject getGrouperObject() {
-    return this.attributeDefName;
+    return this.entity;
   }
   
 }
