@@ -20,7 +20,6 @@
 package edu.internet2.middleware.grouper.app.loader;
 
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.subject.Subject;
 
@@ -92,8 +91,7 @@ public class LoaderMemberWrapper {
   public Member findOrGetMember() {
     if (this.member == null) {
       try {
-        Subject subject = SubjectFinder.getSource(this.sourceId).getSubject(this.subjectId, true);
-        this.member = MemberFinder.internal_findBySubject(subject, null, false);
+        this.member = edu.internet2.middleware.grouper.misc.GrouperDAOFactory.getFactory().getMember().findBySubject(this.subjectId, this.sourceId, true);
       } catch (Exception e) {
         throw new RuntimeException("Problem with loader member wrapper: " + this.subjectId, e);
       }
