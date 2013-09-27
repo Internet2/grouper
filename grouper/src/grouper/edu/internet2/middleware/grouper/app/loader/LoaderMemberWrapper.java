@@ -19,6 +19,7 @@
  */
 package edu.internet2.middleware.grouper.app.loader;
 
+
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.subject.Subject;
@@ -43,6 +44,7 @@ public class LoaderMemberWrapper {
    * 
    */
   private Member member;
+
 
   /**
    * 
@@ -91,7 +93,8 @@ public class LoaderMemberWrapper {
   public Member findOrGetMember() {
     if (this.member == null) {
       try {
-        this.member = edu.internet2.middleware.grouper.misc.GrouperDAOFactory.getFactory().getMember().findBySubject(this.subjectId, this.sourceId, true);
+        Subject subject = this.findOrGetSubject();
+        this.member = edu.internet2.middleware.grouper.MemberFinder.internal_findBySubject(subject, null, false);
       } catch (Exception e) {
         throw new RuntimeException("Problem with loader member wrapper: " + this.subjectId, e);
       }
@@ -100,13 +103,32 @@ public class LoaderMemberWrapper {
   }
 
   /**
+   * logger 
+   */
+  private static final org.apache.commons.logging.Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GrouperLoaderType.class);
+
+  /**
    * 
    * @return subject
    */
   public Subject findOrGetSubject() {
     try {
       if (this.member == null) {
-          Subject subject = SubjectFinder.getSource(this.sourceId).getSubject(this.subjectId, true);
+          Subject subject = null;
+          try {
+            subject = SubjectFinder.getSource(this.sourceId).getSubject(this.subjectId, true);
+          } catch (Exception e) {
+            LOG.info("Cant find subject: " + this.sourceId + ", " + this.subjectId, e);
+          }
+          if (subject == null) {
+            String subjectType = "person";
+            try {
+              subjectType = edu.internet2.middleware.subject.provider.SourceManager.getInstance().getSource(this.sourceId).getSubjectTypes().iterator().next().getName();
+            } catch (Exception e) {
+              LOG.info("Cant get subject type for source: " + this.sourceId, e);
+            }
+            subject = new edu.internet2.middleware.subject.provider.SubjectImpl(this.subjectId, this.subjectId, this.subjectId, subjectType, this.sourceId);
+          }
           return subject;
       }
       return this.member.getSubject();

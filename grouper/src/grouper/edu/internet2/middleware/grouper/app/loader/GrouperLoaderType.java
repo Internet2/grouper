@@ -2231,24 +2231,14 @@ public enum GrouperLoaderType {
                 
                 boolean alreadyDeleted = false;
                 
-                String subjectString = member.getSourceId() + " - " + member.getSubjectId();
-                
-                Subject theSubject = null;
-                try {
-                  theSubject = member.findOrGetSubject();
-                  subjectString = GrouperUtil.subjectToString(theSubject);
-                } catch (Exception e) {
-                  LOG.debug("Error with subject: " + subjectString, e);
-                }
+                Subject theSubject = member.findOrGetSubject();
                 if (GrouperLoader.isDryRun()) {
-                  if (theSubject != null) {
-                    alreadyDeleted = !group[0].hasMember(theSubject);
-                  }
-                  GrouperLoader.dryRunWriteLine("Group: " + groupName + " delete " + subjectString);
+                  alreadyDeleted = !group[0].hasMember(theSubject);
+                  GrouperLoader.dryRunWriteLine("Group: " + groupName + " delete " + GrouperUtil.subjectToString(theSubject));
                 } else {
                   //go from subject since large lists might be removed from cache
-                  alreadyDeleted = !group[0].deleteMember(member.getMember(), false);
-                  LOG.debug("Group: " + groupName + " delete " + subjectString + ", alreadyDeleted? " + alreadyDeleted);
+                  alreadyDeleted = !group[0].deleteMember(theSubject, false);
+                  LOG.debug("Group: " + groupName + " delete " + GrouperUtil.subjectToString(theSubject) + ", alreadyDeleted? " + alreadyDeleted);
                 }
                  
                 if (LOG.isInfoEnabled() && (count != 0 && count % 200 == 0)) {
