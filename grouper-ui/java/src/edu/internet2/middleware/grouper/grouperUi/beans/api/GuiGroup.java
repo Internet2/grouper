@@ -19,6 +19,8 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.io.Serializable;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -30,6 +32,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -41,6 +44,46 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 @SuppressWarnings("serial")
 public class GuiGroup extends GuiObjectBase implements Serializable {
 
+  /**
+   * 
+   * @param groups
+   * @param configMax
+   * @param max
+   * @return
+   */
+  public static Set<GuiGroup> convertFromGroups(Set<Group> groups) {
+    return convertFromGroups(groups, null, -1);
+  }
+
+  /**
+   * 
+   * @param groups
+   * @param configMax
+   * @param max
+   * @return
+   */
+  public static Set<GuiGroup> convertFromGroups(Set<Group> groups, String configMax, int defaultMax) {
+    Set<GuiGroup> tempGroups = new LinkedHashSet<GuiGroup>();
+    
+    Integer max = null;
+    
+    if (!StringUtils.isBlank(configMax)) {
+      max = GrouperUiConfig.retrieveConfig().propertyValueInt(configMax, defaultMax);
+    }
+    
+    int count = 0;
+    for (Group group : GrouperUtil.nonNull(groups)) {
+      tempGroups.add(new GuiGroup(group));
+      if (max != null && ++count >= max) {
+        break;
+      }
+    }
+    
+    return tempGroups;
+    
+  }
+
+  
   /**
    * &lt;a href="#" rel="tooltip" data-html="true" data-delay-show='200' data-placement="right" title="&amp;lt;strong&amp;gt;FOLDER:&amp;lt;/strong&amp;gt;&amp;lt;br /&amp;gt;Full : Path : To : The : Entity&lt;br /&gt;&lt;br /&gt;This is the description for this entity. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.">Editors</a>
    * @return short link

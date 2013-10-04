@@ -19,12 +19,15 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.io.Serializable;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -35,6 +38,45 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 @SuppressWarnings("serial")
 public class GuiAttributeDef implements Serializable {
+
+  /**
+   * 
+   * @param attributeDef
+   * @param configMax
+   * @param max
+   * @return
+   */
+  public static Set<GuiAttributeDef> convertFromAttributeDefs(Set<AttributeDef> attributeDef) {
+    return convertFromAttributeDefs(attributeDef, null, -1);
+  }
+
+  /**
+   * 
+   * @param attributeDefs
+   * @param configMax
+   * @param max
+   * @return
+   */
+  public static Set<GuiAttributeDef> convertFromAttributeDefs(Set<AttributeDef> attributeDefs, String configMax, int defaultMax) {
+    Set<GuiAttributeDef> tempAttributeDefs = new LinkedHashSet<GuiAttributeDef>();
+    
+    Integer max = null;
+    
+    if (!StringUtils.isBlank(configMax)) {
+      max = GrouperUiConfig.retrieveConfig().propertyValueInt(configMax, defaultMax);
+    }
+    
+    int count = 0;
+    for (AttributeDef attributeDef : GrouperUtil.nonNull(attributeDefs)) {
+      tempAttributeDefs.add(new GuiAttributeDef(attributeDef));
+      if (max != null && ++count >= max) {
+        break;
+      }
+    }
+    
+    return tempAttributeDefs;
+    
+  }
 
   /**
    * colon space separated path e.g.

@@ -523,7 +523,9 @@ function guiProcessAction(guiScreenAction) {
   }
   
   if (typeof guiScreenAction.closeModal != 'undefined' && guiScreenAction.closeModal) {
-    $.modal.close(); 
+    if ($ && $.modal && typeof($.modal.close) == "function") {
+      $.modal.close(); 
+    }
   }
   
   //do an alert

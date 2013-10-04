@@ -53,6 +53,15 @@ public class GuiSubject implements Serializable {
   }
   
   /**
+   * e.g. &lt;a href="#"&gt;John Smith&lt;/a&gt;
+   * @return short link
+   */
+  public String getShortLinkWithIcon() {
+    this.initScreenLabels();
+    return this.screenLabelShort2htmlWithIcon;
+  }
+  
+  /**
    * init screen labels
    */
   private void initScreenLabels() {
@@ -89,11 +98,16 @@ public class GuiSubject implements Serializable {
         //"<a href=\"view-subject.html\" rel=\"tooltip\" data-html=\"true\" data-delay-show=\"200\" data-placement=\"right\" title=\"" + GrouperUtil.xmlEscape(subject.getDescription(), true)  + "\">" + this.screenLabelShort2 + "</a>";
         //"<a href=\"view-subject.html\" data-html=\"true\" data-delay-show=\"200\" data-placement=\"right\">" + this.screenLabelShort2 + "</a>";
         this.screenLabelShort2html = TextContainer.retrieveFromRequest().getText().get("guiSubjectShortLink");
-        
+
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowIcon(true);
+
+        this.screenLabelShort2htmlWithIcon = TextContainer.retrieveFromRequest().getText().get("guiSubjectShortLink");
+
       } finally {
 
         GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiSubject(null);
         GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowTooltip(false);
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowIcon(false);
 
       }
 
@@ -105,6 +119,7 @@ public class GuiSubject implements Serializable {
    * @return label
    */
   public String getScreenLabelShort2() {
+    this.initScreenLabels();
     return this.screenLabelShort2;
   }
 
@@ -154,6 +169,11 @@ public class GuiSubject implements Serializable {
    * new short label in v2 with html tooltip and link
    */
   private String screenLabelShort2html = null;
+  
+  /**
+   * new short label in v2 with html tooltip and link and icon
+   */
+  private String screenLabelShort2htmlWithIcon = null;
   
   /**
    * subject

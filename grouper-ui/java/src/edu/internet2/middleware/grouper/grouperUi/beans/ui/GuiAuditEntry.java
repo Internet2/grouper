@@ -5,10 +5,13 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.LinkedHashSet;
 import java.util.Locale;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -36,6 +39,8 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPrivilege;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -44,6 +49,45 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
  */
 public class GuiAuditEntry {
 
+  /**
+   * 
+   * @param auditEntries
+   * @param configMax
+   * @param max
+   * @return gui audit entries
+   */
+  public static Set<GuiAuditEntry> convertFromAuditEntries(Set<AuditEntry> auditEntries) {
+    return convertFromAuditEntries(auditEntries, null, -1);
+  }
+
+  /**
+   * @param auditEntries
+   * @param configMax
+   * @param max
+   * @return gui audit entries
+   */
+  public static Set<GuiAuditEntry> convertFromAuditEntries(Set<AuditEntry> auditEntries, String configMax, int defaultMax) {
+    Set<GuiAuditEntry> tempAuditEntries = new LinkedHashSet<GuiAuditEntry>();
+    
+    Integer max = null;
+    
+    if (!StringUtils.isBlank(configMax)) {
+      max = GrouperUiConfig.retrieveConfig().propertyValueInt(configMax, defaultMax);
+    }
+    
+    int count = 0;
+    for (AuditEntry auditEntry : GrouperUtil.nonNull(auditEntries)) {
+      tempAuditEntries.add(new GuiAuditEntry(auditEntry));
+      if (max != null && ++count >= max) {
+        break;
+      }
+    }
+    
+    return tempAuditEntries;
+    
+  }
+
+  
   /** gui attribute def */
   private GuiAttributeDef guiAttributeDef;
   

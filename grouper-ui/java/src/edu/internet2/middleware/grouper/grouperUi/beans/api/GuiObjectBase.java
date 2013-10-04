@@ -34,7 +34,7 @@ public abstract class GuiObjectBase {
     String parentStemName = GrouperUtil.parentStemNameFromName(this.getGrouperObject().getDisplayName());
     
     if (StringUtils.isBlank(parentStemName) || StringUtils.equals(":", parentStemName)) {
-      return ":";
+      return TextContainer.retrieveFromRequest().getText().get("stem.root.display-name");
     }
 
     return parentStemName.replace(":", " : ");

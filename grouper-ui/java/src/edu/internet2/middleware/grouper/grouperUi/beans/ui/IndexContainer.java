@@ -4,7 +4,6 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,12 +15,17 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -74,11 +78,7 @@ public class IndexContainer {
           debugLog.put("resultsFromDb", GrouperUtil.length(auditEntries));
         }
         
-        this.guiAuditEntriesRecentActivity = new LinkedHashSet<GuiAuditEntry>();
-        
-        for (AuditEntry auditEntry : GrouperUtil.nonNull(auditEntries)) {
-          this.guiAuditEntriesRecentActivity.add(new GuiAuditEntry(auditEntry));
-        }
+        this.guiAuditEntriesRecentActivity = GuiAuditEntry.convertFromAuditEntries(auditEntries);
   
       } else {
         if (LOG.isDebugEnabled()) {
@@ -104,6 +104,16 @@ public class IndexContainer {
   private Set<GuiGroup> guiGroupsUserManagesAbbreviated;
 
   /**
+   * for index page, this is a short list of attributeDefs favorites
+   */
+  private Set<GuiAttributeDef> guiAttributeDefsMyFavoritesAbbreviated;
+
+  /**
+   * for index page, this is a short list of attributeDefNames favorites
+   */
+  private Set<GuiAttributeDefName> guiAttributeDefNamesMyFavoritesAbbreviated;
+
+  /**
    * for index page, this is a short list of groups the user manages, lazy load if null
    * @return the list of groups
    */
@@ -115,13 +125,9 @@ public class IndexContainer {
       Set<Group> groups = new GroupFinder().assignSubject(grouperSession.getSubject())
           .assignPrivileges(AccessPrivilege.MANAGE_PRIVILEGES)
           .assignQueryOptions(new QueryOptions().paging(10, 1, false)).findGroups();
-      
-      this.guiGroupsUserManagesAbbreviated = new LinkedHashSet<GuiGroup>();
-      
-      for (Group group : GrouperUtil.nonNull(groups)) {
-        this.guiGroupsUserManagesAbbreviated.add(new GuiGroup(group));
-      }
-      
+
+      this.guiGroupsUserManagesAbbreviated = GuiGroup.convertFromGroups(groups);
+            
     }
     
     return this.guiGroupsUserManagesAbbreviated;
@@ -130,33 +136,39 @@ public class IndexContainer {
   /**
    * for index page, this is a short list of groups the user has favorited
    */
-  private Set<GuiGroup> guiGroupsMyFavorites;
+  private Set<GuiGroup> guiGroupsMyFavoritesAbbreviated;
+
+  /**
+   * for index page, this is a short list of subjects the user has favorited
+   */
+  private Set<GuiMember> guiMembersMyFavoritesAbbreviated;
 
   /**
    * for index page, this is a short list of groups the user has favorited, lazy load if null
    * @return the list of groups
    */
-  public Set<GuiGroup> getGuiGroupsMyFavorites() {
+  public Set<GuiGroup> getGuiGroupsMyFavoritesAbbreviated() {
     
-    if (this.guiGroupsMyFavorites == null) {
+    if (this.guiGroupsMyFavoritesAbbreviated == null) {
       
       Set<Group> groups = GrouperUserDataApi.favoriteGroups(GrouperUiUserData.grouperUiGroupNameForUserData(), GrouperSession.staticGrouperSession().getSubject());
       
-      this.guiGroupsMyFavorites = new LinkedHashSet<GuiGroup>();
-      
-      for (Group group : GrouperUtil.nonNull(groups)) {
-        this.guiGroupsMyFavorites.add(new GuiGroup(group));
-      }
-      
+      this.guiGroupsMyFavoritesAbbreviated = GuiGroup.convertFromGroups(groups, "uiV2.index.maxFavoritesEachType", 5);
     }
     
-    return this.guiGroupsMyFavorites;
+    return this.guiGroupsMyFavoritesAbbreviated;
   }
 
   /**
    * 
    */
   private Set<GuiAttributeDefName> guiAttributeDefNamesMyServices;
+  
+  /**
+   * for index page, this is a short list of stems the user has favorited
+   */
+  private Set<GuiStem> guiStemsMyFavoritesAbbreviated;
+
   /** logger */
   protected static final Log LOG = LogFactory.getLog(IndexContainer.class);
 
@@ -180,11 +192,7 @@ public class IndexContainer {
               .assignSubject(subject).assignQueryOptions(new QueryOptions().paging(10, 1, false))
               .findAttributeNames();
               
-          IndexContainer.this.guiAttributeDefNamesMyServices = new LinkedHashSet<GuiAttributeDefName>();
-          
-          for (AttributeDefName attributeDefName : GrouperUtil.nonNull(attributeDefNames)) {
-            IndexContainer.this.guiAttributeDefNamesMyServices.add(new GuiAttributeDefName(attributeDefName));
-          }
+          IndexContainer.this.guiAttributeDefNamesMyServices = GuiAttributeDefName.convertFromAttributeDefNames(attributeDefNames);
 
           return null;
         }
@@ -195,6 +203,76 @@ public class IndexContainer {
     }
     
     return this.guiAttributeDefNamesMyServices;
+  }
+
+  /**
+   * for index page, this is a short list of stems the user has favorited, lazy load if null
+   * @return the list of stems
+   */
+  public Set<GuiStem> getGuiStemsMyFavoritesAbbreviated() {
+    
+    if (this.guiStemsMyFavoritesAbbreviated == null) {
+      
+      Set<Stem> stems = GrouperUserDataApi.favoriteStems(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          GrouperSession.staticGrouperSession().getSubject());
+      
+      this.guiStemsMyFavoritesAbbreviated = GuiStem.convertFromStems(stems, "uiV2.index.maxFavoritesEachType", 5);
+      
+    }
+    
+    return this.guiStemsMyFavoritesAbbreviated;
+  }
+
+  /**
+   * for index page, this is a short list of members the user has favorited, lazy load if null
+   * @return the list of members
+   */
+  public Set<GuiMember> getGuiMembersMyFavoritesAbbreviated() {
+    
+    if (this.guiMembersMyFavoritesAbbreviated == null) {
+      
+      Set<Member> members = GrouperUserDataApi.favoriteMembers(GrouperUiUserData.grouperUiGroupNameForUserData(), GrouperSession.staticGrouperSession().getSubject());
+      
+      this.guiMembersMyFavoritesAbbreviated = GuiMember.convertFromMembers(members, "uiV2.index.maxFavoritesEachType", 5);
+    }
+    
+    return this.guiMembersMyFavoritesAbbreviated;
+  }
+
+  /**
+   * for index page, this is a short list of attributeDefNames the user has favorited, lazy load if null
+   * @return the list of attributeDefNames
+   */
+  public Set<GuiAttributeDefName> getGuiAttributeDefNamesMyFavoritesAbbreviated() {
+    
+    if (this.guiAttributeDefNamesMyFavoritesAbbreviated == null) {
+      
+      Set<AttributeDefName> attributeDefNames = GrouperUserDataApi.favoriteAttributeDefNames(
+          GrouperUiUserData.grouperUiGroupNameForUserData(), GrouperSession.staticGrouperSession().getSubject());
+      
+      this.guiAttributeDefNamesMyFavoritesAbbreviated = GuiAttributeDefName.convertFromAttributeDefNames(
+          attributeDefNames, "uiV2.index.maxFavoritesEachType", 5);
+    }
+    
+    return this.guiAttributeDefNamesMyFavoritesAbbreviated;
+  }
+
+  /**
+   * for index page, this is a short list of attributeDefs the user has favorited, lazy load if null
+   * @return the list of attributeDefs
+   */
+  public Set<GuiAttributeDef> getGuiAttributeDefsMyFavoritesAbbreviated() {
+    
+    if (this.guiAttributeDefsMyFavoritesAbbreviated == null) {
+      
+      Set<AttributeDef> attributeDefs = GrouperUserDataApi.favoriteAttributeDefs(
+          GrouperUiUserData.grouperUiGroupNameForUserData(), GrouperSession.staticGrouperSession().getSubject());
+      
+      this.guiAttributeDefsMyFavoritesAbbreviated = GuiAttributeDef.convertFromAttributeDefs(
+          attributeDefs, "uiV2.index.maxFavoritesEachType", 5);
+    }
+    
+    return this.guiAttributeDefsMyFavoritesAbbreviated;
   }
 
   

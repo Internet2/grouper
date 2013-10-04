@@ -2,6 +2,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- Le styles -->
+<link href="../../grouperExternal/public/assets/dojo/dijit/themes/claro/claro.css" rel="stylesheet" type="text/css" />
+<link href="../../grouperExternal/public/assets/dojo/dojo/resources/dojo.css" rel="stylesheet" type="text/css" />
 <link href="../../grouperExternal/public/assets/css/grouperTooltip.css" rel="stylesheet">
 <link href="../../grouperExternal/public/assets/css/bootstrap.css?updated=02132013_2" rel="stylesheet">
 <link href="../../grouperExternal/public/assets/css/responsive.css" rel="stylesheet">
