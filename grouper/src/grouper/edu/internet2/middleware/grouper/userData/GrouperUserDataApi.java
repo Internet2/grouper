@@ -13,6 +13,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
@@ -21,14 +22,17 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -42,6 +46,25 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class GrouperUserDataApi {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    
+    GrouperStartup.startup();
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Subject subject = SubjectFinder.findRootSubject();
+
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("etc:attribute:rules:ruleCheckOwnerId", true);
+    GrouperUserDataApi.favoriteAttributeDefNameAdd("etc:grouperUi:grouperUiUserData", subject, attributeDefName);
+
+    attributeDefName = AttributeDefNameFinder.findByName("etc:attribute:permissionLimits:limitWeekday9to5", true);
+    GrouperUserDataApi.favoriteAttributeDefNameAdd("etc:grouperUi:grouperUiUserData", subject, attributeDefName);
+
+  }
+  
   /** this is the max user data objects in json to fit in a 4k field */
   public static final int MAX_USER_DATA_OBJECTS = 30;
   
@@ -1242,7 +1265,44 @@ public class GrouperUserDataApi {
     return stems;
 
   }
-  
+
+  /**
+   * @param subjectToRemoveFrom
+   * @param userDataGroupName
+   * @param subjectThatIsFavorite
+   */
+  public static void favoriteMemberRemove(final String userDataGroupName, final Subject subjectToRemoveFrom, 
+      final Subject subjectThatIsFavorite) {
+    Member member = (Member)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return MemberFinder.findBySubject(grouperSession, subjectThatIsFavorite, true);
+      }
+        });
+    favoriteMemberRemove(userDataGroupName, subjectToRemoveFrom, member);
+  }
+
+    
+    
+  /**
+   * @param subjectToAddTo
+   * @param userDataGroupName
+   * @param subjectThatIsFavorite
+   */
+  public static void favoriteMemberAdd(final String userDataGroupName, final Subject subjectToAddTo, final Subject subjectThatIsFavorite) {
+    Member member = (Member)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return MemberFinder.findBySubject(grouperSession, subjectThatIsFavorite, true);
+      }
+        });
+    favoriteMemberAdd(userDataGroupName, subjectToAddTo, member);
+  }
+
   /**
    * @param subjectToAddTo
    * @param userDataGroupName

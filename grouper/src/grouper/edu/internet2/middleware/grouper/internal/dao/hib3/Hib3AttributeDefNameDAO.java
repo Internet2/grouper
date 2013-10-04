@@ -689,11 +689,16 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
   @Override
   public Set<AttributeDefName> findByIdsSecure(Collection<String> ids,
       QueryOptions queryOptions) {
+    
+    Set<AttributeDefName> attributeDefNames = new HashSet<AttributeDefName>();
+    
+    if (GrouperUtil.length(ids) == 0) {
+      return attributeDefNames;
+    }
+    
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(ids, 180);
-    
-    Set<AttributeDefName> attributeDefNames = new HashSet<AttributeDefName>();
     
     List<String> idsList = GrouperUtil.listFromCollection(ids);
     

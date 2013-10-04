@@ -2164,13 +2164,13 @@ public class GrouperCheckConfig {
             checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_FAVORITE_ATTIRBUTE_DEFS, 
                 "Grouper user data favorite attribute definitions", 
                 "A list of attribute definition ids and metadata in json format that are the favorites for a user", wasInCheckConfig);
-            checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_FAVORITE_ATTIRBUTE_DEFS, 
+            checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_RECENT_ATTIRBUTE_DEFS, 
                 "Grouper user data recent attribute definitions", 
                 "A list of attribute definition ids and metadata in json format that are the recently used attribute definitions for a user", wasInCheckConfig);
             checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_FAVORITE_ATTRIBUTE_DEF_NAMES, 
                 "Grouper user data favorite attribute definition names", 
                 "A list of attribute definition name ids and metadata in json format that are the favorites for a user", wasInCheckConfig);
-            checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_FAVORITE_ATTRIBUTE_DEF_NAMES, 
+            checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_RECENT_ATTRIBUTE_DEF_NAMES, 
                 "Grouper user data recent attribute definition names", 
                 "A list of attribute definition name ids and metadata in json format that are the recently used attribute definition names for a user", wasInCheckConfig);
             checkAttribute(userDataStem, userDataValueDef, GrouperUserDataUtils.ATTR_DEF_EXTENSION_PREFERENCES, 

@@ -343,7 +343,7 @@ public class GrouperUserDataUtils {
     if (grouperUserDataFavoriteAttributeDefNamesName == null) {
       grouperUserDataFavoriteAttributeDefNamesName = grouperUserDataStemName() + ":" + ATTR_DEF_EXTENSION_FAVORITE_ATTRIBUTE_DEF_NAMES;
     }
-    return grouperUserDataFavoriteStemsName;
+    return grouperUserDataFavoriteAttributeDefNamesName;
   }
   
   /**
@@ -356,7 +356,7 @@ public class GrouperUserDataUtils {
       
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-        return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataFavoriteStemsName(), true);
+        return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataFavoriteAttributeDefNamesName(), true);
       }
     });
   }

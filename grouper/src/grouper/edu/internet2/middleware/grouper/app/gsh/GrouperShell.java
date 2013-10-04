@@ -400,6 +400,7 @@ private static boolean handleSpecialCase(String[] args) {
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.util.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.subject.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.subject.provider.*;");
+      this.interpreter.eval(  "import edu.internet2.middleware.grouper.userData.*;");
       
     }
     catch (bsh.EvalError eBBB) {

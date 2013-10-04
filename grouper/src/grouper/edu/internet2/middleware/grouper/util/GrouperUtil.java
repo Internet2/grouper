@@ -10391,6 +10391,21 @@ public class GrouperUtil {
 
   /** array for converting HTML to string */
   private static final String[] XML_REPLACE_NO_SINGLE = new String[]{"&amp;","&lt;","&gt;","&quot;"};
+
+
+  /**
+   * Convert an XML string to HTML to display on the screen
+   * 
+   * @param input
+   *          is the XML to convert
+   * @param isEscape true to escape chars, false to unescape
+   * 
+   * @return the HTML converted string
+   */
+  public static String xmlEscape(String input) {
+    return xmlEscape(input, true);
+  }
+
   /**
    * Convert an XML string to HTML to display on the screen
    *
