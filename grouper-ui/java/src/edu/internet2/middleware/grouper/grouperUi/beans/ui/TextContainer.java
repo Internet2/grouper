@@ -82,7 +82,7 @@ public class TextContainer {
       substituteMap.put("grouperRequestContainer", GrouperRequestContainer.retrieveFromRequestOrCreate());
       substituteMap.put("request", GrouperUiFilter.retrieveHttpServletRequest());
       substituteMap.put("textContainer", TextContainer.retrieveFromRequest());
-      value = GrouperUtil.substituteExpressionLanguage(value, substituteMap, true, false, false);
+      value = GrouperUtil.substituteExpressionLanguage(value, substituteMap, true, false, true);
     }
     return value;
   }
@@ -172,7 +172,7 @@ public class TextContainer {
       LOG.debug("Tooltip key: " + targettedTooltipKey + " has tooltip? " + hasTooltip);
     }
 
-    if (hasTooltip) {
+    if (hasTooltip && !StringUtils.equals(targettedTooltipValue, value)) {
 
       //replace the whole message with tooltip
       value = convertTooltipTextToHtml(targettedTooltipValue, value, false);

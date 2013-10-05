@@ -362,20 +362,20 @@ public class GrouperMessageTag extends MessageTag {
       LOG.debug("Tooltip key: " + targettedTooltipKey + " has tooltip? " + hasTooltip);
       
       if (!dontDoTooltips) {
-        if (hasTooltip) {
+        if (hasTooltip && !StringUtils.equals(targettedTooltipValue, message)) {
           
           //replace the whole message with tooltip
           message = convertTooltipTextToHtml(targettedTooltipValue, message, isIgnoreTooltipStyle);
-          
+
         } else {
-          
+
           //CH 20080129 at this point we need to make the tooltip substitutions
           message = substituteTooltips(message, isIgnoreTooltipStyle);
-          
+
         }
       }
     }
-    
+
     boolean isEscapeSingleQuotes = GrouperUtil.booleanValue(this.escapeSingleQuotes, false);
     if (this.escapeHtml) {
       message = GrouperUiUtils.escapeHtml(message, true, isEscapeSingleQuotes);

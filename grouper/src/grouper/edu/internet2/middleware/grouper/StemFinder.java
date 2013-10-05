@@ -33,20 +33,22 @@
 package edu.internet2.middleware.grouper;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Find stems within the Groups Registry.
@@ -423,6 +425,116 @@ public class StemFinder {
       throws StemNotFoundException {
     Stem s = GrouperDAOFactory.getFactory().getStem().findByIdIndex(idIndex, exceptionIfNotFound, queryOptions);
     return s;
+  }
+
+  /**
+   * find stems where the static grouper session has certain privileges on the results
+   */
+  private Set<Privilege> privileges;
+
+  /**
+   * if sorting or paging
+   */
+  private QueryOptions queryOptions;
+  
+  /**
+   * scope to look for stems Wildcards will be appended or percent is the wildcard
+   */
+  private String scope;
+
+  /**
+   * if the scope has spaces in it, then split by whitespace, and find results that contain all of the scope strings
+   */
+  private boolean splitScope;
+
+  /**
+   * this is the subject that has certain privileges
+   */
+  private Subject subject;
+
+  /**
+   * add a privilege to filter by that the subject has on the stem
+   * @param privilege should be AccessPrivilege
+   * @return this for chaining
+   */
+  public StemFinder addPrivilege(Privilege privilege) {
+    
+    if (this.privileges == null) {
+      this.privileges = new HashSet<Privilege>();
+    }
+    
+    this.privileges.add(privilege);
+    
+    return this;
+  }
+
+  /**
+   * assign privileges to filter by that the subject has on the stem
+   * @param theStems
+   * @return this for chaining
+   */
+  public StemFinder assignPrivileges(Set<Privilege> theStems) {
+    this.privileges = theStems;
+    return this;
+  }
+
+  /**
+   * if sorting, paging, caching, etc
+   * @param theQueryOptions
+   * @return this for chaining
+   */
+  public StemFinder assignQueryOptions(QueryOptions theQueryOptions) {
+    this.queryOptions = theQueryOptions;
+    return this;
+  }
+
+  /**
+   * scope to look for stems  Wildcards will be appended or percent is the wildcard
+   * @param theScope
+   * @return this for chaining
+   */
+  public StemFinder assignScope(String theScope) {
+    this.scope = theScope;
+    return this;
+  }
+
+  /**
+   * if the scope has spaces in it, then split by whitespace, and find results that contain all of the scope strings
+   * @param theSplitScope
+   * @return this for chaining
+   */
+  public StemFinder assignSplitScope(boolean theSplitScope) {
+    this.splitScope = theSplitScope;
+    return this;
+  }
+
+  /**
+   * this is the subject that has certain privileges or is in the query
+   * @param theSubject
+   * @return this for chaining
+   */
+  public StemFinder assignSubject(Subject theSubject) {
+    this.subject = theSubject;
+    return this;
+  }
+
+  /**
+   * find all the group
+   * @return the set of groups or the empty set if none found
+   */
+  public Set<Stem> findStems() {
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+  
+    if (this.splitScope) {
+
+      return GrouperDAOFactory.getFactory().getStem()
+        .getAllStemsSplitScopeSecure(this.scope, grouperSession, this.subject, this.privileges, this.queryOptions);
+
+    }
+
+    return GrouperDAOFactory.getFactory().getStem()
+        .getAllStemsSecure(this.scope, grouperSession, this.subject, this.privileges, this.queryOptions);
+    
   }
 
 }

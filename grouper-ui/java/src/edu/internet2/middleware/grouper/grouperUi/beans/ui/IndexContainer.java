@@ -16,6 +16,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
@@ -102,6 +103,31 @@ public class IndexContainer {
    * for index page, this is a short list of groups the user manages
    */
   private Set<GuiGroup> guiGroupsUserManagesAbbreviated;
+
+  /**
+   * for the index page, this is a short list of stems the user manages
+   */
+  private Set<GuiStem> guiStemsUserManagesAbbreviated;
+  
+  /**
+   * get the stems the user manages, size 10 for front screen
+   * @return the stems
+   */
+  public Set<GuiStem> getGuiStemsUserManagesAbbreviated() {
+
+    if (this.guiGroupsUserManagesAbbreviated == null) {
+      
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+      Set<Stem> stems = new StemFinder().assignSubject(grouperSession.getSubject())
+          .assignPrivileges(AccessPrivilege.MANAGE_PRIVILEGES)
+          .assignQueryOptions(new QueryOptions().paging(10, 1, false)).findStems();
+
+      this.guiStemsUserManagesAbbreviated = GuiStem.convertFromStems(stems);
+            
+    }
+
+    return this.guiStemsUserManagesAbbreviated;
+  }
 
   /**
    * for index page, this is a short list of attributeDefs favorites

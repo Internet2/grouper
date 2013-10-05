@@ -126,4 +126,33 @@ public class UiV2Main extends UiServiceLogicBase {
     throw new ControllerDone();
   }
 
+  /**
+   * change a column to groups I manage
+   * @param request
+   * @param response
+   */
+  public void indexColStemsImanage(HttpServletRequest request, HttpServletResponse response) {
+    
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    //initialize the bean
+    GrouperRequestContainer.retrieveFromRequestOrCreate();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      int col = GrouperUtil.intValue(request.getParameter("col"));
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#indexCol" + col, 
+          "/WEB-INF/grouperUi2/index/indexStemsImanage.jsp"));
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  
+    
+  }
+
 }

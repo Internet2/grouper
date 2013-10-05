@@ -62,7 +62,7 @@ public class ServiceTest extends GrouperTest {
     AttributeDefName confluenceService = null;    
     AttributeDefName directoryService = null;    
     try {
-      
+
       //create three services, one directly in, one hierarchical, one the user is not in
       AttributeDef jiraServiceDef = new AttributeDefSave(grouperSession)
         .assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.service)

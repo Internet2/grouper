@@ -527,8 +527,13 @@ public class GroupFinder {
   public Set<Group> findGroups() {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
    
+    if (this.splitScope) {
+      return GrouperDAOFactory.getFactory().getGroup()
+        .getAllGroupsSplitScopeSecure(this.scope, grouperSession, this.subject, this.privileges, this.queryOptions, this.typeOfGroups);
+    }
     return GrouperDAOFactory.getFactory().getGroup()
-      .getAllGroupsSplitScopeSecure(this.scope, grouperSession, this.subject, this.privileges, this.queryOptions, this.typeOfGroups);
+        .getAllGroupsSecure(this.scope, grouperSession, this.subject, this.privileges, this.queryOptions, this.typeOfGroups);
+    
   }
 
   /**

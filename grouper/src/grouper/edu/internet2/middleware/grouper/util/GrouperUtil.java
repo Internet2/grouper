@@ -9028,6 +9028,11 @@ public class GrouperUtil {
           throw je;
         }
 
+        //we dont want "null" in the result I think...
+        if (o == null && lenient) {
+          o = "";
+        }
+        
         if (o == null) {
           LOG.warn("expression returned null: " + script + ", in pattern: '" + stringToParse + "', available variables are: "
               + toStringForLog(variableMap.keySet()));
