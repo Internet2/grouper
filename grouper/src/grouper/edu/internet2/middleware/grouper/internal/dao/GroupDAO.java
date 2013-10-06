@@ -758,6 +758,22 @@ public interface GroupDAO extends GrouperDAO {
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, TypeOfGroup typeOfGroup);
 
   /**
+   * get all groups secure, split the scope by whitespace
+   * @param scope
+   * @param grouperSession
+   * @param subject
+   * @param privileges
+   * @param queryOptions
+   * @param typeOfGroup or null for all
+   * @param splitScope
+   * @param field
+   * @return set of group
+   */
+  public Set<Group> getAllGroupsSecure(String scope, GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, 
+      Set<TypeOfGroup> typeOfGroup, boolean splitScope, Subject membershipSubject, Field field);  
+  
+  /**
    * find by uuid secure
    * @param uuids
    * @param exceptionIfNotFound

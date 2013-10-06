@@ -12,8 +12,8 @@
                             <li><a href="#" onclick="ajax('UiV2Main.indexColGroupsImanage?col=${col}'); return false;">Groups I manage</a></li>
                             <li><a href="#" onclick="ajax('UiV2Main.indexColMyServices?col=${col}'); return false;">My services</a></li>
                             <li><a href="#" onclick="ajax('UiV2Main.indexColStemsImanage?col=${col}'); return false;">My folders</a></li>
-                            <li><a href="#">My memberships</a></li>
-                            <li><a href="#">Recently used</a></li>
+                            <li><a href="#" onclick="ajax('UiV2Main.indexColMyMemberships?col=${col}'); return false;">My memberships</a></li>
+                            <li><a href="#" onclick="ajax('UiV2Main.indexColRecentlyUsed?col=${col}'); return false;">Recently used</a></li>
                           </ul>
                         </li>
                       </ul>

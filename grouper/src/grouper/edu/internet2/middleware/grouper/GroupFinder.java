@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -480,7 +481,7 @@ public class GroupFinder {
   private boolean splitScope;
 
   /**
-   * this is the subject that has certain privileges
+   * this is the subject that has certain memberships
    */
   private Subject subject;
 
@@ -521,18 +522,68 @@ public class GroupFinder {
   } 
 
   /**
+   * if this is true, or there is a field assigned, then get memberships for a subject
+   */
+  private boolean membershipsForSubject;
+
+  /**
+   * field to look for if searching for memberships in groups
+   */
+  private Field field;
+
+  /**
+   * field to look for if searching for memberships in groups
+   * @param theField
+   * @return this for chaining
+   */
+  public GroupFinder assignField(Field theField) {
+    this.field = theField;
+    return this;
+  }
+
+  /**
+   * field name to look for if searching for memberships in groups
+   * @param theFieldName
+   * @return theFieldName
+   */
+  public GroupFinder assignFieldName(String theFieldName) {
+    if (StringUtils.isBlank(theFieldName)) {
+      this.field = null;
+    }
+    this.field = FieldFinder.find(theFieldName, true);
+    return this;
+  }
+  
+  /**
+   * if this is true, or there is a field assigned, then get memberships for a subject
+   * @param membershipsForSubject1
+   * @return this for chaining
+   */
+  public GroupFinder assignMembershipsForSubject(boolean membershipsForSubject1) {
+    this.membershipsForSubject = membershipsForSubject1;
+    return this;
+  }
+  
+  /**
    * find all the group
    * @return the set of groups or the empty set if none found
    */
   public Set<Group> findGroups() {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
-   
-    if (this.splitScope) {
-      return GrouperDAOFactory.getFactory().getGroup()
-        .getAllGroupsSplitScopeSecure(this.scope, grouperSession, this.subject, this.privileges, this.queryOptions, this.typeOfGroups);
+    
+    if (this.membershipsForSubject && this.field == null) {
+      this.field = Group.getDefaultList();
     }
+    
+    Subject privSubject = null;
+    
+    if (GrouperUtil.length(this.privileges) > 0) {
+      privSubject = grouperSession.getSubject();
+    }
+    
     return GrouperDAOFactory.getFactory().getGroup()
-        .getAllGroupsSecure(this.scope, grouperSession, this.subject, this.privileges, this.queryOptions, this.typeOfGroups);
+        .getAllGroupsSecure(this.scope, grouperSession, privSubject, this.privileges, 
+            this.queryOptions, this.typeOfGroups, this.splitScope, this.subject, this.field);
     
   }
 
@@ -598,7 +649,7 @@ public class GroupFinder {
   }
 
   /**
-   * this is the subject that has certain privileges or is in the query
+   * this is the subject that has certain memberships in the query
    * @param theSubject
    * @return this for chaining
    */

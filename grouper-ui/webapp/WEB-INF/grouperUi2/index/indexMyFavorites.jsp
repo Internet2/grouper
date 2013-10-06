@@ -1,6 +1,6 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
                     <!-- start indexMyFavorites.jsp -->
-                    <h4>My Favorites</h4>
+                    <h4>My favorites</h4>
                     
                     <ul class="unstyled list-widget">
                       <c:forEach items="${grouperRequestContainer.indexContainer.guiGroupsMyFavoritesAbbreviated}" var="guiGroup">

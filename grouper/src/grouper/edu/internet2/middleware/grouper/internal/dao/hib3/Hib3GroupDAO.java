@@ -2318,7 +2318,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions, TypeOfGroup typeOfGroup) {
     Set<TypeOfGroup> typeOfGroups = typeOfGroup == null ? null : GrouperUtil.toSet(typeOfGroup);
-    return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, true, typeOfGroups);
+    return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, true, typeOfGroups, null, null);
   }
 
   /**
@@ -2328,11 +2328,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public Set<Group> getAllGroupsSplitScopeSecure(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) {
-    return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, true, typeOfGroups);
+    return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, true, typeOfGroups, null, null);
   }
 
   /**
-   * 
    * @param scope 
    * @param grouperSession 
    * @param subject 
@@ -2340,12 +2339,14 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * @param queryOptions 
    * @param splitScope 
    * @param typeOfGroups
+   * @param membershipSubject
    * @return groups
    * 
    */
   private Set<Group> findAllGroupsSecureHelper(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
-      QueryOptions queryOptions, boolean splitScope, Set<TypeOfGroup> typeOfGroups) {
+      QueryOptions queryOptions, boolean splitScope, Set<TypeOfGroup> typeOfGroups, Subject membershipSubject, Field field) {
+
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
     }
@@ -2364,6 +2365,33 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
     StringBuilder whereClause = new StringBuilder();
 
+    if (field != null) {
+      
+      if (whereClause.length() > 0) {
+        
+        whereClause.append(" and ");
+        
+      }
+
+      if (membershipSubject == null) {
+        throw new RuntimeException("Why is membershipSubject null if passing in a field for memberships???");
+      }
+      
+      Member membershipMember = MemberFinder.findBySubject(grouperSession, membershipSubject, false);
+      
+      //if a member does not exist, its not in any groups
+      if (membershipMember == null) {
+        return new HashSet<Group>();
+      }
+      
+      whereClause.append(" exists (select 1 from MembershipEntry fieldMembership where fieldMembership.ownerGroupId = theGroup.uuid " +
+      		" and fieldMembership.fieldId = :fieldId " +
+      		" and fieldMembership.memberUuid = :fieldMembershipMemberUuid and fieldMembership.enabledDb = 'T' ) ");
+      byHqlStatic.setString("fieldId", field.getUuid());
+      byHqlStatic.setString("fieldMembershipMemberUuid", membershipMember.getUuid());
+            
+    }
+    
     //see if there is a scope
     if (!StringUtils.isBlank(scope)) {
       scope = scope.toLowerCase();
@@ -2755,6 +2783,16 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     
     
     
+  }
+
+  /**
+   * @see GroupDAO#getAllGroupsSecure(String, GrouperSession, Subject, Set, QueryOptions, Set<TypeOfGroup>, boolean, Field)
+   */
+  @Override
+  public Set<Group> getAllGroupsSecure(String scope, GrouperSession grouperSession,
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions,
+      Set<TypeOfGroup> typeOfGroups, boolean splitScope, Subject membershipSubject, Field field) {
+    return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, splitScope, typeOfGroups, membershipSubject, field);
   }
 } 
 

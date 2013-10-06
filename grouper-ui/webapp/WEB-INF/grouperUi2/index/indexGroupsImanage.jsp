@@ -1,6 +1,6 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
                     <!-- start indexGroupsIManage.jsp -->
-                    <h4>Groups I Manage</h4>
+                    <h4>Groups I manage</h4>
                     <ul class="unstyled list-widget">
                       <c:forEach items="${grouperRequestContainer.indexContainer.guiGroupsUserManagesAbbreviated}" var="guiGroup">
                         <li>

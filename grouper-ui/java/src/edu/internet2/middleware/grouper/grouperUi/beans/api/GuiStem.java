@@ -40,6 +40,20 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class GuiStem extends GuiObjectBase implements Serializable {
 
   /**
+   * get the display extension or the special root label
+   * @return the display extension
+   */
+  public String getGuiDisplayExtension() {
+    if (this.stem == null) {
+      return TextContainer.retrieveFromRequest().getText().get("error.title");
+    }
+    if (this.stem.isRootStem()) {
+      return TextContainer.retrieveFromRequest().getText().get("stem.root.display-name");
+    }
+    return this.stem.getDisplayExtension();
+  }
+  
+  /**
    * 
    * @param stems
    * @param configMax

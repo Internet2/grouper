@@ -155,4 +155,32 @@ public class UiV2Main extends UiServiceLogicBase {
     
   }
 
+  /**
+   * change a column to my memberships
+   * @param request
+   * @param response
+   */
+  public void indexColMyMemberships(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    //initialize the bean
+    GrouperRequestContainer.retrieveFromRequestOrCreate();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      int col = GrouperUtil.intValue(request.getParameter("col"));
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#indexCol" + col, 
+          "/WEB-INF/grouperUi2/index/indexMyMemberships.jsp"));
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  
+    
+  }
+
 }

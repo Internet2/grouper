@@ -38,6 +38,7 @@ import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -71,6 +72,110 @@ public class TestGroupFinder extends GrouperTest {
     super(name);
   }
 
+  
+  /**
+   * 
+   */
+  public void testChainingGroupsManageMemberships() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    GroupType groupType = GroupType.createType(grouperSession, "testType");
+    
+    Field field = groupType.addList(grouperSession, "test1", AccessPrivilege.VIEW, AccessPrivilege.ADMIN);
+    
+    //make some groups
+    Group group1a = new GroupSave(grouperSession).assignName("test:test1:testa").assignCreateParentStemsIfNotExist(true).save();
+    group1a.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    group1a.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW);
+    
+    Group group1b = new GroupSave(grouperSession).assignName("test:test1:testb").assignCreateParentStemsIfNotExist(true).save();
+    group1b.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    group1b.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW);
+    
+    Group group2a = new GroupSave(grouperSession).assignName("test:test2:testa").assignCreateParentStemsIfNotExist(true).save();
+    group2a.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    group2a.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW);
+    
+    Group group2b = new GroupSave(grouperSession).assignName("test:test2:testb").assignCreateParentStemsIfNotExist(true).save();
+    group2b.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    group2b.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW);
+
+    Group group3a = new GroupSave(grouperSession).assignName("test:test3:testa").assignCreateParentStemsIfNotExist(true).save();
+    group3a.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    group3a.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW);
+
+    Group group3b= new GroupSave(grouperSession).assignName("test:test3:testb").assignCreateParentStemsIfNotExist(true).save();
+    group3b.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    group3b.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW);
+
+    group1a.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    group1a.addMember(SubjectTestHelper.SUBJ0, false);
+
+    group1b.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+
+    group2a.addMember(SubjectTestHelper.SUBJ0, false);
+    
+    group2b.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    
+    group3a.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    group3a.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.ADMIN);
+    group3a.addMember(SubjectTestHelper.SUBJ0, false);
+    
+    group3b.addType(groupType);
+    group3b.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.READ);
+    group3b.addMember(SubjectTestHelper.SUBJ0, field, false);
+
+    //subj0 can view and is in group1a and group3b
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    Set<Group> groups = new GroupFinder().assignPrivileges(AccessPrivilege.VIEW_PRIVILEGES)
+        .assignField(Group.getDefaultList()).assignSubject(SubjectTestHelper.SUBJ0)
+        .assignQueryOptions(new QueryOptions().paging(1000, 1, false)).findGroups();
+    
+    assertEquals(GrouperUtil.toStringForLog(groups), 2, groups.size());
+    
+    assertTrue(groups.contains(group1a));
+    assertTrue(groups.contains(group3a));
+
+    //subj0 cant admin and is in group1a and group3b
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    groups = new GroupFinder().assignPrivileges(AccessPrivilege.MANAGE_PRIVILEGES)
+        .assignField(Group.getDefaultList()).assignSubject(SubjectTestHelper.SUBJ0)
+        .assignQueryOptions(new QueryOptions().paging(1000, 1, false)).findGroups();
+    
+    assertEquals(GrouperUtil.toStringForLog(groups), 0, groups.size());
+    
+    
+    //subj2 can read and subj0 is in group3b
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ2);
+    groups = new GroupFinder().assignPrivileges(AccessPrivilege.READ_PRIVILEGES)
+        .assignSubject(SubjectTestHelper.SUBJ0).assignField(Group.getDefaultList())
+        .assignQueryOptions(new QueryOptions().paging(1000, 1, false)).findGroups();
+    
+    assertEquals(GrouperUtil.toStringForLog(groups), 1, groups.size());
+    
+    assertTrue(groups.contains(group3a));
+
+    //subj3 cant read and subj0 is in group3b
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ3);
+    groups = new GroupFinder().assignPrivileges(AccessPrivilege.READ_PRIVILEGES)
+        .assignSubject(SubjectTestHelper.SUBJ0).assignField(Group.getDefaultList())
+        .assignQueryOptions(new QueryOptions().paging(1000, 1, false)).findGroups();
+    
+    assertEquals(GrouperUtil.toStringForLog(groups), 0, groups.size());
+    
+
+    
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    
+  }
+  
   /**
    * 
    */
@@ -116,8 +221,10 @@ public class TestGroupFinder extends GrouperTest {
     group2b.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.UPDATE);
 
     //subj1 can admin group1b, but can update other group2a...
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+
     Set<Group> groups = new GroupFinder().assignPrivileges(AccessPrivilege.MANAGE_PRIVILEGES)
-        .assignSubject(SubjectTestHelper.SUBJ1)
         .assignQueryOptions(new QueryOptions().paging(1000, 1, false)).findGroups();
     
     assertEquals(GrouperUtil.toStringForLog(groups), 2, groups.size());
@@ -126,8 +233,9 @@ public class TestGroupFinder extends GrouperTest {
     assertTrue(groups.contains(group1b));
     
     //subj0 can read group2b, but can admin other group1a...
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
     groups = new GroupFinder().assignPrivileges(AccessPrivilege.READ_PRIVILEGES)
-        .assignSubject(SubjectTestHelper.SUBJ0)
         .assignQueryOptions(new QueryOptions().paging(1000, 1, false)).findGroups();
     
     assertEquals(GrouperUtil.toStringForLog(groups), 2, groups.size());
@@ -139,7 +247,7 @@ public class TestGroupFinder extends GrouperTest {
     
     
   }
-  
+
   public void testFailToFindGroupByAttributeNullSession() {
     LOG.info("testFailToFindGroupByAttributeNullSession");
     try {
@@ -429,7 +537,7 @@ public class TestGroupFinder extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(TestGroupFinder.class);
-    TestRunner.run(new TestGroupFinder("testChainingGroupsManage"));
+    TestRunner.run(new TestGroupFinder("testChainingGroupsManageMemberships"));
   }
 
 } // public class TestGroupFinder_FindByAttribute

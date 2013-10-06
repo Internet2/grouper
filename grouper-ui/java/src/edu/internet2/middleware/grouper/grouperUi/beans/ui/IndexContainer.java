@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -120,7 +121,9 @@ public class IndexContainer {
       GrouperSession grouperSession = GrouperSession.staticGrouperSession();
       Set<Stem> stems = new StemFinder().assignSubject(grouperSession.getSubject())
           .assignPrivileges(AccessPrivilege.MANAGE_PRIVILEGES)
-          .assignQueryOptions(new QueryOptions().paging(10, 1, false)).findStems();
+          .assignQueryOptions(new QueryOptions().paging(
+              GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10),
+              1, false)).findStems();
 
       this.guiStemsUserManagesAbbreviated = GuiStem.convertFromStems(stems);
             
@@ -147,10 +150,9 @@ public class IndexContainer {
     
     if (this.guiGroupsUserManagesAbbreviated == null) {
       
-      GrouperSession grouperSession = GrouperSession.staticGrouperSession();
-      Set<Group> groups = new GroupFinder().assignSubject(grouperSession.getSubject())
+      Set<Group> groups = new GroupFinder()
           .assignPrivileges(AccessPrivilege.MANAGE_PRIVILEGES)
-          .assignQueryOptions(new QueryOptions().paging(10, 1, false)).findGroups();
+          .assignQueryOptions(new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false)).findGroups();
 
       this.guiGroupsUserManagesAbbreviated = GuiGroup.convertFromGroups(groups);
             
@@ -160,9 +162,37 @@ public class IndexContainer {
   }
 
   /**
+   * for index page, this is a short list of groups the user is a member of, lazy load if null
+   * @return the list of groups
+   */
+  public Set<GuiGroup> getGuiGroupsMyMembershipsAbbreviated() {
+    
+    if (this.guiGroupsMyMembershipsAbbreviated == null) {
+      
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+      Set<Group> groups = new GroupFinder()
+          .assignSubject(grouperSession.getSubject())
+          .assignField(Group.getDefaultList())
+          .assignPrivileges(AccessPrivilege.READ_PRIVILEGES)
+          .assignQueryOptions(new QueryOptions().paging(
+              GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false)).findGroups();
+
+      this.guiGroupsMyMembershipsAbbreviated = GuiGroup.convertFromGroups(groups);
+            
+    }
+    
+    return this.guiGroupsMyMembershipsAbbreviated;
+  }
+
+  /**
    * for index page, this is a short list of groups the user has favorited
    */
   private Set<GuiGroup> guiGroupsMyFavoritesAbbreviated;
+
+  /**
+   * for index page, this is a short list of groups the user is a member of
+   */
+  private Set<GuiGroup> guiGroupsMyMembershipsAbbreviated;
 
   /**
    * for index page, this is a short list of subjects the user has favorited
@@ -215,7 +245,7 @@ public class IndexContainer {
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
           Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignAnyRole(true)
-              .assignSubject(subject).assignQueryOptions(new QueryOptions().paging(10, 1, false))
+              .assignSubject(subject).assignQueryOptions(new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false))
               .findAttributeNames();
               
           IndexContainer.this.guiAttributeDefNamesMyServices = GuiAttributeDefName.convertFromAttributeDefNames(attributeDefNames);
