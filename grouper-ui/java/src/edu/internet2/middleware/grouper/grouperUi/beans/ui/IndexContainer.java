@@ -225,6 +225,31 @@ public class IndexContainer {
    */
   private Set<GuiStem> guiStemsMyFavoritesAbbreviated;
 
+  /**
+   * for index page, this is a short list of attributeDefNames RecentlyUsed
+   */
+  private Set<GuiAttributeDefName> guiAttributeDefNamesRecentlyUsedAbbreviated;
+
+  /**
+   * for index page, this is a short list of attributeDefs RecentlyUsed
+   */
+  private Set<GuiAttributeDef> guiAttributeDefsRecentlyUsedAbbreviated;
+
+  /**
+   * for index page, this is a short list of groups the user has RecentlyUsed
+   */
+  private Set<GuiGroup> guiGroupsRecentlyUsedAbbreviated;
+
+  /**
+   * for index page, this is a short list of subjects the user has RecentlyUsed
+   */
+  private Set<GuiMember> guiMembersRecentlyUsedAbbreviated;
+
+  /**
+   * for index page, this is a short list of stems the user has RecentlyUsed
+   */
+  private Set<GuiStem> guiStemsRecentlyUsedAbbreviated;
+
   /** logger */
   protected static final Log LOG = LogFactory.getLog(IndexContainer.class);
 
@@ -329,6 +354,92 @@ public class IndexContainer {
     }
     
     return this.guiAttributeDefsMyFavoritesAbbreviated;
+  }
+
+  /**
+   * for index page, this is a short list of attributeDefNames the user has RecentlyUsed, lazy load if null
+   * @return the list of attributeDefNames
+   */
+  public Set<GuiAttributeDefName> getGuiAttributeDefNamesRecentlyUsedAbbreviated() {
+    
+    if (this.guiAttributeDefNamesRecentlyUsedAbbreviated == null) {
+      
+      Set<AttributeDefName> attributeDefNames = GrouperUserDataApi.recentlyUsedAttributeDefNames(
+          GrouperUiUserData.grouperUiGroupNameForUserData(), GrouperSession.staticGrouperSession().getSubject());
+      
+      this.guiAttributeDefNamesRecentlyUsedAbbreviated = GuiAttributeDefName.convertFromAttributeDefNames(
+          attributeDefNames, "uiV2.index.maxRecentlyUsedEachType", 5);
+    }
+    
+    return this.guiAttributeDefNamesRecentlyUsedAbbreviated;
+  }
+
+  /**
+   * for index page, this is a short list of attributeDefs the user has RecentlyUsed, lazy load if null
+   * @return the list of attributeDefs
+   */
+  public Set<GuiAttributeDef> getGuiAttributeDefsRecentlyUsedAbbreviated() {
+    
+    if (this.guiAttributeDefsRecentlyUsedAbbreviated == null) {
+      
+      Set<AttributeDef> attributeDefs = GrouperUserDataApi.recentlyUsedAttributeDefs(
+          GrouperUiUserData.grouperUiGroupNameForUserData(), GrouperSession.staticGrouperSession().getSubject());
+      
+      this.guiAttributeDefsRecentlyUsedAbbreviated = GuiAttributeDef.convertFromAttributeDefs(
+          attributeDefs, "uiV2.index.maxRecentlyUsedEachType", 5);
+    }
+    
+    return this.guiAttributeDefsRecentlyUsedAbbreviated;
+  }
+
+  /**
+   * for index page, this is a short list of groups the user has RecentlyUsed, lazy load if null
+   * @return the list of groups
+   */
+  public Set<GuiGroup> getGuiGroupsRecentlyUsedAbbreviated() {
+    
+    if (this.guiGroupsRecentlyUsedAbbreviated == null) {
+      
+      Set<Group> groups = GrouperUserDataApi.recentlyUsedGroups(GrouperUiUserData.grouperUiGroupNameForUserData(), GrouperSession.staticGrouperSession().getSubject());
+      
+      this.guiGroupsRecentlyUsedAbbreviated = GuiGroup.convertFromGroups(groups, "uiV2.index.maxRecentlyUsedEachType", 5);
+    }
+    
+    return this.guiGroupsRecentlyUsedAbbreviated;
+  }
+
+  /**
+   * for index page, this is a short list of members the user has RecentlyUsed, lazy load if null
+   * @return the list of members
+   */
+  public Set<GuiMember> getGuiMembersRecentlyUsedAbbreviated() {
+    
+    if (this.guiMembersRecentlyUsedAbbreviated == null) {
+      
+      Set<Member> members = GrouperUserDataApi.recentlyUsedMembers(GrouperUiUserData.grouperUiGroupNameForUserData(), GrouperSession.staticGrouperSession().getSubject());
+      
+      this.guiMembersRecentlyUsedAbbreviated = GuiMember.convertFromMembers(members, "uiV2.index.maxRecentlyUsedEachType", 5);
+    }
+    
+    return this.guiMembersRecentlyUsedAbbreviated;
+  }
+
+  /**
+   * for index page, this is a short list of stems the user has RecentlyUsed, lazy load if null
+   * @return the list of stems
+   */
+  public Set<GuiStem> getGuiStemsRecentlyUsedAbbreviated() {
+    
+    if (this.guiStemsRecentlyUsedAbbreviated == null) {
+      
+      Set<Stem> stems = GrouperUserDataApi.recentlyUsedStems(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          GrouperSession.staticGrouperSession().getSubject());
+      
+      this.guiStemsRecentlyUsedAbbreviated = GuiStem.convertFromStems(stems, "uiV2.index.maxRecentlyUsedEachType", 5);
+      
+    }
+    
+    return this.guiStemsRecentlyUsedAbbreviated;
   }
 
   

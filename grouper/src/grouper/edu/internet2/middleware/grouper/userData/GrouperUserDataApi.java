@@ -29,7 +29,6 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.membership.MembershipType;
-import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -146,7 +145,7 @@ public class GrouperUserDataApi {
        */
       @Override
       public AttributeDefName attributeDefName() {
-        return GrouperUserDataUtils.grouperUserDataRecentAttributeDefsAttributeDefName();
+        return GrouperUserDataUtils.grouperUserDataRecentAttributeDefNamesAttributeDefName();
       }
       
     },
@@ -1306,6 +1305,23 @@ public class GrouperUserDataApi {
   /**
    * @param subjectToAddTo
    * @param userDataGroupName
+   * @param subjectThatIsRecentlyUsed
+   */
+  public static void recentlyUsedMemberAdd(final String userDataGroupName, final Subject subjectToAddTo, final Subject subjectThatIsRecentlyUsed) {
+    Member member = (Member)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return MemberFinder.findBySubject(grouperSession, subjectThatIsRecentlyUsed, true);
+      }
+        });
+    recentlyUsedMemberAdd(userDataGroupName, subjectToAddTo, member);
+  }
+
+  /**
+   * @param subjectToAddTo
+   * @param userDataGroupName
    * @param member
    */
   public static void favoriteMemberAdd(final String userDataGroupName, final Subject subjectToAddTo, final Member member) {
@@ -1726,6 +1742,23 @@ public class GrouperUserDataApi {
     
   }
 
+  /**
+   * @param subjectToRemoveFrom
+   * @param userDataGroupName
+   * @param subjectThatIsRecentlyUsed
+   */
+  public static void recentlyUsedMemberRemove(final String userDataGroupName, final Subject subjectToRemoveFrom, 
+      final Subject subjectThatIsRecentlyUsed) {
+    Member member = (Member)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return MemberFinder.findBySubject(grouperSession, subjectThatIsRecentlyUsed, true);
+      }
+        });
+    recentlyUsedMemberRemove(userDataGroupName, subjectToRemoveFrom, member);
+  }
 
 }
 
