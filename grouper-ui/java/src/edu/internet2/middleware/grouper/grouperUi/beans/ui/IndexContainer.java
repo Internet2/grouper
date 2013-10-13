@@ -46,6 +46,84 @@ import edu.internet2.middleware.subject.Subject;
 public class IndexContainer {
 
   /**
+   * various options for the panels on the main index screen
+   * note, the name here must match exactly the substring of the name of the JSP
+   * e.g. grouperUi2/index/indexGroupsImanage.jsp
+   */
+  private static enum IndexPanel {
+    GroupsImanage, MyFavorites, MyMemberships, MyServices, RecentlyUsed, StemsImanage;
+  }
+  
+
+  
+  /**
+   * panel (IndexPanel enum) for col 0 on main index page
+   */
+  private String panelCol0;
+
+  /**
+   * panel (IndexPanel enum) for col 1 on main index page
+   */
+  private String panelCol1;
+
+  /**
+   * panel (IndexPanel enum) for col 2 on main index page
+   */
+  private String panelCol2;
+
+  /**
+   * panel (IndexPanel enum) for col 0 on main index page
+   * @return the panel
+   */
+  public String getPanelCol0() {
+    return IndexPanel.MyFavorites.name();
+  }
+
+  
+  
+  /**
+   * panel (IndexPanel enum) for col 1 on main index page
+   * @return col1
+   */
+  public String getPanelCol1() {
+    return IndexPanel.GroupsImanage.name();
+  }
+
+  /**
+   * panel (IndexPanel enum) for col 1 on main index page
+   * @param panelCol1_
+   */
+  public void setPanelCol1(String panelCol1_) {
+    this.panelCol1 = panelCol1_;
+  }
+
+  /**
+   * panel (IndexPanel enum) for col 2 on main index page
+   * @return col2
+   */
+  public String getPanelCol2() {
+    return IndexPanel.MyServices.name();
+  }
+
+  /**
+   * panel (IndexPanel enum) for col 2 on main index page
+   * @param panelCol2_
+   */
+  public void setPanelCol2(String panelCol2_) {
+    this.panelCol2 = panelCol2_;
+  }
+
+  /**
+   * panel (IndexPanel enum) for col 0 on main index page
+   * @param panelCol0_
+   */
+  public void setPanelCol0(String panelCol0_) {
+    this.panelCol0 = panelCol0_;
+  }
+
+
+
+  /**
    * recent activity
    */
   private Set<GuiAuditEntry> guiAuditEntriesRecentActivity;
