@@ -8,6 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -227,6 +228,30 @@ public class GrouperUserDataApi {
     }
     
     /**
+     * get the list of data
+     * @param userDataGroupName
+     * @param subject
+     * @param uuid
+     */
+    public <T> T retrieve(String userDataGroupName, Subject subject, Class<T> objectClass) {
+      
+      AttributeDefName attributeDefName = this.attributeDefName();
+      
+      AttributeAssignValue attributeAssignValue = userDataAttributeAssignValue(userDataGroupName, subject, attributeDefName, true, false);
+      
+      String value = null;
+      
+      if (attributeAssignValue != null) {
+        value = attributeAssignValue.getValueString();
+      }
+      
+      if (StringUtils.isBlank(value)) {
+        return null;
+      }
+      return GrouperUtil.jsonConvertFrom(value, objectClass);
+    }
+    
+    /**
      * add a uuid to a list of user data objects
      * @param userDataGroupName
      * @param subjectToAddTo
@@ -309,6 +334,33 @@ public class GrouperUserDataApi {
         
         attributeAssignValue.saveOrUpdate();
       }
+      
+    }
+    
+    /**
+     * replace attribute value with another value
+     * @param userDataGroupName
+     * @param subject
+     * @param uuids to replace
+     */
+    public void replace(String userDataGroupName, Subject subject, String newValue) {
+      
+      AttributeDefName attributeDefName = this.attributeDefName();
+      
+      AttributeAssignValue attributeAssignValue = userDataAttributeAssignValue(userDataGroupName, subject, attributeDefName, false, true);
+      
+      String value = null;
+
+      if (attributeAssignValue != null) {
+        value = attributeAssignValue.getValueString();
+      }
+
+      if (!StringUtils.equals(value, newValue)) {
+        attributeAssignValue.setValueString(newValue);
+        
+        attributeAssignValue.saveOrUpdate();
+      }
+      
       
     }
     
@@ -1153,6 +1205,58 @@ public class GrouperUserDataApi {
         GrouperUserDataType.favoriteStem.add(userDataGroupName, subjectToAddTo, stem.getUuid());
 
         return null;
+      }
+    });
+    
+  }
+
+  /**
+   * @param subjectToAddTo
+   * @param userDataGroupName
+   * @param preferences
+   */
+  public static void preferencesAssign(final String userDataGroupName, final Subject subjectToAddTo, final Object preferences) {
+    
+    GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        String preferencesString = null;
+        
+        if (preferences != null) {
+          preferencesString = GrouperUtil.jsonConvertTo(preferences, false);
+        }
+        
+        //no need to check security
+        
+        GrouperUserDataType.preferences.replace(userDataGroupName, subjectToAddTo, preferencesString);
+
+        return null;
+      }
+    });
+    
+  }
+
+  /**
+   * @param subjectToAddTo
+   * @param userDataGroupName
+   * @param preferences
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> T preferences(final String userDataGroupName, final Subject subjectToAddTo, final Class<T> preferencesClass) {
+    
+    return (T)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        
+        //no need to check security
+        return (T)GrouperUserDataType.preferences.retrieve(userDataGroupName, subjectToAddTo, preferencesClass);
+
       }
     });
     
