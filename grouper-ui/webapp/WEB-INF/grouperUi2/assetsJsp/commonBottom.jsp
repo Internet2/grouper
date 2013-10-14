@@ -1,17 +1,6 @@
 
-<script src="../../grouperExternal/public/assets/dojo/dojo/dojo.js"></script>
+<%-- note: dojo and jquery script are included in commonHead so we can call dojo things in the screen --%>
 
-<script type="text/javascript" >
-    dojo.require("dojo/ready");
-    dojo.require("dojo/parser");
-    dojo.require("dijit/form/FilteringSelect");
-    dojo.require("dojox/data/QueryReadStore");
-    dojo.require("dojo/dom-attr");
-    dojo.require("dijit.Tree");
-    dojo.require("dojo.data.ItemFileReadStore");
-</script>
-
-<script src="../../grouperExternal/public/assets/js/jquery.js"></script>
 <script src="../../grouperExternal/public/assets/js/bootstrap.js"></script>
 <script src="../../grouperExternal/public/assets/js/tree.jquery.js"></script>
 <script src="../../grouperExternal/public/assets/js/jquery.dataTables.min.js"></script>

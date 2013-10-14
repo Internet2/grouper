@@ -6,7 +6,7 @@
   <head><title>Grouper UI v2.2</title>
   <%@ include file="../assetsJsp/commonHead.jsp"%>
   </head>
-  <body class="full">
+  <body class="full claro">
     <div class="top-container">
       <div class="navbar navbar-static-top">
         <div class="navbar-inner">
@@ -90,23 +90,26 @@
                     <c:set var="col" value="0" scope="request" />
                     <%@ include file="../index/indexColumnMenu.jsp"%>
                     <div id="indexCol0">
-                      <%@ include file="../index/indexMyFavorites.jsp"%>
+                      <%-- make this a non dynamic include so we can pick the name of the JSP --%>
+                      <jsp:include page="../index/index${grouperRequestContainer.indexContainer.panelCol0}.jsp" />
                     </div>
                   </div>
 
-                  <div class="span4 well well-widget" id="indexCol1">
+                  <div class="span4 well well-widget">
                     <c:set var="col" value="1" scope="request" />
                     <%@ include file="../index/indexColumnMenu.jsp"%>
                     <div id="indexCol1">
-                      <%@ include file="../index/indexGroupsImanage.jsp"%>
+                      <%-- make this a non dynamic include so we can pick the name of the JSP --%>
+                      <jsp:include page="../index/index${grouperRequestContainer.indexContainer.panelCol1}.jsp" />
                     </div>
                   </div>
 
-                  <div class="span4 well well-widget" id="indexCol2">
+                  <div class="span4 well well-widget">
                     <c:set var="col" value="2" scope="request" />
                     <%@ include file="../index/indexColumnMenu.jsp"%>
                     <div id="indexCol2">
-                      <%@ include file="../index/indexMyServices.jsp"%>
+                      <%-- make this a non dynamic include so we can pick the name of the JSP --%>
+                      <jsp:include page="../index/index${grouperRequestContainer.indexContainer.panelCol2}.jsp" />
                     </div>
                   </div>
                 </div>
@@ -137,7 +140,72 @@
               </div>
               <button type="button" class="btn btn-block btn-grouper last">Browse Folders</button>
               <div class="accordion-inner">
-                <div id="tree1" class="explore-tree"></div>
+                <script>
+                  $(document).ready(function(){
+                    folderMenuStore = dojo.store.JsonRest({
+                      target:"UiV2Main.folderMenu?",
+                      mayHaveChildren: function(object){
+                        // see if it has a children property
+                        return "children" in object;
+                      },
+                      getChildren: function(object, onComplete, onError){
+                        // retrieve the full copy of the object
+                        this.get(object.id).then(function(fullObject){
+                          // copy to the original object so it has the children array as well.
+                          object.children = fullObject.children;
+                          // now that full object, we should have an array of children
+                          onComplete(fullObject.children);
+                        }, function(error){
+                          // an error occurred, log it, and indicate no children
+                          console.error(error);
+                          onComplete([]);
+                        });
+                      },
+                      getRoot: function(onItem, onError){
+                        // get the root object, we will do a get() and callback the result
+                        this.get("root").then(onItem, onError);
+                      },
+                      getLabel: function(object){
+                        // just get the name
+                        return object.name;
+                      }
+                      
+                    });
+
+                    // Custom TreeNode class (based on dijit.TreeNode) that allows rich text labels
+                    //var MyTreeNode = dojo.declare(dijit.Tree._TreeNode, {
+                    //    _setLabelAttr: {node: "labelNode", type: "innerHTML"}
+                    //});
+                    
+                    folderTree = new dijit.Tree({
+                      model: folderMenuStore,
+                      //_createTreeNode: function(args){
+                      //   return new MyTreeNode(args);
+                      //},
+                      getIconClass: function(/*dojo.store.Item*/ item, /*Boolean*/ opened){
+                        //return (!item || this.model.mayHaveChildren(item)) ? (opened ? "dijitFolderOpened" : "dijitFolderClosed") : "dijitLeaf"
+                        if (!item || this.model.mayHaveChildren(item)) {
+                          if (opened) {
+                            return "dijitFolderOpened";
+                          } 
+                          return "dijitFolderClosed";
+                        }
+                        if (item.theType == 'group') {
+                          //font-awesome icons...
+                          return "icon-group";
+                        }
+                      }
+
+                    }, "folderTree"); // make sure you have a target HTML element with this id
+                    folderTree.startup();
+                  });
+                
+                </script>
+              
+              </div>
+              
+              <div class="accordion-inner">
+                <div id="folderTree"></div>
               </div>
             </div>
           </div>
