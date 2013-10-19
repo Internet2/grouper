@@ -26,10 +26,12 @@ $(document).ready(function(){
   // Initialize history plugin.
   // The callback is called at once by present location.hash. 
 
+  var urlArgObjectMap = allObjects.appState.urlArgObjectMap();
+
   if (location.href.indexOf('/UiV2') == -1) {
-    
+
     processUrl();  
-    var urlArgObjectMap = allObjects.appState.urlArgObjectMap();
+    
     if (typeof urlArgObjectMap.operation == 'undefined') {
       //alert('going back to index: ' + location.href);
       
@@ -41,9 +43,100 @@ $(document).ready(function(){
       }
       return;
     }
+  } else {
+    
+    History.Adapter.bind(window,'statechange',function(){ 
+
+      var State = History.getState(); // Note: We are using History.getState() instead of event.state
+      
+      // State.hash is /grouper/grouperUi/app/UiV2Main.index?operation=UiV2Main.indexMain
+      //alert(State.hash);
+      guiProcessUrlForAjax(State.hash);
+
+    });
+
+    //if(location.href);
+    //UiV2Main.index
+    //urlArgObjectMap.operation
+    if (typeof urlArgObjectMap.operation == 'undefined') {
+      urlArgObjectMap.operation = 'UiV2Main.indexMain';
+      History.pushState(null, null, "?operation=" + urlArgObjectMap.operation);
+    } else {
+      guiProcessUrlForAjax(location.href);
+    }
+    
   }
-  
+
 });
+
+/**
+ * go to a url, e.g. operation=UiV2Group.viewGroup&groupId=abc123
+ * @param url
+ */
+function guiV2link(url) {
+  History.pushState(null, null, '?' + url);
+  //return false so the browser navigate
+  return false;
+}
+
+/**
+ * take a url for ajax with an operation=Something.else and call ajax with it
+ * @param url
+ */
+function guiProcessUrlForAjax(url) {
+
+  var poundIndex = url.indexOf("?");
+  if (poundIndex == -1) {
+    poundIndex = url.indexOf("#");
+    if (poundIndex == -1) {
+      //alert('cant find opreation! ' + State.hash);
+      return;
+    }
+  }
+  var poundString = url.substring(poundIndex + 1, url.length);
+  
+  var args = guiSplitTrim(poundString, "&");
+  var ajaxUrl = '../app/';
+  var foundOperation = false;
+  for (var i=0;i<args.length;i++) {
+
+    //split by =
+    var equalsIndex = args[i].indexOf("=");
+    if (equalsIndex == -1) {
+      return allObjects.appState.urlArgObjects;
+    }
+    var key = args[i].substring(0,equalsIndex);
+    var value = args[i].substring(equalsIndex+1,args[i].length);
+    if (key == 'operation') {
+      ajaxUrl += value;
+      if (args.length > 1) {
+        ajaxUrl += '?';
+      }
+      foundOperation = true;
+    } else {
+      ajaxUrl += key + '=' + value;
+      if (i < args.length-1) {
+        ajaxUrl += '&';
+      }
+    }
+  }
+  if (foundOperation) {
+    ajax(ajaxUrl);    
+  }
+
+}
+
+/** sees if input ends with ending */
+function guiEndsWith(input, ending) {
+  if (guiIsEmpty(input) || guiIsEmpty(ending)) {
+    return false;
+  }
+  var inputString = "" + input;
+  var lastIndex = inputString.lastIndexOf(ending);
+  return lastIndex == input.length - ending.length;
+
+}
+
 
 /** replace html in an element with a template (substituted).  
   jqueryKey e.g. #topDiv
@@ -398,14 +491,17 @@ function ajax(theUrl, options) {
     async: true,
     //TODO handle errors success better.  probably non modal disappearing reusable window
     error: function(error){
-      $.unblockUI(); 
+      $.unblockUI();
       //note, this is probably a session problem.
+      //note, this might endlessly redirect...  hmmm
+      //maybe we should check for a 302
       var shouldRedirect = confirm(guiAjaxSessionProblem);
       if (shouldRedirect) {
+
         //this should redirect
-        location.href = location.href; 
+        location.href = location.href;
       }
-      //alert('error' + error);        
+      //alert('error' + error);
     },
     //TODO process the response object
     success: function(json){

@@ -83,17 +83,17 @@ public class UiV2Main extends UiServiceLogicBase {
         int numberOfGroupsInTree = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.treeGroupsOnIndexPage", 30);
         Set<Stem> childrenStems = stem.getChildStems(Scope.ONE, QueryOptions.create("displayExtension", true, 1, numberOfStemsInTree));
         Set<Group> childrenGroups = stem.getChildGroups(Scope.ONE, AccessPrivilege.VIEW_PRIVILEGES, 
-            QueryOptions.create("displayExtension", true, 1, numberOfStemsInTree));
-        
+            QueryOptions.create("displayExtension", true, 1, numberOfGroupsInTree));
+
         String displayExtension = stem.isRootStem() ? 
             TextContainer.retrieveFromRequest().getText().get("stem.root.display-name") 
             : stem.getDisplayExtension();
 
         //the id has to be root or it will make another request
         String id = stem.isRootStem() ? "root" : stem.getUuid();
-            
+
         DojoTreeItem dojoTreeItem = new DojoTreeItem(displayExtension, id);
-        
+
         DojoTreeItemChild[] childrenDojoTreeItems = new DojoTreeItemChild[GrouperUtil.length(childrenStems) + GrouperUtil.length(childrenGroups)];
         dojoTreeItem.setChildren(childrenDojoTreeItems);
         
@@ -251,6 +251,32 @@ public class UiV2Main extends UiServiceLogicBase {
       GrouperSession.stopQuietly(grouperSession);
     }
     throw new ControllerDone();
+  }
+
+  /**
+   * index page of application
+   * @param request
+   * @param response
+   */
+  public void indexMain(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    //initialize the bean
+    GrouperRequestContainer.retrieveFromRequestOrCreate();
+    
+    GrouperSession grouperSession = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/index/indexMain.jsp"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
   }
 
   /**
