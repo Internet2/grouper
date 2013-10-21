@@ -163,6 +163,14 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     Hib3GrouperVersioned, Comparable<Stem>, XmlImportable<Stem>, AttributeAssignable, GrouperSetElement,
     GrouperObject {
 
+  /**
+   * id is same as uuid
+   * @return id
+   */
+  public String getId() {
+    return this.getUuid();
+  }
+  
   /** table for stems table in the db */
   public static final String TABLE_GROUPER_STEMS = "grouper_stems";
 

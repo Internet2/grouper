@@ -9,6 +9,12 @@ package edu.internet2.middleware.grouper.misc;
 public interface GrouperObject {
 
   /**
+   * name of object, e.g. a:b:c
+   * @return the name of this object
+   */
+  public String getName();
+  
+  /**
    * description of object
    * @return description
    */

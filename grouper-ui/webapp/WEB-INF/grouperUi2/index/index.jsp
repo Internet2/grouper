@@ -21,11 +21,9 @@
         </div>
       </div>
       <div class="container-fluid">
-        <%-- div id="messaging" class="row-fluid">
-          <div class="alert alert-success">
-            <button type="button" data-dismiss="alert" class="close">&times;</button>This is an example of a confirmation message. Click the "x" to dismiss this message.
-          </div>
-        </div --%>
+        <div id="messaging" class="row-fluid">
+          <%-- this is where messages go --%>
+        </div>
         <div class="row-fluid">
           <div class="span9 main-content offset3">
             <!-- this is the main content div where the page content goes via ajax -->
@@ -111,8 +109,17 @@
                           //font-awesome icons...
                           return "icon-group";
                         }
+                      },
+                      onClick: function(item){
+                        // Get the URL from the item, and navigate to it
+                        if (item.theType == 'stem') {
+                          guiV2link('operation=UiV2Stem.viewStem&stemId=' + item.id);                          
+                        } else if (item.theType == 'group') {
+                          guiV2link('operation=UiV2Group.viewGroup&groupId=' + item.id);                          
+                        } else {
+                          alert('ERROR: cant find theType on object with id: ' + item.id);
+                        }
                       }
-
                     }, "folderTree"); // make sure you have a target HTML element with this id
                     folderTree.startup();
                   });

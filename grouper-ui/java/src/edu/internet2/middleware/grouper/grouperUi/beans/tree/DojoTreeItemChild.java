@@ -24,7 +24,7 @@ public class DojoTreeItemChild {
    * type of child element
    *
    */
-  public static enum DojoTreeItemChildType {
+  public static enum DojoTreeItemType {
     
     /** if group */
     group,
@@ -41,7 +41,7 @@ public class DojoTreeItemChild {
    * @param children
    */
   public DojoTreeItemChild(String name, String id, 
-      DojoTreeItemChildType dojoTreeItemChildType, Boolean hasChildren) {
+      DojoTreeItemType dojoTreeItemChildType, Boolean hasChildren) {
     super();
     this.name = name;
     this.id = id;
@@ -74,7 +74,7 @@ public class DojoTreeItemChild {
    * assign the type of child
    * @param dojoTreeItemChildType1
    */
-  public void assignTheTypeEnum(DojoTreeItemChildType dojoTreeItemChildType1) {
+  public void assignTheTypeEnum(DojoTreeItemType dojoTreeItemChildType1) {
     this.theType = dojoTreeItemChildType1 == null ? null : dojoTreeItemChildType1.name();
   }
   

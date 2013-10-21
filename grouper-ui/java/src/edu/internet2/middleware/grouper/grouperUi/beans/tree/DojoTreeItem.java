@@ -3,7 +3,7 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.tree;
 
-import edu.internet2.middleware.grouper.grouperUi.beans.tree.DojoTreeItemChild.DojoTreeItemChildType;
+import edu.internet2.middleware.grouper.grouperUi.beans.tree.DojoTreeItemChild.DojoTreeItemType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -26,9 +26,9 @@ public class DojoTreeItem {
    * @param args
    */
   public static void main(String[] args) {
-    DojoTreeItem root = new DojoTreeItem("Root", "root");
-    DojoTreeItemChild child1 = new DojoTreeItemChild("Child1", "child1", DojoTreeItemChildType.group, true);
-    DojoTreeItemChild child2 = new DojoTreeItemChild("Child2", "child2", DojoTreeItemChildType.stem, null);
+    DojoTreeItem root = new DojoTreeItem("Root", "root", DojoTreeItemType.stem);
+    DojoTreeItemChild child1 = new DojoTreeItemChild("Child1", "child1", DojoTreeItemType.group, true);
+    DojoTreeItemChild child2 = new DojoTreeItemChild("Child2", "child2", DojoTreeItemType.stem, null);
     root.setChildren(new DojoTreeItemChild[]{child1, child2});
     System.out.println(root.toJson());
     //{"children":[{"children":true,"id":"child1","name":"Child1"},{"id":"child2","name":"Child2"}],"id":"root","name":"Root"}
@@ -41,11 +41,13 @@ public class DojoTreeItem {
    * @param id
    * @param hasChildren
    * @param children
+   * @param dojoTreeItemType
    */
-  public DojoTreeItem(String name, String id) {
+  public DojoTreeItem(String name, String id, DojoTreeItemType dojoTreeItemType) {
     super();
     this.name = name;
     this.id = id;
+    this.assignTheTypeEnum(dojoTreeItemType);
   }
 
   /**
@@ -70,6 +72,9 @@ public class DojoTreeItem {
 
   /** children of this node */
   private DojoTreeItemChild[] children;
+
+  /** if group or folder */
+  private String theType = null;
 
   /**
    * what displays on the screen, display extension
@@ -117,6 +122,30 @@ public class DojoTreeItem {
    */
   public void setChildren(DojoTreeItemChild[] children1) {
     this.children = children1;
+  }
+
+  /**
+   * if group or folder 
+   * @return if group or folder
+   */
+  public String getTheType() {
+    return theType;
+  }
+
+  /**
+   * if group or folder
+   * @param theType
+   */
+  public void setTheType(String theType) {
+    this.theType = theType;
+  }
+
+  /**
+   * assign the type of child
+   * @param dojoTreeItemChildType1
+   */
+  public void assignTheTypeEnum(DojoTreeItemType dojoTreeItemChildType1) {
+    this.theType = dojoTreeItemChildType1 == null ? null : dojoTreeItemChildType1.name();
   }
 
   

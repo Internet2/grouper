@@ -121,8 +121,64 @@ function guiProcessUrlForAjax(url) {
     }
   }
   if (foundOperation) {
+    guiScrollTop();
     ajax(ajaxUrl);    
   }
+
+}
+
+function guiScrollTop() {
+  window.scrollTo(0,0);
+  window.scroll(0,0);
+  if (document.all){
+    document.body.scrollLeft = 0;
+    document.body.scrollTop = 0;
+  } else{
+    window.pageXOffset = 0;
+    window.pageYOffset = 0;
+  }
+}
+
+/**
+ * add a success message to top
+ * @param message
+ */
+function guiMessageSuccess(message) {
+  guiMessageHelper('success', message);
+}
+
+/**
+ * add am info message to top
+ * @param message
+ */
+function guiMessageInfo(message) {
+  guiMessageHelper('info', message);
+}
+
+/**
+ * add an error message to top
+ * @param message
+ */
+function guiMessageError(message) {
+  guiMessageHelper('error', message);
+}
+
+/**
+ * add a message to the ui v2 screen
+ * @param messageType must be success, info, error
+ * @param message the escaped message for the screen, or could be HTML
+ */
+function guiMessageHelper(messageType, message) {
+  
+  if (messageType != 'success' && messageType != 'info' && messageType != 'error') {
+    alert('messageType must be success, info, or error: ' + messageType);
+  }
+  
+  var finalMessage = '<div class="alert alert-' + messageType 
+    + '"><button type="button" class="close" data-dismiss="alert">&times;</button>'
+    + message + '</div>';
+  $('#messaging').hide().empty().append(finalMessage).slideDown('slow');
+  $('#messaging').focus();
 
 }
 
@@ -676,7 +732,9 @@ function guiProcessAction(guiScreenAction) {
   if (!guiIsEmpty(guiScreenAction.formFieldName)) {
     guiFormElementAssignValue(guiScreenAction.formFieldName, guiScreenAction.formFieldValues);
   }
-
+  if (!guiIsEmpty(guiScreenAction.message)) {
+    guiMessageHelper(guiScreenAction.messageType, guiScreenAction.message);
+  }
 }
 
 /**

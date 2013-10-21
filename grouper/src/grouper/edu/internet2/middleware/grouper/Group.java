@@ -5532,7 +5532,15 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   public String getAlternateNameDb() {
     return this.alternateNameDb;
   }
-  
+
+  /**
+   * Returns the alternate name for the group.
+   * @return the alternate name
+   */
+  public String getAlternateName() {
+    return this.alternateNameDb;
+  }
+
   /**
    * Set the group's alternate name  Used by hibernate.
    * @param alternateName

@@ -2,6 +2,7 @@
 
             <!-- start group/viewGroup.jsp -->
             <div class="bread-header-container">
+              <%--
               <ul class="breadcrumb">
                 <li><a href="index.html">Home </a><span class="divider"><i class='icon-angle-right'></i></span></li>
                 <li><a href="#">Root </a><span class="divider"><i class='icon-angle-right'></i></span></li>
@@ -9,10 +10,12 @@
                 <li><a href="view-folder.html">Wiki </a><span class="divider"><i class='icon-angle-right'></i></span></li>
                 <li class="active">Editors</li>
               </ul>
+              --%>
+              ${grouperRequestContainer.groupContainer.guiGroup.breadcrumbs}
               <div class="page-header blue-gradient">
                 <div class="row-fluid">
                   <div class="span10">
-                    <h1><i class="icon-group icon-header"></i> Editors</h1>
+                    <h1><i class="icon-group icon-header"></i> ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}</h1>
                     <div id="member-search" tabindex="-1" role="dialog" aria-labelledby="member-search-label" aria-hidden="true" class="modal hide fade">
                       <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
                         <h3 id="member-search-label">Search for an entity</h3>
@@ -107,25 +110,25 @@
                         </form>
                       </div>
                     </div>
-                    <p>The members of this group have basic editor permissions in the Wiki. Editors have permissions to create and edit content but require approval in order to publish.</p>
-                    <div id="group-details" class="collapse">
+                    <p>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.description)}</p>
+                    <div id="groupDetailsId" style="display: none;">
                       <table class="table table-condensed table-striped">
                         <tbody>
                           <tr>
-                            <td><strong>Path:</strong></td>
-                            <td>Root : Applications : Wiki : Editors</td>
+                            <td><strong>${textContainer.text['groupLabelPath']}</strong></td>
+                            <td>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.pathColonSpaceSeparated)}</td>
                           </tr>
                           <tr>
-                            <td><strong>ID Path:</strong></td>
-                            <td>root:applications:wiki:editors</td>
+                            <td><strong>${textContainer.text['groupLabelIdPath']}</strong></td>
+                            <td>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.name)}</td>
                           </tr>
                           <tr>
-                            <td><strong>Alternate ID Path:</strong></td>
-                            <td>root:alternate:path</td>
+                            <td><strong>${textContainer.text['groupLabelAlternateIdPath']}</strong></td>
+                            <td>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.alternateName)}</td>
                           </tr>
                           <tr>
-                            <td><strong>ID:</strong></td>
-                            <td>editors</td>
+                            <td><strong>${textContainer.text['groupLabelId']}</strong></td>
+                            <td>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.extension)}</td>
                           </tr>
                           <tr>
                             <td><strong>Created:</strong></td>
@@ -162,7 +165,8 @@
                         </tbody>
                       </table>
                     </div>
-                    <p><a href="#" data-toggle="collapse" data-target="#group-details" id="toggle-group-details">More <i class="icon-angle-down"></i></a></p>
+                    <p id="groupDetailsMoreId"><a href="#" onclick="$('#groupDetailsId').show('slow'); $('#groupDetailsMoreId').hide(); $('#groupDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i class="icon-angle-down"></i></a></p>
+                    <p id="groupDetailsLessId" style="display: none"><a href="#" onclick="$('#groupDetailsId').hide('slow'); $('#groupDetailsLessId').hide(); $('#groupDetailsMoreId').show(); return false" >${textContainer.text['guiLess']} <i class="icon-angle-up"></i></a></p>
                   </div>
                   <div class="span2"><a id="show-add-block" href="#" class="btn btn-medium btn-primary btn-block"><i class="icon-plus"></i> Add members</a>
                     <div class="btn-group btn-block"><a data-toggle="dropdown" href="#" class="btn btn-medium btn-block dropdown-toggle">More actions <span class="caret"></span></a>

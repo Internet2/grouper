@@ -18,7 +18,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.tree.DojoTreeItem;
 import edu.internet2.middleware.grouper.grouperUi.beans.tree.DojoTreeItemChild;
-import edu.internet2.middleware.grouper.grouperUi.beans.tree.DojoTreeItemChild.DojoTreeItemChildType;
+import edu.internet2.middleware.grouper.grouperUi.beans.tree.DojoTreeItemChild.DojoTreeItemType;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -92,7 +92,7 @@ public class UiV2Main extends UiServiceLogicBase {
         //the id has to be root or it will make another request
         String id = stem.isRootStem() ? "root" : stem.getUuid();
 
-        DojoTreeItem dojoTreeItem = new DojoTreeItem(displayExtension, id);
+        DojoTreeItem dojoTreeItem = new DojoTreeItem(displayExtension, id, DojoTreeItemType.stem);
 
         DojoTreeItemChild[] childrenDojoTreeItems = new DojoTreeItemChild[GrouperUtil.length(childrenStems) + GrouperUtil.length(childrenGroups)];
         dojoTreeItem.setChildren(childrenDojoTreeItems);
@@ -101,13 +101,13 @@ public class UiV2Main extends UiServiceLogicBase {
         for (Stem childStem : childrenStems) {
           
           childrenDojoTreeItems[index++] = new DojoTreeItemChild(
-              childStem.getDisplayExtension(), childStem.getUuid(), DojoTreeItemChildType.stem, true);
+              childStem.getDisplayExtension(), childStem.getUuid(), DojoTreeItemType.stem, true);
         }
 
         for (Group childGroup : childrenGroups) {
           
           childrenDojoTreeItems[index++] = new DojoTreeItemChild(
-              childGroup.getDisplayExtension(), childGroup.getUuid(), DojoTreeItemChildType.group, null);
+              childGroup.getDisplayExtension(), childGroup.getUuid(), DojoTreeItemType.group, null);
         }
 
         

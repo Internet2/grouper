@@ -2143,6 +2143,9 @@ public class GrouperUtil {
     } catch (UnsupportedEncodingException ex) {
       throw new RuntimeException("UTF-8 not supported", ex);
     }
+    //i dont think colon is needed to url escape, and it makes urls
+    //better looking when stem name is in it...
+    result = replace(result, "%3A", ":");
     return result;
   }
 

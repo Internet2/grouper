@@ -96,6 +96,53 @@ public class GrouperRequestContainer {
   public void setIndexContainer(IndexContainer indexContainer1) {
     this.indexContainer = indexContainer1;
   }
-
+  
+  /**
+   * container for group screens
+   */
+  private GroupContainer groupContainer;
+  
+  /**
+   * container for group screens
+   * @return container for group screens
+   */
+  public GroupContainer getGroupContainer() {
+    if (this.groupContainer == null) {
+      this.groupContainer = new GroupContainer();
+    }
+    return this.groupContainer;
+  }
+  
+  /**
+   * container for group screens
+   * @param theGroupContainer
+   */
+  public void setGroupContainer(GroupContainer theGroupContainer) {
+    this.groupContainer = theGroupContainer;
+  }
+  
+  /**
+   * container for stem screens
+   */
+  private StemContainer stemContainer;
+  
+  /**
+   * container for stem screens
+   * @return container for stem screens
+   */
+  public StemContainer getStemContainer() {
+    if (this.stemContainer == null) {
+      this.stemContainer = new StemContainer();
+    }
+    return this.stemContainer;
+  }
+  
+  /**
+   * container for stem screens
+   * @param theStemContainer
+   */
+  public void setStemContainer(StemContainer theStemContainer) {
+    this.stemContainer = theStemContainer;
+  }
   
 }
