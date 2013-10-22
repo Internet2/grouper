@@ -916,8 +916,23 @@ public class Membership extends GrouperAPI implements
    * </pre>
    * @return  A {@link AttributeDef}
    * @throws AttributeDefNotFoundException if attrDef not found
+   * @deprecated use getOwnerAttributeDef() instead
    */
+  @Deprecated
   public AttributeDef getAttributeDef() throws AttributeDefNotFoundException {
+    return this.getOwnerAttributeDef();
+  }
+
+  /**
+   * Get this membership's group.  To get the groups of a bunch of membership, might want to try
+   * retrieveGroups()
+   * <pre class="eg">
+   * Group g = ms.getAttributeDef();
+   * </pre>
+   * @return  A {@link AttributeDef}
+   * @throws AttributeDefNotFoundException if attrDef not found
+   */
+  public AttributeDef getOwnerAttributeDef() throws AttributeDefNotFoundException {
     String uuid = this.getOwnerAttrDefId();
     if (uuid == null) {
       throw new AttributeDefNotFoundException("id is null");
@@ -1085,20 +1100,13 @@ public class Membership extends GrouperAPI implements
    * @return stem
    * @throws StemNotFoundException 
    * @since   1.2.0
+   * @deprecated use getOwnerStem() instead
    */
+  @Deprecated
   public Stem getStem() 
     throws StemNotFoundException
   {
-    String uuid = this.getOwnerStemId();
-    if (uuid == null) {
-      throw new StemNotFoundException("membership stem not found");
-    }
-    Stem ns = getStemFromCache(uuid);
-	if(ns != null) return ns;
-    
-     ns = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid, true) ;
-    putStemInCache(ns);
-    return ns;
+    return this.getOwnerStem();
   } // public Stem getStem()
 
   /**
@@ -2537,7 +2545,6 @@ public class Membership extends GrouperAPI implements
    * </pre>
    * @return  A {@link Group}
    * @throws GroupNotFoundException if group not found
-   * @return the group
    */
   public Group getOwnerGroup() {
     String groupUuid = this.getOwnerGroupId();
@@ -2563,7 +2570,28 @@ public class Membership extends GrouperAPI implements
     putGroupInCache(group);
 
   }
-  
+
+
+  /**
+   * set the owner attributeDef
+   * @param attributeDef
+   */
+  public void setOwnerAttributeDef(AttributeDef attributeDef) {
+    this.ownerAttrDefId = attributeDef == null ? null : attributeDef.getId();
+    putAttributeDefInCache(attributeDef);
+
+  }
+
+  /**
+   * set the owner stem
+   * @param stem
+   */
+  public void setOwnerStem(Stem stem) {
+    this.ownerStemId = stem == null ? null : stem.getUuid();
+    putStemInCache(stem);
+
+  }
+
   /**
    * if this is an attrDef membership, this is the attrDef id
    * @param attrDefId1
@@ -3145,6 +3173,26 @@ public class Membership extends GrouperAPI implements
     }
     return new AttributeAssignEffMshipDelegate(this.getOwnerGroup(), this.getMember() );
   }
+
+  /** 
+   * @return stem
+   * @throws StemNotFoundException 
+   * @since   1.2.0
+   */
+  public Stem getOwnerStem() 
+    throws StemNotFoundException
+  {
+    String uuid = this.getOwnerStemId();
+    if (uuid == null) {
+      throw new StemNotFoundException("membership stem not found");
+    }
+    Stem ns = getStemFromCache(uuid);
+  if(ns != null) return ns;
+    
+     ns = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid, true) ;
+    putStemInCache(ns);
+    return ns;
+  } // public Stem getStem()
   
 
 }

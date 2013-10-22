@@ -2791,9 +2791,17 @@ public class GrouperClient {
 
     String fieldName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "fieldName", false);
 
+    String fieldType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "fieldType", false);
+
     List<String> groupNames = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "groupNames", false);
     List<String> groupUuids = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "groupUuids", false);
     List<String> groupIdIndexes = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "groupIdIndexes", false);
+  
+    List<String> ownerStemNames = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "ownerStemNames", false);
+    List<String> ownerStemUuids = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "ownerStemUuids", false);
+  
+    List<String> ownerNamesOfAttributeDefs = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "ownerNamesOfAttributeDefs", false);
+    List<String> ownerAttributeDefUuids = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "ownerIdsOfAttributeDefs", false);
   
     Boolean includeGroupDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeGroupDetail");
 
@@ -2847,6 +2855,8 @@ public class GrouperClient {
     
     gcGetMemberships.assignFieldName(fieldName);
     
+    gcGetMemberships.assignFieldType(fieldType);
+
     if (GrouperClientUtils.length(groupNames) > 0) {
       for (String groupName: groupNames) {
         gcGetMemberships.addGroupName(groupName);
@@ -2941,6 +2951,20 @@ public class GrouperClient {
       groupLookup.put(wsGroup.getUuid(), wsGroup);
     }
     
+    //lets index the stems by stemId 
+    Map<String, WsStem> stemLookup = new HashMap<String, WsStem>();
+    
+    for (WsStem wsStem : GrouperClientUtils.nonNull(wsGetMembershipsResults.getWsStems(), WsStem.class)) {
+      stemLookup.put(wsStem.getUuid(), wsStem);
+    }
+    
+    //lets index the attributeDefs by attributeDefId 
+    Map<String, WsAttributeDef> attributeDefLookup = new HashMap<String, WsAttributeDef>();
+    
+    for (WsAttributeDef wsAttributeDef : GrouperClientUtils.nonNull(wsGetMembershipsResults.getWsAttributeDefs(), WsAttributeDef.class)) {
+      attributeDefLookup.put(wsAttributeDef.getUuid(), wsAttributeDef);
+    }
+    
     //lets index the subjects by multikey of sourceId and subjectId
     Map<MultiKey, WsSubject> subjectLookup = new HashMap<MultiKey, WsSubject>();
     
@@ -2952,6 +2976,19 @@ public class GrouperClient {
     for (WsMembership wsMembership : GrouperClientUtils.nonNull(wsGetMembershipsResults.getWsMemberships(), WsMembership.class)) {
       
       WsGroup wsGroup = groupLookup.get(wsMembership.getGroupId());
+      WsStem wsOwnerStem = stemLookup.get(wsMembership.getOwnerStemId());
+      WsAttributeDef wsOwnerAttributeDef = attributeDefLookup.get(wsMembership.getOwnerIdOfAttributeDef());
+      
+      String ownerName = wsGroup == null ? null : wsGroup.getName();
+      String type = "group";
+      if (wsOwnerStem != null) {
+        type = "folder";
+        ownerName = wsOwnerStem.getName();
+      } else if (wsOwnerAttributeDef != null) {
+        type = "attributeDef";
+        ownerName = wsOwnerAttributeDef.getName();
+      }
+      
       MultiKey subjectKey = new MultiKey(wsMembership.getSubjectSourceId(), wsMembership.getSubjectId());
       WsSubject wsSubject = subjectLookup.get(subjectKey);
       
@@ -2959,6 +2996,10 @@ public class GrouperClient {
       substituteMap.put("wsMembership", wsMembership);
       substituteMap.put("wsSubject", wsSubject);
       substituteMap.put("wsGroup", wsGroup);
+      substituteMap.put("wsOwnerStem", wsOwnerStem);
+      substituteMap.put("wsOwnerAttributeDef", wsOwnerAttributeDef);
+      substituteMap.put("type", type);
+      substituteMap.put("ownerName", ownerName);
       
       String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
       result.append(output);

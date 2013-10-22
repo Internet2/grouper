@@ -37,6 +37,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
@@ -59,10 +60,12 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignOperation;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueOperation;
+import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
 import edu.internet2.middleware.grouper.filter.QueryFilter;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
@@ -1542,6 +1545,10 @@ public class GrouperServiceLogic {
    * @param stemScope is StemScope to search only in one stem or in substems: ONE_LEVEL, ALL_IN_SUBTREE
    * @param enabled is A for all, T or null for enabled only, F for disabled 
    * @param membershipIds are the ids to search for if they are known
+   * @param wsOwnerStemLookups stem lookups if looking for memberships on certain stems
+   * @param wsOwnerAttributeDefLookups attribute definition lookups if looking for memberships on certain attribute definitions
+   * @param fieldType is the type of field to look at, e.g. list (default, memberships), 
+   * access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)
    * @param serviceRole to filter attributes that a user has a certain role
    * @param serviceLookup if filtering by users in a service, then this is the service to look in
    * @return the results
@@ -1553,6 +1560,7 @@ public class GrouperServiceLogic {
       String[] subjectAttributeNames, boolean includeGroupDetail, final WsParam[] params, 
       String[] sourceIds, String scope, 
       WsStemLookup wsStemLookup, StemScope stemScope, String enabled, String[] membershipIds,
+      WsStemLookup[] wsOwnerStemLookups, WsAttributeDefLookup[] wsOwnerAttributeDefLookups, FieldType fieldType,
       ServiceRole serviceRole, WsAttributeDefNameLookup serviceLookup
       ) {  
 
@@ -1567,14 +1575,16 @@ public class GrouperServiceLogic {
       theSummary = "clientVersion: " + clientVersion + ", wsGroupLookups: "
           + GrouperUtil.toStringForLog(wsGroupLookups, 200) + ", wsMemberFilter: " + wsMemberFilter
           + ", includeSubjectDetail: " + includeSubjectDetail + ", actAsSubject: "
-          + actAsSubjectLookup + ", fieldName: " + fieldName
+          + actAsSubjectLookup + ", fieldName: " + fieldName + ", fieldType: " + fieldType
           + ", subjectAttributeNames: "
           + GrouperUtil.toStringForLog(subjectAttributeNames) + "\n, paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100) + "\n, wsSubjectLookups: "
           + GrouperUtil.toStringForLog(wsSubjectLookups, 200) + "\n, sourceIds: " + GrouperUtil.toStringForLog(sourceIds, 100)
           + "\n, scope: " + scope + ", wsStemLookup: " + wsStemLookup + ", stemScope: " + stemScope + ", enabled: " + enabled
           + "\n, serviceRole: " + serviceRole + ", serviceLookup: " + serviceLookup
-          + "\n, membershipIds: " + GrouperUtil.toStringForLog(membershipIds, 200);
+          + "\n, membershipIds: " + GrouperUtil.toStringForLog(membershipIds, 200)
+          + "\n, wsStemLookups: " + GrouperUtil.toStringForLog(wsOwnerStemLookups, 200)
+          + "\n, wsAttributeDefLookups: " + GrouperUtil.toStringForLog(wsOwnerAttributeDefLookups, 200);
   
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -1619,6 +1629,59 @@ public class GrouperServiceLogic {
         groupsOk = groupCount == 0 || groupsOk;
       }
 
+      //get all the stems
+      //we could probably batch these to get better performance.  And we dont even have to lookup uuids
+      Set<String> stemIds = null;
+      boolean stemsOk = GrouperUtil.length(wsOwnerStemLookups) == 0;
+
+      if (GrouperUtil.length(wsOwnerStemLookups) > 0) {
+        stemsOk = false;
+        stemIds = new LinkedHashSet<String>();
+        int stemCount = 0;
+        for (WsStemLookup wsLocalStemLookup : wsOwnerStemLookups) {
+          
+          if (wsLocalStemLookup == null) {
+            continue;
+          }
+          stemCount++;
+          wsLocalStemLookup.retrieveStemIfNeeded(session, false);
+          Stem stem = wsLocalStemLookup.retrieveStem();
+          if (stem == null) {
+            throw new StemNotFoundException("Could not find stem: " + wsLocalStemLookup);
+          }
+          stemIds.add(stem.getUuid());
+          
+        }
+        stemsOk = stemCount == 0 || stemIds.size() > 0;
+      }
+
+
+      //get all the attributeDefs
+      //we could probably batch these to get better performance.  And we dont even have to lookup uuids
+      Set<String> attributeDefIds = null;
+      boolean attributeDefsOk = GrouperUtil.length(wsOwnerAttributeDefLookups) == 0;
+
+      if (GrouperUtil.length(wsOwnerAttributeDefLookups) > 0) {
+        attributeDefsOk = false;
+        attributeDefIds = new LinkedHashSet<String>();
+        int attributeDefCount = 0;
+        for (WsAttributeDefLookup wsLocalAttributeDefLookup : wsOwnerAttributeDefLookups) {
+          
+          if (wsLocalAttributeDefLookup == null) {
+            continue;
+          }
+          attributeDefCount++;
+          wsLocalAttributeDefLookup.retrieveAttributeDefIfNeeded(session, "attributeDef");
+          AttributeDef attributeDef = wsLocalAttributeDefLookup.retrieveAttributeDef();
+          if (attributeDef == null) {
+            throw new AttributeDefNotFoundException("Could not find attributeDef: " + wsLocalAttributeDefLookup);
+          }
+          attributeDefIds.add(attributeDef.getUuid());
+          
+        }
+        attributeDefsOk = attributeDefCount == 0 || attributeDefIds.size() > 0;
+      }
+
       //get all the members
       boolean membersOk = GrouperUtil.length(wsSubjectLookups) == 0;
       if (GrouperUtil.length(wsSubjectLookups) > 0) {
@@ -1654,14 +1717,14 @@ public class GrouperServiceLogic {
       }
       
       Stem stem = null;
-      if (wsStemLookup != null) {
+      if (wsStemLookup != null && !wsStemLookup.blank()) {
         wsStemLookup.retrieveStemIfNeeded(session, true);
         stem = wsStemLookup.retrieveStem();
         membershipFinder.assignStem(stem);
       }
       
       //if filtering by stem, and stem not found, then dont find any memberships
-      if ((wsStemLookup == null || stem != null) && membersOk && groupsOk) {
+      if ((wsStemLookup == null || wsStemLookup.blank() || stem != null) && membersOk && groupsOk && stemsOk && attributeDefsOk) {
         Set<Source> sources = GrouperUtil.convertSources(sourceIds);
         
         for (Source source : GrouperUtil.nonNull(sources)) {
@@ -1689,6 +1752,36 @@ public class GrouperServiceLogic {
         
         // lets get the members, cant be null
         Set<Object[]> membershipObjects = membershipFinder.findMembershipsGroupsMembers();
+        
+        
+        Membership.resolveSubjects(membershipObjects);
+        
+        Scope stemScopeEnum = stemScope == null ? null : stemScope.convertToScope();
+      
+        if (GrouperWsConfig.getPropertyBoolean("grouperWsGetMembership_2.1.4_orBefore", false)) {
+          //can change to chaining at some point
+          membershipObjects = MembershipFinder.findMemberships(groupIds, memberIds, membershipIdSet, 
+              membershipType, fieldName, sources, scope, stem, stemScopeEnum, enabledBoolean);
+        } else {
+          MembershipFinder membershipFinder = new MembershipFinder();
+          membershipFinder.assignMemberIds(memberIds);
+          membershipFinder.assignMembershipIds(membershipIdSet);
+          membershipFinder.assignMembershipType(membershipType);
+          membershipFinder.assignField(fieldName);
+          membershipFinder.assignFieldType(fieldType);
+
+          membershipFinder.assignSources(sources);
+          membershipFinder.assignScope(scope);
+          membershipFinder.assignStem(stem);
+          membershipFinder.assignStemScope(stemScopeEnum);
+          membershipFinder.assignEnabled(enabledBoolean);
+          
+          membershipFinder.assignStemIds(stemIds);
+          membershipFinder.assignAttributeDefIds(attributeDefIds);
+          membershipFinder.assignGroupIds(groupIds);
+          membershipObjects = membershipFinder.findMembershipsMembers();
+        }
+        
         
         
         Membership.resolveSubjects(membershipObjects);
@@ -1763,6 +1856,12 @@ public class GrouperServiceLogic {
    * @param stemScope to specify if we are searching in or under the stem
    * @param enabled A for all, null or T for enabled only, F for disabled only
    * @param membershipIds comma separated list of membershipIds to retrieve
+   * @param ownerStemName if looking for privileges on stems, put the stem name to look for here
+   * @param ownerStemUuid if looking for privileges on stems, put the stem uuid here
+   * @param nameOfOwnerAttributeDef if looking for privileges on attribute definitions, put the name of the attribute definition here
+   * @param ownerAttributeDefUuid if looking for privileges on attribute definitions, put the uuid of the attribute definition here
+   * @param fieldType is the type of field to look at, e.g. list (default, memberships), 
+   * access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)
    * @param serviceRole to filter attributes that a user has a certain role
    * @param serviceId if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceName
    * @param serviceName if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceId
@@ -1775,7 +1874,8 @@ public class GrouperServiceLogic {
       String actAsSubjectIdentifier, Field fieldName, String subjectAttributeNames,
       boolean includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1, String sourceIds, String scope, String stemName, 
-      String stemUuid, StemScope stemScope, String enabled, String membershipIds, ServiceRole serviceRole,
+      String stemUuid, StemScope stemScope, String enabled, String membershipIds, String ownerStemName, String ownerStemUuid, String nameOfOwnerAttributeDef, String ownerAttributeDefUuid, 
+      FieldType fieldType, ServiceRole serviceRole,
       String serviceId, String serviceName) {
   
     // setup the group lookup
@@ -1785,6 +1885,20 @@ public class GrouperServiceLogic {
       wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
     }
   
+    // setup the stem lookup
+    WsStemLookup wsOwnerStemLookup = null;
+    
+    if (StringUtils.isNotBlank(ownerStemName) || StringUtils.isNotBlank(ownerStemUuid)) {
+      wsOwnerStemLookup = new WsStemLookup(ownerStemName, ownerStemUuid);
+    }
+
+    // setup the attributeDef lookup
+    WsAttributeDefLookup wsAttributeDefLookup = null;
+    
+    if (StringUtils.isNotBlank(nameOfOwnerAttributeDef) || StringUtils.isNotBlank(ownerAttributeDefUuid)) {
+      wsAttributeDefLookup = new WsAttributeDefLookup(nameOfOwnerAttributeDef, ownerAttributeDefUuid);
+    }
+
     WsSubjectLookup wsSubjectLookup = WsSubjectLookup.createIfNeeded(subjectId, sourceId, subjectIdentifier);
     
     WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
@@ -1798,6 +1912,8 @@ public class GrouperServiceLogic {
   
     // pass through to the more comprehensive method
     WsGroupLookup[] wsGroupLookups = wsGroupLookup == null ? null : new WsGroupLookup[]{wsGroupLookup};
+    WsStemLookup[] wsStemLookups = wsOwnerStemLookup == null ? null : new WsStemLookup[]{wsOwnerStemLookup};
+    WsAttributeDefLookup[] wsAttributeDefLookups = wsAttributeDefLookup == null ? null : new WsAttributeDefLookup[]{wsAttributeDefLookup};
     WsSubjectLookup[] wsSubjectLookups = wsSubjectLookup == null ? null : new WsSubjectLookup[]{wsSubjectLookup};
     
     String[] sourceIdArray = GrouperUtil.splitTrim(sourceIds, ",");
@@ -1810,7 +1926,7 @@ public class GrouperServiceLogic {
         wsGroupLookups, wsSubjectLookups, wsMemberFilter, actAsSubjectLookup, fieldName,
         includeSubjectDetail, subjectAttributeArray, includeGroupDetail,
         params, sourceIdArray, scope, wsStemLookup, stemScope, enabled, membershipIdArray,
-        serviceRole, serviceLookup);
+        wsStemLookups, wsAttributeDefLookups, fieldType, serviceRole, serviceLookup);
   
     return wsGetMembershipsResults;
   }
@@ -3413,9 +3529,7 @@ public class GrouperServiceLogic {
             iterator.remove();
           }          
         }
-
         removePrivsNotAllowedToSee(privileges);
-
         WsGrouperPrivilegeResult[] privilegeResults = new WsGrouperPrivilegeResult[privileges.size()];
         if (privileges.size() > 0) {
           
@@ -3625,6 +3739,124 @@ public class GrouperServiceLogic {
     }
     
   }
+
+  /**
+   * remove privileges not allowed to see
+   * @param privileges
+   */
+  public static void removePrivsNotAllowedToSee(TreeSet<GrouperPrivilege> privileges) {
+    
+    int originalNumberOfPrivileges = GrouperUtil.length(privileges);
+    
+    if (privileges != null) {
+      
+      //subject who is making the query
+      final Subject grouperSessionSubject = GrouperSession.staticGrouperSession().getSubject();
+      
+      //if this change breaks an app, and you need a quick fix, you can whitelist users
+      final String groupNameOfUsersWhoCanCheckAllPrivileges = GrouperWsConfig.getPropertyString("ws.groupNameOfUsersWhoCanCheckAllPrivileges");
+      
+      //if there is a whitelist to preserve old broken behavior
+      if (!StringUtils.isBlank(groupNameOfUsersWhoCanCheckAllPrivileges)) {
+        
+        //do this as root since the user who is allowed might not be able to read the whitelist group...
+        boolean done = (Boolean)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+          
+          @Override
+          public Object callback(GrouperSession grouperSession1) throws GrouperSessionException {
+            
+            Group groupOfUsersWhoCanCheckAllPrivileges = GroupFinder.findByName(grouperSession1, groupNameOfUsersWhoCanCheckAllPrivileges, false);
+            
+            if (groupOfUsersWhoCanCheckAllPrivileges != null) {
+              
+              //if the subject in the grouper session is in the whitelist group, then allow the query without filtering privileges
+              if (groupOfUsersWhoCanCheckAllPrivileges.hasMember(grouperSessionSubject)) {
+                return true;
+              }
+              
+            } else {
+              
+              //it is misconfigured, just keep going, but filter privileges based on calling user
+              LOG.error("Why is ws.groupNameOfUsersWhoCanCheckAllPrivileges: " + groupNameOfUsersWhoCanCheckAllPrivileges + ", not found????");
+            }
+            return false;
+          }
+        });
+        
+        //this means the calling user is in the whitelist for the old bad logic...
+        if (done) {
+          return;
+        }
+      }
+      
+      //map of group name to if the user is allowed to see privileges
+      Map<String, Boolean> groupPrivilegeCache = new HashMap<String, Boolean>();
+
+      //map of stem name to if the user is allowed to see privileges
+      Map<String, Boolean> stemPrivilegeCache = new HashMap<String, Boolean>();
+          
+      Iterator<GrouperPrivilege> iterator = privileges.iterator();
+      
+      while (iterator.hasNext()) {
+        GrouperPrivilege grouperPrivilege = iterator.next();
+        
+        GrouperAPI grouperApi = grouperPrivilege.getGrouperApi();
+        if (grouperApi instanceof Group) {
+          
+          Group group = (Group)grouperApi;
+          String groupName = group.getName();
+          
+          //check the cache
+          Boolean allowed = groupPrivilegeCache.get(groupName);
+          if (allowed == null) {
+            //not in cache
+            //see if allowed
+            allowed = group.hasAdmin(grouperSessionSubject);
+            
+            //add back to cache
+            groupPrivilegeCache.put(group.getName(), allowed);
+            
+          }
+          
+          if (!allowed) {
+            iterator.remove();
+          }
+          
+        } else if (grouperApi instanceof Stem) {
+
+          Stem stem = (Stem)grouperApi;
+          String stemName = stem.getName();
+          
+          //check the cache
+          Boolean allowed = stemPrivilegeCache.get(stemName);
+          if (allowed == null) {
+            //not in cache
+            //see if allowed
+            allowed = stem.hasStem(grouperSessionSubject);
+            
+            //add back to cache
+            stemPrivilegeCache.put(stem.getName(), allowed);
+            
+          }
+          
+          if (!allowed) {
+            iterator.remove();
+          }
+
+        } else {
+          //this should never happen
+          throw new RuntimeException("Not expecting GrouperAPI of type: " + grouperApi.getClass() + ", " + grouperApi);
+        }
+        
+      }
+    }
+    
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("removePrivsNotAllowedToSee() from " + originalNumberOfPrivileges + " to " + GrouperUtil.length(privileges) + " privileges");
+    }
+    
+  }
+
 
   //  /**
   //   * view or edit attributes for groups.  pass in attribute names and values (and if delete), if they are null, then 

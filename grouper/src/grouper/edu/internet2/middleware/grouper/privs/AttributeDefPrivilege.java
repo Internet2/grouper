@@ -168,10 +168,15 @@ public class AttributeDefPrivilege implements GrouperPrivilege, Comparable {
   public static Set<Privilege> READ_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(ATTR_READ, ATTR_ADMIN, ATTR_OPTIN, ATTR_OPTOUT));
   
-  /** any of these constitutes MANAGE on a group
+  /** any of these constitutes MANAGE on an attribute def
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> MANAGE_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(ATTR_ADMIN, ATTR_UPDATE, ATTR_DEF_ATTR_UPDATE));
+  
+  /** any of these constitutes ADMIN on an attribute def
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> ADMIN_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ATTR_ADMIN));
 
   /** */
   private AttributeDef attributeDef;

@@ -19,6 +19,7 @@
  */
 package edu.internet2.middleware.grouperClient.ws.beans;
 
+
 /**
  * bean that will be the data from rest request
  * GrouperServiceLogic#getMemberships(edu.internet2.middleware.grouper.ws.GrouperWsVersion, WsGroupLookup[], WsSubjectLookup[], edu.internet2.middleware.grouper.ws.member.WsMemberFilter, WsSubjectLookup, edu.internet2.middleware.grouper.Field, boolean, String[], boolean, WsParam[], String[], String, edu.internet2.middleware.grouper.ws.soap.WsStemLookup, edu.internet2.middleware.grouper.ws.query.StemScope, String, String[])
@@ -32,6 +33,46 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
   /** are groups to look in */
   private WsGroupLookup[] wsGroupLookups;
   
+
+  /** stem lookups if looking for memberships on certain stems */
+  private WsStemLookup[] wsOwnerStemLookups;
+  
+  /** attribute definition lookups if looking for memberships on certain attribute definitions */
+  private WsAttributeDefLookup[] wsOwnerAttributeDefLookups;
+
+  /**
+   * stem lookups if looking for memberships on certain stems
+   * @return stem lookups
+   */
+  public WsStemLookup[] getWsOwnerStemLookups() {
+    return this.wsOwnerStemLookups;
+  }
+
+  /**
+   * stem lookups if looking for memberships on certain stems
+   * @param wsStemLookups1
+   */
+  public void setWsOwnerStemLookups(WsStemLookup[] wsStemLookups1) {
+    this.wsOwnerStemLookups = wsStemLookups1;
+  }
+
+  /**
+   * attribute definition lookups if looking for memberships on certain attribute definitions
+   * @return attributeDef lookups
+   */
+  public WsAttributeDefLookup[] getWsOwnerAttributeDefLookups() {
+    return this.wsOwnerAttributeDefLookups;
+  }
+
+  /**
+   * attribute definition lookups if looking for memberships on certain attribute definitions
+   * @param wsAttributeDefLookups1
+   */
+  public void setWsOwnerAttributeDefLookups(WsAttributeDefLookup[] wsAttributeDefLookups1) {
+    this.wsOwnerAttributeDefLookups = wsAttributeDefLookups1;
+  }
+
+
   /** must be one of All, Effective, Immediate, Composite, NonImmediate */
   private String memberFilter;
   
@@ -42,6 +83,30 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
    * of the group (certain list) */
   private String fieldName;
   
+  /**
+   * fieldType is the type of field to look at, e.g. list (default, memberships), 
+   * access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)
+   */
+  private String fieldType;
+
+  /**
+   * fieldType is the type of field to look at, e.g. list (default, memberships), 
+   * access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)
+   * @return field type
+   */
+  public String getFieldType() {
+    return this.fieldType;
+  }
+
+  /**
+   * fieldType is the type of field to look at, e.g. list (default, memberships), 
+   * access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)
+   * @param fieldType1
+   */
+  public void setFieldType(String fieldType1) {
+    this.fieldType = fieldType1;
+  }
+
   /** T or F as to if the group detail should be returned */
   private String includeGroupDetail;
   

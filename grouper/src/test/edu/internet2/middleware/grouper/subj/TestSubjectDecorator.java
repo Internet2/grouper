@@ -149,73 +149,77 @@ public class TestSubjectDecorator extends GrouperTest {
 
     //now, configure the subject decorator
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subjects.customizer.className", SubjectCustomizerForDecoratorTestingHideStudentData.class.getName());
-    SubjectFinder.internalClearSubjectCustomizerCache();
-    GrouperSession.stopQuietly(grouperSession);
-    
-    Subject subject = null;
-    
-    //####################################
-    //do a search as subject 0 (privileged)
-
-    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
-    
-    subject = SubjectFinder.findById(SubjectTestHelper.SUBJ2_ID, true);
-    assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
-    
-    subject = SubjectFinder.findById(SubjectTestHelper.SUBJ3_ID, true);
-    assertEquals("Should see proper name for student", SubjectTestHelper.SUBJ3_NAME, subject.getName());
-
-    subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ2_IDENTIFIER, true);
-    assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
-    
-    subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ3_IDENTIFIER, true);
-    assertEquals("Should see proper name for student", SubjectTestHelper.SUBJ3_NAME, subject.getName());
-
-    subject = SubjectFinder.findAll(SubjectTestHelper.SUBJ2_IDENTIFIER).iterator().next();
-    assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
-
-    subject = SubjectFinder.findAll(SubjectTestHelper.SUBJ3_IDENTIFIER).iterator().next();
-    assertEquals("Should see proper name for student", SubjectTestHelper.SUBJ3_NAME, subject.getName());
-
-    subject = SubjectFinder.findPage(SubjectTestHelper.SUBJ2_IDENTIFIER).getResults().iterator().next();
-    assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
-
-    subject = SubjectFinder.findPage(SubjectTestHelper.SUBJ3_IDENTIFIER).getResults().iterator().next();
-    assertEquals("Should see proper name for student", SubjectTestHelper.SUBJ3_NAME, subject.getName());
-
-    GrouperSession.stopQuietly(grouperSession);
-
-    //####################################
-    //do a search as subject 1 (not privileged)
-
-    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
-
-    subject = SubjectFinder.findById(SubjectTestHelper.SUBJ2_ID, true);
-    assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
-    
-    subject = SubjectFinder.findById(SubjectTestHelper.SUBJ3_ID, true);
-    assertEquals("Should see loginid for student", SubjectTestHelper.SUBJ3_IDENTIFIER, subject.getName());
-
-    subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ2_IDENTIFIER, true);
-    assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
-    
-    subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ3_IDENTIFIER, true);
-    assertEquals("Should see loginid for student", "id.test.subject.3", subject.getName());
-
-    subject = SubjectFinder.findAll(SubjectTestHelper.SUBJ2_IDENTIFIER).iterator().next();
-    assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
-    
-    subject = SubjectFinder.findAll(SubjectTestHelper.SUBJ3_IDENTIFIER).iterator().next();
-    assertEquals("Should see loginid for student", "id.test.subject.3", subject.getName());
-
-    subject = SubjectFinder.findPage(SubjectTestHelper.SUBJ2_IDENTIFIER).getResults().iterator().next();
-    assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
-    
-    subject = SubjectFinder.findPage(SubjectTestHelper.SUBJ3_IDENTIFIER).getResults().iterator().next();
-    assertEquals("Should see loginid for student", "id.test.subject.3", subject.getName());
-
-    GrouperSession.stopQuietly(grouperSession);
-    
+    try {
+      SubjectFinder.internalClearSubjectCustomizerCache();
+      GrouperSession.stopQuietly(grouperSession);
+      
+      Subject subject = null;
+      
+      //####################################
+      //do a search as subject 0 (privileged)
+  
+      grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+      
+      subject = SubjectFinder.findById(SubjectTestHelper.SUBJ2_ID, true);
+      assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
+      
+      subject = SubjectFinder.findById(SubjectTestHelper.SUBJ3_ID, true);
+      assertEquals("Should see proper name for student", SubjectTestHelper.SUBJ3_NAME, subject.getName());
+  
+      subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ2_IDENTIFIER, true);
+      assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
+      
+      subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ3_IDENTIFIER, true);
+      assertEquals("Should see proper name for student", SubjectTestHelper.SUBJ3_NAME, subject.getName());
+  
+      subject = SubjectFinder.findAll(SubjectTestHelper.SUBJ2_IDENTIFIER).iterator().next();
+      assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
+  
+      subject = SubjectFinder.findAll(SubjectTestHelper.SUBJ3_IDENTIFIER).iterator().next();
+      assertEquals("Should see proper name for student", SubjectTestHelper.SUBJ3_NAME, subject.getName());
+  
+      subject = SubjectFinder.findPage(SubjectTestHelper.SUBJ2_IDENTIFIER).getResults().iterator().next();
+      assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
+  
+      subject = SubjectFinder.findPage(SubjectTestHelper.SUBJ3_IDENTIFIER).getResults().iterator().next();
+      assertEquals("Should see proper name for student", SubjectTestHelper.SUBJ3_NAME, subject.getName());
+  
+      GrouperSession.stopQuietly(grouperSession);
+  
+      //####################################
+      //do a search as subject 1 (not privileged)
+  
+      grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+  
+      subject = SubjectFinder.findById(SubjectTestHelper.SUBJ2_ID, true);
+      assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
+      
+      subject = SubjectFinder.findById(SubjectTestHelper.SUBJ3_ID, true);
+      assertEquals("Should see loginid for student", SubjectTestHelper.SUBJ3_IDENTIFIER, subject.getName());
+  
+      subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ2_IDENTIFIER, true);
+      assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
+      
+      subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ3_IDENTIFIER, true);
+      assertEquals("Should see loginid for student", "id.test.subject.3", subject.getName());
+  
+      subject = SubjectFinder.findAll(SubjectTestHelper.SUBJ2_IDENTIFIER).iterator().next();
+      assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
+      
+      subject = SubjectFinder.findAll(SubjectTestHelper.SUBJ3_IDENTIFIER).iterator().next();
+      assertEquals("Should see loginid for student", "id.test.subject.3", subject.getName());
+  
+      subject = SubjectFinder.findPage(SubjectTestHelper.SUBJ2_IDENTIFIER).getResults().iterator().next();
+      assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
+      
+      subject = SubjectFinder.findPage(SubjectTestHelper.SUBJ3_IDENTIFIER).getResults().iterator().next();
+      assertEquals("Should see loginid for student", "id.test.subject.3", subject.getName());
+  
+      GrouperSession.stopQuietly(grouperSession);
+    } finally {
+        ApiConfig.testConfig.remove("subjects.customizer.className");
+        SubjectFinder.internalClearSubjectCustomizerCache();
+    }
   }
 
   /**
@@ -248,105 +252,109 @@ public class TestSubjectDecorator extends GrouperTest {
   
     //now, configure the subject decorator
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subjects.customizer.className", SubjectCustomizerForDecoratorTestingCollabGroup.class.getName());
-    SubjectFinder.internalClearSubjectCustomizerCache();
-    GrouperSession.stopQuietly(grouperSession);
+    try {
+      SubjectFinder.internalClearSubjectCustomizerCache();
+      GrouperSession.stopQuietly(grouperSession);
+      
+      Subject subject = null;
+      Set<Subject> subjects = null;
+      
+      //####################################
+      //do a search as subject 0 (privileged)
     
-    Subject subject = null;
-    Set<Subject> subjects = null;
+      grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+      
+      subject = SubjectFinder.findById(SubjectTestHelper.SUBJ2_ID, true);
+      assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
+      
+      subject = SubjectFinder.findById(SubjectTestHelper.SUBJ3_ID, true);
+      assertEquals("Should see proper name for student", SubjectTestHelper.SUBJ3_NAME, subject.getName());
     
-    //####################################
-    //do a search as subject 0 (privileged)
-  
-    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+      subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ2_IDENTIFIER, true);
+      assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
+      
+      subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ3_IDENTIFIER, true);
+      assertEquals("Should see proper name for student", SubjectTestHelper.SUBJ3_NAME, subject.getName());
     
-    subject = SubjectFinder.findById(SubjectTestHelper.SUBJ2_ID, true);
-    assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
+      subject = SubjectFinder.findAll(SubjectTestHelper.SUBJ2_IDENTIFIER).iterator().next();
+      assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
     
-    subject = SubjectFinder.findById(SubjectTestHelper.SUBJ3_ID, true);
-    assertEquals("Should see proper name for student", SubjectTestHelper.SUBJ3_NAME, subject.getName());
-  
-    subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ2_IDENTIFIER, true);
-    assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
+      subject = SubjectFinder.findAll(SubjectTestHelper.SUBJ3_IDENTIFIER).iterator().next();
+      assertEquals("Should see proper name for student", SubjectTestHelper.SUBJ3_NAME, subject.getName());
     
-    subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ3_IDENTIFIER, true);
-    assertEquals("Should see proper name for student", SubjectTestHelper.SUBJ3_NAME, subject.getName());
-  
-    subject = SubjectFinder.findAll(SubjectTestHelper.SUBJ2_IDENTIFIER).iterator().next();
-    assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
-  
-    subject = SubjectFinder.findAll(SubjectTestHelper.SUBJ3_IDENTIFIER).iterator().next();
-    assertEquals("Should see proper name for student", SubjectTestHelper.SUBJ3_NAME, subject.getName());
-  
-    subject = SubjectFinder.findPage(SubjectTestHelper.SUBJ2_IDENTIFIER).getResults().iterator().next();
-    assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
-  
-    subject = SubjectFinder.findPage(SubjectTestHelper.SUBJ3_IDENTIFIER).getResults().iterator().next();
-    assertEquals("Should see proper name for student", SubjectTestHelper.SUBJ3_NAME, subject.getName());
-  
-    GrouperSession.stopQuietly(grouperSession);
-  
-    //####################################
-    //do a search as subject 1 (has no rights)
-  
-    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
-  
-    subject = SubjectFinder.findById(SubjectTestHelper.SUBJ2_ID, true);
-    assertNull("cant see anyone, not in collab group", subject);
+      subject = SubjectFinder.findPage(SubjectTestHelper.SUBJ2_IDENTIFIER).getResults().iterator().next();
+      assertEquals("Should see proper name for non-student", SubjectTestHelper.SUBJ2_NAME, subject.getName());
     
-    subject = SubjectFinder.findById(SubjectTestHelper.SUBJ3_ID, false);
-    assertNull("cant see anyone, not in collab group", subject);
-  
-    subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ2_IDENTIFIER, false);
-    assertNull("cant see anyone, not in collab group", subject);
+      subject = SubjectFinder.findPage(SubjectTestHelper.SUBJ3_IDENTIFIER).getResults().iterator().next();
+      assertEquals("Should see proper name for student", SubjectTestHelper.SUBJ3_NAME, subject.getName());
     
-    subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ3_IDENTIFIER, false);
-    assertNull("cant see anyone, not in collab group", subject);
-  
-    subjects = SubjectFinder.findAll(SubjectTestHelper.SUBJ2_IDENTIFIER);
-    assertEquals("cant see anyone, not in collab group", 0, GrouperUtil.length(subjects));
+      GrouperSession.stopQuietly(grouperSession);
     
-    subjects = SubjectFinder.findAll(SubjectTestHelper.SUBJ3_IDENTIFIER);
-    assertEquals("cant see anyone, not in collab group", 0, GrouperUtil.length(subjects));
-  
-    subjects = SubjectFinder.findPage(SubjectTestHelper.SUBJ2_IDENTIFIER).getResults();
-    assertEquals("cant see anyone, not in collab group", 0, GrouperUtil.length(subjects));
+      //####################################
+      //do a search as subject 1 (has no rights)
     
-    subjects = SubjectFinder.findPage(SubjectTestHelper.SUBJ3_IDENTIFIER).getResults();
-    assertEquals("cant see anyone, not in collab group", 0, GrouperUtil.length(subjects));
-  
-    GrouperSession.stopQuietly(grouperSession);
+      grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
     
-    //####################################
-    //do a search as subject 3 (collab1)
-  
-    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ3);
-  
-    subject = SubjectFinder.findById(SubjectTestHelper.SUBJ4_ID, true);
-    assertNotNull("can see in collab group", subject);
+      subject = SubjectFinder.findById(SubjectTestHelper.SUBJ2_ID, true);
+      assertNull("cant see anyone, not in collab group", subject);
+      
+      subject = SubjectFinder.findById(SubjectTestHelper.SUBJ3_ID, false);
+      assertNull("cant see anyone, not in collab group", subject);
     
-    subject = SubjectFinder.findById(SubjectTestHelper.SUBJ5_ID, false);
-    assertNull("cant see anyone, not in collab group", subject);
-  
-    subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ4_IDENTIFIER, false);
-    assertNotNull("can see in collab group", subject);
+      subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ2_IDENTIFIER, false);
+      assertNull("cant see anyone, not in collab group", subject);
+      
+      subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ3_IDENTIFIER, false);
+      assertNull("cant see anyone, not in collab group", subject);
     
-    subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ5_IDENTIFIER, false);
-    assertNull("cant see anyone, not in collab group", subject);
-  
-    subjects = SubjectFinder.findAll(SubjectTestHelper.SUBJ4_IDENTIFIER);
-    assertEquals("can see in collab group", 1, GrouperUtil.length(subjects));
+      subjects = SubjectFinder.findAll(SubjectTestHelper.SUBJ2_IDENTIFIER);
+      assertEquals("cant see anyone, not in collab group", 0, GrouperUtil.length(subjects));
+      
+      subjects = SubjectFinder.findAll(SubjectTestHelper.SUBJ3_IDENTIFIER);
+      assertEquals("cant see anyone, not in collab group", 0, GrouperUtil.length(subjects));
     
-    subjects = SubjectFinder.findAll(SubjectTestHelper.SUBJ5_IDENTIFIER);
-    assertEquals("cant see anyone, not in collab group", 0, GrouperUtil.length(subjects));
-  
-    subjects = SubjectFinder.findPage(SubjectTestHelper.SUBJ4_IDENTIFIER).getResults();
-    assertEquals("can see in collab group", 1, GrouperUtil.length(subjects));
+      subjects = SubjectFinder.findPage(SubjectTestHelper.SUBJ2_IDENTIFIER).getResults();
+      assertEquals("cant see anyone, not in collab group", 0, GrouperUtil.length(subjects));
+      
+      subjects = SubjectFinder.findPage(SubjectTestHelper.SUBJ3_IDENTIFIER).getResults();
+      assertEquals("cant see anyone, not in collab group", 0, GrouperUtil.length(subjects));
     
-    subjects = SubjectFinder.findPage(SubjectTestHelper.SUBJ5_IDENTIFIER).getResults();
-    assertEquals("cant see anyone, not in collab group", 0, GrouperUtil.length(subjects));
-  
-    GrouperSession.stopQuietly(grouperSession);
+      GrouperSession.stopQuietly(grouperSession);
+      
+      //####################################
+      //do a search as subject 3 (collab1)
     
+      grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ3);
+    
+      subject = SubjectFinder.findById(SubjectTestHelper.SUBJ4_ID, true);
+      assertNotNull("can see in collab group", subject);
+      
+      subject = SubjectFinder.findById(SubjectTestHelper.SUBJ5_ID, false);
+      assertNull("cant see anyone, not in collab group", subject);
+    
+      subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ4_IDENTIFIER, false);
+      assertNotNull("can see in collab group", subject);
+      
+      subject = SubjectFinder.findByIdentifier(SubjectTestHelper.SUBJ5_IDENTIFIER, false);
+      assertNull("cant see anyone, not in collab group", subject);
+    
+      subjects = SubjectFinder.findAll(SubjectTestHelper.SUBJ4_IDENTIFIER);
+      assertEquals("can see in collab group", 1, GrouperUtil.length(subjects));
+      
+      subjects = SubjectFinder.findAll(SubjectTestHelper.SUBJ5_IDENTIFIER);
+      assertEquals("cant see anyone, not in collab group", 0, GrouperUtil.length(subjects));
+    
+      subjects = SubjectFinder.findPage(SubjectTestHelper.SUBJ4_IDENTIFIER).getResults();
+      assertEquals("can see in collab group", 1, GrouperUtil.length(subjects));
+      
+      subjects = SubjectFinder.findPage(SubjectTestHelper.SUBJ5_IDENTIFIER).getResults();
+      assertEquals("cant see anyone, not in collab group", 0, GrouperUtil.length(subjects));
+    
+      GrouperSession.stopQuietly(grouperSession);
+    } finally {
+        ApiConfig.testConfig.remove("subjects.customizer.className");
+        SubjectFinder.internalClearSubjectCustomizerCache();
+    }
   }
   
   /**
@@ -407,234 +415,238 @@ public class TestSubjectDecorator extends GrouperTest {
       
       //assign the customizer
       GrouperConfig.retrieveConfig().propertiesOverrideMap().put("subjects.customizer.className", SubjectCustomizerForDecoratorExtraAttributes.class.getName());
-      SubjectFinder.internalClearSubjectCustomizerCache();
-  
-      {
-        //##################################################################
-        //search for subjects and decorate them as someone who cant see them
-        GrouperSession.stopQuietly(grouperSession);
-    
-        grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
-        
-        Set<Subject> subjects = SubjectFinder.findAll("test.subject");
-        SubjectFinder.decorateSubjects(grouperSession, subjects, GrouperUtil.toSet("title", "major"));
-        
-        {
-          Subject subject0 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ0_ID, true);
-          
-          //shouldnt have a title or major
-          String title = subject0.getAttributeValueSingleValued("title", false);
-          assertTrue(title, StringUtils.isBlank(title));
-      
-          String major = subject0.getAttributeValueSingleValued("major", false);
-          assertTrue(major, StringUtils.isBlank(major));
-        }
-        
-        {
-          Subject subject1 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ1_ID, true);
-          
-          //shouldnt have a title or major
-          String title = subject1.getAttributeValueSingleValued("title", false);
-          assertTrue(title, StringUtils.isBlank(title));
-      
-          String major = subject1.getAttributeValueSingleValued("major", false);
-          assertTrue(major, StringUtils.isBlank(major));
-        }
+      try {
+        SubjectFinder.internalClearSubjectCustomizerCache();
     
         {
-          Subject subject2 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ2_ID, true);
+          //##################################################################
+          //search for subjects and decorate them as someone who cant see them
+          GrouperSession.stopQuietly(grouperSession);
+      
+          grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
           
-          //shouldnt have a title or major
-          String title = subject2.getAttributeValueSingleValued("title", false);
-          assertTrue(title, StringUtils.isBlank(title));
+          Set<Subject> subjects = SubjectFinder.findAll("test.subject");
+          SubjectFinder.decorateSubjects(grouperSession, subjects, GrouperUtil.toSet("title", "major"));
+          
+          {
+            Subject subject0 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ0_ID, true);
+            
+            //shouldnt have a title or major
+            String title = subject0.getAttributeValueSingleValued("title", false);
+            assertTrue(title, StringUtils.isBlank(title));
+        
+            String major = subject0.getAttributeValueSingleValued("major", false);
+            assertTrue(major, StringUtils.isBlank(major));
+          }
+          
+          {
+            Subject subject1 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ1_ID, true);
+            
+            //shouldnt have a title or major
+            String title = subject1.getAttributeValueSingleValued("title", false);
+            assertTrue(title, StringUtils.isBlank(title));
+        
+            String major = subject1.getAttributeValueSingleValued("major", false);
+            assertTrue(major, StringUtils.isBlank(major));
+          }
       
-          String major = subject2.getAttributeValueSingleValued("major", false);
-          assertTrue(major, StringUtils.isBlank(major));
+          {
+            Subject subject2 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ2_ID, true);
+            
+            //shouldnt have a title or major
+            String title = subject2.getAttributeValueSingleValued("title", false);
+            assertTrue(title, StringUtils.isBlank(title));
+        
+            String major = subject2.getAttributeValueSingleValued("major", false);
+            assertTrue(major, StringUtils.isBlank(major));
+          }
         }
-      }
+        
+        {
+          //###################################################################
+          //search for subjects and decorate them as someone who can see title
+          GrouperSession.stopQuietly(grouperSession);
       
-      {
-        //###################################################################
-        //search for subjects and decorate them as someone who can see title
-        GrouperSession.stopQuietly(grouperSession);
+          grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+          
+          Set<Subject> subjects = SubjectFinder.findAll("test.subject");
+          SubjectFinder.decorateSubjects(grouperSession, subjects, GrouperUtil.toSet("title", "major"));
+          
+          {
+            Subject subject0 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ0_ID, true);
+            
+            //shouldnt have a title or major
+            String title = subject0.getAttributeValueSingleValued("title", false);
+            assertTrue(title, StringUtils.isBlank(title));
+        
+            String major = subject0.getAttributeValueSingleValued("major", false);
+            assertTrue(major, StringUtils.isBlank(major));
+          }
+          
+          {
+            Subject subject1 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ1_ID, true);
+            
+            //should have a title, not major
+            String title = subject1.getAttributeValueSingleValued("title", false);
+            assertEquals("title1", title);
+        
+            String major = subject1.getAttributeValueSingleValued("major", false);
+            assertTrue(major, StringUtils.isBlank(major));
+          }
+      
+          {
+            Subject subject2 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ2_ID, true);
+            
+            //shouldnt have a title or major
+            String title = subject2.getAttributeValueSingleValued("title", false);
+            assertEquals("title2", title);
+        
+            String major = subject2.getAttributeValueSingleValued("major", false);
+            assertTrue(major, StringUtils.isBlank(major));
+          }
+        }
+        {
+          //###################################################################
+          //search for subjects and decorate them as someone who can see major
+          GrouperSession.stopQuietly(grouperSession);
+      
+          grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ2);
+          
+          Set<Subject> subjects = SubjectFinder.findAll("test.subject");
+          SubjectFinder.decorateSubjects(grouperSession, subjects, GrouperUtil.toSet("title", "major"));
+          
+          {
+            Subject subject0 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ0_ID, true);
+            
+            //shouldnt have a title or major
+            String title = subject0.getAttributeValueSingleValued("title", false);
+            assertTrue(title, StringUtils.isBlank(title));
+        
+            String major = subject0.getAttributeValueSingleValued("major", false);
+            assertTrue(major, StringUtils.isBlank(major));
+          }
     
-        grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+          {
+            Subject subject1 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ1_ID, true);
+            
+            //should have a title, not major
+            String title = subject1.getAttributeValueSingleValued("title", false);
+            assertTrue(title, StringUtils.isBlank(title));
         
-        Set<Subject> subjects = SubjectFinder.findAll("test.subject");
-        SubjectFinder.decorateSubjects(grouperSession, subjects, GrouperUtil.toSet("title", "major"));
+            String major = subject1.getAttributeValueSingleValued("major", false);
+            assertEquals("major1", major);
+          }
+    
+          {
+            Subject subject2 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ2_ID, true);
+            
+            //shouldnt have a title or major
+            String title = subject2.getAttributeValueSingleValued("title", false);
+            assertTrue(title, StringUtils.isBlank(title));
         
-        {
-          Subject subject0 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ0_ID, true);
-          
-          //shouldnt have a title or major
-          String title = subject0.getAttributeValueSingleValued("title", false);
-          assertTrue(title, StringUtils.isBlank(title));
-      
-          String major = subject0.getAttributeValueSingleValued("major", false);
-          assertTrue(major, StringUtils.isBlank(major));
-        }
-        
-        {
-          Subject subject1 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ1_ID, true);
-          
-          //should have a title, not major
-          String title = subject1.getAttributeValueSingleValued("title", false);
-          assertEquals("title1", title);
-      
-          String major = subject1.getAttributeValueSingleValued("major", false);
-          assertTrue(major, StringUtils.isBlank(major));
+            String major = subject2.getAttributeValueSingleValued("major", false);
+            assertEquals("major2", major);
+          }
         }
     
         {
-          Subject subject2 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ2_ID, true);
-          
-          //shouldnt have a title or major
-          String title = subject2.getAttributeValueSingleValued("title", false);
-          assertEquals("title2", title);
+          //###################################################################
+          //search for subjects and decorate them as someone who can see both
+          GrouperSession.stopQuietly(grouperSession);
       
-          String major = subject2.getAttributeValueSingleValued("major", false);
-          assertTrue(major, StringUtils.isBlank(major));
-        }
-      }
-      {
-        //###################################################################
-        //search for subjects and decorate them as someone who can see major
-        GrouperSession.stopQuietly(grouperSession);
+          grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ3);
+          
+          Set<Subject> subjects = SubjectFinder.findAll("test.subject");
+          SubjectFinder.decorateSubjects(grouperSession, subjects, GrouperUtil.toSet("title", "major"));
+          
+          {
+            Subject subject0 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ0_ID, true);
+            
+            //shouldnt have a title or major
+            String title = subject0.getAttributeValueSingleValued("title", false);
+            assertTrue(title, StringUtils.isBlank(title));
+        
+            String major = subject0.getAttributeValueSingleValued("major", false);
+            assertTrue(major, StringUtils.isBlank(major));
+          }
     
-        grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ2);
+          {
+            Subject subject1 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ1_ID, true);
+            
+            //should have a title, not major
+            String title = subject1.getAttributeValueSingleValued("title", false);
+            assertEquals("title1", title);
         
-        Set<Subject> subjects = SubjectFinder.findAll("test.subject");
-        SubjectFinder.decorateSubjects(grouperSession, subjects, GrouperUtil.toSet("title", "major"));
-        
-        {
-          Subject subject0 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ0_ID, true);
-          
-          //shouldnt have a title or major
-          String title = subject0.getAttributeValueSingleValued("title", false);
-          assertTrue(title, StringUtils.isBlank(title));
-      
-          String major = subject0.getAttributeValueSingleValued("major", false);
-          assertTrue(major, StringUtils.isBlank(major));
-        }
-  
-        {
-          Subject subject1 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ1_ID, true);
-          
-          //should have a title, not major
-          String title = subject1.getAttributeValueSingleValued("title", false);
-          assertTrue(title, StringUtils.isBlank(title));
-      
-          String major = subject1.getAttributeValueSingleValued("major", false);
-          assertEquals("major1", major);
-        }
-  
-        {
-          Subject subject2 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ2_ID, true);
-          
-          //shouldnt have a title or major
-          String title = subject2.getAttributeValueSingleValued("title", false);
-          assertTrue(title, StringUtils.isBlank(title));
-      
-          String major = subject2.getAttributeValueSingleValued("major", false);
-          assertEquals("major2", major);
-        }
-      }
-  
-      {
-        //###################################################################
-        //search for subjects and decorate them as someone who can see both
-        GrouperSession.stopQuietly(grouperSession);
+            String major = subject1.getAttributeValueSingleValued("major", false);
+            assertEquals("major1", major);
+          }
     
-        grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ3);
+          {
+            Subject subject2 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ2_ID, true);
+            
+            //shouldnt have a title or major
+            String title = subject2.getAttributeValueSingleValued("title", false);
+            assertEquals("title2", title);
         
-        Set<Subject> subjects = SubjectFinder.findAll("test.subject");
-        SubjectFinder.decorateSubjects(grouperSession, subjects, GrouperUtil.toSet("title", "major"));
-        
-        {
-          Subject subject0 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ0_ID, true);
-          
-          //shouldnt have a title or major
-          String title = subject0.getAttributeValueSingleValued("title", false);
-          assertTrue(title, StringUtils.isBlank(title));
-      
-          String major = subject0.getAttributeValueSingleValued("major", false);
-          assertTrue(major, StringUtils.isBlank(major));
+            String major = subject2.getAttributeValueSingleValued("major", false);
+            assertEquals("major2", major);
+          }
         }
-  
-        {
-          Subject subject1 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ1_ID, true);
-          
-          //should have a title, not major
-          String title = subject1.getAttributeValueSingleValued("title", false);
-          assertEquals("title1", title);
-      
-          String major = subject1.getAttributeValueSingleValued("major", false);
-          assertEquals("major1", major);
-        }
-  
-        {
-          Subject subject2 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ2_ID, true);
-          
-          //shouldnt have a title or major
-          String title = subject2.getAttributeValueSingleValued("title", false);
-          assertEquals("title2", title);
-      
-          String major = subject2.getAttributeValueSingleValued("major", false);
-          assertEquals("major2", major);
-        }
-      }
-  
-      {
-        //###################################################################
-        //search for subjects and decorate them as someone who is an admin (can see all)
-        GrouperSession.stopQuietly(grouperSession);
     
-        grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ4);
+        {
+          //###################################################################
+          //search for subjects and decorate them as someone who is an admin (can see all)
+          GrouperSession.stopQuietly(grouperSession);
+      
+          grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ4);
+          
+          Set<Subject> subjects = SubjectFinder.findAll("test.subject");
+          SubjectFinder.decorateSubjects(grouperSession, subjects, GrouperUtil.toSet("title", "major"));
+          
+          {
+            Subject subject0 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ0_ID, true);
+            
+            //shouldnt have a title or major
+            String title = subject0.getAttributeValueSingleValued("title", false);
+            assertTrue(title, StringUtils.isBlank(title));
         
-        Set<Subject> subjects = SubjectFinder.findAll("test.subject");
-        SubjectFinder.decorateSubjects(grouperSession, subjects, GrouperUtil.toSet("title", "major"));
+            String major = subject0.getAttributeValueSingleValued("major", false);
+            assertTrue(major, StringUtils.isBlank(major));
+          }
+    
+          {
+            Subject subject1 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ1_ID, true);
+            
+            //should have a title, not major
+            String title = subject1.getAttributeValueSingleValued("title", false);
+            assertEquals("title1", title);
         
-        {
-          Subject subject0 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ0_ID, true);
-          
-          //shouldnt have a title or major
-          String title = subject0.getAttributeValueSingleValued("title", false);
-          assertTrue(title, StringUtils.isBlank(title));
-      
-          String major = subject0.getAttributeValueSingleValued("major", false);
-          assertTrue(major, StringUtils.isBlank(major));
+            String major = subject1.getAttributeValueSingleValued("major", false);
+            assertEquals("major1", major);
+          }
+    
+          {
+            Subject subject2 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ2_ID, true);
+            
+            //shouldnt have a title or major
+            String title = subject2.getAttributeValueSingleValued("title", false);
+            assertEquals("title2", title);
+        
+            String major = subject2.getAttributeValueSingleValued("major", false);
+            assertEquals("major2", major);
+          }
         }
-  
-        {
-          Subject subject1 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ1_ID, true);
-          
-          //should have a title, not major
-          String title = subject1.getAttributeValueSingleValued("title", false);
-          assertEquals("title1", title);
-      
-          String major = subject1.getAttributeValueSingleValued("major", false);
-          assertEquals("major1", major);
-        }
-  
-        {
-          Subject subject2 = SubjectHelper.findInList(subjects, "jdbc", SubjectTestHelper.SUBJ2_ID, true);
-          
-          //shouldnt have a title or major
-          String title = subject2.getAttributeValueSingleValued("title", false);
-          assertEquals("title2", title);
-      
-          String major = subject2.getAttributeValueSingleValued("major", false);
-          assertEquals("major2", major);
+      } finally {
+        try {
+          dropExtraAttributeTables();
+        } catch (Throwable t) {
+          LOG.error(t);
         }
       }
     } finally {
-      try {
-        dropExtraAttributeTables();
-      } catch (Throwable t) {
-        LOG.error(t);
-      }
+        ApiConfig.testConfig.remove("subjects.customizer.className");
+        SubjectFinder.internalClearSubjectCustomizerCache();
     }
-
   }
 
   

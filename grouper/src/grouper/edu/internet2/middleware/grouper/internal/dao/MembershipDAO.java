@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
@@ -547,6 +548,29 @@ TODO update for 1.5
   
   
   /**
+   * find membershpis by group owner and other options.  
+   * @param groupIds to limit memberships to
+   * @param memberIds to limit memberships to
+   * @param membershipIds to limit memberships to
+   * @param membershipType Immediate, NonImmediate, etc
+   * @param field if finding one field, list here, otherwise all list fields will be returned
+   * @param sources if limiting memberships of members in certain sources, list here
+   * @param scope sql like string which will have a % appended to it
+   * @param stem if looking in a certain stem
+   * @param stemScope if looking only in this stem, or all substems
+   * @param enabled null for all, true for enabled only, false for disabled only
+   * @param shouldCheckSecurity if we should check security, default to true
+   * @param fieldType if we are checking access or list memberships
+   * @return a set of membership, group, and member objects
+   */
+  public Set<Object[]> findAllByGroupOwnerOptions(Collection<String> groupIds, Collection<String> memberIds,
+      Collection<String> membershipIds, MembershipType membershipType,
+      Field field,  
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean shouldCheckSecurity, FieldType fieldType);
+
+
+  
+  /**
    * find memberships by attribute def owner and other options.  
    * @param attributeDefId to limit memberships to
    * @param membershipType Immediate, NonImmediate, etc
@@ -1052,5 +1076,46 @@ TODO update for 1.5
    * @return set of immediate memberships that are bad
    */
   public Set<Membership> findBadCompositeMembershipsOnNonCompositeGroup();
+
+  /**
+   * find memberships by stem owner and other options.  
+   * @param stemIds to limit memberships to
+   * @param memberIds to limit memberships to
+   * @param membershipIds to limit memberships to
+   * @param membershipType Immediate, NonImmediate, etc
+   * @param field if finding one field, list here, otherwise all list fields will be returned
+   * @param sources if limiting memberships of members in certain sources, list here
+   * @param scope sql like string which will have a % appended to it
+   * @param stem if looking in a certain stem
+   * @param stemScope if looking only in this stem, or all substems
+   * @param enabled null for all, true for enabled only, false for disabled only
+   * @param shouldCheckSecurity if we should check security, default to true
+   * @return a set of membership, stem, and member objects
+   */
+  public Set<Object[]> findAllByStemOwnerOptions(Collection<String> stemIds, Collection<String> memberIds,
+      Collection<String> membershipIds, MembershipType membershipType,
+      Field field,  
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean shouldCheckSecurity);
+
+  /**
+   * find memberships by stem owner and other options.  
+   * @param attributeDefIds to limit memberships to
+   * @param memberIds to limit memberships to
+   * @param membershipIds to limit memberships to
+   * @param membershipType Immediate, NonImmediate, etc
+   * @param field if finding one field, list here, otherwise all list fields will be returned
+   * @param sources if limiting memberships of members in certain sources, list here
+   * @param scope sql like string which will have a % appended to it
+   * @param stem if looking in a certain stem
+   * @param stemScope if looking only in this stem, or all substems
+   * @param enabled null for all, true for enabled only, false for disabled only
+   * @param shouldCheckSecurity if we should check security, default to true
+   * @return a set of membership, stem, and member objects
+   */
+  public Set<Object[]> findAllByAttributeDefOwnerOptions(Collection<String> attributeDefIds, Collection<String> memberIds,
+      Collection<String> membershipIds, MembershipType membershipType,
+      Field field,  
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, 
+      Boolean shouldCheckSecurity);
 } 
 

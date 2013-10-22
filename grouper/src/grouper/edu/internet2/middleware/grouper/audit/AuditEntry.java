@@ -193,6 +193,14 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned, XmlI
       
   }
 
+//  public Set<String> getRelatedGroupNames() {
+//    
+//  }
+//  
+//  public Set<String> getRelatedStemNames() {
+//    
+//  }
+  
   /**
    * 
    * @see java.lang.Object#toString()

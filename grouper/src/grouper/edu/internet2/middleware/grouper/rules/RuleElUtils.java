@@ -208,7 +208,7 @@ public class RuleElUtils {
           
           if (attributeAssign != null) {
             
-            attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis() + (daysInFuture * 24 * 60 * 60 * 1000)));
+            attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis() + ((long)daysInFuture * 24 * 60 * 60 * 1000)));
             attributeAssign.saveOrUpdate();
             
             result = true;
@@ -251,7 +251,7 @@ public class RuleElUtils {
           Membership membership = ((Group)role).getImmediateMembership(Group.getDefaultList(), member, true, false);
 
           if (membership != null) {
-            membership.setDisabledTime(new Timestamp(System.currentTimeMillis() + (daysInFuture * 24 * 60 * 60 * 1000)));
+            membership.setDisabledTime(new Timestamp(System.currentTimeMillis() + ((long)daysInFuture * 24 * 60 * 60 * 1000)));
             membership.update();
             result = true;
           }
@@ -301,7 +301,7 @@ public class RuleElUtils {
       group.addMember(member.getSubject(), true);
       membership = group.getImmediateMembership(Group.getDefaultList(), member, true, false);
     }
-    membership.setDisabledTime(new Timestamp(System.currentTimeMillis() + (daysInFuture * 24 * 60 * 60 * 1000)));
+    membership.setDisabledTime(new Timestamp(System.currentTimeMillis() + ((long)daysInFuture * 24 * 60 * 60 * 1000)));
     membership.update();
     return true;
   }

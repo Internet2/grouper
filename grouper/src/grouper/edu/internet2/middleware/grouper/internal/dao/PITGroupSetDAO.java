@@ -184,6 +184,11 @@ public interface PITGroupSetDAO extends GrouperDAO {
   public Set<GroupSet> findMissingActivePITGroupSets();
   
   /**
+   * @return active group sets that are missing in point in time (this time looking for effective issues)
+   */
+  public Set<GroupSet> findMissingActivePITGroupSetsSecondPass();
+  
+  /**
    * @return active point in time group sets that should be inactive
    */
   public Set<PITGroupSet> findMissingInactivePITGroupSets();

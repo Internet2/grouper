@@ -119,7 +119,7 @@ public class PITSyncTests extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PITSyncTests("testDuplicateMemberships"));
+    TestRunner.run(new PITSyncTests("testMissingEffectiveGroupSet"));
   }
 
   
@@ -1328,5 +1328,53 @@ public class PITSyncTests extends GrouperTest {
     assertEquals(pitMembership5.getStartTimeDb(), checkInactive.getStartTimeDb());
     assertEquals(pitMembership5.getEndTimeDb(), checkInactive.getEndTimeDb());
     assertEquals("F", checkInactive.getActiveDb());
+  }
+  
+  /**
+   * 
+   */
+  public void testMissingEffectiveGroupSet() {
+        
+    edu = root.addChildStem("edu", "education");
+    Group g1 = edu.addChildGroup("g1", "g1");
+    Group g2 = edu.addChildGroup("g2", "g2");
+    Group g3 = edu.addChildGroup("g3", "g3");
+    Group g4 = edu.addChildGroup("g4", "g4");
+
+    g1.addMember(g2.toSubject());
+    g2.addMember(g3.toSubject());
+    g3.addMember(g4.toSubject());
+    g1.grantPriv(g1.toSubject(), AccessPrivilege.UPDATE);
+    edu.grantPriv(g1.toSubject(), NamingPrivilege.STEM);
+    
+    // verify that no changes are made
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
+    
+    ChangeLogTempToEntity.convertRecords();
+
+    int pitGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_pit_group_set");
+
+    HibernateSession.byHqlStatic().createQuery("delete from PITGroupSet where depth > '3'").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from PITGroupSet where depth > '2'").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from PITGroupSet where depth > '1'").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from PITGroupSet where depth > '0'").executeUpdate();
+
+    assertTrue(new SyncPITTables().showResults(false).syncAllPITTables() > 0);
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
+    
+    int newPitGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_pit_group_set");
+    assertEquals(pitGroupSetCount, newPitGroupSetCount);
+    
+    // try again but leave the immediate group sets this time
+    HibernateSession.byHqlStatic().createQuery("delete from PITGroupSet where depth > '3'").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from PITGroupSet where depth > '2'").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from PITGroupSet where depth > '1'").executeUpdate();
+
+    assertTrue(new SyncPITTables().showResults(false).syncAllPITTables() > 0);
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
+    
+    newPitGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_pit_group_set");
+    assertEquals(pitGroupSetCount, newPitGroupSetCount);
   }
 }

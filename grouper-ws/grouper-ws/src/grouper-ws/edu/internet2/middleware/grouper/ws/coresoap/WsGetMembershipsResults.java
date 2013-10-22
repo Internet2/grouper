@@ -26,6 +26,8 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -33,6 +35,7 @@ import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
+import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 
 /**
  * <pre>
@@ -80,10 +83,12 @@ public class WsGetMembershipsResults implements WsResponseBean, ResultMetadataHo
     /** something bad happened (lite http status code 500) (success: F) */
     EXCEPTION(500);
 
-    /** get the name label for a certain version of client 
+    /** 
+     * get the name label for a certain version of client 
      * @param clientVersion 
      * @return name
      */
+    @Override
     public String nameForVersion(GrouperVersion clientVersion) {
       return this.name();
     }
@@ -102,6 +107,7 @@ public class WsGetMembershipsResults implements WsResponseBean, ResultMetadataHo
     /**
      * @see edu.internet2.middleware.grouper.ws.WsResultCode#getHttpStatusCode()
      */
+    @Override
     public int getHttpStatusCode() {
       return this.httpStatusCode;
     }
@@ -110,6 +116,7 @@ public class WsGetMembershipsResults implements WsResponseBean, ResultMetadataHo
      * if this is a successful result
      * @return true if success
      */
+    @Override
     public boolean isSuccess() {
       return this == SUCCESS;
     }
@@ -138,6 +145,49 @@ public class WsGetMembershipsResults implements WsResponseBean, ResultMetadataHo
    * groups that are in the results
    */
   private WsGroup[] wsGroups;
+
+  /**
+   * stems that are in the results
+   */
+  private WsStem[] wsStems;
+
+  /**
+   * attributeDefs that are in the results
+   */
+  private WsAttributeDef[] wsAttributeDefs;
+
+  /**
+   * attributeDefs that are in the results
+   * @return attributeDefs
+   */
+  public WsAttributeDef[] getWsAttributeDefs() {
+    return this.wsAttributeDefs;
+  }
+
+  /**
+   * attributeDefs that are in the results
+   * @param wsAttributeDefs1
+   */
+  public void setWsAttributeDefs(WsAttributeDef[] wsAttributeDefs1) {
+    this.wsAttributeDefs = wsAttributeDefs1;    
+  }
+
+  /**
+   * stems that are in the results
+   * @return stems
+   */
+  public WsStem[] getWsStems() {
+    return this.wsStems;
+  }
+
+  /**
+   * stems that are in the results
+   * @param wsStems1
+   */
+  public void setWsStems(WsStem[] wsStems1) {
+    this.wsStems = wsStems1;
+  }
+
 
   /**
    * subjects that are in the results
@@ -228,11 +278,13 @@ public class WsGetMembershipsResults implements WsResponseBean, ResultMetadataHo
   public void assignResult(Set<Object[]> membershipSet, boolean includeGroupDetail, 
       boolean includeSubjectDetail, String[] theSubjectAttributeNames) {
     Set<Group> groupSet = new LinkedHashSet<Group>();
+    Set<AttributeDef> attributeDefSet = new LinkedHashSet<AttributeDef>();
+    Set<Stem> stemSet = new LinkedHashSet<Stem>();
     Set<Member> memberSet = new LinkedHashSet<Member>();
     
     this.subjectAttributeNames = theSubjectAttributeNames;
 
-    this.setWsMemberships(WsMembership.convertMembers(membershipSet, groupSet, memberSet));
+    this.setWsMemberships(WsMembership.convertMembers(membershipSet, groupSet, stemSet, attributeDefSet, memberSet));
     
     //turn groups into wsgroups
     if (groupSet.size() > 0) {
@@ -244,7 +296,35 @@ public class WsGetMembershipsResults implements WsResponseBean, ResultMetadataHo
         index++;
       }
     }
-    
+
+    if (stemSet.size() > 0) {
+      if (!GrouperWsVersionUtils.retrieveCurrentClientVersion()
+          .greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("v2_1_005"))) {
+        throw new RuntimeException("Clients 2.1.4 or less cannot query for stem privileges");
+      }
+      this.setWsStems(new WsStem[stemSet.size()]);
+      int index = 0;
+      for (Stem stem : stemSet) {
+        this.wsStems[index] = new WsStem(stem);
+        
+        index++;
+      }
+    }
+
+    if (attributeDefSet.size() > 0) {
+      if (!GrouperWsVersionUtils.retrieveCurrentClientVersion()
+          .greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("v2_1_005"))) {
+        throw new RuntimeException("Clients 2.1.4 or less cannot query for attributeDef privileges");
+      }
+      this.setWsAttributeDefs(new WsAttributeDef[attributeDefSet.size()]);
+      int index = 0;
+      for (AttributeDef attributeDef : attributeDefSet) {
+        this.wsAttributeDefs[index] = new WsAttributeDef(attributeDef, null);
+        
+        index++;
+      }
+    }
+
     if (memberSet.size() > 0) {
       this.wsSubjects = new WsSubject[memberSet.size()];
       int index = 0;
@@ -314,6 +394,7 @@ public class WsGetMembershipsResults implements WsResponseBean, ResultMetadataHo
   /**
    * @return the resultMetadata
    */
+  @Override
   public WsResultMeta getResultMetadata() {
     return this.resultMetadata;
   }
@@ -322,6 +403,7 @@ public class WsGetMembershipsResults implements WsResponseBean, ResultMetadataHo
    * @see edu.internet2.middleware.grouper.ws.rest.WsResponseBean#getResponseMetadata()
    * @return the response metadata
    */
+  @Override
   public WsResponseMeta getResponseMetadata() {
     return this.responseMetadata;
   }

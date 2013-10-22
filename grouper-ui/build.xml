@@ -447,7 +447,7 @@
 	  </if>
 	  
 		<javac destdir="${ui.javac.dest}" classpathref="ui.class.path" 
-		  debuglevel="${debug.level}" debug="true" target="1.5">
+		  debuglevel="${debug.level}" debug="true" target="1.5" source="1.5">
 		  <src path="${ui.folder}/contrib/penn-auth/java/src"/>
                 <src path="${ui.folder}/contrib/struts-patch/java/src"/>
                 <src path="${ui.folder}/contrib/yale-cas-auth/java/src"/>

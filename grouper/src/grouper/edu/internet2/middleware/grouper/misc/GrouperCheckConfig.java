@@ -1175,7 +1175,7 @@ public class GrouperCheckConfig {
     checkJar("dom4j.jar", 730604, "org.dom4j.Attribute", "1.6.1");
     checkJar("ehcache.jar", 1838291, "net.sf.ehcache.bootstrap.BootstrapCacheLoader", "2.4.5");
     checkJar("ezmorph.jar", 86542, "net.sf.ezmorph.array.AbstractArrayMorpher", "1.0.6");
-    checkJar("grouperClient.jar", 2958211, "edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.InitializationException", "2.1.3");
+    checkJar("grouperClient.jar", 2955670, "edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.InitializationException", "2.1.5");
     checkJar("hibernate-jpa-2.0-api.jar", 102661, "javax.persistence.Access", "1.0.1.Final");
     checkJar("hibernate.jar", 7018087, "org.hibernate.action.AfterTransactionCompletionProcess", "3.6.7.Final");
     checkJar("invoker.jar", 27767, "com.dawidweiss.invoker.Invoker", "1.0");
@@ -1196,7 +1196,7 @@ public class GrouperCheckConfig {
     checkJar("slf4j-log4j12.jar", 9752, "org.slf4j.impl.Log4jLoggerAdapter", "1.6.2");
     checkJar("smack.jar", 1381464, "com.jcraft.jzlib.Deflate", "3.1.0");
     checkJar("smtp.jar", 23567, "com.sun.mail.smtp.DigestMD5", "1.3.2");
-    checkJar("subject.jar", 195413, "edu.internet2.middleware.subject.InvalidQueryException", "2.1.3");
+    checkJar("subject.jar", 212706, "edu.internet2.middleware.subject.InvalidQueryException", "2.1.5");
     checkJar("vt-ldap.jar", 472910, "edu.vt.middleware.ldap.AbstractCli", "3.3.5");
     //checkJar("xpp3_min.jar", 24979, "org.xmlpull.mxp1.MXParser", "1.1.4c");
     checkJar("xstream.jar", 692061, "com.thoughtworks.xstream.alias.CannotResolveClassException", "1.3");
@@ -1240,29 +1240,37 @@ public class GrouperCheckConfig {
         }
         JarFile jarFile = new JarFile(file);
         Class sampleClass = null;
-        Enumeration<JarEntry> enumeration = jarFile.entries();
-        while (enumeration.hasMoreElements()) {
-          JarEntry jarEntry = enumeration.nextElement();
-          String jarEntryName = jarEntry.getName();
-          if (jarEntryName.endsWith(".class") && !jarEntryName.contains("$")) {
-            String className = jarEntryName.substring(0, jarEntryName.length()-6);
-            className = className.replace('/', '.');
-            className = className.replace('\\', '.');
-            //these dont work
-            if ("javax.activation.SecuritySupport12".equals(className)) {
-              continue;
+        try {
+          Enumeration<JarEntry> enumeration = jarFile.entries();
+          while (enumeration.hasMoreElements()) {
+            JarEntry jarEntry = enumeration.nextElement();
+            String jarEntryName = jarEntry.getName();
+            if (jarEntryName.endsWith(".class") && !jarEntryName.contains("$")) {
+              String className = jarEntryName.substring(0, jarEntryName.length()-6);
+              className = className.replace('/', '.');
+              className = className.replace('\\', '.');
+              //these dont work
+              if ("javax.activation.SecuritySupport12".equals(className)) {
+                continue;
+              }
+              Class tempClass = null;
+              try {
+                tempClass = Class.forName(className);
+              } catch  (Throwable t) {
+                LOG.warn("Problem with class: " + className + ", in jar: " + file.getCanonicalPath(), t);
+                continue;
+              }
+              if (Modifier.isPublic(tempClass.getModifiers())) {
+                sampleClass = tempClass;
+                break;
+              }
             }
-            Class tempClass = null;
-            try {
-              tempClass = Class.forName(className);
-            } catch  (Throwable t) {
-              LOG.warn("Problem with class: " + className + ", in jar: " + file.getCanonicalPath(), t);
-              continue;
-            }
-            if (Modifier.isPublic(tempClass.getModifiers())) {
-              sampleClass = tempClass;
-              break;
-            }
+          }
+        } finally {
+          try {
+            jarFile.close();
+          } catch (RuntimeException re) {
+            LOG.warn("error: " + file, re);
           }
         }
         if (sampleClass == null) {
@@ -2015,6 +2023,10 @@ public class GrouperCheckConfig {
                 "Grouper loader LDAP group attribute name", 
                 "Attribute name of the filter object result that holds the group name (required for " +
                 "loader ldap type: LDAP_GROUPS_FROM_ATTRIBUTE)", wasInCheckConfig);
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_ATTRIBUTE_FILTER_EXPRESSION, 
+                "Grouper loader LDAP attribute filter expression", 
+                "JEXL expression that returns true or false to signify if an attribute (in GROUPS_FROM_ATTRIBUTES) is ok to use for a group.  " +
+                "attributeValue is the variable that is the value of the attribute.", wasInCheckConfig);
             checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_EXTRA_ATTRIBUTES, 
                 "Grouper loader LDAP extra attributes", 
                 "Attribute names (comma separated) to get LDAP data for expressions in group name, displayExtension, description, " +

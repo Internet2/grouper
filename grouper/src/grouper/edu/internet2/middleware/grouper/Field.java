@@ -304,6 +304,14 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
   }
   
   /**
+   * see if this is privilege field for groups
+   * @return true if group access list field
+   */
+  public boolean isGroupAccessField() {
+    return StringUtils.equals("access", this.type);
+  }
+  
+  /**
    * see if this is a list of members field for groups
    * @return true if group list field
    */

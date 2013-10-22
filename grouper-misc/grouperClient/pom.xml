@@ -8,7 +8,7 @@
         <groupId>edu.internet2.middleware.grouper</groupId>
         <artifactId>grouper-parent</artifactId>
         <version>2.2.0-SNAPSHOT</version>
-        <relativePath>../grouper-parent</relativePath>
+        <relativePath>../../grouper-parent</relativePath>
     </parent>
 
     <name>Grouper Client</name>

@@ -15,6 +15,7 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouperClient.ws.beans;
 
+
 /**
  * <pre>
  * results for the get memberships call, or the get memberships lite call
@@ -52,6 +53,49 @@ public class WsGetMembershipsResults implements WsResponseBean, ResultMetadataHo
    * groups that are in the results
    */
   private WsGroup[] wsGroups;
+
+  /**
+   * stems that are in the results
+   */
+  private WsStem[] wsStems;
+
+  /**
+   * attributeDefs that are in the results
+   */
+  private WsAttributeDef[] wsAttributeDefs;
+
+  /**
+   * attributeDefs that are in the results
+   * @return attributeDefs
+   */
+  public WsAttributeDef[] getWsAttributeDefs() {
+    return this.wsAttributeDefs;
+  }
+
+  /**
+   * attributeDefs that are in the results
+   * @param wsAttributeDefs1
+   */
+  public void setWsAttributeDefs(WsAttributeDef[] wsAttributeDefs1) {
+    this.wsAttributeDefs = wsAttributeDefs1;    
+  }
+
+  /**
+   * stems that are in the results
+   * @return stems
+   */
+  public WsStem[] getWsStems() {
+    return this.wsStems;
+  }
+
+  /**
+   * stems that are in the results
+   * @param wsStems1
+   */
+  public void setWsStems(WsStem[] wsStems1) {
+    this.wsStems = wsStems1;
+  }
+
 
   /**
    * subjects that are in the results

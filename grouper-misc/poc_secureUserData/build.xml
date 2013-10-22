@@ -72,12 +72,12 @@
     <mkdir dir="${main.binDir}" />
     <mkdir dir="${main.binChangeLogDir}" />
 
-    <javac  target="1.5"
+    <javac  target="1.5" source="1.5" 
       srcdir="${main.sourceDir}" destdir="${main.binDir}" debug="true" >
       <classpath refid="main.classpath" />    
     </javac>
 
-    <javac  target="1.5" verbose="true"
+    <javac  target="1.5" verbose="true" source="1.5" 
       srcdir="${main.sourceChangeLogDir}" destdir="${main.binChangeLogDir}" debug="true" >
       <classpath refid="main.changeLogClasspath" />    
     </javac>

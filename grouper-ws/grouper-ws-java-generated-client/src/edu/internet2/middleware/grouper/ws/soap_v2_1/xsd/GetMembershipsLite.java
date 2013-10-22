@@ -1075,6 +1075,216 @@
                                }
                             
 
+                        /**
+                        * field for OwnerStemName
+                        */
+
+                        
+                                    protected java.lang.String localOwnerStemName ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localOwnerStemNameTracker = false ;
+
+                           public boolean isOwnerStemNameSpecified(){
+                               return localOwnerStemNameTracker;
+                           }
+
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getOwnerStemName(){
+                               return localOwnerStemName;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param OwnerStemName
+                               */
+                               public void setOwnerStemName(java.lang.String param){
+                            localOwnerStemNameTracker = true;
+                                   
+                                            this.localOwnerStemName=param;
+                                    
+
+                               }
+                            
+
+                        /**
+                        * field for OwnerStemUuid
+                        */
+
+                        
+                                    protected java.lang.String localOwnerStemUuid ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localOwnerStemUuidTracker = false ;
+
+                           public boolean isOwnerStemUuidSpecified(){
+                               return localOwnerStemUuidTracker;
+                           }
+
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getOwnerStemUuid(){
+                               return localOwnerStemUuid;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param OwnerStemUuid
+                               */
+                               public void setOwnerStemUuid(java.lang.String param){
+                            localOwnerStemUuidTracker = true;
+                                   
+                                            this.localOwnerStemUuid=param;
+                                    
+
+                               }
+                            
+
+                        /**
+                        * field for NameOfOwnerAttributeDef
+                        */
+
+                        
+                                    protected java.lang.String localNameOfOwnerAttributeDef ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localNameOfOwnerAttributeDefTracker = false ;
+
+                           public boolean isNameOfOwnerAttributeDefSpecified(){
+                               return localNameOfOwnerAttributeDefTracker;
+                           }
+
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getNameOfOwnerAttributeDef(){
+                               return localNameOfOwnerAttributeDef;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param NameOfOwnerAttributeDef
+                               */
+                               public void setNameOfOwnerAttributeDef(java.lang.String param){
+                            localNameOfOwnerAttributeDefTracker = true;
+                                   
+                                            this.localNameOfOwnerAttributeDef=param;
+                                    
+
+                               }
+                            
+
+                        /**
+                        * field for OwnerAttributeDefUuid
+                        */
+
+                        
+                                    protected java.lang.String localOwnerAttributeDefUuid ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localOwnerAttributeDefUuidTracker = false ;
+
+                           public boolean isOwnerAttributeDefUuidSpecified(){
+                               return localOwnerAttributeDefUuidTracker;
+                           }
+
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getOwnerAttributeDefUuid(){
+                               return localOwnerAttributeDefUuid;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param OwnerAttributeDefUuid
+                               */
+                               public void setOwnerAttributeDefUuid(java.lang.String param){
+                            localOwnerAttributeDefUuidTracker = true;
+                                   
+                                            this.localOwnerAttributeDefUuid=param;
+                                    
+
+                               }
+                            
+
+                        /**
+                        * field for FieldType
+                        */
+
+                        
+                                    protected java.lang.String localFieldType ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localFieldTypeTracker = false ;
+
+                           public boolean isFieldTypeSpecified(){
+                               return localFieldTypeTracker;
+                           }
+
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getFieldType(){
+                               return localFieldType;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param FieldType
+                               */
+                               public void setFieldType(java.lang.String param){
+                            localFieldTypeTracker = true;
+                                   
+                                            this.localFieldType=param;
+                                    
+
+                               }
+                            
+
      
      
         /**
@@ -1583,6 +1793,96 @@
                                           }
                                     
                                    xmlWriter.writeEndElement();
+                             } if (localOwnerStemNameTracker){
+                                    namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
+                                    writeStartElement(null, namespace, "ownerStemName", xmlWriter);
+                             
+
+                                          if (localOwnerStemName==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localOwnerStemName);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             } if (localOwnerStemUuidTracker){
+                                    namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
+                                    writeStartElement(null, namespace, "ownerStemUuid", xmlWriter);
+                             
+
+                                          if (localOwnerStemUuid==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localOwnerStemUuid);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             } if (localNameOfOwnerAttributeDefTracker){
+                                    namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
+                                    writeStartElement(null, namespace, "nameOfOwnerAttributeDef", xmlWriter);
+                             
+
+                                          if (localNameOfOwnerAttributeDef==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localNameOfOwnerAttributeDef);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             } if (localOwnerAttributeDefUuidTracker){
+                                    namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
+                                    writeStartElement(null, namespace, "ownerAttributeDefUuid", xmlWriter);
+                             
+
+                                          if (localOwnerAttributeDefUuid==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localOwnerAttributeDefUuid);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             } if (localFieldTypeTracker){
+                                    namespace = "http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd";
+                                    writeStartElement(null, namespace, "fieldType", xmlWriter);
+                             
+
+                                          if (localFieldType==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localFieldType);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
                              }
                     xmlWriter.writeEndElement();
                
@@ -1918,6 +2218,36 @@
                                  
                                          elementList.add(localMembershipIds==null?null:
                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localMembershipIds));
+                                    } if (localOwnerStemNameTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "ownerStemName"));
+                                 
+                                         elementList.add(localOwnerStemName==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localOwnerStemName));
+                                    } if (localOwnerStemUuidTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "ownerStemUuid"));
+                                 
+                                         elementList.add(localOwnerStemUuid==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localOwnerStemUuid));
+                                    } if (localNameOfOwnerAttributeDefTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "nameOfOwnerAttributeDef"));
+                                 
+                                         elementList.add(localNameOfOwnerAttributeDef==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localNameOfOwnerAttributeDef));
+                                    } if (localOwnerAttributeDefUuidTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "ownerAttributeDefUuid"));
+                                 
+                                         elementList.add(localOwnerAttributeDefUuid==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localOwnerAttributeDefUuid));
+                                    } if (localFieldTypeTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "fieldType"));
+                                 
+                                         elementList.add(localFieldType==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localFieldType));
                                     }
 
                 return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl(qName, elementList.toArray(), attribList.toArray());
@@ -2653,6 +2983,141 @@
                                     java.lang.String content = reader.getElementText();
                                     
                                               object.setMembershipIds(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd","ownerStemName").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setOwnerStemName(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd","ownerStemUuid").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setOwnerStemUuid(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd","nameOfOwnerAttributeDef").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setNameOfOwnerAttributeDef(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd","ownerAttributeDefUuid").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setOwnerAttributeDefUuid(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd","fieldType").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setFieldType(
                                                     org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
                                             
                                        } else {

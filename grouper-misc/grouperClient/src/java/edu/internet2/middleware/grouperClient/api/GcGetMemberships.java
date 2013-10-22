@@ -198,6 +198,22 @@ public class GcGetMemberships {
   /** field name to add member */
   private String fieldName;
   
+  /**
+   * fieldType is the type of field to look at, e.g. list (default, memberships), 
+   * access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)
+   */
+  private String fieldType;
+
+  /**
+   * fieldType is the type of field to look at, e.g. list (default, memberships), 
+   * access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)
+   * @param fieldType1
+   */
+  public GcGetMemberships assignFieldType(String fieldType1) {
+    this.fieldType = fieldType1;
+    return this;
+  }
+
   /** sql like string where percent will be added to the end, this limits the memberships */
   private String scope;
   
@@ -337,7 +353,9 @@ public class GcGetMemberships {
       getMemberships.setEnabled(this.enabled);
       
       getMemberships.setFieldName(this.fieldName);
+      getMemberships.setFieldType(this.fieldType);
       
+      {
       List<WsGroupLookup> groupLookups = new ArrayList<WsGroupLookup>();
       //add names and/or uuids
       for (String groupName : this.groupNames) {
@@ -352,6 +370,35 @@ public class GcGetMemberships {
       
       if (GrouperClientUtils.length(groupLookups) > 0) {
         getMemberships.setWsGroupLookups(GrouperClientUtils.toArray(groupLookups, WsGroupLookup.class));
+      }
+      }
+      
+      {
+        List<WsStemLookup> ownerStemLookups = new ArrayList<WsStemLookup>();
+        //add stem names and/or uuids
+        for (String ownerStemName : this.ownerStemNames) {
+          ownerStemLookups.add(new WsStemLookup(ownerStemName, null));
+        }
+        for (String ownerStemUuid : this.ownerStemUuids) {
+          ownerStemLookups.add(new WsStemLookup(null, ownerStemUuid));
+        }
+        if (GrouperClientUtils.length(ownerStemLookups) > 0) {
+          getMemberships.setWsOwnerStemLookups(GrouperClientUtils.toArray(ownerStemLookups, WsStemLookup.class));
+        }
+      }
+      
+      {
+        List<WsAttributeDefLookup> ownerAttributeDefLookups = new ArrayList<WsAttributeDefLookup>();
+        //add attributeDef names and/or uuids
+        for (String ownerNameOfAttributeDef : this.ownerNamesOfAttributeDefs) {
+          ownerAttributeDefLookups.add(new WsAttributeDefLookup(ownerNameOfAttributeDef, null));
+        }
+        for (String ownerUuidOfAttributeDef : this.ownerUuidsOfAttributeDefs) {
+          ownerAttributeDefLookups.add(new WsAttributeDefLookup(null, ownerUuidOfAttributeDef));
+        }
+        if (GrouperClientUtils.length(ownerAttributeDefLookups) > 0) {
+          getMemberships.setWsOwnerAttributeDefLookups(GrouperClientUtils.toArray(ownerAttributeDefLookups, WsAttributeDefLookup.class));
+        }
       }
 
       if (this.includeGroupDetail != null) {

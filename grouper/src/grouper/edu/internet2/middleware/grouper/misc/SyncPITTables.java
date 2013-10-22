@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -55,6 +56,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.group.GroupSet;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.permissions.role.RoleSet;
@@ -190,6 +192,12 @@ public class SyncPITTables {
       session = GrouperSession.startRootSession();
       clearReport();
       
+      int tempChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry_temp");
+      showStatus("Number of entries in grouper_change_log_entry_temp: " + tempChangeLogCount);
+      if (tempChangeLogCount > 0) {
+        showStatus("For best results, run loaderRunOneJob(\"CHANGE_LOG_changeLogTempToChangeLog\") first.");
+      }
+      
       count += processMissingActivePITFields();
       count += processMissingActivePITMembers();
       count += processMissingActivePITStems();
@@ -202,6 +210,7 @@ public class SyncPITTables {
       count += processMissingActivePITAttributeAssignActionSets();
       count += processMissingActivePITGroupSets();
       count += processMissingActivePITMemberships();
+      count += processMissingActivePITGroupSetsSecondPass();
       count += processMissingActivePITAttributeAssigns();
       count += processMissingActivePITAttributeAssignValues();
       
@@ -693,6 +702,100 @@ public class SyncPITTables {
         pitGroupSet.setSourceId(groupSet.getId());
         pitGroupSet.setDepth(groupSet.getDepth());
         pitGroupSet.setParentId(groupSet.getDepth() == 0 ? pitGroupSet.getId() : pitParent.getId());
+        pitGroupSet.setFieldId(pitField.getId());
+        pitGroupSet.setMemberFieldId(pitMemberField.getId());
+        pitGroupSet.setActiveDb("T");
+        pitGroupSet.setStartTimeDb(System.currentTimeMillis() * 1000);
+
+        if (groupSet.getOwnerGroupId() != null) {
+          PITGroup pitOwner = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(groupSet.getOwnerId(), true);
+          pitGroupSet.setOwnerGroupId(pitOwner.getId());
+        } else if (groupSet.getOwnerStemId() != null) {
+          PITStem pitOwner = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(groupSet.getOwnerId(), true);
+          pitGroupSet.setOwnerStemId(pitOwner.getId());
+        } else if (groupSet.getOwnerAttrDefId() != null) {
+          PITAttributeDef pitOwner = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(groupSet.getOwnerId(), true);
+          pitGroupSet.setOwnerAttrDefId(pitOwner.getId());
+        } else {
+          throw new RuntimeException("Unexpected -- GroupSet with id " + groupSet.getId() + " does not have an ownerGroupId, ownerStemId, or ownerAttrDefId.");
+        }
+        
+        if (groupSet.getMemberGroupId() != null) {
+          PITGroup pitMember = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(groupSet.getMemberId(), true);
+          pitGroupSet.setMemberGroupId(pitMember.getId());
+        } else if (groupSet.getMemberStemId() != null) {
+          PITStem pitMember = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(groupSet.getMemberId(), true);
+          pitGroupSet.setMemberStemId(pitMember.getId());
+        } else if (groupSet.getMemberAttrDefId() != null) {
+          PITAttributeDef pitMember = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(groupSet.getMemberId(), true);
+          pitGroupSet.setMemberAttrDefId(pitMember.getId());
+        } else {
+          throw new RuntimeException("Unexpected -- GroupSet with id " + groupSet.getId() + " does not have an memberGroupId, memberStemId, or memberAttrDefId.");
+        }
+        
+        if (!GrouperUtil.isEmpty(groupSet.getContextId())) {
+          pitGroupSet.setContextId(groupSet.getContextId());
+        }
+        
+        if (sendFlattenedNotifications) {
+          pitGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(includeFlattenedMemberships);
+          pitGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
+        }
+        
+        pitGroupSet.saveOrUpdate();
+      }
+      
+      totalProcessed++;
+    }
+    
+    if (groupSets.size() > 0 && saveUpdates) {
+      showStatus("Done making " + totalProcessed + " updates");
+    }
+    
+    return totalProcessed;
+  }
+  
+  /**
+   * Add missing point in time group sets. (Second pass looking for issues with effective groupSets.)
+   * 
+   * @return the number of missing point in time group sets
+   */
+  public long processMissingActivePITGroupSetsSecondPass() {
+    showStatus("\n\nSearching for missing active point in time group sets (second pass)");
+    
+    long totalProcessed = 0;
+
+    List<GroupSet> groupSets = new LinkedList<GroupSet>(GrouperDAOFactory.getFactory().getPITGroupSet().findMissingActivePITGroupSetsSecondPass());
+    showStatus("Found " + groupSets.size() + " missing active point in time group sets");
+
+    Collections.sort(groupSets, new Comparator<GroupSet>() {
+
+      public int compare(GroupSet o1, GroupSet o2) {
+        return ((Integer)o1.getDepth()).compareTo(o2.getDepth());
+      }
+    });
+    
+    for (GroupSet groupSet : groupSets) {
+      
+      logDetail("Found missing point in time group set with id: " + groupSet.getId());
+            
+      if (saveUpdates) {
+        
+        // it's possible this was already taken care of... check
+        PITGroupSet check = GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceIdActive(groupSet.getId(), false);
+        if (check != null) {
+          continue;
+        }
+        
+        PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(groupSet.getFieldId(), true);
+        PITField pitMemberField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(groupSet.getMemberFieldId(), true);
+        PITGroupSet pitParent = GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceIdActive(groupSet.getParentId(), true);
+
+        PITGroupSet pitGroupSet = new PITGroupSet();
+        pitGroupSet.setId(GrouperUuid.getUuid());
+        pitGroupSet.setSourceId(groupSet.getId());
+        pitGroupSet.setDepth(groupSet.getDepth());
+        pitGroupSet.setParentId(pitParent.getId());
         pitGroupSet.setFieldId(pitField.getId());
         pitGroupSet.setMemberFieldId(pitMemberField.getId());
         pitGroupSet.setActiveDb("T");

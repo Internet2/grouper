@@ -43,6 +43,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -1118,6 +1119,29 @@ public final class GrouperServiceUtils {
           + ExceptionUtils.getFullStackTrace(e));
     }
     return field;
+  }
+
+  /**
+   * convert a fieldTypeName into a FieldType
+   * @param fieldTypeName name of fieldType e.g. list (default, memberships), 
+   * access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)
+   * @return the fieldType, or throw invalid query exception, or null if not there
+   */
+  public static FieldType retrieveFieldType(String fieldTypeName) {
+    FieldType fieldType = null;
+    
+    if (StringUtils.isBlank(fieldTypeName)) {
+      return null;
+    }
+    
+    //get field
+    try {
+      fieldType = StringUtils.isBlank(fieldTypeName) ? null : FieldType.valueOfIgnoreCase(fieldTypeName, true);
+    } catch (Exception e) {
+      throw new WsInvalidQueryException("Problem with fieldType: " + fieldTypeName + ".  "
+          + ExceptionUtils.getFullStackTrace(e));
+    }
+    return fieldType;
   }
 
   /**

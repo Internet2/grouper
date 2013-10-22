@@ -1751,7 +1751,7 @@ public class GrouperUtil {
           result.append("Array size: ").append(length).append(": ");
           for (int i = 0; i < length; i++) {
             result.append("[").append(i).append("]: ").append(
-                Array.get(object, i)).append("\n");
+                toStringForLog(Array.get(object, i), maxChars)).append("\n");
             if (maxChars != -1 && result.length() > maxChars) {
               return;
             }
@@ -1768,7 +1768,7 @@ public class GrouperUtil {
           int i=0;
           for (Object collectionObject : collection) {
             result.append("[").append(i).append("]: ").append(
-                collectionObject).append("\n");
+                toStringForLog(collectionObject, maxChars)).append("\n");
             if (maxChars != -1 && result.length() > maxChars) {
               return;
             }
@@ -7593,7 +7593,7 @@ public class GrouperUtil {
   }
   
   /**
-   * find the length of ascii chars (non ascii are counted as two)
+   * find the length of ascii chars (non ascii are counted as three)
    * @param input is the string to operate on
    * @param requiredLength length we need the string to be
    * @return the length of ascii chars

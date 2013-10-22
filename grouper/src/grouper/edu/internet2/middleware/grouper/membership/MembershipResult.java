@@ -23,9 +23,12 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -47,6 +50,16 @@ public class MembershipResult {
   private Map<String, Group> groups;
 
   /**
+   * stems by id
+   */
+  private Map<String, Stem> stems;
+
+  /**
+   * attributeDefs by id
+   */
+  private Map<String, AttributeDef> attributeDefs;
+
+  /**
    * member uuid to member
    */
   private Map<String, Member> members;
@@ -54,6 +67,14 @@ public class MembershipResult {
   /** field id we are looking for */
   private String fieldId;
 
+
+  /**
+   * 
+   */
+  public MembershipResult() {
+
+  }
+  
   /**
    * 
    * @param theMembershipsGroupsMembers is the list of arrays of membership, group, member
@@ -75,6 +96,26 @@ public class MembershipResult {
   }
 
   /**
+   * 
+   * @param theMembershipsStemsMembers is the list of arrays of membership, stem, member
+   * @param theFieldId is null for members, or specify if something else
+   */
+  public void initResultStems(Set<Object[]> theMembershipsStemsMembers, String theFieldId) {
+    this.memberships = new HashSet<Membership>();
+    this.stems = new HashMap<String, Stem>();
+    this.members = new HashMap<String, Member>();
+    this.fieldId = StringUtils.defaultString(theFieldId, defaultListFieldId());
+
+    //separate out all the results
+    for (Object[] theMembershipStemMember : GrouperUtil.nonNull(theMembershipsStemsMembers)) {
+      this.memberships.add((Membership)theMembershipStemMember[0]);
+      this.stems.put(((Stem)theMembershipStemMember[1]).getUuid(),(Stem)theMembershipStemMember[1]) ;
+      this.members.put(((Member)theMembershipStemMember[2]).getUuid(),(Member)theMembershipStemMember[2]) ;
+    }
+    
+  }
+
+  /**
    * find a group id or null from results
    * @param groupName
    * @return the group id
@@ -84,6 +125,36 @@ public class MembershipResult {
     for (Group group : this.groups.values()) {
       if (StringUtils.equals(groupName, group.getName()) || group.getAlternateNames().contains(groupName)) {
         return group.getId();
+      }
+    }
+    return null;
+  }
+  
+  /**
+   * find a stem id or null from results
+   * @param stemName
+   * @return the stem id
+   */
+  private String findStemId(String stemName) {
+    //get the stem id
+    for (Stem stem : this.stems.values()) {
+      if (StringUtils.equals(stemName, stem.getName()) || stem.getAlternateNames().contains(stemName)) {
+        return stem.getUuid();
+      }
+    }
+    return null;
+  }
+  
+  /**
+   * find a attributeDef id or null from results
+   * @param nameOfattributeDef
+   * @return the attributeDef id
+   */
+  private String findAttributeDefId(String nameOfAttributeDef) {
+    //get the attributeDef id
+    for (AttributeDef attributeDef : this.attributeDefs.values()) {
+      if (StringUtils.equals(nameOfAttributeDef, attributeDef.getName())) {
+        return attributeDef.getUuid();
       }
     }
     return null;
@@ -111,8 +182,20 @@ public class MembershipResult {
    * @return if the memberships have this group
    */
   public boolean hasGroupMembership(String groupName, Subject subject) {
+    return hasGroupMembership(groupName, subject, null);
+  }
+
+  /**
+   * 
+   * @param groupName
+   * @param subject
+   * @return if the memberships have this group
+   */
+  public boolean hasGroupMembership(String groupName, Subject subject, String fieldName) {
     String groupId = findGroupId(groupName);
     String memberId = findMemberId(subject);
+    
+    String fieldId = StringUtils.isBlank(fieldName) ? this.fieldId : FieldFinder.find(fieldName, true).getUuid();
     
     //if any of them arent there, we are done
     if (StringUtils.isBlank(groupId) || StringUtils.isBlank(memberId)) {
@@ -123,13 +206,79 @@ public class MembershipResult {
     for (Membership membership : this.memberships) {
       if (StringUtils.equals(membership.getOwnerGroupId(), groupId) 
           && StringUtils.equals(membership.getMemberUuid(), memberId)
-          && StringUtils.equals(this.fieldId, membership.getFieldId())) {
+          && StringUtils.equals(fieldId, membership.getFieldId())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * 
+   * @param stemName
+   * @param subject
+   * @return if the memberships have this stem
+   */
+  public boolean hasStemMembership(String stemName, Subject subject) {
+    return hasStemMembership(stemName, subject, null);
+  }
+
+  /**
+   * 
+   * @param stemName
+   * @param subject
+   * @return if the memberships have this stem
+   */
+  public boolean hasStemMembership(String stemName, Subject subject, String fieldName) {
+    String stemId = findStemId(stemName);
+    String memberId = findMemberId(subject);
+    
+    String fieldId = StringUtils.isBlank(fieldName) ? this.fieldId : FieldFinder.find(fieldName, true).getUuid();
+    
+    //if any of them arent there, we are done
+    if (StringUtils.isBlank(stemId) || StringUtils.isBlank(memberId)) {
+      return false;
+    }
+    
+    //now see if that subject has a membership
+    for (Membership membership : this.memberships) {
+      if (StringUtils.equals(membership.getOwnerStemId(), stemId) 
+          && StringUtils.equals(membership.getMemberUuid(), memberId)
+          && StringUtils.equals(fieldId, membership.getFieldId())) {
         return true;
       }
     }
     return false;
   }
   
+  
+  /**
+   * 
+   * @param attributeDefName
+   * @param subject
+   * @return if the memberships have this stem
+   */
+  public boolean hasAttributeDefMembership(String attributeDefName, Subject subject, String fieldName) {
+    String attributeDefId = findAttributeDefId(attributeDefName);
+    String memberId = findMemberId(subject);
+    
+    String fieldId = StringUtils.isBlank(fieldName) ? this.fieldId : FieldFinder.find(fieldName, true).getUuid();
+    
+    //if any of them arent there, we are done
+    if (StringUtils.isBlank(attributeDefId) || StringUtils.isBlank(memberId)) {
+      return false;
+    }
+    
+    //now see if that subject has a membership
+    for (Membership membership : this.memberships) {
+      if (StringUtils.equals(membership.getOwnerAttrDefId(), attributeDefId) 
+          && StringUtils.equals(membership.getMemberUuid(), memberId)
+          && StringUtils.equals(fieldId, membership.getFieldId())) {
+        return true;
+      }
+    }
+    return false;
+  }
   
   /** cache this so it is fast */
   private static String defaultListFieldId = null;

@@ -38,6 +38,8 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
@@ -85,7 +87,7 @@ public class GrouperLoaderTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperLoaderTest("testLoaderSubjectIdentifier"));
+    TestRunner.run(new GrouperLoaderTest("testLoaderUnresolvable"));
   }
 
   /**
@@ -1296,6 +1298,62 @@ public class GrouperLoaderTest extends GrouperTest {
     assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
     assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
   
+  }
+
+  /**
+   * test the loader
+   * @throws Exception 
+   */
+  public void testLoaderUnresolvable() throws Exception {
+    
+    List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
+    
+    TestgrouperLoader subj0 = new TestgrouperLoader("test.subject.0", null, null);
+    testDataList.add(subj0);
+    TestgrouperLoader subj1 = new TestgrouperLoader("test.subject.1", null, null);
+    testDataList.add(subj1);
+    TestgrouperLoader subj2 = new TestgrouperLoader("test.subject.2", null, null);
+    testDataList.add(subj2);
+  
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+  
+    //lets add a group which will load these
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
+        "loader:owner",null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as SUBJECT_ID from testgrouper_loader");
+    
+    System.out.println(GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup));
+    System.out.println(GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup));
+    
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+  
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    //now make a member unresolvable
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, false);
+    //set the subject ID to make unresolvable
+    member.setSubjectId("whateverYall");
+    member.store();
+
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+    
+    assertEquals(3, loaderGroup.getMembers().size());
+    
+    //run it again, it should remove that person, and add another
+    System.out.println(GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup));
+    System.out.println(GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup));
+    
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+    assertEquals(3, loaderGroup.getMembers().size());
+    
   }
   
   
