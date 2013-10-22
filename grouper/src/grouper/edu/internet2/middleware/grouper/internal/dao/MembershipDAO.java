@@ -538,12 +538,14 @@ TODO update for 1.5
    * @param stemScope if looking only in this stem, or all substems
    * @param enabled null for all, true for enabled only, false for disabled only
    * @param shouldCheckSecurity if we should check security, default to true
+   * @param fieldType field type of of memberships
    * @return a set of membership, group, and member objects
    */
   public Set<Object[]> findAllByGroupOwnerOptions(Collection<String> groupIds, Collection<String> memberIds,
       Collection<String> membershipIds, MembershipType membershipType,
       Field field,  
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean shouldCheckSecurity, 
+      FieldType fieldType,
       String serviceId, ServiceRole serviceRole);
   
   

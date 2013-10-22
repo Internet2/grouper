@@ -531,21 +531,22 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean checkSecurity) {
     
     return findAllByGroupOwnerOptions(totalGroupIds, totalMemberIds, totalMembershipIds, membershipType, field, sources, 
-        scope, stem, stemScope, enabled, checkSecurity, null, null);
+        scope, stem, stemScope, enabled, checkSecurity, null, null, null);
   }
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean, Boolean, String, ServiceRole)
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean, Boolean, FieldType, String, ServiceRole)
    */
+  @Override
   public Set<Object[]> findAllByGroupOwnerOptions(Collection<String> totalGroupIds, Collection<String> totalMemberIds,
       Collection<String> totalMembershipIds, MembershipType membershipType,
       Field field,  
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean checkSecurity, 
-      String serviceId, ServiceRole serviceRole) {
+      FieldType fieldType) {
     
     return findAllByGroupOwnerOptions(totalGroupIds, totalMemberIds, totalMembershipIds, membershipType, field, sources, 
-        scope, stem, stemScope, enabled, checkSecurity, null);
+        scope, stem, stemScope, enabled, checkSecurity, fieldType, null, null);
     
   }
     
@@ -557,7 +558,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   public Set<Object[]> findAllByGroupOwnerOptions(Collection<String> totalGroupIds, Collection<String> totalMemberIds,
       Collection<String> totalMembershipIds, MembershipType membershipType,
       Field field,  
-      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean checkSecurity, FieldType fieldType) {
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean checkSecurity, FieldType fieldType,
+      String serviceId, ServiceRole serviceRole) {
     
     if (checkSecurity == null) {
       checkSecurity = Boolean.TRUE;
@@ -3133,7 +3135,6 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findByImmediateUuid(java.lang.String, boolean)
    */
   public Membership findByImmediateUuid(String uuid, boolean exceptionIfNull) {
-    //TODO CH 20120316 change this so it isnt not cached...
     return findByImmediateUuid(uuid, exceptionIfNull, new QueryOptions().secondLevelCache(false));
   }
   
@@ -3306,7 +3307,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             .setCacheable(false)
             .setCacheRegion(KLASS);
   
-          int maxMemberships = GrouperConfig.getPropertyInt("ws.getMemberships.maxResultSize", 30000);
+          int maxMemberships = GrouperConfig.retrieveConfig().propertyValueInt("ws.getMemberships.maxResultSize", 30000);
           
           //if -1, lets not check
           if (maxMemberships >= 0) {
@@ -3517,7 +3518,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             .setCacheable(false)
             .setCacheRegion(KLASS);
 
-          int maxMemberships = GrouperConfig.getPropertyInt("ws.getMemberships.maxResultSize", 30000);
+          int maxMemberships = GrouperConfig.retrieveConfig().propertyValueInt("ws.getMemberships.maxResultSize", 30000);
           
           //if -1, lets not check
           if (maxMemberships >= 0) {

@@ -560,7 +560,7 @@ public class GrouperLoaderJob implements Job, StatefulJob {
           grouperLoaderLdapGroupViewers, grouperLoaderLdapGroupAdmins, grouperLoaderLdapGroupUpdaters, 
           grouperLoaderLdapGroupOptins, grouperLoaderLdapGroupOptouts, grouperLoaderLdapGroupsLike, 
           grouperLoaderLdapAttributeFilterExpression, grouperLoaderLdapGroupAttrReaders, 
-          grouperLoaderLdapGroupAttrUpdaters,   );  );
+          grouperLoaderLdapGroupAttrUpdaters);
 
       //call hooks if registered
       GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LOADER, 

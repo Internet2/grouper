@@ -217,7 +217,7 @@ public class TestSubjectDecorator extends GrouperTest {
   
       GrouperSession.stopQuietly(grouperSession);
     } finally {
-        ApiConfig.testConfig.remove("subjects.customizer.className");
+        GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("subjects.customizer.className");
         SubjectFinder.internalClearSubjectCustomizerCache();
     }
   }
@@ -352,7 +352,7 @@ public class TestSubjectDecorator extends GrouperTest {
     
       GrouperSession.stopQuietly(grouperSession);
     } finally {
-        ApiConfig.testConfig.remove("subjects.customizer.className");
+        GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("subjects.customizer.className");
         SubjectFinder.internalClearSubjectCustomizerCache();
     }
   }
@@ -644,7 +644,7 @@ public class TestSubjectDecorator extends GrouperTest {
         }
       }
     } finally {
-        ApiConfig.testConfig.remove("subjects.customizer.className");
+        GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("subjects.customizer.className");
         SubjectFinder.internalClearSubjectCustomizerCache();
     }
   }
