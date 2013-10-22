@@ -2790,7 +2790,6 @@ public class GrouperClient {
 
 
     String fieldName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "fieldName", false);
-
     String fieldType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "fieldType", false);
 
     List<String> groupNames = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "groupNames", false);
@@ -2866,6 +2865,30 @@ public class GrouperClient {
     if (GrouperClientUtils.length(groupUuids) > 0) {
       for (String groupUuid: groupUuids) {
         gcGetMemberships.addGroupUuid(groupUuid);
+      }
+    }
+    
+    if (GrouperClientUtils.length(ownerStemNames) > 0) {
+      for (String ownerStemName: ownerStemNames) {
+        gcGetMemberships.addOwnerStemName(ownerStemName);
+      }
+    }
+    
+    if (GrouperClientUtils.length(ownerStemUuids) > 0) {
+      for (String ownerStemUuid: ownerStemUuids) {
+        gcGetMemberships.addOwnerStemUuid(ownerStemUuid);
+      }
+    }
+    
+    if (GrouperClientUtils.length(ownerNamesOfAttributeDefs) > 0) {
+      for (String ownerNameOfAttributeDef: ownerNamesOfAttributeDefs) {
+        gcGetMemberships.addOwnerNameOfAttributeDef(ownerNameOfAttributeDef);
+      }
+    }
+    
+    if (GrouperClientUtils.length(ownerAttributeDefUuids) > 0) {
+      for (String ownerAttributeDefUuid: ownerAttributeDefUuids) {
+        gcGetMemberships.addOwnerUuidOfAttributeDef(ownerAttributeDefUuid);
       }
     }
     

@@ -27,6 +27,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
 import edu.internet2.middleware.grouperClient.ws.WsMemberFilter;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembershipsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupLookup;
@@ -82,6 +83,18 @@ public class GcGetMemberships {
   /** group uuids to query */
   private Set<String> groupUuids = new LinkedHashSet<String>();
   
+  /** names of attribute defs to query */
+  private Set<String> ownerNamesOfAttributeDefs = new LinkedHashSet<String>();
+  
+  /** uuids of attribute defs to query */
+  private Set<String> ownerUuidsOfAttributeDefs = new LinkedHashSet<String>();
+  
+  /** names of owner stems to query */
+  private Set<String> ownerStemNames = new LinkedHashSet<String>();
+  
+  /** uuids of owner stems to query */
+  private Set<String> ownerStemUuids = new LinkedHashSet<String>();
+  
   /** group id indexes to query */
   private Set<Long> groupIdIndexes = new LinkedHashSet<Long>();
   
@@ -105,6 +118,46 @@ public class GcGetMemberships {
     return this;
   }
   
+  /**
+   * set the owner stem name
+   * @param theOwnerStemName
+   * @return this for chaining
+   */
+  public GcGetMemberships addOwnerStemName(String theOwnerStemName) {
+    this.ownerStemNames.add(theOwnerStemName);
+    return this;
+  }
+  
+  /**
+   * set the owner stem uuid
+   * @param theOwnerStemUuid
+   * @return this for chaining
+   */
+  public GcGetMemberships addOwnerStemUuid(String theOwnerStemUuid) {
+    this.ownerStemUuids.add(theOwnerStemUuid);
+    return this;
+  }
+  
+  /**
+   * set the owner attributeDef name
+   * @param theOwnerAttributeDefName
+   * @return this for chaining
+   */
+  public GcGetMemberships addOwnerNameOfAttributeDef(String theOwnerNameOfAttributeDef) {
+    this.ownerNamesOfAttributeDefs.add(theOwnerNameOfAttributeDef);
+    return this;
+  }
+  
+  /**
+   * set the owner attributeDef uuid
+   * @param theOwnerUuidOfAttributeDef
+   * @return this for chaining
+   */
+  public GcGetMemberships addOwnerUuidOfAttributeDef(String theOwnerUuidOfAttributeDef) {
+    this.ownerUuidsOfAttributeDefs.add(theOwnerUuidOfAttributeDef);
+    return this;
+  }
+
   /**
    * set the subject lookup
    * @param wsSubjectLookup
@@ -181,11 +234,15 @@ public class GcGetMemberships {
   private void validate() {
     if (GrouperClientUtils.length(this.groupNames) == 0
         && GrouperClientUtils.length(this.groupUuids) == 0
+        && GrouperClientUtils.length(this.ownerStemNames) == 0
+        && GrouperClientUtils.length(this.ownerStemUuids) == 0
+        && GrouperClientUtils.length(this.ownerNamesOfAttributeDefs) == 0
+        && GrouperClientUtils.length(this.ownerUuidsOfAttributeDefs) == 0
         && GrouperClientUtils.length(this.groupIdIndexes) == 0
         && GrouperClientUtils.length(this.membershipIds) == 0
         && GrouperClientUtils.length(this.wsSubjectLookups) == 0
         && GrouperClientUtils.isBlank(this.serviceRole)) {
-      throw new RuntimeException("Group name or uuid or id index or subject lookup or membership id or serviceRole is required: " + this);
+      throw new RuntimeException("Group name or uuid or id index or subject lookup or membership id or owner stem uuid or name or owner uuid or name of attribute def or serviceRole is required: " + this);
     }
     if (GrouperClientUtils.isBlank(this.serviceRole) != (this.serviceLookup == null 
           || (GrouperClientUtils.isBlank(this.serviceLookup.getIdIndex())
@@ -356,21 +413,21 @@ public class GcGetMemberships {
       getMemberships.setFieldType(this.fieldType);
       
       {
-      List<WsGroupLookup> groupLookups = new ArrayList<WsGroupLookup>();
-      //add names and/or uuids
-      for (String groupName : this.groupNames) {
-        groupLookups.add(new WsGroupLookup(groupName, null));
-      }
-      for (String groupUuid : this.groupUuids) {
-        groupLookups.add(new WsGroupLookup(null, groupUuid));
-      }
-      for (Long groupIdIndex : this.groupIdIndexes) {
-        groupLookups.add(new WsGroupLookup(null, null, groupIdIndex.toString()));
-      }
-      
-      if (GrouperClientUtils.length(groupLookups) > 0) {
-        getMemberships.setWsGroupLookups(GrouperClientUtils.toArray(groupLookups, WsGroupLookup.class));
-      }
+        List<WsGroupLookup> groupLookups = new ArrayList<WsGroupLookup>();
+        //add names and/or uuids
+        for (String groupName : this.groupNames) {
+          groupLookups.add(new WsGroupLookup(groupName, null));
+        }
+        for (String groupUuid : this.groupUuids) {
+          groupLookups.add(new WsGroupLookup(null, groupUuid));
+        }
+        for (Long groupIdIndex : this.groupIdIndexes) {
+          groupLookups.add(new WsGroupLookup(null, null, groupIdIndex.toString()));
+        }
+        
+        if (GrouperClientUtils.length(groupLookups) > 0) {
+          getMemberships.setWsGroupLookups(GrouperClientUtils.toArray(groupLookups, WsGroupLookup.class));
+        }
       }
       
       {
