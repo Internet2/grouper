@@ -72,6 +72,88 @@ public class WsMembership {
   /** group uuid of the group */
   private String groupId = null;
   
+  /** uuid of the stem for stem privileges */
+  private String ownerStemId = null;
+  
+  /** name of the stem for stem privileges */
+  private String ownerStemName = null;
+  
+  /**
+   * id of the attribute def for attribute def privileges
+   */
+  private String ownerIdOfAttributeDef = null;
+
+  /**
+   * name of the attribute def for attribute def privileges
+   */
+  private String ownerNameOfAttributeDef = null;
+
+  
+  
+  /**
+   * uuid of the stem for stem privileges
+   * @return uuid
+   */
+  public String getOwnerStemId() {
+    return this.ownerStemId;
+  }
+
+  /**
+   * uuid of the stem for stem privileges
+   * @param stemId1
+   */
+  public void setOwnerStemId(String stemId1) {
+    this.ownerStemId = stemId1;
+  }
+
+  /**
+   * name of the stem for stem privileges
+   * @return the name
+   */
+  public String getOwnerStemName() {
+    return this.ownerStemName;
+  }
+
+  /**
+   * name of the stem for stem privileges
+   * @param stemName1
+   */
+  public void setOwnerStemName(String stemName1) {
+    this.ownerStemName = stemName1;
+  }
+
+  /**
+   * id of the attr def for attr def privileges
+   * @return id
+   */
+  public String getOwnerIdOfAttributeDef() {
+    return this.ownerIdOfAttributeDef;
+  }
+
+  /**
+   * id of the attr def for attr def privileges
+   * @param idOfAttributeDef1
+   */
+  public void setOwnerIdOfAttributeDef(String idOfAttributeDef1) {
+    this.ownerIdOfAttributeDef = idOfAttributeDef1;
+  }
+
+  /**
+   * name of the attr def for attr def privileges
+   * @return name
+   */
+  public String getOwnerNameOfAttributeDef() {
+    return this.ownerNameOfAttributeDef;
+  }
+
+  /**
+   * name of the attr def for attr def privileges
+   * @param nameOfAttributeDef1
+   */
+  public void setOwnerNameOfAttributeDef(String nameOfAttributeDef1) {
+    this.ownerNameOfAttributeDef = nameOfAttributeDef1;
+  }
+
   /** subject id of the subject involved */
   private String subjectId = null;
   

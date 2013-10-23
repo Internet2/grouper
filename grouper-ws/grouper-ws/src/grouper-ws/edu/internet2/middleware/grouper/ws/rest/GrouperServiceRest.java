@@ -1293,7 +1293,7 @@ public class GrouperServiceRest {
             wsRestGetMembershipsRequest.getEnabled(), wsRestGetMembershipsRequest.getMembershipIds(),
             wsRestGetMembershipsRequest.getWsOwnerStemLookups(), 
             wsRestGetMembershipsRequest.getWsOwnerAttributeDefLookups(),
-            wsRestGetMembershipsRequest.getFieldType()), wsRestGetMembershipsRequest.getServiceRole(), wsRestGetMembershipsRequest.getServiceLookup());
+            wsRestGetMembershipsRequest.getFieldType(), wsRestGetMembershipsRequest.getServiceRole(), wsRestGetMembershipsRequest.getServiceLookup());
   
     //return result
     return wsGetMembershipsResults;
