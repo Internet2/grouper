@@ -7297,12 +7297,6 @@ public class GrouperClientWsTest extends GrouperTest {
 
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
-    Stem stem = new StemSave(grouperSession).assignName("aStem1").assignCreateParentStemsIfNotExist(true).save();
-    Stem stem2 = new StemSave(grouperSession).assignName("aStem2").assignCreateParentStemsIfNotExist(true).save();
-    
-    AttributeDef attributeDef = new AttributeDefSave(grouperSession).assignName("aStem1:attributeDef1").assignCreateParentStemsIfNotExist(true).save();
-    AttributeDef attributeDef2 = new AttributeDefSave(grouperSession).assignName("aStem2:attributeDef2").assignCreateParentStemsIfNotExist(true).save();
-    
     AttributeDefName jiraService = null;
     AttributeDefName confluenceService = null;    
     AttributeDefName directoryService = null;    
@@ -7377,33 +7371,6 @@ public class GrouperClientWsTest extends GrouperTest {
     Stem directoryFolder = StemFinder.findByName(grouperSession, "apps:directory", true);
     directoryFolder.getAttributeDelegate().assignAttribute(directoryService);
 
-    group.grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.UPDATE, false);
-    group.grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.ADMIN, false);
-    group2.grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.UPDATE, false);
-    group2.grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.ADMIN, false);
-
-    stem.grantPriv(SubjectTestHelper.SUBJ7, NamingPrivilege.CREATE, false);
-    stem.grantPriv(SubjectTestHelper.SUBJ8, NamingPrivilege.STEM, false);
-    stem2.grantPriv(SubjectTestHelper.SUBJ7, NamingPrivilege.CREATE, false);
-    stem2.grantPriv(SubjectTestHelper.SUBJ8, NamingPrivilege.STEM, false);
-
-    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_READ, false);
-    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ8, AttributeDefPrivilege.ATTR_UPDATE, false);
-    attributeDef2.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_READ, false);
-    attributeDef2.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ8, AttributeDefPrivilege.ATTR_UPDATE, false);
-    
-    GrouperSession.stopQuietly(grouperSession);
-    grouperSession = GrouperSession.start(wsUser);
-    
-    Set<Object[]> results = new MembershipFinder().addSubject(SubjectTestHelper.SUBJ7)
-        .addSubject(SubjectTestHelper.SUBJ8).assignFieldType(FieldType.ACCESS).findMembershipsMembers();
-    
-    assertEquals(GrouperUtil.toStringForLog(results), 4, GrouperUtil.length(results));
-    
-    GrouperSession.stopQuietly(grouperSession);
-    grouperSession = GrouperSession.startRootSession();
-    
-    
     PrintStream systemOut = System.out;
     
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -7425,10 +7392,10 @@ public class GrouperClientWsTest extends GrouperTest {
 
       assertEquals(2, GrouperUtil.length(outputLines));
       
-      // match: Index: 0: type: group, ownerName: aStem:aGroup, subject: GrouperSystem, list: members, type: immediate, enabled: T
-      // match: ^Index: (\d+)\: type: group, ownerName\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      // match: Index: 0: group: aStem:aGroup, subject: GrouperSystem, list: members, type: immediate, enabled: T
+      // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
       Pattern pattern = Pattern
-          .compile("^Index: (\\d+)\\: type\\: group, ownerName\\: (.+), subject\\: (.+), list: (.+), type\\: (.+), enabled\\: (T|F)$");
+          .compile("^Index: (\\d+)\\: group\\: (.+), subject\\: (.+), list: (.+), type\\: (.+), enabled\\: (T|F)$");
       String outputLine = outputLines[0];
 
       Matcher matcher = pattern.matcher(outputLines[0]);

@@ -201,16 +201,6 @@ public class MembershipFinder {
   }
   
   /**
-   * assign a field to filter by
-   * @param theField
-   * @return this for chaining
-   */
-  public MembershipFinder assignField(Field theField) {
-    this.field = theField;
-    return this;
-  }
-  
-  /**
    * 
    */
   private Collection<String> memberIds = null;
@@ -359,38 +349,6 @@ public class MembershipFinder {
     return this;
   }
 
-  
-  /**
-   * add a membership id to the search criteria
-   * @param membershipId
-   * @return this for chaining
-   */
-  public MembershipFinder addMembershipId(String membershipId) {
-    if (!StringUtils.isBlank(membershipId)) {
-      if (this.membershipIds == null) {
-        this.membershipIds = new ArrayList<String>();
-      }
-      //no need to look for dupes
-      this.membershipIds.add(membershipId);
-    }
-    return this;
-  }
-
-  /**
-   * add a source to the search criteria
-   * @param source
-   * @return this for chaining
-   */
-  public MembershipFinder addSource(Source source) {
-    if (source != null) {
-      if (this.sources == null) {
-        this.sources = new HashSet<Source>();
-      }
-      this.sources.add(source);
-    }
-    return this;
-  }
-
   /**
    * assign a collection of role ids to look for
    * @param theRoleIds
@@ -454,16 +412,6 @@ public class MembershipFinder {
    */
   public MembershipFinder assignEnabled(Boolean theEnabled) {
     this.enabled = theEnabled;
-    return this;
-  }
-  
-  /**
-   * assign membership type to filter by
-   * @param theMembershipType
-   * @return the type
-   */
-  public MembershipFinder assignMembershipType(MembershipType theMembershipType) {
-    this.membershipType = theMembershipType;
     return this;
   }
   
@@ -851,12 +799,12 @@ public class MembershipFinder {
    * @param fieldType is access or list
    * @return the set of arrays of Membership, Group, and Member
    */
-  private static Set<Object[]> findMemberships(Collection<String> groupIds, Collection<String> memberIds,
+  public static Set<Object[]> findMemberships(Collection<String> groupIds, Collection<String> memberIds,
       Collection<String> membershipIds, MembershipType membershipType,
       Field field,  
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean shouldCheckSecurity, FieldType fieldType) {
-    return GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(groupIds, memberIds,
-        membershipIds, membershipType, field, sources, scope, stem, stemScope, enabled, shouldCheckSecurity, fieldType);  
+    return findMemberships(groupIds, memberIds, membershipIds, membershipType, field, sources, scope,
+        stem, stemScope, enabled, shouldCheckSecurity, fieldType, null, null);
   }
 
   /**
@@ -889,7 +837,7 @@ public class MembershipFinder {
       Member      m   = MemberFinder.findBySubject(s, subj, true);
       Membership  ms  = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType( 
           stem.getUuid(), m.getUuid(), f, MembershipType.IMMEDIATE.getTypeString(), true, true);
-      PrivilegeHelper.dispatch( s, ms.getStem(), s.getSubject(), f.getReadPriv() );
+      PrivilegeHelper.dispatch( s, ms.getOwnerStem(), s.getSubject(), f.getReadPriv() );
       return ms;
     } catch (MembershipNotFoundException mnfe)         {
       if (exceptionIfNotFound) {
@@ -949,14 +897,15 @@ public class MembershipFinder {
    * @param shouldCheckSecurity if we should check security, default to true
    * @return the set of arrays of Membership, Group, and Member
    */
-  public static Set<Object[]> findAttributeDefMemberships(Collection<String> attributeDefIds, Collection<String> memberIds,
+  public static Set<Object[]> findAttributeDefMemberships(Collection<String> attributeDefIds, 
+      Collection<String> memberIds,
       Collection<String> membershipIds, MembershipType membershipType,
       Field field,  
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, 
       Boolean shouldCheckSecurity) {
 
-    return findMemberships(groupIds, memberIds, membershipIds, membershipType, field, 
-        sources, scope, stem, stemScope, enabled, shouldCheckSecurity, null, null);
+    return GrouperDAOFactory.getFactory().getMembership().findAllByAttributeDefOwnerOptions(attributeDefIds, memberIds,
+        membershipIds, membershipType, field, sources, scope, stem, stemScope, enabled, shouldCheckSecurity);  
   
   }
   
@@ -981,10 +930,10 @@ public class MembershipFinder {
       Collection<String> membershipIds, MembershipType membershipType,
       Field field,  
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean shouldCheckSecurity,
-      String serviceId, ServiceRole serviceRole) {
-    return GrouperDAOFactory.getFactory().getMembership().findAllByAttributeDefOwnerOptions(attributeDefIds, memberIds,
-        membershipIds, membershipType, field, sources, scope, stem, stemScope, enabled, shouldCheckSecurity, 
-        serviceId, serviceRole);  
+      FieldType fieldType, String serviceId, ServiceRole serviceRole) {    
+    
+    return GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(groupIds, memberIds,
+        membershipIds, membershipType, field, sources, scope, stem, stemScope, enabled, shouldCheckSecurity, fieldType, serviceId, serviceRole);  
   }
   
   /**
@@ -1257,7 +1206,7 @@ public class MembershipFinder {
       Member      m   = MemberFinder.findBySubject(s, subj, true);
       Membership  ms  = GrouperDAOFactory.getFactory().getMembership().findByAttrDefOwnerAndMemberAndFieldAndType(
           attributeDef.getUuid(), m.getUuid(), f, MembershipType.IMMEDIATE.getTypeString(), true, true);
-      PrivilegeHelper.dispatch( s, ms.getAttributeDef(), s.getSubject(), f.getReadPriv() );
+      PrivilegeHelper.dispatch( s, ms.getOwnerAttributeDef(), s.getSubject(), f.getReadPriv() );
       return ms;
     } catch (MembershipNotFoundException mnfe)         {
       if (exceptionIfNotFound) {

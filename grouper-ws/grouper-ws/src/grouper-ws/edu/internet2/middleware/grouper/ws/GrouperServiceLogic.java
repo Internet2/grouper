@@ -1748,39 +1748,22 @@ public class GrouperServiceLogic {
           serviceLookup.retrieveAttributeDefNameIfNeeded(session, "serviceLookup");
           membershipFinder.assignServiceId(serviceLookup.retrieveAttributeDefName().getId());
         }
-        
-        
-        // lets get the members, cant be null
-        Set<Object[]> membershipObjects = membershipFinder.findMembershipsGroupsMembers();
-        
-        
-        Membership.resolveSubjects(membershipObjects);
-        
+                
         Scope stemScopeEnum = stemScope == null ? null : stemScope.convertToScope();
       
-        if (GrouperWsConfig.getPropertyBoolean("grouperWsGetMembership_2.1.4_orBefore", false)) {
-          //can change to chaining at some point
-          membershipObjects = MembershipFinder.findMemberships(groupIds, memberIds, membershipIdSet, 
-              membershipType, fieldName, sources, scope, stem, stemScopeEnum, enabledBoolean);
-        } else {
-          MembershipFinder membershipFinder = new MembershipFinder();
-          membershipFinder.assignMemberIds(memberIds);
-          membershipFinder.assignMembershipIds(membershipIdSet);
-          membershipFinder.assignMembershipType(membershipType);
-          membershipFinder.assignField(fieldName);
-          membershipFinder.assignFieldType(fieldType);
+        membershipFinder.assignMembershipIds(membershipIdSet);
+        membershipFinder.assignMembershipType(membershipType);
+        membershipFinder.assignField(fieldName);
+        membershipFinder.assignFieldType(fieldType);
 
-          membershipFinder.assignSources(sources);
-          membershipFinder.assignScope(scope);
-          membershipFinder.assignStem(stem);
-          membershipFinder.assignStemScope(stemScopeEnum);
-          membershipFinder.assignEnabled(enabledBoolean);
-          
-          membershipFinder.assignStemIds(stemIds);
-          membershipFinder.assignAttributeDefIds(attributeDefIds);
-          membershipFinder.assignGroupIds(groupIds);
-          membershipObjects = membershipFinder.findMembershipsMembers();
-        }
+        membershipFinder.assignSources(sources);
+        membershipFinder.assignScope(scope);
+        membershipFinder.assignStem(stem);
+        membershipFinder.assignStemScope(stemScopeEnum);
+        
+        membershipFinder.assignStemIds(stemIds);
+        membershipFinder.assignAttributeDefIds(attributeDefIds);
+        Set<Object[]> membershipObjects = membershipFinder.findMembershipsMembers();
         
         
         
