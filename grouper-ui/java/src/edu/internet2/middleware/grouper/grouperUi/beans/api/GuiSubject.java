@@ -88,7 +88,8 @@ public class GuiSubject implements Serializable {
       } else {
         this.screenLabelShort2 = StringUtils.abbreviate(screenLabel, maxWidth);
       }
-      boolean hasTooltip = !StringUtils.isBlank(subject.getDescription()) && !StringUtils.equals(subject.getName(), subject.getDescription());
+      boolean hasTooltip = this.subject != null 
+        && !StringUtils.isBlank(this.subject.getDescription()) && !StringUtils.equals(this.subject.getName(), this.subject.getDescription());
       
       GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiSubject(this);
       GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowTooltip(hasTooltip);
@@ -246,6 +247,9 @@ public class GuiSubject implements Serializable {
   public static String attributeValue(Subject subject, String attrName) {
     if (StringUtils.equalsIgnoreCase("screenLabel", attrName)) {
       return GrouperUiUtils.convertSubjectToLabel(subject);
+    }
+    if (subject == null) { 
+      return null;
     }
     if (StringUtils.equalsIgnoreCase("subjectId", attrName)) {
       return subject.getId();
