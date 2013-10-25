@@ -501,6 +501,21 @@
       &lt;a onclick="alert('${grouper:escapeJavascript('somestuff')}'); return false;" ...
     </example>
   </function>
+
+  <function>
+    <description>
+      Formats a long date to a date for the screen based on the user's locale
+    </description>
+    <name>formatDateLong</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>String formatDateLong(java.lang.Long)
+    </function-signature>
+    <example>
+      ${grouper:formatDateLong(someGroup.createdOn)}
+    </example>
+  </function>
+
   <function>
     <description>
       Prints out appropriate styles (or none) for hide show. Note this will
@@ -546,6 +561,19 @@
     </function-signature>
     <example>
       &lt;img alt="${grouper:message('some.key', true, false)}" ...
+    </example>
+  </function>
+  <function>
+    <description>
+      Take in a member id, and return the gui subject label short 2 format for the subject
+    </description>
+    <name>subjectStringLabelShort2fromMemberId</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>String subjectStringLabelShort2fromMemberId(java.lang.String)
+    </function-signature>
+    <example>
+      ${grouper:subjectStringLabelShort2fromMemberId(group.creatorUuid)}
     </example>
   </function>
   

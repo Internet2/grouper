@@ -41,6 +41,7 @@ import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -115,6 +116,21 @@ public class GrouperUiFilter implements Filter {
   /** Create a new file upload handler */
   private static ServletFileUpload upload = new ServletFileUpload(fileItemFactory);
 
+  /**
+   * get the request locale or null if there is no request is scope...
+   * @return the locale
+   */
+  public static Locale retrieveLocale() {
+    
+    HttpServletRequest httpServletRequest = retrieveHttpServletRequest();
+    if (httpServletRequest == null) {
+      return null;
+    }
+    
+    return httpServletRequest.getLocale();
+    
+  }
+  
   /**
    * get the nav resource bundle from session
    * @return the nav resource bundle

@@ -856,12 +856,15 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     throws  SubjectNotFoundException
   {
     if (this.creator == null) {
+      String subjectId = null;
       try {
-        this.creator = MemberFinder.findByUuid( GrouperSession.staticGrouperSession(), 
-            this.getCreatorUuid(), true ).getSubject();
+        Member member = MemberFinder.findByUuid( GrouperSession.staticGrouperSession(), 
+            this.getCreatorUuid(), true );
+        subjectId = member.getSubjectId();
+        this.creator = member.getSubject();
       }
       catch (MemberNotFoundException eMNF) {
-        throw new SubjectNotFoundException( eMNF.getMessage(), eMNF );
+        throw new SubjectNotFoundException( subjectId, eMNF.getMessage(), eMNF );
       }
     }
     return this.creator; 
@@ -1043,6 +1046,14 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @return the alternate name
    */
   public String getAlternateNameDb() {
+    return this.alternateNameDb;
+  }
+  
+  /**
+   * Returns the alternate name for the stem.  If multiple, returns the first one
+   * @return the alternate name
+   */
+  public String getAlternateName() {
     return this.alternateNameDb;
   }
   

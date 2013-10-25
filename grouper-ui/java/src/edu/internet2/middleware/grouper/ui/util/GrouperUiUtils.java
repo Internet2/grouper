@@ -36,6 +36,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -1534,6 +1535,26 @@ public class GrouperUiUtils {
       return null;
     }
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT);
+    return simpleDateFormat.format(date);
+  }
+
+  /**
+   * convert a date to a string using the standard web service pattern
+   * yyyy/MM/dd HH:mm:ss.SSS Note that HH is 0-23
+   * 
+   * @param date
+   * @return the string, or null if the date is null
+   */
+  public static String dateToString(Locale locale, Date date) {
+    
+    if (locale == null) {
+      return dateToString(date);
+    }
+    
+    if (date == null) {
+      return null;
+    }
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT, locale);
     return simpleDateFormat.format(date);
   }
 

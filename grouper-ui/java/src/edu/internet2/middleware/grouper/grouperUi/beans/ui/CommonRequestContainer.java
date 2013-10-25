@@ -13,6 +13,27 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 public class CommonRequestContainer {
 
   /**
+   * subjectId
+   */
+  private String subjectId;
+  
+  /**
+   * subjectId
+   * @return subjectId
+   */
+  public String getSubjectId() {
+    return this.subjectId;
+  }
+
+  /**
+   * subjectId
+   * @param subjectId1
+   */
+  public void setSubjectId(String subjectId1) {
+    this.subjectId = subjectId1;
+  }
+
+  /**
    * gui entity
    */
   private GuiEntity guiEntity;

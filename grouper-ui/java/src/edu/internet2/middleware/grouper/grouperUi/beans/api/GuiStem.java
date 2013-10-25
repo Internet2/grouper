@@ -63,7 +63,7 @@ public class GuiStem extends GuiObjectBase implements Serializable {
   public static Set<GuiStem> convertFromStems(Set<Stem> stems) {
     return convertFromStems(stems, null, -1);
   }
-
+  
   /**
    * 
    * @param stems

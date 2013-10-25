@@ -5534,7 +5534,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   }
 
   /**
-   * Returns the alternate name for the group.
+   * Returns the alternate name for the group.  If multiple, this returns the first one
    * @return the alternate name
    */
   public String getAlternateName() {
