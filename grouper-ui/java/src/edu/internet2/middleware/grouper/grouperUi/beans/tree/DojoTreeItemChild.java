@@ -29,6 +29,12 @@ public class DojoTreeItemChild {
     /** if group */
     group,
     
+    /** if attributeDef */
+    attributeDef,
+    
+    /** if attributeDefName */
+    attributeDefName,
+    
     /** if stem */
     stem;
   }

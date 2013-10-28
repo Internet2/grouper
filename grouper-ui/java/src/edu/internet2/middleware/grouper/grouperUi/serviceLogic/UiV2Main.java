@@ -14,6 +14,10 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.tree.DojoTreeItem;
@@ -23,6 +27,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContain
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -85,6 +90,18 @@ public class UiV2Main extends UiServiceLogicBase {
         Set<Group> childrenGroups = stem.getChildGroups(Scope.ONE, AccessPrivilege.VIEW_PRIVILEGES, 
             QueryOptions.create("displayExtension", true, 1, numberOfGroupsInTree));
 
+        Set<AttributeDef> childrenAttributeDefs = new AttributeDefFinder()
+          .assignQueryOptions(QueryOptions.create("extension", true, 1, 10))
+          .assignPrivileges(AttributeDefPrivilege.VIEW_PRIVILEGES)
+          .assignSubject(GrouperSession.staticGrouperSession().getSubject())
+          .assignParentStemId(stem.getId()).assignStemScope(Scope.ONE).findAttributes();
+  
+        Set<AttributeDefName> childrenAttributeDefNames = new AttributeDefNameFinder()
+          .assignQueryOptions(QueryOptions.create("displayExtension", true, 1, 10))
+          .assignPrivileges(AttributeDefPrivilege.VIEW_PRIVILEGES)
+          .assignSubject(GrouperSession.staticGrouperSession().getSubject())
+          .assignParentStemId(stem.getId()).assignStemScope(Scope.ONE).findAttributeNames();
+        
         String displayExtension = stem.isRootStem() ? 
             TextContainer.retrieveFromRequest().getText().get("stem.root.display-name") 
             : stem.getDisplayExtension();
@@ -94,7 +111,8 @@ public class UiV2Main extends UiServiceLogicBase {
 
         DojoTreeItem dojoTreeItem = new DojoTreeItem(displayExtension, id, DojoTreeItemType.stem);
 
-        DojoTreeItemChild[] childrenDojoTreeItems = new DojoTreeItemChild[GrouperUtil.length(childrenStems) + GrouperUtil.length(childrenGroups)];
+        DojoTreeItemChild[] childrenDojoTreeItems = new DojoTreeItemChild[GrouperUtil.length(childrenStems) + GrouperUtil.length(childrenGroups)
+                  + GrouperUtil.length(childrenAttributeDefs) + GrouperUtil.length(childrenAttributeDefNames)];
         dojoTreeItem.setChildren(childrenDojoTreeItems);
         
         int index = 0;
@@ -108,6 +126,18 @@ public class UiV2Main extends UiServiceLogicBase {
           
           childrenDojoTreeItems[index++] = new DojoTreeItemChild(
               childGroup.getDisplayExtension(), childGroup.getUuid(), DojoTreeItemType.group, null);
+        }
+
+        for (AttributeDef childAttributeDef : childrenAttributeDefs) {
+          
+          childrenDojoTreeItems[index++] = new DojoTreeItemChild(
+              childAttributeDef.getExtension(), childAttributeDef.getUuid(), DojoTreeItemType.attributeDef, null);
+        }
+
+        for (AttributeDefName childAttributeDefName : childrenAttributeDefNames) {
+          
+          childrenDojoTreeItems[index++] = new DojoTreeItemChild(
+              childAttributeDefName.getDisplayExtension(), childAttributeDefName.getUuid(), DojoTreeItemType.attributeDefName, null);
         }
 
         

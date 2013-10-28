@@ -331,7 +331,8 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
   public Set<AttributeDef> getAllAttributeDefsSecure(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions) {
-    return getAllAttributeDefsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, false, null, null);
+    return getAllAttributeDefsSecureHelper(scope, grouperSession, subject, privileges, 
+        queryOptions, false, null, null, null, null);
   }
 
   /**
@@ -343,13 +344,15 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
    * @param splitScope 
    * @param attributeAssignType
    * @param attributeDefType
+   * @param parentStemId
+   * @param stemScope
    * @return  attribute defs
    * 
    */
   private Set<AttributeDef> getAllAttributeDefsSecureHelper(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions, boolean splitScope, AttributeAssignType attributeAssignType,
-      AttributeDefType attributeDefType) {
+      AttributeDefType attributeDefType, String parentStemId, Scope stemScope) {
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
     }
@@ -358,6 +361,17 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     }
 
     StringBuilder sql = new StringBuilder("select distinct theAttributeDef from AttributeDef theAttributeDef ");
+
+    if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
+      
+      if (StringUtils.isBlank(parentStemId) || stemScope == null) {
+        throw new RuntimeException("If you are passing in a parentStemId or a stemScope, then you need to pass both of them: " + parentStemId + ", " + stemScope);
+      }
+      
+      if (stemScope == Scope.SUB) {
+        sql.append(", StemSet theStemSet ");
+      }
+    }      
 
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
@@ -445,6 +459,31 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
       byHqlStatic.setString("attributeId", scope);
     }
 
+    if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
+      switch(stemScope) {
+        case ONE:
+          
+          if (whereClause.length() > 0) {
+            whereClause.append(" and ");
+          } 
+          whereClause.append(" theAttributeDef.stemId = :theStemId ");
+          byHqlStatic.setString("theStemId", parentStemId);
+          break;
+        case SUB:
+          
+          if (whereClause.length() > 0) {
+            whereClause.append(" and ");
+          } 
+          whereClause.append(" theAttributeDef.stemId = theStemSet.ifHasStemId " +
+              " and theStemSet.thenHasStemId = :theStemId ");
+          byHqlStatic.setString("theStemId", parentStemId);
+          
+          break;
+        
+      }
+    }
+
+    
     //see if we are adding more to the query
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(subject, byHqlStatic,
         sql, whereClause, "theAttributeDef.id", privileges);
@@ -565,7 +604,8 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions, AttributeAssignType attributeAssignType,
       AttributeDefType attributeDefType) {
-    return getAllAttributeDefsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, true, attributeAssignType, attributeDefType);
+    return getAllAttributeDefsSecureHelper(scope, grouperSession, subject, 
+        privileges, queryOptions, true, attributeAssignType, attributeDefType, null, null);
   }
 
 
@@ -638,7 +678,7 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
       StringBuilder whereClause = new StringBuilder();
       
       //see if we are adding more to the query
-      boolean changedQuery = grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
+      grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
           grouperSession.getSubject(), byHqlStatic, 
           sql, whereClause, "theAttributeDef.id", AttributeDefPrivilege.VIEW_PRIVILEGES);
 
@@ -666,6 +706,20 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     
     return attributeDefs;
   }
+
+  /**
+   * @see AttributeDefDAO#findAllAttributeDefsSecure(String, boolean, Subject, Set, QueryOptions, String, Scope)
+   */
+  @Override
+  public Set<AttributeDef> findAllAttributeDefsSecure(String scope, boolean splitScope,
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions,
+      String parentStemId, Scope stemScope) {
+    
+    return getAllAttributeDefsSecureHelper(scope, GrouperSession.staticGrouperSession(), 
+        subject, privileges, queryOptions, splitScope, null, null, parentStemId, stemScope);
+    
+  }
+  
 
 
 } 

@@ -26,6 +26,67 @@ import edu.internet2.middleware.subject.Subject;
 public class UiV2Stem {
 
   /**
+   * the filter button was pressed, or paging or sorting or something
+   * @param request
+   * @param response
+   */
+  public void filter(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    //initialize the bean
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    
+    GrouperSession grouperSession = null;
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      String stemId = request.getParameter("stemId");
+
+      Stem stem = null;
+      boolean addedError = false;
+      if (!StringUtils.isBlank(stemId)) {
+        if (StringUtils.equals("root", stemId)) {
+          stem = StemFinder.findRootStem(grouperSession);
+        } else {
+          stem = StemFinder.findByUuid(grouperSession, stemId, false);
+        }
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("stemCantFindStemId")));
+        addedError = true;
+      }
+
+      if (stem != null) {
+        grouperRequestContainer.getStemContainer().setGuiStem(new GuiStem(stem));      
+        
+        String filterText = request.getParameter("filterText");
+        grouperRequestContainer.getStemContainer().setFilterText(filterText);
+        
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#stemFilterResultsId", 
+            "/WEB-INF/grouperUi2/stem/stemContents.jsp"));
+      } else {
+        
+        if (!addedError && (!StringUtils.isBlank(stemId))) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("stemCantFindStem")));
+        }
+        
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+            "/WEB-INF/grouperUi2/index/indexMain.jsp"));
+      }
+
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+  
+  /**
    * view stem
    * @param request
    * @param response
@@ -49,6 +110,9 @@ public class UiV2Stem {
       String stemId = request.getParameter("stemId");
       String stemIndex = request.getParameter("stemIndex");
       String stemName = request.getParameter("stemName");
+      
+      boolean addedError = false;
+      
       if (!StringUtils.isBlank(stemId)) {
         if (StringUtils.equals("root", stemId)) {
           stem = StemFinder.findRootStem(grouperSession);
@@ -63,6 +127,7 @@ public class UiV2Stem {
       } else {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
             TextContainer.retrieveFromRequest().getText().get("stemCantFindStemId")));
+        addedError = true;
       }
 
       if (stem != null) {
@@ -70,6 +135,12 @@ public class UiV2Stem {
         guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
             "/WEB-INF/grouperUi2/stem/viewStem.jsp"));
       } else {
+        
+        if (!addedError && (!StringUtils.isBlank(stemId) || !StringUtils.isBlank(stemName) || !StringUtils.isBlank(stemIndex))) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("stemCantFindStem")));
+        }
+        
         guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
             "/WEB-INF/grouperUi2/index/indexMain.jsp"));
       }

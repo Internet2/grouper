@@ -1306,7 +1306,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   public Set<Stem> getAllStemsSecure(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet,
       QueryOptions queryOptions) throws GrouperDAOException {
-    return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet, queryOptions, false);
+    return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet, queryOptions, false, null, null);
   }
 
   /**
@@ -1316,12 +1316,15 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
    * @param inPrivSet 
    * @param queryOptions 
    * @param splitScope
+   * @param parentStemId
+   * @param stemScope
    * @return the matching stems
    * @throws GrouperDAOException 
    */
   private Set<Stem> getAllStemsSecureHelper(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet,
-      QueryOptions queryOptions, boolean splitScope) throws GrouperDAOException {
+      QueryOptions queryOptions, boolean splitScope,
+      String parentStemId, Scope stemScope) throws GrouperDAOException {
 
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
@@ -1332,6 +1335,17 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     //TODO update for 1.5
 
     StringBuilder sql = new StringBuilder("select distinct ns from Stem ns ");
+
+    if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
+      
+      if (StringUtils.isBlank(parentStemId) || stemScope == null) {
+        throw new RuntimeException("If you are passing in a parentStemId or a stemScope, then you need to pass both of them: " + parentStemId + ", " + stemScope);
+      }
+      
+      if (stemScope == Scope.SUB) {
+        sql.append(", StemSet theStemSet ");
+      }
+    }      
 
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
@@ -1371,8 +1385,32 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       byHqlStatic.setString("stemId", scope);
 
       sql.append(whereClause);
+      changedQuery = true;
     }
 
+    if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
+      if (changedQuery) {
+        sql.append(" and ");
+      }  else {
+        sql.append(" where ");
+      }
+      switch(stemScope) {
+        case ONE:
+          sql.append(" ns.parentUuid = :theStemId ");
+          byHqlStatic.setString("theStemId", parentStemId);
+          break;
+        case SUB:
+          
+          sql.append(" ns.stemId = theStemSet.ifHasStemId " +
+            " and theStemSet.thenHasStemId = :theStemId ");
+          byHqlStatic.setString("theStemId", parentStemId);
+          
+          break;
+        
+      }
+    }
+
+    
     if (queryOptions != null) {
       massageSortFields(queryOptions.getQuerySort());
     }
@@ -1874,7 +1912,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   public Set<Stem> getAllStemsSplitScopeSecure(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions) {
-    return this.getAllStemsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, true);
+    return this.getAllStemsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, true, null, null);
   }
 
   /**
@@ -1937,6 +1975,17 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     }
     return stem;
     
+  }
+
+  /**
+   * @see StemDAO#getAllStemsSecure(String, GrouperSession, Subject, Set, QueryOptions, boolean, String, Scope)
+   */
+  @Override
+  public Set<Stem> getAllStemsSecure(String scope, GrouperSession grouperSession,
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions,
+      boolean splitScope, String parentStemId, Scope stemScope)
+      throws GrouperDAOException {
+    return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet, queryOptions, splitScope, parentStemId, stemScope);
   }
 
 } 

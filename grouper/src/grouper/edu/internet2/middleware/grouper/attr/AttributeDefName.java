@@ -341,6 +341,14 @@ public class AttributeDefName extends GrouperAPI
 
   /**
    * id of this attribute def name
+   * @return id
+   */
+  public String getUuid() {
+    return this.id;
+  }
+
+  /**
+   * id of this attribute def name
    * @param id1
    */
   public void setId(String id1) {

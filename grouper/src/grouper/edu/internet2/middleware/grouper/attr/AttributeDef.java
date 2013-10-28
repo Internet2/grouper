@@ -64,6 +64,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.Owner;
@@ -84,7 +85,7 @@ import edu.internet2.middleware.subject.Subject;
  *
  */
 @SuppressWarnings("serial")
-public class AttributeDef extends GrouperAPI implements GrouperHasContext, 
+public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHasContext, 
     Hib3GrouperVersioned, Owner, XmlImportable<AttributeDef>, AttributeAssignable, Comparable<AttributeDef> {
 
   /** default action */
@@ -2046,6 +2047,14 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
       }      
     }
     return needsSave;
+  }
+
+  /**
+   * @see GrouperObject#getDisplayName()
+   */
+  @Override
+  public String getDisplayName() {
+    return this.name;
   }
 
   

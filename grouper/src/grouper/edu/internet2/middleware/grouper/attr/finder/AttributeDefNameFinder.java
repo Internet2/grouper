@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
@@ -40,6 +41,36 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class AttributeDefNameFinder {
 
+  /**
+   * parent or ancestor stem of the attribute def name
+   */
+  private String parentStemId;
+  
+  /**
+   * parent or ancestor stem of the attribute def
+   * @param theParentStemId
+   * @return this for chaining
+   */
+  public AttributeDefNameFinder assignParentStemId(String theParentStemId) {
+    this.parentStemId = theParentStemId;
+    return this;
+  }
+  
+  /**
+   * if passing in a stem, this is the stem scope...
+   */
+  private Scope stemScope;
+
+  /**
+   * if passing in a stem, this is the stem scope...
+   * @param theStemScope
+   * @return this for chaining
+   */
+  public AttributeDefNameFinder assignStemScope(Scope theStemScope) {
+    this.stemScope = theStemScope;
+    return this;
+  }
+  
   /**
    * scope to look for attribute def names  Wildcards will be appended or percent is the wildcard
    */
@@ -205,7 +236,7 @@ public class AttributeDefNameFinder {
           this.attributeDefId, this.subject, this.privileges, 
           this.queryOptions, this.attributeAssignType, 
           this.attributeDefType, 
-          this.serviceRole, this.anyServiceRole);
+          this.serviceRole, this.anyServiceRole, this.parentStemId, this.stemScope);
   }
   
   /**

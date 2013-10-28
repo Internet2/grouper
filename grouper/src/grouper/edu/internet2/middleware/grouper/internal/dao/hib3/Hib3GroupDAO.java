@@ -183,7 +183,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             ByObject byObject = hibernateSession.byObject();
 
-            if (GrouperConfig.getPropertyBoolean("grouperDeleteAttributesTypesOnGroupDeleteForChangeLog", false)) {
+            if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperDeleteAttributesTypesOnGroupDeleteForChangeLog", false)) {
               for (String attributeName : _g.getAttributesMap(false).keySet()) {
                 
                 _g.deleteAttribute(attributeName, false);
@@ -2333,7 +2333,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions, TypeOfGroup typeOfGroup) {
     Set<TypeOfGroup> typeOfGroups = typeOfGroup == null ? null : GrouperUtil.toSet(typeOfGroup);
-    return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, true, typeOfGroups, null, null);
+    return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, 
+        queryOptions, true, typeOfGroups, null, null, null, null);
   }
 
   /**
@@ -2343,7 +2344,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public Set<Group> getAllGroupsSplitScopeSecure(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) {
-    return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, true, typeOfGroups, null, null);
+    return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, 
+        queryOptions, true, typeOfGroups, null, null, null, null);
   }
 
   /**
@@ -2355,12 +2357,15 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * @param splitScope 
    * @param typeOfGroups
    * @param membershipSubject
+   * @param parentStemId
+   * @param stemScope
    * @return groups
    * 
    */
   private Set<Group> findAllGroupsSecureHelper(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
-      QueryOptions queryOptions, boolean splitScope, Set<TypeOfGroup> typeOfGroups, Subject membershipSubject, Field field) {
+      QueryOptions queryOptions, boolean splitScope, Set<TypeOfGroup> typeOfGroups, Subject membershipSubject, 
+      Field field, String parentStemId, Scope stemScope) {
 
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
@@ -2372,6 +2377,17 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     StringBuilder sql = new StringBuilder(
         "select distinct theGroup from Group theGroup ");
   
+    if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
+      
+      if (StringUtils.isBlank(parentStemId) || stemScope == null) {
+        throw new RuntimeException("If you are passing in a parentStemId or a stemScope, then you need to pass both of them: " + parentStemId + ", " + stemScope);
+      }
+      
+      if (stemScope == Scope.SUB) {
+        sql.append(", StemSet theStemSet ");
+      }
+    }      
+
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
   
     //see if we are adding more to the query
@@ -2443,6 +2459,28 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       }
       whereClause.append(" ) ) ");
     }
+    
+    if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
+      if (whereClause.length() > 0) {
+        whereClause.append(" and ");
+      }
+      switch(stemScope) {
+        case ONE:
+          
+          whereClause.append(" theGroup.parentUuid = :theStemId ");
+          byHqlStatic.setString("theStemId", parentStemId);
+          break;
+        case SUB:
+          
+          whereClause.append(" theGroup.stemId = theStemSet.ifHasStemId " +
+            " and theStemSet.thenHasStemId = :theStemId ");
+          byHqlStatic.setString("theStemId", parentStemId);
+          
+          break;
+        
+      }
+    }
+    
     if (changedQuery) {
       sql.append(" and ");
     } else {
@@ -2807,7 +2845,19 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public Set<Group> getAllGroupsSecure(String scope, GrouperSession grouperSession,
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions,
       Set<TypeOfGroup> typeOfGroups, boolean splitScope, Subject membershipSubject, Field field) {
-    return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, splitScope, typeOfGroups, membershipSubject, field);
+    return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, splitScope, 
+        typeOfGroups, membershipSubject, field, null, null);
+  }
+
+  /**
+   * @see GroupDAO#getAllGroupsSecure(String, GrouperSession, Subject, Set, QueryOptions, Set, boolean, Subject, Field, String, Scope)
+   */
+  @Override
+  public Set<Group> getAllGroupsSecure(String scope, GrouperSession grouperSession,
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions,
+      Set<TypeOfGroup> typeOfGroups, boolean splitScope, Subject membershipSubject,
+      Field field, String parentStemId, Scope stemScope) {
+    return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, splitScope, typeOfGroups, membershipSubject, field, parentStemId, stemScope);
   }
 } 
 

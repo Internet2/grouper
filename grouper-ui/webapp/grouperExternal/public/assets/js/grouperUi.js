@@ -85,6 +85,9 @@ function guiV2link(url) {
  */
 function guiProcessUrlForAjax(url) {
 
+  //clear the error div...
+  $('#messaging').hide().empty();
+  
   var poundIndex = url.indexOf("?");
   if (poundIndex == -1) {
     poundIndex = url.indexOf("#");

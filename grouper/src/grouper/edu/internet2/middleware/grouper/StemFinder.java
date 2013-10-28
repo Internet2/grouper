@@ -40,6 +40,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
@@ -453,6 +454,16 @@ public class StemFinder {
   private Subject subject;
 
   /**
+   * parent or ancestor stem of the group
+   */
+  private String parentStemId;
+
+  /**
+   * if passing in a stem, this is the stem scope...
+   */
+  private Scope stemScope;
+
+  /**
    * add a privilege to filter by that the subject has on the stem
    * @param privilege should be AccessPrivilege
    * @return this for chaining
@@ -525,16 +536,30 @@ public class StemFinder {
   public Set<Stem> findStems() {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
   
-    if (this.splitScope) {
-
-      return GrouperDAOFactory.getFactory().getStem()
-        .getAllStemsSplitScopeSecure(this.scope, grouperSession, this.subject, this.privileges, this.queryOptions);
-
-    }
-
     return GrouperDAOFactory.getFactory().getStem()
-        .getAllStemsSecure(this.scope, grouperSession, this.subject, this.privileges, this.queryOptions);
+        .getAllStemsSecure(this.scope, grouperSession, this.subject, this.privileges, 
+            this.queryOptions, this.splitScope, this.parentStemId, this.stemScope);
     
+  }
+
+  /**
+   * parent or ancestor stem of the stem
+   * @param theParentStemId
+   * @return this for chaining
+   */
+  public StemFinder assignParentStemId(String theParentStemId) {
+    this.parentStemId = theParentStemId;
+    return this;
+  }
+
+  /**
+   * if passing in a stem, this is the stem scope...
+   * @param theStemScope
+   * @return this for chaining
+   */
+  public StemFinder assignStemScope(Scope theStemScope) {
+    this.stemScope = theStemScope;
+    return this;
   }
 
 }

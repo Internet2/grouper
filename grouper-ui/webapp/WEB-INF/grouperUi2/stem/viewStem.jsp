@@ -11,7 +11,7 @@
               <div class="page-header blue-gradient">
                 <div class="row-fluid">
                   <div class="span10">
-                    <h1><i class="icon-folder-close"></i> ${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.stem.displayExtension)}</h1>
+                    <h1><i class="icon-folder-close"></i> ${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.guiDisplayExtension)}</h1>
                     <p>${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.stem.description)}</p>
                     <div id="stemDetailsId" style="display: none;">
                       <table class="table table-condensed table-striped">
@@ -48,7 +48,10 @@
                             <td><strong>${textContainer.text['stemLabelLastEditor'] }</strong></td>
                             <td>${grouper:subjectStringLabelShort2fromMemberId(grouperRequestContainer.stemContainer.guiStem.stem.modifierUuid)}</td>
                           </tr>
-                          
+                          <tr>
+                            <td><strong>${textContainer.text['stemLabelUuid'] }</strong></td>
+                            <td>${grouper:subjectStringLabelShort2fromMemberId(grouperRequestContainer.stemContainer.guiStem.stem.modifierUuid)}</td>
+                          </tr>
                           
                           
                         </tbody>
@@ -81,60 +84,22 @@
                   <li class="active"><a href="view-folder-applications.html">Folder Contents</a></li>
                   <li><a href="#">Privileges</a></li>
                 </ul>
-                <form class="form-inline form-filter">
+                <form class="form-inline form-filter" id="stemFilterFormId">
                   <div class="row-fluid">
                     <div class="span1">
                       <label for="table-filter" style="white-space: nowrap;">Filter for:</label>
                     </div>
                     <div class="span4">
-                      <input type="text" placeholder="Folder or group name" id="table-filter" class="span12"/>
+                      <input type="text" placeholder="${textContainer.textEscapeDouble['stemFilterFormPlaceholder']}" 
+                         name="filterText" id="table-filter" class="span12"/>
                     </div>
-                    <div class="span3"><a class="btn">Apply filter</a> <a class="btn">Reset</a></div>
+                    <div class="span3"><input type="submit" class="btn"  id="filterSubmitId" value="${textContainer.textEscapeDouble['stemApplyFilterButton'] }"
+                      onclick="ajax('../app/UiV2Stem.filter?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemFilterFormId'}); return false;"> 
+                    <a class="btn" onclick="$('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['stemResetButton'] }</a></div>
                   </div>
                 </form>
-                <table class="table table-hover table-bordered table-striped table-condensed data-table">
-                  <thead>
-                    <tr>
-                      <th class="sorted">Folder or Group Name</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td><i class="icon-chevron-up"></i> <a href="index.html">Up one folder</a></td>
-                    </tr>
-                    <tr>
-                      <td><i class="icon-folder-close"></i><a href="#"> Directories</a>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><i class="icon-folder-close"></i><a href="#"> Service Q</a>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><i class="icon-folder-close"></i><a href="#"> Virtual Private Network</a>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><i class="icon-folder-close"></i><a href="view-folder.html"> Wiki</a>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><i class="icon-folder-close"></i><a href="#"> Wordpress</a>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-                <div class="data-table-bottom gradient-background">
-                  <div class="pull-right">Showing 1-10 of 25 &middot; <a href="#">First</a> | <a href="#">Prev</a> | <a href="#">Next</a> | <a href="#">Last</a></div>
-                  <form class="form-inline form-small">
-                    <label for="show-entries">Show:&nbsp;</label>
-                    <select id="show-entries" class="span2">
-                      <option>10</option>
-                      <option>25</option>
-                      <option>50</option>
-                      <option>100</option>
-                    </select>
-                  </form>
+                <div id="stemFilterResultsId">
+                  <%@ include file="../stem/stemContents.jsp"%>
                 </div>
               </div>
             </div>

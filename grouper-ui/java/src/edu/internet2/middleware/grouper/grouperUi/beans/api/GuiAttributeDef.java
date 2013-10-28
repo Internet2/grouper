@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -37,7 +38,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @author mchyzer
  */
 @SuppressWarnings("serial")
-public class GuiAttributeDef implements Serializable {
+public class GuiAttributeDef extends GuiObjectBase implements Serializable {
 
   /**
    * 
@@ -197,6 +198,11 @@ public class GuiAttributeDef implements Serializable {
    */
   public GuiAttributeDef(AttributeDef theAttributeDef) {
     this.attributeDef = theAttributeDef;
+  }
+
+  @Override
+  public GrouperObject getGrouperObject() {
+    return this.attributeDef;
   }
   
 }

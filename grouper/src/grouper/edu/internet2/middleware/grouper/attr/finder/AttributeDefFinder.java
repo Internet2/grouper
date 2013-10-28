@@ -19,11 +19,17 @@
  */
 package edu.internet2.middleware.grouper.attr.finder;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -117,6 +123,136 @@ public class AttributeDefFinder {
     GrouperSession.validate(GrouperSession.staticGrouperSession());
     AttributeDef a = GrouperDAOFactory.getFactory().getAttributeDef().findByIdIndexSecure(idIndex, exceptionIfNotFound, queryOptions);
     return a;
+  }
+
+  /**
+   * parent or ancestor stem of the attribute def
+   */
+  private String parentStemId;
+  /**
+   * find attribute definitions where the static grouper session has certain privileges on the results
+   */
+  private Set<Privilege> privileges;
+  /**
+   * if sorting or paging
+   */
+  private QueryOptions queryOptions;
+  
+  /**
+   * scope to look for attribute defs  Wildcards will be appended or percent is the wildcard
+   */
+  private String scope;
+
+  /**
+   * if the scope has spaces in it, then split by whitespace, and find results that contain all of the scope strings
+   */
+  private boolean splitScope;
+  
+  /**
+   * if passing in a stem, this is the stem scope...
+   */
+  private Scope stemScope;
+  
+  /**
+   * this is the subject that has certain privileges
+   */
+  private Subject subject;
+
+  /**
+   * add a privilege to filter by that the subject has on the attribute definition
+   * @param privilege should be AttributeDefPrivilege
+   * @return this for chaining
+   */
+  public AttributeDefFinder addPrivilege(Privilege privilege) {
+    
+    if (this.privileges == null) {
+      this.privileges = new HashSet<Privilege>();
+    }
+    
+    this.privileges.add(privilege);
+    
+    return this;
+  }
+
+  /**
+   * parent or ancestor stem of the attribute def
+   * @param theParentStemId
+   * @return this for chaining
+   */
+  public AttributeDefFinder assignParentStemId(String theParentStemId) {
+    this.parentStemId = theParentStemId;
+    return this;
+  }
+
+  /**
+   * assign privileges to filter by that the subject has on the attribute definition
+   * @param thePrivileges
+   * @return this for chaining
+   */
+  public AttributeDefFinder assignPrivileges(Set<Privilege> thePrivileges) {
+    this.privileges = thePrivileges;
+    return this;
+  }
+
+  /**
+   * if sorting, paging, caching, etc
+   * @param theQueryOptions
+   * @return this for chaining
+   */
+  public AttributeDefFinder assignQueryOptions(QueryOptions theQueryOptions) {
+    this.queryOptions = theQueryOptions;
+    return this;
+  }
+
+  /**
+   * scope to look for attribute defs  Wildcards will be appended or percent is the wildcard
+   * @param theScope
+   * @return this for chaining
+   */
+  public AttributeDefFinder assignScope(String theScope) {
+    this.scope = theScope;
+    return this;
+  }
+
+  /**
+   * if the scope has spaces in it, then split by whitespace, and find results that contain all of the scope strings
+   * @param theSplitScope
+   * @return this for chaining
+   */
+  public AttributeDefFinder assignSplitScope(boolean theSplitScope) {
+    this.splitScope = theSplitScope;
+    return this;
+  }
+
+  /**
+   * if passing in a stem, this is the stem scope...
+   * @param theStemScope
+   * @return this for chaining
+   */
+  public AttributeDefFinder assignStemScope(Scope theStemScope) {
+    this.stemScope = theStemScope;
+    return this;
+  }
+
+  /**
+   * this is the subject that has certain privileges or is in the service
+   * @param theSubject
+   * @return this for chaining
+   */
+  public AttributeDefFinder assignSubject(Subject theSubject) {
+    this.subject = theSubject;
+    return this;
+  }
+
+  /**
+   * find all the attribute defs
+   * @return the set of attribute defs or the empty set if none found
+   */
+  public Set<AttributeDef> findAttributes() {
+    return GrouperDAOFactory.getFactory().getAttributeDef()
+      .findAllAttributeDefsSecure(this.scope, this.splitScope, 
+          this.subject, this.privileges, 
+          this.queryOptions, this.parentStemId, this.stemScope);
   }
   
   

@@ -38,6 +38,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -583,7 +584,7 @@ public class GroupFinder {
     
     return GrouperDAOFactory.getFactory().getGroup()
         .getAllGroupsSecure(this.scope, grouperSession, privSubject, this.privileges, 
-            this.queryOptions, this.typeOfGroups, this.splitScope, this.subject, this.field);
+            this.queryOptions, this.typeOfGroups, this.splitScope, this.subject, this.field, this.parentStemId, this.stemScope);
     
   }
 
@@ -591,6 +592,16 @@ public class GroupFinder {
    * type of groups to query, if null, qill query just groups and roles and groups that hold people
    */
   private Set<TypeOfGroup> typeOfGroups = new HashSet<TypeOfGroup>();
+
+  /**
+   * parent or ancestor stem of the group
+   */
+  private String parentStemId;
+
+  /**
+   * if passing in a stem, this is the stem scope...
+   */
+  private Scope stemScope;
 
   /**
    * default constructor
@@ -655,6 +666,26 @@ public class GroupFinder {
    */
   public GroupFinder assignSubject(Subject theSubject) {
     this.subject = theSubject;
+    return this;
+  }
+
+  /**
+   * parent or ancestor stem of the group
+   * @param theParentStemId
+   * @return this for chaining
+   */
+  public GroupFinder assignParentStemId(String theParentStemId) {
+    this.parentStemId = theParentStemId;
+    return this;
+  }
+
+  /**
+   * if passing in a stem, this is the stem scope...
+   * @param theStemScope
+   * @return this for chaining
+   */
+  public GroupFinder assignStemScope(Scope theStemScope) {
+    this.stemScope = theStemScope;
     return this;
   }
 

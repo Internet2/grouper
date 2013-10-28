@@ -109,6 +109,14 @@
                           //font-awesome icons...
                           return "icon-group";
                         }
+                        if (item.theType == 'attributeDef') {
+                          //font-awesome icons...
+                          return "icon-cog";
+                        }
+                        if (item.theType == 'attributeDefName') {
+                          //font-awesome icons...
+                          return "icon-cogs";
+                        }
                       },
                       onClick: function(item){
                         // Get the URL from the item, and navigate to it
@@ -116,6 +124,8 @@
                           guiV2link('operation=UiV2Stem.viewStem&stemId=' + item.id);                          
                         } else if (item.theType == 'group') {
                           guiV2link('operation=UiV2Group.viewGroup&groupId=' + item.id);                          
+                        } else if (item.theType == 'attributeDef') {
+                        } else if (item.theType == 'attributeDefName') {
                         } else {
                           alert('ERROR: cant find theType on object with id: ' + item.id);
                         }

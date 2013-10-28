@@ -484,6 +484,25 @@ public interface StemDAO extends GrouperDAO {
     throws  GrouperDAOException;
   
   /**
+   * 
+   * @param scope is blank for no scope
+   * @param grouperSession
+   * @param subject
+   * @param queryOptions
+   * @param inPrivSet means that each row must have a matching priv in this set to user or GrouperAll.
+   * There are some constants in NamingPrivilege of pre-canned sets
+   * @param splitScope true to split scopes by whitespace
+   * @param parentStemId true if filtering by parent of ancestor
+   * @param stemScope ONE or SUB
+   * @return the stems
+   * @throws GrouperDAOException
+   */
+  Set<Stem> getAllStemsSecure(String scope, GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions,
+      boolean splitScope, String parentStemId, Scope stemScope)
+    throws  GrouperDAOException;
+  
+  /**
    * get all stems secure, split the scope by whitespace
    * @param scope
    * @param grouperSession
