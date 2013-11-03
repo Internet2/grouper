@@ -94,12 +94,11 @@
                          name="filterText" id="table-filter" class="span12"/>
                     </div>
                     <div class="span3"><input type="submit" class="btn"  id="filterSubmitId" value="${textContainer.textEscapeDouble['stemApplyFilterButton'] }"
-                      onclick="ajax('../app/UiV2Stem.filter?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemFilterFormId'}); return false;"> 
+                      onclick="ajax('../app/UiV2Stem.filter?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemFilterFormId,stemPagingFormId'}); return false;"> 
                     <a class="btn" onclick="$('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['stemResetButton'] }</a></div>
                   </div>
                 </form>
                 <div id="stemFilterResultsId">
-                  <%@ include file="../stem/stemContents.jsp"%>
                 </div>
               </div>
             </div>

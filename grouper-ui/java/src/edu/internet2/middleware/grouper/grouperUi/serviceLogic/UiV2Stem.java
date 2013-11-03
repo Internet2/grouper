@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.Gui
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -31,12 +32,8 @@ public class UiV2Stem {
    * @param response
    */
   public void filter(HttpServletRequest request, HttpServletResponse response) {
-
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    
-    //initialize the bean
-    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
-    
+        
     GrouperSession grouperSession = null;
     
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
@@ -61,13 +58,7 @@ public class UiV2Stem {
       }
 
       if (stem != null) {
-        grouperRequestContainer.getStemContainer().setGuiStem(new GuiStem(stem));      
-        
-        String filterText = request.getParameter("filterText");
-        grouperRequestContainer.getStemContainer().setFilterText(filterText);
-        
-        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#stemFilterResultsId", 
-            "/WEB-INF/grouperUi2/stem/stemContents.jsp"));
+        filterHelper(request, response, stem);
       } else {
         
         if (!addedError && (!StringUtils.isBlank(stemId))) {
@@ -83,6 +74,47 @@ public class UiV2Stem {
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
+    
+  }
+
+
+  /**
+   * the filter button was pressed, or paging or sorting, or view Stem or something
+   * @param request
+   * @param response
+   */
+  private void filterHelper(HttpServletRequest request, HttpServletResponse response, Stem stem) {
+    
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    grouperRequestContainer.getStemContainer().setGuiStem(new GuiStem(stem));      
+    
+    String filterText = request.getParameter("filterText");
+    grouperRequestContainer.getStemContainer().setFilterText(filterText);
+    
+    String pageSizeString = request.getParameter("pagingTagPageSize");
+    int pageSize = -1;
+    if (!StringUtils.isBlank(pageSizeString)) {
+      pageSize = GrouperUtil.intValue(pageSizeString);
+    } else {
+      pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
+    }
+    grouperRequestContainer.getStemContainer().getGuiPaging().setPageSize(pageSize);
+    
+    //1 indexed
+    String pageNumberString = request.getParameter("pagingTagPageNumber");
+    
+    int pageNumber = 1;
+    if (!StringUtils.isBlank(pageNumberString)) {
+      pageNumber = GrouperUtil.intValue(pageNumberString);
+    }
+    
+    grouperRequestContainer.getStemContainer().getGuiPaging().setPageNumber(pageNumber);
+    
+    
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#stemFilterResultsId", 
+        "/WEB-INF/grouperUi2/stem/stemContents.jsp"));
 
   }
   
@@ -134,6 +166,7 @@ public class UiV2Stem {
         grouperRequestContainer.getStemContainer().setGuiStem(new GuiStem(stem));      
         guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
             "/WEB-INF/grouperUi2/stem/viewStem.jsp"));
+        filterHelper(request, response, stem);
       } else {
         
         if (!addedError && (!StringUtils.isBlank(stemId) || !StringUtils.isBlank(stemName) || !StringUtils.isBlank(stemIndex))) {

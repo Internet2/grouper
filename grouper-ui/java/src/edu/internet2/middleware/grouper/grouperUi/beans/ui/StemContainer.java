@@ -77,11 +77,14 @@ public class StemContainer {
     if (this.childGuiObjectsAbbreviated == null) {
 
       Stem stem = this.getGuiStem().getStem();
-
+      int pageSize = this.getGuiPaging().getPageSize();
+      int pageNumber = this.getGuiPaging().getPageNumber();
+      QueryOptions queryOptions = QueryOptions.create("displayExtension", true, pageNumber, pageSize);
+      
       GrouperObjectFinder grouperObjectFinder = new GrouperObjectFinder()
         .assignObjectPrivilege(ObjectPrivilege.view)
         .assignParentStemId(stem.getId())
-        .assignQueryOptions(QueryOptions.create("displayExtension", true, 1, 10))
+        .assignQueryOptions(queryOptions)
         .assignSplitScope(true).assignStemScope(Scope.ONE)
         .assignSubject(GrouperSession.staticGrouperSession().getSubject());
  
@@ -92,6 +95,10 @@ public class StemContainer {
       Set<GrouperObject> results = grouperObjectFinder.findGrouperObjects();
       
       this.childGuiObjectsAbbreviated = GuiObjectBase.convertFromGrouperObjects(results);
+      
+      this.getGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+      
+      
     }
     return this.childGuiObjectsAbbreviated;
   }

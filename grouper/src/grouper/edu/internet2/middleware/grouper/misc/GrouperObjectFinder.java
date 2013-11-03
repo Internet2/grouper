@@ -465,6 +465,7 @@ public class GrouperObjectFinder {
       
       //total number of records
       this.queryOptions.getQueryPaging().setTotalRecordCount(size);
+      this.queryOptions.setCount(new Long(size));
       
       //if we are only here to get the count, get the count
       if (this.queryOptions.isRetrieveCount() && !this.queryOptions.isRetrieveResults()) {

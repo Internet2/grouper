@@ -8,7 +8,6 @@
   <short-name>grouper</short-name>
   <uri>http://internet2.edu/grouper/gui</uri>
 
-
   <tag>
     <description>
       Creates a dhtmlx combobox
@@ -245,6 +244,46 @@
         name of pager (should be unique in the whole app)
         </description>
       <name>pagingName</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+  <tag>
+    <description>
+      Prints out paging labels or buttons, ui v2
+    </description>
+    <name>paging2</name>
+    <tag-class>edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2</tag-class>
+    <body-content>empty</body-content>
+    <attribute>
+      <description>
+        form name must be unique on page, note, the id of the form will be this name with Id appended to the end
+        </description>
+      <name>formName</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        if there are extra form ids to submit with the paging, put it here
+        </description>
+      <name>ajaxFormIds</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        Ajax operation to call to refresh the list when a button is clicked
+        </description>
+      <name>refreshOperation</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        gui paging object has page number etc
+      </description>
+      <name>guiPaging</name>
       <required>true</required>
       <rtexprvalue>true</rtexprvalue>
     </attribute>
@@ -499,6 +538,19 @@
     </function-signature>
     <example>
       &lt;a onclick="alert('${grouper:escapeJavascript('somestuff')}'); return false;" ...
+    </example>
+  </function>
+  <function>
+    <description>
+      Escapes URL
+    </description>
+    <name>escapeUrl</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>String escapeUrl(java.lang.String)
+    </function-signature>
+    <example>
+      &lt;a href="${grouper:escapeUrl(something)}" ...
     </example>
   </function>
 

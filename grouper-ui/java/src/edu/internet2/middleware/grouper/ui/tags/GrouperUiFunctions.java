@@ -57,6 +57,20 @@ public class GrouperUiFunctions {
     return input;
   }
 
+
+  /**
+   * Escapes URL
+   * @param input 
+   * @return the escaped string
+   */
+  public static String escapeUrl(String input) {
+    if (input == null) {
+      return "";
+    }
+    input = GrouperUtil.escapeUrlEncode(input);
+    return input;
+  }
+
   /**
    * prints out a message, assumes it is there
    * @param key
