@@ -88,6 +88,24 @@ import edu.internet2.middleware.subject.Subject;
 public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHasContext, 
     Hib3GrouperVersioned, Owner, XmlImportable<AttributeDef>, AttributeAssignable, Comparable<AttributeDef> {
 
+  /**
+   * attribute defs dont have display extensions or name, so change them to extension and name
+   * @param sortField
+   * @return the new sort field
+   */
+  public static String massageSortField(String sortField) {
+    //there is no display extension in attributeDef
+    if (StringUtils.equalsIgnoreCase("displayExtension", sortField)) {
+      return "extension";
+    }
+    //there is no name in attributeDef
+    if (StringUtils.equalsIgnoreCase("displayName", sortField)) {
+      return "name";
+    }
+    return sortField;
+
+  }
+  
   /** default action */
   public static final String ACTION_DEFAULT = "assign";
 

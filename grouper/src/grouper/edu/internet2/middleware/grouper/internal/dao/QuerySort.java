@@ -32,6 +32,27 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class QuerySort {
 
+  /**
+   * 
+   */
+  private QuerySort() {
+    
+  }
+  
+  /**
+   * 
+   * @return another
+   */
+  public QuerySort clone() {
+    QuerySort querySort = new QuerySort();
+    querySort.maxCols = this.maxCols;
+    querySort.querySortFields = this.querySortFields == null ? null : new ArrayList<QuerySortField>();
+    for (QuerySortField querySortField : GrouperUtil.nonNull(this.querySortFields)) {
+      querySort.querySortFields.add(new QuerySortField(querySortField.getColumn(), querySortField.isAscending()));
+    }
+    return querySort;
+  }
+  
   /** 
    * list of sort fields... generally it would just be one 
    */

@@ -609,8 +609,10 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
     } else {
 
       //see if we are adding more to the query
-      grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(subject, byHqlStatic,
-          sql, whereClause, "theAttributeDefName.attributeDefId", privileges);
+      if (GrouperUtil.length(privileges) > 0) {
+        grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(subject, byHqlStatic,
+            sql, whereClause, "theAttributeDefName.attributeDefId", privileges);
+      }
     }
     
     if (changedQuery) {

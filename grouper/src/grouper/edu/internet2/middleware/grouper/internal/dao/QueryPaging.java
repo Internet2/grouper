@@ -161,6 +161,17 @@ public class QueryPaging {
   }
   
   /**
+   * <pre>
+   * set the first index on the page, 0 indexed, dont use pages to query...
+   * </pre>
+   * @param startIndex
+   */
+  public void setPageStartIndexQueryByIndex(int startIndex) {
+    this.pageNumber = -1;
+    this.pageStartIndex = startIndex;
+  }
+
+  /**
    * setter for totalRecordCount: total number of records in the set (you must set this before the tag is called)
    * @param _totalRecordCount is the data to set
    */
@@ -244,6 +255,11 @@ public class QueryPaging {
    * @return the first index on page 0 indexed
    */
   public int getFirstIndexOnPage() {
+    
+    if (this.pageNumber < 0 && this.pageStartIndex > 0) {
+      return this.pageStartIndex - 1;
+    }
+    
     return (this.getPageNumber() - 1) * this.getPageSize();
   }
 
@@ -261,7 +277,7 @@ public class QueryPaging {
     //lets calculate the start index.  0 -> 1, pageSize -> 2, 2*pageSize -> 3
     this.pageNumber = (startIndex / pageSize) + 1;
   }
-  
+    
   /**
    * return the last index on page (0 indexed)
    * @return the last index on page 0 indexed

@@ -1350,8 +1350,12 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
     //see if we are adding more to the query
-    boolean changedQuery = grouperSession.getNamingResolver().hqlFilterStemsWhereClause(subject, byHqlStatic, 
-        sql, "ns.uuid", inPrivSet);
+    boolean changedQuery = false;
+    
+    if (GrouperUtil.length(inPrivSet) > 0) {
+      changedQuery = grouperSession.getNamingResolver().hqlFilterStemsWhereClause(subject, byHqlStatic, 
+          sql, "ns.uuid", inPrivSet);
+    }
     
     //see if there is a scope
     if (!StringUtils.isBlank(scope)) {
@@ -1401,7 +1405,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
           break;
         case SUB:
           
-          sql.append(" ns.stemId = theStemSet.ifHasStemId " +
+          sql.append(" ns.parentUuid = theStemSet.ifHasStemId " +
             " and theStemSet.thenHasStemId = :theStemId ");
           byHqlStatic.setString("theStemId", parentStemId);
           

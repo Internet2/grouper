@@ -2391,8 +2391,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
   
     //see if we are adding more to the query
-    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic,
-        sql, "theGroup.uuid", privileges);
+    boolean changedQuery = false;
+    
+    if (GrouperUtil.length(privileges) > 0) {
+      changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic,
+          sql, "theGroup.uuid", privileges);
+    }
 
     StringBuilder whereClause = new StringBuilder();
 
@@ -2472,7 +2476,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
           break;
         case SUB:
           
-          whereClause.append(" theGroup.stemId = theStemSet.ifHasStemId " +
+          whereClause.append(" theGroup.parentUuid = theStemSet.ifHasStemId " +
             " and theStemSet.thenHasStemId = :theStemId ");
           byHqlStatic.setString("theStemId", parentStemId);
           

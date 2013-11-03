@@ -485,9 +485,11 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
 
     
     //see if we are adding more to the query
-    grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(subject, byHqlStatic,
-        sql, whereClause, "theAttributeDef.id", privileges);
-
+    if (GrouperUtil.length(privileges) > 0) {
+      grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(subject, byHqlStatic,
+          sql, whereClause, "theAttributeDef.id", privileges);
+    }
+    
     if (whereClause.length() > 0) {
       sql.append(" where ").append(whereClause);
     }    
@@ -499,8 +501,9 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
       .listSet(AttributeDef.class);
     
     //if the hql didnt filter, this will
-    Set<AttributeDef> filteredAttributeDefs = grouperSession.getAttributeDefResolver()
-      .postHqlFilterAttrDefs(attributeDefs, subject, privileges);
+    Set<AttributeDef> filteredAttributeDefs = GrouperUtil.length(privileges) == 0 ? attributeDefs 
+        : grouperSession.getAttributeDefResolver()
+            .postHqlFilterAttrDefs(attributeDefs, subject, privileges);
 
     return filteredAttributeDefs;
 

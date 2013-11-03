@@ -1,10 +1,15 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -12,6 +17,34 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public abstract class GuiObjectBase {
 
+  /**
+   * convert grouper objects to gui object bases
+   * @param grouperObjects
+   * @return the gui object bases
+   */
+  public static Set<GuiObjectBase> convertFromGrouperObjects(Set<GrouperObject> grouperObjects) {
+    Set<GuiObjectBase> tempObjectBases = new LinkedHashSet<GuiObjectBase>();
+    
+    for (GrouperObject grouperObject : GrouperUtil.nonNull(grouperObjects)) {
+      if (grouperObject instanceof Group) {
+        tempObjectBases.add(new GuiGroup((Group)grouperObject));
+      } else if (grouperObject instanceof Stem) {
+        tempObjectBases.add(new GuiStem((Stem)grouperObject));
+      } else if (grouperObject instanceof AttributeDef) {
+        tempObjectBases.add(new GuiAttributeDef((AttributeDef)grouperObject));
+      } else if (grouperObject instanceof AttributeDefName) {
+        tempObjectBases.add(new GuiAttributeDefName((AttributeDefName)grouperObject));
+      } else {
+        throw new RuntimeException("Not expecting object of type: " 
+            + grouperObject.getClass().getSimpleName() + ", " + grouperObject.getName());
+      }
+      
+    }
+    
+    return tempObjectBases;
+
+  }
+  
   /**
    * get the gui object
    * @return the object
