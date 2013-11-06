@@ -127,7 +127,7 @@ public class XmlExportMainTest extends GrouperTest {
     
     GroupType groupType = GroupType.createType(grouperSession, "test");
     
-    groupType.addAttribute(grouperSession, "attr", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN, false);
+    groupType.addAttribute(grouperSession, "attr", false);
     
     groupB.addType(groupType);
     
@@ -360,7 +360,7 @@ public class XmlExportMainTest extends GrouperTest {
     
     GroupType groupType = GroupType.createType(grouperSession, "test");
     
-    groupType.addAttribute(grouperSession, "attr", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN, false);
+    groupType.addAttribute(grouperSession, "attr", false);
     
     groupB.addType(groupType);
     groupG.addType(groupType);

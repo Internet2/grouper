@@ -204,11 +204,18 @@ public interface GroupSetDAO extends GrouperDAO {
   
   
   /**
-   * Find all missing self group sets for groups.
+   * Find all missing self group sets for groups (excluding custom fields).
    * @return set of array objects where the first element is the group
    * and the second element is the field.
    */
   public Set<Object[]> findMissingSelfGroupSetsForGroups();
+  
+  /**
+   * Find all missing self group sets for groups with custom fields.
+   * @return set of array objects where the first element is the group
+   * and the second element is the field.
+   */
+  public Set<Object[]> findMissingSelfGroupSetsForGroupsWithCustomFields();
   
   /**
    * Find all missing self group sets for stems.

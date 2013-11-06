@@ -348,8 +348,7 @@ public class GrouperStartup {
               
               GroupType groupMembershipLiteSettingsType = GroupType.createType(grouperSession, "grouperGroupMembershipSettings", false);
 
-              groupMembershipLiteSettingsType.addAttribute(grouperSession,"grouperGroupMshipSettingsUrl", 
-                  AccessPrivilege.ADMIN, AccessPrivilege.ADMIN, false, false);
+              groupMembershipLiteSettingsType.addAttribute(grouperSession,"grouperGroupMshipSettingsUrl", false);
               
 
             } catch (Exception e) {
@@ -402,29 +401,18 @@ public class GrouperStartup {
             
             GroupType loaderType = GroupType.createType(grouperSession, "grouperLoader", false);
 
-            loaderType.addAttribute(grouperSession,"grouperLoaderType", 
-                AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderType", false);
             
-            loaderType.addAttribute(grouperSession,"grouperLoaderDbName", 
-                AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderScheduleType", 
-                AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderQuery", 
-                AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderQuartzCron", 
-                AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderIntervalSeconds", 
-                AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderPriority", 
-                AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderAndGroups", 
-                AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderGroupTypes", 
-                AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderGroupsLike", 
-                AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderGroupQuery", 
-                AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderDbName", false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderScheduleType", false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderQuery", false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderQuartzCron", false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderIntervalSeconds", false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderPriority", false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderAndGroups", false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderGroupTypes", false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderGroupsLike", false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderGroupQuery", false);
 
           } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -479,8 +467,7 @@ public class GrouperStartup {
             String attributeName = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroups.attributeName");
 
             if (useGrouperRequireGroups && !StringUtils.isBlank(attributeName)) {
-              requireGroupsType.addAttribute(grouperSession,attributeName, 
-                  AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+              requireGroupsType.addAttribute(grouperSession,attributeName, false);
             }
 
             if (useGrouperRequireGroups) {
@@ -497,8 +484,7 @@ public class GrouperStartup {
                 String attributeOrTypeValue = GrouperConfig.retrieveConfig().propertyValueString(attributeOrTypePropertyName);
                 boolean attributeOrType = StringUtils.equals("attribute", attributeOrTypeValue);
                 if (attributeOrType) {
-                  requireGroupsType.addAttribute(grouperSession, propertyValue, 
-                      AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+                  requireGroupsType.addAttribute(grouperSession, propertyValue, false);
                 } else {
                   GroupType.createType(grouperSession, propertyValue, false);
                 }
@@ -542,7 +528,6 @@ public class GrouperStartup {
       try {
         needsInit = StemFinder.findRootStem(grouperSession) == null;
         needsInit = needsInit || FieldFinder.find(Field.FIELD_NAME_ADMINS, true) == null ;
-        needsInit = needsInit || GroupTypeFinder.find("base", true) == null ;
       } catch (Exception e) {
         if (logError && logErrorStatic) {
           LOG.error("Error initializing data, might just need to auto-create some data to fix...", e);

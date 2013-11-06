@@ -31,25 +31,34 @@
 */
 
 package edu.internet2.middleware.grouper.group;
-import java.util.Map;
 
-import junit.framework.Assert;
+import java.util.Map;
+import java.util.Set;
+
 import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.T;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -65,13 +74,51 @@ public class TestGAttr extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestGAttr("testFailGetAttributeNullAttribute"));
+    TestRunner.run(new TestGAttr("testFailGetAttributeNotSet"));
   }
   
   private static final Log LOG = GrouperUtil.getLog(TestGAttr.class);
 
   public TestGAttr(String name) {
     super(name);
+  }
+  
+  public void testFailGetAttributeNotSet() {
+    R       r     = R.populateRegistry(1, 1, 1);
+    Group   gA    = r.getGroup("a", "a");
+    Subject subjA = r.getSubject("a");
+    
+    GroupType groupType1 = GroupType.createType(r.rs, "theGroupType1", false); 
+    groupType1.addAttribute(r.rs, "theAttribute1", false);
+    gA.addType(groupType1, false);
+    
+    GroupType groupType2 = GroupType.createType(r.rs, "theGroupType2", false); 
+    groupType2.addAttribute(r.rs, "theAttribute2", false);
+    
+    r.rs.stop();  
+    GrouperSession.start(subjA);
+    try {
+      gA.getAttributeValue("theAttribute0", true, false);
+      fail("Should throw exception");
+    } catch (AttributeNotFoundException e) {
+      // good
+    }
+    
+    try {
+      gA.getAttributeValue("theAttribute2", true, false);
+      fail("Should throw exception");
+    } catch (AttributeNotFoundException e) {
+      // good
+    }
+    
+    try {
+      gA.getAttributeValue("theAttribute1", true, true);
+      fail("Should throw exception");
+    } catch (AttributeNotFoundException e) {
+      // good
+    }
+    
+    assertEquals("", gA.getAttributeValue("theAttribute1", true, false));
   }
 
   public void testFailGetAttributeNullAttribute() {
@@ -145,7 +192,7 @@ public class TestGAttr extends GrouperTest {
   
       GroupType groupType = GroupType.createType(r.rs, "theGroupType", false); 
       groupType.addAttribute(r.rs, "theAttribute1", 
-            AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+            false);
       gA.addType(groupType, false);
       String theAttribute = "theAttribute1";
   
@@ -172,16 +219,21 @@ public class TestGAttr extends GrouperTest {
     try {
       R       r     = R.populateRegistry(1, 1, 1);
       Group   gA    = r.getGroup("a", "a");
+      Subject subjA = r.getSubject("a");
       GrouperSession grouperSession = GrouperSession.start( SubjectFinder.findRootSubject() );
   
       GroupType groupType = GroupType.createType(grouperSession, "theGroupType", false); 
       groupType.addAttribute(grouperSession, "theAttribute1", 
-            AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+            false);
       gA.addType(groupType, false);
+      groupType.getAttributeDefName().getAttributeDef().getPrivilegeDelegate().grantPriv(subjA, AttributeDefPrivilege.ATTR_READ, false);
+      groupType.getAttributeDefName().getAttributeDef().getPrivilegeDelegate().grantPriv(subjA, AttributeDefPrivilege.ATTR_UPDATE, false);
+      groupType.internal_getAttributeDefForAttributes().getPrivilegeDelegate().grantPriv(subjA, AttributeDefPrivilege.ATTR_READ, false);
+      groupType.internal_getAttributeDefForAttributes().getPrivilegeDelegate().grantPriv(subjA, AttributeDefPrivilege.ATTR_UPDATE, false);
+      
       String theAttribute = "theAttribute1";
       gA.setAttribute(theAttribute, "whatever");
     
-      Subject subjA = r.getSubject("a");
       gA.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );
       grouperSession.stop();
       r.rs.stop();  
@@ -211,8 +263,13 @@ public class TestGAttr extends GrouperTest {
   
       GroupType groupType = GroupType.createType(grouperSession, "theGroupType", false); 
       groupType.addAttribute(grouperSession, "theAttribute1", 
-            AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+            false);
       gA.addType(groupType, false);
+      groupType.getAttributeDefName().getAttributeDef().getPrivilegeDelegate().grantPriv(subjA, AttributeDefPrivilege.ATTR_READ, false);
+      groupType.getAttributeDefName().getAttributeDef().getPrivilegeDelegate().grantPriv(subjA, AttributeDefPrivilege.ATTR_UPDATE, false);
+      groupType.internal_getAttributeDefForAttributes().getPrivilegeDelegate().grantPriv(subjA, AttributeDefPrivilege.ATTR_READ, false);
+      groupType.internal_getAttributeDefForAttributes().getPrivilegeDelegate().grantPriv(subjA, AttributeDefPrivilege.ATTR_UPDATE, false);
+      
       String theAttribute = "theAttribute1";
       gA.setAttribute(theAttribute, "whatever");
     
@@ -441,7 +498,7 @@ public class TestGAttr extends GrouperTest {
   
       GroupType groupType = GroupType.createType(r.rs, "theGroupType", false); 
       groupType.addAttribute(r.rs, "theAttribute1", 
-            AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+            false);
       gA.addType(groupType, false);
       String theAttribute = "theAttribute1";
   
@@ -491,7 +548,7 @@ public class TestGAttr extends GrouperTest {
   
       GroupType groupType = GroupType.createType(r.rs, "theGroupType", false); 
       groupType.addAttribute(r.rs, "theAttribute1", 
-            AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+            false);
       gA.addType(groupType, false);
       String theAttribute = "theAttribute1";
   
@@ -519,7 +576,7 @@ public class TestGAttr extends GrouperTest {
   
       GroupType groupType = GroupType.createType(r.rs, "theGroupType", false); 
       groupType.addAttribute(r.rs, "theAttribute1", 
-            AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+            false);
       gA.addType(groupType, false);
       String theAttribute = "theAttribute1";
       gA.setAttribute(theAttribute, "whatever");
@@ -545,7 +602,7 @@ public class TestGAttr extends GrouperTest {
   
       GroupType groupType = GroupType.createType(r.rs, "theGroupType", false); 
       groupType.addAttribute(r.rs, "theAttribute1", 
-            AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+            false);
       gA.addType(groupType, false);
       String theAttribute = "theAttribute1";
   
@@ -576,7 +633,7 @@ public class TestGAttr extends GrouperTest {
   
       GroupType groupType = GroupType.createType(r.rs, "theGroupType", false); 
       groupType.addAttribute(r.rs, "theAttribute1", 
-            AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+            false);
       gA.addType(groupType, false);
       String theAttribute = "theAttribute1";
   

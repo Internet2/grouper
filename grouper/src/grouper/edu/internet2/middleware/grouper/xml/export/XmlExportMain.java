@@ -305,15 +305,9 @@ public class XmlExportMain {
       
       XmlExportGroup.exportGroups(writer, this);
       
-      XmlExportGroupType.exportGroupTypes(writer, this);
-
       XmlExportField.exportFields(writer, this);
 
-      XmlExportGroupTypeTuple.exportGroupTypeTuples(writer, this);
-
       XmlExportComposite.exportComposites(writer, this);
-
-      XmlExportAttribute.exportAttributes(writer, this);
 
       XmlExportAttributeDef.exportAttributeDefs(writer, this);
 

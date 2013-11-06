@@ -87,13 +87,13 @@ public class FieldHooksTest extends GrouperTest {
     
     FieldHooksImpl.mostRecentPreInsertFieldName = null;
     
-    Field field = this.groupType.addAttribute(grouperSession, "test1", read, write, true);
+    Field field = this.groupType.addList(grouperSession, "test1", read, write);
     
     assertEquals("test1", field.getName());
     assertEquals("test1", FieldHooksImpl.mostRecentPreInsertFieldName);
     
     try {
-      this.groupType.addAttribute(grouperSession, "test2", read, write, true);
+      this.groupType.addList(grouperSession, "test2", read, write);
       fail("Should veto test2");
     } catch (HookVeto hookVeto) {
       assertEquals("name cannot be test2", hookVeto.getReason());
@@ -109,7 +109,7 @@ public class FieldHooksTest extends GrouperTest {
    */
   public void testFieldPreDelete() throws SchemaException, InsufficientPrivilegeException {
     
-    this.groupType.addAttribute(grouperSession, "test5", read, write, true);
+    this.groupType.addList(grouperSession, "test5", read, write);
     
     FieldHooksImpl.mostRecentPreDeleteFieldName = null;
     
@@ -117,7 +117,7 @@ public class FieldHooksTest extends GrouperTest {
     
     assertEquals("test5", FieldHooksImpl.mostRecentPreDeleteFieldName);
     
-    this.groupType.addAttribute(grouperSession, "test6", read, write, true);
+    this.groupType.addList(grouperSession, "test6", read, write);
     try {
       this.groupType.deleteField(grouperSession, "test6");
       fail("Should veto test6");
@@ -135,7 +135,7 @@ public class FieldHooksTest extends GrouperTest {
    */
   public void testFieldPostDelete() throws SchemaException, InsufficientPrivilegeException {
     
-    this.groupType.addAttribute(grouperSession, "test7", read, write, true);
+    this.groupType.addList(grouperSession, "test7", read, write);
     
     FieldHooksImpl.mostRecentPostDeleteFieldName = null;
     
@@ -143,7 +143,7 @@ public class FieldHooksTest extends GrouperTest {
     
     assertEquals("test7", FieldHooksImpl.mostRecentPostDeleteFieldName);
     
-    this.groupType.addAttribute(grouperSession, "test8", read, write, true);
+    this.groupType.addList(grouperSession, "test8", read, write);
     try {
       this.groupType.deleteField(grouperSession, "test8");
       fail("Should veto test8");
@@ -162,13 +162,13 @@ public class FieldHooksTest extends GrouperTest {
     
     FieldHooksImpl.mostRecentPostInsertFieldName = null;
     
-    Field field = this.groupType.addAttribute(grouperSession, "test3", read, write, true);
+    Field field = this.groupType.addList(grouperSession, "test3", read, write);
     
     assertEquals("test3", field.getName());
     assertEquals("test3", FieldHooksImpl.mostRecentPostInsertFieldName);
     
     try {
-      this.groupType.addAttribute(grouperSession, "test4", read, write, true);
+      this.groupType.addList(grouperSession, "test4", read, write);
       fail("Should veto test4");
     } catch (HookVeto hookVeto) {
       assertEquals("name cannot be test4", hookVeto.getReason());
@@ -244,7 +244,7 @@ public class FieldHooksTest extends GrouperTest {
     
     FieldHooksImpl.mostRecentPostCommitDeleteFieldName = null;
     
-    this.groupType.addAttribute(grouperSession, "test7", read, write, true);
+    this.groupType.addList(grouperSession, "test7", read, write);
 
     GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
   
@@ -284,7 +284,7 @@ public class FieldHooksTest extends GrouperTest {
           throws GrouperDAOException {
         
         try {
-          FieldHooksTest.this.groupType.addAttribute(grouperSession, "test3", read, write, true);
+          FieldHooksTest.this.groupType.addList(grouperSession, "test3", read, write);
         } catch (Exception e) {
           throw new RuntimeException(e);
         }

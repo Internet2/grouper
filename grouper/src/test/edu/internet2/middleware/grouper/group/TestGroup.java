@@ -31,7 +31,6 @@
 */
 
 package edu.internet2.middleware.grouper.group;
-import java.util.Iterator;
 import java.util.Set;
 
 import junit.framework.Assert;
@@ -41,7 +40,6 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
-import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -60,7 +58,6 @@ import edu.internet2.middleware.grouper.entity.EntitySave;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
-import edu.internet2.middleware.grouper.helper.FieldHelper;
 import edu.internet2.middleware.grouper.helper.GroupHelper;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.PrivHelper;
@@ -478,63 +475,10 @@ public class TestGroup extends GrouperTest {
    */
   public void testGetTypes() {
     LOG.info("testGetTypes");
+    GroupType testType = GroupType.createType(s, "testType");
+    i2.addType(testType);
     Set types = i2.getTypes();
     Assert.assertTrue("has 1 type/" + types.size(), types.size() == 1);
-    Iterator iter = types.iterator();
-    while (iter.hasNext()) {
-      GroupType type = (GroupType) iter.next();
-      Assert.assertNotNull("type !null", type);
-      Assert.assertTrue("type instanceof GroupType", type instanceof GroupType);
-      Assert.assertTrue("type name == base", type.getName().equals("base"));
-      Set fields = type.getFields();
-      Assert.assertEquals("type has 9 fields", 9, fields.size());
-      Iterator  fIter = fields.iterator();
-      FieldHelper.testField( 
-        (Field) fIter.next()   , 
-        Field.FIELD_NAME_ADMINS              , FieldType.ACCESS,
-        AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
-      );
-      FieldHelper.testField( 
-          (Field) fIter.next()   , 
-          Field.FIELD_NAME_GROUP_ATTR_READERS              , FieldType.ACCESS,
-          AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
-        );
-      FieldHelper.testField( 
-          (Field) fIter.next()   , 
-          Field.FIELD_NAME_GROUP_ATTR_UPDATERS              , FieldType.ACCESS,
-          AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
-        );
-      FieldHelper.testField( 
-        (Field) fIter.next()   , 
-        "members"             , FieldType.LIST,
-        AccessPrivilege.READ  , AccessPrivilege.UPDATE
-      );
-      FieldHelper.testField( 
-        (Field) fIter.next()   , 
-        Field.FIELD_NAME_OPTINS              , FieldType.ACCESS,
-        AccessPrivilege.UPDATE, AccessPrivilege.UPDATE
-      );
-      FieldHelper.testField( 
-        (Field) fIter.next()   , 
-        Field.FIELD_NAME_OPTOUTS             , FieldType.ACCESS,
-        AccessPrivilege.UPDATE, AccessPrivilege.UPDATE
-      );
-      FieldHelper.testField( 
-        (Field) fIter.next()   , 
-        "readers"             , FieldType.ACCESS,
-        AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
-      );
-      FieldHelper.testField( 
-        (Field) fIter.next()   , 
-        Field.FIELD_NAME_UPDATERS            , FieldType.ACCESS,
-        AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
-      );
-      FieldHelper.testField( 
-        (Field) fIter.next()   , 
-        "viewers"             , FieldType.ACCESS,
-        AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
-      );
-    }
   } // public void testGetTypes()
 
   public void testAddChildGroupWithBadExtnOrDisplayExtn() {

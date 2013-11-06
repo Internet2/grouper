@@ -84,7 +84,7 @@ public class GroupDataTest extends GrouperTest {
     
     GroupType groupType = GroupType.createType(r.rs, "groupType", false); 
     groupType.addAttribute(r.rs, "attribute1", 
-          AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+          false);
     a.addType(groupType, false);
 
     

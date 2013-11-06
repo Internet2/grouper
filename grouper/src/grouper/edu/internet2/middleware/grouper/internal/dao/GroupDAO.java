@@ -56,13 +56,6 @@ import edu.internet2.middleware.subject.Subject;
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
-
-  /**
-   * find al types for a group
-   * @param uuid
-   * @return the types
-   */
-  public Set<GroupType> _findAllTypesByGroup(final String uuid);
   
   /**
    * put in cache
@@ -71,22 +64,11 @@ public interface GroupDAO extends GrouperDAO {
    */
   public void putInExistsCache(String uuid, boolean exists);
 
-  /**
-   * @since   1.2.0
-   */
-  GroupTypeTuple addType(Group _g, GroupType _gt) 
-    throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
   void delete(Group _g)
-    throws  GrouperDAOException;
-
-  /**
-   * @since   1.2.0
-   */
-  GroupTypeTuple deleteType(Group _g, GroupType _gt) 
     throws  GrouperDAOException;
 
   /**

@@ -135,7 +135,6 @@ public abstract class Hib3DAO {
       addClass(CFG, Hib3AttributeAssignActionSetViewDAO.class);
       addClass(CFG, Hib3AttributeAssignDAO.class);
       addClass(CFG, Hib3AttributeAssignValueDAO.class);
-      addClass(CFG, Hib3AttributeDAO.class);
       addClass(CFG, Hib3AttributeDefDAO.class);
       addClass(CFG, Hib3AttributeDefNameDAO.class);
       addClass(CFG, Hib3AttributeDefNameSetDAO.class);
@@ -152,8 +151,6 @@ public abstract class Hib3DAO {
       addClass(CFG, Hib3ExternalSubjectAttributeDAO.class);
       addClass(CFG, Hib3FieldDAO.class);
       addClass(CFG, Hib3GroupDAO.class);
-      addClass(CFG, Hib3GroupTypeDAO.class);
-      addClass(CFG, Hib3GroupTypeTupleDAO.class);
       addClass(CFG, Hib3MemberDAO.class);
       addClass(CFG, Hib3MembershipDAO.class);
       addClass(CFG, Hib3MembershipDAO.class, "Hib3ImmediateMembershipDAO");

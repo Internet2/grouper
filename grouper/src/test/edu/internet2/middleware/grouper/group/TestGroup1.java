@@ -59,7 +59,6 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
@@ -341,15 +340,14 @@ public class TestGroup1 extends GrouperTest {
       GrouperSession grouperSession = GrouperSession.start( SubjectFinder.findRootSubject() );
   
       GroupType groupType = GroupType.createType(grouperSession, "theGroupType", false); 
-      groupType.addAttribute(grouperSession, "theAttribute1", 
-            AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+      groupType.addList(grouperSession, "theList1", 
+            AccessPrivilege.READ, AccessPrivilege.ADMIN);;
       a.addType(groupType, false);
-      a.setAttribute("theAttribute1", "whatever");
   
       grouperSession.stop();
   
       try {
-        a.canReadField(null, FieldFinder.find("theAttribute1", true));
+        a.canReadField(null, FieldFinder.find("theList1", true));
         Assert.fail("IllegalArgumentException not thrown");
       }
       catch (IllegalArgumentException eIA) {
@@ -699,15 +697,14 @@ public class TestGroup1 extends GrouperTest {
       GrouperSession grouperSession = GrouperSession.start( SubjectFinder.findRootSubject() );
   
       GroupType groupType = GroupType.createType(grouperSession, "theGroupType", false); 
-      groupType.addAttribute(grouperSession, "theAttribute1", 
-            AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+      groupType.addList(grouperSession, "theList1", 
+            AccessPrivilege.READ, AccessPrivilege.ADMIN);
       a.addType(groupType, false);
-      a.setAttribute("theAttribute1", "whatever");
   
       grouperSession.stop();
       
       try {
-        a.canWriteField(null, FieldFinder.find("theAttribute1", true));
+        a.canWriteField(null, FieldFinder.find("theList1", true));
         Assert.fail("IllegalArgumentException not thrown");
       }
       catch (IllegalArgumentException eIA) {
@@ -799,7 +796,7 @@ public class TestGroup1 extends GrouperTest {
     try {
       R       r   = R.populateRegistry(1, 1, 0);
       Group   gA  = r.getGroup("a", "a");
-      T.amount("types", 1, gA.getTypes().size());
+      T.amount("types", 0, gA.getTypes().size());
       T.amount("removable types", 0, gA.getRemovableTypes().size());
       r.rs.stop();
     }
@@ -815,7 +812,7 @@ public class TestGroup1 extends GrouperTest {
       GroupType custom  = GroupType.createType(r.rs, "custom");
       Group     gA      = r.getGroup("a", "a");
       gA.addType(custom);
-      T.amount("types", 2, gA.getTypesDb().size());
+      T.amount("types", 1, gA.getTypesDb().size());
       T.amount("removable types", 1, gA.getRemovableTypes().size());
       r.rs.stop();
     }
@@ -832,7 +829,7 @@ public class TestGroup1 extends GrouperTest {
       Group     gA      = r.getGroup("a", "a");
       gA.addType(custom);
       GrouperSession.start( r.getSubject("a") );
-      T.amount("types", 2, gA.getTypes().size());
+      T.amount("types", 1, gA.getTypes().size());
       T.amount("removable types", 0, gA.getRemovableTypes().size());
       r.rs.stop();
     }
@@ -851,7 +848,7 @@ public class TestGroup1 extends GrouperTest {
       Subject   subjA   = r.getSubject("a");
       gA.grantPriv(subjA, AccessPrivilege.ADMIN);
       GrouperSession.start( subjA );
-      T.amount("types", 2, gA.getTypes().size());
+      T.amount("types", 1, gA.getTypes().size());
       T.amount("removable types", 1, gA.getRemovableTypes().size());
       r.rs.stop();
     }
@@ -1007,7 +1004,7 @@ public class TestGroup1 extends GrouperTest {
   
       GroupType groupType = GroupType.createType(grouperSession, "theGroupType", false); 
       groupType.addAttribute(grouperSession, "theAttribute1", 
-            AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+            false);
       gA.addType(groupType, false);
       gA.setAttribute("theAttribute1", "whatever");
   
@@ -1043,7 +1040,7 @@ public class TestGroup1 extends GrouperTest {
   
       GroupType groupType = GroupType.createType(grouperSession, "theGroupType", false); 
       groupType.addAttribute(grouperSession, "theAttribute1", 
-            AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+            false);
       gA.addType(groupType, false);
       gA.setAttribute("theAttribute1", "whatever");
   

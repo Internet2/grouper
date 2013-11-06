@@ -140,7 +140,7 @@ public class AttributeAssignTest extends GrouperTest {
     AttributeAssign attributeAssign = new AttributeAssign(this.top, AttributeDef.ACTION_DEFAULT, attributeDefName, null);
     
     try {
-      attributeAssign.saveOrUpdate();
+      attributeAssign.saveOrUpdate(true);
       fail("Should throw exception");
     } catch (AttributeAssignNotAllowed aana) {
       //good
@@ -161,7 +161,7 @@ public class AttributeAssignTest extends GrouperTest {
     AttributeAssign attributeAssign = new AttributeAssign(this.top, AttributeDef.ACTION_DEFAULT, attributeDefName, null);
     
     //should work now
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
   }
 
   /**
@@ -190,10 +190,10 @@ public class AttributeAssignTest extends GrouperTest {
     AttributeAssign attributeAssign2 = attributeAssignResult2.getAttributeAssign();
     
     attributeAssign0.setAttributeAssignDelegatable(AttributeAssignDelegatable.TRUE);
-    attributeAssign0.saveOrUpdate();
+    attributeAssign0.saveOrUpdate(true);
     
     attributeAssign2.setAttributeAssignDelegatable(AttributeAssignDelegatable.GRANT);
-    attributeAssign2.saveOrUpdate();
+    attributeAssign2.saveOrUpdate(true);
     
     Member member7 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ7, true);
     
@@ -271,7 +271,7 @@ public class AttributeAssignTest extends GrouperTest {
     
     AttributeAssign attributeAssign = new AttributeAssign(this.top, AttributeDef.ACTION_DEFAULT, attributeDefName, null);
     attributeAssign.setAttributeAssignDelegatable(AttributeAssignDelegatable.TRUE);
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     
     
@@ -710,18 +710,18 @@ public class AttributeAssignTest extends GrouperTest {
 
     //this one is the same
     AttributeAssign attributeAssign1 = group.getAttributeDelegate().internal_assignAttributeHelper(null, attributeDefName, true, null, null).getAttributeAssign();
-    attributeAssign1.saveOrUpdate();
+    attributeAssign1.saveOrUpdate(true);
 
     //this one has different notes
     AttributeAssign attributeAssign2 = group.getAttributeDelegate().internal_assignAttributeHelper(null, attributeDefName, true, null, null).getAttributeAssign();
     attributeAssign2.setNotes("abc");
-    attributeAssign2.saveOrUpdate();
+    attributeAssign2.saveOrUpdate(true);
     
     //this one has different notes and date
     AttributeAssign attributeAssign3 = group.getAttributeDelegate().internal_assignAttributeHelper(null, attributeDefName, true, null, null).getAttributeAssign();
     attributeAssign3.setNotes("abc");
     attributeAssign3.setEnabledTimeDb(9L);
-    attributeAssign3.saveOrUpdate();
+    attributeAssign3.saveOrUpdate(true);
     
     //get by id
     attributeAssign = attributeAssign1.xmlRetrieveByIdOrKey(null);

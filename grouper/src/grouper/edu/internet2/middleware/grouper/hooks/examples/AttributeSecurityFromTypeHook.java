@@ -20,9 +20,8 @@
 package edu.internet2.middleware.grouper.hooks.examples;
 
 import edu.internet2.middleware.grouper.Attribute;
-import edu.internet2.middleware.grouper.Field;
-import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hooks.AttributeHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksAttributeBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
@@ -78,19 +77,17 @@ public class AttributeSecurityFromTypeHook extends AttributeHooks {
   public static void manageSecurity(HooksAttributeBean postInsertBean, String summaryForLog) {
     
     Attribute attribute = postInsertBean.getAttribute();
-
-    Field attributeField = FieldFinder.findById(attribute.getFieldId(), true);
     
     GroupType attributeGroupType = null;
     
     try {
-      attributeGroupType = attributeField.getGroupType();
-    } catch (IllegalStateException ise) {
-      throw new RuntimeException("Cant find group type for field: " + attributeField, ise);
+      attributeGroupType = attribute.internal_getGroupType();
+    } catch (SchemaException ise) {
+      throw new RuntimeException("Cant find group type for attribute: " + attribute.getAttrName(), ise);
     }
     
     GroupTypeSecurityHook.vetoIfNecessary(postInsertBean.getAttribute().getGroupUuid(), attributeGroupType.getUuid(),
-        summaryForLog + " attribute " + attributeField.getName());
+        summaryForLog + " attribute " + attribute.getAttrName());
   }
 
 }

@@ -178,16 +178,6 @@ public class FieldFinder {
   }
 
   /**
-   * find the field id or null if the name is empty.  Runtime exception if problem
-   * @param attrName
-   * @param exceptionIfNull 
-   * @return the field uuid
-   */
-  public static String findFieldIdForAttribute(String attrName, boolean exceptionIfNull) {
-    return findFieldId(attrName, "attribute", exceptionIfNull);
-  }
-
-  /**
    * Get the specified field.
    * <pre class="eg">
    * Field f = FieldFinder.find(field);
@@ -305,11 +295,16 @@ public class FieldFinder {
       throws  GrouperDAOException {
     Set<Field> fields  = new LinkedHashSet();
     
-    for (Field field : fieldCache().values()) {
-      if (StringUtils.equals(groupType.getUuid(),field.getGroupTypeUuid())) {
-        fields.add(field);
+    Set<Field> allListFields = FieldFinder.findAllByType(FieldType.LIST);
+    for (Field listField : allListFields) {
+      if (!listField.getUuid().equals(Group.getDefaultList().getUuid())) {
+        String groupTypeId = GroupTypeFinder.internal_findGroupTypeByField(listField, true).getUuid();
+        if (groupType.getUuid().equals(groupTypeId)) {
+          fields.add(listField);
+        }
       }
     }
+
     return fields;
   }
   
@@ -320,14 +315,11 @@ public class FieldFinder {
    */
   public static Set<Field> findAllByGroupType(String groupTypeId)
       throws  GrouperDAOException {
-    Set<Field> fields  = new LinkedHashSet();
     
-    for (Field field : fieldCache().values()) {
-      if (StringUtils.equals(groupTypeId,field.getGroupTypeUuid())) {
-        fields.add(field);
-      }
-    }
-    return fields;
+    @SuppressWarnings("deprecation")
+    GroupType groupType = GroupTypeFinder.findByUuid(groupTypeId, true);
+
+    return findAllByGroupType(groupType);
   }
 
   /**
@@ -353,7 +345,7 @@ public class FieldFinder {
   }
 
   /**
-   * 
+   * @return map
    */
   public static Map<String, Field> internal_updateKnownFields() {
 

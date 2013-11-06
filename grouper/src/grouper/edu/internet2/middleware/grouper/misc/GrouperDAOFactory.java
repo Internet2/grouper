@@ -40,7 +40,6 @@ import edu.internet2.middleware.grouper.internal.dao.AttributeAssignActionSetDAO
 import edu.internet2.middleware.grouper.internal.dao.AttributeAssignActionSetViewDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeAssignValueDAO;
-import edu.internet2.middleware.grouper.internal.dao.AttributeDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO;
@@ -58,8 +57,6 @@ import edu.internet2.middleware.grouper.internal.dao.ExternalSubjectDAO;
 import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupSetDAO;
-import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
-import edu.internet2.middleware.grouper.internal.dao.GroupTypeTupleDAO;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionDAO;
@@ -139,12 +136,6 @@ public abstract class GrouperDAOFactory {
     }
     return (GrouperDAOFactory) Realize.instantiate(klass);
   }
-
-  /**
-   * @return attribute
-   * @since   1.2.0
-   */
-  public abstract AttributeDAO getAttribute();
 
   /**
    * @return attributeDef
@@ -273,18 +264,6 @@ public abstract class GrouperDAOFactory {
    * @since   2.1.0
    */
   public abstract EntityDAO getEntity();
-
-  /**
-   * @return group type dao
-   * @since   1.2.0
-   */
-  public abstract GroupTypeDAO getGroupType();
-
-  /**
-   * @return group type tuple dao
-   * @since   1.6.0
-   */
-  public abstract GroupTypeTupleDAO getGroupTypeTuple();
 
   /**
    * @return member dao

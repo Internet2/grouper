@@ -46,6 +46,7 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
@@ -212,10 +213,10 @@ public class XmlLegacyTest extends GrouperTest {
       Group     gA    = assertFindGroupByName( r.rs, "i2:a:a" );
       Subject   subjA = r.getSubject("a");
       GroupType type  = GroupType.createType(r.rs, "custom type");
-      Field     attr  = type.addAttribute(r.rs, "custom attribute", AccessPrivilege.READ, AccessPrivilege.UPDATE, false);
+      AttributeDefName attr  = type.addAttribute(r.rs, "custom attribute", false);
       Field     list  = type.addList(r.rs, "custom list", AccessPrivilege.READ, AccessPrivilege.UPDATE);
       gA.addType( type );
-      gA.setAttribute( attr.getName(), attr.getName() );
+      gA.setAttribute( attr.getLegacyAttributeName(true), attr.getLegacyAttributeName(true) );
 
       gA.addMember( subjA, list );
       r.rs.stop();
@@ -255,7 +256,6 @@ public class XmlLegacyTest extends GrouperTest {
       s     = GrouperSession.start( SubjectFinder.findRootSubject() );
       gA    = assertFindGroupByName( s, "i2:a:a" );
       type  = assertFindGroupType("custom type");
-      attr  = assertFindField("custom attribute");
       list  = assertFindField("custom list");
       assertGroupHasType( gA, type, true );
       assertGroupAttribute( gA, attr.getName(), attr.getName() );

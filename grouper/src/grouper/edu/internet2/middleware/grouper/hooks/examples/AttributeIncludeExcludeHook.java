@@ -20,13 +20,12 @@
 package edu.internet2.middleware.grouper.hooks.examples;
 
 import edu.internet2.middleware.grouper.Attribute;
-import edu.internet2.middleware.grouper.Field;
-import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hooks.AttributeHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksAttributeBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
@@ -86,8 +85,6 @@ public class AttributeIncludeExcludeHook extends AttributeHooks {
     }
     
     Attribute attribute = postInsertBean.getAttribute();
-
-    Field attributeField = FieldFinder.findById(attribute.getFieldId(), true);
     
     //make sure this is the right type
     String requireGroupsTypeName = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroups.type.name");
@@ -103,8 +100,8 @@ public class AttributeIncludeExcludeHook extends AttributeHooks {
       GroupType attributeGroupType = null;
       
       try {
-        attributeGroupType = attributeField.getGroupType();
-      } catch (IllegalStateException ise) {
+        attributeGroupType = attribute.internal_getGroupType();
+      } catch (SchemaException ise) {
         throw new RuntimeException("Problem in group: " + groupUuid + ", attribute: " + attribute.getAttrName(), ise);
       }
       
@@ -116,7 +113,7 @@ public class AttributeIncludeExcludeHook extends AttributeHooks {
       Group typedGroup = attribute.retrieveGroup(true);
 
       GroupTypeTupleIncludeExcludeHook.manageIncludesExcludesAndGroups(grouperSession, typedGroup, 
-          summaryForLog + " attribute '" + attributeField.getName() + "' for group: " + typedGroup.getExtension());
+          summaryForLog + " attribute '" + attribute.getAttrName() + "' for group: " + typedGroup.getExtension());
       
     } catch (Exception e) {
       throw new RuntimeException("Error doing include/exclude on group: " + groupUuid, e);

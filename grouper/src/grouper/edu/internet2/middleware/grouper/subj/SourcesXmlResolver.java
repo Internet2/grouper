@@ -47,7 +47,6 @@ import java.util.concurrent.Future;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -339,8 +338,6 @@ public class SourcesXmlResolver implements SubjectResolver {
     Source sourceObject = this.getSource(source);
     try {
       Set<Subject> subjects = sourceObject.search(query);
-      
-      this.initGroupAttributes(subjects);
       
       
       subjects = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjects, null);
@@ -636,8 +633,6 @@ public class SourcesXmlResolver implements SubjectResolver {
         }
       }
       
-      this.initGroupAttributes(subjects);
-      
       //filter if necessary
       subjects = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjects, null);
       
@@ -770,9 +765,6 @@ public class SourcesXmlResolver implements SubjectResolver {
 
     }
     
-    
-    //lets init the group attributes
-    this.initGroupAttributes(subjects);
     
     subjects = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjects, stemName);
     
@@ -926,9 +918,6 @@ public class SourcesXmlResolver implements SubjectResolver {
       }
     }
     
-    //lets init the group attributes
-    this.initGroupAttributes(subjects);
-    
     //filter if necessary
     subjects = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjects, stemName);
     
@@ -941,27 +930,6 @@ public class SourcesXmlResolver implements SubjectResolver {
 
   }
   
-  /**
-   * init group attributes in few queries
-   * @param subjects
-   */
-  private void initGroupAttributes(Set<Subject> subjects) {
-
-    //if there are none, or if this isnt the group source
-    if (GrouperUtil.length(subjects) == 0) {
-      return;
-    }
-    
-    Set<Group> groups = new HashSet<Group>();
-  
-    //get the grouper subjects
-    for (Subject subject : subjects) {
-      if (subject instanceof GrouperSubject) {
-        groups.add(((GrouperSubject)subject).internal_getGroup());
-      }
-    }
-    Group.initGroupAttributes(groups);
-  }
   /**
    * @see SubjectResolver#findByIdentifiers(Collection)
    */

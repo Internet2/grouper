@@ -1096,7 +1096,6 @@ public class XmlExporter {
     this.xml.internal_indent();
     this.xml.internal_puts("<field name="  + Quote.single( XML.escape( f.getName() ) ) );
     this.xml.internal_indent();
-    this.xml.internal_puts("required="     + Quote.single( f.getRequired() )              );
     this.xml.internal_puts("type="         + Quote.single( f.getType().toString() )       );
     this.xml.internal_puts("readPriv="     + Quote.single( f.getReadPriv().toString() )   );
     this.xml.internal_puts("writePriv="    + Quote.single( f.getWritePriv().toString() )  );
@@ -1507,7 +1506,6 @@ public class XmlExporter {
       this.xml.internal_indent();
       this.xml.internal_puts(
           "<list field="  + Quote.single( XML.escape( f.getName() )                 )
-        + " groupType="   + Quote.single( XML.escape( f.getGroupType().getName() )  )
         + ">"
       );
       if (isComposite) {

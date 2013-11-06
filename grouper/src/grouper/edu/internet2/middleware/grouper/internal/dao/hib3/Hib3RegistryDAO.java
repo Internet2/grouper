@@ -167,9 +167,8 @@ class Hib3RegistryDAO implements RegistryDAO {
             Hib3GroupDAO.reset(hibernateSession);
             Hib3StemSetDAO.reset(hibernateSession);
             Hib3StemDAO.reset(hibernateSession);
-            if (includeTypesAndFields) {
-              Hib3GroupTypeDAO.reset(hibernateSession);
-            }
+            Hib3FieldDAO.reset(hibernateSession);
+
             //we need to flush since the next query will run a sql
             hibernateSession.getSession().flush();
             Hib3MemberDAO.reset(hibernateSession);

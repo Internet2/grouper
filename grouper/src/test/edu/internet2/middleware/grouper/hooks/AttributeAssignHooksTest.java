@@ -95,7 +95,7 @@ public class AttributeAssignHooksTest extends GrouperTest {
           throws GrouperDAOException {
         try {
           attributeAssign.setEnabledTimeDb(3L);
-          attributeAssign.saveOrUpdate();
+          attributeAssign.saveOrUpdate(true);
         } catch (Exception e) {
           throw new RuntimeException(e);
         }
@@ -171,13 +171,13 @@ public class AttributeAssignHooksTest extends GrouperTest {
     AttributeAssignHooksImpl.mostRecentPreUpdateAttributeEnabledTime = null;
 
     attributeAssign.setEnabledTimeDb(3L);
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
 
     assertTrue(ObjectUtils.equals(3L, AttributeAssignHooksImpl.mostRecentPreUpdateAttributeEnabledTime));
 
     try {
       attributeAssign.setEnabledTimeDb(2L);
-      attributeAssign.saveOrUpdate();
+      attributeAssign.saveOrUpdate(true);
 
       fail("Should veto 2");
     } catch (HookVeto hookVeto) {
@@ -199,13 +199,13 @@ public class AttributeAssignHooksTest extends GrouperTest {
     AttributeAssignHooksImpl.mostRecentPostUpdateEnabledTime = null;
 
     attributeAssign.setEnabledTimeDb(3L);
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
 
     assertTrue(ObjectUtils.equals(3L, AttributeAssignHooksImpl.mostRecentPostUpdateEnabledTime));
 
     try {
       attributeAssign.setEnabledTimeDb(4L);
-      attributeAssign.saveOrUpdate();
+      attributeAssign.saveOrUpdate(true);
 
       fail("Should veto 4");
     } catch (HookVeto hookVeto) {

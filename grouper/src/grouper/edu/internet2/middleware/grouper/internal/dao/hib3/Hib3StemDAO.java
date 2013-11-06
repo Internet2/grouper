@@ -40,7 +40,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -49,9 +48,8 @@ import org.hibernate.HibernateException;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupType;
-import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
@@ -105,11 +103,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
    * @param _stem 
    * @param _group 
    * @param _member 
-   * @param attributes 
    * @throws GrouperDAOException 
    * @since   
    */
-  public void createChildGroup(final Stem _stem, final Group _group, final Member _member, final Map<String, String> attributes)
+  public void createChildGroup(final Stem _stem, final Group _group, final Member _member)
     throws  GrouperDAOException {
     
     try {
@@ -124,28 +121,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
               
               byObject.save(_group);
               
-              // add group-type tuples
-              Iterator                    it    = _group.getTypesDb().iterator();
-              while (it.hasNext()) {
-  
-                GroupType groupType = (GroupType) it.next();
-  
-                //see if that record exists
-                if (null == Hib3GroupTypeTupleDAO.findByGroupAndType(_group, groupType, false)) {
-                  GroupTypeTuple tuple = new GroupTypeTuple();
-                  tuple.setId(GrouperUuid.getUuid());
-                  tuple.assignGroupUuid( _group.getUuid(), _group );
-                  tuple.setTypeUuid( groupType.getUuid() );
-                  byObject.saveOrUpdate(tuple); // new group-type tuple
-                }
-              }
-              
-              //loop through in case an attribute is set in hook
-              if (attributes != null) {
-                for (String key : attributes.keySet()) {
-                  _group.setAttribute(key, attributes.get(key), false);
-                }
-              }
+              // take care of group sets
+              createGroupSetsForGroup(_group);
               
               //MCH 2009/03/23 remove this for optimistic locking
               //hibernateSession.byObject().update( _stem );
@@ -387,6 +364,30 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     // delete old stem sets
     for (StemSet stemSetToDelete : oldStemSets) {
       stemSetToDelete.delete();
+    }
+  }
+  
+  /**
+   * @param group
+   */
+  private void createGroupSetsForGroup(Group group) {
+    
+    // add group sets
+    Set<Field> fields = FieldFinder.findAll();
+    for (Field field : fields) {
+      if (field.getType().equals(FieldType.ACCESS) || Group.getDefaultList().getUuid().equals(field.getUuid())) {
+        if (group.getTypeOfGroup() != null && group.getTypeOfGroup().supportsField(field)) {
+          GroupSet groupSet = new GroupSet();
+          groupSet.setId(GrouperUuid.getUuid());
+          groupSet.setCreatorId(GrouperSession.staticGrouperSession().getMemberUuid());
+          groupSet.setDepth(0);
+          groupSet.setMemberGroupId(group.getUuid());
+          groupSet.setOwnerGroupId(group.getUuid());
+          groupSet.setParentId(groupSet.getId());
+          groupSet.setFieldId(field.getUuid());
+          GrouperDAOFactory.getFactory().getGroupSet().save(groupSet);
+        }
+      }
     }
   }
   

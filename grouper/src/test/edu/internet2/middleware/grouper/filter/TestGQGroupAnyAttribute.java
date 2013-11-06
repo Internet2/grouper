@@ -140,7 +140,7 @@ public class TestGQGroupAnyAttribute extends TestCase {
     GroupHelper.addMember(i2, uofc);
 
     GroupType custom = GroupType.createType(s, "customType");
-    custom.addAttribute(s, "customAttribute", AccessPrivilege.VIEW, AccessPrivilege.UPDATE, false);
+    custom.addAttribute(s, "customAttribute", false);
 
     try {
       GrouperQuery gq = GrouperQuery.createQuery(

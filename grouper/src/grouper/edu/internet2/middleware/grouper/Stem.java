@@ -2045,22 +2045,14 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   public Group internal_addChildGroup(final String extn, final String dExtn, final String uuid, final TypeOfGroup typeOfGroup) 
     throws GroupAddException, InsufficientPrivilegeException {
 
-    Set types = null;
+    Set types = new LinkedHashSet<GroupType>();
     
-    types = new LinkedHashSet<GroupType>();
-    try {
-      types.add(GroupTypeFinder.find("base", true));
-    } catch (SchemaException e) {
-      throw new GroupAddException(e);
-    } 
-    
-    return internal_addChildGroup(GrouperSession.staticGrouperSession(), extn, dExtn, uuid, 
-        null, types, new HashMap<String, String>(), true, typeOfGroup);    
+    return internal_addChildGroup(extn, dExtn, uuid, 
+        null, types, new HashMap<String, String>(), true, typeOfGroup, true);    
   }
   
   /**
    * 
-   * @param session
    * @param extn
    * @param dExtn
    * @param uuid
@@ -2069,13 +2061,15 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @param attributes
    * @param addDefaultGroupPrivileges
    * @param typeOfGroup or null for default
+   * @param checkSecurity 
    * @return group
    * @throws GroupAddException
    * @throws InsufficientPrivilegeException
    */
-  public Group internal_addChildGroup(final GrouperSession session, final String extn, final String dExtn,
+  public Group internal_addChildGroup(final String extn, final String dExtn,
       final String uuid, final String description, final Set<GroupType> types,
-      final Map<String, String> attributes, final boolean addDefaultGroupPrivileges, final TypeOfGroup typeOfGroup)
+      final Map<String, String> attributes, final boolean addDefaultGroupPrivileges, final TypeOfGroup typeOfGroup,
+      final boolean checkSecurity)
       throws GroupAddException, InsufficientPrivilegeException {
     
     final String errorMessageSuffix = ", stem name: " + this.name + ", group extension: " + extn
@@ -2085,6 +2079,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
         new HibernateHandler() {
   
+          @SuppressWarnings("deprecation")
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
             
@@ -2094,10 +2089,12 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
               
               StopWatch sw = new StopWatch();
               sw.start();
-              if (!PrivilegeHelper.canCreate(session, 
-                  Stem.this, session.getSubject())) {
-                throw new InsufficientPrivilegeException(E.CANNOT_CREATE + errorMessageSuffix + ", " + session);
-              } 
+              if (checkSecurity) {
+                if (!PrivilegeHelper.canCreate(GrouperSession.staticGrouperSession(), 
+                    Stem.this, GrouperSession.staticGrouperSession().getSubject())) {
+                  throw new InsufficientPrivilegeException(E.CANNOT_CREATE + errorMessageSuffix + ", " + GrouperSession.staticGrouperSession());
+                } 
+              }
               GrouperValidator v = AddGroupValidator.validate(Stem.this, extn, dExtn);
               if (v.isInvalid()) {
                 if (v.getErrorMessage().startsWith(AddGroupValidator.GROUP_ALREADY_EXISTS_WITH_NAME_PREFIX)) {
@@ -2119,7 +2116,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
               }
               _g.setDescription(description);
               _g.setCreateTimeLong(new Date().getTime());
-              _g.setCreatorUuid(session.getMember().getUuid());
+              _g.setCreatorUuid(GrouperSession.staticGrouperSession().getMember().getUuid());
               _g.setTypes(types);
               
               if (typeOfGroup != null) {
@@ -2163,10 +2160,23 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
                 }
         
 
-                GrouperDAOFactory.getFactory().getStem().createChildGroup( Stem.this, _g, _m, attributes );
+                GrouperDAOFactory.getFactory().getStem().createChildGroup(Stem.this, _g, _m);
                 if (addDefaultGroupPrivileges) {
                   _grantDefaultPrivsUponCreate(_g);
                 }
+                
+                // take care of attributes now that default privs have been added
+                for (GroupType groupType : _g.getTypesDb()) {    
+                  _g.getAttributeDelegate().internal_assignAttributeHelper(null, groupType.getAttributeDefName(), checkSecurity, null, null);
+                }
+                
+                //loop through in case an attribute is set in hook
+                if (attributes != null) {
+                  for (String key : attributes.keySet()) {
+                    _g.setAttribute(key, attributes.get(key), checkSecurity);
+                  }
+                }
+                
                 //fire a rule
                 RulesGroupBean rulesGroupBean = new RulesGroupBean(_g);
                 //fire rules directly connected to this membership remove
@@ -2195,7 +2205,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
               }
               
               sw.stop();
-              EventLog.info(session, M.GROUP_ADD + Quote.single(_g.getName()), sw);
+              EventLog.info(GrouperSession.staticGrouperSession(), M.GROUP_ADD + Quote.single(_g.getName()), sw);
               
               return _g;
             } catch (GrouperDAOException eDAO) {
@@ -3675,6 +3685,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
             // then the user is a member of that group.
             if (!PrivilegeHelper.canCopyStems(GrouperSession.staticGrouperSession().getSubject())) {
               throw new InsufficientPrivilegeException("User cannot copy stems.");      
+            }
+            
+            if (!PrivilegeHelper.canStem(Stem.this, GrouperSession.staticGrouperSession().getSubject())) {
+              throw new InsufficientPrivilegeException("Cannot copy stem: " + Stem.this.getName());      
             }
             
             Map<String, Stem> oldStemUuidToNewStem = new HashMap<String, Stem>();

@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
@@ -71,8 +72,8 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
       //make sure a user can change a type
       this.groupType = GroupType.createType(grouperSession, "groupType", false);
 
-      this.field = this.groupType.addAttribute(grouperSession,"attribute", 
-          AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+      this.attr = this.groupType.addAttribute(grouperSession,"attribute", 
+          false);
     
       String groupName = "aStem:testUserEditType";
       this.group = Group.saveGroup(this.grouperSession, groupName, 
@@ -85,7 +86,7 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
       
       this.groupWithType.addType(this.groupType);
       
-      this.groupWithType.setAttribute(this.field.getName(), "fieldValue");
+      this.groupWithType.setAttribute(this.attr.getLegacyAttributeName(true), "fieldValue");
   
       String groupToBeInToEditName = "aStem:groupToBeInToEdit";
       
@@ -124,9 +125,9 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
   private GroupType groupType;
 
   /**
-   * field
+   * attr
    */
-  private Field field;
+  private AttributeDefName attr;
   
   /**
    * 
@@ -191,7 +192,7 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
     GroupTypeSecurityHook.resetCacheSettings();
 
     assertFalse(this.group.hasType(this.groupType));
-    assertFalse(this.group.getAttributesMap(true).containsKey(this.field.getName()));
+    assertFalse(this.group.getAttributesMap(true).containsKey(this.attr.getLegacyAttributeName(true)));
 
     try {
       userEditTypeHelper(SubjectTestHelper.SUBJ0);
@@ -204,10 +205,10 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
     
     //type should not be applied
     assertFalse(this.group.hasType(this.groupType));
-    assertFalse(this.group.getAttributesMap(true).containsKey(this.field.getName()));
+    assertFalse(this.group.getAttributesMap(true).containsKey(this.attr.getLegacyAttributeName(true)));
 
     assertTrue(this.groupWithType.hasType(this.groupType));
-    assertEquals("fieldValue", this.groupWithType.getAttributeValue(this.field.getName(), false, true));
+    assertEquals("fieldValue", this.groupWithType.getAttributeValue(this.attr.getLegacyAttributeName(true), false, true));
 
     try {
       userUpdateTypeHelper(SubjectTestHelper.SUBJ0, true);
@@ -219,7 +220,7 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
     this.groupWithType = GroupFinder.findByName(this.grouperSession, this.groupWithType.getName(), true);
 
     assertTrue(this.groupWithType.hasType(this.groupType));
-    assertEquals("fieldValue", this.groupWithType.getAttributeValue(this.field.getName(), false, true));
+    assertEquals("fieldValue", this.groupWithType.getAttributeValue(this.attr.getLegacyAttributeName(true), false, true));
 
   }
 
@@ -258,17 +259,17 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
       
       group.addType(this.groupType);
       assertTrue(this.group.hasType(this.groupType));
-      group.setAttribute(this.field.getName(), "test");
+      group.setAttribute(this.attr.getLegacyAttributeName(true), "test");
 
-      assertEquals("test", this.group.getAttributeValue(this.field.getName(), false, true));
+      assertEquals("test", this.group.getAttributeValue(this.attr.getLegacyAttributeName(true), false, true));
       
-      group.setAttribute(this.field.getName(), "test2");
+      group.setAttribute(this.attr.getLegacyAttributeName(true), "test2");
 
-      assertEquals("test2", this.group.getAttributeValue(this.field.getName(), false, true));
+      assertEquals("test2", this.group.getAttributeValue(this.attr.getLegacyAttributeName(true), false, true));
       
-      group.deleteAttribute(this.field.getName());
+      group.deleteAttribute(this.attr.getLegacyAttributeName(true));
 
-      assertFalse(this.group.getAttributesMap(true).containsKey(this.field.getName()));
+      assertFalse(this.group.getAttributesMap(true).containsKey(this.attr.getLegacyAttributeName(true)));
       
       group.deleteType(this.groupType);
       assertFalse(this.group.hasType(this.groupType));
@@ -296,9 +297,9 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
 
       if (doAttributeFirst) {
         //do some updates and deletes here
-        groupWithType.setAttribute(this.field.getName(), "test2");
+        groupWithType.setAttribute(this.attr.getLegacyAttributeName(true), "test2");
   
-        assertEquals("test2", this.groupWithType.getAttributeValue(this.field.getName(), false, true));
+        assertEquals("test2", this.groupWithType.getAttributeValue(this.attr.getLegacyAttributeName(true), false, true));
       }
       
       groupWithType.deleteType(this.groupType);
@@ -339,7 +340,7 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
     
     //type should not be applied
     assertFalse(this.group.hasType(this.groupType));
-    assertFalse(this.group.getAttributesMap(true).containsKey(this.field.getName()));
+    assertFalse(this.group.getAttributesMap(true).containsKey(this.attr.getLegacyAttributeName(true)));
   
     try {
       userUpdateTypeHelper(SubjectTestHelper.SUBJ0, true);
@@ -351,7 +352,7 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
     this.groupWithType = GroupFinder.findByName(this.grouperSession, this.groupWithType.getName(), true);
 
     assertTrue(this.groupWithType.hasType(this.groupType));
-    assertEquals("fieldValue", this.groupWithType.getAttributeValue(this.field.getName(), false, true));
+    assertEquals("fieldValue", this.groupWithType.getAttributeValue(this.attr.getLegacyAttributeName(true), false, true));
   
   }
 

@@ -89,7 +89,7 @@ public interface StemDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  void createChildGroup(Stem _parent, Group _child, Member _m, Map<String, String> attributes)
+  void createChildGroup(Stem _parent, Group _child, Member _m)
     throws  GrouperDAOException;
 
   /**

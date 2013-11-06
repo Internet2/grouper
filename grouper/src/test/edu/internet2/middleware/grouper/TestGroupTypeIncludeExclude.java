@@ -35,6 +35,8 @@ import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -135,7 +137,7 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
       
       assertNotNull("Should exist now", this.requireGroupsType);
       
-      this.requireActiveEmployee = FieldFinder.find("requireActiveEmployee", true);
+      this.requireActiveEmployee = AttributeDefNameFinder.findByName("etc:legacy:attribute:legacyAttribute_requireActiveEmployee", true);
       
       assertNotNull("Should exist now", this.requireActiveEmployee);
 
@@ -154,7 +156,7 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
   private GroupType requireActiveStudentType;
   
   /** require active employee attribute */
-  private Field requireActiveEmployee;
+  private AttributeDefName requireActiveEmployee;
   
   /**
    * 

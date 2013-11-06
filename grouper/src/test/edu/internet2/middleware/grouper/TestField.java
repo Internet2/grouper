@@ -283,10 +283,8 @@ public class TestField extends TestCase {
   public static Field exampleField() {
     Field field = new Field();
     field.setContextId("contextId");
-    field.setGroupTypeUuid("groupTypeUuid");
     field.setHibernateVersionNumber(3L);
     field.setName("name");
-    field.setIsNullable(true);
     field.setReadPrivilege("readPrivilege");
     field.setTypeString("type");
     field.setUuid("uuid");
@@ -302,7 +300,7 @@ public class TestField extends TestCase {
     Field field = FieldFinder.find("example", false);
     if (field == null) {
       GroupType groupType = TestGroupType.exampleGroupTypeDb();
-      field = groupType.addAttribute(GrouperSession.staticGrouperSession(), "example", AccessPrivilege.READ, AccessPrivilege.ADMIN, false, true );
+      field = groupType.addList(GrouperSession.staticGrouperSession(), "example", AccessPrivilege.READ, AccessPrivilege.ADMIN );
     }
     
     return field;
@@ -327,14 +325,14 @@ public class TestField extends TestCase {
     
     GrouperSession.startRootSession();
     
-    Field fieldOriginal = TestGroupType.exampleGroupTypeDb().addAttribute(
-        GrouperSession.staticGrouperSession(), "exampleInsert", AccessPrivilege.READ, AccessPrivilege.ADMIN, false, true );
+    Field fieldOriginal = TestGroupType.exampleGroupTypeDb().addList(
+        GrouperSession.staticGrouperSession(), "exampleInsert", AccessPrivilege.READ, AccessPrivilege.ADMIN);
     fieldOriginal = FieldFinder.find("exampleInsert", true);
     //dont let cache corrupt things
-    fieldOriginal = GrouperDAOFactory.getFactory().getField().findByUuidOrName(fieldOriginal.getUuid(), "sdafsadfasdf", "asdasdfasdf", true);
+    fieldOriginal = GrouperDAOFactory.getFactory().getField().findByUuidOrName(fieldOriginal.getUuid(), "sdafsadfasdf", true);
     //do this because last membership update isnt there, only in db
-    Field fieldCopy = GrouperDAOFactory.getFactory().getField().findByUuidOrName(fieldOriginal.getUuid(), "sdafsadfasdf", "asdasdfasdf", true);
-    Field fieldCopy2 = GrouperDAOFactory.getFactory().getField().findByUuidOrName(fieldOriginal.getUuid(), "sdafsadfasdf", "asdasdfasdf", true);
+    Field fieldCopy = GrouperDAOFactory.getFactory().getField().findByUuidOrName(fieldOriginal.getUuid(), "sdafsadfasdf", true);
+    Field fieldCopy2 = GrouperDAOFactory.getFactory().getField().findByUuidOrName(fieldOriginal.getUuid(), "sdafsadfasdf", true);
     TestGroupType.exampleGroupTypeDb().deleteField(GrouperSession.staticGrouperSession(), fieldCopy.getName());
     
     //lets insert the original
@@ -405,32 +403,12 @@ public class TestField extends TestCase {
       field = exampleFieldDb();
       exampleField = field.clone();
 
-      field.setGroupTypeUuid("abc");
+      field.setName("abc");
       
       assertTrue(field.xmlDifferentBusinessProperties(exampleField));
       assertFalse(field.xmlDifferentUpdateProperties(exampleField));
 
-      field.setGroupTypeUuid(exampleField.getGroupTypeUuid());
-      field.xmlSaveBusinessProperties(exampleField.clone());
-      field.xmlSaveUpdateProperties();
-      
-      field = exampleRetrieveFieldDb();
-      
-      assertFalse(field.xmlDifferentBusinessProperties(exampleField));
-      assertFalse(field.xmlDifferentUpdateProperties(exampleField));
-    
-    }
-    
-    {
-      field = exampleFieldDb();
-      exampleField = field.clone();
-
-      field.setIsNullable(false);
-      
-      assertTrue(field.xmlDifferentBusinessProperties(exampleField));
-      assertFalse(field.xmlDifferentUpdateProperties(exampleField));
-
-      field.setIsNullable(exampleField.getIsNullable());
+      field.setName(exampleField.getName());
       field.xmlSaveBusinessProperties(exampleField.clone());
       field.xmlSaveUpdateProperties();
       
@@ -485,7 +463,7 @@ public class TestField extends TestCase {
       field = exampleFieldDb();
       exampleField = field.clone();
 
-      field.setType(FieldType.LIST);
+      field.setType(FieldType.ACCESS);
       
       assertTrue(field.xmlDifferentBusinessProperties(exampleField));
       assertFalse(field.xmlDifferentUpdateProperties(exampleField));

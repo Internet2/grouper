@@ -509,9 +509,9 @@ public abstract class AttributeAssignBaseDelegate {
     
     this.assertScopeOk(attributeDef);
 
-    attributeAssign.saveOrUpdate();
     attributeAssign.internalSetAttributeDef(attributeDef);
     attributeAssign.internalSetAttributeDefName(attributeDefName);
+    attributeAssign.saveOrUpdate(checkSecurity);
     return new AttributeAssignResult(true, attributeAssign);
 
   }
@@ -773,7 +773,7 @@ public abstract class AttributeAssignBaseDelegate {
             if (attributeAssignDelegateOptions.isAssignEnabledDate()) {
               attributeAssign.setDisabledTime(attributeAssignDelegateOptions.getEnabledTime());
             }
-            attributeAssign.saveOrUpdate();
+            attributeAssign.saveOrUpdate(true);
           }
           return attributeAssignResult2;
         }
@@ -968,7 +968,7 @@ public abstract class AttributeAssignBaseDelegate {
           .getAttributeDefActionDelegate().allowedAction(action, true).getId());
     }
     
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(checkSecurity);
   
     return new AttributeAssignResult(true, attributeAssign);
   

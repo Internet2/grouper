@@ -59,6 +59,13 @@ public interface AttributeDefNameDAO extends GrouperDAO {
   public AttributeDefName findByIdSecure(String id, boolean exceptionIfNotFound);
   
   /**
+   * @param id
+   * @param exceptionIfNotFound
+   * @return the attribute def name or null if not there
+   */
+  public AttributeDefName findById(String id, boolean exceptionIfNotFound);
+  
+  /**
    * find an attribute def name by name
    * @param name 
    * @param exceptionIfNotFound 
@@ -217,6 +224,14 @@ public interface AttributeDefNameDAO extends GrouperDAO {
       GrouperSession grouperSession, String attributeDefId, 
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, AttributeAssignType attributeAssignType,
       AttributeDefType attributeDefType, ServiceRole serviceRole, boolean anyServiceRole);
+
+  /**
+   * Returns legacy attribute that was either migrated or created in the new attribute framework.
+   * @param name the name of the legacy attribute (without prefix or path)
+   * @param exceptionIfNull 
+   * @return attribute def name
+   */
+  public AttributeDefName findLegacyAttributeByName(String name, boolean exceptionIfNull);
 
   /**
    * get all attribute names secure, split the scope by whitespace

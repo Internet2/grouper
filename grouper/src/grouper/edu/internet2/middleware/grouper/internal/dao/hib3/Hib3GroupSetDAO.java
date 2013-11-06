@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupSetNotFoundException;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -477,21 +478,48 @@ return groupSets;
    * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findMissingSelfGroupSetsForGroups()
    */
   public Set<Object[]> findMissingSelfGroupSetsForGroups() {
+    String sql = "select g, f from Field as f, Group as g " +
+        "where (f.name = 'members' or f.typeString = 'access') " +
+        //for entities, dont put in group sets for members, optins, optouts, updaters, readers
+        "and (g.typeOfGroupDb != 'entity' or (f.name = 'admins' or f.name = 'viewers')) " +
+        "and not exists " +
+        "(select gs.ownerGroupId from GroupSet as gs where gs.ownerGroupId = g.id and gs.fieldId = f.uuid and gs.depth='0')";
     
-    String sql = "select g, f from GroupTypeTuple as gtt, Field as f, Group as g " +
-                 "where g.uuid = gtt.groupUuid " +
-                 "and gtt.typeUuid = f.groupTypeUuid " +
-                 "and (f.typeString = 'list' or f.typeString = 'access') " +
-                 //for entities, dont put in group sets for members, optins, optouts, updaters, readers
-                 "and (g.typeOfGroupDb != 'entity' or (f.name = 'admins' or f.name = 'viewers')) " +
+    Set<Object[]> missing = HibernateSession
+      .byHqlStatic()
+      .createQuery(sql)
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindMissingSelfGroupSetsForGroups")
+      .listSet(Object[].class);
+    
+    return missing;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findMissingSelfGroupSetsForGroupsWithCustomFields()
+   */
+  public Set<Object[]> findMissingSelfGroupSetsForGroupsWithCustomFields() {
+    
+    String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+    String groupTypePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupType.prefix");  
+    
+    String sql = "select g, f from AttributeAssignValue v, Field f, AttributeAssign valueAssign, AttributeDefName groupType, AttributeAssign groupTypeAssign, Group g where " +
+    		         "v.valueString = f.uuid and " +
+    		         "v.attributeAssignId = valueAssign.id and " +
+    		         "valueAssign.ownerAttributeDefId = groupType.attributeDefId and " +
+    		         "groupType.nameDb like :groupTypePrefix and " +
+    		         "groupTypeAssign.attributeDefNameId=groupType.id and " +
+    		         "groupTypeAssign.ownerGroupId = g.id and " +
+    		         "g.typeOfGroupDb != 'entity' " +
                  "and not exists " +
                  "(select gs.ownerGroupId from GroupSet as gs where gs.ownerGroupId = g.id and gs.fieldId = f.uuid and gs.depth='0')";
     
     Set<Object[]> missing = HibernateSession
         .byHqlStatic()
         .createQuery(sql)
+        .setString("groupTypePrefix", stemName + ":" + groupTypePrefix + "%")
         .setCacheable(false)
-        .setCacheRegion(KLASS + ".FindMissingSelfGroupSetsForGroups")
+        .setCacheRegion(KLASS + ".FindMissingSelfGroupSetsForGroupsWithCustomFields")
         .listSet(Object[].class);
     
     return missing;

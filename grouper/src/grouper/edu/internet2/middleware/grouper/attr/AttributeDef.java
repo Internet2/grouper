@@ -43,6 +43,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeDefActionDelegate;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
@@ -369,7 +370,7 @@ public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHa
    * @return the delegate
    */
   public AttributeDefActionDelegate getAttributeDefActionDelegate() {
-    if (this.attributeAssignAttributeDefDelegate == null) {
+    if (this.attributeDefActionDelegate == null) {
       this.attributeDefActionDelegate = new AttributeDefActionDelegate(this);
     }
     return this.attributeDefActionDelegate;
@@ -1972,6 +1973,21 @@ public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHa
     
     if (this.dbVersionDifferentFields().contains(FIELD_ATTRIBUTE_DEF_TYPE)) {
       throw new RuntimeException("cannot update attributeDefType");
+    }
+    
+    if (this.dbVersionDifferentFields().contains(FIELD_NAME) || this.dbVersionDifferentFields().contains(FIELD_EXTENSION)) {
+      // don't allow renames for legacy attributes
+      String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+      String groupTypeDefPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupTypeDef.prefix");
+      String attributeDefPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attributeDef.prefix");
+      String customListDefPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.customListDef.prefix");
+      
+      String oldName = this.dbVersion().getNameDb();
+      if (oldName.startsWith(stemName + ":" + groupTypeDefPrefix) ||
+          oldName.startsWith(stemName + ":" + attributeDefPrefix) ||
+          oldName.startsWith(stemName + ":" + customListDefPrefix)) {
+        throw new RuntimeException("cannot update name for legacy attributes");
+      }
     }
     
     //change log into temp table

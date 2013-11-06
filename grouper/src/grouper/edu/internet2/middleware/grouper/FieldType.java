@@ -50,9 +50,6 @@ public enum FieldType implements Serializable {
   ACCESS("access"),
   
   /** */
-  ATTRIBUTE("attribute"),
-  
-  /** */
   ATTRIBUTE_DEF("attributeDef"),
   
   /** */

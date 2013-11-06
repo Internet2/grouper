@@ -27,6 +27,8 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -373,9 +375,7 @@ public class Hib3AttributeAssignValueDAO extends Hib3DAO implements AttributeAss
     if (StringUtils.isBlank(value)) {
       throw new RuntimeException("value cant be blank");
     }
-    
-    Set<AttributeAssignValue> results = new LinkedHashSet<AttributeAssignValue>();
-    
+        
     ByHqlStatic byHqlStatic =  HibernateSession.byHqlStatic();
       
     StringBuilder sql = new StringBuilder("select distinct theAttributeAssignValue " +
@@ -390,6 +390,62 @@ public class Hib3AttributeAssignValueDAO extends Hib3DAO implements AttributeAss
         
     //return attributeAssignValues
     return attributeAssignValues;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignValueDAO#findLegacyAttributesByGroupId(java.lang.String)
+   */
+  public Map<String, AttributeAssignValue> findLegacyAttributesByGroupId(String groupId) {
+    
+    if (StringUtils.isBlank(groupId)) {
+      throw new RuntimeException("groupId cant be blank");
+    }
+    
+    Map<String, AttributeAssignValue> results = new LinkedHashMap<String, AttributeAssignValue>();
+              
+    String sql = "select value, assignmentOnAssignment, name, def " +
+        "from AttributeAssignValue as value, " +
+        "AttributeAssign as assignmentOnAssignment, " +
+        "AttributeAssign as assignmentOnGroup, " +
+        "AttributeDefName as name, " +
+        "AttributeDef as def, " +
+        "Stem as stem " +
+        "where assignmentOnGroup.ownerGroupId = :groupId and " +
+        "assignmentOnAssignment.ownerAttributeAssignId = assignmentOnGroup.id and " +
+        "value.attributeAssignId = assignmentOnAssignment.id and " +
+        "assignmentOnAssignment.attributeDefNameId = name.id and " +
+        "name.attributeDefId = def.id and " +
+        "name.stemId = stem.uuid and " +
+        "stem.nameDb = :legacyStemName";
+    
+    String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+    String attributePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attribute.prefix");
+
+    Set<Object[]> rows = HibernateSession.byHqlStatic().createQuery(sql)
+      .setString("groupId", groupId)
+      .setString("legacyStemName", stemName)
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindLegacyAttributesByGroupId")
+      .listSet(Object[].class);
+        
+    for (Object[] row : rows) {
+      AttributeAssignValue value = (AttributeAssignValue)row[0];
+      AttributeAssign assignment = (AttributeAssign)row[1];
+      AttributeDefName name = (AttributeDefName)row[2];
+      AttributeDef def = (AttributeDef)row[3];
+      
+      value.internalSetAttributeAssign(assignment);
+      assignment.internalSetAttributeDef(def);
+      assignment.internalSetAttributeDefName(name);
+      name.internalSetAttributeDef(def);
+      
+      if (name.getName().startsWith(stemName) && name.getExtension().startsWith(attributePrefix)) {
+        String legacyAttributeName = name.getExtension().substring(attributePrefix.length());
+        results.put(legacyAttributeName, value);
+      }
+    }
+    
+    return results;
   }
 
 } 

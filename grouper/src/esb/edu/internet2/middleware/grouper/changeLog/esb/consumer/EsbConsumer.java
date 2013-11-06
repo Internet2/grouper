@@ -199,46 +199,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
               ChangeLogLabels.GROUP_FIELD_UPDATE.propertyNewValue));
 
         } else if (changeLogEntry
-            .equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_TYPE_ADD)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Event is GROUP_TYPE_ADD");
-          }
-          event.setEventType(EsbEvent.EsbEventType.GROUP_TYPE_ADD.name());
-          event.setId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_TYPE_ADD.id));
-          event.setName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_TYPE_ADD.name));
-
-        } else if (changeLogEntry
-            .equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_TYPE_DELETE)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Event is GROUP_TYPE_DELETE");
-          }
-          event.setEventType(EsbEvent.EsbEventType.GROUP_TYPE_DELETE.name());
-
-          event.setId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_TYPE_DELETE.id));
-          event.setName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_TYPE_DELETE.name));
-
-        } else if (changeLogEntry
-            .equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_TYPE_UPDATE)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Event is GROUP_TYPE_UPDATE");
-          }
-          event.setEventType(EsbEvent.EsbEventType.GROUP_TYPE_UPDATE.name());
-          event.setId(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_TYPE_UPDATE.id));
-          event.setName(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_TYPE_UPDATE.name));
-          event.setPropertyChanged(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_TYPE_UPDATE.propertyChanged));
-          event.setPropertyOldValue(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_TYPE_UPDATE.propertyOldValue));
-          event.setPropertyNewValue(this.getLabelValue(changeLogEntry,
-              ChangeLogLabels.GROUP_TYPE_UPDATE.propertyNewValue));
-
-        } else if (changeLogEntry
             .equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_UPDATE)) {
           if (LOG.isDebugEnabled()) {
             LOG.debug("Event is GROUP_UPDATE");

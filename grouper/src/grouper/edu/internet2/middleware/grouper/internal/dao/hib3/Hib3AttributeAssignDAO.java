@@ -4179,6 +4179,55 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findLegacyGroupTypeAssignmentsByGroupId(java.lang.String)
+   */
+  public Map<String, AttributeAssign> findLegacyGroupTypeAssignmentsByGroupId(String groupId) {
+    
+    if (StringUtils.isBlank(groupId)) {
+      throw new RuntimeException("groupId cant be blank");
+    }
+    
+    Map<String, AttributeAssign> results = new LinkedHashMap<String, AttributeAssign>();
+              
+    String sql = "select assignmentOnGroup, name, def " +
+        "from AttributeAssign as assignmentOnGroup, " +
+        "AttributeDefName as name, " +
+        "AttributeDef as def, " +
+        "Stem as stem " +
+        "where assignmentOnGroup.ownerGroupId = :groupId and " +
+        "assignmentOnGroup.attributeDefNameId = name.id and " +
+        "name.attributeDefId = def.id and " +
+        "name.stemId = stem.uuid and " +
+        "stem.nameDb = :legacyStemName";
+    
+    String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+    String groupTypePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupType.prefix");          
+
+    Set<Object[]> rows = HibernateSession.byHqlStatic().createQuery(sql)
+      .setString("groupId", groupId)
+      .setString("legacyStemName", stemName)
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindLegacyGroupTypeAssignmentsByGroupId")
+      .listSet(Object[].class);
+        
+    for (Object[] row : rows) {
+      AttributeAssign assignment = (AttributeAssign)row[0];
+      AttributeDefName name = (AttributeDefName)row[1];
+      AttributeDef def = (AttributeDef)row[2];
+      
+      assignment.internalSetAttributeDef(def);
+      assignment.internalSetAttributeDefName(name);
+      name.internalSetAttributeDef(def);
+      
+      if (name.getName().startsWith(stemName) && name.getExtension().startsWith(groupTypePrefix)) {
+        String groupTypeName = name.getExtension().substring(groupTypePrefix.length());
+        results.put(groupTypeName, assignment);
+      }
+    }
+    
+    return results;
+  }
 } 
 
 

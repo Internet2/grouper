@@ -56,6 +56,7 @@ import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -343,7 +344,8 @@ public class TestGroupFinder extends GrouperTest {
     LOG.info("testFailToFindGroupByType");
     try {
       R r = R.populateRegistry(0, 0, 0);
-      assertDoNotFindGroupByType( r.rs, GroupTypeFinder.find("base", true) );
+      GroupType.createType(r.rs, "testType");
+      assertDoNotFindGroupByType( r.rs, GroupTypeFinder.find("testType", true) );
       r.rs.stop();
     }
     catch (Exception e) {
@@ -370,7 +372,14 @@ public class TestGroupFinder extends GrouperTest {
     LOG.info("testFailToFindGroupByTypeNotUnique");
     try {
       R         r     = R.populateRegistry(1, 2, 0);
-      GroupType type  = GroupTypeFinder.find("base", true);
+      GroupType testType = GroupType.createType(r.rs, "testType");
+      Set<Group> groups = GrouperDAOFactory.getFactory().getGroup().getAllGroups();
+      assertTrue(groups.size() == 2);
+      for (Group group : groups) {
+        group.addType(testType);
+      }
+      
+      GroupType type  = GroupTypeFinder.find("testType", true);
       assertDoNotFindGroupByType(r.rs, type);
       r.rs.stop();
     }
@@ -382,8 +391,9 @@ public class TestGroupFinder extends GrouperTest {
   public void testFailToFindGroupByTypeNullSession() {
     LOG.info("testFailToFindGroupByTypeNullSession");
     try {
-      R.populateRegistry(0, 0, 0);
-      GroupFinder.findAllByType( null, GroupTypeFinder.find("base", true) );
+      R r = R.populateRegistry(0, 0, 0);
+      GroupType.createType(r.rs, "testType");
+      GroupFinder.findAllByType( null, GroupTypeFinder.find("testType", true) );
       fail("failed to throw IllegalArgumentException");
     }
     catch (IllegalArgumentException eIA) {
@@ -428,7 +438,14 @@ public class TestGroupFinder extends GrouperTest {
     LOG.info("testFindGroupByType");
     try {
       R         r     = R.populateRegistry(1, 1, 0);
-      GroupType type  = GroupTypeFinder.find("base", true);
+      GroupType testType = GroupType.createType(r.rs, "testType");
+      Set<Group> groups = GrouperDAOFactory.getFactory().getGroup().getAllGroups();
+      assertTrue(groups.size() == 1);
+      for (Group group : groups) {
+        group.addType(testType);
+      }
+      
+      GroupType type  = GroupTypeFinder.find("testType", true);
       assertFindGroupByType(r.rs, type);
       r.rs.stop();
     }

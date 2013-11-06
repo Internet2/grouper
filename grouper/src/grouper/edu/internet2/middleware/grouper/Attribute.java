@@ -31,7 +31,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import java.io.StringWriter;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -40,20 +39,15 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
-import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.hooks.AttributeHooks;
-import edu.internet2.middleware.grouper.hooks.beans.HooksAttributeBean;
-import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
-import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
-import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
-import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.misc.GrouperHasContext;
-import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.xml.export.XmlExportAttribute;
-import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 
 /**
  * Basic Hibernate <code>Attribute</code> DTO interface.
@@ -62,15 +56,12 @@ import edu.internet2.middleware.grouper.xml.export.XmlImportable;
  * @since   @HEAD@
  */
 @SuppressWarnings("serial")
-public class Attribute extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, XmlImportable<Attribute> {
+public class Attribute extends GrouperAPI {
 
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
   /** constant for field name for: contextId */
   public static final String FIELD_CONTEXT_ID = "contextId";
-
-  /** constant for field name for: fieldId */
-  public static final String FIELD_FIELD_ID = "fieldId";
 
   /** constant for field name for: group */
   public static final String FIELD_GROUP = "group";
@@ -84,29 +75,34 @@ public class Attribute extends GrouperAPI implements GrouperHasContext, Hib3Grou
   /** constant for field name for: value */
   public static final String FIELD_VALUE = "value";
 
-  /**
-   * fields which are included in db version
-   */
-  private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_FIELD_ID, FIELD_GROUP, FIELD_GROUP_UUID, FIELD_ID, 
-      FIELD_VALUE);
 
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_FIELD_ID, FIELD_GROUP, FIELD_GROUP_UUID, FIELD_HIBERNATE_VERSION_NUMBER, 
+      FIELD_GROUP, FIELD_GROUP_UUID, FIELD_HIBERNATE_VERSION_NUMBER, 
       FIELD_ID, FIELD_VALUE);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
   /** constant for field name for: groupUUID */
   public static final String PROPERTY_GROUP_UUID = "groupUuid";
+
+  /**
+   * 
+   */
+  public static final String TABLE_OLD_GROUPER_ATTRIBUTES = "grouper_attributes";
+  
+  /** column field_id col in db */
+  public static final String COLUMN_OLD_FIELD_ID = "field_id";
+  
+  /** column field_name col in db */
+  public static final String COLUMN_OLD_FIELD_NAME = "field_name";
+
+  /** column old_field_name col in db */
+  public static final String COLUMN_OLDER_FIELD_NAME = "old_field_name";
   
   // PRIVATE INSTANCE VARIABLES //
-  
-  /** id of the field which is the attribute name */
-  private String  fieldId;
 
   /** */
   private String  groupUUID;
@@ -117,43 +113,9 @@ public class Attribute extends GrouperAPI implements GrouperHasContext, Hib3Grou
 
   /** store a reference to the group for hooks or whatnot */
   private Group group;
-
-  /**
-   * take a snapshot of the data since this is what is in the db
-   */
-  @Override
-  public void dbVersionReset() {
-    //lets get the state from the db so we know what has changed
-    this.dbVersion = GrouperUtil.clone(this, DB_VERSION_FIELDS);
-  }
-
-  /**
-   * 
-   * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersion()
-   */
-  @Override
-  public Attribute dbVersion() {
-    return (Attribute)this.dbVersion;
-  }
-
-  /**
-   * @param failIfNull 
-   * @return the set of different fields
-   * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
-   */
-  public Set<String> dbVersionDifferentFields(boolean failIfNull) {
-    if (this.dbVersion == null) {
-      if (failIfNull) {
-        throw new RuntimeException("State was never stored from db");
-      }
-      return null;
-    }
-    //easier to unit test if everything is ordered
-    Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
-        DB_VERSION_FIELDS, null);
-
-    return result;
-  }
+  
+  /** */
+  private AttributeAssignValue attributeAssignValue;
 
   /**
    * try to get the current group if it is available (if this object
@@ -188,20 +150,6 @@ public class Attribute extends GrouperAPI implements GrouperHasContext, Hib3Grou
 
   /**
    * 
-   */
-  public static final String TABLE_GROUPER_ATTRIBUTES = "grouper_attributes";
-
-  /** column field_id col in db */
-  public static final String COLUMN_FIELD_ID = "field_id";
-
-  /** column field_name col in db */
-  public static final String COLUMN_FIELD_NAME = "field_name";
-
-  /** column old_field_name col in db */
-  public static final String COLUMN_OLD_FIELD_NAME = "old_field_name";
-
-  /**
-   * 
    * @see java.lang.Object#equals(java.lang.Object)
    */
   public boolean equals(Object other) {
@@ -213,9 +161,7 @@ public class Attribute extends GrouperAPI implements GrouperHasContext, Hib3Grou
     }
     Attribute that = (Attribute) other;
     return new EqualsBuilder()
-      .append( this.fieldId,  that.fieldId  )
-      .append( this.groupUUID, that.groupUUID )
-      .append( this.value,     that.value     )
+      .append( this.id, that.id )
       .isEquals();
   }
 
@@ -225,9 +171,7 @@ public class Attribute extends GrouperAPI implements GrouperHasContext, Hib3Grou
    */
   public int hashCode() {
     return new HashCodeBuilder()
-      .append( this.fieldId  )
-      .append( this.groupUUID )
-      .append( this.value    )
+      .append( this.id )
       .toHashCode();
   }
 
@@ -249,15 +193,37 @@ public class Attribute extends GrouperAPI implements GrouperHasContext, Hib3Grou
    * @return attr name
    */
   public String getAttrName() {
-    if (StringUtils.isBlank(this.fieldId)) {
-      return null;
+    AttributeDefName attributeDefName = this.internal_getAttributeAssignValue().getAttributeAssign().getAttributeDefName();
+
+    String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+    String attributePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attribute.prefix");
+    
+    if (attributeDefName.getName().startsWith(stemName) && attributeDefName.getExtension().startsWith(attributePrefix)) {
+      return attributeDefName.getExtension().substring(attributePrefix.length());
     }
-    Field field = FieldFinder.findById(this.fieldId, true);
-    if (!field.isAttributeName()) {
-      throw new RuntimeException("Field is not an attribute name, id: " + this.fieldId
-          + ", instead it is: " + field.getTypeString());
+
+    return null;
+  }
+  
+  /**
+   * 
+   * @return group type
+   */
+  @SuppressWarnings("deprecation")
+  public GroupType internal_getGroupType() {
+    AttributeAssignValue attributeAssignValue = this.internal_getAttributeAssignValue();
+    AttributeAssign attributeAssign = attributeAssignValue.getAttributeAssign();
+    AttributeDef attributeDef = attributeAssign.getAttributeDef();
+
+    String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+    String attributeDefPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attributeDef.prefix");
+    
+    if (attributeDef.getName().startsWith(stemName) && attributeDef.getExtension().startsWith(attributeDefPrefix)) {
+      String groupTypeName = attributeDef.getExtension().substring(attributeDefPrefix.length());
+      return GroupTypeFinder.find(groupTypeName, true);
     }
-    return field.getName();
+
+    throw new SchemaException("Unable to find group type for attribute: " + this.getId());
   }
   
   /**
@@ -316,118 +282,7 @@ public class Attribute extends GrouperAPI implements GrouperHasContext, Hib3Grou
     return GrouperUtil.clone(this, CLONE_FIELDS);
   }
 
-  /**
-   * id of the field which is the attribute name
-   * @return the field id
-   */
-  public String getFieldId() {
-    return fieldId;
-  }
-
-  /**
-   * id of the field which is the attribute name
-   * @param fieldId1
-   */
-  public void setFieldId(String fieldId1) {
-    this.fieldId = fieldId1;
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPostDelete(HibernateSession hibernateSession) {
-    super.onPostDelete(hibernateSession);
-  
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE, 
-        AttributeHooks.METHOD_ATTRIBUTE_POST_COMMIT_DELETE, HooksAttributeBean.class, 
-        this, Attribute.class);
-  
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE, 
-        AttributeHooks.METHOD_ATTRIBUTE_POST_DELETE, HooksAttributeBean.class, 
-        this, Attribute.class, VetoTypeGrouper.ATTRIBUTE_POST_DELETE, false, true);
-  
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPostSave(HibernateSession hibernateSession) {
-
-    super.onPostSave(hibernateSession);
-    
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE, 
-        AttributeHooks.METHOD_ATTRIBUTE_POST_INSERT, HooksAttributeBean.class, 
-        this, Attribute.class, VetoTypeGrouper.ATTRIBUTE_POST_INSERT, true, false);
-  
-    //do these second so the right object version is set, and dbVersion is ok
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE, 
-        AttributeHooks.METHOD_ATTRIBUTE_POST_COMMIT_INSERT, HooksAttributeBean.class, 
-        this, Attribute.class);
-  
-
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostUpdate(HibernateSession)
-   */
-  public void onPostUpdate(HibernateSession hibernateSession) {
-    
-    super.onPostUpdate(hibernateSession);
-    
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE, 
-        AttributeHooks.METHOD_ATTRIBUTE_POST_COMMIT_UPDATE, HooksAttributeBean.class, 
-        this, Attribute.class);
-  
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE, 
-        AttributeHooks.METHOD_ATTRIBUTE_POST_UPDATE, HooksAttributeBean.class, 
-        this, Attribute.class, VetoTypeGrouper.ATTRIBUTE_POST_UPDATE, true, false);
-  
-  
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPreDelete(HibernateSession hibernateSession) {
-    super.onPreDelete(hibernateSession);
-  
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE, 
-        AttributeHooks.METHOD_ATTRIBUTE_PRE_DELETE, HooksAttributeBean.class, 
-        this, Attribute.class, VetoTypeGrouper.ATTRIBUTE_PRE_DELETE, false, false);
-  }
-
-  /**
-   * 
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPreSave(HibernateSession hibernateSession) {
-    super.onPreSave(hibernateSession);
-    
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE, 
-        AttributeHooks.METHOD_ATTRIBUTE_PRE_INSERT, HooksAttributeBean.class, 
-        this, Attribute.class, VetoTypeGrouper.ATTRIBUTE_PRE_INSERT, false, false);
-    
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPreUpdate(HibernateSession hibernateSession) {
-    super.onPreUpdate(hibernateSession);
-    
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE, 
-        AttributeHooks.METHOD_ATTRIBUTE_PRE_UPDATE, HooksAttributeBean.class, 
-        this, Attribute.class, VetoTypeGrouper.ATTRIBUTE_PRE_UPDATE, false, false);
-  
-  }
-
   /** context id of the transaction */
-  @GrouperIgnoreDbVersion
   @GrouperIgnoreClone
   private String contextId;
 
@@ -448,141 +303,70 @@ public class Attribute extends GrouperAPI implements GrouperHasContext, Hib3Grou
   }
 
   /**
-   * store this object to the DB.
-   */
-  public void store() {    
-    GrouperDAOFactory.getFactory().getAttribute().createOrUpdate(this);
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlCopyBusinessPropertiesToExisting(java.lang.Object)
-   */
-  public void xmlCopyBusinessPropertiesToExisting(Attribute existingRecord) {
-    
-    existingRecord.setFieldId(existingRecord.getFieldId());
-    existingRecord.setGroupUuid(existingRecord.getGroupUuid());
-    existingRecord.setId(existingRecord.getId());
-    existingRecord.setValue(existingRecord.getValue());
-    
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentBusinessProperties(java.lang.Object)
-   */
-  public boolean xmlDifferentBusinessProperties(Attribute other) {
-    if (!StringUtils.equals(this.fieldId, other.fieldId)) {
-      return true;
-    }
-    if (!StringUtils.equals(this.groupUUID, other.groupUUID)) {
-      return true;
-    }
-    if (!StringUtils.equals(this.id, other.id)) {
-      return true;
-    }
-    if (!StringUtils.equals(this.value, other.value)) {
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentUpdateProperties(java.lang.Object)
-   */
-  public boolean xmlDifferentUpdateProperties(Attribute other) {
-    if (!StringUtils.equals(this.contextId, other.contextId)) {
-      return true;
-    }
-    if (!GrouperUtil.equals(this.getHibernateVersionNumber(), other.getHibernateVersionNumber())) {
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlRetrieveByIdOrKey()
-   */
-  public Attribute xmlRetrieveByIdOrKey() {
-    return GrouperDAOFactory.getFactory().getAttribute().findByUuidOrName(this.id, this.groupUUID, this.fieldId, false);
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
-   */
-  public Attribute xmlSaveBusinessProperties(Attribute existingRecord) {
-    //if its an insert, call the business method
-    if (existingRecord == null) {
-      Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.groupUUID, true);
-      Field field = FieldFinder.findById(this.fieldId, true);
-      existingRecord = group.internal_setAttribute(field.getName(), this.value, false, this.id);
-    }
-    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
-    //if its an insert or update, then do the rest of the fields
-    existingRecord.store();
-    return existingRecord;
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveUpdateProperties()
-   */
-  public void xmlSaveUpdateProperties() {
-    GrouperDAOFactory.getFactory().getAttribute().saveUpdateProperties(this);
-  }
-
-  /**
    * 
    */
   public void delete() {
-    GrouperDAOFactory.getFactory().getAttribute().delete(this);
-  }
-
-  /**
-   * convert to xml bean for export
-   * @param grouperVersion
-   * @return xml bean
-   */
-  public XmlExportAttribute xmlToExportAttribute(GrouperVersion grouperVersion) {
-    if (grouperVersion == null) {
-      throw new RuntimeException();
-    }
-    
-    XmlExportAttribute xmlExportAttribute = new XmlExportAttribute();
-    
-    xmlExportAttribute.setContextId(this.getContextId());
-    xmlExportAttribute.setFieldId(this.getFieldId());
-    xmlExportAttribute.setGroupId(this.getGroupUuid());
-    xmlExportAttribute.setHibernateVersionNumber(this.getHibernateVersionNumber());
-    xmlExportAttribute.setUuid(this.getId());
-    xmlExportAttribute.setValue(this.getValue());
-    
-    return xmlExportAttribute;
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlGetId()
-   */
-  public String xmlGetId() {
-    return this.getId();
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSetId(java.lang.String)
-   */
-  public void xmlSetId(String theId) {
-    this.setId(theId);
+    AttributeAssignFinder.findById(id, true).delete();
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlToString()
+   * used for caching
+   * @param attributeAssignValue1
    */
-  public String xmlToString() {
-    StringWriter stringWriter = new StringWriter();
-    stringWriter.write("Attribute: " + this.id + ", ");
-    
-//    XmlExportUtils.toStringField(stringWriter, this.fieldId, false);
-    
-    return stringWriter.toString();
-    
+  public void internal_setAttributeAssignValue(AttributeAssignValue attributeAssignValue1) {
+    this.attributeAssignValue = attributeAssignValue1;
   }
-
+  
+  /**
+   * @return attributeAssignValue
+   */
+  public AttributeAssignValue internal_getAttributeAssignValue() {
+    if (this.attributeAssignValue == null) {
+      AttributeAssign assign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(id, true);
+      this.attributeAssignValue = assign.getValueDelegate().retrieveValue();
+    }
+    
+    return this.attributeAssignValue;
+  }
+  
+  /**
+   * @param value
+   * @param group this is optional if the group is known
+   * @param exceptionIfNotLegacyAttribute 
+   * @return attribute
+   */
+  public static Attribute internal_getAttribute(AttributeAssignValue value, Group group, boolean exceptionIfNotLegacyAttribute) {
+    
+    if (value.getValueString() != null) {
+      String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+      String attributePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attribute.prefix");
+      
+      AttributeAssign assignment = value.getAttributeAssign();
+      AttributeDefName name = assignment.getAttributeDefName();
+      
+      if (name.getName().startsWith(stemName) && name.getExtension().startsWith(attributePrefix)) {
+        
+        if (group == null) {
+          group = assignment.getOwnerAttributeAssign().getOwnerGroup();
+        }
+        
+        Attribute attribute = new Attribute();
+        attribute.setContextId(value.getContextId());
+        attribute.setHibernateVersionNumber(value.getHibernateVersionNumber());
+        attribute.assignGroupUuid(group.getUuid(), group);
+        attribute.setId(value.getAttributeAssignId());
+        attribute.setValue(value.getValueString());
+        attribute.internal_setAttributeAssignValue(value);
+        
+        return attribute;
+      }
+    }
+    
+    if (exceptionIfNotLegacyAttribute) {
+      throw new RuntimeException("AttributeAssignValue " + value.getId() + " is not for a legacy attribute.");
+    }
+    
+    return null;
+  }
 } 
 

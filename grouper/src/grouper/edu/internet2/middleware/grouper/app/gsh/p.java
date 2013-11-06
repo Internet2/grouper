@@ -120,9 +120,6 @@ public class p {
     if      (f.getType().equals(FieldType.ACCESS))    {
       type = "access privilege";
     }
-    else if (f.getType().equals(FieldType.ATTRIBUTE)) {
-      type = "attribute";
-    }
     else if (f.getType().equals(FieldType.LIST))      {
       type = "list";
     }

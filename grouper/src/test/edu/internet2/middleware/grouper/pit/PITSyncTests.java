@@ -119,7 +119,7 @@ public class PITSyncTests extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PITSyncTests("testMissingEffectiveGroupSet"));
+    TestRunner.run(new PITSyncTests("testNotifications"));
   }
 
   
@@ -144,6 +144,7 @@ public class PITSyncTests extends GrouperTest {
     super.tearDown();
   }
   
+  @SuppressWarnings("deprecation")
   private void addData() {
     edu = root.addChildStem("edu", "education");
     role = edu.addChildRole("testGroup", "testGroup");
@@ -171,6 +172,7 @@ public class PITSyncTests extends GrouperTest {
     testField = groupType.addList(grouperSession, "testList", AccessPrivilege.READ, AccessPrivilege.ADMIN);
   }
   
+  @SuppressWarnings("deprecation")
   private void deleteData() {
     groupType.deleteField(grouperSession, testField.getName());
     groupType.delete(grouperSession);
@@ -338,10 +340,11 @@ public class PITSyncTests extends GrouperTest {
 
     assertEquals(0, changeLogTempCount);
     
-    // 1 group membership, 2 imm stem privilege, 1 eff stem privilege, 3 group privileges, 2 attribute def privileges, and 1 permission
+    // 1 group membership, 2 imm stem privilege, 1 eff stem privilege, 3 group privileges, 2 attribute def privileges, 1 permission,
+    // 1 attribute def privilege for a legacy custom list, and 1 attribute def privilege for a legacy group type
     // the change log entries are being added by code that's tested elsewhere (not by the sync script) 
     // so we are just verifying the number of entries...
-    assertEquals(10, changeLogCount);
+    assertEquals(12, changeLogCount);
 
     // now delete data, clear temp change log, and check again
     grouperSession = GrouperSession.startRootSession();
@@ -356,7 +359,7 @@ public class PITSyncTests extends GrouperTest {
     changeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
 
     assertEquals(0, changeLogTempCount);
-    assertEquals(20, changeLogCount);
+    assertEquals(24, changeLogCount);
   }
   
   /**

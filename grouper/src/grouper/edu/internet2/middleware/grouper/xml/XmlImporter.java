@@ -1325,7 +1325,10 @@ public class XmlImporter {
       if (!f.getType().equals(FieldType.LIST)) {
         throw new SchemaException("field is not a list: " + f.getName());
       }
-      this._processMembershipListAddGroupType(g, f.getGroupType());
+      
+      if (!f.getUuid().equals(Group.getDefaultList().getUuid())) {
+        this._processMembershipListAddGroupType(g, f.getGroupType(true));
+      }
       if (!g.canWriteField(f)) {
         return;  // We can't write to the field so don't even bother trying
       }
@@ -1486,10 +1489,7 @@ public class XmlImporter {
       catch (SchemaException eS) {
         if (fType.equals( FieldType.LIST.toString() ) )           {
           gt.addList(s, fName, read, write);
-        } 
-        else if (fType.equals( FieldType.ATTRIBUTE.toString() ) ) {
-          gt.addAttribute( s, fName, read, write, Boolean.valueOf( el.getAttribute("required") ).booleanValue() );
-        } 
+        }
       }
     }
   } // private void _processMetadataField(gt, isNew, el)

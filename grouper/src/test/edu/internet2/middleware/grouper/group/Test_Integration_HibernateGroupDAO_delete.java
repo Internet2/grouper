@@ -44,10 +44,8 @@ import edu.internet2.middleware.grouper.exception.GroupDeleteException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
-import edu.internet2.middleware.grouper.internal.dao.AttributeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupTypeTupleDAO;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
@@ -98,20 +96,11 @@ public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
 
       GroupType groupType = GroupType.createType(grouperSession, GROUP_TYPE1, false); 
       groupType.addAttribute(grouperSession,ATTRIBUTE1, 
-            AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+            false);
       g.addType(groupType, false);
       g.setAttribute(ATTRIBUTE1, "whatever");
 
-      AttributeDAO dao = GrouperDAOFactory.getFactory().getAttribute();
-      assertTrue( 
-        "group has attributes in registry before deletion", 
-        dao.findAllAttributesByGroup(uuid).size() > 0 
-      );
       g.delete(); // attributes should be deleted automatically when group is deleted
-      assertEquals(
-        "group does not have attributes in registry after deletion",
-        0, dao.findAllAttributesByGroup(uuid).size()
-      );
     }
     catch (Exception e) {
       unexpectedException(e);
@@ -129,71 +118,18 @@ public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
 
       GroupType groupType = GroupType.createType(grouperSession, GROUP_TYPE1, false); 
       groupType.addAttribute(grouperSession,ATTRIBUTE1, 
-            AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+            false);
       g.addType(groupType, false);
       g.setAttribute(ATTRIBUTE1, "whatever");
 
-      AttributeDAO dao = GrouperDAOFactory.getFactory().getAttribute();
-      assertTrue( 
-        "group has attributes in registry before reset", 
-        dao.findAllAttributesByGroup(uuid).size() > 0 
-      );
       RegistryReset.reset();  // attributes should be deleted when 
-                              // registry is reset
-      assertEquals(
-        "group does not have attributes in registry after reset",
-        0, dao.findAllAttributesByGroup(uuid).size()
-      );
+
     }
     catch (Exception e) {
       unexpectedException(e);
     }
   } // public void testDelete_AttributesDeletedWhenRegistryIsReset()
 
-  // TODO 20070418  refactor test so that "HibernateGroupTypeTuple" and
-  //                "findByGroupAndType" do not need to be public
-  public void testDelete_GroupTypeTuplesDeletedWhenGroupIsDeleted() 
-    throws  GroupDeleteException,
-            Exception,
-            SchemaException
-  {
-    LOG.info("testDelete_GroupTypeTuplesDeletedWhenGroupIsDeleted");
-    R         r     = R.getContext("grouper");
-    Group     g     = r.getGroup("i2mi:grouper", "grouper-dev");
-    GroupType type  = GroupTypeFinder.find("base", true);
-
-    Hib3GroupTypeTupleDAO.findByGroupAndType(g, type);
-    assertTrue("group has type tuple in registry before deletion", true);
-    g.delete(); // type tuples should be deleted automatically when group is deleted
-    try {
-      Hib3GroupTypeTupleDAO.findByGroupAndType(g, type);
-      fail("type tuple still exists after group deletion");
-    }
-    catch (GrouperDAOException eExpected) {
-      assertTrue("group no longer has type tuple after group deletion", true);
-    }
-  } 
-
-  public void testDelete_GroupTypeTuplesDeletedWhenRegistryIsReset() 
-    throws  Exception,
-            SchemaException
-  {
-    LOG.info("testDelete_GroupTypeTuplesDeletedWhenRegistryIsReset");
-    R         r     = R.getContext("grouper");
-    Group     g     = r.getGroup("i2mi:grouper", "grouper-dev");
-    GroupType type  = GroupTypeFinder.find("base", true);
-
-    Hib3GroupTypeTupleDAO.findByGroupAndType(g, type);
-    assertTrue("group has type tuple in registry before reset", true);
-    RegistryReset.reset();  // tuples should be deleted when registry is reset
-    try {
-      Hib3GroupTypeTupleDAO.findByGroupAndType(g, type);
-      fail("type tuple still exists after reset");
-    }
-    catch (GrouperDAOException eExpected) {
-      assertTrue("group no longer has type tuple after reset", true);
-    }
-  }
 
   /**
    * 

@@ -61,7 +61,6 @@ import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.entity.EntityUtils;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByCriteriaStatic;
@@ -74,7 +73,6 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
-import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
@@ -125,45 +123,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   }
 
   /**
-   * 
-   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#addType(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.GroupType)
-   */
-  public GroupTypeTuple addType(final Group _g, final GroupType _gt) 
-    throws  GrouperDAOException {
-    
-    return (GroupTypeTuple)HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
-        new HibernateHandler() {
-
-          public Object callback(HibernateHandlerBean hibernateHandlerBean)
-              throws GrouperDAOException {
-            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
-            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
-            GroupTypeTuple groupTypeTuple = new GroupTypeTuple();
-            groupTypeTuple.assignGroupUuid( _g.getUuid(), _g );
-            groupTypeTuple.setTypeUuid( _gt.getUuid() );
-            groupTypeTuple.setId(GrouperUuid.getUuid());
-            hibernateSession.byObject().save(groupTypeTuple);
-            
-            //MCH dont save again due to optimistic locking
-            //get it again in case it was changed in the hook
-//            Group g2 = null;
-//            try {
-//              g2 = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), _g.getUuid(), true);
-//            } catch (GroupNotFoundException gnfe) {
-//              throw new RuntimeException("Weird problem getting group: " + _g.getName());
-//            }
-//
-//            //note this used to be saveOrUpdate
-//            hibernateSession.byObject().update( g2 ); // modified group
- 
-            //let HibernateSession commit or rollback depending on if problem or enclosing transaction
-            return groupTypeTuple;
-          }
-    });
-  } 
-
-  /**
    * @param _g 
    * @throws GrouperDAOException 
    * @since   @HEAD@
@@ -181,32 +140,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             
             hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
-            ByObject byObject = hibernateSession.byObject();
+            ByObject byObject = hibernateSession.byObject();         
 
-            if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperDeleteAttributesTypesOnGroupDeleteForChangeLog", false)) {
-              for (String attributeName : _g.getAttributesMap(false).keySet()) {
-                
-                _g.deleteAttribute(attributeName, false);
-                
-              }
-              for (GroupType groupType : _g.getTypes()) {
-                
-                GrouperDAOFactory.getFactory().getGroup().deleteType( _g, groupType );
-                
-              }
-            }            
-
-            // delete attributes
-            ByHql byHql = hibernateSession.byHql();
-            byHql.createQuery("delete from Attribute where group_id = :group");
-            byHql.setString("group", _g.getUuid() );
-            byHql.executeUpdate();
-            // delete type tuples
-            byHql = hibernateSession.byHql();
-            byHql.createQuery("delete from GroupTypeTuple where group_uuid = :group");
-            byHql.setString("group", _g.getUuid() );
-            byHql.executeUpdate();
-            
             // delete role sets (only the ones underneath of this one, 
             // others might cause foreign key problems
             if (TypeOfGroup.role.equals(_g.getTypeOfGroup())) {
@@ -227,54 +162,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   /**
    * logger
    */
+  @SuppressWarnings("unused")
   private static final Log LOG = GrouperUtil.getLog(Hib3GroupDAO.class);
-
-  /**
-   * @param group 
-   * @param groupType 
-   * @return tuple
-   * @throws GrouperDAOException 
-   * @since   @HEAD@
-   */
-  public GroupTypeTuple deleteType(final Group group, final GroupType groupType) 
-    throws  GrouperDAOException {
-    return (GroupTypeTuple)HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
-        new HibernateHandler() {
-
-          public Object callback(HibernateHandlerBean hibernateHandlerBean)
-              throws GrouperDAOException {
-            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
-            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
-            
-            //delete all attributes used by the group of this type
-            Set<Field> fields = GrouperUtil.nonNull(groupType.getFields());
-            
-            //remove the attributes first
-            for (Field field : fields) {
-              
-              //get attributes each time, in case something else removed
-              if (group.getAttributesMap(false).containsKey(field.getName())) {
-                LOG.debug("deleting attribute: " + field.getName() + " from group: " + group.getName()
-                     + " since the type was removed");
-                try {
-                  group.deleteAttribute(field.getName(), false);
-                } catch (Exception e) {
-                  throw new RuntimeException("Exception removing field: " + field.getName() 
-                      + ", from group: " + group.getName(),e);
-                }
-              }
-            }
-            //take this out for the hook's benefit, then remove the object
-            Set types = group.getTypesDb();
-            types.remove( groupType );
-            GroupTypeTuple groupTypeTuple = Hib3GroupTypeTupleDAO.findByGroupAndType(group, groupType);
-            hibernateSession.byObject().delete( groupTypeTuple );
-
-            return groupTypeTuple;
-          }
-    });
-  } 
 
   /**
    * @param uuid 
@@ -920,9 +809,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             Set<Group> groups = hibernateSession.byHql().createQuery(
-                "select theGroup from Group as theGroup, GroupTypeTuple as gtt " +
-                "where gtt.typeUuid = :type " +
-                "and gtt.groupUuid = theGroup.uuid " +
+                "select theGroup from Group as theGroup, AttributeAssign groupTypeAssign " +
+                "where groupTypeAssign.attributeDefNameId = :type " +
+                "and groupTypeAssign.ownerGroupId = theGroup.uuid " +
                 "and theGroup.nameDb like :scope"
               ).setCacheable(false).setCacheRegion(KLASS + ".FindAllByType")
               .setString("type", _gt.getUuid()).setString("scope", scope + "%").listSet(Group.class);
@@ -1374,35 +1263,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     throws  HibernateException
   {
     //               but right now that is blowing up due to the session being flushed.
-    hibernateSession.byHql().createQuery("delete from GroupTypeTuple").executeUpdate();
-    hibernateSession.byHql().createQuery("delete from Attribute").executeUpdate(); 
     hibernateSession.byHql().createQuery("delete from Group").executeUpdate();
     getExistsCache().clear();
   } 
-
-
-  /**
-   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#_findAllTypesByGroup(java.lang.String)
-   */
-  public Set<GroupType> _findAllTypesByGroup(final String uuid)
-    throws  GrouperDAOException {
-    Set<GroupType> types = new LinkedHashSet<GroupType>();
-    List<GroupTypeTuple> groupTypeTuples = 
-      HibernateSession.byHqlStatic()
-        .createQuery("from GroupTypeTuple as gtt where gtt.groupUuid = :group")
-        .setCacheable(false).setString("group", uuid).list(GroupTypeTuple.class);
-    
-    GroupTypeDAO dao = GrouperDAOFactory.getFactory().getGroupType(); 
-    try {
-      for (GroupTypeTuple  gtt : groupTypeTuples) {
-        types.add( dao.findByUuid( gtt.getTypeUuid(), true ) );
-      }
-    } catch (SchemaException eS) {
-      throw new GrouperDAOException( "Problem with finding by uuid: " + uuid + ", " + eS.getMessage(), eS );
-    }
-    return types;
-  } // private static Set _findAllTypesByGroup(uuid)
-
 
   // @since 1.2.1         
 //  /**
@@ -2219,9 +2082,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             ByHql byHql = hibernateSession.byHql().createQuery(
-                "select theGroup from Group as theGroup, GroupTypeTuple as gtt " +
-                "where gtt.typeUuid = :type " +
-                "and gtt.groupUuid  = theGroup.uuid"
+                "select theGroup from Group as theGroup, AttributeAssign as groupTypeAssign " +
+                "where groupTypeAssign.attributeDefNameId = :type " +
+                "and groupTypeAssign.ownerGroupId  = theGroup.uuid"
               );
             
             if (queryOptions != null && queryOptions.getSecondLevelCache() != null && !queryOptions.getSecondLevelCache()) {

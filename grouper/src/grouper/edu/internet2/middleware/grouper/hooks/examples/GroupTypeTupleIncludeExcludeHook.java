@@ -32,7 +32,6 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.CompositeFinder;
-import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
@@ -43,6 +42,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -425,21 +425,21 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
       }
       
       if (hasRequireGroupsType) {
-        Set<Field> fields = requireGroupsType.getFields();
+        Set<AttributeDefName> attrs = GrouperDAOFactory.getFactory().getAttributeDefName().findByAttributeDef(requireGroupsType.internal_getAttributeDefForAttributes().getId());
         
-        for (Field field : GrouperUtil.nonNull(fields)) {
+        for (AttributeDefName attr : GrouperUtil.nonNull(attrs)) {
           
           //see if this is not a custom require group
-          if (hasAndGroupsAttributeName && StringUtils.equals(andGroupsAttributeName, field.getName())) {
+          if (hasAndGroupsAttributeName && StringUtils.equals(andGroupsAttributeName, attr.getLegacyAttributeName(true))) {
             continue;
           }
           
-          String valueString = typedGroup.getAttributeValue(field.getName(), false, false);
+          String valueString = typedGroup.getAttributeValue(attr.getLegacyAttributeName(true), false, false);
     
           boolean valueBoolean = GrouperUtil.booleanValue(valueString, false);
           
           if (valueBoolean) {
-            String groupName = groupNameFromAndGroupAttributeName(field.getName());
+            String groupName = groupNameFromAndGroupAttributeName(attr.getLegacyAttributeName(true));
             andGroups.add(GroupFinder.findByName(grouperSession, groupName, true));
           }
           

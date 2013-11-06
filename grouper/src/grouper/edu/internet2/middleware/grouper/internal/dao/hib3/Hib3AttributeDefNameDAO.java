@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameTooManyResults;
+import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
@@ -86,6 +87,21 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
     
     attributeDefName = filterSecurity(attributeDefName);
     
+    if (attributeDefName == null && exceptionIfNotFound) {
+      throw new AttributeDefNameNotFoundException("Cant find (or not allowed to find) attribute def name by id: " + id);
+    }
+    return attributeDefName;
+  }
+  
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO#findById(java.lang.String, boolean)
+   */
+  public AttributeDefName findById(String id, boolean exceptionIfNotFound) {
+    AttributeDefName attributeDefName = HibernateSession.byHqlStatic().createQuery(
+        "from AttributeDefName where id = :theId")
+      .setString("theId", id).uniqueResult(AttributeDefName.class);
+        
     if (attributeDefName == null && exceptionIfNotFound) {
       throw new AttributeDefNameNotFoundException("Cant find (or not allowed to find) attribute def name by id: " + id);
     }
@@ -717,6 +733,46 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       AttributeAssignType attributeAssignType, AttributeDefType attributeDefType) {
     return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, subject, 
         privileges, queryOptions, true, attributeAssignType, attributeDefType, null, false, null, null);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO#findLegacyAttributeByName(java.lang.String, boolean)
+   */
+  public AttributeDefName findLegacyAttributeByName(String name, boolean exceptionIfNull) {
+    if (StringUtils.isBlank(name)) {
+      throw new RuntimeException("name cant be blank");
+    }
+                  
+    String sql = "select name, def " +
+        "from AttributeDefName as name, " +
+        "AttributeDef as def " +
+        "where name.attributeDefId = def.id and " +
+        "name.nameDb = :name";
+    
+    String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+    String attributePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attribute.prefix");
+
+    Object[] row = HibernateSession.byHqlStatic().createQuery(sql)
+      .setString("name", stemName + ":" + attributePrefix + name)
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindLegacyAttributeByName")
+      .uniqueResult(Object[].class);
+        
+    if (row == null) {
+      if (exceptionIfNull) {
+        throw new AttributeNotFoundException("Unable to find legacy attribute: " + name);
+      }
+      
+      return null;
+    }
+    
+    AttributeDefName attributeDefName = (AttributeDefName)row[0];
+    AttributeDef attributeDef = (AttributeDef)row[1];
+      
+    attributeDefName.internalSetAttributeDef(attributeDef);
+    
+    return attributeDefName;
   }
 
   /**

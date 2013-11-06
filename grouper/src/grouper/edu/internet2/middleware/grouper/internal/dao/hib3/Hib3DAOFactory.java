@@ -39,7 +39,6 @@ import edu.internet2.middleware.grouper.internal.dao.AttributeAssignActionSetDAO
 import edu.internet2.middleware.grouper.internal.dao.AttributeAssignActionSetViewDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeAssignValueDAO;
-import edu.internet2.middleware.grouper.internal.dao.AttributeDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO;
@@ -57,8 +56,6 @@ import edu.internet2.middleware.grouper.internal.dao.ExternalSubjectDAO;
 import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupSetDAO;
-import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
-import edu.internet2.middleware.grouper.internal.dao.GroupTypeTupleDAO;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionDAO;
@@ -140,14 +137,6 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getGroupType()
-   */
-  public GroupTypeDAO getGroupType() {
-    return new Hib3GroupTypeDAO();
-  } 
-
-  /**
-   * 
    * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getMember()
    */
   public MemberDAO getMember() {
@@ -213,15 +202,7 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   public Configuration getConfiguration() {
     return Hib3DAO.getConfiguration();
   }
-
-  /**
-   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getAttribute()
-   */
-  @Override
-  public AttributeDAO getAttribute() {
-    return new Hib3AttributeDAO();
-  }
-
+  
   /**
    * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getChangeLogEntry()
    */
@@ -365,14 +346,6 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   @Override
   public AttributeAssignActionSetViewDAO getAttributeAssignActionSetView() {
     return new Hib3AttributeAssignActionSetViewDAO();
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getGroupTypeTuple()
-   */
-  @Override
-  public GroupTypeTupleDAO getGroupTypeTuple() {
-    return new Hib3GroupTypeTupleDAO();
   }
 
   /**

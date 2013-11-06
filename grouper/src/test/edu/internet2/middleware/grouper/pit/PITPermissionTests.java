@@ -275,14 +275,14 @@ public class PITPermissionTests extends GrouperTest {
     
     attributeAssign.setEnabled(false);
     attributeAssign.setEnabledTime(new Timestamp(new Date().getTime() + 100000));
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     Date afterDisableTime = getDateWithSleep();
     Date beforeEnableTime = getDateWithSleep();
 
     attributeAssign.setEnabled(true);
     attributeAssign.setEnabledTime(new Timestamp(new Date().getTime() - 100000));
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     Date afterEnableTime = getDateWithSleep();
     

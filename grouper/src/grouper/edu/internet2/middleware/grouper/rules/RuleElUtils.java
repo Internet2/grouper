@@ -209,7 +209,7 @@ public class RuleElUtils {
           if (attributeAssign != null) {
             
             attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis() + ((long)daysInFuture * 24 * 60 * 60 * 1000)));
-            attributeAssign.saveOrUpdate();
+            attributeAssign.saveOrUpdate(true);
             
             result = true;
           }

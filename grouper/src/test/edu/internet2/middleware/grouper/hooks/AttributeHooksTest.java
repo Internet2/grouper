@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
@@ -74,7 +75,7 @@ public class AttributeHooksTest extends GrouperTest {
     
     assertNull(AttributeHooksImpl.mostRecentPostCommitInsertAttribute);
     
-    this.aGroup.setAttribute(this.field.getName(), "testPostCommitInsert");
+    this.aGroup.setAttribute(this.attr.getLegacyAttributeName(true), "testPostCommitInsert");
     
     assertEquals("testPostCommitInsert", AttributeHooksImpl.mostRecentPostCommitInsertAttribute.getValue());
     
@@ -86,7 +87,7 @@ public class AttributeHooksTest extends GrouperTest {
    */
   public void testAttributePostCommitUpdate() throws Exception {
     
-    this.aGroup.setAttribute(this.field.getName(), "testPostCommitUpdate");
+    this.aGroup.setAttribute(this.attr.getLegacyAttributeName(true), "testPostCommitUpdate");
 
     AttributeHooksImpl.mostRecentPostCommitUpdateAttributeValue = null;
     
@@ -95,7 +96,7 @@ public class AttributeHooksTest extends GrouperTest {
       public Object callback(GrouperTransaction grouperTransaction)
           throws GrouperDAOException {
         try {
-          AttributeHooksTest.this.aGroup.setAttribute(AttributeHooksTest.this.field.getName(), "testPostCommitUpdate2");
+          AttributeHooksTest.this.aGroup.setAttribute(AttributeHooksTest.this.attr.getLegacyAttributeName(true), "testPostCommitUpdate2");
         } catch (Exception e) {
           throw new RuntimeException(e);
         }
@@ -113,7 +114,7 @@ public class AttributeHooksTest extends GrouperTest {
    */
   public void testAttributePostCommitDelete() throws Exception {
     
-    this.aGroup.setAttribute(this.field.getName(), "testPostCommitDelete");
+    this.aGroup.setAttribute(this.attr.getLegacyAttributeName(true), "testPostCommitDelete");
 
     AttributeHooksImpl.mostRecentPostCommitDeleteAttributeValue = null;
     
@@ -122,13 +123,13 @@ public class AttributeHooksTest extends GrouperTest {
       public Object callback(GrouperTransaction grouperTransaction)
           throws GrouperDAOException {
         try {
-          AttributeHooksTest.this.aGroup.deleteAttribute(AttributeHooksTest.this.field.getName());
+          AttributeHooksTest.this.aGroup.deleteAttribute(AttributeHooksTest.this.attr.getLegacyAttributeName(true));
         } catch (Exception e) {
           throw new RuntimeException(e);
         }
         assertNull("shouldnt fire yet", AttributeHooksImpl.mostRecentPostCommitDeleteAttributeValue);
         grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
-        assertTrue(StringUtils.isBlank(aGroup.getAttributeValue(AttributeHooksTest.this.field.getName(), false, false)));
+        assertTrue(StringUtils.isBlank(aGroup.getAttributeValue(AttributeHooksTest.this.attr.getLegacyAttributeName(true), false, false)));
         assertEquals("testPostCommitDelete", AttributeHooksImpl.mostRecentPostCommitDeleteAttributeValue);
         return null;
       }
@@ -143,16 +144,16 @@ public class AttributeHooksTest extends GrouperTest {
     
     AttributeHooksImpl.mostRecentPreInsertAttributeValue = null;
     
-    this.aGroup.setAttribute(this.field.getName(), "test1");
+    this.aGroup.setAttribute(this.attr.getLegacyAttributeName(true), "test1");
     
-    assertEquals("test1", GroupFinder.findByUuid(this.grouperSession, this.aGroup.getUuid(), true).getAttributeValue(this.field.getName(), false, true));
+    assertEquals("test1", GroupFinder.findByUuid(this.grouperSession, this.aGroup.getUuid(), true).getAttributeValue(this.attr.getLegacyAttributeName(true), false, true));
     assertEquals("test1", AttributeHooksImpl.mostRecentPreInsertAttributeValue);
 
     //delete so we can insert again
-    this.aGroup.deleteAttribute(this.field.getName());
+    this.aGroup.deleteAttribute(this.attr.getLegacyAttributeName(true));
     
     try {
-      this.aGroup.setAttribute(this.field.getName(), "test2");
+      this.aGroup.setAttribute(this.attr.getLegacyAttributeName(true), "test2");
 
       fail("Should veto test2");
     } catch (HookVeto hookVeto) {
@@ -169,17 +170,17 @@ public class AttributeHooksTest extends GrouperTest {
   public void testAttributePreUpdate() throws Exception {
     
     
-    this.aGroup.setAttribute(this.field.getName(), "test9a");
+    this.aGroup.setAttribute(this.attr.getLegacyAttributeName(true), "test9a");
     
     AttributeHooksImpl.mostRecentPreUpdateAttributeValue = null;
 
-    this.aGroup.setAttribute(this.field.getName(), "test9");
+    this.aGroup.setAttribute(this.attr.getLegacyAttributeName(true), "test9");
 
-    assertEquals("test9", this.aGroup.getAttributeValue(this.field.getName(), false, true));
+    assertEquals("test9", this.aGroup.getAttributeValue(this.attr.getLegacyAttributeName(true), false, true));
     assertEquals("test9", AttributeHooksImpl.mostRecentPreUpdateAttributeValue);
 
     try {
-      this.aGroup.setAttribute(this.field.getName(), "test10");
+      this.aGroup.setAttribute(this.attr.getLegacyAttributeName(true), "test10");
 
       fail("Should veto test10");
     } catch (HookVeto hookVeto) {
@@ -196,17 +197,17 @@ public class AttributeHooksTest extends GrouperTest {
   public void testAttributePostUpdate() throws Exception {
     
     
-    this.aGroup.setAttribute(this.field.getName(), "test11a");
+    this.aGroup.setAttribute(this.attr.getLegacyAttributeName(true), "test11a");
     
     AttributeHooksImpl.mostRecentPostUpdateAttributeValue = null;
 
-    this.aGroup.setAttribute(this.field.getName(), "test11");
+    this.aGroup.setAttribute(this.attr.getLegacyAttributeName(true), "test11");
 
-    assertEquals("test11", this.aGroup.getAttributeValue(this.field.getName(), false, true));
+    assertEquals("test11", this.aGroup.getAttributeValue(this.attr.getLegacyAttributeName(true), false, true));
     assertEquals("test11", AttributeHooksImpl.mostRecentPostUpdateAttributeValue);
 
     try {
-      this.aGroup.setAttribute(this.field.getName(), "test12");
+      this.aGroup.setAttribute(this.attr.getLegacyAttributeName(true), "test12");
 
       fail("Should veto test12");
     } catch (HookVeto hookVeto) {
@@ -224,16 +225,16 @@ public class AttributeHooksTest extends GrouperTest {
     
     AttributeHooksImpl.mostRecentPostInsertAttributeValue = null;
     
-    this.aGroup.setAttribute(this.field.getName(), "test7");
+    this.aGroup.setAttribute(this.attr.getLegacyAttributeName(true), "test7");
     
-    assertEquals("test7", this.aGroup.getAttributeValue(this.field.getName(), false, true));
+    assertEquals("test7", this.aGroup.getAttributeValue(this.attr.getLegacyAttributeName(true), false, true));
     assertEquals("test7", AttributeHooksImpl.mostRecentPreInsertAttributeValue);
     
     //delete so we can insert again
-    this.aGroup.deleteAttribute(this.field.getName());
+    this.aGroup.deleteAttribute(this.attr.getLegacyAttributeName(true));
 
     try {
-      this.aGroup.setAttribute(this.field.getName(), "test8");
+      this.aGroup.setAttribute(this.attr.getLegacyAttributeName(true), "test8");
       
       fail("Should veto test8");
     } catch (HookVeto hookVeto) {
@@ -249,18 +250,18 @@ public class AttributeHooksTest extends GrouperTest {
    */
   public void testAttributePostDelete() throws Exception {
     
-    this.aGroup.setAttribute(this.field.getName(), "test4");
+    this.aGroup.setAttribute(this.attr.getLegacyAttributeName(true), "test4");
 
     AttributeHooksImpl.mostRecentPostDeleteAttributeValue = null;
 
-    this.aGroup.deleteAttribute(this.field.getName());
+    this.aGroup.deleteAttribute(this.attr.getLegacyAttributeName(true));
     
     assertEquals("test4", AttributeHooksImpl.mostRecentPostDeleteAttributeValue);
    
-    this.aGroup.setAttribute(this.field.getName(), "test3");
+    this.aGroup.setAttribute(this.attr.getLegacyAttributeName(true), "test3");
 
     try {
-      this.aGroup.deleteAttribute(this.field.getName());
+      this.aGroup.deleteAttribute(this.attr.getLegacyAttributeName(true));
       fail("Should veto test3");
     } catch (HookVeto hookVeto) {
       assertEquals("name cannot be test3", hookVeto.getReason());
@@ -275,18 +276,18 @@ public class AttributeHooksTest extends GrouperTest {
    */
   public void testAttributePreDelete() throws Exception {
     
-    this.aGroup.setAttribute(this.field.getName(), "test5");
+    this.aGroup.setAttribute(this.attr.getLegacyAttributeName(true), "test5");
 
     AttributeHooksImpl.mostRecentPreDeleteAttributeValue = null;
 
-    this.aGroup.deleteAttribute(this.field.getName());
+    this.aGroup.deleteAttribute(this.attr.getLegacyAttributeName(true));
     
     assertEquals("test5", AttributeHooksImpl.mostRecentPreDeleteAttributeValue);
    
-    this.aGroup.setAttribute(this.field.getName(), "test6");
+    this.aGroup.setAttribute(this.attr.getLegacyAttributeName(true), "test6");
 
     try {
-      this.aGroup.deleteAttribute(this.field.getName());
+      this.aGroup.deleteAttribute(this.attr.getLegacyAttributeName(true));
       fail("Should veto test6");
     } catch (HookVeto hookVeto) {
       assertEquals("name cannot be test6", hookVeto.getReason());
@@ -342,8 +343,8 @@ public class AttributeHooksTest extends GrouperTest {
       
       this.aGroup.addType(this.groupType);
       
-      this.field = this.groupType.addAttribute(this.grouperSession, "anAttribute", 
-          AccessPrivilege.READ, AccessPrivilege.ADMIN, false);
+      this.attr = this.groupType.addAttribute(this.grouperSession, "anAttribute", 
+          false);
       
       
     } catch (Exception e) {
@@ -356,8 +357,8 @@ public class AttributeHooksTest extends GrouperTest {
   /** group type */
   private GroupType groupType = null;
   
-  /** field */
-  private Field field = null;
+  /** attr */
+  private AttributeDefName attr = null;
   
   /**
    * 

@@ -114,7 +114,7 @@ public class AttributeAssignValueTest extends GrouperTest {
     AttributeDefName attributeDefName = this.top.addChildAttributeDefName(attributeDef, "testName", "test name");
 
     AttributeAssign attributeAssign = new AttributeAssign(this.top, AttributeDef.ACTION_DEFAULT, attributeDefName, null);
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
     attributeAssignValue.setAttributeAssignId(attributeAssign.getId());

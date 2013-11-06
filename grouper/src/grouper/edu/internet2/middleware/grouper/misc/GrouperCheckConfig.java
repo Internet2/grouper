@@ -1577,6 +1577,16 @@ public class GrouperCheckConfig {
       }
       
       {
+        String legacyAttributesStemName =  GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+        Stem legacyAttributesStem = StemFinder.findByName(grouperSession, legacyAttributesStemName, false);
+        if (legacyAttributesStem == null) {
+          legacyAttributesStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("Folder for legacy attributes.  Do not delete.")
+            .assignName(legacyAttributesStemName).save();
+        }
+      }
+      
+      {
         String externalSubjectStemName = ExternalSubjectAttrFramework.attributeExternalSubjectInviteStemName();
         
         Stem externalSubjectStem = StemFinder.findByName(grouperSession, externalSubjectStemName, false);
