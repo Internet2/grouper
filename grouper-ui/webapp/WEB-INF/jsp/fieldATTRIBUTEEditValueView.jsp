@@ -10,9 +10,7 @@
     <%-- empty for type name --%>
     <td>&nbsp;</td>
 		<td class="formTableLeft">
-			<c:if test="${viewObject.required}"><c:set var="areRequiredAttributes" 
-        value="true" scope="request"/><span class="requiredAttrIndicator"><grouper:message 
-        key="attribute.required.indicator"/></span></c:if><grouper:message 
+        <grouper:message 
         value="${fieldList[viewObject.name].displayName}" 
          valueTooltipKey="groupFields.${fieldList[viewObject.name].displayName}" /></td>
 		<td class="formTableRight">

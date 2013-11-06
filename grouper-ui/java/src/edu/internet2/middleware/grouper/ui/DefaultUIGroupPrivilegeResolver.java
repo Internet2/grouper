@@ -48,12 +48,18 @@ import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.SubjectFinder.RestrictSourceForGroup;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.InviteExternalSubjects;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
-import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -128,7 +134,31 @@ public class DefaultUIGroupPrivilegeResolver implements
 	 */
 	public boolean canManageField(String field) {
 		try {
-			return group.canWriteField(FieldFinder.find(field, true));
+		  String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+		  if (!field.startsWith(stemName)) {
+		    return group.canWriteField(FieldFinder.find(field, true));
+		  }
+		  
+      String attributeDefPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attributeDef.prefix");
+      AttributeDefName legacyAttribute = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(field, false);
+      if (legacyAttribute == null) {
+        // probably not allowed to see attribute def
+        return false;
+      }
+      
+      AttributeDef legacyAttributeDef = legacyAttribute.getAttributeDef();
+      String groupTypeName = legacyAttributeDef.getExtension().substring(attributeDefPrefix.length());
+
+      AttributeAssign groupTypeAssignment = group.internal_getGroupTypeAssignments().get(groupTypeName);
+
+      try {
+        groupTypeAssignment.getAttributeDelegate().assertCanUpdateAttributeDefName(legacyAttribute);
+        return true;
+      } catch (InsufficientPrivilegeException e) {
+        return false;
+      } catch (AttributeDefNotFoundException e) {
+        return false;
+      }
 		}catch(Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -139,7 +169,31 @@ public class DefaultUIGroupPrivilegeResolver implements
 	 */
 	public boolean canReadField(String field) {
 		try {
-			return group.canReadField(FieldFinder.find(field, true));
+      String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+      if (!field.startsWith(stemName)) {
+        return group.canReadField(FieldFinder.find(field, true));
+      }
+      
+      String attributeDefPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attributeDef.prefix");
+      AttributeDefName legacyAttribute = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(field, false);
+      if (legacyAttribute == null) {
+        // probably not allowed to see attribute def
+        return false;
+      }
+      
+      AttributeDef legacyAttributeDef = legacyAttribute.getAttributeDef();
+      String groupTypeName = legacyAttributeDef.getExtension().substring(attributeDefPrefix.length());
+
+      AttributeAssign groupTypeAssignment = group.internal_getGroupTypeAssignments().get(groupTypeName);
+
+      try {
+        groupTypeAssignment.getAttributeDelegate().assertCanReadAttributeDefName(legacyAttribute);
+        return true;
+      } catch (InsufficientPrivilegeException e) {
+        return false;
+      } catch (AttributeDefNotFoundException e) {
+        return false;
+      }
 		}catch(Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -247,6 +301,11 @@ public class DefaultUIGroupPrivilegeResolver implements
 					fieldManageMap.put(field.getName(), canManageField(field.getName()));
 					fieldReadMap.put(field.getName(), canReadField(field.getName()));
 				}
+        
+        for(AttributeDefName legacyAttribute : type.getLegacyAttributes()) {
+          fieldManageMap.put(legacyAttribute.getName(), canManageField(legacyAttribute.getName()));
+          fieldReadMap.put(legacyAttribute.getName(), canReadField(legacyAttribute.getName()));
+        }
 			}
 		}
 		return map;

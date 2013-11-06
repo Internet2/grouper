@@ -43,6 +43,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
 import edu.internet2.middleware.grouper.ui.util.MembershipAsMap;
@@ -389,6 +390,41 @@ public class DefaultTemplateResolverImpl implements TemplateResolver {
 
 		return tName;
 	}
+	
+	/**
+	 * 
+	 * @param obj
+	 * @param view
+	 * @param mediaResources
+	 * @param request
+	 * @return name of template
+	 */
+  public String getAttributeDefNameTemplateName(Object obj, String view,
+	      ResourceBundle mediaResources, HttpServletRequest request) {
+
+	    AttributeDefName attr = (AttributeDefName) obj;
+	    String tName = null;
+	    tName = getResource(mediaResources, "field." + attr.getLegacyAttributeName(true) + ".view." + view);
+	    if (tName == null) {
+	      tName = getResource(mediaResources, "field." + attr.getLegacyAttributeName(true) + ".view.default");
+	    }
+	    if (tName == null) {
+	      tName = getResource(mediaResources, "field.attribute.view." + view);
+	    }
+	    if (tName == null) {
+	      tName = getResource(mediaResources, "field.attribute.view.default");
+	    }
+	    if (tName == null) {
+	      tName = getResource(mediaResources, "field.view." + view);
+	    }
+
+	    if (tName == null) {
+	      tName = getResource(mediaResources, "field.view.default");
+	    }
+
+	    return tName;
+	  }
+	
 
 	/**
 	 * Get template name for a SubjectPrivilege (type=access/naming). Look for:

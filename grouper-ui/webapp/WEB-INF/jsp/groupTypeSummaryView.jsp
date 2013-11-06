@@ -19,6 +19,12 @@
 			<tiles:put name="itemView" value="withValue"/>
 			<tiles:put name="listless" value="TRUE"/>
 		</tiles:insert>
+		<tiles:insert definition="dynamicTileDef">
+			<tiles:put name="viewObject" beanName="viewObject" beanProperty="legacyAttributes"/>
+			<tiles:put name="view" value="groupSummaryFields"/>
+			<tiles:put name="itemView" value="withValue"/>
+			<tiles:put name="listless" value="TRUE"/>
+		</tiles:insert>
     </table>
 	</td>
 </tr>

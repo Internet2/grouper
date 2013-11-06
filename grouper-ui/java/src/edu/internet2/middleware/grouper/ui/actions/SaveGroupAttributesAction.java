@@ -55,6 +55,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.ui.Message;
 
@@ -138,40 +139,33 @@ public class SaveGroupAttributesAction extends GrouperCapableAction {
       	DynaActionForm groupFormBean = (DynaActionForm) form;
       	String groupId = (String)groupFormBean.get("groupId");
       	Group group = GroupFinder.findByUuid(grouperSession,groupId, true);
-      	List fields = new ArrayList();
-      	Set types = group.getRemovableTypes();
+      	List<AttributeDefName> allAttributes = new ArrayList<AttributeDefName>();
+      	Set types = group.getTypes();
       	GroupType type;
       	Iterator it = types.iterator();
       	while(it.hasNext()) {
       		type = (GroupType)it.next();
-      		if(type.getName().equals("base")) continue;
-      		Set fs = type.getFields();
-      		Iterator fieldsIterator = fs.iterator();
-      		Field field;
-      		while(fieldsIterator.hasNext()) {
-      			field = (Field)fieldsIterator.next();
-      			if(field.getType().equals(FieldType.ATTRIBUTE)) fields.add(field);
-      		}
+      		Set<AttributeDefName> fs = type.getLegacyAttributes();
+      		allAttributes.addAll(fs);
       	}
-      	Field field;
       	String attr;
       	String groupAttr;
-      	for(int i=0;i<fields.size();i++) {
-      		field = (Field)fields.get(i);
-      		attr = request.getParameter("attr." + field.getName());
-      		groupAttr = group.getAttributeValue(field.getName(), false, false);
+      	for(int i=0;i<allAttributes.size();i++) {
+      		AttributeDefName attribute = allAttributes.get(i);
+      		attr = request.getParameter("attr." + attribute.getName());
+      		groupAttr = group.getAttributeValue(attribute.getLegacyAttributeName(true), false, false);
       		if(attr!=null && !attr.equals(groupAttr)) {
       			if("".equals(attr)) {
       				try {
-      					group.deleteAttribute(field.getName());
+      					group.deleteAttribute(attribute.getLegacyAttributeName(true));
       				}catch(GroupModifyException e) {
-      					Map fieldMap = (Map)GrouperHelper.getFieldsAsMap().get(field.getName());
+      					Map fieldMap = (Map)GrouperHelper.getFieldsAsMap().get(attribute.getLegacyAttributeName(true));
       					Message message = new Message("error.group.save-attributes.delete",(String)fieldMap.get("displayName"),true);
       					request.setAttribute("message",message);
       					return mapping.findForward(FORWARD_EditAttributes);
       				}
       			}
-      			else group.setAttribute(field.getName(),attr);
+      			else group.setAttribute(attribute.getLegacyAttributeName(true), attr);
       		}
       	}
       		
