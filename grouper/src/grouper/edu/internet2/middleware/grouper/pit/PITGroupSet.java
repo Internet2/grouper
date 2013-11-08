@@ -669,6 +669,14 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
         ChangeLogEntry changeLogEntry = null;
         
         if (isMembership && this.getFlatMembershipNotificationsOnSaveOrUpdate()) {
+          String subjectName = null;
+          
+          // get the subject name if the subject is a group
+          if (pitMembership.getMember().getSubjectTypeId().equals("group")) {
+            PITGroup memberGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(pitMembership.getMember().getSubjectId(), true);
+            subjectName = memberGroup.getName();
+          }  
+          
           changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.MEMBERSHIP_DELETE,
               ChangeLogLabels.MEMBERSHIP_DELETE.id.name(), pitMembership.getSourceId(),
               ChangeLogLabels.MEMBERSHIP_DELETE.fieldName.name(), pitField.getName(),
@@ -678,6 +686,7 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
               ChangeLogLabels.MEMBERSHIP_DELETE.sourceId.name(), pitMembership.getMember().getSubjectSourceId(),
               ChangeLogLabels.MEMBERSHIP_DELETE.groupId.name(), ownerId,
               ChangeLogLabels.MEMBERSHIP_DELETE.membershipType.name(), "flattened",
+              ChangeLogLabels.MEMBERSHIP_DELETE.subjectName.name(), subjectName,
               ChangeLogLabels.MEMBERSHIP_DELETE.groupName.name(), ownerName);
         } else if (!isMembership && this.getFlatPrivilegeNotificationsOnSaveOrUpdate()) {
           changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.PRIVILEGE_DELETE,

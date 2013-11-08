@@ -144,7 +144,8 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.MEMBERSHIP_DELETE.groupId, 
       ChangeLogLabels.MEMBERSHIP_DELETE.groupName,
       ChangeLogLabels.MEMBERSHIP_DELETE.memberId,
-      ChangeLogLabels.MEMBERSHIP_DELETE.fieldId)),
+      ChangeLogLabels.MEMBERSHIP_DELETE.fieldId,
+      ChangeLogLabels.MEMBERSHIP_DELETE.subjectName)),
 
   /**
    * add privilege

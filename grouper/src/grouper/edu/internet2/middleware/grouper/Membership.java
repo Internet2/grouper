@@ -2877,6 +2877,15 @@ public class Membership extends GrouperAPI implements
       member = this.getMember();
     }
     
+
+    String subjectName = null;
+    
+    // get the subject name if the subject is a group
+    if (member.getSubjectTypeId().equals("group")) {
+      Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(member.getSubjectId(), true, null);
+      subjectName = memberGroup.getName();
+    }
+    
     if (this.getListType().equals(FieldType.LIST.getType())) {
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.MEMBERSHIP_DELETE, 
           ChangeLogLabels.MEMBERSHIP_DELETE.id.name(), this.getImmediateMembershipId(),
@@ -2887,6 +2896,7 @@ public class Membership extends GrouperAPI implements
           ChangeLogLabels.MEMBERSHIP_DELETE.sourceId.name(), member.getSubjectSourceId(),
           ChangeLogLabels.MEMBERSHIP_DELETE.groupId.name(), this.getOwnerGroupId(),
           ChangeLogLabels.MEMBERSHIP_DELETE.membershipType.name(), this.getType(),
+          ChangeLogLabels.MEMBERSHIP_DELETE.subjectName.name(), subjectName,
           ChangeLogLabels.MEMBERSHIP_DELETE.groupName.name(), this.getGroup().getName()).save();
     } else if (this.getListType().equals(FieldType.ACCESS.getType())) {
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_DELETE, 
