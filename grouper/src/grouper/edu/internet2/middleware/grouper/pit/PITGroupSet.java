@@ -673,8 +673,11 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
           
           // get the subject name if the subject is a group
           if (pitMembership.getMember().getSubjectTypeId().equals("group")) {
-            PITGroup memberGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(pitMembership.getMember().getSubjectId(), true);
-            subjectName = memberGroup.getName();
+            PITGroup memberGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(pitMembership.getMember().getSubjectId(), false);
+            
+            if (memberGroup != null) {
+              subjectName = memberGroup.getName();
+            }
           }  
           
           changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.MEMBERSHIP_DELETE,

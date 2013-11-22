@@ -93,6 +93,7 @@ import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.membership.MembershipType;
@@ -1999,29 +2000,32 @@ public class Membership extends GrouperAPI implements
    */
   private void processPostMembershipDelete(Member member) {
     // if the member is a group, delete the immediate group set.
+    Group memberGroup = null;
     if (member.getSubjectTypeId().equals("group")) {
 
-      // get the immediate group set (depth = 1)
-      GroupSet immediateGroupSet = null;
-      if (this.getOwnerGroupId() != null) {
-        Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(member.getSubjectId(), true, null);
-        immediateGroupSet = GrouperDAOFactory.getFactory().getGroupSet()
-          .findImmediateByOwnerGroupAndMemberGroupAndField(this.getOwnerGroupId(), memberGroup.getUuid(), this.getField());
-      } else if (this.getOwnerStemId() != null){
-        Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(member.getSubjectId(), true, null);
-        immediateGroupSet = GrouperDAOFactory.getFactory().getGroupSet()
-          .findImmediateByOwnerStemAndMemberGroupAndField(this.getOwnerStemId(), memberGroup.getUuid(), this.getField());
-      } else if (this.getOwnerAttrDefId() != null){
-        Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(member.getSubjectId(), true, null);
-        immediateGroupSet = GrouperDAOFactory.getFactory().getGroupSet()
-          .findImmediateByOwnerAttrDefAndMemberGroupAndField(this.getOwnerAttrDefId(), memberGroup.getUuid(), this.getField());
+      memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(member.getSubjectId(), false, new QueryOptions().secondLevelCache(false));
+      if (memberGroup != null) {
+        // get the immediate group set (depth = 1)
+        GroupSet immediateGroupSet = null;
+        if (this.getOwnerGroupId() != null) {
+          immediateGroupSet = GrouperDAOFactory.getFactory().getGroupSet()
+            .findImmediateByOwnerGroupAndMemberGroupAndField(this.getOwnerGroupId(), memberGroup.getUuid(), this.getField());
+        } else if (this.getOwnerStemId() != null){
+          immediateGroupSet = GrouperDAOFactory.getFactory().getGroupSet()
+            .findImmediateByOwnerStemAndMemberGroupAndField(this.getOwnerStemId(), memberGroup.getUuid(), this.getField());
+        } else if (this.getOwnerAttrDefId() != null){
+          immediateGroupSet = GrouperDAOFactory.getFactory().getGroupSet()
+            .findImmediateByOwnerAttrDefAndMemberGroupAndField(this.getOwnerAttrDefId(), memberGroup.getUuid(), this.getField());
+        } else {
+          throw new RuntimeException("not expecting");
+        }
+        
+        // delete it..  it may not exist if it was previously disabled.
+        if (immediateGroupSet != null) {
+          GrouperDAOFactory.getFactory().getGroupSet().delete(immediateGroupSet);
+        }
       } else {
-        throw new RuntimeException("not expecting");
-      }
-      
-      // delete it..  it may not exist if it was previously disabled.
-      if (immediateGroupSet != null) {
-        GrouperDAOFactory.getFactory().getGroupSet().delete(immediateGroupSet);
+        LOG.error("Member " + member.getSubjectId() + " should be a current group but unable to find the group.  Assuming bad membership.");
       }
     }
 
@@ -2034,14 +2038,17 @@ public class Membership extends GrouperAPI implements
       if (composites.size() > 0) {
         Set<String> membersList = new LinkedHashSet<String>();
         if (member.getSubjectTypeId().equals("group")) {
-          Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(member.getSubjectId(), true, null);
-          Iterator<Member> memberIter = GrouperDAOFactory.getFactory().getMembership().findAllMembersByGroupOwnerAndField( 
-              memberGroup.getUuid(), Group.getDefaultList(), null, true).iterator();
-          while (memberIter.hasNext()) {
-            Member currMember = memberIter.next();
-            if (!currMember.getSubjectTypeId().equals("group")) {
-              membersList.add(currMember.getUuid());
-            }          
+          
+          // again, maybe the memberGroup doesn't exist..
+          if (memberGroup != null) {
+            Iterator<Member> memberIter = GrouperDAOFactory.getFactory().getMembership().findAllMembersByGroupOwnerAndField( 
+                memberGroup.getUuid(), Group.getDefaultList(), null, true).iterator();
+            while (memberIter.hasNext()) {
+              Member currMember = memberIter.next();
+              if (!currMember.getSubjectTypeId().equals("group")) {
+                membersList.add(currMember.getUuid());
+              }          
+            }
           }
         } else {
           membersList.add(member.getUuid());
@@ -2882,8 +2889,10 @@ public class Membership extends GrouperAPI implements
     
     // get the subject name if the subject is a group
     if (member.getSubjectTypeId().equals("group")) {
-      Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(member.getSubjectId(), true, null);
-      subjectName = memberGroup.getName();
+      Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(member.getSubjectId(), false, null);
+      if (memberGroup != null) {
+        subjectName = memberGroup.getName();
+      }
     }
     
     if (this.getListType().equals(FieldType.LIST.getType())) {

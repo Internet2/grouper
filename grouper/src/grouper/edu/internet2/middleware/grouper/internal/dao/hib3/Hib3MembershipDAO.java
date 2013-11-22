@@ -3071,6 +3071,23 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   }
   
   /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findBadMembershipsDeletedGroupAsMember()
+   */
+  public Set<Membership> findBadMembershipsDeletedGroupAsMember() {
+    String sql = "select distinct ms from ImmediateMembershipEntry ms, Member m " +
+        "where ms.memberUuid = m.uuid " +
+        "and m.subjectSourceIdDb = 'g:gsa' " +
+        "and not exists (select 1 from Group g where g.uuid=m.subjectIdDb) ";
+    
+    Set<Membership> results = HibernateSession.byHqlStatic()
+      .createQuery(sql)
+      .setCacheable(false)
+      .listSet(Membership.class);
+    
+    return results;
+  }
+  
+  /**
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findBadImmediateMembershipsOnCompositeGroup()
    */
   public Set<Membership> findBadCompositeMembershipsOnNonCompositeGroup() {

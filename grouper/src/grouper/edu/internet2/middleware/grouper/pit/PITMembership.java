@@ -569,8 +569,11 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
       
       // get the subject name if the subject is a group
       if (this.getMember().getSubjectTypeId().equals("group")) {
-        PITGroup memberGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(this.getMember().getSubjectId(), true);
-        subjectName = memberGroup.getName();
+        PITGroup memberGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(this.getMember().getSubjectId(), false);
+        
+        if (memberGroup != null) {
+          subjectName = memberGroup.getName();
+        }
       }        
 
       Set<PITGroupSet> pitGroupSets = GrouperDAOFactory.getFactory().getPITMembershipView().findPITGroupSetsJoinedWithOldPITMembership(this);
@@ -774,11 +777,31 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
     // if the member is a group and the membership is ending, add an end time to the PIT immediate group set.
     if (!this.isActive() && this.dbVersion().isActive() && this.getMember().getSubjectTypeId().equals("group")) {
 
-      PITGroup memberGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(this.getMember().getSubjectId(), true);
+      PITGroupSet pitImmediateGroupSet = null;
+      PITGroup memberGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(this.getMember().getSubjectId(), false);
+      if (memberGroup == null) {
+        // probably a bad membership being deleted, but let's make sure no prior version of the group has group sets
+        Set<PITGroup> memberGroups = GrouperDAOFactory.getFactory().getPITGroup().findBySourceId(this.getMember().getSubjectId(), false);
+        for (PITGroup currMemberGroup : memberGroups) {
+          pitImmediateGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findActiveImmediateByPITOwnerAndPITMemberAndPITField(
+              this.getOwnerId(), currMemberGroup.getId(), this.getFieldId());
+          if (pitImmediateGroupSet != null) {
+            break;
+          }
+        }
+      }
+      
+      if (memberGroup == null && pitImmediateGroupSet == null) {
+        // ok nothing to do then
+        super.onPostUpdate(hibernateSession);
+        return;
+      }
       
       // get the PIT immediate group set
-      PITGroupSet pitImmediateGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findActiveImmediateByPITOwnerAndPITMemberAndPITField(
-          this.getOwnerId(), memberGroup.getId(), this.getFieldId());
+      if (pitImmediateGroupSet == null) {
+        pitImmediateGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findActiveImmediateByPITOwnerAndPITMemberAndPITField(
+            this.getOwnerId(), memberGroup.getId(), this.getFieldId());
+      }
       
       if (pitImmediateGroupSet == null) {
         // this must have already been deleted...
