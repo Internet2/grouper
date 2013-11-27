@@ -77,6 +77,7 @@ import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -95,7 +96,7 @@ public class TestGroup extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(new TestGroup("testNoLocking"));
     //TestRunner.run(TestGroup.class);
-    TestRunner.run(new TestGroup("testGetTypes"));
+    TestRunner.run(new TestGroup("testGetTypesSecurity"));
     //TestRunner.run(TestGroup.class);
   }
   
@@ -481,6 +482,56 @@ public class TestGroup extends GrouperTest {
     Assert.assertTrue("has 1 type/" + types.size(), types.size() == 1);
   } // public void testGetTypes()
 
+  /**
+   * 
+   */
+  public void testGetTypesSecurity() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    GroupType testType1 = GroupType.createType(s, "testType1");
+    GroupType testType2 = GroupType.createType(s, "testType2");
+    i2.addType(testType1);
+    i2.addType(testType2);
+    assertEquals(2, i2.getTypes().size());
+    
+    i2.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.GROUP_ATTR_READ);
+    i2.grantPriv(SubjectTestHelper.SUBJ3, AccessPrivilege.GROUP_ATTR_READ);
+    i2.grantPriv(SubjectTestHelper.SUBJ4, AccessPrivilege.GROUP_ATTR_READ);
+    
+    testType1.getAttributeDefName().getAttributeDef().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ2, AttributeDefPrivilege.ATTR_READ, true);
+    testType1.getAttributeDefName().getAttributeDef().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ3, AttributeDefPrivilege.ATTR_READ, true);
+    testType1.getAttributeDefName().getAttributeDef().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ4, AttributeDefPrivilege.ATTR_READ, true);
+    testType2.getAttributeDefName().getAttributeDef().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ4, AttributeDefPrivilege.ATTR_READ, true);
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    assertEquals(0, i2.getTypes().size());
+    assertEquals(2, i2.getTypes(false).size());
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+    assertEquals(0, i2.getTypes().size());
+    assertEquals(2, i2.getTypes(false).size());
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ2);
+    assertEquals(0, i2.getTypes().size());
+    assertEquals(2, i2.getTypes(false).size());
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ3);
+    assertEquals(1, i2.getTypes().size());
+    assertEquals("testType1", i2.getTypes().iterator().next().getName());
+    assertEquals(2, i2.getTypes(false).size());
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ4);
+    assertEquals(2, i2.getTypes().size());
+    assertEquals(2, i2.getTypes(false).size());
+    GrouperSession.stopQuietly(grouperSession);
+  }
+  
   public void testAddChildGroupWithBadExtnOrDisplayExtn() {
     LOG.info("testAddChildGroupWithBadExtnOrDisplayExtn");
     try {

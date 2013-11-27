@@ -84,6 +84,7 @@ import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -829,7 +830,7 @@ public class TestGroup1 extends GrouperTest {
       Group     gA      = r.getGroup("a", "a");
       gA.addType(custom);
       GrouperSession.start( r.getSubject("a") );
-      T.amount("types", 1, gA.getTypes().size());
+      T.amount("types", 1, gA.getTypes(false).size());
       T.amount("removable types", 0, gA.getRemovableTypes().size());
       r.rs.stop();
     }
@@ -847,8 +848,9 @@ public class TestGroup1 extends GrouperTest {
       gA.addType(custom);
       Subject   subjA   = r.getSubject("a");
       gA.grantPriv(subjA, AccessPrivilege.ADMIN);
+      custom.getAttributeDefName().getAttributeDef().getPrivilegeDelegate().grantPriv(subjA, AttributeDefPrivilege.ATTR_ADMIN, true);
       GrouperSession.start( subjA );
-      T.amount("types", 1, gA.getTypes().size());
+      T.amount("types", 1, gA.getTypes(false).size());
       T.amount("removable types", 1, gA.getRemovableTypes().size());
       r.rs.stop();
     }

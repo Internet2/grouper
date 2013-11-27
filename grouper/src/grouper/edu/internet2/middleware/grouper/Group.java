@@ -1246,7 +1246,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
 
         StopWatch sw = new StopWatch();
         sw.start();
-        if ( Group.this.hasType(type ) ) {
+        if ( Group.this.hasType(type, false) ) {
           if (exceptionIfAlreadyHasType) {
             throw new GroupModifyException(E.GROUP_HAS_TYPE + ", " + type);
           }
@@ -2159,7 +2159,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
 
           StopWatch sw = new StopWatch();
           sw.start();
-          if ( !Group.this.hasType(type) ) {
+          if ( !Group.this.hasType(type, false) ) {
             throw new GroupModifyException("does not have type: " + typeString);
           }
           if ( type.isSystemType() ) {
@@ -3543,7 +3543,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   } // public Set getRemovableTypes()
 
   /**
-   * Get group types for this group (only non internal ones).
+   * Get group types for this group (secure method).
    * <pre class="eg">
    * Set types = g.getTypes();
    * </pre>
@@ -3551,7 +3551,33 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @deprecated
    */
   public Set<GroupType> getTypes() {
-    return new LinkedHashSet<GroupType>(getTypesDb());
+    return getTypes(true);
+  }
+
+  
+  /**
+   * Get group types for this group.
+   * <pre class="eg">
+   * Set types = g.getTypes(true);
+   * </pre>
+   * @param checkSecurity 
+   * @return  Set of group types.
+   * @deprecated
+   */
+  public Set<GroupType> getTypes(boolean checkSecurity) {
+    this.internal_getGroupTypeAssignments();
+    
+    Set<GroupType> results = new LinkedHashSet<GroupType>();
+    
+    for (String groupTypeName : this.typeAssignments.keySet()) {
+      AttributeAssign legacyGroupTypeAssignment = this.typeAssignments.get(groupTypeName);
+      if (!checkSecurity || PrivilegeHelper.canViewAttributeAssign(GrouperSession.staticGrouperSession(), legacyGroupTypeAssignment, true)) {
+        GroupType groupType = GroupType.internal_getGroupType(legacyGroupTypeAssignment.getAttributeDefName(), true);
+        results.add(groupType);
+      }
+    }
+    
+    return results;
   }
 
   /**
@@ -4075,6 +4101,22 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * Check whether group has the specified type.
    * <pre class="eg">
    * GroupType custom = GroupTypeFinder.find("custom type");
+   * if (g.hasType(custom, true)) {
+   *   // Group has type
+   * }
+   * </pre>
+   * @param   type  The {@link GroupType} to check.
+   * @param checkSecurity 
+   * @return if has type
+   */
+  public boolean hasType(GroupType type, boolean checkSecurity) {
+    return this.getTypes(checkSecurity).contains(type);
+  }
+  
+  /**
+   * Check whether group has the specified type.  This is a secure method
+   * <pre class="eg">
+   * GroupType custom = GroupTypeFinder.find("custom type");
    * if (g.hasType(custom)) {
    *   // Group has type
    * }
@@ -4083,7 +4125,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return if has type
    */
   public boolean hasType(GroupType type) {
-    return this.getTypesDb().contains( type );
+    return this.hasType(type, true);
   } // public boolean hasType(type)
 
   /**
@@ -5158,6 +5200,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
         
         results.put(name, Attribute.internal_getAttribute(value, this, true));
       } catch (InsufficientPrivilegeException e) {
+        // okay, simply not allowed to see attribute
+      } catch (AttributeDefNotFoundException e) {
         // okay, simply not allowed to see attribute
       }
     }

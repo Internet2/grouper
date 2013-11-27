@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -1164,6 +1165,9 @@ public class PrivilegeHelper {
       return true;
 
     } catch (InsufficientPrivilegeException e) {
+      //ignore, not allowed, dont add
+      return false;
+    } catch (AttributeDefNotFoundException e) {
       //ignore, not allowed, dont add
       return false;
     }

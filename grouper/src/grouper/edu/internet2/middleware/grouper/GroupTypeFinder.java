@@ -210,90 +210,96 @@ public class GroupTypeFinder {
    */
   public static void internal_updateKnownTypes() {
 
-    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    GrouperSession rootSession = GrouperSession.startRootSession(false);
 
-      /**
-       *
-       */
-      public Object callback(GrouperSession grouperSession)
-          throws GrouperSessionException {
-
-        Set<GroupType> typesInRegistry = new LinkedHashSet<GroupType>();
-        Set<AttributeDefName> legacyAttributesInRegistry = new LinkedHashSet<AttributeDefName>();
-
-        String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
-        String groupTypePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupType.prefix");
-        String attributePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attribute.prefix");
-
-        Stem stem = GrouperDAOFactory.getFactory().getStem().findByName(stemName, true);
-        Set<AttributeDefName> attributes = GrouperDAOFactory.getFactory().getAttributeDefName().findByStem(stem.getUuid());
-        for (AttributeDefName attribute : attributes) {
-          if (attribute.getExtension().startsWith(groupTypePrefix)) {
-            GroupType groupType = GroupType.internal_getGroupType(attribute, true);
-            typesInRegistry.add(groupType);
-            
-            // see if there are fields for this type.  if so, cache them.
-            String customListPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.customList.prefix");
-            AttributeDefName customList = AttributeDefNameFinder.findByName(stemName + ":" + customListPrefix + groupType.getName(), false);
-            if (customList != null) {
-              List<String> fieldIds = attribute.getAttributeDef().getAttributeValueDelegate().retrieveValuesString(customList.getName());
-              for (String fieldId : fieldIds) {
-                fieldIdToTypeId.put(fieldId, groupType.getUuid());
+    try {
+      GrouperSession.callbackGrouperSession(rootSession, new GrouperSessionHandler() {
+  
+        /**
+         *
+         */
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+  
+          Set<GroupType> typesInRegistry = new LinkedHashSet<GroupType>();
+          Set<AttributeDefName> legacyAttributesInRegistry = new LinkedHashSet<AttributeDefName>();
+  
+          String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+          String groupTypePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupType.prefix");
+          String attributePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attribute.prefix");
+  
+          Stem stem = GrouperDAOFactory.getFactory().getStem().findByName(stemName, true);
+          Set<AttributeDefName> attributes = GrouperDAOFactory.getFactory().getAttributeDefName().findByStem(stem.getUuid());
+          for (AttributeDefName attribute : attributes) {
+            if (attribute.getExtension().startsWith(groupTypePrefix)) {
+              GroupType groupType = GroupType.internal_getGroupType(attribute, true);
+              typesInRegistry.add(groupType);
+              
+              // see if there are fields for this type.  if so, cache them.
+              String customListPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.customList.prefix");
+              AttributeDefName customList = AttributeDefNameFinder.findByName(stemName + ":" + customListPrefix + groupType.getName(), false);
+              if (customList != null) {
+                List<String> fieldIds = attribute.getAttributeDef().getAttributeValueDelegate().retrieveValuesString(customList.getName());
+                for (String fieldId : fieldIds) {
+                  fieldIdToTypeId.put(fieldId, groupType.getUuid());
+                }
               }
+            } else if (attribute.getExtension().startsWith(attributePrefix)) {
+              legacyAttributesInRegistry.add(attribute);
             }
-          } else if (attribute.getExtension().startsWith(attributePrefix)) {
-            legacyAttributesInRegistry.add(attribute);
           }
-        }
-        
-        // Look for types to add
-        GroupType tA;
-        Iterator  addIter   = typesInRegistry.iterator();
-        while (addIter.hasNext()) {
-          tA = (GroupType) addIter.next();
-          if (!types.containsKey(tA.getName())) {
-            types.put(tA.getName(), tA); // New type.  Add it to the cached list.
+          
+          // Look for types to add
+          GroupType tA;
+          Iterator  addIter   = typesInRegistry.iterator();
+          while (addIter.hasNext()) {
+            tA = (GroupType) addIter.next();
+            if (!types.containsKey(tA.getName())) {
+              types.put(tA.getName(), tA); // New type.  Add it to the cached list.
+            }
           }
-        }
-        // Look for types to remove
-        Set       toDel   = new LinkedHashSet();
-        GroupType tD;
-        Iterator  delIter = types.values().iterator();
-        while (delIter.hasNext()) {
-          tD = (GroupType) delIter.next();
-          if (!typesInRegistry.contains(tD)) {
-            toDel.add(tD.getName());  
+          // Look for types to remove
+          Set       toDel   = new LinkedHashSet();
+          GroupType tD;
+          Iterator  delIter = types.values().iterator();
+          while (delIter.hasNext()) {
+            tD = (GroupType) delIter.next();
+            if (!typesInRegistry.contains(tD)) {
+              toDel.add(tD.getName());  
+            }
           }
-        }
-        String    type;
-        Iterator  toDelIter = toDel.iterator();
-        while (toDelIter.hasNext()) {
-          type = (String) toDelIter.next();
-          types.remove(type);  
-        }
-        
-        // Look for legacy attributes to add
-        for (AttributeDefName legacyAttribute : legacyAttributesInRegistry) {
-          if (!legacyAttributes.containsKey(legacyAttribute.getLegacyAttributeName(true))) {
-            legacyAttributes.put(legacyAttribute.getLegacyAttributeName(true), legacyAttribute);
+          String    type;
+          Iterator  toDelIter = toDel.iterator();
+          while (toDelIter.hasNext()) {
+            type = (String) toDelIter.next();
+            types.remove(type);  
           }
-        }
-        
-        // Look for legacy attributes to remove
-        Set<String> toDel2 = new LinkedHashSet<String>();
-        for (AttributeDefName legacyAttribute : legacyAttributes.values()) {
-          if (!legacyAttributesInRegistry.contains(legacyAttribute)) {
-            toDel2.add(legacyAttribute.getLegacyAttributeName(true));  
+          
+          // Look for legacy attributes to add
+          for (AttributeDefName legacyAttribute : legacyAttributesInRegistry) {
+            if (!legacyAttributes.containsKey(legacyAttribute.getLegacyAttributeName(true))) {
+              legacyAttributes.put(legacyAttribute.getLegacyAttributeName(true), legacyAttribute);
+            }
           }
+          
+          // Look for legacy attributes to remove
+          Set<String> toDel2 = new LinkedHashSet<String>();
+          for (AttributeDefName legacyAttribute : legacyAttributes.values()) {
+            if (!legacyAttributesInRegistry.contains(legacyAttribute)) {
+              toDel2.add(legacyAttribute.getLegacyAttributeName(true));  
+            }
+          }
+          
+          for (String legacyAttributeName : toDel2) {
+            legacyAttributes.remove(legacyAttributeName);  
+          }
+          
+          return null;
         }
-        
-        for (String legacyAttributeName : toDel2) {
-          legacyAttributes.remove(legacyAttributeName);  
-        }
-        
-        return null;
-      }
-    });
+      });
+    } finally {
+      GrouperSession.stopQuietly(rootSession);
+    }
   } // protected static void internal_updateKnownTypes()
 
   /**
