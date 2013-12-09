@@ -11436,4 +11436,50 @@ public class GrouperUtil {
     return executorService;
   }
 
+  
+  /**
+   * concat two strings
+   * @param a
+   * @param b
+   * @return the concatted string
+   */
+  public static String concat(String a, String b) {
+    return a+b;
+  }
+  
+  /**
+   * concat strings
+   * @param a
+   * @param b
+   * @param c
+   * @return the concatted string
+   */
+  public static String concat(String a, String b, String c) {
+    return a+b+c;
+  }
+  
+  /**
+   * concat strings
+   * @param a
+   * @param b
+   * @param c
+   * @param d
+   * @return the concatted string
+   */
+  public static String concat(String a, String b, String c, String d) {
+    return a+b+c+d;
+  }
+  
+  /**
+   * concat strings
+   * @param a
+   * @param b
+   * @param c
+   * @param d
+   * @return the concatted string
+   */
+  public static String concat(String a, String b, String c, String d, String e) {
+    return a+b+c+d+e;
+  }
+
 }

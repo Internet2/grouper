@@ -81,7 +81,36 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * @version $Id: MembershipFinder.java,v 1.108 2009-12-17 06:57:57 mchyzer Exp $
  */
 public class MembershipFinder {
-  
+
+  /**
+   * return memberships where the member has this field, note, it will return all the memberships for those members
+   */
+  private boolean hasMembershipTypeForMember;
+
+  /**
+   * return memberships where the member has this field, note, it will return all the memberships for those members
+   * @param theHasMembershipType
+   * @return this for chaining
+   */
+  public MembershipFinder assignHasMembershipTypeForMember(boolean theHasMembershipType) {
+    this.hasMembershipTypeForMember = theHasMembershipType;
+    return this;
+  }
+
+  /** 
+   * return memberships where the member has this field, note, it will return all the memberships for those members 
+   */
+  private boolean hasFieldForMember;
+
+  /**
+   * return memberships where the member has this field, note, it will return all the memberships for those members 
+   * @param theHasField
+   * @return this for chaining
+   */
+  public MembershipFinder assignHasFieldForMember(boolean theHasField) {
+    this.hasFieldForMember = theHasField;
+    return this;
+  }
 
   /** membership ids to search for */
   private Collection<String> membershipIds;
@@ -111,6 +140,17 @@ public class MembershipFinder {
    * @return this for chaining
    */
   public MembershipFinder assignField(Field theField) {
+    this.field = theField;
+    return this;
+  }
+  
+  /**
+   * assign a field to filter by
+   * @param theField
+   * @return this for chaining
+   */
+  public MembershipFinder assignFieldName(String theFieldName) {
+    Field theField = FieldFinder.find(theFieldName, true);
     this.field = theField;
     return this;
   }
@@ -433,9 +473,9 @@ public class MembershipFinder {
    */
   public MembershipResult findMembershipResult() {
     
-    Set<Object[]> membershipsGroupsMembers = this.findMembershipsGroupsMembers();
+    Set<Object[]> membershipsOwnersMembers = this.findMembershipsMembers();
     String theFieldId = this.field == null ? null : this.field.getUuid();
-    return new MembershipResult(membershipsGroupsMembers, theFieldId);
+    return new MembershipResult(membershipsOwnersMembers, theFieldId);
   }
   
   /**
@@ -489,10 +529,15 @@ public class MembershipFinder {
           + " involve group memberships");
     }
 
-    return edu.internet2.middleware.grouper.MembershipFinder.findMemberships(this.groupIds, this.memberIds, 
+    return GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(this.groupIds, this.memberIds,
         this.membershipIds, this.membershipType, this.field, this.sources, this.scope, this.stem, this.stemScope, 
-        this.enabled, this.checkSecurity, this.fieldType, this.serviceId, this.serviceRole);
-    
+        this.enabled, this.checkSecurity, this.fieldType, this.serviceId, this.serviceRole,
+        this.queryOptionsForMember, this.scopeForMember, this.splitScopeForMember, 
+        this.hasFieldForMember, this.hasMembershipTypeForMember);  
+
+
+
+
   }
 
   /**
@@ -523,9 +568,12 @@ public class MembershipFinder {
           + " involve stem memberships");
     }
 
-    return edu.internet2.middleware.grouper.MembershipFinder.findStemMemberships(this.stemIds, this.memberIds, 
-        this.membershipIds, this.membershipType, this.field, this.sources, this.scope, this.stem, this.stemScope, this.enabled, this.checkSecurity);
-    
+    return GrouperDAOFactory.getFactory().getMembership().findAllByStemOwnerOptions(this.stemIds, this.memberIds,
+        this.membershipIds, this.membershipType, this.field, this.sources, 
+        this.scope, this.stem, this.stemScope, this.enabled, this.checkSecurity, 
+        this.queryOptionsForMember, this.scopeForMember, this.splitScopeForMember, 
+        this.hasFieldForMember, this.hasMembershipTypeForMember);  
+
   }
 
   /**
@@ -1520,6 +1568,51 @@ public class MembershipFinder {
   } // public static Set internal_findMembersByType(s, g, f, type)
 
   /**
+   * query options for member.  must include paging.  if sorting then sort by member
+   */
+  private QueryOptions queryOptionsForMember;
+
+  /**
+   * if paging for member, then also filter for member
+   */
+  private String scopeForMember;
+
+  /**
+   * if paging for member, then also filter for member
+   * @param theFilterForMember
+   * @return this for chaining
+   */
+  public MembershipFinder assignScopeForMember(String theFilterForMember) {
+    this.scopeForMember = theFilterForMember;
+    return this;
+  }
+  
+  /**
+   * if the scope for member has spaces in it, then split by whitespace, and find results that contain all of the scope strings
+   */
+  private boolean splitScopeForMember;
+
+  /**
+   * if the scope for member has spaces in it, then split by whitespace, and find results that contain all of the scope strings
+   * @param theSplitScopeForMember
+   * @return if splitting scope for member
+   */
+  public MembershipFinder assignSplitScopeForMember(boolean theSplitScopeForMember) {
+    this.splitScopeForMember = theSplitScopeForMember;
+    return this;
+  }
+
+  /**
+   * 
+   * @param theQueryOptions
+   * @return
+   */
+  public MembershipFinder assignQueryOptionsForMember(QueryOptions theQueryOptions) {
+    this.queryOptionsForMember = theQueryOptions;
+    return this;
+  }
+  
+  /**
    * 
    * @param s
    * @param d
@@ -1527,7 +1620,7 @@ public class MembershipFinder {
    * @return set of memberships
    * @throws QueryException
    */
-  public static Set<Membership> internal_findAllByCreatedAfter(@SuppressWarnings("unused") GrouperSession s, Date d, Field f) 
+  public static Set<Membership> internal_findAllByCreatedAfter(GrouperSession s, Date d, Field f) 
     throws QueryException 
   {
     //note, no need for GrouperSession inverse of control

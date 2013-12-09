@@ -55,6 +55,27 @@ public class CommonRequestContainer {
   }
 
   /**
+   * if link should be shown
+   */
+  private boolean showLink = false;
+
+  /**
+   * if should show a link
+   * @return if link
+   */
+  public boolean isShowLink() {
+    return this.showLink;
+  }
+
+  /**
+   * if should show link
+   * @param showLink1
+   */
+  public void setShowLink(boolean showLink1) {
+    this.showLink = showLink1;
+  }
+
+  /**
    * if tooltip should be shown
    */
   private boolean showTooltip = false;

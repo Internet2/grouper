@@ -762,7 +762,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
                 }
               }
             }
-                        
+            
             {
               //grouper_group_set.creator_id
               Set<GroupSet> groupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByCreator(Member.this);
@@ -1668,6 +1668,14 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     return this.memberUUID;
   }
 
+  /**
+   * get a members id
+   * @return the id
+   */
+  public String getId() {
+    return this.getUuid();
+  }
+  
   /**
    * Get groups where this member has the ADMIN privilege.
    * <pre class="eg">

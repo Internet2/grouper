@@ -41,6 +41,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.AppState;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSettings;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.InviteExternalSubjects;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.MiscMenu;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleAttributeNameUpdateFilter;
@@ -150,6 +151,9 @@ public class GrouperUiRestServlet extends HttpServlet {
     
     RequestContainer.retrieveFromRequest().setAjaxRequest(true);
     
+    //initialize the bean
+    GrouperRequestContainer.retrieveFromRequestOrCreate();
+
     List<String> urlStrings = extractUrlStrings(request);
     
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();

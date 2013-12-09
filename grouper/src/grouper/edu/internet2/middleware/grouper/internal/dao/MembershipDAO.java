@@ -526,7 +526,7 @@ TODO update for 1.5
 
 
   /**
-   * find membershpis by group owner and other options.  
+   * find memberships by group owner and other options.  
    * @param groupIds to limit memberships to
    * @param memberIds to limit memberships to
    * @param membershipIds to limit memberships to
@@ -548,6 +548,36 @@ TODO update for 1.5
       FieldType fieldType,
       String serviceId, ServiceRole serviceRole);
   
+  /**
+   * find memberships by group owner and other options.  
+   * @param groupIds to limit memberships to
+   * @param memberIds to limit memberships to
+   * @param membershipIds to limit memberships to
+   * @param membershipType Immediate, NonImmediate, etc
+   * @param field if finding one field, list here, otherwise all list fields will be returned
+   * @param sources if limiting memberships of members in certain sources, list here
+   * @param scope sql like string which will have a % appended to it
+   * @param stem if looking in a certain stem
+   * @param stemScope if looking only in this stem, or all substems
+   * @param enabled null for all, true for enabled only, false for disabled only
+   * @param shouldCheckSecurity if we should check security, default to true
+   * @param fieldType field type of of memberships
+   * @param queryOptionsForMember query options for member.  must include paging.  if sorting then sort by member
+   * @param filterForMember if paging for member, then also filter for member 
+   * @param splitScopeForMember if the scope for member has spaces in it, then split by whitespace, and find results that contain all of the scope strings
+   * @param hasFieldForMember return memberships where the member has this field, note, it will return all the memberships for those members
+   * @param hasMembershipTypeForMember return memberships where the member has this field, note, it will return all the memberships for those members
+   * @return a set of membership, group, and member objects
+   * @since v2.2
+   */
+  public Set<Object[]> findAllByGroupOwnerOptions(Collection<String> groupIds, Collection<String> memberIds,
+      Collection<String> membershipIds, MembershipType membershipType,
+      Field field,  
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean shouldCheckSecurity, 
+      FieldType fieldType,
+      String serviceId, ServiceRole serviceRole, QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, 
+      boolean hasFieldForMember, boolean hasMembershipTypeForMember);
+
   
   /**
    * find membershpis by group owner and other options.  
@@ -1098,6 +1128,34 @@ TODO update for 1.5
       Collection<String> membershipIds, MembershipType membershipType,
       Field field,  
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean shouldCheckSecurity);
+
+  /**
+   * find memberships by stem owner and other options.  
+   * @param stemIds to limit memberships to
+   * @param memberIds to limit memberships to
+   * @param membershipIds to limit memberships to
+   * @param membershipType Immediate, NonImmediate, etc
+   * @param field if finding one field, list here, otherwise all list fields will be returned
+   * @param sources if limiting memberships of members in certain sources, list here
+   * @param scope sql like string which will have a % appended to it
+   * @param stem if looking in a certain stem
+   * @param stemScope if looking only in this stem, or all substems
+   * @param enabled null for all, true for enabled only, false for disabled only
+   * @param shouldCheckSecurity if we should check security, default to true
+   * @param queryOptionsForMember query options for member.  must include paging.  if sorting then sort by member
+   * @param filterForMember if paging for member, then also filter for member 
+   * @param splitScopeForMember if the scope for member has spaces in it, then split by whitespace, and find results that contain all of the scope strings
+   * @param hasFieldForMember return memberships where the member has this field, note, it will return all the memberships for those members
+   * @param hasMembershipTypeForMember return memberships where the member has this field, note, it will return all the memberships for those members
+   * @return a set of membership, stem, and member objects
+   * @since v2.2
+   */
+  public Set<Object[]> findAllByStemOwnerOptions(Collection<String> stemIds, Collection<String> memberIds,
+      Collection<String> membershipIds, MembershipType membershipType,
+      Field field,  
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean shouldCheckSecurity,
+      QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, 
+      boolean hasFieldForMember, boolean hasMembershipTypeForMember);
 
   /**
    * find memberships by stem owner and other options.  

@@ -487,7 +487,7 @@ public class GrouperUserDataApi {
     UserDataList userDataList = groupUserDataType.retrieve(userDataGroupName, subject);
 
     //convert to groups
-    Set<Group> groups = null;
+    Set<Group> groups = new LinkedHashSet<Group>();
 
     if (userDataList != null) {
 
@@ -501,21 +501,24 @@ public class GrouperUserDataApi {
 
       }
 
-      //these are the ones the user is allowed to see
-      GrouperSession userSession = GrouperSession.start(subject, false);
-
-      try {
-        groups = (Set<Group>)GrouperSession.callbackGrouperSession(userSession, new GrouperSessionHandler() {
-
-          @Override
-          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-
-            return GrouperDAOFactory.getFactory().getGroup().findByUuidsSecure(uuids, null, TypeOfGroup.GROUP_OR_ROLE_SET);
-
-          }
-        });
-      } finally {
-        GrouperSession.stopQuietly(userSession);
+      if (uuids.size() > 0) {
+      
+        //these are the ones the user is allowed to see
+        GrouperSession userSession = GrouperSession.start(subject, false);
+  
+        try {
+          groups = (Set<Group>)GrouperSession.callbackGrouperSession(userSession, new GrouperSessionHandler() {
+  
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+  
+              return GrouperDAOFactory.getFactory().getGroup().findByUuidsSecure(uuids, null, TypeOfGroup.GROUP_OR_ROLE_SET);
+  
+            }
+          });
+        } finally {
+          GrouperSession.stopQuietly(userSession);
+        }
       }
       
       //remove the not allowed ones?
@@ -996,7 +999,7 @@ public class GrouperUserDataApi {
     UserDataList userDataList = attributeDefUserDataType.retrieve(userDataGroupName, subject);
     
     //convert to groups
-    Set<AttributeDef> attributeDefs = null;
+    Set<AttributeDef> attributeDefs = new LinkedHashSet<AttributeDef>();
   
     if (userDataList != null) {
   
@@ -1009,22 +1012,24 @@ public class GrouperUserDataApi {
         uuids.add(uuid);
   
       }
-  
-      //these are the ones the user is allowed to see
-      GrouperSession userSession = GrouperSession.start(subject, false);
-  
-      try {
-        attributeDefs = (Set<AttributeDef>)GrouperSession.callbackGrouperSession(userSession, new GrouperSessionHandler() {
-  
-          @Override
-          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-  
-            return GrouperDAOFactory.getFactory().getAttributeDef().findByIdsSecure(uuids, null);
-  
-          }
-        });
-      } finally {
-        GrouperSession.stopQuietly(userSession);
+      
+      if (uuids.size() > 0) {
+        //these are the ones the user is allowed to see
+        GrouperSession userSession = GrouperSession.start(subject, false);
+    
+        try {
+          attributeDefs = (Set<AttributeDef>)GrouperSession.callbackGrouperSession(userSession, new GrouperSessionHandler() {
+    
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+    
+              return GrouperDAOFactory.getFactory().getAttributeDef().findByIdsSecure(uuids, null);
+    
+            }
+          });
+        } finally {
+          GrouperSession.stopQuietly(userSession);
+        }
       }
       
       //remove the not allowed ones?
@@ -1134,8 +1139,8 @@ public class GrouperUserDataApi {
     UserDataList userDataList = attributeDefNameUserDataType.retrieve(userDataGroupName, subject);
     
     //convert to groups
-    Set<AttributeDefName> attributeDefNames = null;
-  
+    Set<AttributeDefName> attributeDefNames = new LinkedHashSet<AttributeDefName>();
+
     if (userDataList != null) {
   
       final Set<String> uuids = new LinkedHashSet<String>();
@@ -1147,22 +1152,24 @@ public class GrouperUserDataApi {
         uuids.add(uuid);
   
       }
-  
-      //these are the ones the user is allowed to see
-      GrouperSession userSession = GrouperSession.start(subject, false);
-  
-      try {
-        attributeDefNames = (Set<AttributeDefName>)GrouperSession.callbackGrouperSession(userSession, new GrouperSessionHandler() {
-  
-          @Override
-          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-  
-            return GrouperDAOFactory.getFactory().getAttributeDefName().findByIdsSecure(uuids, null);
-  
-          }
-        });
-      } finally {
-        GrouperSession.stopQuietly(userSession);
+
+      if (uuids.size() > 0) {
+        //these are the ones the user is allowed to see
+        GrouperSession userSession = GrouperSession.start(subject, false);
+    
+        try {
+          attributeDefNames = (Set<AttributeDefName>)GrouperSession.callbackGrouperSession(userSession, new GrouperSessionHandler() {
+    
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+    
+              return GrouperDAOFactory.getFactory().getAttributeDefName().findByIdsSecure(uuids, null);
+    
+            }
+          });
+        } finally {
+          GrouperSession.stopQuietly(userSession);
+        }
       }
       
       //remove the not allowed ones?
@@ -1320,7 +1327,7 @@ public class GrouperUserDataApi {
     UserDataList userDataList = stemDataType.retrieve(userDataGroupName, subject);
     
     //convert to stems
-    Set<Stem> stems = null;
+    Set<Stem> stems = new LinkedHashSet<Stem>();
   
     if (userDataList != null) {
   
@@ -1333,22 +1340,26 @@ public class GrouperUserDataApi {
         uuids.add(uuid);
   
       }
-  
-      //these are the ones the user is allowed to see
-      GrouperSession userSession = GrouperSession.start(subject, false);
-  
-      try {
-        stems = (Set<Stem>)GrouperSession.callbackGrouperSession(userSession, new GrouperSessionHandler() {
-  
-          @Override
-          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-  
-            return GrouperDAOFactory.getFactory().getStem().findByUuids(uuids, null);
-  
-          }
-        });
-      } finally {
-        GrouperSession.stopQuietly(userSession);
+      
+      if (uuids.size() > 0) {
+      
+        //these are the ones the user is allowed to see
+        GrouperSession userSession = GrouperSession.start(subject, false);
+    
+        try {
+          stems = (Set<Stem>)GrouperSession.callbackGrouperSession(userSession, new GrouperSessionHandler() {
+    
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+    
+              return GrouperDAOFactory.getFactory().getStem().findByUuids(uuids, null);
+    
+            }
+          });
+        } finally {
+          GrouperSession.stopQuietly(userSession);
+        }
+
       }
       
       //remove the not allowed ones?
@@ -1498,7 +1509,7 @@ public class GrouperUserDataApi {
     UserDataList userDataList = memberUserDataType.retrieve(userDataGroupName, subject);
     
     //convert to subjects
-    Set<Member> members = null;
+    Set<Member> members = new LinkedHashSet<Member>();
   
     if (userDataList != null) {
   
@@ -1511,22 +1522,24 @@ public class GrouperUserDataApi {
         uuids.add(uuid);
 
       }
-
-      //these are the ones the user is allowed to see
-      GrouperSession userSession = GrouperSession.start(subject, false);
-  
-      try {
-        members = (Set<Member>)GrouperSession.callbackGrouperSession(userSession, new GrouperSessionHandler() {
-  
-          @Override
-          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-  
-            return GrouperDAOFactory.getFactory().getMember().findByIds(uuids, null);
-  
-          }
-        });
-      } finally {
-        GrouperSession.stopQuietly(userSession);
+      
+      if (uuids.size() > 0) {
+        //these are the ones the user is allowed to see
+        GrouperSession userSession = GrouperSession.start(subject, false);
+    
+        try {
+          members = (Set<Member>)GrouperSession.callbackGrouperSession(userSession, new GrouperSessionHandler() {
+    
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+    
+              return GrouperDAOFactory.getFactory().getMember().findByIds(uuids, null);
+    
+            }
+          });
+        } finally {
+          GrouperSession.stopQuietly(userSession);
+        }
       }
       
       //remove the not allowed ones?

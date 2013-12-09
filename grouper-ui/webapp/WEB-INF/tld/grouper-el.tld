@@ -66,6 +66,84 @@
     </attribute>
 
   </tag>
+
+  <tag>
+    <description>
+      Creates a dojo combobox
+    </description>
+    <name>combobox2</name>
+    <tag-class>edu.internet2.middleware.grouper.ui.tags.GrouperComboboxTag2</tag-class>
+    <body-content>empty</body-content>
+    <attribute>
+      <description>
+        id and class of elements, and name of combobox. Make this unique in page.
+        e.g. personPicker.  The id of the tag will be personPickerId, name will be
+        personPickerName.  Will generate a QueryReadStore too... 
+        </description>
+      <name>idBase</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        style, could include the width of the textfield
+        </description>
+      <name>style</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        class to use when drawing the control.  default is claro.  should be a dojo class theme, e.g.  claro, tundra, nihilo and soria
+        </description>
+      <name>classCss</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        if there should be a down arrow to click.  Default to false.  Generally this is useful only for 
+        combos with less then a few hundred options
+        </description>
+      <name>hasDownArrow</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        search delay in ms defaults to 500
+        </description>
+      <name>searchDelay</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        the operation to call when filtering, relative to this page url to call
+        </description>
+      <name>filterOperation</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        the default value (will be submitted) which should appear in the combo box when drawn.  Will lookup the label via ajax
+        </description>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        send more form element names to the filter operation, comma separated
+        </description>
+      <name>additionalFormElementNames</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+
+  </tag>
+
   
   <tag>
     <description>
@@ -512,6 +590,18 @@
     <function-signature>String abbreviate(java.lang.String, int, boolean, boolean)</function-signature>
     <example>
       ${grouper:abbreviate(something.somewhere, 20, true, true)}
+    </example>
+  </function>
+  <function>
+    <description>
+      concat two strings
+    </description>
+    <name>concat2</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>String concat2(java.lang.Object, java.lang.Object)</function-signature>
+    <example>
+      ${grouper:concat2(something.somewhere, 20)}
     </example>
   </function>
   <function>

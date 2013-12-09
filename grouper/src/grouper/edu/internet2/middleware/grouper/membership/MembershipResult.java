@@ -76,22 +76,73 @@ public class MembershipResult {
   }
   
   /**
+   * original output of the query
+   */
+  private Set<Object[]> membershipsOwnersMembers;
+  
+  /**
+   * original output of query
+   * @return result
+   */
+  public Set<Object[]> getMembershipsOwnersMembers() {
+    return this.membershipsOwnersMembers;
+  }
+
+  /**
+   * lazy load the calculation of reach subject/member and how they relate to the result set
+   */
+  private Set<MembershipSubjectContainer> membershipSubjectContainers;
+  
+  /**
+   * lazy load the calculation of reach subject/member and how they relate to the result set
+   * @return lazy load the calculations
+   */
+  public Set<MembershipSubjectContainer> getMembershipSubjectContainers() {
+    if (this.membershipSubjectContainers == null) {
+      
+      //only do this for one owner
+      if (GrouperUtil.length(this.groups) > 1 || GrouperUtil.length(this.stems) > 1) {
+        throw new RuntimeException("Cant have membership subject containers for more than one owner: " 
+            + GrouperUtil.length(this.groups) + ", " + GrouperUtil.length(this.stems));
+      }
+
+      this.membershipSubjectContainers = MembershipSubjectContainer.convertFromMembershipsOwnersMembers(this.membershipsOwnersMembers);
+      
+    }
+    return this.membershipSubjectContainers;
+  }
+
+  
+  
+  /**
    * 
    * @param theMembershipsGroupsMembers is the list of arrays of membership, group, member
    * @param theFieldId is null for members, or specify if something else
    */
   public MembershipResult(Set<Object[]> theMembershipsGroupsMembers, String theFieldId) {
+    
+    this.membershipsOwnersMembers = theMembershipsGroupsMembers;
+    
     this.memberships = new HashSet<Membership>();
     this.groups = new HashMap<String, Group>();
+    this.stems = new HashMap<String, Stem>();
     this.members = new HashMap<String, Member>();
     this.fieldId = StringUtils.defaultString(theFieldId, defaultListFieldId());
 
     //separate out all the results
     for (Object[] theMembershipGroupMember : GrouperUtil.nonNull(theMembershipsGroupsMembers)) {
       this.memberships.add((Membership)theMembershipGroupMember[0]);
-      this.groups.put(((Group)theMembershipGroupMember[1]).getId(),(Group)theMembershipGroupMember[1]) ;
+      if (theMembershipGroupMember[1] instanceof Group) {
+        this.groups.put(((Group)theMembershipGroupMember[1]).getId(),(Group)theMembershipGroupMember[1]) ;
+      } else if (theMembershipGroupMember[1] instanceof Stem) {
+        this.stems.put(((Stem)theMembershipGroupMember[1]).getId(),(Stem)theMembershipGroupMember[1]) ;
+      } else {
+        throw new RuntimeException("Not expecting owner type: " + theMembershipGroupMember[1].getClass());
+      }
       this.members.put(((Member)theMembershipGroupMember[2]).getUuid(),(Member)theMembershipGroupMember[2]) ;
     }
+
+    
     
   }
 

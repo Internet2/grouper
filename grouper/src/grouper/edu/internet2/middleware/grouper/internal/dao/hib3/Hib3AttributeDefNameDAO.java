@@ -92,7 +92,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
     }
     return attributeDefName;
   }
-  
+
   /**
    * 
    * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO#findById(java.lang.String, boolean)
@@ -437,11 +437,17 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
     }
   
     Member member = subject == null ? null : MemberFinder.findBySubject(grouperSession, subject, true);
-    
+
     StringBuilder sql = new StringBuilder(
         "select distinct theAttributeDefName from AttributeDefName theAttributeDefName, AttributeDef theAttributeDef ");
 
     if (serviceRole != null || anyServiceRole) {
+      
+      if (attributeDefType != null && attributeDefType != AttributeDefType.service) {
+        throw new RuntimeException("You cant look for services and not have AttributeDefType of service: " + attributeDefType);
+      }
+      //CH not sure this is needed
+      //attributeDefType = AttributeDefType.service;
       sql.append(", ServiceRoleView theServiceRoleView ");
     }
 
@@ -849,7 +855,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       Scope stemScope) {
     return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, 
         subject, privileges, queryOptions, splitScope, attributeAssignType, attributeDefType,
-        null, false, parentStemId, stemScope);
+        serviceRole, anyServiceRole, parentStemId, stemScope);
   
   }
 

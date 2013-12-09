@@ -56,8 +56,10 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -69,6 +71,7 @@ import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.member.SearchStringEnum;
 import edu.internet2.middleware.grouper.member.SortStringEnum;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -530,8 +533,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       Field field,  
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean checkSecurity) {
     
-    return findAllByGroupOwnerOptions(totalGroupIds, totalMemberIds, totalMembershipIds, membershipType, field, sources, 
-        scope, stem, stemScope, enabled, checkSecurity, null, null, null);
+    return findAllByGroupOwnerOptionsHelper(totalGroupIds, totalMemberIds, totalMembershipIds, membershipType, field, sources, 
+        scope, stem, stemScope, enabled, checkSecurity, null, null, null, null, null, false, false, false);
   }
 
   /**
@@ -545,11 +548,11 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean checkSecurity, 
       FieldType fieldType) {
     
-    return findAllByGroupOwnerOptions(totalGroupIds, totalMemberIds, totalMembershipIds, membershipType, field, sources, 
-        scope, stem, stemScope, enabled, checkSecurity, fieldType, null, null);
+    return findAllByGroupOwnerOptionsHelper(totalGroupIds, totalMemberIds, totalMembershipIds, membershipType, field, sources, 
+        scope, stem, stemScope, enabled, checkSecurity, fieldType, null, null, null, null, false, false, false);
     
   }
-    
+
   /**
    * 
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean, Boolean)
@@ -560,6 +563,41 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       Field field,  
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean checkSecurity, FieldType fieldType,
       String serviceId, ServiceRole serviceRole) {
+    
+    return findAllByGroupOwnerOptionsHelper(totalGroupIds, totalMemberIds,
+        totalMembershipIds, membershipType,
+        field, sources, scope, stem, stemScope, enabled, checkSecurity, fieldType,
+        serviceId, serviceRole, null, null, false, false, false);
+    
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean, Boolean, QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, boolean hasFieldForMember, boolean hasMembershipTypeForMember)
+   */
+  public Set<Object[]> findAllByGroupOwnerOptions(Collection<String> totalGroupIds, Collection<String> totalMemberIds,
+      Collection<String> totalMembershipIds, MembershipType membershipType,
+      Field field,  
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean checkSecurity, FieldType fieldType,
+      String serviceId, ServiceRole serviceRole, QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, 
+      boolean hasFieldForMember, boolean hasMembershipTypeForMember) {
+    return findAllByGroupOwnerOptionsHelper(totalGroupIds, totalMemberIds,
+        totalMembershipIds, membershipType,
+        field, sources, scope, stem, stemScope, enabled, checkSecurity, fieldType,
+        serviceId, serviceRole, queryOptionsForMember, filterForMember, splitScopeForMember, 
+        hasFieldForMember, hasMembershipTypeForMember);
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean, Boolean, QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, boolean hasFieldForMember, boolean hasMembershipTypeForMember)
+   */
+  private Set<Object[]> findAllByGroupOwnerOptionsHelper(Collection<String> totalGroupIds, Collection<String> totalMemberIds,
+      Collection<String> totalMembershipIds, MembershipType membershipType,
+      Field field,  
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean checkSecurity, FieldType fieldType,
+      String serviceId, ServiceRole serviceRole, QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, 
+      boolean hasFieldForMember, boolean hasMembershipTypeForMember) {
     
     if (checkSecurity == null) {
       checkSecurity = Boolean.TRUE;
@@ -573,16 +611,44 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       throw new RuntimeException("If serviceId is set, then serviceRole needs to be set, and vice versa");
     }
     
-    List<String> totalGroupIdsList = GrouperUtil.listFromCollection(totalGroupIds);
+    final List<String> totalGroupIdsList = GrouperUtil.listFromCollection(totalGroupIds);
     List<String> totalMemberIdsList = GrouperUtil.listFromCollection(totalMemberIds);
     List<String> totalMembershipIdsList = GrouperUtil.listFromCollection(totalMembershipIds);
     
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     
-    Subject grouperSessionSubject = grouperSession.getSubject();
+    final Subject grouperSessionSubject = grouperSession.getSubject();
 
     Set<Object[]> totalResults = new HashSet<Object[]>();
     
+    //just check security on one stem to help performance
+    if (checkSecurity && GrouperUtil.length(totalGroupIds) == 1) {
+      boolean allowed = (Boolean)GrouperSession.callbackGrouperSession(
+          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+
+        /**
+         * 
+         */
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          Group theGroup = GroupFinder.findByUuid(theGrouperSession, totalGroupIdsList.get(0), false);
+          if (theGroup == null) {
+            return false;
+          }
+          return theGroup.hasAdmin(grouperSessionSubject);
+        }
+      });
+
+      //if there is one stem, and checking security, and the user is not allowed to STEM it, then no results
+      if (!allowed) {
+        return totalResults;
+      }
+
+      //we dont need to check security if there is one stem and allowed on that stem
+      checkSecurity = false;
+
+    }
+
     int groupBatches = GrouperUtil.batchNumberOfBatches(totalGroupIds, 100);
 
     for (int groupIndex = 0; groupIndex < groupBatches; groupIndex++) {
@@ -614,6 +680,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           
           //note: mysql wont let you do count distinct of multiple columns
           String countPrefix = "select count(*) ";
+
+          String memberPrefix = "select distinct m ";
           
           StringBuilder sql = new StringBuilder(" from Member m, MembershipEntry ms, Group g ");
           
@@ -737,11 +805,139 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             sql.append(") ");
           }
           
+          if (!StringUtils.isBlank(filterForMember)) {
+
+            filterForMember = filterForMember.toLowerCase();
+
+            String[] filtersForMember = splitScopeForMember ? GrouperUtil.splitTrim(filterForMember, " ") 
+                : new String[]{filterForMember};
+
+            if (sql.length() > 0) {
+              sql.append(" and ");
+            }
+            sql.append(" ( ");
+
+            int index = 0;
+            
+            String searchFieldName = SearchStringEnum.getDefaultSearchString().getFieldName();
+
+            for (String theFilter : filtersForMember) {
+              if (index != 0) {
+                sql.append(" and ");
+              }
+              sql.append(" ( m." + searchFieldName + " like :filterString" + index + " ) ");
+
+              if (!theFilter.endsWith("%")) {
+                theFilter += "%";
+              }
+              if (!theFilter.startsWith("%")) {
+                theFilter = "%" + theFilter;
+              }
+              byHqlStatic.setString("filterString" + index, theFilter);
+              index++;
+            }
+            sql.append(" ) ");
+          }
+
           byHqlStatic
             .setCacheable(false)
             .setCacheRegion(KLASS);
 
           int maxMemberships = GrouperConfig.retrieveConfig().propertyValueInt("ws.getMemberships.maxResultSize", 30000);
+
+          boolean pageMembers = queryOptionsForMember != null;
+          
+          if (pageMembers) {
+
+            if (queryOptionsForMember.getQueryPaging() == null) {
+              throw new RuntimeException("If paging by member, then paging must be set in the query options");
+            }
+
+            //cant page too much...
+            if (queryOptionsForMember.getQueryPaging().getPageSize() > 500) {
+              throw new RuntimeException("Cant get a page size greater then 500! " 
+                  + queryOptionsForMember.getQueryPaging().getPageSize());
+            }
+
+            if (groupBatches > 1) {
+              throw new RuntimeException("Cant have more than 1 groupBatch if paging members");
+            }
+            
+            if (memberBatches > 1) {
+              throw new RuntimeException("Cant have more than 1 memberBatch if paging members");
+            }
+            
+            if (membershipBatches > 1) {
+              throw new RuntimeException("Cant have more than 1 membershipBatch if paging members");
+            }
+            
+          }
+
+          if (!StringUtils.isBlank(filterForMember) && !pageMembers) {
+            throw new RuntimeException("If you are filtering by member, then you must page members");
+          }
+
+          //if -1, lets not check
+          if (maxMemberships >= 0 && !pageMembers) {
+  
+            long size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
+            
+            //see if too many
+            if (size > maxMemberships) {
+              throw new RuntimeException("Too many results: " + size);
+            }
+            
+          }
+
+          //if paging by members, get the members, then do the same query using those members...
+          if (pageMembers) {
+            
+            //sort by default search string if not specified
+            if (queryOptionsForMember.getQuerySort() == null) {
+              queryOptionsForMember.sortAsc("m." + SortStringEnum.getDefaultSortString().getFieldName());
+            }
+
+            byHqlStatic.options(queryOptionsForMember);
+   
+            Set<Member> members = byHqlStatic.createQuery(memberPrefix + sql.toString()).listSet(Member.class);
+
+            //no need to do another query if no members
+            if (GrouperUtil.length(members) == 0) {
+              return totalResults;
+            }
+            
+            Set<String> theMemberIds = new LinkedHashSet<String>();
+            
+            for (Member member : members) {
+              theMemberIds.add(member.getUuid());
+            }
+            
+            //dont pass for people with membership type or field... we already filtered by that...
+            Set<Object[]> tempResults = findAllByGroupOwnerOptionsHelper(totalGroupIds, theMemberIds,
+                totalMembershipIds, hasMembershipTypeForMember ? null : membershipType, hasFieldForMember ? null : field,  
+                sources, scope, stem, stemScope, enabled, checkSecurity, fieldType, null, null, null, null, false, false, false);
+            
+            //lets sort these by member
+            Set<Object[]> sortedResults = new LinkedHashSet<Object[]>();
+            
+            for (Member member : members) {
+              Iterator<Object[]> iterator = tempResults.iterator();
+              while(iterator.hasNext()) {
+                
+                Object[] tempResult = iterator.next();
+                //if the member is the same, put it in the sortedResults, and remove
+                if (StringUtils.equals(((Member)tempResult[2]).getUuid(), member.getUuid())) {
+                  
+                  sortedResults.add(tempResult);
+                  iterator.remove();
+                  
+                }
+              }
+            }
+            return sortedResults;
+            
+          }
+
           
           //if -1, lets not check
           if (maxMemberships >= 0) {
@@ -3168,41 +3364,103 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       Collection<String> totalMembershipIds, MembershipType membershipType,
       Field field,  
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean checkSecurity) {
+    return findAllByStemOwnerOptionsHelper(totalStemIds, totalMemberIds, totalMembershipIds, membershipType, field, 
+        sources, scope, stem, stemScope, enabled, checkSecurity, null, null, false, false, false);
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByStemOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean, Boolean, QueryOptions, String, boolean, Field, MembershipType)
+   */
+  public Set<Object[]> findAllByStemOwnerOptions(Collection<String> totalStemIds, Collection<String> totalMemberIds,
+      Collection<String> totalMembershipIds, MembershipType membershipType,
+      Field field,  
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean checkSecurity, 
+      QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, 
+      boolean hasFieldForMember, boolean hasMembershipTypeForMember) {
+
+    return findAllByStemOwnerOptionsHelper(totalStemIds, totalMemberIds, totalMembershipIds, membershipType, field, 
+        sources, scope, stem, stemScope, enabled, checkSecurity, queryOptionsForMember, filterForMember, splitScopeForMember,
+        hasFieldForMember, hasMembershipTypeForMember);
     
+  }
+    
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByStemOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean, Boolean, QueryOptions, String, boolean, boolean, boolean)
+   */
+  private Set<Object[]> findAllByStemOwnerOptionsHelper(Collection<String> totalStemIds, Collection<String> totalMemberIds,
+      Collection<String> totalMembershipIds, MembershipType membershipType,
+      Field field,  
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean checkSecurity, 
+      QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, 
+      boolean hasFieldForMember, boolean hasMembershipTypeForMember) {
+
     if (checkSecurity == null) {
       checkSecurity = Boolean.TRUE;
     }
-    
+
     if ((stem == null) != (stemScope == null)) {
       throw new RuntimeException("If stem is set, then stem scope must be set.  If stem isnt set, then stem scope must not be set: " + stem + ", " + stemScope);
     }
-  
-    List<String> totalStemIdsList = GrouperUtil.listFromCollection(totalStemIds);
+
+    final List<String> totalStemIdsList = GrouperUtil.listFromCollection(totalStemIds);
     List<String> totalMemberIdsList = GrouperUtil.listFromCollection(totalMemberIds);
     List<String> totalMembershipIdsList = GrouperUtil.listFromCollection(totalMembershipIds);
     
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     
-    Subject grouperSessionSubject = grouperSession.getSubject();
+    final Subject grouperSessionSubject = grouperSession.getSubject();
   
     Set<Object[]> totalResults = new HashSet<Object[]>();
-    
-    int stemBatches = GrouperUtil.batchNumberOfBatches(totalStemIds, 100);
+
+    //just check security on one stem to help performance
+    if (checkSecurity && GrouperUtil.length(totalStemIds) == 1) {
+      boolean allowed = (Boolean)GrouperSession.callbackGrouperSession(
+          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+
+        /**
+         * 
+         */
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          Stem theStem = StemFinder.findByUuid(theGrouperSession, totalStemIdsList.get(0), false);
+          if (theStem == null) {
+            return false;
+          }
+          return theStem.hasStem(grouperSessionSubject);
+        }
+      });
+
+      //if there is one stem, and checking security, and the user is not allowed to STEM it, then no results
+      if (!allowed) {
+        return totalResults;
+      }
+
+      //we dont need to check security if there is one stem and allowed on that stem
+      checkSecurity = false;
+
+    }
+
+    int batchSize = 100;
+
+    int stemBatches = GrouperUtil.batchNumberOfBatches(totalStemIds, batchSize);
   
     for (int stemIndex = 0; stemIndex < stemBatches; stemIndex++) {
       
-      List<String> stemIds = GrouperUtil.batchList(totalStemIdsList, 100, stemIndex);
+      List<String> stemIds = GrouperUtil.batchList(totalStemIdsList, batchSize, stemIndex);
       
-      int memberBatches = GrouperUtil.batchNumberOfBatches(totalMemberIds, 100);
+      int memberBatches = GrouperUtil.batchNumberOfBatches(totalMemberIds, batchSize);
   
       for (int memberIndex = 0; memberIndex < memberBatches; memberIndex++) {
         
-        List<String> memberIds = GrouperUtil.batchList(totalMemberIdsList, 100, memberIndex);
-        int membershipBatches = GrouperUtil.batchNumberOfBatches(totalMembershipIds, 100);
+        List<String> memberIds = GrouperUtil.batchList(totalMemberIdsList, batchSize, memberIndex);
+        int membershipBatches = GrouperUtil.batchNumberOfBatches(totalMembershipIds, batchSize);
         
         for (int membershipIndex = 0; membershipIndex < membershipBatches; membershipIndex++) {
           
-          List<String> membershipIds = GrouperUtil.batchList(totalMembershipIdsList, 100, membershipIndex);
+          List<String> membershipIds = GrouperUtil.batchList(totalMembershipIdsList, batchSize, membershipIndex);
           
           int stemIdsSize = GrouperUtil.length(stemIds);
           int memberIdsSize = GrouperUtil.length(memberIds);
@@ -3216,6 +3474,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   
           String selectPrefix = "select ms, s, m ";
           String countPrefix = "select count(*) ";
+          String memberPrefix = "select distinct m ";
           
           StringBuilder sql = new StringBuilder(" from Member m, MembershipEntry ms, Stem s ");
           
@@ -3241,6 +3500,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           
           sql.append(" ms.ownerStemId = s.uuid "
               + " and ms.memberUuid = m.uuid ");
+
           if (enabled != null && enabled) {
             sql.append(" and ms.enabledDb = 'T' ");
           }
@@ -3303,14 +3563,80 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             sql.append(") ");
           }
           
+          if (!StringUtils.isBlank(filterForMember)) {
+
+            filterForMember = filterForMember.toLowerCase();
+
+            String[] filtersForMember = splitScopeForMember ? GrouperUtil.splitTrim(filterForMember, " ") 
+                : new String[]{filterForMember};
+
+            if (sql.length() > 0) {
+              sql.append(" and ");
+            }
+            sql.append(" ( ");
+
+            int index = 0;
+            
+            String searchFieldName = SearchStringEnum.getDefaultSearchString().getFieldName();
+
+            for (String theFilter : filtersForMember) {
+              if (index != 0) {
+                sql.append(" and ");
+              }
+              sql.append(" ( m." + searchFieldName + " like :filterString" + index + " ) ");
+
+              if (!theFilter.endsWith("%")) {
+                theFilter += "%";
+              }
+              if (!theFilter.startsWith("%")) {
+                theFilter = "%" + theFilter;
+              }
+              byHqlStatic.setString("filterString" + index, theFilter);
+              index++;
+            }
+            sql.append(" ) ");
+          }
+          
           byHqlStatic
             .setCacheable(false)
             .setCacheRegion(KLASS);
   
           int maxMemberships = GrouperConfig.retrieveConfig().propertyValueInt("ws.getMemberships.maxResultSize", 30000);
           
+          boolean pageMembers = queryOptionsForMember != null;
+          
+          if (pageMembers) {
+
+            if (queryOptionsForMember.getQueryPaging() == null) {
+              throw new RuntimeException("If paging by member, then paging must be set in the query options");
+            }
+
+            //cant page too much...
+            if (queryOptionsForMember.getQueryPaging().getPageSize() > 500) {
+              throw new RuntimeException("Cant get a page size greater then 500! " 
+                  + queryOptionsForMember.getQueryPaging().getPageSize());
+            }
+
+            if (stemBatches > 1) {
+              throw new RuntimeException("Cant have more than 1 stemBatch if paging members");
+            }
+            
+            if (memberBatches > 1) {
+              throw new RuntimeException("Cant have more than 1 memberBatch if paging members");
+            }
+            
+            if (membershipBatches > 1) {
+              throw new RuntimeException("Cant have more than 1 membershipBatch if paging members");
+            }
+            
+          }
+
+          if (!StringUtils.isBlank(filterForMember) && !pageMembers) {
+            throw new RuntimeException("If you are filtering by member, then you must page members");
+          }
+
           //if -1, lets not check
-          if (maxMemberships >= 0) {
+          if (maxMemberships >= 0 && !pageMembers) {
   
             long size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
             
@@ -3320,7 +3646,55 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             }
             
           }
-          
+
+          //if paging by members, get the members, then do the same query using those members...
+          if (pageMembers) {
+            
+            //sort by default search string if not specified
+            if (queryOptionsForMember.getQuerySort() == null) {
+              queryOptionsForMember.sortAsc("m." + SortStringEnum.getDefaultSortString().getFieldName());
+            }
+
+            byHqlStatic.options(queryOptionsForMember);
+   
+            Set<Member> members = byHqlStatic.createQuery(memberPrefix + sql.toString()).listSet(Member.class);
+
+            //no need to do another query if no members
+            if (GrouperUtil.length(members) == 0) {
+              return totalResults;
+            }
+            
+            Set<String> theMemberIds = new LinkedHashSet<String>();
+            
+            for (Member member : members) {
+              theMemberIds.add(member.getUuid());
+            }
+            
+            //dont pass for people with membership type or field... we already filtered by that...
+            Set<Object[]> tempResults = findAllByStemOwnerOptionsHelper(totalStemIds, theMemberIds,
+                totalMembershipIds, hasMembershipTypeForMember ? null : membershipType, hasFieldForMember ? null : field,  
+                sources, scope, stem, stemScope, enabled, checkSecurity, null, null, false, false, false);
+            
+            //lets sort these by member
+            Set<Object[]> sortedResults = new LinkedHashSet<Object[]>();
+            
+            for (Member member : members) {
+              Iterator<Object[]> iterator = tempResults.iterator();
+              while(iterator.hasNext()) {
+                
+                Object[] tempResult = iterator.next();
+                //if the member is the same, put it in the sortedResults, and remove
+                if (StringUtils.equals(((Member)tempResult[2]).getUuid(), member.getUuid())) {
+                  
+                  sortedResults.add(tempResult);
+                  iterator.remove();
+                  
+                }
+              }
+            }
+            return sortedResults;
+            
+          }
           
           Set<Object[]> results = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(Object[].class);
   

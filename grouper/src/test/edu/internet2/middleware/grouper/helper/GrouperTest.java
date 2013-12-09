@@ -49,6 +49,8 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -66,6 +68,7 @@ import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
@@ -735,6 +738,44 @@ public class GrouperTest extends TestCase {
 
   }
 
+  /**
+   * make sure a result set has a privilege from a user and stem
+   * @param result set of object arrays of membership, stem, member
+   * @param stemA 
+   * @param subject
+   * @param privilege
+   */
+  public void assertHasPrivilege(Set<Object[]> results, Stem stem, Subject subject, Privilege privilege) {
+    for (Object[] result : results) {
+      Membership resultMembership = (Membership)result[0];
+      if (!(result[1] instanceof Stem)) {
+        continue;
+      }
+      Stem resultStem = (Stem)result[1];
+      Member resultMember = (Member)result[2];
+      
+      if (!StringUtils.equals(resultStem.getId(), stem.getId())) {
+        continue;
+      }
+      
+      if (!SubjectHelper.eq(resultMember.getSubject(), subject)) {
+        continue;
+      }
+
+      if (!StringUtils.equals(resultMembership.getListName(), privilege.getListName())) {
+        continue;
+      }
+      
+      if (!resultMembership.isEnabled()) {
+        continue;
+      }
+      //should be good
+      return;
+    }
+    //couldnt find it
+    fail("Couldnt find privilege: " + stem.getName() + ", " + subject.getId() + ", " + privilege.getListName());
+  }
+  
   /**
    * make sure a set of groups is similar to another by group name including order
    * @param set1 expected set

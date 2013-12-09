@@ -57,6 +57,21 @@ public class GrouperUiFunctions {
     return input;
   }
 
+  /**
+   * concat for EL
+   * @param a
+   * @param b
+   * @return the concatenated strings
+   */
+  public static String concat2(Object a, Object b) {
+    if (a == null) {
+      a = "";
+    }
+    if (b == null) {
+      b = "";
+    }
+    return GrouperUtil.stringValue(a) + GrouperUtil.stringValue(b);
+  }
 
   /**
    * Escapes URL

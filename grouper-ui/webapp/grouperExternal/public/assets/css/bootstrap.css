@@ -5218,6 +5218,9 @@ a [class*=" icon-"] {
 .table-privileges .direct-actions:hover > .icon-ok.icon-direct {
   display: none;
 }
+.table-privileges .direct-actions:hover > .icon-ok.icon-disabled {
+  display: none;
+}
 .table-privileges .privilege {
   text-align: center;
   width: 45px;

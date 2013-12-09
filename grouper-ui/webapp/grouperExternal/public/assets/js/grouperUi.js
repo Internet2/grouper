@@ -63,6 +63,7 @@ $(document).ready(function(){
       History.pushState(null, null, "?operation=" + urlArgObjectMap.operation);
     } else {
       guiProcessUrlForAjax(location.href);
+      guiScrollTop();
     }
     
   }
@@ -73,8 +74,18 @@ $(document).ready(function(){
  * go to a url, e.g. operation=UiV2Group.viewGroup&groupId=abc123
  * @param url
  */
-function guiV2link(url) {
+function guiV2link(url, options) {
+
+  if (typeof options == 'undefined') {
+    options = {};
+  }
+  
+  if (!options.dontScrollTop) {
+    guiScrollTop();
+  }
+  
   History.pushState(null, null, '?' + url);
+
   //return false so the browser navigate
   return false;
 }
@@ -124,7 +135,6 @@ function guiProcessUrlForAjax(url) {
     }
   }
   if (foundOperation) {
-    guiScrollTop();
     ajax(ajaxUrl);    
   }
 
@@ -2106,4 +2116,23 @@ function guiScrollTo(jqueryId) {
   
   //$('html, body').animate({scrollTop: $(document).height()},1500);
   $('html, body').animate({scrollTop: targetTop},500);
+}
+
+//just keep the state for each screen once so they dont have to keep confirming
+var confirmedChanged = false;
+
+/**
+ * only check once per screen that changes can be made
+ * @param prompt
+ * @returns {Boolean} true if should proceed
+ */
+function confirmChange(prompt) {
+  if (!confirmedChanged) {
+    if (confirm(prompt)) {
+      confirmedChanged = true;
+    } else {
+      return false;
+    }
+  }
+  return true;
 }

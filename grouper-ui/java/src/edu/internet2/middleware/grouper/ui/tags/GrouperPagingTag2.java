@@ -152,6 +152,9 @@ public class GrouperPagingTag2 extends SimpleTagSupport {
     //      <option>100</option>
     //    </select>
     //  </form>
+    //  <form style="display:none;">
+    //    <input type="hidden" name="pagingTagPageNumber" value="" />
+    //  </form>
     //</div>
 
     result.append("<div class=\"data-table-bottom gradient-background\">\n");
@@ -208,6 +211,11 @@ public class GrouperPagingTag2 extends SimpleTagSupport {
 
     result.append("    </select>\n");
     result.append("  </form>\n");
+    //this is a form if something needs to send the current page number to the server...
+    result.append("  <form style=\"display:none;\" name=\"" + this.formName + "PageNumber\" id=\"" + this.formName + "PageNumberId\">\n");
+    result.append("    <input type=\"hidden\" name=\"pagingTagPageNumber\" value=\"" + queryPaging.getPageNumber() + "\" />\n");
+    result.append("  </form>\n");
+    
     result.append("</div>\n");
 
     

@@ -348,7 +348,8 @@ public class IndexContainer {
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
           Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignAnyRole(true)
-              .assignSubject(subject).assignQueryOptions(new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false))
+              .assignSubject(subject)
+              .assignQueryOptions(new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false))
               .findAttributeNames();
               
           IndexContainer.this.guiAttributeDefNamesMyServices = GuiAttributeDefName.convertFromAttributeDefNames(attributeDefNames);

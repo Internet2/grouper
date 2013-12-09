@@ -21,11 +21,16 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -39,6 +44,51 @@ import edu.internet2.middleware.subject.Subject;
  */
 @SuppressWarnings("serial")
 public class GuiSubject implements Serializable {
+
+  /**
+   * 
+   * @param subjects
+   * @return subjects
+   */
+  public static Set<GuiSubject> convertFromSubjects(Set<Subject> subjects) {
+    return convertFromSubjects(subjects, null, -1);
+  }
+
+
+  /**
+   * 
+   * @param subjects
+   * @return gui subjects
+   */
+  public static Set<GuiSubject> convertFromSubjects(Set<Subject> subjects, String configMax, int defaultMax) {
+
+    Set<GuiSubject> tempSubjects = new LinkedHashSet<GuiSubject>();
+    
+    Integer max = null;
+    
+    if (!StringUtils.isBlank(configMax)) {
+      max = GrouperUiConfig.retrieveConfig().propertyValueInt(configMax, defaultMax);
+    }
+    
+    int count = 0;
+    for (Subject subject : GrouperUtil.nonNull(subjects)) {
+      tempSubjects.add(new GuiSubject(subject));
+      if (max != null && ++count >= max) {
+        break;
+      }
+    }
+    
+    return tempSubjects;
+    
+  }
+
+  /**
+   * see if group or not
+   * @return if group
+   */
+  public boolean isGroup() {
+    return StringUtils.equals(SubjectFinder.internal_getGSA().getId(), this.subject.getSourceId());
+  }
   
   /** subject */
   private Subject subject;
@@ -60,7 +110,16 @@ public class GuiSubject implements Serializable {
     this.initScreenLabels();
     return this.screenLabelShort2htmlWithIcon;
   }
-  
+
+  /**
+   * e.g. &lt;a href="#"&gt;John Smith&lt;/a&gt;
+   * @return short link
+   */
+  public String getScreenLabelShort2noLink() {
+    this.initScreenLabels();
+    return this.screenLabelShort2noLink;
+  }
+
   /**
    * init screen labels
    */
@@ -98,11 +157,41 @@ public class GuiSubject implements Serializable {
         
         //"<a href=\"view-subject.html\" rel=\"tooltip\" data-html=\"true\" data-delay-show=\"200\" data-placement=\"right\" title=\"" + GrouperUtil.xmlEscape(subject.getDescription(), true)  + "\">" + this.screenLabelShort2 + "</a>";
         //"<a href=\"view-subject.html\" data-html=\"true\" data-delay-show=\"200\" data-placement=\"right\">" + this.screenLabelShort2 + "</a>";
-        this.screenLabelShort2html = TextContainer.retrieveFromRequest().getText().get("guiSubjectShortLink");
-
+        Group group = null;
+        
+        if (this.isGroup()) {
+          group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.subject.getId(), false);
+        }
+        
+        if (group != null) {
+          GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiGroup(new GuiGroup(group));
+          this.screenLabelShort2html = TextContainer.retrieveFromRequest().getText().get("guiGroupShortLink");
+        } else {
+          
+          this.screenLabelShort2html = TextContainer.retrieveFromRequest().getText().get("guiSubjectShortLink");
+        }
+        
         GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowIcon(true);
+        
+        if (group != null) {
+          this.screenLabelShort2htmlWithIcon = TextContainer.retrieveFromRequest().getText().get("guiGroupShortLink");
+        } else {
+          this.screenLabelShort2htmlWithIcon = TextContainer.retrieveFromRequest().getText().get("guiSubjectShortLink");
+        }
+        
+        if (group != null) {
+          this.screenLabelShort2noLinkWithIcon = TextContainer.retrieveFromRequest().getText().get("guiGroupShort");
+        } else {
+          this.screenLabelShort2noLinkWithIcon = TextContainer.retrieveFromRequest().getText().get("guiSubjectShort");
+        }
+        
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowIcon(false);
 
-        this.screenLabelShort2htmlWithIcon = TextContainer.retrieveFromRequest().getText().get("guiSubjectShortLink");
+        if (group != null) {
+          this.screenLabelShort2noLink = TextContainer.retrieveFromRequest().getText().get("guiGroupShort");
+        } else {
+          this.screenLabelShort2noLink = TextContainer.retrieveFromRequest().getText().get("guiSubjectShort");
+        }
 
       } finally {
 
@@ -177,6 +266,17 @@ public class GuiSubject implements Serializable {
   private String screenLabelShort2htmlWithIcon = null;
   
   /**
+   * new short label in v2 with no link, but with icon
+   */
+  private String screenLabelShort2noLinkWithIcon = null;
+
+  /**
+   * new short label in v2 with no link or icon
+   */
+  private String screenLabelShort2noLink = null;
+
+  
+  /**
    * subject
    * @return the subject
    */
@@ -235,6 +335,16 @@ public class GuiSubject implements Serializable {
   public boolean isNeedsTooltip() {
     this.initScreenLabels();
     return !StringUtils.equals(this.screenLabelLong, this.screenLabelShort);
+  }
+
+
+  /**
+   * e.g. &lt;a href="#"&gt;John Smith&lt;/a&gt;
+   * @return short link
+   */
+  public String getScreenLabelShort2noLinkWithIcon() {
+    this.initScreenLabels();
+    return this.screenLabelShort2noLinkWithIcon;
   }
 
 

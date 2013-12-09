@@ -241,7 +241,7 @@ public class QueryPaging {
    */
   public List<Integer> getAllPages() {
     
-    List<Integer> result = new ArrayList(this.getNumberOfPages());
+    List<Integer> result = new ArrayList<Integer>(this.getNumberOfPages());
     for (int counter=0; counter < this.getNumberOfPages(); ++counter) {
       result.add(counter + 1);
     }

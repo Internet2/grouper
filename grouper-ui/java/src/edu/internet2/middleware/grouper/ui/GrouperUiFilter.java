@@ -893,11 +893,11 @@ public class GrouperUiFilter implements Filter {
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     ObjectOutputStream    out  = new ObjectOutputStream(baos);
                     out.writeObject(current);
-  
+
                   } catch (Exception e2) {
                     LOG.error("Error serializing in map: " + key, e2);
                   }
-                  
+
                 }
               }
             }

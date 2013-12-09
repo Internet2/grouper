@@ -64,7 +64,6 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
@@ -72,9 +71,7 @@ import edu.internet2.middleware.grouper.j2ee.GenericServletResponseWrapper;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
-import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -91,6 +88,32 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  */
 public class GrouperUiUtils {
 
+  /**
+   * if search string valid
+   * @param searchString
+   * @return true if the search string is valid
+   */
+  public static boolean searchStringValid(String searchString) {
+    //check by splitting and trimming
+    boolean searchOk = false;
+    if (searchString != null && searchString.length() >= 2) {
+      boolean hasOneToken = false;
+      searchOk = true;
+      String[] tokens = GrouperUtil.splitTrim(searchString, " ");
+      for (String token : tokens) {
+        if (token.length() < 2) {
+          searchOk = false;
+          break;
+        }
+        hasOneToken = true;
+      }
+      if (!hasOneToken) {
+        searchOk = false;
+      }
+    }
+    return searchOk;
+  }
+  
   /**
    * compute a url of a resource
    * @param resourceName
