@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.kuali.rice.kim.bo.entity.dto.KimEntityDefaultInfo;
 import org.kuali.rice.kim.bo.entity.dto.KimEntityInfo;
 import org.kuali.rice.kim.bo.entity.dto.KimEntityNameInfo;
@@ -46,7 +47,6 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetSubjectsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperKimConnector.util.GrouperKimServiceUtils;
 import edu.internet2.middleware.grouperKimConnector.util.GrouperKimSubject;
 import edu.internet2.middleware.grouperKimConnector.util.GrouperKimUtils;
@@ -60,7 +60,7 @@ public class GrouperKimIdentityServiceImpl implements IdentityService {
   /**
    * logger
    */
-  private static final Log LOG = GrouperClientUtils.retrieveLog(GrouperKimIdentityServiceImpl.class);
+  private static final Logger LOG = Logger.getLogger(GrouperKimIdentityServiceImpl.class);
 
   /**
    * Gets the address type for the given address type code.

@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.kuali.rice.kim.bo.Group;
 import org.kuali.rice.kim.bo.group.dto.GroupInfo;
 import org.kuali.rice.kim.bo.group.dto.GroupMembershipInfo;
@@ -54,7 +55,6 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsMembership;
 import edu.internet2.middleware.grouperClient.ws.beans.WsStemLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperKimConnector.groupUpdate.GrouperKimGroupUpdateServiceImpl;
 import edu.internet2.middleware.grouperKimConnector.util.GrouperKimUtils;
 
@@ -70,7 +70,7 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
   /**
    * logger
    */
-  private static final Log LOG = GrouperClientUtils.retrieveLog(GrouperKimGroupServiceImpl.class);
+  private static final Logger LOG = Logger.getLogger(GrouperKimGroupServiceImpl.class);
 
   /**
    * <pre>
