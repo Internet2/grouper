@@ -4,16 +4,11 @@
  */
 package edu.internet2.middleware.grouperKimConnector.postProcessor;
 
-import javax.xml.xpath.XPath;
-
+import org.apache.log4j.Logger;
 import org.kuali.rice.kew.edl.EDLDatabasePostProcessor;
 import org.kuali.rice.kew.postprocessor.ActionTakenEvent;
 import org.kuali.rice.kew.postprocessor.DocumentRouteStatusChange;
 import org.kuali.rice.kew.postprocessor.ProcessDocReport;
-import org.kuali.rice.kew.rule.xmlrouting.XPathHelper;
-
-import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 
 /**
@@ -24,7 +19,7 @@ public class GrouperEdocliteDatabasePostProcessor extends EDLDatabasePostProcess
   /**
    * 
    */
-  static final Log LOG = GrouperClientUtils.retrieveLog(GrouperEdocliteDatabasePostProcessor.class);
+  static final Logger LOG = Logger.getLogger(GrouperEdocliteDatabasePostProcessor.class);
 
   /**
    * @see org.kuali.rice.kew.edl.EDLDatabasePostProcessor#doActionTaken(org.kuali.rice.kew.postprocessor.ActionTakenEvent)

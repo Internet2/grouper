@@ -10,6 +10,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.log4j.Logger;
 import org.kuali.rice.core.exception.RiceRuntimeException;
 import org.kuali.rice.kew.engine.RouteContext;
 import org.kuali.rice.kew.engine.RouteHelper;
@@ -26,7 +27,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 /**
  * This is a generic split node that takes an xpath expression and selects the branch that matches the text in the
@@ -64,7 +64,7 @@ public class XPathSplitNode implements SplitNode {
   /**
    * logger
    */
-  private static final Log LOG = GrouperClientUtils.retrieveLog(XPathSplitNode.class);
+  private static final Logger LOG = Logger.getLogger(XPathSplitNode.class);
 
   /**
    * @see org.kuali.rice.kew.engine.node.SplitNode#process(org.kuali.rice.kew.engine.RouteContext, org.kuali.rice.kew.engine.RouteHelper)

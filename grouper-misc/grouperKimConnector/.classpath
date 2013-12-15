@@ -9,6 +9,7 @@
 	<classpathentry kind="lib" path="lib/rice/spring-jdbc-2.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/rice/spring-dao-2.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/rice/spring-core-2.0.4.jar"/>
+	<classpathentry kind="lib" path="lib/rice/commons-validator-1.1.4.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/grouperClient_v1_6"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/grouper_v1_6"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/grouper-ws_v1_6"/>

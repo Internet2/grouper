@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouperKimConnector.misc;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
 import org.kuali.rice.kim.service.AuthenticationService;
 
 import edu.internet2.middleware.grouperClient.api.GcHasMember;
@@ -26,7 +27,7 @@ public class CosignAuthenticationService implements AuthenticationService {
   /**
    * logger
    */
-  private static final Log LOG = GrouperClientUtils.retrieveLog(CosignAuthenticationService.class);
+  private static final Logger LOG = Logger.getLogger(CosignAuthenticationService.class);
 
   /**
    * @see org.kuali.rice.kim.service.AuthenticationService#getPrincipalName(javax.servlet.http.HttpServletRequest)
