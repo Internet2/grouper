@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
@@ -16,7 +18,10 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemCopy;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -25,8 +30,10 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContain
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.StemContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
@@ -41,6 +48,129 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class UiV2Stem {
 
+  /** logger */
+  protected static final Log LOG = LogFactory.getLog(UiV2Stem.class);
+
+  /**
+   * 
+   * @param request
+   * @param response
+   */
+  public void stemCopySubmit(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    Stem stem = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      stem = retrieveStemHelper(request, true).getStem();
+    
+      if (stem == null) {
+        return;
+      }
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      String displayExtension = request.getParameter("displayExtension");
+      String extension = request.getParameter("extension");
+      String parentFolderId = request.getParameter("parentFolderId");
+      boolean copyGroupAttributes = GrouperUtil.booleanValue(request.getParameter("copyGroupAttributes[]"), false);
+      boolean copyListMemberships = GrouperUtil.booleanValue(request.getParameter("copyListMemberships[]"), false);
+      boolean copyGroupPrivileges = GrouperUtil.booleanValue(request.getParameter("copyGroupPrivileges[]"), false);
+      boolean copyListMembershipsInOtherGroups = GrouperUtil.booleanValue(request.getParameter("copyListMembershipsInOtherGroups[]"), false);
+      boolean copyPrivsInOtherGroups = GrouperUtil.booleanValue(request.getParameter("copyPrivsInOtherGroups[]"), false);
+      boolean copyFolderPrivs = GrouperUtil.booleanValue(request.getParameter("copyFolderPrivs[]"), false);
+      
+      final Stem parentFolder = StemFinder.findByUuid(grouperSession, parentFolderId, false);
+      
+      if (parentFolder == null) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("stemCopyCantFindParentStemId")));
+        return;
+        
+      }
+      
+      {
+        //make sure the user can stem the parent folder
+        boolean canStemParent = (Boolean)GrouperSession.callbackGrouperSession(
+            GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+              
+              @Override
+              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                return parentFolder.hasStem(loggedInSubject);
+              }
+            });
+  
+        if (!canStemParent) {
+  
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("stemCopyCantStemParent")));
+          return;
+  
+        }
+      }
+      
+      Stem newStem = null;
+      
+      try {
+
+        //get the new folder that was created
+        newStem = new StemCopy(stem, parentFolder).copyAttributes(copyGroupAttributes)
+            .copyListGroupAsMember(copyListMembershipsInOtherGroups)
+            .copyListMembersOfGroup(copyListMemberships)
+            .copyPrivilegesOfGroup(copyGroupPrivileges)
+            .copyPrivilegesOfStem(copyFolderPrivs)
+            .copyGroupAsPrivilege(copyPrivsInOtherGroups).save();
+
+      } catch (InsufficientPrivilegeException ipe) {
+        
+        LOG.warn("Insufficient privilege exception for stem copy: " + SubjectHelper.getPretty(loggedInSubject), ipe);
+        
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("stemCopyInsufficientPrivileges")));
+        return;
+
+      }
+
+      boolean changed = false;
+      
+      //see if we are changing the extension
+      if (!StringUtils.equals(newStem.getExtension(), extension)) {
+        newStem.setExtension(extension, false);
+        changed = true;
+      }
+      
+      //see if we are changing the display extension
+      if (!StringUtils.equals(newStem.getDisplayExtension(), displayExtension)) {
+        newStem.setDisplayExtension(displayExtension);
+        changed = true;
+      }
+
+      //save it if we need to
+      if (changed) {
+        newStem.store();
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStem&stemId=" + newStem.getId() + "')"));
+
+      //lets show a success message on the new screen
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("stemCopySuccess")));
+      
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+  
+  
   /**
    * 
    * @param request

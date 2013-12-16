@@ -239,7 +239,7 @@ public class GrouperUiFunctions {
   }
 
   /**
-   * Escapes XML ( ampersand, lessthan, greater than)
+   * Escapes XML ( ampersand, lessthan, greater than, double quotes)
    * e.g. grouper:escapeHtml(someVar.someField)
    * @param input 
    * @return the escaped string

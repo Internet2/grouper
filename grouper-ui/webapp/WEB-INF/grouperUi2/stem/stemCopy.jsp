@@ -87,66 +87,66 @@
                   <div class="control-group">
                     <label for="folder-name" class="control-label">${textContainer.text['stemCopyNewStemNameLabel']}</label>
                     <div class="controls">
-                      <input type="text" placeholder="" value="Wiki" id="folder-name"><span class="help-block">${textContainer.text['stemCopyNewStemNameDescription']}</span>
+                      <input type="text" name="displayExtension" value="${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.guiDisplayExtension)}" id="folder-name" /><span class="help-block">${textContainer.text['stemCopyNewStemNameDescription']}</span>
                     </div>
                   </div>
                   <div class="control-group">
-                    <label for="folder-id" class="control-label">${testContainer.text['stemCopyNewStemIdLabel'] }</label>
+                    <label for="folder-id" class="control-label">${textContainer.text['stemCopyNewStemIdLabel'] }</label>
                     <div class="controls">
-                      <input type="text" id="folder-id" value="wiki.2"><span class="help-block">${textContainer.text['stemCopyNewStemIdDescription'] }</span>
+                      <input type="text" name="extension" id="folder-id" value="${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.stem.extension)}" /><span class="help-block">${textContainer.text['stemCopyNewStemIdDescription'] }</span>
                     </div>
                   </div>
                   <div class="control-group">
                     <label for="folder-path" class="control-label">${textContainer.text['stemCopyIntoFolder'] }</label>
                     <div class="controls">
-                      <input type="text" placeholder="Enter a folder name" value="" id="folder-path"> <a href="#folder-search" role="button" data-toggle="modal" class="btn"><i class="icon-search"></i></a>
+                      <input type="text" name="parentFolderId" placeholder="Enter a folder name" value="" id="folder-path"> <a href="#folder-search" role="button" data-toggle="modal" class="btn"><i class="icon-search"></i></a>
                       <span class="help-block">${textContainer.text['stemCopyIntoFolderDescription'] }</span>
                     </div>
                   </div>
                   <div class="control-group">
                     <div class="controls">
                       <label class="checkbox">
-                        <input type="checkbox" checked>Copy group attributes?<span class="help-block">If you select this option, all custom attributes for the groups in the folder will be copied to the new groups.</span>
+                        <input type="checkbox" name="copyGroupAttributes" checked="checked" value="true">Copy group attributes?<span class="help-block">If you select this option, all custom attributes for the groups in the folder will be copied to the new groups.</span>
                       </label>
                     </div>
                   </div>
                   <div class="control-group">
                     <div class="controls">
                       <label class="checkbox">
-                        <input type="checkbox" checked>Copy list memberships of groups?<span class="help-block">If you select this option, all members of the groups in the folder in the default list along with any custom lists will be copied to the new groups.</span>
+                        <input type="checkbox" name="copyListMemberships" checked="checked" value="true">Copy list memberships of groups?<span class="help-block">If you select this option, all members of the groups in the folder in the default list along with any custom lists will be copied to the new groups.</span>
                       </label>
                     </div>
                   </div>
                   <div class="control-group">
                     <div class="controls">
                       <label class="checkbox">
-                        <input type="checkbox" checked>Copy privileges of groups?<span class="help-block">If you select this option, all privileges of the groups in the folder will be copied to the new groups.</span>
+                        <input type="checkbox" name="copyGroupPrivileges" checked="checked" value="true">Copy privileges of groups?<span class="help-block">If you select this option, all privileges of the groups in the folder will be copied to the new groups.</span>
                       </label>
                     </div>
                   </div>
                   <div class="control-group">
                     <div class="controls">
                       <label class="checkbox">
-                        <input type="checkbox" checked>Copy list memberships where groups in the folder being copied are members of other groups?<span class="help-block">If you select this option and groups in the folder being copied are members of other groups, the new copied groups will be added to the other groups&#39; membership list.  If you do not have access to add members to the other groups, you will get a privilege error.</span>
+                        <input type="checkbox"  name="copyListMembershipsInOtherGroups" checked="checked" value="true">Copy list memberships where groups in the folder being copied are members of other groups?<span class="help-block">If you select this option and groups in the folder being copied are members of other groups, the new copied groups will be added to the other groups&#39; membership list.  If you do not have access to add members to the other groups, you will get a privilege error.</span>
                       </label>
                     </div>
                   </div>
                   <div class="control-group">
                     <div class="controls">
                       <label class="checkbox">
-                        <input type="checkbox" checked>Copy privileges where the groups in the folder being copied have privileges to other groups or folders?<span class="help-block">If you select this option and groups in the folder being copied have privileges to other groups or folders, the new copied groups will also be given privileges to those other groups or folders.  If you do not have access to add privileges to the other groups or folders, you will get a privilege error.'</span>
+                        <input type="checkbox" name="copyPrivsInOtherGroups"  checked="checked" value="true">Copy privileges where the groups in the folder being copied have privileges to other groups or folders?<span class="help-block">If you select this option and groups in the folder being copied have privileges to other groups or folders, the new copied groups will also be given privileges to those other groups or folders.  If you do not have access to add privileges to the other groups or folders, you will get a privilege error.'</span>
                       </label>
                     </div>
                   </div>
                   <div class="control-group">
                     <div class="controls">
                       <label class="checkbox">
-                        <input type="checkbox" checked>Copy folder privileges?<span class="help-block">If you select this option, all folder privileges will be copied.</span>
+                        <input type="checkbox" name="copyFolderPrivs" checked="checked" value="true">Copy folder privileges?<span class="help-block">If you select this option, all folder privileges will be copied.</span>
                       </label>
                     </div>
                   </div>
-                  <div class="form-actions"><a href="#" class="btn btn-primary" onclick="ajax('../app/UiV2Stem.filter?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemCopyFormId,stemPagingFormId'}); return false;">Copy</a> 
-                  <a href="#" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.commonRequestContainer.guiStem.stem.id}');" >Cancel</a></div>
+                  <div class="form-actions"><a href="#" class="btn btn-primary" onclick="ajax('../app/UiV2Stem.stemCopySubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemCopyFormId'}); return false;">Copy</a> 
+                  <a href="#" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');" >Cancel</a></div>
                 </form>
               </div>
             </div>
