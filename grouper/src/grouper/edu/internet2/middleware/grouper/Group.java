@@ -1235,7 +1235,21 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    */
   public boolean addType(final GroupType type, final boolean exceptionIfAlreadyHasType) 
     throws  GroupModifyException, InsufficientPrivilegeException, SchemaException {
-
+    return internal_addType(type, null, exceptionIfAlreadyHasType);
+  }
+  
+  /**
+   * @param type
+   * @param groupTypeAssignmentId
+   * @param exceptionIfAlreadyHasType
+   * @return if it was added or not
+   * @throws GroupModifyException
+   * @throws InsufficientPrivilegeException
+   * @throws SchemaException
+   */
+  public boolean internal_addType(final GroupType type, final String groupTypeAssignmentId, final boolean exceptionIfAlreadyHasType) 
+    throws  GroupModifyException, InsufficientPrivilegeException, SchemaException {
+    
     return (Boolean)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
 
@@ -1268,7 +1282,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
           
           AttributeAssign groupTypeAssignment = null;
           try {
-            groupTypeAssignment = Group.this.getAttributeDelegate().assignAttribute(type.getAttributeDefName()).getAttributeAssign();
+            groupTypeAssignment = Group.this.getAttributeDelegate().internal_assignAttributeHelper(null, type.getAttributeDefName(), true, groupTypeAssignmentId, null).getAttributeAssign();
             Group.this.types.put(type.getName(), type.getAttributeDefName());
             Group.this.typeAssignments.put(type.getName(), groupTypeAssignment);
 

@@ -1873,7 +1873,7 @@ public enum GrouperDdl implements DdlVersionable {
   
   /**
    * <pre>
-   * Grouper 2.2: migrate from attributeDefType domain to service, add stem set table, add attribute read/update privs
+   * Grouper 2.2: migrate from attributeDefType domain to service, add stem set table, add attribute read/update privs, take care of legacy attributes
    * </pre>
    */
   V27 {
@@ -2064,7 +2064,110 @@ public enum GrouperDdl implements DdlVersionable {
           //dont worry if exception, the table probably isnt there,and will get initted in good time
         }
       }
+      
+      // legacy attributes
+      boolean needsLegacyAttributesUpgrade = false;
+      if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_attributes")) {
+        needsLegacyAttributesUpgrade = true;
+        
+        // drop legacy table if it happens to exist for some reason
+        if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_attributes_legacy")) {
+          GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_attributes_legacy");
+        }
+        
+        GrouperDdlUtils.ddlutilsBackupTable(ddlVersionBean, "grouper_attributes", "grouper_attributes_legacy");
+      }
+      
+      if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_types")) {
+        needsLegacyAttributesUpgrade = true;
+        
+        // drop legacy table if it happens to exist for some reason
+        if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_types_legacy")) {
+          GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_types_legacy");
+        }
+        
+        GrouperDdlUtils.ddlutilsBackupTable(ddlVersionBean, "grouper_types", "grouper_types_legacy");
+      }
+      
+      if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_groups_types")) {
+        needsLegacyAttributesUpgrade = true;
+        
+        // drop legacy table if it happens to exist for some reason
+        if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_groups_types_legacy")) {
+          GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_groups_types_legacy");
+        }
+        
+        GrouperDdlUtils.ddlutilsBackupTable(ddlVersionBean, "grouper_groups_types", "grouper_groups_types_legacy");
+      }
+      
+      int legacyAttributesCount = 0;
+      
+      if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_fields")) {
+        legacyAttributesCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_fields where type = 'attribute'");
+      }
+      
+      if (GrouperDdlUtils.ddlutilsFindColumn(database, "grouper_fields", "grouptype_uuid", false) != null || 
+          GrouperDdlUtils.ddlutilsFindColumn(database, "grouper_fields", "is_nullable", false) != null ||
+          legacyAttributesCount > 0) {
+        needsLegacyAttributesUpgrade = true;
+        
+        // drop legacy table if it happens to exist for some reason
+        if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_fields_legacy")) {
+          GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_fields_legacy");
+        }
+        
+        GrouperDdlUtils.ddlutilsBackupTable(ddlVersionBean, "grouper_fields", "grouper_fields_legacy");
+      }
+      
+      // maybe remove backup tables
+      if (!needsLegacyAttributesUpgrade && GrouperConfig.retrieveConfig().propertyValueBoolean("ddlutils.dropLegacyAttributes", false)) {
+        // ok drop any of the backed up tables
+        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_attributes_legacy");
+        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_types_legacy");
+        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_groups_types_legacy");
+        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_fields_legacy");
+      }
+    }
+  },
+  
+  /**
+   * <pre>
+   * Grouper 2.2 - continued: finish legacy attributes
+   * </pre>
+   */
+  V28 {
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
+      
+      int legacyAttributesCount = 0;
+      
+      if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_fields")) {
+        legacyAttributesCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_fields where type = 'attribute'");
+      }
+      
+      // remove the old tables/columns
+      if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_attributes") ||
+          GrouperDdlUtils.assertTablesThere(false, false, "grouper_types") ||
+          GrouperDdlUtils.assertTablesThere(false, false, "grouper_groups_types") ||
+          GrouperDdlUtils.ddlutilsFindColumn(database, "grouper_fields", "grouptype_uuid", false) != null || 
+          GrouperDdlUtils.ddlutilsFindColumn(database, "grouper_fields", "is_nullable", false) != null || 
+          legacyAttributesCount > 0) {
 
+        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_attributes");
+        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_types");
+        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_groups_types");
+
+        GrouperDdlUtils.ddlutilsDropColumn(database, "grouper_fields", "grouptype_uuid", ddlVersionBean);
+        GrouperDdlUtils.ddlutilsDropColumn(database, "grouper_fields", "is_nullable", ddlVersionBean);
+        
+        ddlVersionBean.appendAdditionalScriptUnique("\ndelete from grouper_fields where type = 'attribute';\ncommit;\n");
+      }
     }
   
   };

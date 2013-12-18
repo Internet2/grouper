@@ -1528,7 +1528,13 @@ public class GrouperDdlUtils {
       		"delete that table and try again): " + backupTableName);
     }
     
-    String script = "\ncreate table " + backupTableName + " as (select * from " + tableName + ");\n";
+    String script;
+    
+    if (isHsql()) {
+      script = "\nselect * into " + backupTableName + " from " + tableName + " ;\n";
+    } else {
+      script = "\ncreate table " + backupTableName + " as (select * from " + tableName + ");\n";
+    }
     
     //not sure if this works on all dbs... it does work on mysql, oracle, and postgres
     ddlVersionBean.appendAdditionalScriptUnique(script);

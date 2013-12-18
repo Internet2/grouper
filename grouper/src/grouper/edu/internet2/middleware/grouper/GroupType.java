@@ -51,6 +51,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -378,8 +379,29 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
     final GrouperSession s, final String name, final Privilege read, final Privilege write
   )
     throws  InsufficientPrivilegeException,
+            SchemaException {
+    return internal_addList(s, name, read, write, null, true);
+  }
+  
+  /**
+   * @param s
+   * @param name
+   * @param read
+   * @param write
+   * @param fieldId
+   * @param exceptionIfExists
+   * @return field
+   * @throws InsufficientPrivilegeException
+   * @throws SchemaException
+   */
+  public Field internal_addList(
+    final GrouperSession s, final String name, final Privilege read, final Privilege write,
+    final String fieldId, final boolean exceptionIfExists
+  )
+    throws  InsufficientPrivilegeException,
             SchemaException
   {
+    final String UUID = StringUtils.isBlank(fieldId) ? GrouperUuid.getUuid() : fieldId;
 
     return (Field)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
@@ -399,9 +421,7 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
             LOG.error(msg);
             throw new InsufficientPrivilegeException(msg);
           }
-          
-          String fieldId = GrouperUuid.getUuid();
-          
+                    
           // see if the attribute def and attribute exist first.
           String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
           Stem stem = GrouperDAOFactory.getFactory().getStem().findByName(stemName, true);
@@ -430,12 +450,20 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
             customList = stem.addChildAttributeDefName(customListDef, customListPrefix + GroupType.this.name, customListPrefix + GroupType.this.name);
           }
           
-          groupTypeDef.getAttributeValueDelegate().addValue(customList.getName(), fieldId);
-      
+          AttributeAssignValue attributeAssignValue = groupTypeDef.getAttributeValueDelegate().findValue(customList.getName(), UUID);
+          
+          if (attributeAssignValue == null) {
+            groupTypeDef.getAttributeValueDelegate().addValue(customList.getName(), UUID);
+          } else {
+            if (exceptionIfExists) {
+              throw new RuntimeException(attributeAssignValue.toString() + " already exists.");
+            }
+          }
+          
           FieldFinder.clearCache();
           GroupTypeFinder.clearCache();
           
-          Field field = Field.internal_addField(s, name, FieldType.LIST, read, write, true, false, null, fieldId);
+          Field field = Field.internal_addField(s, name, FieldType.LIST, read, write, exceptionIfExists, false, null, UUID);
           
           Set fields = GroupType.this.getFields();
           fields.add(field);
@@ -443,7 +471,7 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
           return field;
       }
     });
-  } // public Field addList(s, name, read, write)
+  }
 
   /**
    * Delete a custom {@link GroupType} definition.
@@ -954,6 +982,28 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
     AttributeDef attributeDef = AttributeDefFinder.findByName(stemName + ":" + attributeDefPrefix + GroupType.this.name, false);
     
     return attributeDef;
+  }
+  
+  /**
+   * @return the attributeDef for custom lists
+   */
+  public AttributeDef internal_getAttributeDefForCustomLists() {
+    String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");    
+    String customListDefPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.customListDef.prefix");
+    AttributeDef customListDef = AttributeDefFinder.findByName(stemName + ":" + customListDefPrefix + GroupType.this.name, false);    
+    
+    return customListDef;
+  }
+  
+  /**
+   * @return the attributeDefName for custom lists
+   */
+  public AttributeDefName internal_getAttributeDefNameForCustomLists() {
+    String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");    
+    String customListPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.customList.prefix");
+    AttributeDefName customList = AttributeDefNameFinder.findByName(stemName + ":" + customListPrefix + GroupType.this.name, false);
+
+    return customList;
   }
   
   /**
