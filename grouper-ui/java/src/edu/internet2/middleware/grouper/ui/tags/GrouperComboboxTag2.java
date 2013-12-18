@@ -234,7 +234,7 @@ public class GrouperComboboxTag2 extends SimpleTagSupport {
     result.append("      });\n");
     result.append("    </script></div>\n");
     
-    System.out.println(result);
+    //System.out.println(result);
     
     this.getJspContext().getOut().print(result.toString());
   }

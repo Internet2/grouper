@@ -42,7 +42,7 @@
 
                                 <%-- placeholder: Enter the name of a person, group, or other entity --%>
                                 <grouper:combobox2 idBase="groupAddMemberCombo" style="width: 30em"
-                                  filterOperation="../app/UiV2Group.addMemberFilter"/>
+                                  filterOperation="../app/UiV2Group.addMemberFilter?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}"/>
 
                                 <a href="#member-search" onclick="$('#addMemberResults').empty();" role="button" data-toggle="modal" class="btn"><i class="icon-search"></i></a>
                               </div>

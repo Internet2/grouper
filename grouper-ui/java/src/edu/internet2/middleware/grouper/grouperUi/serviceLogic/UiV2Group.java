@@ -208,139 +208,131 @@ public class UiV2Group {
    * @param request
    * @param response
    */
-  public void addMemberCombo(HttpServletRequest request, HttpServletResponse response) {
+  public void addMemberFilter(HttpServletRequest request, HttpServletResponse response) {
 
-    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
-    
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
     GrouperSession grouperSession = null;
-    
+
+    DojoComboDataResponse dojoComboDataResponse = null;
+
+
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
   
       Group group = retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
   
+      boolean done = false;
+      
       if (group == null) {
-        return;
+        
+        dojoComboDataResponse = new DojoComboDataResponse(
+            new DojoComboDataResponseItem[]{new DojoComboDataResponseItem("", "Not allowed to edit group")});
+        done = true;
       }
+    
+      if (!done) {
+        //{
+        //  query: {name: "A*"},
+        //  queryOptions: {ignoreCase: true},
+        //  sort: [{attribute:"name", descending:false}],
+        //    start: 0,
+        //    count: 10
+        //}
+        
+        //https://server.url/twoFactorMchyzer/twoFactorUi/app/UiMain.personPicker?name=ab*&start=0&count=Infinity
   
-      GroupContainer groupContainer = grouperRequestContainer.getGroupContainer();
+        //Utils.printToScreen("{\"label\":\"name\", \"identifier\":\"id\",\"items\":[{\"id\":\"10021368\",\"name\":\"Chris Hyzer (mchyzer, 10021368) (active) Staff - Astt And Information Security - Application Architect (also: Alumni)\"},{\"id\":\"10193029\",\"name\":\"Chyze-Whee Ang (angcw, 10193029) (active) Alumni\"}]}", "application/json", false, false);
   
-      String searchString = request.getParameter("addMemberSubjectSearch");
-      
-      
-      boolean searchOk = GrouperUiUtils.searchStringValid(searchString);
-      if (!searchOk) {
+        String query = StringUtils.defaultString(request.getParameter("id"));
         
-        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#addMemberResults", 
-            TextContainer.retrieveFromRequest().getText().get("groupAddMemberNotEnoughChars")));
-        return;
-      }
-      
-      //{
-      //  query: {name: "A*"},
-      //  queryOptions: {ignoreCase: true},
-      //  sort: [{attribute:"name", descending:false}],
-      //    start: 0,
-      //    count: 10
-      //}
-      
-      //https://server.url/twoFactorMchyzer/twoFactorUi/app/UiMain.personPicker?name=ab*&start=0&count=Infinity
-
-      //Utils.printToScreen("{\"label\":\"name\", \"identifier\":\"id\",\"items\":[{\"id\":\"10021368\",\"name\":\"Chris Hyzer (mchyzer, 10021368) (active) Staff - Astt And Information Security - Application Architect (also: Alumni)\"},{\"id\":\"10193029\",\"name\":\"Chyze-Whee Ang (angcw, 10193029) (active) Alumni\"}]}", "application/json", false, false);
-
-      String query = StringUtils.defaultString(request.getParameter("id"));
-      
-      boolean isLookup = true;
-      
-      if (StringUtils.isBlank(query)) {
-
-        isLookup = false;
+        boolean isLookup = true;
         
-        query = StringUtils.trimToEmpty(request.getParameter("name"));
-
-      }
-
-      DojoComboDataResponse dojoComboDataResponse = null;
-
-      //if there is no *, then looking for a specific name, return nothing since someone just typed something in and left...
-      if (!query.contains("*")) {
+        if (StringUtils.isBlank(query)) {
+  
+          isLookup = false;
+          
+          query = StringUtils.trimToEmpty(request.getParameter("name"));
+  
+        }
+  
+        //if there is no *, then looking for a specific name, return nothing since someone just typed something in and left...
+        if (!query.contains("*")) {
+          
+          isLookup = true;
+          
+        }
+  
+        Set<Subject> subjects = new LinkedHashSet<Subject>();
+        boolean enterMoreChars = false;
         
-        isLookup = true;
-        
-      }
-
-      Set<Subject> subjects = new LinkedHashSet<Subject>();
-      boolean enterMoreChars = false;
-      
-      {
-        String subjectId = query.endsWith("*") ? query.substring(0, query.length()-1) : query;
-        if (!StringUtils.isBlank(subjectId)) {
-          Subject subject = SubjectFinder.findByIdOrIdentifier(subjectId, false);
-                      
-          if (subject != null) {
-            
-            subjects.add(subject);
+        {
+          String subjectId = query.endsWith("*") ? query.substring(0, query.length()-1) : query;
+          if (!StringUtils.isBlank(subjectId)) {
+            Subject subject = SubjectFinder.findByIdOrIdentifier(subjectId, false);
+                        
+            if (subject != null) {
+              
+              subjects.add(subject);
+            }
           }
         }
-      }
+        
+        if (!isLookup) {
+        
+          //take out the asterisk
+          query = StringUtils.replace(query, "*", "");
       
-      if (!isLookup) {
-      
-        //take out the asterisk
-        query = StringUtils.replace(query, "*", "");
-    
-        //if its a blank query, then dont return anything...
-        if (query.length() > 1) {
-          
-          String stemName = group.getParentStemName();
-          
-          subjects.addAll(SubjectFinder.findPage(query).getResults());
-                  
-        } else {
-          enterMoreChars = true;
-        }
-      }
-
-      if (enterMoreChars) {
-        DojoComboDataResponseItem dojoComboDataResponseItem = new DojoComboDataResponseItem(null, 
-            TextContainer.retrieveFromRequest().getText().get("comboNotEnoughChars"));
-        dojoComboDataResponse = new DojoComboDataResponse(GrouperUtil.toList(dojoComboDataResponseItem));
-      } else {
-
-        if (subjects.size() == 0) {
-          dojoComboDataResponse = new DojoComboDataResponse();
-        } else {
-          
-          List<DojoComboDataResponseItem> items = new ArrayList<DojoComboDataResponseItem>();
-    
-          //convert subject to item
-          for (Subject subject : subjects) {
+          //if its a blank query, then dont return anything...
+          if (query.length() > 1) {
             
-            //description could be null?
+            String stemName = group.getParentStemName();
             
-            String description = GrouperUiUtils.escapeHtml(GrouperUiUtils.convertSubjectToLabelConfigured(subject), true);
-            
-            DojoComboDataResponseItem item = new DojoComboDataResponseItem(subject.getId(), description);
-            items.add(item);
-            
+            subjects.addAll(SubjectFinder.findPageInStem(stemName, query).getResults());
+                    
+          } else {
+            enterMoreChars = true;
           }
-          
-          dojoComboDataResponse = new DojoComboDataResponse(
-            GrouperUtil.toArray(items, DojoComboDataResponseItem.class));
-    
-        }  
-      }
-      String json = GrouperUtil.jsonConvertTo(dojoComboDataResponse, false);
+        }
+  
+        if (enterMoreChars) {
+          DojoComboDataResponseItem dojoComboDataResponseItem = new DojoComboDataResponseItem(null, 
+              TextContainer.retrieveFromRequest().getText().get("comboNotEnoughChars"));
+          dojoComboDataResponse = new DojoComboDataResponse(GrouperUtil.toList(dojoComboDataResponseItem));
+        } else {
+  
+          if (subjects.size() == 0) {
+            dojoComboDataResponse = new DojoComboDataResponse();
+          } else {
+            
+            List<DojoComboDataResponseItem> items = new ArrayList<DojoComboDataResponseItem>();
       
-      //write json to screen
-      GrouperUiUtils.printToScreen(json, HttpContentType.APPLICATION_JSON, false, false);
+            //convert subject to item
+            for (Subject subject : subjects) {
+              
+              //description could be null?
+              
+              String description = GrouperUiUtils.escapeHtml(GrouperUiUtils.convertSubjectToLabelConfigured(subject), true);
+              
+              DojoComboDataResponseItem item = new DojoComboDataResponseItem(subject.getId(), description);
+              items.add(item);
+              
+            }
+            
+            dojoComboDataResponse = new DojoComboDataResponse(
+              GrouperUtil.toArray(items, DojoComboDataResponseItem.class));
       
+          }  
+        }
+      }      
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
+
+    String json = GrouperUtil.jsonConvertTo(dojoComboDataResponse, false);
+    
+    //write json to screen
+    GrouperUiUtils.printToScreen(json, HttpContentType.APPLICATION_JSON, false, false);
 
     //dont print the regular JSON
     throw new ControllerDone();
