@@ -38,6 +38,8 @@ $(document).ready(function(){
       //if the url is an external URL, then go to the external index page
       if (!guiIsEmpty(location.href) && location.href.indexOf("/grouperExternal/appHtml/grouper.html") != -1) {
         location.href = "grouper.html?operation=ExternalSubjectSelfRegister.index";
+      } else if (!guiIsEmpty(location.href) && location.href.indexOf("/test/") != -1) {
+        //nothing
       } else {
         location.href = "grouper.html?operation=Misc.index";
       }
@@ -645,7 +647,12 @@ function guiProcessJsonResponse(guiResponseJs) {
   //if (successResultFunction) {
   //  successResultFunction.call(this, json);
   //}
-
+  
+  if (typeof dojo != 'undefined' && typeof dojo.parser != 'undefined') {
+    //parse the new doc for changes
+    dojo.parser.parse();
+  }
+  
   //round those corners
   guiRoundCorners();
 

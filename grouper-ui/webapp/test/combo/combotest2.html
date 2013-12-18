@@ -26,17 +26,17 @@
     };
 </script>
 
-<script src="../../grouperExternal/public/assets/dojo/dojo/dojo.js" ></script>
-
+<script src="../../grouperExternal/public/assets/dojo/dojo/dojo.js"></script>
+ 
 <script type="text/javascript" >
 
-require(["dojo/ready", "dojo/json", 
+require(["dojo/ready", "dijit/registry", "dojo/parser", "dojo/json", 
          "dojo/_base/config", "dijit/Dialog", "dojo/domReady!", "dijit/form/FilteringSelect", 
          "dojox/data/QueryReadStore", "dojo/dom-attr", "dijit/Tree", "dojo/data/ItemFileReadStore", 
          "dojo/store/JsonRest", "dojo/_base/declare", "dijit/form/ComboBox"]);
 
-</script>
 
+</script>
 
 <script src="../../grouperExternal/public/assets/js/jquery.js"></script>
 
@@ -53,13 +53,13 @@ require(["dojo/ready", "dojo/json",
 <script src="../../grouperExternal/public/assets/nifty/niftycube.js"></script>
 
 
+
 <script>
 $( document ).ready(function() {
   dojo.parser.parse();
 });
 
 </script>
-
 
     <script type="text/javascript">
         $().ajaxStop($.unblockUI); 
@@ -75,83 +75,15 @@ $( document ).ready(function() {
   </head>
   <body>
 
-    <script src="../../grouperExternal/public/assets/js/wz_tooltip.js"></script>
-
-    <div style="display: inline; white-space: nowrap; "><div data-dojo-type="dojox.data.QueryReadStore" id="groupAddMemberComboStoreId"  
+    <div data-dojo-type="dojox.data.QueryReadStore" id="groupAddMemberComboStoreId"  
     data-dojo-props="url:'../app/UiV2Group.addMemberFilter'" data-dojo-id="groupAddMemberComboStoreDojoId" style="display: none"></div>
     <input id="groupAddMemberComboId" name="groupAddMemberComboName"  searchDelay="500"  required="false" 
     data-dojo-props="store:groupAddMemberComboStoreDojoId"  style="width: 30em" 
     autocomplete="false" data-dojo-type="dijit/form/FilteringSelect" hasDownArrow="false" /><img 
      style="position: relative; top: 5px; left: -18px; display: none; " alt="busy..."  id="groupAddMemberComboThrobberId"
      src="../../grouperExternal/public/assets/images/busy.gif" class="comboThrobber" />
-    <script>
-      dojo.ready(function(){
-        dijit.byId('groupAddMemberComboId').onChange = function(evt) {
-          this.focusNode.setSelectionRange(0,0);
-        }
-      });
-    </script></div>
 
     <br /><br /><br />
-<input id="stateSelect">
-<p>
-    <button onclick="alert(dijit.byId('stateSelect').get('value'))">Get value</button>
-    <button onclick="alert(dijit.byId('stateSelect').get('displayedValue'))">Get displayed value</button>
-</p>
-    <script>
-    require([
-             "dojo/store/Memory", "dijit/form/FilteringSelect", "dojo/domReady!"
-         ], function(Memory, FilteringSelect){
-             var stateStore = new Memory({
-                 data: [
-                     {name:"Alabama", id:"AL"},
-                     {name:"Alaska", id:"AK"},
-                     {name:"American Samoa", id:"AS"},
-                     {name:"Arizona", id:"AZ"},
-                     {name:"Arkansas", id:"AR"},
-                     {name:"Armed Forces Europe", id:"AE"},
-                     {name:"Armed Forces Pacific", id:"AP"},
-                     {name:"Armed Forces the Americas", id:"AA"},
-                     {name:"California", id:"CA"},
-                     {name:"Colorado", id:"CO"},
-                     {name:"Connecticut", id:"CT"},
-                     {name:"Delaware", id:"DE"}
-                 ]
-             });
-
-             var filteringSelect = new FilteringSelect({
-                 id: "stateSelect",
-                 name: "state",
-                 value: "CA",
-                 store: stateStore,
-                 searchAttr: "name"
-             }, "stateSelect");
-         });
-
-    </script>
-<br /><br /><br />
-
-      <div data-dojo-type="dojox.data.QueryReadStore" id="personPickerStoreId" formElementNamesToSend="anotherItemName"
-        data-dojo-props="url:'../twoFactorUi/app/UiMain.personPicker'" data-dojo-id="personPickerStoreDojoId" style="display: inline"></div>
-      <form method="get" action="dojo.html" id="theForm" >
-      <!-- value="id2" displayedValue"hello" -->
-      <br /><br />
-      <span style="font-size: 0.9em">Enter search text to find a person:</span><br />
-        <input id="personPickerId" name="personPickerName"  searchDelay="500" value="10021368"
-          data-dojo-props="store:personPickerStoreDojoId" class="claro" style="width: 40em"
-          autoComplete="false" data-dojo-type="dijit/form/FilteringSelect" hasDownArrow="false" /><!-- 
-           -18 for no down arrow, -36 for down arrow -->
-  <script>
-  //dijit.byId('personPickerId').set('value', "1");
-  //dijit.byId('personPickerId').set('displayedValue', "12");
-  dojo.ready(function(){
-    dijit.byId('personPickerId').onChange = function(evt) {
-      this.focusNode.setSelectionRange(0,0);
-    }
-  });
-  </script>
-
-<br /><br /><br />
 
 <select data-dojo-type="dijit/form/ComboBox" id="fruit" name="fruit">
     <option>Apples</option>

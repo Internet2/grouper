@@ -16,20 +16,22 @@
 <![endif]-->
 <link rel="shortcut icon" href="../../grouperExternal/public/assets/images/favicon.ico">
 
+<script>
+
+    dojoConfig= {
+        parseOnLoad: false,
+        async: false
+    };
+</script>
 <%-- dojo is up in commonHead, everything else is in commonBottom.jsp --%>
 <script src="../../grouperExternal/public/assets/dojo/dojo/dojo.js"></script>
 
 <script type="text/javascript" >
-    dojo.require("dojo/ready");
-    dojo.require("dojo/parser");
-    dojo.require("dijit/form/FilteringSelect");
-    dojo.require("dojox/data/QueryReadStore");
-    dojo.require("dojo/dom-attr");
-    dojo.require("dijit.Tree");
-    dojo.require("dojo.data.ItemFileReadStore");
-    dojo.require("dojo.store.JsonRest");
-    dojo.require("dojo/_base/declare");
 
+require(["dojo/ready", "dijit/registry", "dojo/parser", "dojo/json", 
+         "dojo/_base/config", "dijit/Dialog", "dojo/domReady!", "dijit/form/FilteringSelect", 
+         "dojox/data/QueryReadStore", "dojo/dom-attr", "dijit/Tree", "dojo/data/ItemFileReadStore", 
+         "dojo/store/JsonRest", "dojo/_base/declare", "dijit/form/ComboBox"]);
 </script>
 
 <script src="../../grouperExternal/public/assets/js/jquery.js"></script>

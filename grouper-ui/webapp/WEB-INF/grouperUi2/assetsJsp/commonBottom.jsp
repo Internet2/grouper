@@ -14,14 +14,20 @@
 <script src="../../grouperExternal/public/assets/js/jquery.simplemodal.js"></script>
 <script src="../../grouperExternal/public/assets/nifty/niftycube.js"></script>
 
-    <script type="text/javascript">
-        $().ajaxStop($.unblockUI); 
-        $.blockUI.defaults.message = "<img src='../../grouperExternal/public/assets/images/busy.gif' alt='busy'/>";
-        $.blockUI.defaults.css.border = 'none';
-        $.blockUI.defaults.css.backgroundColor = 'transparent';
-        $.blockUI.defaults.overlayCSS.opacity = '0.02';
-        $.blockUI.defaults.fadeIn = '200';
-        $.blockUI.defaults.fadeOut = '400';
-        $.blockUI.defaults.timeout = '180000';
-    </script>
+<script type="text/javascript">
+  $().ajaxStop($.unblockUI); 
+  $.blockUI.defaults.message = "<img src='../../grouperExternal/public/assets/images/busy.gif' alt='busy'/>";
+  $.blockUI.defaults.css.border = 'none';
+  $.blockUI.defaults.css.backgroundColor = 'transparent';
+  $.blockUI.defaults.overlayCSS.opacity = '0.02';
+  $.blockUI.defaults.fadeIn = '200';
+  $.blockUI.defaults.fadeOut = '400';
+  $.blockUI.defaults.timeout = '180000';
+</script>
 
+<script>
+  $( document ).ready(function() {
+    dojo.parser.parse();
+  });
+ 
+</script>
