@@ -30,7 +30,6 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GroupType;
-import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -44,7 +43,6 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryInstall;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
@@ -253,14 +251,19 @@ public class GrouperStartup {
       
       initData(true);
       
-      //init include exclude type
-      initIncludeExcludeType();
+      boolean legacyAttributeMigrationIncomplete = GrouperDdlUtils.getTableCount("grouper_types_legacy", false) > 0;
       
-      //init loader types and attributes if configured
-      initLoaderType();
-      
-      //init membership lite config type
-      initMembershipLiteConfigType();
+      // skip for now if legacy attribute migration is not done
+      if (!legacyAttributeMigrationIncomplete) {
+        //init include exclude type
+        initIncludeExcludeType();
+        
+        //init loader types and attributes if configured
+        initLoaderType();
+        
+        //init membership lite config type
+        initMembershipLiteConfigType();
+      }
       
       // verify member search and sort config
       verifyMemberSortAndSearchConfig();

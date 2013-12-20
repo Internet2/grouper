@@ -347,7 +347,7 @@ public class MigrateLegacyAttributes {
             logDetail("Migrating group type assignment.  Group=" + group.getName() + ", type="  + type.getName());
             group.internal_addType(type, groupTypeAssignmentId, true);
           } else {
-            logDetail("Would be migrating group type assignment.  Group=" + group.getName() + ", type="  + type.getName());
+            logDetail("Would be migrating group type assignment.  Group=" + group.getName() + ", type="  + typeId);
           }
         }
       }

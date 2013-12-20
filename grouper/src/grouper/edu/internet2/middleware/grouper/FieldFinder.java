@@ -298,8 +298,8 @@ public class FieldFinder {
     Set<Field> allListFields = FieldFinder.findAllByType(FieldType.LIST);
     for (Field listField : allListFields) {
       if (!listField.getUuid().equals(Group.getDefaultList().getUuid())) {
-        String groupTypeId = GroupTypeFinder.internal_findGroupTypeByField(listField, true).getUuid();
-        if (groupType.getUuid().equals(groupTypeId)) {
+        GroupType currGroupType = GroupTypeFinder.internal_findGroupTypeByField(listField, false);
+        if (currGroupType != null && groupType.getUuid().equals(currGroupType.getUuid())) {
           fields.add(listField);
         }
       }
