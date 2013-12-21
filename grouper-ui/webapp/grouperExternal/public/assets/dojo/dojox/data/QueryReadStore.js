@@ -208,6 +208,13 @@ define("dojox/data/QueryReadStore", ["dojo", "dojox", "dojo/data/util/sorter", "
         
             var _errorHandler = function(errorData, requestObject){
                 if(requestObject.onError){
+      
+                    //20131221: MCH: on error, show a message to the user
+                    //TODO internationalize this message at some point
+                    if (errorData.name != "CancelError") { 
+                      alert("error communicating with server"); 
+                    } 
+                  
                     var scope = requestObject.scope || dojo.global;
                     requestObject.onError.call(scope, errorData, requestObject);
                 }
