@@ -1307,25 +1307,26 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   public Set<Stem> getAllStemsSecure(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet,
       QueryOptions queryOptions) throws GrouperDAOException {
-    return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet, queryOptions, false, null, null);
+    return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet, queryOptions, false, null, null, false);
   }
 
   /**
    * @param scope 
-   * @param grouperSession 
-   * @param subject 
-   * @param inPrivSet 
-   * @param queryOptions 
+   * @param grouperSession
+   * @param subject
+   * @param inPrivSet
+   * @param queryOptions
    * @param splitScope
    * @param parentStemId
    * @param stemScope
+   * @param findByUuidOrName if we are looking by uuid or name
    * @return the matching stems
-   * @throws GrouperDAOException 
+   * @throws GrouperDAOException
    */
   private Set<Stem> getAllStemsSecureHelper(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet,
       QueryOptions queryOptions, boolean splitScope,
-      String parentStemId, Scope stemScope) throws GrouperDAOException {
+      String parentStemId, Scope stemScope, boolean findByUuidOrName) throws GrouperDAOException {
 
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
@@ -1333,7 +1334,6 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     if (queryOptions.getQuerySort() == null) {
       queryOptions.sortAsc("ns.displayNameDb");
     }
-    //TODO update for 1.5
 
     StringBuilder sql = new StringBuilder("select distinct ns from Stem ns ");
 
@@ -1357,6 +1357,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       changedQuery = grouperSession.getNamingResolver().hqlFilterStemsWhereClause(subject, byHqlStatic, 
           sql, "ns.uuid", inPrivSet);
     }
+
+    if (findByUuidOrName && StringUtils.isBlank(scope)) {
+      throw new RuntimeException("If you are looking by uuid or name, you need to pass in a scope");
+    }
     
     //see if there is a scope
     if (!StringUtils.isBlank(scope)) {
@@ -1364,6 +1368,11 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       StringBuilder whereClause = new StringBuilder();
       
       String[] scopes = splitScope ? GrouperUtil.splitTrim(scope, " ") : new String[]{scope};
+
+      if (scopes.length > 1 && findByUuidOrName) {
+        throw new RuntimeException("If you are looking by uuid or name, then you can only pass in one scope: " + scope);
+      }
+      
       int index = 0;
       for (String theScope : scopes) {
         if (whereClause.length() > 0) {
@@ -1376,13 +1385,19 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
           }
           whereClause.append(" (( ");
         }
-        whereClause.append(" lower(ns.nameDb) like :scope" + index + " ");
-        if (splitScope) {
-          theScope = "%" + theScope + "%";
-        } else if (!theScope.endsWith("%")) {
-          theScope += "%";
+        if (findByUuidOrName) {
+          whereClause.append(" ns.nameDb = :scope" + index + " or ns.alternateNameDb = :scopea" + index + " ");
+          byHqlStatic.setString("scope" + index, theScope.toLowerCase());
+          byHqlStatic.setString("scopea" + index, theScope.toLowerCase());
+        } else {
+          whereClause.append(" lower(ns.nameDb) like :scope" + index + " ");
+          if (splitScope) {
+            theScope = "%" + theScope + "%";
+          } else if (!theScope.endsWith("%")) {
+            theScope += "%";
+          }
+          byHqlStatic.setString("scope" + index, theScope.toLowerCase());
         }
-        byHqlStatic.setString("scope" + index, theScope.toLowerCase());
         index++;
       }
 
@@ -1917,7 +1932,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   public Set<Stem> getAllStemsSplitScopeSecure(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions) {
-    return this.getAllStemsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, true, null, null);
+    return this.getAllStemsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, true, null, null, false);
   }
 
   /**
@@ -1983,14 +1998,15 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   }
 
   /**
-   * @see StemDAO#getAllStemsSecure(String, GrouperSession, Subject, Set, QueryOptions, boolean, String, Scope)
+   * @see StemDAO#getAllStemsSecure(String, GrouperSession, Subject, Set, QueryOptions, boolean, String, Scope, boolean)
    */
   @Override
   public Set<Stem> getAllStemsSecure(String scope, GrouperSession grouperSession,
       Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions,
-      boolean splitScope, String parentStemId, Scope stemScope)
+      boolean splitScope, String parentStemId, Scope stemScope, boolean findByUuidOrName)
       throws GrouperDAOException {
-    return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet, queryOptions, splitScope, parentStemId, stemScope);
+    return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet, queryOptions, 
+        splitScope, parentStemId, stemScope, findByUuidOrName);
   }
 
 } 

@@ -494,14 +494,16 @@ public interface StemDAO extends GrouperDAO {
    * @param splitScope true to split scopes by whitespace
    * @param parentStemId true if filtering by parent of ancestor
    * @param stemScope ONE or SUB
+   * @param findByUuidOrName if we are looking up a stem, only look by uuid or name
    * @return the stems
    * @throws GrouperDAOException
+   * @since v2.2
    */
   Set<Stem> getAllStemsSecure(String scope, GrouperSession grouperSession, 
       Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions,
-      boolean splitScope, String parentStemId, Scope stemScope)
+      boolean splitScope, String parentStemId, Scope stemScope, boolean findByUuidOrName)
     throws  GrouperDAOException;
-  
+
   /**
    * get all stems secure, split the scope by whitespace
    * @param scope

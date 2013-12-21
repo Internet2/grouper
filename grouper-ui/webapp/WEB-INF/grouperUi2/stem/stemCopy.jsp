@@ -97,9 +97,14 @@
                     </div>
                   </div>
                   <div class="control-group">
-                    <label for="folder-path" class="control-label">${textContainer.text['stemCopyIntoFolder'] }</label>
+                    <label for="parentFolderComboId" class="control-label">${textContainer.text['stemCopyIntoFolder'] }</label>
                     <div class="controls">
-                      <input type="text" name="parentFolderId" placeholder="Enter a folder name" value="" id="folder-path"> <a href="#folder-search" role="button" data-toggle="modal" class="btn"><i class="icon-search"></i></a>
+                      
+                      <%-- placeholder: Enter a folder name --%>
+                      <grouper:combobox2 idBase="parentFolderCombo" style="width: 30em"
+                        filterOperation="../app/UiV2Stem.stemCopyParentFolderFilter?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}"/>
+                      
+                      <a href="#folder-search" role="button" data-toggle="modal" class="btn"><i class="icon-search"></i></a>
                       <span class="help-block">${textContainer.text['stemCopyIntoFolderDescription'] }</span>
                     </div>
                   </div>

@@ -459,6 +459,23 @@ public class StemFinder {
   private String parentStemId;
 
   /**
+   * if we are looking up a stem, only look by uuid or name
+   */
+  private boolean findByUuidOrName;
+  
+  /**
+   * if we are looking up a stem, only look by uuid or name
+   * @param theFindByUuidOrName
+   * @return the stem finder
+   */
+  public StemFinder assignFindByUuidOrName(boolean theFindByUuidOrName) {
+    
+    this.findByUuidOrName = theFindByUuidOrName;
+    
+    return this;
+  }
+  
+  /**
    * if passing in a stem, this is the stem scope...
    */
   private Scope stemScope;
@@ -530,15 +547,24 @@ public class StemFinder {
   }
 
   /**
-   * find all the group
-   * @return the set of groups or the empty set if none found
+   * find all the stem
+   * @return the set of stems or the empty set if none found
+   */
+  public Stem findStem() {
+    Set<Stem> stems = this.findStems();
+    return GrouperUtil.setPopOne(stems);
+  }
+
+  /**
+   * find all the stems
+   * @return the set of stemss or the empty set if none found
    */
   public Set<Stem> findStems() {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
   
     return GrouperDAOFactory.getFactory().getStem()
         .getAllStemsSecure(this.scope, grouperSession, this.subject, this.privileges, 
-            this.queryOptions, this.splitScope, this.parentStemId, this.stemScope);
+            this.queryOptions, this.splitScope, this.parentStemId, this.stemScope, this.findByUuidOrName);
     
   }
 
