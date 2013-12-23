@@ -184,7 +184,7 @@ public class GrouperComboboxTag2 extends SimpleTagSupport {
     
     result.append("    <div style=\"display: inline; white-space: nowrap; \"><div data-dojo-type=\"dojox.data.QueryReadStore\" id=\"" + this.idBase + "StoreId\" ");
     if (!StringUtils.isBlank(this.additionalFormElementNames)) {
-      result.append(" formElementNamesToSend=\"anotherItemName\" ");
+      result.append(" formElementNamesToSend=\"" + this.additionalFormElementNames + "\" ");
     }
     result.append(" data-dojo-props=\"url:'" + this.filterOperation 
         + "'\" data-dojo-id=\"" + this.idBase + "StoreDojoId\" style=\"display: none\"></div>\n" );
@@ -196,7 +196,7 @@ public class GrouperComboboxTag2 extends SimpleTagSupport {
       result.append(" value=\"" + this.value + "\" ");
     }
     
-    result.append(" required=\"false\" data-dojo-props=\"store:" + this.idBase + "StoreDojoId\" ");
+    result.append(" required=\"false\" data-dojo-props=\"store:" + this.idBase + "StoreDojoId, labelType:'html', labelFunc : function(item, store) { return store.getValue(item, 'htmlLabel'); } \" ");
 
     //placeHolder?
     
@@ -216,7 +216,7 @@ public class GrouperComboboxTag2 extends SimpleTagSupport {
     //    style="position: relative; top: 5px; left: -18px; display: none; " alt="busy..."  id="personPickerThrobberId"
     //    src="../../grouperExternal/pubilc/assets/busy.gif" class="comboThrobber" />
     result.append("<img \n");
-    result.append("     style=\"position: relative; top: 5px; left: " + (this.hasDownArrowProcessed() ? "-36" : "-18") + "px; display: none; \" alt=\"busy...\"  id=\"" + this.idBase + "ThrobberId\"\n");
+    result.append("     style=\"position: relative; top: 0px; left: " + (this.hasDownArrowProcessed() ? "-38" : "-20") + "px; display: none; \" alt=\"busy...\"  id=\"" + this.idBase + "ThrobberId\"\n");
     result.append("     src=\"../../grouperExternal/public/assets/images/busy.gif\" class=\"comboThrobber\" />\n");
     
     //<script>
@@ -231,6 +231,12 @@ public class GrouperComboboxTag2 extends SimpleTagSupport {
     result.append("        dijit.byId('" + this.idBase + "Id').onChange = function(evt) {\n");
     result.append("          this.focusNode.setSelectionRange(0,0);\n");
     result.append("        }\n");
+//    result.append("        dijit.byId('" + this.idBase + "Id').labelFunc = function(item, store) {\n");
+//    result.append("          alert(item);\n");
+//    result.append("          return item.htmlLabel;\n");
+//    result.append("        }\n");
+    
+//              "<li>", store.getValue(item, "title"), "</li>",
     result.append("      });\n");
     result.append("    </script></div>\n");
     

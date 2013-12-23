@@ -338,6 +338,22 @@ define("dojox/data/QueryReadStore", ["dojo", "dojox", "dojo/data/util/sorter", "
         },
         
         _fetchItems: function(request, fetchHandler, errorHandler){
+
+          //e.g. personPickerStoreId 
+          var storeId = this.id; 
+          var pickerPrefix = null; 
+          if (typeof storeId != "undefined" && storeId != null && storeId.match(/StoreId$/)) { 
+            
+            //e.g. personPicker 
+            pickerPrefix = storeId.substring(0, storeId.length - "StoreId".length); 
+            
+          } 
+
+          if (pickerPrefix != null) { 
+            //show the throbber 
+            $("#" + pickerPrefix + "ThrobberId").show(); 
+          } 
+          
             // summary:
             //      The request contains the data as defined in the Read-API.
             //      Additionally there is following keyword "serverQuery".
@@ -392,17 +408,59 @@ define("dojox/data/QueryReadStore", ["dojo", "dojox", "dojo/data/util/sorter", "
                 ){
                 this._numRows = (this._numRows === -1) ? this._items.length : this._numRows;
                 fetchHandler(this._items, request, this._numRows);
+                
+                //MCH 20131222 hide throbber
+                if (pickerPrefix != null) { 
+                  //show the throbber 
+                  //$("#" + pickerPrefix + "ThrobberId").hide(); 
+                } 
             }else{
+              
                 var xhrFunc = this.requestMethod.toLowerCase() == "post" ? dojo.xhrPost : dojo.xhrGet;
-                var xhrHandler = xhrFunc({url:this.url, handleAs:"json-comment-optional", content:serverQuery, failOk: true});
+  
+                var theUrl = this.url; 
+                
+                //make the request dynamic, maybe send some other form element names 
+                var formElementNamesToSend = dojo.getAttr(this.id, "formElementNamesToSend"); 
+                  
+                if (typeof formElementNamesToSend != 'undefined' && formElementNamesToSend != null) { 
+                  
+                  //add additional form element names to filter based on other things on the screen 
+                  var additionalFormElementNamesArray = dojoSplitTrim(formElementNamesToSend, ","); 
+                  for (var i = 0; i<additionalFormElementNamesArray.length; i++) {
+                    var additionalFormElementName = additionalFormElementNamesArray[i];
+                    theUrl += theUrl.indexOf("?") == -1 ? "?" : "&";
+                    theUrl += additionalFormElementName + "=";
+                    //this will work for simple elements
+                    theUrl += encodeURIComponent(document.getElementsByName(additionalFormElementName)[0].value);
+                  }
+                }
+                
+                var xhrHandler = xhrFunc({url:theUrl, handleAs:"json-comment-optional", content:serverQuery, failOk: true}); 
+              
                 request.abort = function(){
                     xhrHandler.cancel();
+                    
+                    //MCH 20131222 hide throbber
+                    if (pickerPrefix != null) { 
+                      $("#" + pickerPrefix + "ThrobberId").hide(); 
+                    } 
                 };
                 xhrHandler.addCallback(dojo.hitch(this, function(data){
                     this._xhrFetchHandler(data, request, fetchHandler, errorHandler);
+                    
+                    //MCH 20131222 hide throbber
+                    if (pickerPrefix != null) { 
+                      $("#" + pickerPrefix + "ThrobberId").hide(); 
+                    } 
                 }));
                 xhrHandler.addErrback(function(error){
                     errorHandler(error, request);
+                    
+                    //MCH 20131222 hide throbber
+                    if (pickerPrefix != null) { 
+                      $("#" + pickerPrefix + "ThrobberId").hide(); 
+                    } 
                 });
                 // Generate the hash using the time in milliseconds and a randon number.
                 // Since Math.randon() returns something like: 0.23453463, we just remove the "0."
@@ -519,3 +577,59 @@ define("dojox/data/QueryReadStore", ["dojo", "dojox", "dojo/data/util/sorter", "
     });
 
 });
+
+/** 
+ * split and trim a string to an array of strings 
+ */ 
+function dojoSplitTrim(input, separator) { 
+ if (input == null) { 
+   return input; 
+  } 
+  //trim the string 
+  input = dojoTrim(input); 
+ if (input == null) { 
+   return input; 
+  } 
+  //loop through the array and trim it 
+ var theArray = input.split(separator); 
+ for(var i=0;theArray!=null && i<theArray.length;i++) { 
+     theArray[i] = dojoTrim(theArray[i]); 
+  } 
+  return theArray; 
+} 
+
+/** 
+ * trim all whitespace off a string 
+ */ 
+function dojoTrim(x) { 
+  if (!x) { 
+    return x; 
+  } 
+  var i = 0; 
+  while (i < x.length) { 
+    if (dojoIsWhiteSpace(x.charAt(i))) { 
+      i++; 
+    } else { 
+      break; 
+    } 
+  } 
+  if (i==x.length) { 
+    return ""; 
+  } 
+  x = x.substring(i,x.length); 
+  i = x.length-1; 
+  while (i >= 0) { 
+    if (dojoIsWhiteSpace(x.charAt(i))) { 
+      i--; 
+    } else { 
+      break; 
+    }   
+  } 
+  if (i < 0) { 
+    return x; 
+  } 
+  return x.substring(0,i+1); 
+} 
+function dojoIsWhiteSpace(x) { 
+  return x==" " || x=="\n" || x=="\t" || x=="\r"; 
+} 

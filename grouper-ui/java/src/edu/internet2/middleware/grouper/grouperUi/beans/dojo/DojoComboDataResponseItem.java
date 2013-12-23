@@ -14,10 +14,11 @@ public class DojoComboDataResponseItem {
    * @param identifier1
    * @param label1
    */
-  public DojoComboDataResponseItem(String identifier1, String label1) {
+  public DojoComboDataResponseItem(String identifier1, String label1, String htmlLabel1) {
     super();
     this.id = identifier1;
     this.name = label1;
+    this.htmlLabel = htmlLabel1;
   }
 
   /**
@@ -30,6 +31,27 @@ public class DojoComboDataResponseItem {
    */
   private String name;
   
+  /**
+   * html label
+   */
+  private String htmlLabel;
+  
+  /**
+   * html label
+   * @return html label
+   */
+  public String getHtmlLabel() {
+    return this.htmlLabel;
+  }
+
+  /**
+   * html label
+   * @param htmlLabel1
+   */
+  public void setHtmlLabel(String htmlLabel1) {
+    this.htmlLabel = htmlLabel1;
+  }
+
   /**
    * @return the id
    */

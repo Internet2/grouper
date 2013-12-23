@@ -226,8 +226,9 @@ public class UiV2Group {
       
       if (group == null) {
         
+        String label = "Not allowed to edit group";
         dojoComboDataResponse = new DojoComboDataResponse(
-            new DojoComboDataResponseItem[]{new DojoComboDataResponseItem("", "Not allowed to edit group")});
+            new DojoComboDataResponseItem[]{new DojoComboDataResponseItem("", label, label)});
         done = true;
       }
     
@@ -296,8 +297,9 @@ public class UiV2Group {
         }
   
         if (enterMoreChars) {
+          String label = TextContainer.retrieveFromRequest().getText().get("comboNotEnoughChars");
           DojoComboDataResponseItem dojoComboDataResponseItem = new DojoComboDataResponseItem(null, 
-              TextContainer.retrieveFromRequest().getText().get("comboNotEnoughChars"));
+              label, label);
           dojoComboDataResponse = new DojoComboDataResponse(GrouperUtil.toList(dojoComboDataResponseItem));
         } else {
   
@@ -314,7 +316,7 @@ public class UiV2Group {
               
               String description = GrouperUiUtils.escapeHtml(GrouperUiUtils.convertSubjectToLabelConfigured(subject), true);
               
-              DojoComboDataResponseItem item = new DojoComboDataResponseItem(subject.getId(), description);
+              DojoComboDataResponseItem item = new DojoComboDataResponseItem(subject.getId(), description, description);
               items.add(item);
               
             }

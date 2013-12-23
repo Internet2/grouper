@@ -81,8 +81,9 @@ public class UiV2Stem {
       
       if (stem == null) {
         
+        String label = "Not allowed to copy folder";
         dojoComboDataResponse = new DojoComboDataResponse(
-            new DojoComboDataResponseItem[]{new DojoComboDataResponseItem("", "Not allowed to copy folder")});
+            new DojoComboDataResponseItem[]{new DojoComboDataResponseItem("", label, label)});
         done = true;
       }
     
@@ -149,8 +150,9 @@ public class UiV2Stem {
         }
   
         if (enterMoreChars) {
+          String label = TextContainer.retrieveFromRequest().getText().get("comboNotEnoughChars");
           DojoComboDataResponseItem dojoComboDataResponseItem = new DojoComboDataResponseItem(null, 
-              TextContainer.retrieveFromRequest().getText().get("comboNotEnoughChars"));
+              label, label);
           dojoComboDataResponse = new DojoComboDataResponse(GrouperUtil.toList(dojoComboDataResponseItem));
         } else {
   
@@ -164,9 +166,10 @@ public class UiV2Stem {
             for (Stem theStem : stems) {
               
               //description could be null?
-              String description = GrouperUiUtils.escapeHtml(theStem.getDisplayName(), true);
+              String label = GrouperUiUtils.escapeHtml(theStem.getDisplayName(), true);
+              String htmlLabel = "<img src=\"../../grouperExternal/public/assets/images/folder.gif\" /> " + label;
               
-              DojoComboDataResponseItem item = new DojoComboDataResponseItem(theStem.getId(), description);
+              DojoComboDataResponseItem item = new DojoComboDataResponseItem(theStem.getId(), label, htmlLabel);
               items.add(item);
               
             }
@@ -182,6 +185,8 @@ public class UiV2Stem {
     }
 
     String json = GrouperUtil.jsonConvertTo(dojoComboDataResponse, false);
+    
+    System.out.println(json);
     
     //write json to screen
     GrouperUiUtils.printToScreen(json, HttpContentType.APPLICATION_JSON, false, false);
@@ -485,7 +490,6 @@ public class UiV2Stem {
 
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
             TextContainer.retrieveFromRequest().getText().get("stemErrorEntityRequired")));
-        guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTop()"));
         return;
       }
       

@@ -754,6 +754,7 @@ function guiProcessAction(guiScreenAction) {
   }
   if (!guiIsEmpty(guiScreenAction.message)) {
     guiMessageHelper(guiScreenAction.messageType, guiScreenAction.message);
+    guiScrollTop();
   }
 }
 

@@ -62,10 +62,10 @@ public class DojoComboDataResponse {
     
     DojoComboDataResponse dojoComboDataResponse = new DojoComboDataResponse(
         new DojoComboDataResponseItem[]{
-           new DojoComboDataResponseItem("id0", "label0"),
-           new DojoComboDataResponseItem("id1", "label1"),
-           new DojoComboDataResponseItem("id2", "label2"),
-           new DojoComboDataResponseItem("id3", "label3")
+           new DojoComboDataResponseItem("id0", "label0", "label0"),
+           new DojoComboDataResponseItem("id1", "label1", "label1"),
+           new DojoComboDataResponseItem("id2", "label2", "label2"),
+           new DojoComboDataResponseItem("id3", "label3", "label3")
         });
     
     String json = GrouperUtil.jsonConvertTo(dojoComboDataResponse, false);
