@@ -1,8 +1,7 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,11 +21,10 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemCopy;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
-import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboDataResponse;
-import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboDataResponseItem;
+import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
+import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogicBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
@@ -34,18 +32,14 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContain
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.StemContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
-import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.membership.MembershipType;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
-import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
-import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -65,150 +59,76 @@ public class UiV2Stem {
    * @param request
    * @param response
    */
-  public void stemCopyParentFolderFilter(HttpServletRequest request, HttpServletResponse response) {
+  public void stemCopyParentFolderFilter(final HttpServletRequest request, HttpServletResponse response) {
 
-    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    //run the combo logic
+    DojoComboLogic.logic(request, response, new DojoComboQueryLogicBase<Stem>() {
 
-    GrouperSession grouperSession = null;
-
-    DojoComboDataResponse dojoComboDataResponse = null;
-
-
-    try {
-      grouperSession = GrouperSession.start(loggedInSubject);
-  
-      Stem stem = retrieveStemHelper(request, true).getStem();
-  
-      boolean done = false;
-      
-      if (stem == null) {
-        
-        String label = "Not allowed to copy folder";
-        dojoComboDataResponse = new DojoComboDataResponse(
-            new DojoComboDataResponseItem[]{new DojoComboDataResponseItem("", label, label)});
-        done = true;
+      /**
+       * 
+       */
+      @Override
+      public Stem lookup(HttpServletRequest request, GrouperSession grouperSession, String query) {
+        Subject loggedInSubject = grouperSession.getSubject();
+        Stem theStem = new StemFinder().addPrivilege(NamingPrivilege.STEM).assignSubject(loggedInSubject)
+            .assignFindByUuidOrName(true).assignScope(query).findStem();
+        return theStem;
       }
-    
-      if (!done) {
-        //{
-        //  query: {name: "A*"},
-        //  queryOptions: {ignoreCase: true},
-        //  sort: [{attribute:"name", descending:false}],
-        //    start: 0,
-        //    count: 10
-        //}
-        
-        //https://server.url/twoFactorMchyzer/twoFactorUi/app/UiMain.personPicker?name=ab*&start=0&count=Infinity
-  
-        //Utils.printToScreen("{\"label\":\"name\", \"identifier\":\"id\",\"items\":[{\"id\":\"10021368\",\"name\":\"Chris Hyzer (mchyzer, 10021368) (active) Staff - Astt And Information Security - Application Architect (also: Alumni)\"},{\"id\":\"10193029\",\"name\":\"Chyze-Whee Ang (angcw, 10193029) (active) Alumni\"}]}", "application/json", false, false);
-  
-        String query = StringUtils.defaultString(request.getParameter("id"));
-        
-        boolean isLookup = true;
-        
-        if (StringUtils.isBlank(query)) {
-  
-          isLookup = false;
-          
-          query = StringUtils.trimToEmpty(request.getParameter("name"));
-  
-        }
-  
-        //if there is no *, then looking for a specific name, return nothing since someone just typed something in and left...
-        if (!query.contains("*")) {
-          
-          isLookup = true;
-          
-        }
-  
-        Set<Stem> stems = new LinkedHashSet<Stem>();
-        boolean enterMoreChars = false;
-        
-        {
-          String groupIdOrName = query.endsWith("*") ? query.substring(0, query.length()-1) : query;
-          if (!StringUtils.isBlank(groupIdOrName)) {
-            
-            Stem theStem = new StemFinder().addPrivilege(NamingPrivilege.STEM).assignSubject(loggedInSubject)
-                .assignFindByUuidOrName(true).assignScope(groupIdOrName).findStem();
-            if (theStem != null) {
-              stems.add(theStem);
-            }
-          }
-        }
 
-        if (!isLookup) {
+      /**
+       * 
+       */
+      @Override
+      public Collection<Stem> search(HttpServletRequest request, GrouperSession grouperSession, String query) {
+        Subject loggedInSubject = grouperSession.getSubject();
+        QueryOptions queryOptions = QueryOptions.create(null, null, 1, 50);
+        return new StemFinder().addPrivilege(NamingPrivilege.STEM).assignScope(query).assignSubject(loggedInSubject)
+            .assignSplitScope(true).assignQueryOptions(queryOptions).findStems();
+      }
 
-          //take out the asterisk
-          query = StringUtils.replace(query, "*", "");
-
-          //if its a blank query, then dont return anything...
-          if (query.length() > 1) {
-
-            //lets page these:
-            //int start = GrouperUtil.intValue(request.getParameter("start"), 0);
-            //int count = GrouperUtil.intValue(request.getParameter("count"), 50);
-            int start = 0;
-            int count = 50;
-            QueryOptions queryOptions = new QueryOptions();
-            QueryPaging queryPaging = new QueryPaging();
-            
-            queryPaging.setPageStartIndexQueryByIndex(start);
-            queryPaging.setPageSize(count);
-            queryOptions.paging(queryPaging);
-            
-            stems.addAll(new StemFinder().addPrivilege(NamingPrivilege.STEM).assignScope(query).assignSubject(loggedInSubject)
-                .assignSplitScope(true).assignQueryOptions(queryOptions).findStems());
-                    
-          } else {
-            enterMoreChars = true;
-          }
-        }
-  
-        if (enterMoreChars) {
-          String label = TextContainer.retrieveFromRequest().getText().get("comboNotEnoughChars");
-          DojoComboDataResponseItem dojoComboDataResponseItem = new DojoComboDataResponseItem(null, 
-              label, label);
-          dojoComboDataResponse = new DojoComboDataResponse(GrouperUtil.toList(dojoComboDataResponseItem));
-        } else {
-  
-          if (stems.size() == 0) {
-            dojoComboDataResponse = new DojoComboDataResponse();
-          } else {
-            
-            List<DojoComboDataResponseItem> items = new ArrayList<DojoComboDataResponseItem>();
+      /**
+       * 
+       * @param t
+       * @return
+       */
+      @Override
+      public String retrieveId(GrouperSession grouperSession, Stem t) {
+        return t.getId();
+      }
       
-            //convert stem to item
-            for (Stem theStem : stems) {
-              
-              //description could be null?
-              String label = GrouperUiUtils.escapeHtml(theStem.getDisplayName(), true);
-              String htmlLabel = "<img src=\"../../grouperExternal/public/assets/images/folder.gif\" /> " + label;
-              
-              DojoComboDataResponseItem item = new DojoComboDataResponseItem(theStem.getId(), label, htmlLabel);
-              items.add(item);
-              
-            }
-            
-            dojoComboDataResponse = new DojoComboDataResponse(
-              GrouperUtil.toArray(items, DojoComboDataResponseItem.class));
-      
-          }  
+      /**
+       * 
+       */
+      @Override
+      public String retrieveLabel(GrouperSession grouperSession, Stem t) {
+        return t.getDisplayName();
+      }
+
+      /**
+       * 
+       */
+      @Override
+      public String retrieveHtmlLabel(GrouperSession grouperSession, Stem t) {
+        //description could be null?
+        String label = GrouperUiUtils.escapeHtml(t.getDisplayName(), true);
+        String htmlLabel = "<img src=\"../../grouperExternal/public/assets/images/folder.gif\" /> " + label;
+        return htmlLabel;
+      }
+
+      /**
+       * 
+       */
+      @Override
+      public String initialValidationError(HttpServletRequest request, GrouperSession grouperSession) {
+        Stem stem = retrieveStemHelper(request, true).getStem();
+        
+        if (stem == null) {
+          return TextContainer.retrieveFromRequest().getText().get("stemCopyInsufficientPrivileges");
         }
-      }      
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
-    }
-
-    String json = GrouperUtil.jsonConvertTo(dojoComboDataResponse, false);
+        return null;
+      }
+    });
     
-    System.out.println(json);
-    
-    //write json to screen
-    GrouperUiUtils.printToScreen(json, HttpContentType.APPLICATION_JSON, false, false);
-
-    //dont print the regular JSON
-    throw new ControllerDone();
-
   }
 
   
@@ -240,6 +160,12 @@ public class UiV2Stem {
       String displayExtension = request.getParameter("displayExtension");
       String extension = request.getParameter("extension");
       String parentFolderId = request.getParameter("parentFolderComboName");
+      
+      //just get what they typed in
+      if (StringUtils.isBlank(parentFolderId)) {
+        parentFolderId = request.getParameter("parentFolderComboNameDisplay");
+      }
+      
       boolean copyGroupAttributes = GrouperUtil.booleanValue(request.getParameter("copyGroupAttributes[]"), false);
       boolean copyListMemberships = GrouperUtil.booleanValue(request.getParameter("copyListMemberships[]"), false);
       boolean copyGroupPrivileges = GrouperUtil.booleanValue(request.getParameter("copyGroupPrivileges[]"), false);
@@ -247,7 +173,8 @@ public class UiV2Stem {
       boolean copyPrivsInOtherGroups = GrouperUtil.booleanValue(request.getParameter("copyPrivsInOtherGroups[]"), false);
       boolean copyFolderPrivs = GrouperUtil.booleanValue(request.getParameter("copyFolderPrivs[]"), false);
       
-      final Stem parentFolder = StemFinder.findByUuid(grouperSession, parentFolderId, false);
+      final Stem parentFolder = new StemFinder().addPrivilege(NamingPrivilege.STEM)
+          .assignScope(parentFolderId).assignFindByUuidOrName(true).findStem();
       
       if (parentFolder == null) {
         
@@ -256,26 +183,27 @@ public class UiV2Stem {
         return;
         
       }
-      
-      {
-        //make sure the user can stem the parent folder
-        boolean canStemParent = (Boolean)GrouperSession.callbackGrouperSession(
-            GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
-              
-              @Override
-              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-                return parentFolder.hasStem(loggedInSubject);
-              }
-            });
-  
-        if (!canStemParent) {
-  
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-              TextContainer.retrieveFromRequest().getText().get("stemCopyCantStemParent")));
-          return;
-  
-        }
-      }
+
+      //MCH 20131224: dont need this since we are searching by stemmed folders above
+      //{
+      //  //make sure the user can stem the parent folder
+      //  boolean canStemParent = (Boolean)GrouperSession.callbackGrouperSession(
+      //      GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      //        
+      //        @Override
+      //        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+      //          return parentFolder.hasStem(loggedInSubject);
+      //        }
+      //      });
+      //
+      //  if (!canStemParent) {
+      //
+      //    guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+      //        TextContainer.retrieveFromRequest().getText().get("stemCopyCantStemParent")));
+      //    return;
+      //
+      //  }
+      //}
       
       Stem newStem = null;
       
