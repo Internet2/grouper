@@ -33,6 +33,8 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.Gui
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.StemContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -125,6 +127,7 @@ public class UiV2Stem {
         {
           String groupIdOrName = query.endsWith("*") ? query.substring(0, query.length()-1) : query;
           if (!StringUtils.isBlank(groupIdOrName)) {
+            
             Stem theStem = new StemFinder().addPrivilege(NamingPrivilege.STEM).assignSubject(loggedInSubject)
                 .assignFindByUuidOrName(true).assignScope(groupIdOrName).findStem();
             if (theStem != null) {
@@ -140,9 +143,21 @@ public class UiV2Stem {
 
           //if its a blank query, then dont return anything...
           if (query.length() > 1) {
+
+            //lets page these:
+            //int start = GrouperUtil.intValue(request.getParameter("start"), 0);
+            //int count = GrouperUtil.intValue(request.getParameter("count"), 50);
+            int start = 0;
+            int count = 50;
+            QueryOptions queryOptions = new QueryOptions();
+            QueryPaging queryPaging = new QueryPaging();
+            
+            queryPaging.setPageStartIndexQueryByIndex(start);
+            queryPaging.setPageSize(count);
+            queryOptions.paging(queryPaging);
             
             stems.addAll(new StemFinder().addPrivilege(NamingPrivilege.STEM).assignScope(query).assignSubject(loggedInSubject)
-                .assignSplitScope(true).findStems());
+                .assignSplitScope(true).assignQueryOptions(queryOptions).findStems());
                     
           } else {
             enterMoreChars = true;
