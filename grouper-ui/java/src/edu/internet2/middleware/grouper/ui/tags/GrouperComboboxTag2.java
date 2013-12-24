@@ -209,6 +209,8 @@ public class GrouperComboboxTag2 extends SimpleTagSupport {
     }
     
     result.append("    autocomplete=\"false\" data-dojo-type=\"dijit/form/FilteringSelect\" hasDownArrow=\"" + this.hasDownArrowProcessed() + "\" />");
+
+    
     
     //note, no whitespace between input and throbber
     // <!-- 
@@ -218,6 +220,8 @@ public class GrouperComboboxTag2 extends SimpleTagSupport {
     result.append("<img \n");
     result.append("     style=\"position: relative; top: 0px; left: " + (this.hasDownArrowProcessed() ? "-38" : "-20") + "px; display: none; \" alt=\"busy...\"  id=\"" + this.idBase + "ThrobberId\"\n");
     result.append("     src=\"../../grouperExternal/public/assets/images/busy.gif\" class=\"comboThrobber\" />\n");
+
+    result.append("    <input id=\"" + this.idBase + "IdDisplay\" name=\"" + this.idBase + "NameDisplay\"  type=\"hidden\" value=\"\" />\n"); 
     
     //<script>
     //dojo.ready(function(){
@@ -227,10 +231,17 @@ public class GrouperComboboxTag2 extends SimpleTagSupport {
     //});
     //</script>
     result.append("    <script>\n");
-    result.append("      dojo.ready(function(){\n");
-    result.append("        dijit.byId('" + this.idBase + "Id').onChange = function(evt) {\n");
-    result.append("          this.focusNode.setSelectionRange(0,0);\n");
-    result.append("        }\n");
+    result.append("      $( document ).ready(function(){\n");
+    //we dont want this to happen too soon, schedule 500ms out
+    result.append("        setTimeout(function(){\n");
+    //add the filtering select to the list of ids
+    //result.append("        dojoFilteringSelectBaseIds['" + this.idBase + "'] = true;\n");
+    result.append("          dojoAddFilteringSelectBaseId('" + this.idBase + "');\n");
+    result.append("          dijit.byId('" + this.idBase + "Id').onChange = function(evt) {\n");
+    result.append("            this.focusNode.setSelectionRange(0,0);\n");
+    result.append("          }\n");
+    result.append("        },1000);\n");
+    
 //    result.append("        dijit.byId('" + this.idBase + "Id').labelFunc = function(item, store) {\n");
 //    result.append("          alert(item);\n");
 //    result.append("          return item.htmlLabel;\n");

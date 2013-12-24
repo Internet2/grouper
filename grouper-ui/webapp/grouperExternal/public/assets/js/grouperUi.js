@@ -498,6 +498,12 @@ function ajax(theUrl, options) {
     options.requestParams = {};
   }
   
+  //copy display values of filtering selects to its hidden field
+  //see if that function even exists
+  if (typeof dojoCopyFilteringSelectDisplays != 'undefined') {
+    dojoCopyFilteringSelectDisplays();
+  }
+  
   if (!guiIsEmpty(options.formIds)) {
     
     var formIdsArray = guiSplitTrim(options.formIds, ",");
@@ -2143,4 +2149,41 @@ function confirmChange(prompt) {
     }
   }
   return true;
+}
+
+//MCH 20131223: keep track of the ids of filtering selects.  note, some might be gone due to ajax
+//note the naming convention, if the bsae id is peoplePicker, then the id is peoplePickerId,
+//name is peoplePickerName, displays are peoplePickerIdDisplay, and peoplePickerNameDisplay
+var dojoFilteringSelectBaseIds = {};
+
+//MCH 20131223: copy the display value of filtering selects to the hidden field so it is submitted
+//with the filtering select value
+function dojoAddFilteringSelectBaseId(dojoFilteringSelectBaseId) {
+
+  dojoFilteringSelectBaseIds[dojoFilteringSelectBaseId] = true;
+
+}
+
+//MCH 20131223: copy the display value of filtering selects to the hidden field so it is submitted
+//with the filtering select value
+function dojoCopyFilteringSelectDisplays() {
+
+  //loop through all the filtering selects that have been registered
+  for(var dojoFilteringSelectBaseId in dojoFilteringSelectBaseIds) {
+  
+    var filteringSelect = dijit.byId(dojoFilteringSelectBaseId + 'Id');
+    
+    //if it hasnt been removed by javascript
+    if (filteringSelect != null) {
+      
+      var displayValue = filteringSelect.get('displayedValue');
+      
+      //set this in the value of the display hidden field
+      var displayInput = document.getElementById(dojoFilteringSelectBaseId + 'IdDisplay');
+      
+      if (displayInput != null) {
+        displayInput.value = displayValue;
+      }
+    }
+  }  
 }

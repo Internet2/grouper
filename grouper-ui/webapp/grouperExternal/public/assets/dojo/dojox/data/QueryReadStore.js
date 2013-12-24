@@ -420,6 +420,9 @@ define("dojox/data/QueryReadStore", ["dojo", "dojox", "dojo/data/util/sorter", "
   
                 var theUrl = this.url; 
                 
+                //copy display values of filtering selects to its hidden field
+                dojoCopyFilteringSelectDisplays();
+                
                 //make the request dynamic, maybe send some other form element names 
                 var formElementNamesToSend = dojo.getAttr(this.id, "formElementNamesToSend"); 
                   
