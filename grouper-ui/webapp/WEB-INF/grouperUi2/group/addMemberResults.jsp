@@ -12,9 +12,8 @@
                                 var="guiSubject" >
 
                                 <tr>
-                                 <td><a href="#" data-dismiss="modal">${guiSubject.screenLabelShort2noLinkWithIcon }</a></td>
+                                 <td><a href="#" onclick="dijit.byId('groupAddMemberComboId').set('displayedValue', '${grouper:escapeJavascript(guiSubject.screenLabelShort2)}'); dijit.byId('groupAddMemberComboId').set('value', '${guiSubject.sourceId}||${guiSubject.id}'); return true;" data-dismiss="modal">${grouper:escapeHtml(guiSubject.screenLabelShort2noLinkWithIcon) }</a></td>
                                 </tr>
-
 
                               </c:forEach>
 <%--                               <tr>

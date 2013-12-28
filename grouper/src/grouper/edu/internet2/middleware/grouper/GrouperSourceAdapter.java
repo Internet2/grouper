@@ -455,6 +455,10 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
           }
           
           QueryOptions queryOptions = null;
+
+          queryOptions = new QueryOptions();
+
+          queryOptions.sortAsc("displayName");
           
           if ((firstPageOnly && GrouperSourceAdapter.this.maxPage != null) || GrouperSourceAdapter.this.maxResults != null) {
             int pagesize = (firstPageOnly && GrouperSourceAdapter.this.maxPage != null) ? (GrouperSourceAdapter.this.maxPage+1) : -1;
@@ -463,7 +467,6 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
             } else if (GrouperSourceAdapter.this.maxResults != null){
               pagesize = Math.min(pagesize, GrouperSourceAdapter.this.maxResults+1);
             }
-            queryOptions = new QueryOptions();
             queryOptions.paging(pagesize, 1, false);
           }
           

@@ -23,6 +23,9 @@
   $.blockUI.defaults.fadeIn = '200';
   $.blockUI.defaults.fadeOut = '400';
   $.blockUI.defaults.timeout = '180000';
+  //MCH 20132626: this used to be 1000, but the UI v2 modal window is zindex 1050
+  $.blockUI.defaults.baseZ = '10000';
+  
 </script>
 
 <script>

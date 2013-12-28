@@ -20,64 +20,12 @@
                     <h3 id="group-search-label">Search or browse for a folder</h3>
                   </div>
                   <div class="modal-body">
-                    <form class="form form-inline">
-                      <input type="text" placeholder="Search for a folder" value=""/> 
-                      <button class="btn">Search</button>
+                    <form class="form form-inline" id="stemSearchFormId">
+                      <input name="stemSearch" type="text" placeholder="Search for a folder" value=""/> 
+                      <button class="btn" onclick="ajax('../app/UiV2Group.stemSearchFormSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemSearchFormId'}); return false;">Search</button>
                     </form>
-                    <p>The table below lists folders where you are allowed to create new folders.</p>
-                    <table class="table table-hover table-bordered table-striped table-condensed data-table">
-                      <thead>
-                        <tr>
-                          <th class="sorted">Folder Path</th>
-                          <th>Folder Name</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>Root : Applications</td>
-                          <td><i class="icon-folder-close"></i> <a href="#" data-dismiss="modal">Directories</a></td>
-                        </tr>
-                        <tr>
-                          <td>Root : Applications</td>
-                          <td><i class="icon-folder-close"></i> <a href="#" data-dismiss="modal">Wiki</a></td>
-                        </tr>
-                        <tr>
-                          <td>Root : Applications</td>
-                          <td><i class="icon-folder-close"></i> <a href="#" data-dismiss="modal">Wordpress</a></td>
-                        </tr>
-                        <tr>
-                          <td>Root : Departments</td>
-                          <td><i class="icon-folder-close"></i> <a href="#" data-dismiss="modal">Information Technology</a></td>
-                        </tr>
-                        <tr>
-                          <td>Root : Departments : Information Technology</td>
-                          <td><i class="icon-folder-close"></i> <a href="#" data-dismiss="modal">Admin</a></td>
-                        </tr>
-                        <tr>
-                          <td>Root : Departments : Information Technology</td>
-                          <td><i class="icon-folder-close"></i> <a href="#" data-dismiss="modal">Communications</a></td>
-                        </tr>
-                        <tr>
-                          <td>Root : Departments : Information Technology</td>
-                          <td><i class="icon-folder-close"></i> <a href="#" data-dismiss="modal">Infrastructure</a></td>
-                        </tr>
-                        <tr>
-                          <td>Root : Departments : Information Technology</td>
-                          <td><i class="icon-folder-close"></i> <a href="#" data-dismiss="modal">Internal Services</a></td>
-                        </tr>
-                        <tr>
-                          <td>Root : Departments : Information Technology</td>
-                          <td><i class="icon-folder-close"></i> <a href="#" data-dismiss="modal">Security</a></td>
-                        </tr>
-                        <tr>
-                          <td>Root : Departments : Information Technology</td>
-                          <td><i class="icon-folder-close"></i> <a href="#" data-dismiss="modal">Support</a></td>
-                        </tr>
-                      </tbody>
-                    </table>
-                    <div class="data-table-bottom clearfix">
-                      <div class="pull-right">Showing 1-10 of 25 &middot; <a href="#">First</a> | <a href="#">Prev</a> | <a href="#">Next</a> | <a href="#">Last</a></div>    
-                    </div>
+                    <div id="folderSearchResultsId"></div>
+                    
                   </div>
                   <div class="modal-footer">
                     <button data-dismiss="modal" aria-hidden="true" class="btn">Close</button>
@@ -104,8 +52,8 @@
                       <grouper:combobox2 idBase="parentFolderCombo" style="width: 30em"
                         filterOperation="../app/UiV2Stem.stemCopyParentFolderFilter?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}"/>
                       
-                      <a href="#folder-search" role="button" data-toggle="modal" class="btn"><i class="icon-search"></i></a>
-                      <span class="help-block">${textContainer.text['stemCopyIntoFolderDescription'] }</span>
+                      <%-- a href="#folder-search" role="button" data-toggle="modal" class="btn"><i class="icon-search"></i></a --%>
+                      <span class="help-block">${textContainer.text['stemCopyIntoFolderDescription'] }Enter a folder name or <a href="#folder-search" data-toggle="modal" onclick="$('#folderSearchResultsId').empty();" role="button" style="text-decoration: underline !important;">search for a folder where you are allowed to create new subfolders</a>.</span>
                     </div>
                   </div>
                   <div class="control-group">

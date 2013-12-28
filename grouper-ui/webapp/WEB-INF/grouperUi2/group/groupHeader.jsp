@@ -43,8 +43,10 @@
                                 <%-- placeholder: Enter the name of a person, group, or other entity --%>
                                 <grouper:combobox2 idBase="groupAddMemberCombo" style="width: 30em"
                                   filterOperation="../app/UiV2Group.addMemberFilter?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}"/>
-
-                                <a href="#member-search" onclick="$('#addMemberResults').empty();" role="button" data-toggle="modal" class="btn"><i class="icon-search"></i></a>
+                                <%--a href="#member-search" onclick="$('#addMemberResults').empty();" role="button" data-toggle="modal" class="btn"><i class="icon-search"></i></a --%>
+                                <br />
+                                Enter an entity name or ID, or <a href="#member-search" onclick="$('#addMemberResults').empty();" role="button" data-toggle="modal" style="text-decoration: underline !important;">search for an entity</a>.
+                                
                               </div>
                             </div>
                           </div>
@@ -52,41 +54,48 @@
                             <label class="control-label">Assign these privileges:</label>
                             <div class="controls">
                               <label class="radio inline">
-                                <input type="radio" id="priv1" value="default" name="privilege-options" checked="checked" onclick="this.blur();" onchange="$('#add-members-privileges').hide('slow');"/>Default privileges
+                                <input type="radio" id="priv1" value="default" name="privilege-options" checked="checked" onclick="this.blur();" value="true" onchange="$('#add-members-privileges').hide('slow');"/>Default privileges
                               </label>
                               <label class="radio inline">
-                                <input type="radio" id="priv2" value="custom" name="privilege-options" onclick="this.blur();" onchange="$('#add-members-privileges').show('slow');"/>Custom privileges
+                                <input type="radio" id="priv2" value="custom" name="privilege-options" onclick="this.blur();" value="true" onchange="$('#add-members-privileges').show('slow');"/>Custom privileges
                               </label>
                             </div>
                           </div>
                           <div id="add-members-privileges" class="control-group hide">
                             <div class="controls">
                               <label class="checkbox inline">
-                                <input type="checkbox" id="privilege1" value="ADMIN" checked="checked"/>MEMBER
+                                <input type="checkbox" name="privileges_member" value="true" checked="checked"/>MEMBER
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" id="privilege2" value="ADMIN"/>ADMIN
+                                <input type="checkbox" name="privileges_admin" value="true"/>ADMIN
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" id="privilege3" value="UPDATE"/>UPDATE
+                                <input type="checkbox" name="privileges_update" value="true"/>UPDATE
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" id="privilege4" value="READ" checked="checked"/>READ
+                                <input type="checkbox" name="privileges_read" value="true" checked="checked"/>READ
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" id="privilege5" value="VIEW" checked="checked"/>VIEW
+                                <input type="checkbox" name="privileges_view" value="true" checked="checked"/>VIEW
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" id="privilege6" value="OPTIN"/>OPTIN
+                                <input type="checkbox" name="privileges_optin" value="true"/>OPTIN
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" id="privilege7" value="OPTOUT"/>OPTOUT
+                                <input type="checkbox" name="privileges_optout" value="true"/>OPTOUT
+                              </label>
+                              <label class="checkbox inline">
+                                <input type="checkbox" name="privileges_attrRead" value="true"/>ATTRIBUTE READ
+                              </label>
+                              <label class="checkbox inline">
+                                <input type="checkbox" name="privileges_attrUpdate" value="true"/>ATTRIBUTE UPDATE
                               </label>
                             </div>
                           </div>
                           <div class="control-group">
                             <div class="controls">
-                              <button id="add-members-submit" type="submit" class="btn btn-primary">Add</button> or <a href="bulk-add.html" class="blue-link">import a list of members</a> from a file.
+                              <button onclick="ajax('../app/UiV2Group.addMemberSubmit?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'add-members-form'}); return false;" 
+                                id="add-members-submit" type="submit" class="btn btn-primary">Add</button> or <a href="bulk-add.html" class="blue-link">import a list of members</a> from a file.
                             </div>
                           </div>
                         </form>

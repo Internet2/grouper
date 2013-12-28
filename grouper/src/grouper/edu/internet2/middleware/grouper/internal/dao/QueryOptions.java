@@ -61,7 +61,7 @@ public class QueryOptions {
   /**
    * @param sortString 
    * @param ascending 
-   * @param pageNumber 
+   * @param pageNumber 1 indexed page number
    * @param pageSize 
    * @return the query options if needed
    * 

@@ -1,8 +1,7 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,25 +19,28 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
-import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboDataResponse;
-import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboDataResponseItem;
+import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
+import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogicBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
-import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
-import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -210,135 +212,87 @@ public class UiV2Group {
    */
   public void addMemberFilter(HttpServletRequest request, HttpServletResponse response) {
 
-    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-  
-    GrouperSession grouperSession = null;
+    //run the combo logic
+    DojoComboLogic.logic(request, response, new DojoComboQueryLogicBase<Subject>() {
 
-    DojoComboDataResponse dojoComboDataResponse = null;
+      /**
+       * 
+       */
+      @Override
+      public Subject lookup(HttpServletRequest request, GrouperSession grouperSession, String query) {
 
-
-    try {
-      grouperSession = GrouperSession.start(loggedInSubject);
-  
-      Group group = retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
-  
-      boolean done = false;
-      
-      if (group == null) {
+        //when we refer to subjects in the dropdown, we will use a sourceId / subject tuple
         
-        String label = "Not allowed to edit group";
-        dojoComboDataResponse = new DojoComboDataResponse(
-            new DojoComboDataResponseItem[]{new DojoComboDataResponseItem("", label, label)});
-        done = true;
-      }
-    
-      if (!done) {
-        //{
-        //  query: {name: "A*"},
-        //  queryOptions: {ignoreCase: true},
-        //  sort: [{attribute:"name", descending:false}],
-        //    start: 0,
-        //    count: 10
-        //}
-        
-        //https://server.url/twoFactorMchyzer/twoFactorUi/app/UiMain.personPicker?name=ab*&start=0&count=Infinity
-  
-        //Utils.printToScreen("{\"label\":\"name\", \"identifier\":\"id\",\"items\":[{\"id\":\"10021368\",\"name\":\"Chris Hyzer (mchyzer, 10021368) (active) Staff - Astt And Information Security - Application Architect (also: Alumni)\"},{\"id\":\"10193029\",\"name\":\"Chyze-Whee Ang (angcw, 10193029) (active) Alumni\"}]}", "application/json", false, false);
-  
-        String query = StringUtils.defaultString(request.getParameter("id"));
-        
-        boolean isLookup = true;
-        
-        if (StringUtils.isBlank(query)) {
-  
-          isLookup = false;
-          
-          query = StringUtils.trimToEmpty(request.getParameter("name"));
-  
-        }
-  
-        //if there is no *, then looking for a specific name, return nothing since someone just typed something in and left...
-        if (!query.contains("*")) {
-          
-          isLookup = true;
-          
-        }
-  
-        Set<Subject> subjects = new LinkedHashSet<Subject>();
-        boolean enterMoreChars = false;
-        
-        {
-          String subjectId = query.endsWith("*") ? query.substring(0, query.length()-1) : query;
-          if (!StringUtils.isBlank(subjectId)) {
-            Subject subject = SubjectFinder.findByIdOrIdentifier(subjectId, false);
-                        
-            if (subject != null) {
-              
-              subjects.add(subject);
-            }
-          }
-        }
-        
-        if (!isLookup) {
-        
-          //take out the asterisk
-          query = StringUtils.replace(query, "*", "");
-      
-          //if its a blank query, then dont return anything...
-          if (query.length() > 1) {
+        Subject subject = null;
             
-            String stemName = group.getParentStemName();
-            
-            subjects.addAll(SubjectFinder.findPageInStem(stemName, query).getResults());
-                    
-          } else {
-            enterMoreChars = true;
-          }
-        }
-  
-        if (enterMoreChars) {
-          String label = TextContainer.retrieveFromRequest().getText().get("comboNotEnoughChars");
-          DojoComboDataResponseItem dojoComboDataResponseItem = new DojoComboDataResponseItem(null, 
-              label, label);
-          dojoComboDataResponse = new DojoComboDataResponse(GrouperUtil.toList(dojoComboDataResponseItem));
+        if (query != null && query.contains("||")) {
+          String sourceId = GrouperUtil.prefixOrSuffix(query, "||", true);
+          String subjectId = GrouperUtil.prefixOrSuffix(query, "||", false);
+          subject =  SubjectFinder.findByIdOrIdentifierAndSource(subjectId, sourceId, false);
+
         } else {
-  
-          if (subjects.size() == 0) {
-            dojoComboDataResponse = new DojoComboDataResponse();
-          } else {
-            
-            List<DojoComboDataResponseItem> items = new ArrayList<DojoComboDataResponseItem>();
-      
-            //convert subject to item
-            for (Subject subject : subjects) {
-              
-              //description could be null?
-              
-              String description = GrouperUiUtils.escapeHtml(GrouperUiUtils.convertSubjectToLabelConfigured(subject), true);
-              
-              DojoComboDataResponseItem item = new DojoComboDataResponseItem(subject.getId(), description, description);
-              items.add(item);
-              
-            }
-            
-            dojoComboDataResponse = new DojoComboDataResponse(
-              GrouperUtil.toArray(items, DojoComboDataResponseItem.class));
-      
-          }  
+          subject = SubjectFinder.findByIdOrIdentifier(query, false);
         }
-      }      
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
-    }
+        
+        return subject;
+      }
 
-    String json = GrouperUtil.jsonConvertTo(dojoComboDataResponse, false);
-    
-    //write json to screen
-    GrouperUiUtils.printToScreen(json, HttpContentType.APPLICATION_JSON, false, false);
+      /**
+       * 
+       */
+      @Override
+      public Collection<Subject> search(HttpServletRequest request, GrouperSession grouperSession, String query) {
+        
+        Group group = UiV2Group.this.retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+        String stemName = group.getParentStemName();
+        return SubjectFinder.findPageInStem(stemName, query).getResults();
+      
+      }
 
-    //dont print the regular JSON
-    throw new ControllerDone();
+      /**
+       * 
+       * @param t
+       * @return
+       */
+      @Override
+      public String retrieveId(GrouperSession grouperSession, Subject t) {
+        return t.getSourceId() + "||" + t.getId();
+      }
+      
+      /**
+       * 
+       */
+      @Override
+      public String retrieveLabel(GrouperSession grouperSession, Subject t) {
+        return new GuiSubject(t).getScreenLabelShort2();
+      }
 
+      /**
+       * 
+       */
+      @Override
+      public String retrieveHtmlLabel(GrouperSession grouperSession, Subject t) {
+        return new GuiSubject(t).getScreenLabelShort2noLinkWithIcon();
+      }
+
+      /**
+       * 
+       */
+      @Override
+      public String initialValidationError(HttpServletRequest request, GrouperSession grouperSession) {
+
+        Group group = retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+        
+        if (group == null) {
+          
+          return "Not allowed to edit group";
+        }
+        
+        return null;
+      }
+    });
+
+              
   }
   
   /**
@@ -396,6 +350,144 @@ public class UiV2Group {
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
+  }
+  
+  /**
+   * submit button on add member form pressed
+   * @param request
+   * @param response
+   */
+  public void addMemberSubmit(final HttpServletRequest request, final HttpServletResponse response) {
+
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      Group group = retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+  
+      if (group == null) {
+        return;
+      }
+  
+      GroupContainer groupContainer = grouperRequestContainer.getGroupContainer();
+  
+      String subjectString = request.getParameter("groupAddMemberComboName");
+  
+      Subject subject = null;
+      
+      if (subjectString != null && subjectString.contains("||")) {
+        String sourceId = GrouperUtil.prefixOrSuffix(subjectString, "||", true);
+        String subjectId = GrouperUtil.prefixOrSuffix(subjectString, "||", false);
+        subject =  SubjectFinder.findByIdOrIdentifierAndSource(subjectId, sourceId, false);
+
+      } else {
+        subject = SubjectFinder.findByIdOrIdentifier(subjectString, false);
+      }
+
+      if (subject == null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("groupAddMemberCantFindSubject")));
+        return;
+      }      
+
+      GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
+        
+        @Override
+        public Object callback(GrouperTransaction grouperTransaction)
+            throws GrouperDAOException {
+
+          Boolean defaultPrivs = null;
+          
+          {
+            String privilegeOptionsValue = request.getParameter("privilege-options");
+            
+            if (StringUtils.equals(privilegeOptionsValue, "default")) {
+              defaultPrivs = true;
+            } else if (StringUtils.equals(privilegeOptionsValue, "custom")) {
+              defaultPrivs = false;
+            } else {
+              throw new RuntimeException("For privilege-options expecting default or custom but was: '" + privilegeOptionsValue + "'");
+            }
+          }
+
+
+          boolean memberChecked = false;
+          
+          boolean adminChecked = false;
+          boolean adminDefaultChecked = GrouperConfig.retrieveConfig()
+              .propertyValueBoolean("groups.create.grant.all.admin", false);
+          
+          boolean updateChecked = false;
+          boolean updateDefaultChecked = GrouperConfig.retrieveConfig()
+              .propertyValueBoolean("groups.create.grant.all.update", false);
+          
+          boolean readChecked = false;
+          boolean readDefaultChecked = GrouperConfig.retrieveConfig()
+              .propertyValueBoolean("groups.create.grant.all.read", false);
+
+          boolean viewChecked = false;
+          boolean viewDefaultChecked = GrouperConfig.retrieveConfig()
+              .propertyValueBoolean("groups.create.grant.all.view", false);
+
+          boolean optinChecked = false;
+          boolean optinDefaultChecked = GrouperConfig.retrieveConfig()
+              .propertyValueBoolean("groups.create.grant.all.optin", false);
+
+          boolean optoutChecked = false;
+          boolean optoutDefaultChecked = GrouperConfig.retrieveConfig()
+              .propertyValueBoolean("groups.create.grant.all.optout", false);
+
+
+          boolean attrReadChecked = false;
+          boolean attrReadDefaultChecked = GrouperConfig.retrieveConfig()
+              .propertyValueBoolean("groups.create.grant.all.attrRead", false);
+
+          boolean attrUpdateChecked = false;
+          boolean attrUpdateDefaultChecked = GrouperConfig.retrieveConfig()
+              .propertyValueBoolean("groups.create.grant.all.attrUpdate", false);
+          
+          if (!defaultPrivs) {
+            
+            
+            
+          } else {
+          
+            memberChecked = GrouperUtil.booleanValue(request.getParameter("privileges_member[]"));
+            adminChecked = GrouperUtil.booleanValue(request.getParameter("privileges_admin[]"));
+            updateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_update[]"));
+            readChecked = GrouperUtil.booleanValue(request.getParameter("privileges_read[]"));
+            viewChecked = GrouperUtil.booleanValue(request.getParameter("privileges_view[]"));
+            optinChecked = GrouperUtil.booleanValue(request.getParameter("privileges_optin[]"));
+            optoutChecked = GrouperUtil.booleanValue(request.getParameter("privileges_optout[]"));
+            attrReadChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrRead[]"));
+            attrUpdateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrUpdate[]"));
+          }
+
+          
+          // TODO Auto-generated method stub
+          return null;
+        }
+      });
+      
+      
+//      Privilege privilege = AccessPrivilege.listToPriv(fieldName);
+//      
+//      if (privilege == null) {
+//        throw new RuntimeException("Why is privilege not found???? " + fieldName);
+//      }
+      
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
   }
   
   /**

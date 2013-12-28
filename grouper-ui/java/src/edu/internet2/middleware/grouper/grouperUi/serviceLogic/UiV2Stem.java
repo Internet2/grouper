@@ -81,7 +81,8 @@ public class UiV2Stem {
       @Override
       public Collection<Stem> search(HttpServletRequest request, GrouperSession grouperSession, String query) {
         Subject loggedInSubject = grouperSession.getSubject();
-        QueryOptions queryOptions = QueryOptions.create(null, null, 1, 50);
+        int stemComboSize = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.stemComboboxResultSize", 200);
+        QueryOptions queryOptions = QueryOptions.create(null, null, 1, stemComboSize);
         return new StemFinder().addPrivilege(NamingPrivilege.STEM).assignScope(query).assignSubject(loggedInSubject)
             .assignSplitScope(true).assignQueryOptions(queryOptions).findStems();
       }

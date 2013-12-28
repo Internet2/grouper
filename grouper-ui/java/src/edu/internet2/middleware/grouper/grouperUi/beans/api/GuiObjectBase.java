@@ -76,7 +76,24 @@ public abstract class GuiObjectBase {
     return parentStemName.replace(":", " : ");
     
   }
+
   /**
+   * colon space separated name e.g.
+   * Full : Path : To : The : Entity
+   * @return the colon space separated path
+   */
+  public String getNameColonSpaceSeparated() {
+
+    String displayName = this.getGrouperObject().getDisplayName();
+    
+    if (StringUtils.isBlank(displayName) || StringUtils.equals(":", displayName)) {
+      return TextContainer.retrieveFromRequest().getText().get("stem.root.display-name");
+    }
+
+    return displayName.replace(":", " : ");
+    
+  }
+   /**
    * breadcrumbs for v2 ui
    * @return the breadcrumbs
    */
