@@ -182,6 +182,13 @@ public class GrouperComboboxTag2 extends SimpleTagSupport {
     //});
     //</script>
     
+    //unregister old ones since if they are replaced in divs they will give you an error
+    result.append("    <script>\n");
+    result.append("      dojoUnregisterWidget('" + this.idBase + "Id');");
+    result.append("      dojoUnregisterWidget('" + this.idBase + "StoreId');");
+    result.append("    </script>\n");
+    
+    //store
     result.append("    <div style=\"display: inline; white-space: nowrap; \"><div data-dojo-type=\"dojox.data.QueryReadStore\" id=\"" + this.idBase + "StoreId\" ");
     if (!StringUtils.isBlank(this.additionalFormElementNames)) {
       result.append(" formElementNamesToSend=\"" + this.additionalFormElementNames + "\" ");

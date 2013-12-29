@@ -9,6 +9,7 @@ import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MembershipFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
@@ -31,6 +32,76 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class GroupContainer {
 
+  /**
+   * if entities get admin when added to a group
+   * @return true if entities get admin when added to a group
+   */
+  public boolean isConfigDefaultGroupsCreateGrantAllAdmin() {
+    return GrouperConfig.retrieveConfig()
+        .propertyValueBoolean("groups.create.grant.all.admin", false);
+  }
+
+  /**
+   * if entities get update when added to a group
+   * @return true if entities get update when added to a group
+   */
+  public boolean isConfigDefaultGroupsCreateGrantAllUpdate() {
+    return GrouperConfig.retrieveConfig()
+        .propertyValueBoolean("groups.create.grant.all.update", false);
+  }
+  
+  /**
+   * if entities get read when added to a group
+   * @return true if entities get read when added to a group
+   */
+  public boolean isConfigDefaultGroupsCreateGrantAllRead() {
+    return GrouperConfig.retrieveConfig()
+        .propertyValueBoolean("groups.create.grant.all.read", false);
+  }
+
+  /**
+   * if entities get view when added to a group
+   * @return true if entities get view when added to a group
+   */
+  public boolean isConfigDefaultGroupsCreateGrantAllView() {
+    return GrouperConfig.retrieveConfig()
+        .propertyValueBoolean("groups.create.grant.all.view", false);
+  }
+
+  /**
+   * if entities get optin when added to a group
+   * @return true if entities get optin when added to a group
+   */
+  public boolean isConfigDefaultGroupsCreateGrantAllOptin() {
+    return GrouperConfig.retrieveConfig()
+        .propertyValueBoolean("groups.create.grant.all.optin", false);
+  }
+
+  /**
+   * if entities get optout when added to a group
+   * @return true if entities get optout when added to a group
+   */
+  public boolean isConfigDefaultGroupsCreateGrantAllOptout() {
+    return GrouperConfig.retrieveConfig()
+        .propertyValueBoolean("groups.create.grant.all.optout", false);
+  }
+  /**
+   * if entities get attrRead when added to a group
+   * @return true if entities get attrRead when added to a group
+   */
+  public boolean isConfigDefaultGroupsCreateGrantAllAttrRead() {
+    return GrouperConfig.retrieveConfig()
+        .propertyValueBoolean("groups.create.grant.all.attrRead", false);
+  }
+  /**
+   * if entities get attrUpdate when added to a group
+   * @return true if entities get attrUpdate when added to a group
+   */
+  public boolean isConfigDefaultGroupsCreateGrantAllAttrUpdate() {
+    return GrouperConfig.retrieveConfig()
+        .propertyValueBoolean("groups.create.grant.all.attrUpdate", false);
+  }
+  
   /**
    * when searching for subjects to add to the group, list them here
    */

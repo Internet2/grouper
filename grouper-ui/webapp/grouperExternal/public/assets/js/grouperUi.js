@@ -239,39 +239,39 @@ function processUrl() {
   } else {
     var ajaxUrl = '../app/' + urlArgObjectMap.operation;
 
-    if (typeof urlArgObjectMap.membershipLiteName != 'undefined') {
+    if (typeof urlArgObjectMap.membershipLiteName != 'undefined' && ajaxUrl.indexOf('membershipLiteName=') == -1) {
       ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
       ajaxUrl += "membershipLiteName=" +  urlArgObjectMap.membershipLiteName;
     }
-    if (typeof urlArgObjectMap.groupId != 'undefined') {
+    if (typeof urlArgObjectMap.groupId != 'undefined' && ajaxUrl.indexOf('groupId=') == -1) {
       ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
       ajaxUrl += "groupId=" +  urlArgObjectMap.groupId;
     }
-    if (typeof urlArgObjectMap.groupName != 'undefined') {
+    if (typeof urlArgObjectMap.groupName != 'undefined' && ajaxUrl.indexOf('groupName=') == -1) {
       ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
       ajaxUrl += "groupName=" +  urlArgObjectMap.groupName;
     }
-    if (typeof urlArgObjectMap.subjectPickerName != 'undefined') {
+    if (typeof urlArgObjectMap.subjectPickerName != 'undefined' && ajaxUrl.indexOf('subjectPickerName=') == -1) {
       ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
       ajaxUrl += "subjectPickerName=" +  urlArgObjectMap.subjectPickerName;
     }
-    if (typeof urlArgObjectMap.subjectPickerElementName != 'undefined') {
+    if (typeof urlArgObjectMap.subjectPickerElementName != 'undefined' && ajaxUrl.indexOf('subjectPickerElementName=') == -1) {
       ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
       ajaxUrl += "subjectPickerElementName=" +  urlArgObjectMap.subjectPickerElementName;
     }
-    if (typeof urlArgObjectMap.attributeDefNamePickerName != 'undefined') {
+    if (typeof urlArgObjectMap.attributeDefNamePickerName != 'undefined'  && ajaxUrl.indexOf('attributeDefNamePickerName=') == -1) {
       ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
       ajaxUrl += "attributeDefNamePickerName=" +  urlArgObjectMap.attributeDefNamePickerName;
     }
-    if (typeof urlArgObjectMap.attributeDefNamePickerElementName != 'undefined') {
+    if (typeof urlArgObjectMap.attributeDefNamePickerElementName != 'undefined' && ajaxUrl.indexOf('attributeDefNamePickerElementName=') == -1) {
       ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
       ajaxUrl += "attributeDefNamePickerElementName=" +  urlArgObjectMap.attributeDefNamePickerElementName;
     }
-    if (typeof urlArgObjectMap.externalSubjectInviteId != 'undefined') {
+    if (typeof urlArgObjectMap.externalSubjectInviteId != 'undefined' && ajaxUrl.indexOf('externalSubjectInviteId=') == -1) {
       ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
       ajaxUrl += "externalSubjectInviteId=" +  urlArgObjectMap.externalSubjectInviteId;
     }
-    if (typeof urlArgObjectMap.externalSubjectInviteName != 'undefined') {
+    if (typeof urlArgObjectMap.externalSubjectInviteName != 'undefined' && ajaxUrl.indexOf('externalSubjectInviteName=') == -1) {
       ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
       ajaxUrl += "externalSubjectInviteName=" +  urlArgObjectMap.externalSubjectInviteName;
     }
@@ -451,27 +451,41 @@ var allObjects = new AllObjects();
 function guiDecorateUrl(theUrl) {
   var urlArgObjectMap = allObjects.appState.urlArgObjectMap();
 
-  if (typeof urlArgObjectMap.groupId != 'undefined') {
+  if (typeof urlArgObjectMap.groupId != 'undefined' && theUrl.indexOf('groupId=') == -1) {
     theUrl += theUrl.indexOf("?") == -1 ? "?" : "&";
     theUrl += "groupId=" +  urlArgObjectMap.groupId;
   }
-  if (typeof urlArgObjectMap.groupName != 'undefined') {
+  if (typeof urlArgObjectMap.groupName != 'undefined' && theUrl.indexOf('groupName=') == -1) {
     theUrl += theUrl.indexOf("?") == -1 ? "?" : "&";
     theUrl += "groupName=" +  urlArgObjectMap.groupName;
   }
-  if (typeof urlArgObjectMap.membershipLiteName != 'undefined') {
+  if (typeof urlArgObjectMap.membershipLiteName != 'undefined' && theUrl.indexOf('membershipLiteName=') == -1) {
     theUrl += theUrl.indexOf("?") == -1 ? "?" : "&";
     theUrl += "membershipLiteName=" +  urlArgObjectMap.membershipLiteName;
   }
-  if (typeof urlArgObjectMap.attributeDefIdForFilter != 'undefined') {
+  if (typeof urlArgObjectMap.attributeDefIdForFilter != 'undefined' && theUrl.indexOf('attributeDefIdForFilter=') == -1) {
     theUrl += theUrl.indexOf("?") == -1 ? "?" : "&";
     theUrl += "attributeDefIdForFilter=" +  urlArgObjectMap.attributeDefIdForFilter;
   }
-  if (typeof urlArgObjectMap.attributeDefId != 'undefined') {
+  if (typeof urlArgObjectMap.attributeDefId != 'undefined' && theUrl.indexOf('attributeDefId=') == -1) {
     theUrl += theUrl.indexOf("?") == -1 ? "?" : "&";
     theUrl += "attributeDefId=" +  urlArgObjectMap.attributeDefId;
   }
   return theUrl;
+}
+
+/**
+ * unregister a widget
+ * @param id
+ */
+function dojoUnregisterWidget(id) {
+  
+  var widget = dijit.byId(id);
+  if (widget != null) {
+    if (typeof widget.destroyRecursive != 'undefined') {
+      widget.destroyRecursive();
+    }
+  }
 }
 
 /** generic ajax method takes a url, callback function, and params or forms.

@@ -44,7 +44,7 @@
                             <ul class="dropdown-menu dropdown-menu-right">
                               <li><a href="edit-person-membership.html">Edit membership &amp; privileges</a></li>
                               <c:if test="${guiMembershipContainer.membershipContainer.membershipAssignType.immediate}">
-                                <li><a href="#" class="actions-revoke-membership">Revoke membership</a></li>
+                                <li><a href="#" onclick="ajax('../app/UiV2Group.removeMember?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}', {formIds: 'groupFilterFormId,groupPagingFormId'}); return false;" class="actions-revoke-membership">Revoke membership</a></li>
                               </c:if>
                               <c:if test="${guiMembershipSubjectContainer.guiSubject.group}">
                                 <li><a href="view-group.html">View group</a></li>

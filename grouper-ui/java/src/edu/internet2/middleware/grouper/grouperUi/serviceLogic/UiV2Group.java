@@ -19,7 +19,6 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
@@ -30,10 +29,6 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.Gui
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -166,6 +161,63 @@ public class UiV2Group {
       GrouperSession.stopQuietly(grouperSession);
     }
     
+  }
+
+  /**
+   * the filter button was pressed, or paging or sorting, or view Group or something
+   * @param request
+   * @param response
+   */
+  public void removeMember(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      final Group group = retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+  
+      if (group == null) {
+        return;
+      }
+
+      String memberId = request.getParameter("memberId");
+      
+      Member member = MemberFinder.findByUuid(grouperSession, memberId, false);
+
+      //not sure why this would happen
+      if (member == null) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("groupDeleteMemberCantFindMember")));
+        
+      } else {
+      
+        boolean madeChanges = group.deleteMember(member, false);
+        
+        if (madeChanges) {
+    
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+              TextContainer.retrieveFromRequest().getText().get("groupDeleteMemberSuccess")));
+              
+        } else {
+          
+          //not sure why this would happen (race condition?)
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+              TextContainer.retrieveFromRequest().getText().get("groupDeleteMemberNoChangesSuccess")));
+    
+        }
+      }
+      
+      filterHelper(request, response, group);
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
   }
 
   /**
@@ -359,8 +411,6 @@ public class UiV2Group {
    */
   public void addMemberSubmit(final HttpServletRequest request, final HttpServletResponse response) {
 
-    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
-
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
 
     GrouperSession grouperSession = null;
@@ -370,14 +420,12 @@ public class UiV2Group {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      Group group = retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+      final Group group = retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
   
       if (group == null) {
         return;
       }
-  
-      GroupContainer groupContainer = grouperRequestContainer.getGroupContainer();
-  
+    
       String subjectString = request.getParameter("groupAddMemberComboName");
   
       Subject subject = null;
@@ -397,93 +445,54 @@ public class UiV2Group {
         return;
       }      
 
-      GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
+      Boolean defaultPrivs = null;
+      
+      {
+        String privilegeOptionsValue = request.getParameter("privilege-options[]");
         
-        @Override
-        public Object callback(GrouperTransaction grouperTransaction)
-            throws GrouperDAOException {
-
-          Boolean defaultPrivs = null;
-          
-          {
-            String privilegeOptionsValue = request.getParameter("privilege-options");
-            
-            if (StringUtils.equals(privilegeOptionsValue, "default")) {
-              defaultPrivs = true;
-            } else if (StringUtils.equals(privilegeOptionsValue, "custom")) {
-              defaultPrivs = false;
-            } else {
-              throw new RuntimeException("For privilege-options expecting default or custom but was: '" + privilegeOptionsValue + "'");
-            }
-          }
-
-
-          boolean memberChecked = false;
-          
-          boolean adminChecked = false;
-          boolean adminDefaultChecked = GrouperConfig.retrieveConfig()
-              .propertyValueBoolean("groups.create.grant.all.admin", false);
-          
-          boolean updateChecked = false;
-          boolean updateDefaultChecked = GrouperConfig.retrieveConfig()
-              .propertyValueBoolean("groups.create.grant.all.update", false);
-          
-          boolean readChecked = false;
-          boolean readDefaultChecked = GrouperConfig.retrieveConfig()
-              .propertyValueBoolean("groups.create.grant.all.read", false);
-
-          boolean viewChecked = false;
-          boolean viewDefaultChecked = GrouperConfig.retrieveConfig()
-              .propertyValueBoolean("groups.create.grant.all.view", false);
-
-          boolean optinChecked = false;
-          boolean optinDefaultChecked = GrouperConfig.retrieveConfig()
-              .propertyValueBoolean("groups.create.grant.all.optin", false);
-
-          boolean optoutChecked = false;
-          boolean optoutDefaultChecked = GrouperConfig.retrieveConfig()
-              .propertyValueBoolean("groups.create.grant.all.optout", false);
-
-
-          boolean attrReadChecked = false;
-          boolean attrReadDefaultChecked = GrouperConfig.retrieveConfig()
-              .propertyValueBoolean("groups.create.grant.all.attrRead", false);
-
-          boolean attrUpdateChecked = false;
-          boolean attrUpdateDefaultChecked = GrouperConfig.retrieveConfig()
-              .propertyValueBoolean("groups.create.grant.all.attrUpdate", false);
-          
-          if (!defaultPrivs) {
-            
-            
-            
-          } else {
-          
-            memberChecked = GrouperUtil.booleanValue(request.getParameter("privileges_member[]"));
-            adminChecked = GrouperUtil.booleanValue(request.getParameter("privileges_admin[]"));
-            updateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_update[]"));
-            readChecked = GrouperUtil.booleanValue(request.getParameter("privileges_read[]"));
-            viewChecked = GrouperUtil.booleanValue(request.getParameter("privileges_view[]"));
-            optinChecked = GrouperUtil.booleanValue(request.getParameter("privileges_optin[]"));
-            optoutChecked = GrouperUtil.booleanValue(request.getParameter("privileges_optout[]"));
-            attrReadChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrRead[]"));
-            attrUpdateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrUpdate[]"));
-          }
-
-          
-          // TODO Auto-generated method stub
-          return null;
+        if (StringUtils.equals(privilegeOptionsValue, "default")) {
+          defaultPrivs = true;
+        } else if (StringUtils.equals(privilegeOptionsValue, "custom")) {
+          defaultPrivs = false;
+        } else {
+          throw new RuntimeException("For privilege-options expecting default or custom but was: '" + privilegeOptionsValue + "'");
         }
-      });
+      }
       
+      boolean memberChecked = GrouperUtil.booleanValue(request.getParameter("privileges_members[]"), false);
+      boolean adminChecked = GrouperUtil.booleanValue(request.getParameter("privileges_admins[]"), false);
+      boolean updateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_updaters[]"), false);
+      boolean readChecked = GrouperUtil.booleanValue(request.getParameter("privileges_readers[]"), false);
+      boolean viewChecked = GrouperUtil.booleanValue(request.getParameter("privileges_viewers[]"), false);
+      boolean optinChecked = GrouperUtil.booleanValue(request.getParameter("privileges_optins[]"), false);
+      boolean optoutChecked = GrouperUtil.booleanValue(request.getParameter("privileges_optouts[]"), false);
+      boolean attrReadChecked = GrouperUtil.booleanValue(request.getParameter("privileges_groupAttrReaders[]"), false);
+      boolean attrUpdateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_groupAttrUpdaters[]"), false);
       
-//      Privilege privilege = AccessPrivilege.listToPriv(fieldName);
-//      
-//      if (privilege == null) {
-//        throw new RuntimeException("Why is privilege not found???? " + fieldName);
-//      }
+      boolean madeChanges = group.addMember(subject, defaultPrivs, memberChecked, adminChecked, 
+          updateChecked, readChecked, viewChecked, optinChecked, optoutChecked, attrReadChecked, 
+          attrUpdateChecked);
       
-  
+      if (madeChanges) {
+
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+            TextContainer.retrieveFromRequest().getText().get("groupAddMemberMadeChangesSuccess")));
+
+        filterHelper(request, response, group);
+
+
+      } else {
+
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+            TextContainer.retrieveFromRequest().getText().get("groupAddMemberNoChangesSuccess")));
+
+      }
+
+      //clear out the combo
+      guiResponseJs.addAction(GuiScreenAction.newScript(
+          "dijit.byId('groupAddMemberComboId').set('displayedValue', ''); " +
+          "dijit.byId('groupAddMemberComboId').set('value', '');"));
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }

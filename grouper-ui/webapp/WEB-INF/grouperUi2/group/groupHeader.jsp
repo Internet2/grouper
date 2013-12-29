@@ -64,37 +64,45 @@
                           <div id="add-members-privileges" class="control-group hide">
                             <div class="controls">
                               <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_member" value="true" checked="checked"/>MEMBER
+                                <input type="checkbox" name="privileges_members" value="true" checked="checked"/>MEMBER
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_admin" value="true"/>ADMIN
+                                <input type="checkbox" name="privileges_admins" value="true" 
+                                  ${grouperRequestContainer.groupContainer.configDefaultGroupsCreateGrantAllAdmin ? 'checked="checked"' : '' } />ADMIN
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_update" value="true"/>UPDATE
+                                <input type="checkbox" name="privileges_updaters" value="true"
+                                  ${grouperRequestContainer.groupContainer.configDefaultGroupsCreateGrantAllUpdate ? 'checked="checked"' : '' } />UPDATE
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_read" value="true" checked="checked"/>READ
+                                <input type="checkbox" name="privileges_readers" value="true" 
+                                  ${grouperRequestContainer.groupContainer.configDefaultGroupsCreateGrantAllRead ? 'checked="checked"' : '' } />READ
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_view" value="true" checked="checked"/>VIEW
+                                <input type="checkbox" name="privileges_viewers" value="true" 
+                                  ${grouperRequestContainer.groupContainer.configDefaultGroupsCreateGrantAllView ? 'checked="checked"' : '' } />VIEW
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_optin" value="true"/>OPTIN
+                                <input type="checkbox" name="privileges_optins" value="true"
+                                  ${grouperRequestContainer.groupContainer.configDefaultGroupsCreateGrantAllOptin ? 'checked="checked"' : '' } />OPTIN
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_optout" value="true"/>OPTOUT
+                                <input type="checkbox" name="privileges_optouts" value="true" 
+                                  ${grouperRequestContainer.groupContainer.configDefaultGroupsCreateGrantAllOptout ? 'checked="checked"' : '' } />OPTOUT
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_attrRead" value="true"/>ATTRIBUTE READ
+                                <input type="checkbox" name="privileges_groupAttrReaders" value="true" 
+                                  ${grouperRequestContainer.groupContainer.configDefaultGroupsCreateGrantAllAttrRead ? 'checked="checked"' : '' } />ATTRIBUTE READ
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_attrUpdate" value="true"/>ATTRIBUTE UPDATE
+                                <input type="checkbox" name="privileges_groupAttrUpdaters" value="true"
+                                  ${grouperRequestContainer.groupContainer.configDefaultGroupsCreateGrantAllAttrUpdate ? 'checked="checked"' : '' } />ATTRIBUTE UPDATE
                               </label>
                             </div>
                           </div>
                           <div class="control-group">
                             <div class="controls">
-                              <button onclick="ajax('../app/UiV2Group.addMemberSubmit?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'add-members-form'}); return false;" 
+                              <button onclick="ajax('../app/UiV2Group.addMemberSubmit?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'add-members-form,groupFilterFormId,groupPagingFormId'}); return false;" 
                                 id="add-members-submit" type="submit" class="btn btn-primary">Add</button> or <a href="bulk-add.html" class="blue-link">import a list of members</a> from a file.
                             </div>
                           </div>
