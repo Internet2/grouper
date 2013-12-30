@@ -21,7 +21,9 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemCopy;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.StemMove;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.StemDeleteException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogicBase;
@@ -54,6 +56,116 @@ public class UiV2Stem {
   /** logger */
   protected static final Log LOG = LogFactory.getLog(UiV2Stem.class);
 
+  /**
+   * submit button on parent folder search model dialog
+   * @param request
+   * @param response
+   */
+  public void stemSearchFormSubmit(final HttpServletRequest request, HttpServletResponse response) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+  
+      Stem stem = retrieveStemHelper(request, true).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+  
+      stemSearchFormSubmitHelper(request, response, stem);
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+
+  /**
+   * submit button on parent folder search model dialog
+   * @param request
+   * @param response
+   */
+  private void stemSearchFormSubmitHelper(final HttpServletRequest request, HttpServletResponse response, Stem stem) {
+   
+    GrouperSession grouperSession = null;
+
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+     
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      StemContainer stemContainer = grouperRequestContainer.getStemContainer();
+   
+      String searchString = request.getParameter("stemSearch");
+      
+      boolean searchOk = GrouperUiUtils.searchStringValid(searchString);
+      if (!searchOk) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#folderSearchResultsId", 
+            TextContainer.retrieveFromRequest().getText().get("stemSearchNotEnoughChars")));
+        return;
+      }
+      
+      stemContainer.setParentStemFilterText(searchString);
+      
+      String pageSizeString = request.getParameter("pagingTagPageSize");
+      int pageSize = -1;
+      if (!StringUtils.isBlank(pageSizeString)) {
+        pageSize = GrouperUtil.intValue(pageSizeString);
+      } else {
+        pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
+      }
+      stemContainer.getParentStemGuiPaging().setPageSize(pageSize);
+      
+      //1 indexed
+      String pageNumberString = request.getParameter("pagingTagPageNumber");
+      
+      int pageNumber = 1;
+      if (!StringUtils.isBlank(pageNumberString)) {
+        pageNumber = GrouperUtil.intValue(pageNumberString);
+      }
+      
+      stemContainer.getParentStemGuiPaging().setPageNumber(pageNumber);
+
+      QueryOptions queryOptions = new QueryOptions();
+      queryOptions.paging(pageSize, pageNumber, true);
+      
+      StemFinder stemFinder = new StemFinder().assignScope(searchString).assignSplitScope(true)
+          .addPrivilege(NamingPrivilege.STEM).assignSubject(loggedInSubject)
+          .assignQueryOptions(queryOptions);
+      
+      //set of stems that match, and what memberships each subject has
+      Set<Stem> results = stemFinder.findStems();
+
+      Set<GuiStem> guiResults = GuiStem.convertFromStems(results);
+      
+      stemContainer.setParentStemSearchResults(guiResults);
+      
+      stemContainer.getParentStemGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+
+      if (GrouperUtil.length(guiResults) == 0) {
+   
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#folderSearchResultsId", 
+            TextContainer.retrieveFromRequest().getText().get("stemSearchNoStemsFound")));
+        return;
+      }
+            
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#folderSearchResultsId", 
+          "/WEB-INF/grouperUi2/stem/parentFolderSearchResults.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
   /**
    * combo filter copy parent folder
    * @param request
@@ -175,6 +287,7 @@ public class UiV2Stem {
       boolean copyFolderPrivs = GrouperUtil.booleanValue(request.getParameter("copyFolderPrivs[]"), false);
       
       final Stem parentFolder = new StemFinder().addPrivilege(NamingPrivilege.STEM)
+          .assignSubject(loggedInSubject)
           .assignScope(parentFolderId).assignFindByUuidOrName(true).findStem();
       
       if (parentFolder == null) {
@@ -905,5 +1018,216 @@ public class UiV2Stem {
     }
   }
 
+  /**
+   * move stem
+   * @param request
+   * @param response
+   */
+  public void stemMove(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+  
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      stem = retrieveStemHelper(request, true).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/stem/stemMove.jsp"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * 
+   * @param request
+   * @param response
+   */
+  public void stemMoveSubmit(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      stem = retrieveStemHelper(request, true).getStem();
+    
+      if (stem == null) {
+        return;
+      }
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      String parentFolderId = request.getParameter("parentFolderComboName");
+      
+      //just get what they typed in
+      if (StringUtils.isBlank(parentFolderId)) {
+        parentFolderId = request.getParameter("parentFolderComboNameDisplay");
+      }
+      
+      boolean moveChangeAlternateNames = GrouperUtil.booleanValue(request.getParameter("moveChangeAlternateNames[]"), false);
+      
+      final Stem parentFolder = new StemFinder().addPrivilege(NamingPrivilege.STEM)
+          .assignSubject(loggedInSubject)
+          .assignScope(parentFolderId).assignFindByUuidOrName(true).findStem();
+      
+      if (parentFolder == null) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("stemCopyCantFindParentStemId")));
+        return;
+        
+      }
+  
+      //MCH 20131224: dont need this since we are searching by stemmed folders above
+      
+      try {
+  
+        //get the new folder that was created
+        new StemMove(stem, parentFolder).assignAlternateName(moveChangeAlternateNames).save();
+  
+      } catch (InsufficientPrivilegeException ipe) {
+        
+        LOG.warn("Insufficient privilege exception for stem move: " + SubjectHelper.getPretty(loggedInSubject), ipe);
+        
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("stemMoveInsufficientPrivileges")));
+        return;
+  
+      }
+      
+      //go to the view stem screen
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStem&stemId=" + stem.getId() + "')"));
+  
+      //lets show a success message on the new screen
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("stemMoveSuccess")));
+      
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  
+  }
+
+  /**
+   * delete stem (show confirm screen)
+   * @param request
+   * @param response
+   */
+  public void stemDelete(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      stem = retrieveStemHelper(request, true).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/stem/stemDelete.jsp"));
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * hit submit on the delete stem screen
+   * @param request
+   * @param response
+   */
+  public void stemDeleteSubmit(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      stem = retrieveStemHelper(request, true).getStem();
+    
+      if (stem == null) {
+        return;
+      }
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      try {
+  
+        //get the new folder that was created
+        stem.delete();
+  
+      } catch (InsufficientPrivilegeException ipe) {
+        
+        LOG.warn("Insufficient privilege exception for stem delete: " + SubjectHelper.getPretty(loggedInSubject), ipe);
+        
+        //go to the view stem screen
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStem&stemId=" + stem.getId() + "')"));
+
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("stemDeleteInsufficientPrivileges")));
+        return;
+  
+      } catch (StemDeleteException sde) {
+        
+        LOG.warn("Error deleting stem: " + SubjectHelper.getPretty(loggedInSubject) + ", " + stem, sde);
+        
+        //go to the view stem screen
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStem&stemId=" + stem.getId() + "')"));
+
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("stemErrorCantDelete")));
+
+        return;
+  
+      }
+      
+      //go to the view stem screen for the parent since this stem is deleted
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStem&stemId=" + stem.getParentUuid() + "')"));
+  
+      //lets show a success message on the new screen
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("stemDeleteSuccess")));
+      
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  
+  }
 
 }

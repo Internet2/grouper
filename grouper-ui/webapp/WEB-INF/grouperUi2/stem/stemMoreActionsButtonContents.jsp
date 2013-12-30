@@ -19,15 +19,21 @@
                             >Add to my favorites</a></li>
                           </c:otherwise>
                         </c:choose>
-                        <li class="divider"></li>
+
+                        <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges }">
+  
+                          <li class="divider"></li>
                         
-                        <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemCopy&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
-                            >Copy folder</a></li>
-                        <li><a href="delete-folder.html">Delete folder</a></li>
-                        <li><a href="edit-folder.html">Edit folder</a></li>
-                        <li><a href="move-folder.html">Move folder</a></li>
-                        <li class="divider"></li>
-                        <li><a href="voew-audit-log.html">View audit log</a></li>
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemCopy&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                              >Copy folder</a></li>
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemDelete&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                              >Delete folder</a></li>
+                          <li><a href="edit-folder.html">Edit folder</a></li>
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemMove&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                              >Move folder</a></li>
+                          <li class="divider"></li>
+                          <li><a href="voew-audit-log.html">View audit log</a></li>
+                        </c:if>
                       </ul>
                     </div>
 

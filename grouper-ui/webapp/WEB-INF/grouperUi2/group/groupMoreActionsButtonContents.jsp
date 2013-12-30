@@ -19,11 +19,14 @@
                           </c:otherwise>
                         </c:choose>
                         <li><a href="join-group.html">Join group</a></li>
-                        <li class="divider"></li>
-                        <li><a href="copy-group.html">Copy group</a></li>
-                        <li><a href="delete-group.html">Delete group</a></li>
-                        <li><a href="edit-group.html">Edit group</a></li>
-                        <li><a href="move-group.html">Move group</a></li>
+                        <c:if test="${grouperRequestContainer.groupContainer.canAdmin }">
+                          <li class="divider"></li>
+                          <li><a href="copy-group.html">Copy group</a></li>
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupDelete&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                            >Delete group</a></li>
+                          <li><a href="edit-group.html">Edit group</a></li>
+                          <li><a href="move-group.html">Move group</a></li>
+                        </c:if>
                         <li class="divider"></li>
                         <li><a href="export-group.html">Export members</a></li>
                         <li><a href="bulk-add.html">Import members</a></li>

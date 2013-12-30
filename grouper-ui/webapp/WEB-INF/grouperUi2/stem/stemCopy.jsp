@@ -22,7 +22,7 @@
                   <div class="modal-body">
                     <form class="form form-inline" id="stemSearchFormId">
                       <input name="stemSearch" type="text" placeholder="Search for a folder" value=""/> 
-                      <button class="btn" onclick="ajax('../app/UiV2Group.stemSearchFormSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemSearchFormId'}); return false;">Search</button>
+                      <button class="btn" onclick="ajax('../app/UiV2Stem.stemSearchFormSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemSearchFormId'}); return false;">Search</button>
                     </form>
                     <div id="folderSearchResultsId"></div>
                     

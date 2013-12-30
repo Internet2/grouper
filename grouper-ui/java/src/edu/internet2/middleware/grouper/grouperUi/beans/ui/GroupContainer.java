@@ -494,41 +494,16 @@ public class GroupContainer {
    * @return subjects and memberships
    */
   public Set<GuiMembershipSubjectContainer> getGuiMembershipSubjectContainers() {
-    if (this.guiMembershipSubjectContainers == null) {
-
-      Group group = this.getGuiGroup().getGroup();
-      int pageSize = this.getGuiPaging().getPageSize();
-      int pageNumber = this.getGuiPaging().getPageNumber();
-
-      QueryOptions queryOptions = new QueryOptions();
-      queryOptions.paging(pageSize, pageNumber, true);
-      
-      MembershipFinder membershipFinder = new MembershipFinder()
-        .addGroupId(group.getId()).assignCheckSecurity(true)
-        .assignHasFieldForMember(true)
-        .assignEnabled(true)
-        .assignHasMembershipTypeForMember(true)
-        .assignQueryOptionsForMember(queryOptions)
-        .assignSplitScopeForMember(true);
-      
-      if (this.membershipType != null) {
-        membershipFinder.assignMembershipType(this.membershipType);
-      }
-  
-      if (!StringUtils.isBlank(this.filterText)) {
-        membershipFinder.assignScopeForMember(this.filterText);
-      }
-  
-      //set of subjects, and what memberships each subject has
-      Set<MembershipSubjectContainer> results = membershipFinder
-          .findMembershipResult().getMembershipSubjectContainers();
-
-      this.guiMembershipSubjectContainers = GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results);
-      
-      this.getGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
-      
-    }
     return this.guiMembershipSubjectContainers;
+  }
+
+  /**
+   * assign the membership containers
+   * @param guiMembershipSubjectContainers
+   */
+  public void setGuiMembershipSubjectContainers(
+      Set<GuiMembershipSubjectContainer> guiMembershipSubjectContainers) {
+    this.guiMembershipSubjectContainers = guiMembershipSubjectContainers;
   }
 
   /**

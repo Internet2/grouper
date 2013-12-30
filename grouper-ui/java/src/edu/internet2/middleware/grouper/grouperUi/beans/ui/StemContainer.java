@@ -5,7 +5,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Field;
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
@@ -302,6 +301,72 @@ public class StemContainer {
    * if the stem is a favorite for the logged in user
    */
   private Boolean favorite;
+
+  /**
+   * filter text for the parent stem search
+   */
+  private String parentStemFilterText = null;
+
+  /**
+   * keep track of the paging on the parent stem search screen
+   */
+  private GuiPaging parentStemGuiPaging = null;
+
+  /**
+   * when searching for parent stems, these are the results
+   */
+  private Set<GuiStem> parentStemSearchResults = null;
+
+  /**
+   * when searching for parent stems, these are the results
+   * @return stems
+   */
+  public Set<GuiStem> getParentStemSearchResults() {
+    return this.parentStemSearchResults;
+  }
+
+  /**
+   * when searching for parent stems, these are the results
+   * @param parentStemSearchResults1
+   */
+  public void setParentStemSearchResults(Set<GuiStem> parentStemSearchResults1) {
+    this.parentStemSearchResults = parentStemSearchResults1;
+  }
+
+  /**
+   * when filtering parent stem list
+   * @return
+   */
+  public String getParentStemFilterText() {
+    return this.parentStemFilterText;
+  }
+
+  /**
+   * when filtering parent stem list
+   * @param parentStemFilterText1
+   */
+  public void setParentStemFilterText(String parentStemFilterText1) {
+    this.parentStemFilterText = parentStemFilterText1;
+  }
+
+  /**
+   * when paging parent stem list
+   * @return parent stem gui paging
+   */
+  public GuiPaging getParentStemGuiPaging() {
+    if (this.parentStemGuiPaging == null) {
+      this.parentStemGuiPaging = new GuiPaging();
+    }
+    return this.parentStemGuiPaging;
+  }
+
+  /**
+   * when paging parent stem list
+   * @param parentStemGuiPaging1
+   */
+  public void setParentStemGuiPaging(GuiPaging parentStemGuiPaging1) {
+    this.parentStemGuiPaging = parentStemGuiPaging1;
+  }
 
   /**
    * gui stem shown on screen
