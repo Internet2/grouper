@@ -23,8 +23,9 @@
                           <li class="divider"></li>
                           <li><a href="copy-group.html">Copy group</a></li>
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupDelete&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
-                            >Delete group</a></li>
-                          <li><a href="edit-group.html">Edit group</a></li>
+                            >${textContainer.text['groupViewDeleteGroupButton'] }</a></li>
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupEdit&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                            >${textContainer.text['groupViewEditGroupButton'] }</a></li>
                           <li><a href="move-group.html">Move group</a></li>
                         </c:if>
                         <li class="divider"></li>

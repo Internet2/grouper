@@ -42,6 +42,8 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -1049,8 +1051,6 @@ public class UiV2Group {
   
       grouperSession = GrouperSession.start(loggedInSubject);
       
-      final GrouperSession GROUPER_SESSION = grouperSession;
-      
       final String extension = request.getParameter("extension");
       final String displayExtension = request.getParameter("displayExtension");
       final String description = request.getParameter("description");
@@ -1128,14 +1128,13 @@ public class UiV2Group {
       try {
 
         //create the group
-        group = new GroupSave(GROUPER_SESSION).assignName(parentFolder.getName() + ":" + extension)
+        group = new GroupSave(grouperSession).assignName(parentFolder.getName() + ":" + extension)
             .assignDisplayExtension(displayExtension).assignDescription(description).assignTypeOfGroup(typeOfGroup)
             .assignPrivAllAdmin(adminChecked).assignPrivAllAttrRead(attrReadChecked)
             .assignPrivAllAttrUpdate(attrUpdateChecked).assignPrivAllOptin(optinChecked)
             .assignPrivAllOptout(optoutChecked).assignPrivAllRead(readChecked)
             .assignPrivAllUpdate(updateChecked).assignPrivAllView(viewChecked)
             .save();
-        
   
       } catch (InsufficientPrivilegeException ipe) {
         
@@ -1195,6 +1194,159 @@ public class UiV2Group {
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/newGroup.jsp"));
   
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * edit a group, show the edit screen
+   * @param request
+   * @param response
+   */
+  public void groupEdit(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/group/groupEdit.jsp"));
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * edit group submit
+   * @param request
+   * @param response
+   */
+  public void groupEditSubmit(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      group = retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+
+      final GrouperSession GROUPER_SESSION = grouperSession;
+      
+      final String extension = request.getParameter("extension");
+      final String displayExtension = request.getParameter("displayExtension");
+      final String description = request.getParameter("description");
+      final boolean adminChecked = GrouperUtil.booleanValue(request.getParameter("privileges_admins[]"), false);
+      final boolean updateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_updaters[]"), false);
+      final boolean readChecked = GrouperUtil.booleanValue(request.getParameter("privileges_readers[]"), false);
+      final boolean viewChecked = GrouperUtil.booleanValue(request.getParameter("privileges_viewers[]"), false);
+      final boolean optinChecked = GrouperUtil.booleanValue(request.getParameter("privileges_optins[]"), false);
+      final boolean optoutChecked = GrouperUtil.booleanValue(request.getParameter("privileges_optouts[]"), false);
+      final boolean attrReadChecked = GrouperUtil.booleanValue(request.getParameter("privileges_groupAttrReaders[]"), false);
+      final boolean attrUpdateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_groupAttrUpdaters[]"), false);
+  
+      String groupType = request.getParameter("groupType[]");
+      
+      final TypeOfGroup typeOfGroup = TypeOfGroup.valueOfIgnoreCase(groupType, true);
+      
+      if (typeOfGroup != TypeOfGroup.group && typeOfGroup != TypeOfGroup.role) {
+        throw new RuntimeException("Invalid group type, should be group or role: " + typeOfGroup);
+      }
+      
+      
+      
+      if (StringUtils.isBlank(displayExtension)) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#groupName",
+            TextContainer.retrieveFromRequest().getText().get("groupCreateErrorDisplayExtensionRequired")));
+        return;
+        
+      }
+  
+      if (StringUtils.isBlank(extension)) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#groupId",
+            TextContainer.retrieveFromRequest().getText().get("groupCreateErrorExtensionRequired")));
+        return;
+        
+      }
+  
+      try {
+  
+        //create the group
+        GroupSave groupSave = new GroupSave(GROUPER_SESSION).assignUuid(group.getId())
+            .assignSaveMode(SaveMode.UPDATE)
+            .assignName(group.getParentStemName() + ":" + group.getExtension())
+            .assignDisplayExtension(displayExtension).assignDescription(description).assignTypeOfGroup(typeOfGroup)
+            .assignPrivAllAdmin(adminChecked).assignPrivAllAttrRead(attrReadChecked)
+            .assignPrivAllAttrUpdate(attrUpdateChecked).assignPrivAllOptin(optinChecked)
+            .assignPrivAllOptout(optoutChecked).assignPrivAllRead(readChecked)
+            .assignPrivAllUpdate(updateChecked).assignPrivAllView(viewChecked);
+        group = groupSave.save();
+        
+        //go to the view group screen
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroup&groupId=" + group.getId() + "')"));
+    
+        //lets show a success message on the new screen
+        if (groupSave.getSaveResultType() == SaveResultType.NO_CHANGE) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+              TextContainer.retrieveFromRequest().getText().get("groupEditNoChangeNote")));
+        } else {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+              TextContainer.retrieveFromRequest().getText().get("groupEditSuccess")));
+        }
+      
+  
+      } catch (InsufficientPrivilegeException ipe) {
+        
+        LOG.warn("Insufficient privilege exception for group edit: " + SubjectHelper.getPretty(loggedInSubject), ipe);
+        
+        //dont change screens
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("groupCreateInsufficientPrivileges")));
+        return;
+  
+      } catch (Exception sde) {
+        
+        LOG.warn("Error edit group: " + SubjectHelper.getPretty(loggedInSubject) + ", " + group, sde);
+        
+        //dont change screens
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("groupEditError") 
+            + ": " + GrouperUtil.xmlEscape(sde.getMessage(), true)));
+  
+        return;
+  
+      }
+    
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }

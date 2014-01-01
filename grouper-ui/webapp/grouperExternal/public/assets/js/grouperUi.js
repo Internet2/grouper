@@ -783,7 +783,7 @@ function guiProcessAction(guiScreenAction) {
     guiMessageHelper(guiScreenAction.messageType, guiScreenAction.validationMessage);
     guiScrollTop();
     //put up the validation error thing
-    $(guiScreenAction.innerHtmlJqueryHandle).after('<a class="validationError" href="#" onclick="alert(\'' + guiEscapeHtml(guiScreenAction.validationMessage, true) + '\'); return false;"><i class="icon-exclamation-sign icon-large" style="color:red;"></i></span>');
+    $(guiScreenAction.innerHtmlJqueryHandle).after('&nbsp;<a class="validationError" href="#" onclick="alert(\'' + guiEscapeHtml(guiScreenAction.validationMessage, true) + '\'); return false;"><i class="icon-exclamation-sign icon-large" style="color:#CC3333;"></i></span>');
   }
 }
 

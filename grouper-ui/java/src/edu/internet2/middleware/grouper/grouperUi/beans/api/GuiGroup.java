@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
@@ -259,5 +260,71 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
   public GrouperObject getGrouperObject() {
     return this.group;
   }
-  
+
+  /**
+   * if the group has admin granted to all
+   * @return true
+   */
+  public boolean isGrantAllAdmin() {
+    return this.group.hasAdmin(SubjectFinder.findAllSubject());
+  }
+
+  /**
+   * if the group has update granted to all
+   * @return true
+   */
+  public boolean isGrantAllUpdate() {
+    return this.group.hasUpdate(SubjectFinder.findAllSubject());
+  }
+
+  /**
+   * if the group has read granted to all
+   * @return true
+   */
+  public boolean isGrantAllRead() {
+    return this.group.hasRead(SubjectFinder.findAllSubject());
+  }
+
+  /**
+   * if the group has view granted to all
+   * @return true
+   */
+  public boolean isGrantAllView() {
+    return this.group.hasView(SubjectFinder.findAllSubject());
+  }
+
+  /**
+   * if the group has optin granted to all
+   * @return true
+   */
+  public boolean isGrantAllOptin() {
+    return this.group.hasOptin(SubjectFinder.findAllSubject());
+  }
+
+
+  /**
+   * if the group has optout granted to all
+   * @return true
+   */
+  public boolean isGrantAllOptout() {
+    return this.group.hasOptout(SubjectFinder.findAllSubject());
+  }
+
+
+  /**
+   * if the group has attr read granted to all
+   * @return true
+   */
+  public boolean isGrantAllAttrRead() {
+    return this.group.hasGroupAttrRead(SubjectFinder.findAllSubject());
+  }
+
+
+  /**
+   * if the group has attr update granted to all
+   * @return true
+   */
+  public boolean isGrantAllAttrUpdate() {
+    return this.group.hasGroupAttrUpdate(SubjectFinder.findAllSubject());
+  }
 }

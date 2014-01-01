@@ -582,6 +582,8 @@ public class GroupSave {
                   theGroup.store();
                 }
 
+                boolean changedPrivs = false;
+                
                 boolean adminDefaultChecked = GrouperConfig.retrieveConfig()
                     .propertyValueBoolean("groups.create.grant.all.admin", false);
                 
@@ -608,62 +610,69 @@ public class GroupSave {
       
                 if (GroupSave.this.privAllAdmin != null && GroupSave.this.privAllAdmin != adminDefaultChecked) {
                   if (GroupSave.this.privAllAdmin) {
-                    theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN, false);
+                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN, false);
                   } else {
-                    theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN, false);
+                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN, false);
                   }
                 }
                             
                 if (GroupSave.this.privAllView != null && GroupSave.this.privAllView != viewDefaultChecked) {
                   if (GroupSave.this.privAllView) {
-                    theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
                   } else {
-                    theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
                   }
                 }
       
                 if (GroupSave.this.privAllRead != null && GroupSave.this.privAllRead != readDefaultChecked) {
                   if (GroupSave.this.privAllRead) {
-                    theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
                   } else {
-                    theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
                   }
                 }
                 if (GroupSave.this.privAllUpdate != null && GroupSave.this.privAllUpdate != updateDefaultChecked) {
                   if (GroupSave.this.privAllUpdate) {
-                    theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
+                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
                   } else {
-                    theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
+                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
                   }
                 }
                 if (GroupSave.this.privAllOptin != null && GroupSave.this.privAllOptin != optinDefaultChecked) {
                   if (GroupSave.this.privAllOptin) {
-                    theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN, false);
+                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN, false);
                   } else {
-                    theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN, false);
+                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN, false);
                   }
                 }
                 if (GroupSave.this.privAllOptout != null && GroupSave.this.privAllOptout != optoutDefaultChecked) {
                   if (GroupSave.this.privAllOptout) {
-                    theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTOUT, false);
+                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTOUT, false);
                   } else {
-                    theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTOUT, false);
+                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTOUT, false);
                   }
                 }
                 if (GroupSave.this.privAllAttrRead != null && GroupSave.this.privAllAttrRead != attrReadDefaultChecked) {
                   if (GroupSave.this.privAllAttrRead) {
-                    theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ, false);
+                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ, false);
                   } else {
-                    theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ, false);
+                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ, false);
                   }
                 }
                 if (GroupSave.this.privAllAttrUpdate != null && GroupSave.this.privAllAttrUpdate != attrUpdateDefaultChecked) {
                   if (GroupSave.this.privAllAttrUpdate) {
-                    theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_UPDATE, false);
+                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_UPDATE, false);
                   } else {
-                    theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_UPDATE, false);
+                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_UPDATE, false);
                   }
                 }
+                
+                if (changedPrivs) {
+                  if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                    GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                  }
+                }
+                
 			          return theGroup;
               }
           });
