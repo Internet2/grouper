@@ -1078,29 +1078,46 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
           hadChange = hadChange | Group.this.deleteMember(subject, false);
         }
         
-        boolean adminDefaultChecked = GrouperConfig.retrieveConfig()
-            .propertyValueBoolean("groups.create.grant.all.admin", false);
+//        boolean adminDefaultChecked = GrouperConfig.retrieveConfig()
+//            .propertyValueBoolean("groups.create.grant.all.admin", false);
+//        
+//        boolean updateDefaultChecked = GrouperConfig.retrieveConfig()
+//            .propertyValueBoolean("groups.create.grant.all.update", false);
+//        
+//        boolean readDefaultChecked = GrouperConfig.retrieveConfig()
+//            .propertyValueBoolean("groups.create.grant.all.read", false);
+//
+//        boolean viewDefaultChecked = GrouperConfig.retrieveConfig()
+//            .propertyValueBoolean("groups.create.grant.all.view", false);
+//
+//        boolean optinDefaultChecked = GrouperConfig.retrieveConfig()
+//            .propertyValueBoolean("groups.create.grant.all.optin", false);
+//
+//        boolean optoutDefaultChecked = GrouperConfig.retrieveConfig()
+//            .propertyValueBoolean("groups.create.grant.all.optout", false);
+//
+//        boolean attrReadDefaultChecked = GrouperConfig.retrieveConfig()
+//            .propertyValueBoolean("groups.create.grant.all.attrRead", false);
+//
+//        boolean attrUpdateDefaultChecked = GrouperConfig.retrieveConfig()
+//            .propertyValueBoolean("groups.create.grant.all.attrUpdate", false);
+
+        boolean adminDefaultChecked = false;
         
-        boolean updateDefaultChecked = GrouperConfig.retrieveConfig()
-            .propertyValueBoolean("groups.create.grant.all.update", false);
+        boolean updateDefaultChecked = false;
         
-        boolean readDefaultChecked = GrouperConfig.retrieveConfig()
-            .propertyValueBoolean("groups.create.grant.all.read", false);
+        boolean readDefaultChecked = false;
 
-        boolean viewDefaultChecked = GrouperConfig.retrieveConfig()
-            .propertyValueBoolean("groups.create.grant.all.view", false);
+        boolean viewDefaultChecked = false;
 
-        boolean optinDefaultChecked = GrouperConfig.retrieveConfig()
-            .propertyValueBoolean("groups.create.grant.all.optin", false);
+        boolean optinDefaultChecked = false;
 
-        boolean optoutDefaultChecked = GrouperConfig.retrieveConfig()
-            .propertyValueBoolean("groups.create.grant.all.optout", false);
+        boolean optoutDefaultChecked = false;
 
-        boolean attrReadDefaultChecked = GrouperConfig.retrieveConfig()
-            .propertyValueBoolean("groups.create.grant.all.attrRead", false);
+        boolean attrReadDefaultChecked = false;
 
-        boolean attrUpdateDefaultChecked = GrouperConfig.retrieveConfig()
-            .propertyValueBoolean("groups.create.grant.all.attrUpdate", false);
+        boolean attrUpdateDefaultChecked = false;
+
         
         if (defaultPrivs) {
           

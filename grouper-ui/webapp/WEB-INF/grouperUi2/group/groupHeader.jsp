@@ -67,36 +67,32 @@
                                 <input type="checkbox" name="privileges_members" value="true" checked="checked"/>MEMBER
                               </label>
                               <label class="checkbox inline">
+                                <%--
                                 <input type="checkbox" name="privileges_admins" value="true" 
                                   ${grouperRequestContainer.groupContainer.configDefaultGroupsCreateGrantAllAdmin ? 'checked="checked"' : '' } />ADMIN
+                                --%>
+                                <input type="checkbox" name="privileges_admins" value="true" />${textContainer.text['priv.adminUpper'] }
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_updaters" value="true"
-                                  ${grouperRequestContainer.groupContainer.configDefaultGroupsCreateGrantAllUpdate ? 'checked="checked"' : '' } />UPDATE
+                                <input type="checkbox" name="privileges_updaters" value="true" />${textContainer.text['priv.updateUpper'] }
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_readers" value="true" 
-                                  ${grouperRequestContainer.groupContainer.configDefaultGroupsCreateGrantAllRead ? 'checked="checked"' : '' } />READ
+                                <input type="checkbox" name="privileges_readers" value="true" />${textContainer.text['priv.readUpper'] }
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_viewers" value="true" 
-                                  ${grouperRequestContainer.groupContainer.configDefaultGroupsCreateGrantAllView ? 'checked="checked"' : '' } />VIEW
+                                <input type="checkbox" name="privileges_viewers" value="true" />${textContainer.text['priv.viewUpper'] }
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_optins" value="true"
-                                  ${grouperRequestContainer.groupContainer.configDefaultGroupsCreateGrantAllOptin ? 'checked="checked"' : '' } />OPTIN
+                                <input type="checkbox" name="privileges_optins" value="true" />${textContainer.text['priv.optinUpper'] }
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_optouts" value="true" 
-                                  ${grouperRequestContainer.groupContainer.configDefaultGroupsCreateGrantAllOptout ? 'checked="checked"' : '' } />OPTOUT
+                                <input type="checkbox" name="privileges_optouts" value="true" />${textContainer.text['priv.optoutUpper'] }
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_groupAttrReaders" value="true" 
-                                  ${grouperRequestContainer.groupContainer.configDefaultGroupsCreateGrantAllAttrRead ? 'checked="checked"' : '' } />ATTRIBUTE READ
+                                <input type="checkbox" name="privileges_groupAttrReaders" value="true" />${textContainer.text['priv.groupAttrReadUpper'] }
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_groupAttrUpdaters" value="true"
-                                  ${grouperRequestContainer.groupContainer.configDefaultGroupsCreateGrantAllAttrUpdate ? 'checked="checked"' : '' } />ATTRIBUTE UPDATE
+                                <input type="checkbox" name="privileges_groupAttrUpdaters" value="true" />${textContainer.text['priv.groupAttrUpdateUpper'] }
                               </label>
                             </div>
                           </div>

@@ -70,13 +70,7 @@ public class UiV2Stem {
       grouperSession = GrouperSession.start(loggedInSubject);
   
   
-      Stem stem = retrieveStemHelper(request, true).getStem();
-      
-      if (stem == null) {
-        return;
-      }
-  
-      stemSearchFormSubmitHelper(request, response, stem);
+      stemSearchFormSubmitHelper(request, response, StemSearchType.createFolder);
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -85,11 +79,37 @@ public class UiV2Stem {
   }
 
   /**
-   * submit button on parent folder search model dialog
+   * submit button on parent folder search model dialog for create groups
    * @param request
    * @param response
    */
-  private void stemSearchFormSubmitHelper(final HttpServletRequest request, HttpServletResponse response, Stem stem) {
+  public void stemSearchGroupFormSubmit(final HttpServletRequest request, HttpServletResponse response) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+  
+      stemSearchFormSubmitHelper(request, response, StemSearchType.createGroup);
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+
+  
+  
+  /**
+   * submit button on parent folder search model dialog
+   * @param request
+   * @param response
+   * @param stemSearchType
+   */
+  private void stemSearchFormSubmitHelper(final HttpServletRequest request, HttpServletResponse response, 
+      StemSearchType stemSearchType) {
    
     GrouperSession grouperSession = null;
 
@@ -103,7 +123,9 @@ public class UiV2Stem {
       grouperSession = GrouperSession.start(loggedInSubject);
   
       StemContainer stemContainer = grouperRequestContainer.getStemContainer();
-   
+
+      stemContainer.setStemSearchType(stemSearchType);
+
       String searchString = request.getParameter("stemSearch");
       
       boolean searchOk = GrouperUiUtils.searchStringValid(searchString);
@@ -164,6 +186,74 @@ public class UiV2Stem {
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
+  }
+  
+  /**
+   * type of stem search
+   */
+  public static enum StemSearchType {
+    
+    /**
+     * folder that can create a group
+     */
+    createGroup("stemSearchDescriptionNewGroups", "stemSearchGroupFormSubmit"),
+    
+    /**
+     * folder that can create a folder
+     */
+    createFolder("stemSearchDescriptionNewFolders", "stemSearchFormSubmit");
+
+    /**
+     * construct with description
+     * @param theKeyDescription
+     */
+    private StemSearchType(String theKeyDescription, String theOperationMethod) {
+      this.keyDescription = theKeyDescription;
+      this.operationMethod = theOperationMethod;
+    }
+    
+    /**
+     * stemSearchFormSubmit or stemSearchGroupFormSubmit etc
+     */
+    private String operationMethod;
+    
+    /**
+     * stemSearchFormSubmit or stemSearchGroupFormSubmit etc
+     * @return the method name
+     */
+    public String getOperationMethod() {
+      return this.operationMethod;
+    }
+
+    /**
+     * stemSearchFormSubmit or stemSearchGroupFormSubmit etc
+     * @param operationMethod1
+     */
+    public void setOperationMethod(String operationMethod1) {
+      this.operationMethod = operationMethod1;
+    }
+
+    /**
+     * key for search screen description in the externalized text file
+     */
+    private String keyDescription;
+    
+    /**
+     * key for search screen description in the externalized text file
+     * @param theKeyDescription
+     */
+    public void setKeyDescription(String theKeyDescription) {
+      this.keyDescription = theKeyDescription;
+    }
+    
+    /**
+     * key for search screen description in the externalized text file
+     * @return description
+     */
+    public String getKeyDescription() {
+      return this.keyDescription;
+    }
+    
   }
   
   /**
@@ -272,13 +362,7 @@ public class UiV2Stem {
 
       String displayExtension = request.getParameter("displayExtension");
       String extension = request.getParameter("extension");
-      String parentFolderId = request.getParameter("parentFolderComboName");
-      
-      //just get what they typed in
-      if (StringUtils.isBlank(parentFolderId)) {
-        parentFolderId = request.getParameter("parentFolderComboNameDisplay");
-      }
-      
+
       boolean copyGroupAttributes = GrouperUtil.booleanValue(request.getParameter("copyGroupAttributes[]"), false);
       boolean copyListMemberships = GrouperUtil.booleanValue(request.getParameter("copyListMemberships[]"), false);
       boolean copyGroupPrivileges = GrouperUtil.booleanValue(request.getParameter("copyGroupPrivileges[]"), false);
@@ -286,7 +370,14 @@ public class UiV2Stem {
       boolean copyPrivsInOtherGroups = GrouperUtil.booleanValue(request.getParameter("copyPrivsInOtherGroups[]"), false);
       boolean copyFolderPrivs = GrouperUtil.booleanValue(request.getParameter("copyFolderPrivs[]"), false);
       
-      final Stem parentFolder = new StemFinder().addPrivilege(NamingPrivilege.STEM)
+      String parentFolderId = request.getParameter("parentFolderComboName");
+      
+      //just get what they typed in
+      if (StringUtils.isBlank(parentFolderId)) {
+        parentFolderId = request.getParameter("parentFolderComboNameDisplay");
+      }
+      
+      final Stem parentFolder = StringUtils.isBlank(parentFolderId) ? null : new StemFinder().addPrivilege(NamingPrivilege.STEM)
           .assignSubject(loggedInSubject)
           .assignScope(parentFolderId).assignFindByUuidOrName(true).findStem();
       
@@ -294,6 +385,7 @@ public class UiV2Stem {
         
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
             TextContainer.retrieveFromRequest().getText().get("stemCopyCantFindParentStemId")));
+
         return;
         
       }
@@ -743,7 +835,7 @@ public class UiV2Stem {
    * results from retrieving results
    *
    */
-  private static class RetrieveStemHelperResult {
+  public static class RetrieveStemHelperResult {
 
     /**
      * stem
@@ -791,14 +883,25 @@ public class UiV2Stem {
     
     
   }
-  
+
+  /**
+   * get the stem from the request where the stem is required and require stem privilege is either needed or not
+   * @param request
+   * @param requireStemPrivilege
+   * @return the stem finder result
+   */
+  public static RetrieveStemHelperResult retrieveStemHelper(HttpServletRequest request, boolean requireStemPrivilege) {
+    return retrieveStemHelper(request, requireStemPrivilege, false, true);
+  }
+
   /**
    * get the stem from the request
    * @param request
    * @param requireStemPrivilege
    * @return the stem finder result
    */
-  private static RetrieveStemHelperResult retrieveStemHelper(HttpServletRequest request, boolean requireStemPrivilege) {
+  public static RetrieveStemHelperResult retrieveStemHelper(HttpServletRequest request, boolean requireStemPrivilege, 
+      boolean requireCreateGroupPrivilege, boolean requireStem) {
 
     //initialize the bean
     GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
@@ -829,6 +932,11 @@ public class UiV2Stem {
       long idIndex = GrouperUtil.longValue(stemIndex);
       stem = StemFinder.findByIdIndex(idIndex, false, null);
     } else {
+      
+      if (!requireStem) {
+        return result;
+      }
+      
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
           TextContainer.retrieveFromRequest().getText().get("stemCantFindStemId")));
       addedError = true;
@@ -838,16 +946,27 @@ public class UiV2Stem {
       grouperRequestContainer.getStemContainer().setGuiStem(new GuiStem(stem));      
 
       if (requireStemPrivilege && !grouperRequestContainer.getStemContainer().isCanAdminPrivileges()) {
+        
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
             TextContainer.retrieveFromRequest().getText().get("stemNotAllowedToAdminStem")));
         addedError = true;
-        
+
+      } else if (requireCreateGroupPrivilege && !grouperRequestContainer.getStemContainer().isCanCreateGroups()) {
+
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("stemNotAllowedToCreateGroupsStem")));
+        addedError = true;
+
       } else {
         result.setStem(stem);
       }
 
     } else {
-      
+
+      if (!requireStem) {
+        return result;
+      }
+
       if (!addedError && (!StringUtils.isBlank(stemId) || !StringUtils.isBlank(stemName) || !StringUtils.isBlank(stemIndex))) {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
             TextContainer.retrieveFromRequest().getText().get("stemCantFindStem")));
@@ -1228,6 +1347,72 @@ public class UiV2Stem {
       GrouperSession.stopQuietly(grouperSession);
     }
   
+  }
+
+  /**
+   * combo filter create group folder
+   * @param request
+   * @param response
+   */
+  public void createGroupParentFolderFilter(final HttpServletRequest request, HttpServletResponse response) {
+  
+    //run the combo logic
+    DojoComboLogic.logic(request, response, new DojoComboQueryLogicBase<Stem>() {
+  
+      /**
+       * 
+       */
+      @Override
+      public Stem lookup(HttpServletRequest request, GrouperSession grouperSession, String query) {
+        Subject loggedInSubject = grouperSession.getSubject();
+        Stem theStem = new StemFinder().addPrivilege(NamingPrivilege.CREATE).assignSubject(loggedInSubject)
+            .assignFindByUuidOrName(true).assignScope(query).findStem();
+        return theStem;
+      }
+  
+      /**
+       * 
+       */
+      @Override
+      public Collection<Stem> search(HttpServletRequest request, GrouperSession grouperSession, String query) {
+        Subject loggedInSubject = grouperSession.getSubject();
+        int stemComboSize = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.stemComboboxResultSize", 200);
+        QueryOptions queryOptions = QueryOptions.create(null, null, 1, stemComboSize);
+        return new StemFinder().addPrivilege(NamingPrivilege.CREATE).assignScope(query).assignSubject(loggedInSubject)
+            .assignSplitScope(true).assignQueryOptions(queryOptions).findStems();
+      }
+  
+      /**
+       * 
+       * @param t
+       * @return
+       */
+      @Override
+      public String retrieveId(GrouperSession grouperSession, Stem t) {
+        return t.getId();
+      }
+      
+      /**
+       * 
+       */
+      @Override
+      public String retrieveLabel(GrouperSession grouperSession, Stem t) {
+        return t.getDisplayName();
+      }
+  
+      /**
+       * 
+       */
+      @Override
+      public String retrieveHtmlLabel(GrouperSession grouperSession, Stem t) {
+        //description could be null?
+        String label = GrouperUiUtils.escapeHtml(t.getDisplayName(), true);
+        String htmlLabel = "<img src=\"../../grouperExternal/public/assets/images/folder.gif\" /> " + label;
+        return htmlLabel;
+      }
+  
+    });
+    
   }
 
 }

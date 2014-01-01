@@ -32,10 +32,13 @@
             <!-- end of the main content div where the page content goes -->
           </div>
           <div class="span3 left-column">
-            <div class="btn-group btn-group-create"><a href="new-group.html" class="btn btn-bigger btn-create"><i class="icon-plus"></i> Create new group</a><a data-toggle="dropdown" class="btn btn-bigger btn-create dropdown-toggle"><span class="caret"></span></a>
+            <div class="btn-group btn-group-create"><a href="#" 
+              onclick="return guiV2link('operation=UiV2Group.newGroup');"
+              class="btn btn-bigger btn-create"><i class="icon-plus"></i> Create new group</a><a data-toggle="dropdown" class="btn btn-bigger btn-create dropdown-toggle"><span class="caret"></span></a>
               <ul class="dropdown-menu dropdown-menu-right">
                 <li><a href="new-folder.html">Create new folder</a></li>
-                <li><a href="new-group.html">Create new group</a></li>
+                <li><a href="#" 
+                  onclick="return guiV2link('operation=UiV2Group.newGroup');">Create new group</a></li>
                 <li><a href="invite-external-users.html">Invite external users</a></li>
                 <li class="divider"></li>
                 <li><a href="bulk-add.html">Add members to a group</a></li>

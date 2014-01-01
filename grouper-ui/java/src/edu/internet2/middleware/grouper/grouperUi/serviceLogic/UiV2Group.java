@@ -17,13 +17,17 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.MembershipFinder;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GroupDeleteException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
@@ -39,6 +43,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -981,7 +986,7 @@ public class UiV2Group {
   
       try {
   
-        //get the new folder that was created
+        //delete the group
         group.delete();
   
       } catch (InsufficientPrivilegeException ipe) {
@@ -1021,6 +1026,178 @@ public class UiV2Group {
       GrouperSession.stopQuietly(grouperSession);
     }
   
+  }
+
+  
+
+  /**
+   * new group submit
+   * @param request
+   * @param response
+   */
+  public void newGroupSubmit(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      final GrouperSession GROUPER_SESSION = grouperSession;
+      
+      final String extension = request.getParameter("extension");
+      final String displayExtension = request.getParameter("displayExtension");
+      final String description = request.getParameter("description");
+      final boolean adminChecked = GrouperUtil.booleanValue(request.getParameter("privileges_admins[]"), false);
+      final boolean updateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_updaters[]"), false);
+      final boolean readChecked = GrouperUtil.booleanValue(request.getParameter("privileges_readers[]"), false);
+      final boolean viewChecked = GrouperUtil.booleanValue(request.getParameter("privileges_viewers[]"), false);
+      final boolean optinChecked = GrouperUtil.booleanValue(request.getParameter("privileges_optins[]"), false);
+      final boolean optoutChecked = GrouperUtil.booleanValue(request.getParameter("privileges_optouts[]"), false);
+      final boolean attrReadChecked = GrouperUtil.booleanValue(request.getParameter("privileges_groupAttrReaders[]"), false);
+      final boolean attrUpdateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_groupAttrUpdaters[]"), false);
+
+      String groupType = request.getParameter("groupType[]");
+      
+      final TypeOfGroup typeOfGroup = TypeOfGroup.valueOfIgnoreCase(groupType, true);
+      
+      if (typeOfGroup != TypeOfGroup.group && typeOfGroup != TypeOfGroup.role) {
+        throw new RuntimeException("Invalid group type, should be group or role: " + typeOfGroup);
+      }
+
+      String parentFolderId = request.getParameter("parentFolderComboName");
+      
+      //just get what they typed in
+      if (StringUtils.isBlank(parentFolderId)) {
+        parentFolderId = request.getParameter("parentFolderComboNameDisplay");
+      }
+      
+      if (StringUtils.isBlank(parentFolderId)) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#parentFolderComboErrorId",
+            TextContainer.retrieveFromRequest().getText().get("groupCreateRequiredParentStemId")));
+        return;
+      }
+      
+      final Stem parentFolder = new StemFinder().addPrivilege(NamingPrivilege.CREATE)
+          .assignSubject(loggedInSubject)
+          .assignScope(parentFolderId).assignFindByUuidOrName(true).findStem();
+
+      if (parentFolder == null) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#parentFolderComboErrorId",
+            TextContainer.retrieveFromRequest().getText().get("groupCreateCantFindParentStemId")));
+        return;
+        
+      }
+      
+      if (StringUtils.isBlank(displayExtension)) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#groupName",
+            TextContainer.retrieveFromRequest().getText().get("groupCreateErrorDisplayExtensionRequired")));
+        return;
+        
+      }
+
+      if (StringUtils.isBlank(extension)) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#groupId",
+            TextContainer.retrieveFromRequest().getText().get("groupCreateErrorExtensionRequired")));
+        return;
+        
+      }
+
+      if (parentFolder.isRootStem()) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("groupCreateCantCreateInRoot")));
+        return;
+        
+      }
+      
+      try {
+
+        //create the group
+        group = new GroupSave(GROUPER_SESSION).assignName(parentFolder.getName() + ":" + extension)
+            .assignDisplayExtension(displayExtension).assignDescription(description).assignTypeOfGroup(typeOfGroup)
+            .assignPrivAllAdmin(adminChecked).assignPrivAllAttrRead(attrReadChecked)
+            .assignPrivAllAttrUpdate(attrUpdateChecked).assignPrivAllOptin(optinChecked)
+            .assignPrivAllOptout(optoutChecked).assignPrivAllRead(readChecked)
+            .assignPrivAllUpdate(updateChecked).assignPrivAllView(viewChecked)
+            .save();
+        
+  
+      } catch (InsufficientPrivilegeException ipe) {
+        
+        LOG.warn("Insufficient privilege exception for group create: " + SubjectHelper.getPretty(loggedInSubject), ipe);
+        
+        //dont change screens
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("groupCreateInsufficientPrivileges")));
+        return;
+  
+      } catch (Exception sde) {
+        
+        LOG.warn("Error creating group: " + SubjectHelper.getPretty(loggedInSubject) + ", " + group, sde);
+        
+        //dont change screens
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("groupCreateError") 
+            + ": " + GrouperUtil.xmlEscape(sde.getMessage(), true)));
+
+        return;
+
+      }
+
+      //go to the view group screen
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroup&groupId=" + group.getId() + "')"));
+
+      //lets show a success message on the new screen
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("groupCreateSuccess")));
+
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  
+  /**
+   * new group (show create screen)
+   * @param request
+   * @param response
+   */
+  public void newGroup(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      UiV2Stem.retrieveStemHelper(request, false, false, false).getStem();
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/group/newGroup.jsp"));
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
   }
 
   /** logger */

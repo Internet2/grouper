@@ -23,6 +23,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
@@ -32,20 +33,13 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
 import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
-import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
-import edu.internet2.middleware.grouper.tableIndex.TableIndex;
-import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -56,6 +50,127 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class GroupSave {
   
+  /**
+   * if the priv admin should be different from the defaults
+   */
+  private Boolean privAllAdmin;
+  
+  /**
+   * if the priv read should be different from the defaults
+   */
+  private Boolean privAllRead;
+  
+  /**
+   * if the priv update should be different from the defaults
+   */
+  private Boolean privAllUpdate;
+  
+  /**
+   * if the priv view should be different from the defaults
+   */
+  private Boolean privAllView;
+  
+  /**
+   * if the priv optin should be different from the defaults
+   */
+  private Boolean privAllOptin;
+  
+  /**
+   * if the priv optout should be different from the defaults
+   */
+  private Boolean privAllOptout;
+  
+  /**
+   * if the priv attr update should be different from the defaults
+   */
+  private Boolean privAllAttrRead;
+  
+  /**
+   * if the priv attr update should be different from the defaults
+   */
+  private Boolean privAllAttrUpdate;
+  
+  /**
+   * assign priv admin to be different than the defaults for grouperAll
+   * @param thePrivAllAdmin
+   * @return this for chaining
+   */
+  public GroupSave assignPrivAllAdmin(boolean thePrivAllAdmin) {
+    this.privAllAdmin = thePrivAllAdmin;
+    return this;
+  }
+
+  /**
+   * assign priv view to be different than the defaults for grouperAll
+   * @param thePrivAllView
+   * @return this for chaining
+   */
+  public GroupSave assignPrivAllView(boolean thePrivAllView) {
+    this.privAllView = thePrivAllView;
+    return this;
+  }
+
+  /**
+   * assign priv read to be different than the defaults for grouperAll
+   * @param thePrivAllRead
+   * @return this for chaining
+   */
+  public GroupSave assignPrivAllRead(boolean thePrivAllRead) {
+    this.privAllRead = thePrivAllRead;
+    return this;
+  }
+
+  /**
+   * assign priv update to be different than the defaults for grouperAll
+   * @param thePrivAllUpdate
+   * @return this for chaining
+   */
+  public GroupSave assignPrivAllUpdate(boolean thePrivAllUpdate) {
+    this.privAllUpdate = thePrivAllUpdate;
+    return this;
+  }
+
+  /**
+   * assign priv optin to be different than the defaults for grouperAll
+   * @param thePrivAllOptin
+   * @return this for chaining
+   */
+  public GroupSave assignPrivAllOptin(boolean thePrivAllOptin) {
+    this.privAllOptin = thePrivAllOptin;
+    return this;
+  }
+
+  /**
+   * assign priv optout to be different than the defaults for grouperAll
+   * @param thePrivAllOptout
+   * @return this for chaining
+   */
+  public GroupSave assignPrivAllOptout(boolean thePrivAllOptout) {
+    this.privAllOptout = thePrivAllOptout;
+    return this;
+  }
+
+  /**
+   * assign priv attr read to be different than the defaults for grouperAll
+   * @param thePrivAllAttrRead
+   * @return this for chaining
+   */
+  public GroupSave assignPrivAllAttrRead(boolean thePrivAllAttrRead) {
+    this.privAllAttrRead = thePrivAllAttrRead;
+    return this;
+  }
+
+  /**
+   * assign priv attr update to be different than the defaults for grouperAll
+   * @param thePrivAllAttrUpdate
+   * @return this for chaining
+   */
+  public GroupSave assignPrivAllAttrUpdate(boolean thePrivAllAttrUpdate) {
+    this.privAllAttrUpdate = thePrivAllAttrUpdate;
+    return this;
+  }
+
+
   /**
    * create a new group save
    * @param theGrouperSession
@@ -271,7 +386,6 @@ public class GroupSave {
     if (StringUtils.isBlank(this.groupNameToEdit)) {
       this.groupNameToEdit = this.name;
     }
-
     
     //validate
     //get the stem name
@@ -467,12 +581,92 @@ public class GroupSave {
                 if (needsSave) {
                   theGroup.store();
                 }
+
+                boolean adminDefaultChecked = GrouperConfig.retrieveConfig()
+                    .propertyValueBoolean("groups.create.grant.all.admin", false);
                 
-                return theGroup;
+                boolean updateDefaultChecked = GrouperConfig.retrieveConfig()
+                    .propertyValueBoolean("groups.create.grant.all.update", false);
+                
+                boolean readDefaultChecked = GrouperConfig.retrieveConfig()
+                    .propertyValueBoolean("groups.create.grant.all.read", false);
+      
+                boolean viewDefaultChecked = GrouperConfig.retrieveConfig()
+                    .propertyValueBoolean("groups.create.grant.all.view", false);
+      
+                boolean optinDefaultChecked = GrouperConfig.retrieveConfig()
+                    .propertyValueBoolean("groups.create.grant.all.optin", false);
+      
+                boolean optoutDefaultChecked = GrouperConfig.retrieveConfig()
+                    .propertyValueBoolean("groups.create.grant.all.optout", false);
+      
+                boolean attrReadDefaultChecked = GrouperConfig.retrieveConfig()
+                    .propertyValueBoolean("groups.create.grant.all.attrRead", false);
+      
+                boolean attrUpdateDefaultChecked = GrouperConfig.retrieveConfig()
+                    .propertyValueBoolean("groups.create.grant.all.attrUpdate", false);
+      
+                if (GroupSave.this.privAllAdmin != null && GroupSave.this.privAllAdmin != adminDefaultChecked) {
+                  if (GroupSave.this.privAllAdmin) {
+                    theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN, false);
+                  } else {
+                    theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN, false);
+                  }
+                }
+                            
+                if (GroupSave.this.privAllView != null && GroupSave.this.privAllView != viewDefaultChecked) {
+                  if (GroupSave.this.privAllView) {
+                    theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+                  } else {
+                    theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+                  }
+                }
+      
+                if (GroupSave.this.privAllRead != null && GroupSave.this.privAllRead != readDefaultChecked) {
+                  if (GroupSave.this.privAllRead) {
+                    theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+                  } else {
+                    theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+                  }
+                }
+                if (GroupSave.this.privAllUpdate != null && GroupSave.this.privAllUpdate != updateDefaultChecked) {
+                  if (GroupSave.this.privAllUpdate) {
+                    theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
+                  } else {
+                    theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
+                  }
+                }
+                if (GroupSave.this.privAllOptin != null && GroupSave.this.privAllOptin != optinDefaultChecked) {
+                  if (GroupSave.this.privAllOptin) {
+                    theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN, false);
+                  } else {
+                    theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN, false);
+                  }
+                }
+                if (GroupSave.this.privAllOptout != null && GroupSave.this.privAllOptout != optoutDefaultChecked) {
+                  if (GroupSave.this.privAllOptout) {
+                    theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTOUT, false);
+                  } else {
+                    theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTOUT, false);
+                  }
+                }
+                if (GroupSave.this.privAllAttrRead != null && GroupSave.this.privAllAttrRead != attrReadDefaultChecked) {
+                  if (GroupSave.this.privAllAttrRead) {
+                    theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ, false);
+                  } else {
+                    theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ, false);
+                  }
+                }
+                if (GroupSave.this.privAllAttrUpdate != null && GroupSave.this.privAllAttrUpdate != attrUpdateDefaultChecked) {
+                  if (GroupSave.this.privAllAttrUpdate) {
+                    theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_UPDATE, false);
+                  } else {
+                    theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_UPDATE, false);
+                  }
+                }
+			          return theGroup;
               }
-              
-            });
-            
+          });
         }
       });
       return group;

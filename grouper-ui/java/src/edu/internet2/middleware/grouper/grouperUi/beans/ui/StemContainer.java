@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubject
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Stem.StemSearchType;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
@@ -33,6 +34,27 @@ import edu.internet2.middleware.subject.Subject;
  *
  */
 public class StemContainer {
+
+  /**
+   * instructions could be for creating groups or stems or whatever
+   */
+  private StemSearchType stemSearchType;
+  
+  /**
+   * instructions could be for creating groups or stems or whatever
+   * @return instructions
+   */
+  public StemSearchType getStemSearchType() {
+    return this.stemSearchType;
+  }
+
+  /**
+   * instructions could be for creating groups or stems or whatever
+   * @param folderSearchResultsInstructions1
+   */
+  public void setStemSearchType(StemSearchType folderSearchResultsInstructions1) {
+    this.stemSearchType = folderSearchResultsInstructions1;
+  }
 
   /**
    * gui paging for privileges
@@ -121,6 +143,37 @@ public class StemContainer {
     this.filterText = filterText1;
   }
 
+  /**
+   * if the logged in user can create groups, lazy loaded
+   */
+  private Boolean canCreateGroups;
+  
+  /**
+   * if the logged in user can create groups, lazy loaded
+   * @return if can admin create groups
+   */
+  public boolean isCanCreateGroups() {
+    
+    if (this.canCreateGroups == null) {
+      
+      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+      
+      this.canCreateGroups = (Boolean)GrouperSession.callbackGrouperSession(
+          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+            
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              return StemContainer.this.getGuiStem().getStem().hasCreate(loggedInSubject);
+            }
+          });
+      
+    }
+    
+    return this.canCreateGroups;
+  }
+
+
+  
   /**
    * if the logged in user can admin privileges, lazy loaded
    */

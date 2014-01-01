@@ -414,3 +414,8 @@ th.privilegeHeader {
 td.privilegeRow {
 	text-align: center;
 }
+
+.validationError {
+  color: red;
+  margin-left: 2px;
+}

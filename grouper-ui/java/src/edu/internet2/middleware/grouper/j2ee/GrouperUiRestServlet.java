@@ -129,7 +129,8 @@ public class GrouperUiRestServlet extends HttpServlet {
       UiV2Main.class.getSimpleName() + ".index",
       UiV2Main.class.getSimpleName() + ".folderMenu",
       UiV2Group.class.getSimpleName() + ".addMemberFilter",
-      UiV2Stem.class.getSimpleName() + ".stemCopyParentFolderFilter"
+      UiV2Stem.class.getSimpleName() + ".stemCopyParentFolderFilter",
+      UiV2Stem.class.getSimpleName() + ".createGroupParentFolderFilter"
   );
 
   /**

@@ -17,7 +17,7 @@
               <div class="span12">
                 <div id="folder-search" tabindex="-1" role="dialog" aria-labelledby="group-search-label" aria-hidden="true" class="modal hide fade">
                   <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
-                    <h3 id="group-search-label">Search or browse for a folder</h3>
+                    <h3 id="group-search-label">Search for a folder</h3>
                   </div>
                   <div class="modal-body">
                     <form class="form form-inline" id="stemSearchFormId">
@@ -53,7 +53,7 @@
                         filterOperation="../app/UiV2Stem.stemCopyParentFolderFilter?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}"/>
                       
                       <%-- a href="#folder-search" role="button" data-toggle="modal" class="btn"><i class="icon-search"></i></a --%>
-                      <span class="help-block">${textContainer.text['stemCopyIntoFolderDescription'] }Enter a folder name or <a href="#folder-search" data-toggle="modal" onclick="$('#folderSearchResultsId').empty();" role="button" style="text-decoration: underline !important;">search for a folder where you are allowed to create new subfolders</a>.</span>
+                      <span class="help-block">${textContainer.text['stemCopyIntoFolderDescription'] }</span>
                     </div>
                   </div>
                   <div class="control-group">

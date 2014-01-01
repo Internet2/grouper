@@ -610,6 +610,9 @@ function guiProcessJsonResponse(guiResponseJs) {
 
   //$.unblockUI();
 
+  //remove validation icons
+  $(".validationError").remove();
+  
   //message if session ends
   if (guiResponseJs.guiAjaxSessionProblem) {
     guiAjaxSessionProblem = guiResponseJs.guiAjaxSessionProblem;
@@ -692,7 +695,7 @@ function guiProcessAction(guiScreenAction) {
     eval(guiScreenAction.script);
   }
   //replace some html
-  if (!guiIsEmpty(guiScreenAction.innerHtmlJqueryHandle)) {
+  if (!guiIsEmpty(guiScreenAction.innerHtmlJqueryHandle) && guiIsEmpty(guiScreenAction.validationMessage)) {
      $(guiScreenAction.innerHtmlJqueryHandle).html(guiScreenAction.html);
   }
 
@@ -775,6 +778,12 @@ function guiProcessAction(guiScreenAction) {
   if (!guiIsEmpty(guiScreenAction.message)) {
     guiMessageHelper(guiScreenAction.messageType, guiScreenAction.message);
     guiScrollTop();
+  }
+  if (!guiIsEmpty(guiScreenAction.validationMessage)) {
+    guiMessageHelper(guiScreenAction.messageType, guiScreenAction.validationMessage);
+    guiScrollTop();
+    //put up the validation error thing
+    $(guiScreenAction.innerHtmlJqueryHandle).after('<a class="validationError" href="#" onclick="alert(\'' + guiEscapeHtml(guiScreenAction.validationMessage, true) + '\'); return false;"><i class="icon-exclamation-sign icon-large" style="color:red;"></i></span>');
   }
 }
 

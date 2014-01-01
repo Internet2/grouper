@@ -1,7 +1,9 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
 
-                    <p>The table below lists folders where you are allowed to create new folders.</p>
+                    <%-- p>The table below lists folders where you are allowed to create new groups.</p>
+                    <p>The table below lists folders where you are allowed to create new folders.</p --%>
+                    <p>${grouperRequestContainer.stemContainer.stemSearchType.keyDescription}</p>
                     <table class="table table-hover table-bordered table-striped table-condensed data-table">
                       <thead>
                         <tr>
@@ -27,6 +29,6 @@
                       <div class="pull-right">Showing 1-10 of 25 &middot; <a href="#">First</a> | <a href="#">Prev</a> | <a href="#">Next</a> | <a href="#">Last</a></div>    
                     </div --%>
                     <grouper:paging2 guiPaging="${grouperRequestContainer.stemContainer.parentStemGuiPaging}" formName="parentStemPagingForm" ajaxFormIds="stemSearchFormId"
-                      refreshOperation="../app/UiV2Stem.stemSearchFormSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&stemSearch=${grouper:escapeUrl(grouperRequestContainer.stemContainer.parentStemFilterText)}" />
+                      refreshOperation="../app/UiV2Stem.${grouperRequestContainer.stemContainer.stemSearchType.operationMethod}?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&stemSearch=${grouper:escapeUrl(grouperRequestContainer.stemContainer.parentStemFilterText)}" />
                     
                           

@@ -128,6 +128,27 @@ public class GuiScreenAction implements Serializable {
   private String message;
   
   /**
+   * add a validation message
+   */
+  private String validationMessage;
+  
+  /**
+   * add a validation message
+   * @return validation message
+   */
+  public String getValidationMessage() {
+    return this.validationMessage;
+  }
+
+  /**
+   * add a validation message
+   * @param validationMessage1
+   */
+  public void setValidationMessage(String validationMessage1) {
+    this.validationMessage = validationMessage1;
+  }
+
+  /**
    * add a message type (v2)
    */
   private String messageType;
@@ -650,6 +671,23 @@ public class GuiScreenAction implements Serializable {
    */
   public void setCloseModal(Boolean closeModal1) {
     this.closeModal = closeModal1;
+  }
+
+  /**
+   * add a new message to the top of a v2 screen
+   * @param guiMessageType
+   * @param message
+   * @return the action
+   */
+  public static GuiScreenAction newValidationMessage(GuiMessageType guiMessageType, 
+      String jqueryHandle, String message) {
+    
+    GuiScreenAction guiScreenAction = new GuiScreenAction();
+    guiScreenAction.setValidationMessage(message);
+    guiScreenAction.setInnerHtmlJqueryHandle(jqueryHandle);
+    guiScreenAction.setMessageType(guiMessageType.name());
+    return guiScreenAction;
+    
   }
 
   /**
