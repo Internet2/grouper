@@ -258,7 +258,7 @@ public class XmlLegacyTest extends GrouperTest {
       type  = assertFindGroupType("custom type");
       list  = assertFindField("custom list");
       assertGroupHasType( gA, type, true );
-      assertGroupAttribute( gA, attr.getName(), attr.getName() );
+      assertGroupAttribute( gA, attr.getLegacyAttributeName(true), attr.getLegacyAttributeName(true) );
       assertGroupHasMember( gA, subjA, list, true );
       s.stop();
     }

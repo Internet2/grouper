@@ -362,7 +362,7 @@ public class XmlExportAttributeAssignValue {
    * @param xmlExportMain
    */
   public static void exportAttributeAssignValues(final Writer writer, final XmlExportMain xmlExportMain) {
-    //get the members
+
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -386,8 +386,11 @@ public class XmlExportAttributeAssignValue {
               Object object = results.get(0);
               final AttributeAssignValue attributeAssignValue = (AttributeAssignValue)object;
               
-              //if we didnt export the attribute assign, then dont export the value
-              if (xmlExportMain.getAttributeAssignIds().contains(attributeAssignValue.getAttributeAssignId())) {
+              if (xmlExportMain.getAttributeAssignsForSecondPhase().containsKey(attributeAssignValue.getAttributeAssignId())) {
+                //do these in a later phase
+                xmlExportMain.getAttributeAssignValuesForSecondPhase().put(attributeAssignValue.getId(), attributeAssignValue);
+              } else if (xmlExportMain.getAttributeAssignIds().contains(attributeAssignValue.getAttributeAssignId())) {
+                //if we didnt export the attribute assign, then dont export the value
                 //make sure the attribute assign id
                 exportAttributeAssign(writer, xmlExportMain, grouperVersion,
                     attributeAssignValue);
@@ -405,6 +408,47 @@ public class XmlExportAttributeAssignValue {
           writer.write("  </attributeAssignValues>\n");
         } catch (IOException ioe) {
           throw new RuntimeException("Problem with streaming attribute assign values", ioe);
+        }
+        return null;
+      }
+
+    });
+  }
+  
+  /**
+   * 
+   * @param writer
+   * @param xmlExportMain
+   */
+  public static void exportAttributeAssignValuesSecondPhase(final Writer writer, final XmlExportMain xmlExportMain) {
+
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        try {
+          writer.write("  <attributeAssignValues>\n");
+  
+          for (AttributeAssignValue attributeAssignValue : xmlExportMain.getAttributeAssignValuesForSecondPhase().values()) {
+              
+            if (xmlExportMain.getAttributeAssignIds().contains(attributeAssignValue.getAttributeAssignId())) {
+              //if we didnt export the attribute assign, then dont export the value
+              //make sure the attribute assign id
+              exportAttributeAssign(writer, xmlExportMain, grouperVersion,
+                  attributeAssignValue);
+            }
+          }
+          
+          if (xmlExportMain.isIncludeComments()) {
+            writer.write("\n");
+          }
+          
+          //end the members element 
+          writer.write("  </attributeAssignValues>\n");
+        } catch (IOException ioe) {
+          throw new RuntimeException("Problem with streaming attribute assign values (second phase)", ioe);
         }
         return null;
       }

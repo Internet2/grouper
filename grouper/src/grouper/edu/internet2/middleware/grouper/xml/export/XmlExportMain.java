@@ -26,12 +26,16 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -51,6 +55,12 @@ public class XmlExportMain {
   
   /** attribute assign ids */
   private Set<String> attributeAssignIds;
+  
+  /** attribute assigns for second phase */
+  private Map<String, AttributeAssign> attributeAssignsForSecondPhase;
+
+  /** attribute assign values for second phase */
+  private Map<String, AttributeAssignValue> attributeAssignValuesForSecondPhase;
   
   /**
    * add a stem pattern e.g. this:stem, that stem and all substems and objects will be exported
@@ -234,6 +244,8 @@ public class XmlExportMain {
   public void writeAllTables(Writer writer, String fileName) {
     
     this.attributeAssignIds = new HashSet<String>();
+    this.attributeAssignsForSecondPhase = new HashMap<String, AttributeAssign>();
+    this.attributeAssignValuesForSecondPhase = new HashMap<String, AttributeAssignValue>();
     this.done = false;
     this.currentRecordIndex = 0;
     Thread thread = null;
@@ -305,14 +317,8 @@ public class XmlExportMain {
       
       XmlExportGroup.exportGroups(writer, this);
       
-      XmlExportField.exportFields(writer, this);
-
-      XmlExportComposite.exportComposites(writer, this);
-
       XmlExportAttributeDef.exportAttributeDefs(writer, this);
-
-      XmlExportMembership.exportMemberships(writer, this);
-
+      
       XmlExportAttributeDefName.exportAttributeDefNames(writer, this);
 
       XmlExportRoleSet.exportRoleSets(writer, this);
@@ -324,6 +330,16 @@ public class XmlExportMain {
       XmlExportAttributeAssign.exportAttributeAssigns(writer, this);
 
       XmlExportAttributeAssignValue.exportAttributeAssignValues(writer, this);
+      
+      XmlExportField.exportFields(writer, this);
+
+      XmlExportComposite.exportComposites(writer, this);
+
+      XmlExportMembership.exportMemberships(writer, this);
+
+      XmlExportAttributeAssign.exportAttributeAssignsSecondPhase(writer, this);
+
+      XmlExportAttributeAssignValue.exportAttributeAssignValuesSecondPhase(writer, this);
 
       XmlExportAttributeDefNameSet.exportAttributeDefNameSets(writer, this);
 
@@ -359,6 +375,20 @@ public class XmlExportMain {
    */
   public Set<String> getAttributeAssignIds() {
     return this.attributeAssignIds;
+  }
+  
+  /**
+   * @return the attributeAssignsForSecondPhase
+   */
+  public Map<String, AttributeAssign> getAttributeAssignsForSecondPhase() {
+    return this.attributeAssignsForSecondPhase;
+  }
+  
+  /**
+   * @return the attributeAssignValuesForSecondPhase
+   */
+  public Map<String, AttributeAssignValue> getAttributeAssignValuesForSecondPhase() {
+    return this.attributeAssignValuesForSecondPhase;
   }
 
   /**

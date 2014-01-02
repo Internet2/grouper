@@ -240,8 +240,10 @@ public class GroupTypeFinder {
               AttributeDefName customList = AttributeDefNameFinder.findByName(stemName + ":" + customListPrefix + groupType.getName(), false);
               if (customList != null) {
                 List<String> fieldIds = attribute.getAttributeDef().getAttributeValueDelegate().retrieveValuesString(customList.getName());
-                for (String fieldId : fieldIds) {
-                  fieldIdToTypeId.put(fieldId, groupType.getUuid());
+                if (fieldIds != null) {
+                  for (String fieldId : fieldIds) {
+                    fieldIdToTypeId.put(fieldId, groupType.getUuid());
+                  }
                 }
               }
             } else if (attribute.getExtension().startsWith(attributePrefix)) {
