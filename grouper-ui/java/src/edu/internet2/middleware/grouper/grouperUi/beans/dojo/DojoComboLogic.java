@@ -165,8 +165,6 @@ public class DojoComboLogic {
 
     String json = GrouperUtil.jsonConvertTo(dojoComboDataResponse, false);
     
-    System.out.println(json);
-    
     //write json to screen
     GrouperUiUtils.printToScreen(json, HttpContentType.APPLICATION_JSON, false, false);
 
