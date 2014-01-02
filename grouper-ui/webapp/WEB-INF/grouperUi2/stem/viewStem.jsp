@@ -1,5 +1,8 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
+            <%-- for the new group or new stem button --%>
+            <input type="hidden" name="objectStemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
+
             <%@ include file="stemHeader.jsp" %>
 
             <div class="row-fluid">

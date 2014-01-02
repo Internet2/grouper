@@ -36,6 +36,27 @@ import edu.internet2.middleware.subject.Subject;
 public class StemContainer {
 
   /**
+   * if we have a stem id to use for e.g. create group
+   */
+  private String objectStemId;
+  
+  /**
+   * if we have a stem id to use for e.g. create group
+   * @return object stem id
+   */
+  public String getObjectStemId() {
+    return this.objectStemId;
+  }
+
+  /**
+   * if we have a stem id to use for e.g. create group
+   * @param objectStemId1
+   */
+  public void setObjectStemId(String objectStemId1) {
+    this.objectStemId = objectStemId1;
+  }
+
+  /**
    * instructions could be for creating groups or stems or whatever
    */
   private StemSearchType stemSearchType;

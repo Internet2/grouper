@@ -10,7 +10,7 @@
     <div class="top-container">
       <div class="navbar navbar-static-top">
         <div class="navbar-inner">
-          <div class="container-fluid"><a href="index.html"><img class="brand" src="../../${mediaMap['image.organisation-logo']}" alt="Logo" /></a>
+          <div class="container-fluid"><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');"><img class="brand" src="../../${mediaMap['image.organisation-logo']}" alt="Logo" /></a>
             <div class="pull-right">
               <form action="search-results.html" class="navbar-search">
                 <input type="text" placeholder="Search" class="search-query"><i class="icon-search"></i>
@@ -33,7 +33,7 @@
           </div>
           <div class="span3 left-column">
             <div class="btn-group btn-group-create"><a href="#" 
-              onclick="return guiV2link('operation=UiV2Group.newGroup');"
+              onclick="return guiV2link('operation=UiV2Group.newGroup', {optionalFormElementNamesToSend: 'objectStemId'});"
               class="btn btn-bigger btn-create"><i class="icon-plus"></i> Create new group</a><a data-toggle="dropdown" class="btn btn-bigger btn-create dropdown-toggle"><span class="caret"></span></a>
               <ul class="dropdown-menu dropdown-menu-right">
                 <li><a href="new-folder.html">Create new folder</a></li>

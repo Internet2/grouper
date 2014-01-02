@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.StemContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
@@ -1187,6 +1188,17 @@ public class UiV2Group {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
+      //see if there is a stem id for this
+      String objectStemId = request.getParameter("objectStemId");
+      
+      Pattern pattern = Pattern.compile("^[a-zA-Z0-9-_]+$");
+      
+      if (!StringUtils.isBlank(objectStemId) && pattern.matcher(objectStemId).matches()) {
+        
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().setObjectStemId(objectStemId);
+        
+      }
+      
       UiV2Stem.retrieveStemHelper(request, false, false, false).getStem();
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();

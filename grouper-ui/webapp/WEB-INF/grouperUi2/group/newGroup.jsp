@@ -33,7 +33,9 @@
                     <div class="controls">
                       <%-- placeholder: Enter a folder name --%>
                       <grouper:combobox2 idBase="parentFolderCombo" style="width: 30em" 
-                        filterOperation="../app/UiV2Stem.createGroupParentFolderFilter"/>
+                        filterOperation="../app/UiV2Stem.createGroupParentFolderFilter"
+                        value="${grouper:escapeHtml(grouperRequestContainer.stemContainer.objectStemId)}"
+                        />
                       <span id="parentFolderComboErrorId"></span>
                       <%-- a href="#folder-search" role="button" data-toggle="modal" class="btn"><i class="icon-search"></i></a --%>
                       <span class="help-block">${textContainer.text['groupCreateIntoFolderDescription'] }</span>

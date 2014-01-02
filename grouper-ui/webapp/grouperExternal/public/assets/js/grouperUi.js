@@ -85,8 +85,28 @@ function guiV2link(url, options) {
   if (!options.dontScrollTop) {
     guiScrollTop();
   }
+  url = '?' + url;  
+  if (typeof options.optionalFormElementNamesToSend != 'undefined' && options.optionalFormElementNamesToSend != null) { 
+    
+    //add additional form element names to filter based on other things on the screen 
+    var additionalFormElementNamesArray = guiSplitTrim(options.optionalFormElementNamesToSend, ","); 
+    for (var i = 0; i<additionalFormElementNamesArray.length; i++) { 
+      var additionalFormElementName = additionalFormElementNamesArray[i]; 
+
+      //its ok if it is not there
+      if (document.getElementsByName(additionalFormElementName) != null
+          && document.getElementsByName(additionalFormElementName).length > 0
+          && document.getElementsByName(additionalFormElementName)[0] != null) {
+        url += url.indexOf("?") == -1 ? "?" : "&"; 
+        url += additionalFormElementName + "="; 
+        //this will work for simple elements 
+        url += encodeURIComponent(document.getElementsByName(additionalFormElementName)[0].value); 
+      }
+    } 
+  } 
+
   
-  History.pushState(null, null, '?' + url);
+  History.pushState(null, null, url);
 
   //return false so the browser navigate
   return false;
@@ -530,6 +550,7 @@ function ajax(theUrl, options) {
         alert('Cant find form by id: "' + formId + '"!');
         return;
       }
+      
       theForm = theForm[0];
       for(var j=0;j<theForm.elements.length;j++) {
         var element = theForm.elements[j];
