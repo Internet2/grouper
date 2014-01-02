@@ -172,7 +172,14 @@ public class GuiSubject implements Serializable {
         }
         
         GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowIcon(true);
+
+        if (group != null) {
+          this.screenLabelLongWithIcon = TextContainer.retrieveFromRequest().getText().get("guiGroupLongLinkWithIcon");
+        } else {
+          this.screenLabelLongWithIcon = TextContainer.retrieveFromRequest().getText().get("guiSubjectLongLinkWithIcon");
+        }
         
+
         if (group != null) {
           this.screenLabelShort2htmlWithIcon = TextContainer.retrieveFromRequest().getText().get("guiGroupShortLink");
         } else {
@@ -245,6 +252,20 @@ public class GuiSubject implements Serializable {
    * long screen label
    */
   private String screenLabelLong = null;
+  /**
+   * long screen label with icon
+   */
+  private String screenLabelLongWithIcon = null;
+
+  /**
+   * long screen label with icon
+   * @return screen label
+   */
+  public String getScreenLabelLongWithIcon() {
+    this.initScreenLabels();
+    return this.screenLabelLongWithIcon;
+  }
+
   /**
    * short screen label
    */

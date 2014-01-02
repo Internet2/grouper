@@ -38,7 +38,6 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.StemContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
@@ -361,7 +360,7 @@ public class UiV2Group {
        */
       @Override
       public String retrieveLabel(GrouperSession grouperSession, Subject t) {
-        return new GuiSubject(t).getScreenLabelShort2();
+        return new GuiSubject(t).getScreenLabelLong();
       }
 
       /**
@@ -369,7 +368,8 @@ public class UiV2Group {
        */
       @Override
       public String retrieveHtmlLabel(GrouperSession grouperSession, Subject t) {
-        return new GuiSubject(t).getScreenLabelShort2noLinkWithIcon();
+        String value = new GuiSubject(t).getScreenLabelLongWithIcon();
+        return value;
       }
 
       /**

@@ -12,7 +12,7 @@
                                 var="guiSubject" >
 
                                 <tr>
-                                 <td><a href="#" onclick="dijit.byId('groupAddMemberComboId').set('displayedValue', '${grouper:escapeJavascript(guiSubject.screenLabelShort2)}'); dijit.byId('groupAddMemberComboId').set('value', '${guiSubject.sourceId}||${guiSubject.id}'); return true;" data-dismiss="modal">${grouper:escapeHtml(guiSubject.screenLabelShort2noLinkWithIcon) }</a></td>
+                                 <td><a href="#" onclick="dijit.byId('groupAddMemberComboId').set('displayedValue', '${grouper:escapeJavascript(guiSubject.screenLabelShort2)}'); dijit.byId('groupAddMemberComboId').set('value', '${guiSubject.subject.sourceId}||${guiSubject.subject.id}'); return true;" data-dismiss="modal">${guiSubject.screenLabelLongWithIcon }</a></td>
                                 </tr>
 
                               </c:forEach>
