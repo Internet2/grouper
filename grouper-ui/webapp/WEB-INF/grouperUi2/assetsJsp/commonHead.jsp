@@ -28,10 +28,13 @@
 
 <script type="text/javascript" >
 
-require(["dojo/ready", "dijit/registry", "dojo/parser", "dojo/json", 
-         "dojo/_base/config", "dijit/Dialog", "dojo/domReady!", "dijit/form/FilteringSelect", 
-         "dojox/data/QueryReadStore", "dojo/dom-attr", "dijit/Tree", "dojo/data/ItemFileReadStore", 
-         "dojo/store/JsonRest", "dojo/_base/declare", "dijit/form/ComboBox"]);
+//require(["dojo/ready", "dijit/registry", "dojo/parser", "dojo/json", 
+//         "dojo/_base/config", "dijit/Dialog", "dojo/domReady!", "dijit/form/FilteringSelect", 
+//         "dojox/data/QueryReadStore", "dojo/dom-attr", "dijit/Tree", "dojo/data/ItemFileReadStore", 
+//         "dojo/store/JsonRest", "dojo/_base/declare", "dijit/form/ComboBox"]);
+
+//grouper is the dojo built file so there arent as many downloads
+require(["grouper/grouper"]);
 </script>
 
 <script src="../../grouperExternal/public/assets/js/jquery.js"></script>
