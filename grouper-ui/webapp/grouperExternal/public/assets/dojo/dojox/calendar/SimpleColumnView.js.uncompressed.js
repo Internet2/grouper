@@ -226,14 +226,10 @@ function(
 			renderData.endTime = new renderData.dateClassObj(renderData.dates[renderData.columnCount-1]);
 			renderData.endTime.setHours(renderData.maxHours);
 			
-			if(this.displayedItemsInvalidated){
-				this.displayedItemsInvalidated = false;
+			if(this.displayedItemsInvalidated && !this._isEditing){
+				 // while editing in no live layout we must not to recompute items (duplicate renderers)
 				this._computeVisibleItems(renderData);
-				
-				if(this._isEditing){					
-					this._endItemEditing(null, false);
-				}
-				
+								
 			}else if (this.renderData){
 				renderData.items = this.renderData.items;
 			}
@@ -355,7 +351,7 @@ function(
 			//		Returns the visible first time of day.
 			// tags:
 			//		protected
-			// returns: Integer[]
+			// returns: Object
 
 			var v = (this.get("maxHours") - this.get("minHours")) * 
 				this._getScrollPosition() / this.renderData.sheetHeight;
@@ -371,7 +367,7 @@ function(
 			//		Returns the visible last time of day.
 			// tags:
 			//		protected
-			// returns: Integer[]
+			// returns: Integer[]					
 
 			var v = (this.get("maxHours") - this.get("minHours")) * 
 				(this._getScrollPosition() + this.scrollContainer.offsetHeight) / this.renderData.sheetHeight;
@@ -382,12 +378,27 @@ function(
 			};
 		},
 		
+		// startTimeOfDay: Object
+		//		First time (hour/minute) of day displayed, if reachable. 
+		//		An object containing "hours" and "minutes" properties.
+		startTimeOfDay: 0,
+			
 		_setStartTimeOfDayAttr: function(value){
-			this._setStartTimeOfDay(value.hours, value.minutes, value.duration, value.easing);
+			if(this.renderData){
+				this._setStartTimeOfDay(value.hours, value.minutes, value.duration, value.easing);
+			}else{
+				this._startTimeOfDayInvalidated = true;
+			}
+			this._set("startTimeOfDay", value);
+			
 		},
 		
 		_getStartTimeOfDayAttr: function(){
-			return this._getStartTimeOfDay();
+			if(this.renderData){
+				return this._getStartTimeOfDay();
+			}else{
+				return this._get("startTimeOfDay");
+			}
 		},
 		
 		_setStartTimeOfDay: function(hour, minutes, maxDuration, easing){
@@ -582,6 +593,17 @@ function(
 			this._buildRowHeader(renderData, oldRenderData);
 			this._buildGrid(renderData, oldRenderData);
 			this._buildItemContainer(renderData, oldRenderData);
+			this._commitProperties(renderData);
+		},
+		
+		_commitProperties: function(renderData){
+			if(this._startTimeOfDayInvalidated){
+				this._startTimeOfDayInvalidated = false;
+				var v = this.startTimeOfDay;
+				if(v != null){
+					this._setStartTimeOfDay(v.hours, v.minutes == undefined ? 0 : v.minutes); // initial position, no animation
+				}
+			}
 		},
 		
 		_configureScrollBar: function(renderData){

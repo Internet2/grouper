@@ -680,7 +680,7 @@ define([
 				// parent node already has dijitInputField class but it doesn't affect this <span>
 				// since it's position: absolute.
 				this._phspan = domConstruct.create('span',{ onmousedown:function(e){ e.preventDefault(); }, className:'dijitPlaceHolder dijitInputField'},this.textbox,'after');
-				this.own(on(this._phspan, "touchend, MSPointerUp", lang.hitch(this, function(){
+				this.own(on(this._phspan, "touchend, pointerup, MSPointerUp", lang.hitch(this, function(){
 					// If the user clicks placeholder rather than the <input>, need programmatic focus.  Normally this
 					// is done in _FormWidgetMixin._onFocus() but after [30663] it's done on a delay, which is ineffective.
 					this.focus();
@@ -748,7 +748,7 @@ define([
 		}
 	});
 
-	if(has("ie")){
+	if(has("ie") < 9){
 		TextBox.prototype._isTextSelected = function(){
 			var range = this.ownerDocument.selection.createRange();
 			var parent = range.parentElement();
@@ -1919,6 +1919,7 @@ define([
 		_onDropDownMouseDown: function(/*Event*/ e){
 			// summary:
 			//		Callback when the user mousedown/touchstart on the arrow icon.
+
 			if(this.disabled || this.readOnly){
 				return;
 			}
@@ -1927,7 +1928,12 @@ define([
 			//		1. TimeTextBox etc. can focus the <input> on mousedown
 			//		2. dropDownButtonActive class applied by _CssStateMixin (on button depress)
 			//		3. user defined onMouseDown handler fires
-			e.preventDefault();
+			//
+			// Also, don't call preventDefault() on MSPointerDown event (on IE10) because that prevents the button
+			// from getting focus, and then the focus manager doesn't know what's going on (#17262)
+			if(e.type != "MSPointerDown" && e.type != "pointerdown"){
+				e.preventDefault();
+			}
 
 			this._docHandler = this.own(on(this.ownerDocument, touch.release, lang.hitch(this, "_onDropDownMouseUp")))[0];
 
@@ -1950,6 +1956,7 @@ define([
 			//		1. mouse down on the select node (probably on the arrow)
 			//		2. move mouse to a menu item while holding down the mouse button
 			//		3. mouse up.  this selects the menu item as though the user had clicked it.
+
 			if(e && this._docHandler){
 				this._docHandler.remove();
 				this._docHandler = null;
@@ -1987,9 +1994,12 @@ define([
 				}
 			}
 			if(this._opened){
-				if(dropDown.focus && dropDown.autoFocus !== false){
-					// Focus the dropdown widget - do it on a delay so that we
-					// don't steal back focus from the dropdown.
+				// Focus the dropdown widget unless it's a menu (in which case autoFocus is set to false).
+				// Even if it's a menu, we need to focus it if this is a fake mouse event caused by the user typing
+				// SPACE/ENTER while using JAWS.  Jaws converts the SPACE/ENTER key into mousedown/mouseup events.
+				// If this.hovering is false then it's presumably actually a keyboard event.
+				if(dropDown.focus && (dropDown.autoFocus !== false || (e.type == "mouseup" && !this.hovering))){
+					// Do it on a delay so that we don't steal back focus from the dropdown.
 					this._focusDropDownTimer = this.defer(function(){
 						dropDown.focus();
 						delete this._focusDropDownTimer;
@@ -2784,7 +2794,7 @@ define([
 							}
 						}
 					})));
-					if(has("ie") >= 9){
+					if(has("ie") >= 9 && has("ie") <= 10){
 						this.own(on(editor.document, "paste", lang.hitch(this, function(e){
 							setTimeout(lang.hitch(this, function(){
 								// Use the old range/selection code to kick IE 9 into updating
@@ -8005,8 +8015,10 @@ define([
 
 		_setConstraintsAttr: function(/* Object */ constraints){
 			// brings in increments, etc.
-			for(var key in constraints){
-				this._set(key, constraints[key]);
+			for (var key in { clickableIncrement: 1, visibleIncrement: 1 }) {
+				if (key in constraints) {
+					this[key] = constraints[key];
+				}
 			}
 
 			// locale needs the lang in the constraints as locale
@@ -8022,10 +8034,9 @@ define([
 			//		private
 			var date = new Date(this._refDate);
 			var incrementDate = this._clickableIncrementDate;
-			date.setTime(date.getTime()
-				+ incrementDate.getHours() * index * 3600000
-				+ incrementDate.getMinutes() * index * 60000
-				+ incrementDate.getSeconds() * index * 1000);
+			date.setHours(date.getHours() + incrementDate.getHours() * index,
+				date.getMinutes() + incrementDate.getMinutes() * index,
+				date.getSeconds() + incrementDate.getSeconds() * index);
 			if(this.constraints.selector == "time"){
 				date.setFullYear(1970, 0, 1); // make sure each time is for the same date
 			}
@@ -9241,10 +9252,10 @@ define([
 				evt.preventDefault();
 			})); // prevent focus shift on list scrollbar press
 			this._listConnect("click", "_onClick");
-			this._listConnect(touch.press, "_onMouseDown");
-			this._listConnect(touch.release, "_onMouseUp");
-			this._listConnect(touch.over, "_onMouseOver");
-			this._listConnect(touch.out, "_onMouseOut");
+			this._listConnect("mousedown", "_onMouseDown");
+			this._listConnect("mouseup", "_onMouseUp");
+			this._listConnect("mouseover", "_onMouseOver");
+			this._listConnect("mouseout", "_onMouseOut");
 		},
 
 		_onClick: function(/*Event*/ evt, /*DomNode*/ target){
@@ -9726,7 +9737,7 @@ define([
 		},
 
 		_onFocus: function(){
-			if(this.disabled){ return; }
+			if(this.disabled || this.readOnly){ return; }
 			var val = this.get('value');
 			if(typeof val == "number" && !isNaN(val)){
 				var formattedValue = this.format(val, this.constraints);
@@ -11971,11 +11982,13 @@ define([
 				this.contentPreFilters = [this._removeWebkitBogus].concat(this.contentPreFilters);
 				this.contentPostFilters = [this._removeWebkitBogus].concat(this.contentPostFilters);
 			}
-			if(has("ie")){
+			if(has("ie") || has("trident")){
 				// IE generates <strong> and <em> but we want to normalize to <b> and <i>
+				// Still happens in IE11!
 				this.contentPostFilters = [this._normalizeFontStyle].concat(this.contentPostFilters);
-				this.contentDomPostFilters = [lang.hitch(this, this._stripBreakerNodes)].concat(this.contentDomPostFilters);
+				this.contentDomPostFilters = [lang.hitch(this, "_stripBreakerNodes")].concat(this.contentDomPostFilters);
 			}
+			this.contentDomPostFilters = [lang.hitch(this, "_stripTrailingEmptyNodes")].concat(this.contentDomPostFilters);
 			this.inherited(arguments);
 
 			topic.publish(dijit._scopeName + "._editor.RichText::init", this);
@@ -12277,7 +12290,7 @@ define([
 			ifr.frameBorder = 0;
 			ifr._loadFunc = lang.hitch(this, function(w){
 				this.window = w;
-				this.document = this.window.document;
+				this.document = w.document;
 
 				// instantiate class to access selected text in editor's iframe
 				this.selection = new selectionapi.SelectionManager(w);
@@ -12291,11 +12304,23 @@ define([
 			});
 
 			// Attach iframe to document, and set the initial (blank) content.
-			var src = this._getIframeDocTxt(),
-				s = "javascript: '" + src.replace(/\\/g, "\\\\").replace(/'/g, "\\'") + "'";
+			var src = this._getIframeDocTxt().replace(/\\/g, "\\\\").replace(/'/g, "\\'"),
+				s;
 
-			if(has("ie") >= 9){
-				// On IE9+, attach to document before setting the content, to avoid problem w/iframe running in
+			// IE10 and earlier will throw an "Access is denied" error when attempting to access the parent frame if
+			// document.domain has been set, unless the child frame also has the same document.domain set. The child frame
+			// can only set document.domain while the document is being constructed using open/write/close; attempting to
+			// set it later results in a different "This method can't be used in this context" error. See #17529
+			if (has("ie") < 11) {
+				s = 'javascript:document.open();try{parent.window;}catch(e){document.domain="' + document.domain + '";}' +
+					'document.write(\'' + src + '\');document.close()';
+			}
+			else {
+				s = "javascript: '" + src + "'";
+			}
+
+			if(has("ie") == 9){
+				// On IE9, attach to document before setting the content, to avoid problem w/iframe running in
 				// wrong security context, see #16633.
 				this.editingArea.appendChild(ifr);
 				ifr.src = s;
@@ -12327,19 +12352,9 @@ define([
 			var _cs = domStyle.getComputedStyle(this.domNode);
 
 			// The contents inside of <body>.  The real contents are set later via a call to setValue().
-			var html = "";
-			var setBodyId = true;
-			if(has("ie") || has("webkit") || (!this.height && !has("mozilla"))){
-				// In auto-expand mode, need a wrapper div for AlwaysShowToolbar plugin to correctly
-				// expand/contract the editor as the content changes.
-				html = "<div id='dijitEditorBody'></div>";
-				setBodyId = false;
-			}else if(has("mozilla")){
-				// workaround bug where can't select then delete text (until user types something
-				// into the editor)... and/or issue where typing doesn't erase selected text
-				this._cursorToStart = true;
-				html = "&#160;";	// &nbsp;
-			}
+			// In auto-expand mode, need a wrapper div for AlwaysShowToolbar plugin to correctly
+			// expand/contract the editor as the content changes.
+			var html = "<div id='dijitEditorBody'></div>";
 
 			var font = [ _cs.fontWeight, _cs.fontSize, _cs.fontFamily ].join(" ");
 
@@ -12400,7 +12415,6 @@ define([
 			return [
 				"<!DOCTYPE html>",
 				this.isLeftToRight() ? "<html lang='" + this.lang + "'>\n<head>\n" : "<html dir='rtl' lang='" + this.lang + "'>\n<head>\n",
-				//(has("mozilla") && label.length ? "<title>" + label[0].innerHTML + "</title>\n" : ""),
 				title ? "<title>" + title + "</title>" : "",
 				"<meta http-equiv='Content-Type' content='text/html'>\n",
 				"<style>\n",
@@ -12409,16 +12423,16 @@ define([
 				"\t\tpadding: 1px 0 0 0;\n",
 				"\t\tmargin: -1px 0 0 0;\n", // remove extraneous vertical scrollbar on safari and firefox
 				"\t}\n",
-				"\tbody,html, #dijitEditorBody{ outline: none; }",
+				"\tbody,html,#dijitEditorBody { outline: none; }",
 
 				// Set <body> to expand to full size of editor, so clicking anywhere will work.
 				// Except in auto-expand mode, in which case the editor expands to the size of <body>.
 				// Also determine how scrollers should be applied.  In autoexpand mode (height = "") no scrollers on y at all.
 				// But in fixed height mode we want both x/y scrollers.
 				// Scrollers go on <body> since it's been set to height: 100%.
-				"html { height: 100%; width: 100%; overflow: hidden; }\n",	// scroll bar is on <body>, shouldn't be on <html>
-				this.height ? "\tbody { height: 100%; width: 100%; overflow: auto; }\n" :
-					"\tbody { min-height: " + this.minHeight + "; width: 100%; overflow-x: auto; overflow-y: hidden; }\n",
+				"html { height: 100%; width: 100%; overflow: hidden; }\n",	// scroll bar is on #dijitEditorBody, shouldn't be on <html>
+				this.height ? "\tbody,#dijitEditorBody { height: 100%; width: 100%; overflow: auto; }\n" :
+					"\tbody,#dijitEditorBody { min-height: " + this.minHeight + "; width: 100%; overflow-x: auto; overflow-y: hidden; }\n",
 
 				// TODO: left positioning will cause contents to disappear out of view
 				//	   if it gets too wide for the visible area
@@ -12438,7 +12452,6 @@ define([
 				"</style>\n",
 				this._applyEditingAreaStyleSheets(), "\n",
 				"</head>\n<body role='main' ",
-				(setBodyId ? "id='dijitEditorBody' " : ""),
 
 				// Onload handler fills in real editor content.
 				// On IE9, sometimes onload is called twice, and the first time frameElement is null (test_FullScreen.html)
@@ -12531,41 +12544,30 @@ define([
 			if(!this.isLoaded){
 				return;
 			} // this method requires init to be complete
-			if(has("ie") || has("webkit") || has("opera")){
-				var preventIEfocus = has("ie") && (this.isLoaded || !this.focusOnLoad);
-				if(preventIEfocus){
-					this.editNode.unselectable = "on";
-				}
-				this.editNode.contentEditable = !value;
-				if(preventIEfocus){
-					this.defer(function(){
-						if(this.editNode){        // guard in case widget destroyed before timeout
-							this.editNode.unselectable = "off";
-						}
-					});
-				}
-			}else{ //moz
-				try{
-					this.document.designMode = (value ? 'off' : 'on');
-				}catch(e){
-					return;
-				} // ! _disabledOK
-				if(!value && this._mozSettingProps){
-					var ps = this._mozSettingProps;
-					var n;
-					for(n in ps){
-						if(ps.hasOwnProperty(n)){
-							try{
-								this.document.execCommand(n, false, ps[n]);
-							}catch(e2){
-							}
+			var preventIEfocus = has("ie") && (this.isLoaded || !this.focusOnLoad);
+			if(preventIEfocus){
+				this.editNode.unselectable = "on";
+			}
+			this.editNode.contentEditable = !value;
+			this.editNode.tabIndex = value ? "-1" : this.tabIndex;
+			if(preventIEfocus){
+				this.defer(function(){
+					if(this.editNode){        // guard in case widget destroyed before timeout
+						this.editNode.unselectable = "off";
+					}
+				});
+			}
+			if(has("mozilla") && !value && this._mozSettingProps){
+				var ps = this._mozSettingProps;
+				var n;
+				for(n in ps){
+					if(ps.hasOwnProperty(n)){
+						try{
+							this.document.execCommand(n, false, ps[n]);
+						}catch(e2){
 						}
 					}
 				}
-//			this.document.execCommand('contentReadOnly', false, value);
-//				if(value){
-//					this.blur(); //to remove the blinking caret
-//				}
 			}
 			this._disabledOK = true;
 		},
@@ -12587,19 +12589,19 @@ define([
 				this.window.__registeredWindow = true;
 				this._iframeRegHandle = focus.registerIframe(this.iframe);
 			}
-			if(!has("ie") && !has("webkit") && (this.height || has("mozilla"))){
-				this.editNode = this.document.body;
-			}else{
-				// there's a wrapper div around the content, see _getIframeDocTxt().
-				this.editNode = this.document.body.firstChild;
-				var _this = this;
-				if(has("ie")){ // #4996 IE wants to focus the BODY tag
-					this.tabStop = domConstruct.create('div', { tabIndex: -1 }, this.editingArea);
-					this.iframe.onfocus = function(){
-						_this.editNode.setActive();
-					};
-				}
-			}
+
+			// there's a wrapper div around the content, see _getIframeDocTxt().
+			this.editNode = this.document.body.firstChild;
+			var _this = this;
+
+			// Helper code so IE and FF skip over focusing on the <iframe> and just focus on the inner <div>.
+			// See #4996 IE wants to focus the BODY tag.
+			this.beforeIframeNode = domConstruct.place("<div tabIndex=-1></div>", this.iframe, "before");
+			this.afterIframeNode = domConstruct.place("<div tabIndex=-1></div>", this.iframe, "after");
+			this.iframe.onfocus = this.document.onfocus = function(){
+				_this.editNode.focus();
+			};
+
 			this.focusNode = this.editNode; // for InlineEditBox
 
 
@@ -12612,7 +12614,10 @@ define([
 				}, this)
 			);
 
-			this.own(on(ap, "mouseup", lang.hitch(this, "onClick"))); // mouseup in the margin does not generate an onclick event
+			this.own(
+				// mouseup in the margin does not generate an onclick event
+				on(ap, "mouseup", lang.hitch(this, "onClick"))
+			);
 
 			if(has("ie")){ // IE contentEditable
 				this.own(on(this.document, "mousedown", lang.hitch(this, "_onIEMouseDown"))); // #4996 fix focus
@@ -12705,24 +12710,28 @@ define([
 					this.execCommand((e.shiftKey ? "outdent" : "indent"));
 				}
 			}
-			if(has("ie")){
-				if(e.keyCode == keys.TAB && !this.isTabIndent){
-					if(e.shiftKey && !e.ctrlKey && !e.altKey){
-						// focus the BODY so the browser will tab away from it instead
-						this.iframe.focus();
-					}else if(!e.shiftKey && !e.ctrlKey && !e.altKey){
-						// focus the BODY so the browser will tab away from it instead
-						this.tabStop.focus();
-					}
-				}else if(e.keyCode === keys.BACKSPACE && this.document.selection.type === "Control"){
-					// IE has a bug where if a non-text object is selected in the editor,
-					// hitting backspace would act as if the browser's back button was
-					// clicked instead of deleting the object. see #1069
-					e.stopPropagation();
-					e.preventDefault();
-					this.execCommand("delete");
+
+			// Make tab and shift-tab skip over the <iframe>, going from the nested <div> to the toolbar
+			// or next element after the editor.   Needed on IE<9 and firefox.
+			if(e.keyCode == keys.TAB && !this.isTabIndent){
+				if(e.shiftKey && !e.ctrlKey && !e.altKey){
+					// focus the <iframe> so the browser will shift-tab away from it instead
+					this.beforeIframeNode.focus();
+				}else if(!e.shiftKey && !e.ctrlKey && !e.altKey){
+					// focus node after the <iframe> so the browser will tab away from it instead
+					this.afterIframeNode.focus();
 				}
 			}
+
+			if(has("ie") < 9 && e.keyCode === keys.BACKSPACE && this.document.selection.type === "Control"){
+				// IE has a bug where if a non-text object is selected in the editor,
+				// hitting backspace would act as if the browser's back button was
+				// clicked instead of deleting the object. see #1069
+				e.stopPropagation();
+				e.preventDefault();
+				this.execCommand("delete");
+			}
+
 			if(has("ff")){
 				if(e.keyCode === keys.PAGE_UP || e.keyCode === keys.PAGE_DOWN){
 					if(this.editNode.clientHeight >= this.editNode.scrollHeight){
@@ -12904,17 +12913,14 @@ define([
 					return;
 				}
 			}
-			if(!has("ie")){
-				focus.focus(this.iframe);
-			}else if(this.editNode && this.editNode.focus){
-				// editNode may be hidden in display:none div, lets just punt in this case
+			if(has("ie") < 9){
 				//this.editNode.focus(); -> causes IE to scroll always (strict and quirks mode) to the top the Iframe
 				// if we fire the event manually and let the browser handle the focusing, the latest
 				// cursor position is focused like in FF
-				this.iframe.fireEvent('onfocus', document.createEventObject()); // createEventObject only in IE
-				//	}else{
-				// TODO: should we throw here?
-				// console.debug("Have no idea how to focus into the editor!");
+				this.iframe.fireEvent('onfocus', document.createEventObject()); // createEventObject/fireEvent only in IE < 11
+			}else{
+				// Firefox and chrome
+				this.editNode.focus();
 			}
 		},
 
@@ -13087,7 +13093,7 @@ define([
 					return false;
 			}
 
-			return (has("ie") && supportedBy.ie) ||
+			return ((has("ie") || has("trident")) && supportedBy.ie) ||
 				(has("mozilla") && supportedBy.mozilla) ||
 				(has("webkit") && supportedBy.webkit) ||
 				(has("opera") && supportedBy.opera);	// Boolean return true if the command is supported, false otherwise
@@ -13117,7 +13123,7 @@ define([
 			if(argument !== undefined){
 				if(command === "heading"){
 					throw new Error("unimplemented");
-				}else if((command === "formatblock") && has("ie")){
+				}else if(command === "formatblock" && (has("ie") || has("trident"))){
 					argument = '<' + argument + '>';
 				}
 			}
@@ -13194,7 +13200,7 @@ define([
 			}
 			var r;
 			command = this._normalizeCommand(command);
-			if(has("ie") && command === "formatblock"){
+			if((has("ie") || has("trident")) && command === "formatblock"){
 				r = this._native2LocalFormatNames[this.document.queryCommandValue(command)];
 			}else if(has("mozilla") && command === "hilitecolor"){
 				var oldValue;
@@ -13355,9 +13361,6 @@ define([
 			}else{
 				html = this._preFilterContent(html);
 				var node = this.isClosed ? this.domNode : this.editNode;
-				if(html && has("mozilla") && html.toLowerCase() === "<p></p>"){
-					html = "<p>&#160;</p>";	// &nbsp;
-				}
 
 				// Use &nbsp; to avoid webkit problems where editor is disabled until the user clicks it
 				if(!html && has("webkit")){
@@ -13387,10 +13390,6 @@ define([
 			}else if(this.window && this.window.getSelection){ // Moz
 				html = this._preFilterContent(html);
 				this.execCommand("selectall");
-				if(!html){
-					this._cursorToStart = true;
-					html = "&#160;";	// &nbsp;
-				}
 				this.execCommand("inserthtml", html);
 				this._preDomFilterContent(this.editNode);
 			}else if(this.document && this.document.selection){//IE
@@ -13495,10 +13494,6 @@ define([
 				ec = "";
 			}
 
-			//	if(has("ie")){
-			//		//removing appended <P>&nbsp;</P> for IE
-			//		ec = ec.replace(/(?:<p>&nbsp;</p>[\n\r]*)+$/i,"");
-			//	}
 			array.forEach(this.contentPostFilters, function(ef){
 				ec = ef(ec);
 			});
@@ -13707,7 +13702,7 @@ define([
 			if(!command){
 				return false;
 			}
-			var elem = has("ie") ? this.document.selection.createRange() : this.document;
+			var elem = has("ie") < 9 ? this.document.selection.createRange() : this.document;
 			try{
 				return elem.queryCommandEnabled(command);
 			}catch(e){
@@ -13939,7 +13934,7 @@ define([
 			//		protected
 			argument = this._preFilterContent(argument);
 			var rv = true;
-			if(has("ie")){
+			if(has("ie") < 9){
 				var insertRange = this.document.selection.createRange();
 				if(this.document.selection.type.toUpperCase() === 'CONTROL'){
 					var n = insertRange.item(0);
@@ -13951,7 +13946,29 @@ define([
 					insertRange.pasteHTML(argument);
 				}
 				insertRange.select();
-				//insertRange.collapse(true);
+			}else if(has("trident") < 8){
+				var insertRange;
+				var selection = rangeapi.getSelection(this.window);
+				if(selection && selection.rangeCount && selection.getRangeAt){
+					insertRange = selection.getRangeAt(0);
+					insertRange.deleteContents();
+
+					var div = domConstruct.create('div');
+					div.innerHTML = argument;
+					var node, lastNode;
+					var n = this.document.createDocumentFragment();
+					while((node = div.firstChild)){
+						lastNode = n.appendChild(node);
+					}
+					insertRange.insertNode(n);
+					if(lastNode) {
+						insertRange = insertRange.cloneRange();
+						insertRange.setStartAfter(lastNode);
+						insertRange.collapse(false);
+						selection.removeAllRanges();
+						selection.addRange(insertRange);
+					}
+				}
 			}else if(has("mozilla") && !argument.length){
 				//mozilla can not inserthtml an empty html to delete current selection
 				//so we delete the selection instead in this case
@@ -14178,7 +14195,7 @@ define([
 			//		private.
 			if(node.nodeType === 1/*element*/){
 				if(node.childNodes.length > 0){
-					return this._isNodeEmpty(node.childNodes[0], startOffset);
+					return this._isNodeEmpty(node.childNodes[0], startOffset);	// huh?   why test just first child?
 				}
 				return true;
 			}else if(node.nodeType === 3/*text*/){
@@ -14746,6 +14763,24 @@ define([
 				domConstruct.destroy(b);
 			});
 			return node;
+		},
+
+		_stripTrailingEmptyNodes: function(/*DOMNode*/ node){
+			// summary:
+			//		Function for stripping trailing <p> nodes without any text, but not stripping trailing nodes
+			//		like <img> or <div><img></div>, even though they don't have text either.
+
+			function isEmpty(node){
+				// If not for old IE we could check for Element children by node.firstElementChild
+				return (/^(p|div|br)$/i.test(node.nodeName) && node.children.length == 0 &&
+					lang.trim(node.textContent || node.innerText || "") == "") ||
+					(node.nodeType === 3/*text*/ && lang.trim(node.nodeValue) == "");
+			}
+			while(node.lastChild && isEmpty(node.lastChild)){
+				domConstruct.destroy(node.lastChild);
+			}
+
+			return node;
 		}
 	});
 
@@ -15238,6 +15273,9 @@ return function(query, options){
 				for(var sort, i=0; sort = sortSet[i]; i++){
 					var aValue = a[sort.attribute];
 					var bValue = b[sort.attribute];
+					// valueOf enables proper comparison of dates
+					aValue = aValue != null ? aValue.valueOf() : aValue;
+					bValue = bValue != null ? bValue.valueOf() : bValue;
 					if (aValue != bValue){
 						return !!sort.descending == (aValue == null || aValue > bValue) ? -1 : 1;
 					}
@@ -16434,10 +16472,11 @@ define([
 						if(this._currentChild.closable &&
 							(e.keyCode == keys.DELETE || e.ctrlKey)){
 							this.onCloseButtonClick(this._currentChild);
+
+							// avoid browser tab closing
+							e.stopPropagation();
+							e.preventDefault();
 						}
-						// avoid browser tab closing
-						e.stopPropagation();
-						e.preventDefault();
 						break;
 					case keys.TAB:
 						if(e.ctrlKey){
@@ -17783,7 +17822,7 @@ define([
 			//see whether user clicks out of a focus editor, if so, save selection (focus will
 			//only lost after onmousedown event is fired, so we can obtain correct caret pos.)
 			//2) when user tabs away from the editor, which is handled in onKeyDown below.
-			if(has("ie")){
+			if(has("ie") || has("trident")){
 				this.events.push("onBeforeDeactivate");
 				this.events.push("onBeforeActivate");
 			}
@@ -19781,7 +19820,7 @@ define([
 			evt.stopPropagation();
 			evt.preventDefault();
 		},
-		_onLeftArrow: function(){
+		_onLeftArrow: function(/*Event*/ evt){
 			if(this.parentMenu){
 				if(this.parentMenu._isMenuBar){
 					this.parentMenu.focusPrev();
@@ -22511,74 +22550,63 @@ define(["./_base/kernel", "./_base/lang", "./_base/array", "./_base/declare", ".
 	// module:
 	//		dojo/html
 
-	var html = {
-		// summary:
-		//		TODOC
-	};
-	lang.setObject("dojo.html", html);
-
 	// the parser might be needed..
 
 	// idCounter is incremented with each instantiation to allow assignment of a unique id for tracking, logging purposes
 	var idCounter = 0;
 
-	html._secureForInnerHtml = function(/*String*/ cont){
+	var html = {
 		// summary:
-		//		removes !DOCTYPE and title elements from the html string.
-		//
-		//		khtml is picky about dom faults, you can't attach a style or `<title>` node as child of body
-		//		must go into head, so we need to cut out those tags
-		// cont:
-		//		An html string for insertion into the dom
-		//
-		return cont.replace(/(?:\s*<!DOCTYPE\s[^>]+>|<title[^>]*>[\s\S]*?<\/title>)/ig, ""); // String
-	};
+		//		TODOC
 
-	html._emptyNode = domConstruct.empty;
-	/*=====
-	 dojo.html._emptyNode = function(node){
-		 // summary:
-		 //		Removes all child nodes from the given node.   Deprecated, should use dojo/dom-constuct.empty() directly
-		 //		instead.
-		 // node: DOMNode
-		 //		the parent element
-	 };
-	 =====*/
+		_secureForInnerHtml: function(/*String*/ cont){
+			// summary:
+			//		removes !DOCTYPE and title elements from the html string.
+			//
+			//		khtml is picky about dom faults, you can't attach a style or `<title>` node as child of body
+			//		must go into head, so we need to cut out those tags
+			// cont:
+			//		An html string for insertion into the dom
+			//
+			return cont.replace(/(?:\s*<!DOCTYPE\s[^>]+>|<title[^>]*>[\s\S]*?<\/title>)/ig, ""); // String
+		},
 
-		html._setNodeContent = function(/*DomNode*/ node, /*String|DomNode|NodeList*/ cont){
-		// summary:
-		//		inserts the given content into the given node
-		// node:
-		//		the parent element
-		// content:
-		//		the content to be set on the parent element.
-		//		This can be an html string, a node reference or a NodeList, dojo/NodeList, Array or other enumerable list of nodes
+		// Deprecated, should use dojo/dom-constuct.empty() directly, remove in 2.0.
+		_emptyNode: domConstruct.empty,
 
-		// always empty
-		domConstruct.empty(node);
+		_setNodeContent: function(/*DomNode*/ node, /*String|DomNode|NodeList*/ cont){
+			// summary:
+			//		inserts the given content into the given node
+			// node:
+			//		the parent element
+			// content:
+			//		the content to be set on the parent element.
+			//		This can be an html string, a node reference or a NodeList, dojo/NodeList, Array or other enumerable list of nodes
 
-		if(cont){
-			if(typeof cont == "string"){
-				cont = domConstruct.toDom(cont, node.ownerDocument);
-			}
-			if(!cont.nodeType && lang.isArrayLike(cont)){
-				// handle as enumerable, but it may shrink as we enumerate it
-				for(var startlen=cont.length, i=0; i<cont.length; i=startlen==cont.length ? i+1 : 0){
-					domConstruct.place( cont[i], node, "last");
+			// always empty
+			domConstruct.empty(node);
+
+			if(cont){
+				if(typeof cont == "string"){
+					cont = domConstruct.toDom(cont, node.ownerDocument);
 				}
-			}else{
-				// pass nodes, documentFragments and unknowns through to dojo.place
-				domConstruct.place(cont, node, "last");
+				if(!cont.nodeType && lang.isArrayLike(cont)){
+					// handle as enumerable, but it may shrink as we enumerate it
+					for(var startlen=cont.length, i=0; i<cont.length; i=startlen==cont.length ? i+1 : 0){
+						domConstruct.place( cont[i], node, "last");
+					}
+				}else{
+					// pass nodes, documentFragments and unknowns through to dojo.place
+					domConstruct.place(cont, node, "last");
+				}
 			}
-		}
 
-		// return DomNode
-		return node;
-	};
+			// return DomNode
+			return node;
+		},
 
-	// we wrap up the content-setting operation in a object
-	html._ContentSetter = declare("dojo.html._ContentSetter", null,
-		{
+		// we wrap up the content-setting operation in a object
+		_ContentSetter: declare("dojo.html._ContentSetter", null, {
 			// node: DomNode|String
 			//		An node which will be the parent element that we set content into
 			node: "",
@@ -22696,7 +22724,7 @@ define(["./_base/kernel", "./_base/lang", "./_base/array", "./_base/declare", ".
 			empty: function(){
 				// summary:
 				//		cleanly empty out existing content
-				
+
 				// If there is a parse in progress, cancel it.
 				if(this.parseDeferred){
 					if(!this.parseDeferred.isResolved()){
@@ -22817,10 +22845,10 @@ define(["./_base/kernel", "./_base/lang", "./_base/array", "./_base/declare", ".
 						inherited: inherited,
 						scope: this.parserScope
 					}).then(function(results){
-						return self.parseResults = results;
-					}, function(e){
-						self._onError('Content', e, "Error parsing in _ContentSetter#" + this.id);
-					});
+							return self.parseResults = results;
+						}, function(e){
+							self._onError('Content', e, "Error parsing in _ContentSetter#" + this.id);
+						});
 				}catch(e){
 					this._onError('Content', e, "Error parsing in _ContentSetter#" + this.id);
 				}
@@ -22837,17 +22865,20 @@ define(["./_base/kernel", "./_base/lang", "./_base/array", "./_base/declare", ".
 					html._setNodeContent(this.node, errText, true);
 				}
 			}
-	}); // end declare()
+		}), // end declare()
 
-	html.set = function(/*DomNode*/ node, /*String|DomNode|NodeList*/ cont, /*Object?*/ params){
+		set: function(/*DomNode*/ node, /*String|DomNode|NodeList*/ cont, /*Object?*/ params){
 			// summary:
-			//		inserts (replaces) the given content into the given node. dojo.place(cont, node, "only")
+			//		inserts (replaces) the given content into the given node. dojo/dom-construct.place(cont, node, "only")
 			//		may be a better choice for simple HTML insertion.
 			// description:
 			//		Unless you need to use the params capabilities of this method, you should use
-			//		dojo.place(cont, node, "only"). dojo.place() has more robust support for injecting
+			//		dojo/dom-construct.place(cont, node, "only"). dojo/dom-construct..place() has more robust support for injecting
 			//		an HTML string into the DOM, but it only handles inserting an HTML string as DOM
-			//		elements, or inserting a DOM node. dojo.place does not handle NodeList insertions
+			//		elements, or inserting a DOM node. dojo/dom-construct..place does not handle NodeList insertions
+			//		dojo/dom-construct.place(cont, node, "only"). dojo/dom-construct.place() has more robust support for injecting
+			//		an HTML string into the DOM, but it only handles inserting an HTML string as DOM
+			//		elements, or inserting a DOM node. dojo/dom-construct.place does not handle NodeList insertions
 			//		or the other capabilities as defined by the params object for this method.
 			// node:
 			//		the parent element that will receive the content
@@ -22862,23 +22893,25 @@ define(["./_base/kernel", "./_base/lang", "./_base/array", "./_base/declare", ".
 			//	|	html.set(node, "some string");
 			//	|	html.set(node, contentNode, {options});
 			//	|	html.set(node, myNode.childNodes, {options});
-		if(undefined == cont){
-			console.warn("dojo.html.set: no cont argument provided, using empty string");
-			cont = "";
-		}
-		if(!params){
-			// simple and fast
-			return html._setNodeContent(node, cont, true);
-		}else{
-			// more options but slower
-			// note the arguments are reversed in order, to match the convention for instantiation via the parser
-			var op = new html._ContentSetter(lang.mixin(
+			if(undefined == cont){
+				console.warn("dojo.html.set: no cont argument provided, using empty string");
+				cont = "";
+			}
+			if(!params){
+				// simple and fast
+				return html._setNodeContent(node, cont, true);
+			}else{
+				// more options but slower
+				// note the arguments are reversed in order, to match the convention for instantiation via the parser
+				var op = new html._ContentSetter(lang.mixin(
 					params,
 					{ content: cont, node: node }
-			));
-			return op.set();
+				));
+				return op.set();
+			}
 		}
 	};
+	lang.setObject("dojo.html", html);
 
 	return html;
 });
@@ -23470,6 +23503,7 @@ define([
 
 		_setPatternAttr: function(/*String|Function*/ pattern){
 			this._set("pattern", pattern); // don't set on INPUT to avoid native HTML5 validation
+			this._refreshState();
 		},
 
 		_computeRegexp: function(/*__Constraints*/ constraints){
@@ -25048,8 +25082,10 @@ define([
 				this._set("displayedValue", label);	// for watch("displayedValue") notification
 				var _this = this;
 				var options = {
-					ignoreCase: this.ignoreCase,
-					deep: true
+					queryOptions: {
+						ignoreCase: this.ignoreCase,
+						deep: true
+					}
 				};
 				lang.mixin(options, this.fetchProperties);
 				this._fetchHandle = this.store.query(query, options);
@@ -25235,7 +25271,7 @@ define([
 			if(this.onClick(e) === false){
 				e.preventDefault();
 			}
-			cancelled = e.defaultPrevented;
+			var cancelled = e.defaultPrevented;
 
 			// Signal Form/Dialog to submit/close.  For 2.0, consider removing this code and instead making the Form/Dialog
 			// listen for bubbled click events where evt.target.type == "submit" && !evt.defaultPrevented.
@@ -26728,9 +26764,15 @@ define([
 				this.removeOption(this.options);
 			}
 
-			// Cancel listener for updates to old store
+			// Cancel listener for updates to old (dojo.data) store
 			if(this._queryRes && this._queryRes.close){
 				this._queryRes.close();
+			}
+			
+			// Cancel listener for updates to new (dojo.store) store
+			if(this._observeHandle && this._observeHandle.remove){
+				this._observeHandle.remove();
+				this._observeHandle = null;
 			}
 
 			// If user has specified new query and query options along with this new store, then use them.
@@ -26777,7 +26819,8 @@ define([
 
 					// Register listener for store updates
 					if(this._queryRes.observe){
-						this._queryRes.observe(lang.hitch(this, function(object, deletedFrom, insertedInto){
+						// observe returns yet another handle that needs its own explicit gc
+						this._observeHandle = this._queryRes.observe(lang.hitch(this, function(object, deletedFrom, insertedInto){
 							if(deletedFrom == insertedInto){
 								this._onSetItem(object);
 							}else{
@@ -27091,6 +27134,12 @@ define([
 			// Cancel listener for store updates
 			if(this._queryRes && this._queryRes.close){
 				this._queryRes.close();
+			}
+
+			// Cancel listener for updates to new (dojo.store) store
+			if(this._observeHandle && this._observeHandle.remove){
+				this._observeHandle.remove();
+				this._observeHandle = null;
 			}
 
 			this.inherited(arguments);
@@ -27577,7 +27626,6 @@ define([
 
 		_onFocus: function(){
 			this.validate(true);	// show tooltip if second focus of required tooltip, but no selection
-			this.inherited(arguments);
 		},
 
 		_onBlur: function(){
@@ -28364,7 +28412,11 @@ define([
 			//		Handler for when the container itself gets focus.
 			// description:
 			//		Initially the container itself has a tabIndex, but when it gets
-			//		focus, switch focus to first child...
+			//		focus, switch focus to first child.
+			//
+			//		TODO for 2.0 (or earlier): Instead of having the container tabbable, always maintain a single child
+			//		widget as tabbable, Requires code in startup(), addChild(), and removeChild().
+			//		That would avoid various issues like #17347.
 			// tags:
 			//		private
 
@@ -28772,7 +28824,9 @@ define([
 					eventType
 				),
 				function(evt){
-					evt.preventDefault();
+					if(!/^touch/.test(evt.type)){
+						evt.preventDefault();
+					}
 					self[callbackFuncName](evt, this);
 				}
 			));
@@ -28900,7 +28954,7 @@ exports.isFormElement = function(/*Event*/ e){
 	if(t.nodeType == 3 /*TEXT_NODE*/){
 		t = t.parentNode;
 	}
-	return " button textarea input select option ".indexOf(" " + t.tagName.toLowerCase() + " ") >= 0;	// Boolean
+	return " a button textarea input select option ".indexOf(" " + t.tagName.toLowerCase() + " ") >= 0;	// Boolean
 };
 
 return exports;
@@ -29446,7 +29500,8 @@ define([
 		// summary:
 		//		A checkbox-like menu item for toggling on and off
 
-		baseClass: "dijitCheckedMenuItem",
+		// Use both base classes so we get styles like dijitMenuItemDisabled
+		baseClass: "dijitMenuItem dijitCheckedMenuItem",
 
 		templateString: template,
 
@@ -29454,12 +29509,8 @@ define([
 		//		Our checked state
 		checked: false,
 		_setCheckedAttr: function(/*Boolean*/ checked){
-			// summary:
-			//		Hook so attr('checked', bool) works.
-			//		Sets the class and state for the check box.
-			domClass.toggle(this.domNode, this.baseClass + "Checked", checked);
 			this.domNode.setAttribute("aria-checked", checked ? "true" : "false");
-			this._set("checked", checked);
+			this._set("checked", checked);	// triggers CSS update via _CssStateMixin
 		},
 
 		iconClass: "",	// override dijitNoIcon
@@ -29851,18 +29902,6 @@ define([
 
 	// module:
 	//		dijit/Dialog
-
-	/*=====
-	dijit._underlay = function(kwArgs){
-		// summary:
-		//		A shared instance of a `dijit.DialogUnderlay`
-		//
-		// description:
-		//		A shared instance of a `dijit.DialogUnderlay` created and
-		//		used by `dijit.Dialog`, though never created until some Dialog
-		//		or subclass thereof is shown.
-	};
-	=====*/
 
 	var _DialogBase = declare("dijit._DialogBase" + (has("dojo-bidi") ? "_NoBidi" : ""), [_TemplatedMixin, _FormMixin, _DialogMixin, _CssStateMixin], {
 		templateString: template,
@@ -31433,21 +31472,23 @@ define([
 
 	coreFx.chain = function(/*dojo/_base/fx.Animation[]*/ animations){
 		// summary:
-		//		Chain a list of `dojo.Animation`s to run in sequence
+		//		Chain a list of `dojo/_base/fx.Animation`s to run in sequence
 		//
 		// description:
-		//		Return a `dojo.Animation` which will play all passed
-		//		`dojo.Animation` instances in sequence, firing its own
+		//		Return a `dojo/_base/fx.Animation` which will play all passed
+		//		`dojo/_base/fx.Animation` instances in sequence, firing its own
 		//		synthesized events simulating a single animation. (eg:
 		//		onEnd of this animation means the end of the chain,
 		//		not the individual animations within)
 		//
 		// example:
 		//	Once `node` is faded out, fade in `otherNode`
-		//	|	fx.chain([
-		//	|		dojo.fadeIn({ node:node }),
-		//	|		dojo.fadeOut({ node:otherNode })
-		//	|	]).play();
+		//	|	require(["dojo/fx"], function(fx){
+		//	|		fx.chain([
+		//	|			fx.fadeIn({ node:node }),
+		//	|			fx.fadeOut({ node:otherNode })
+		//	|		]).play();
+		//	|	});
 		//
 		return new _chain(animations); // dojo/_base/fx.Animation
 	};
@@ -31528,30 +31569,34 @@ define([
 
 	coreFx.combine = function(/*dojo/_base/fx.Animation[]*/ animations){
 		// summary:
-		//		Combine a list of `dojo.Animation`s to run in parallel
+		//		Combine a list of `dojo/_base/fx.Animation`s to run in parallel
 		//
 		// description:
-		//		Combine an array of `dojo.Animation`s to run in parallel,
-		//		providing a new `dojo.Animation` instance encompasing each
+		//		Combine an array of `dojo/_base/fx.Animation`s to run in parallel,
+		//		providing a new `dojo/_base/fx.Animation` instance encompasing each
 		//		animation, firing standard animation events.
 		//
 		// example:
 		//	Fade out `node` while fading in `otherNode` simultaneously
-		//	|	fx.combine([
-		//	|		dojo.fadeIn({ node:node }),
-		//	|		dojo.fadeOut({ node:otherNode })
-		//	|	]).play();
+		//	|	require(["dojo/fx"], function(fx){
+		//	|		fx.combine([
+		//	|			fx.fadeIn({ node:node }),
+		//	|			fx.fadeOut({ node:otherNode })
+		//	|		]).play();
+		//	|	});
 		//
 		// example:
 		//	When the longest animation ends, execute a function:
-		//	|	var anim = fx.combine([
-		//	|		dojo.fadeIn({ node: n, duration:700 }),
-		//	|		dojo.fadeOut({ node: otherNode, duration: 300 })
-		//	|	]);
-		//	|	aspect.after(anim, "onEnd", function(){
-		//	|		// overall animation is done.
-		//	|	}, true);
-		//	|	anim.play(); // play the animation
+		//	|	require(["dojo/fx"], function(fx){
+		//	|		var anim = fx.combine([
+		//	|			fx.fadeIn({ node: n, duration:700 }),
+		//	|			fx.fadeOut({ node: otherNode, duration: 300 })
+		//	|		]);
+		//	|		aspect.after(anim, "onEnd", function(){
+		//	|			// overall animation is done.
+		//	|		}, true);
+		//	|		anim.play(); // play the animation
+		//	|	});
 		//
 		return new _combine(animations); // dojo/_base/fx.Animation
 	};
@@ -31567,13 +31612,16 @@ define([
 		//		Node must have no margin/border/padding.
 		//
 		// args: Object
-		//		A hash-map of standard `dojo.Animation` constructor properties
+		//		A hash-map of standard `dojo/_base/fx.Animation` constructor properties
 		//		(such as easing: node: duration: and so on)
 		//
 		// example:
-		//	|	fx.wipeIn({
-		//	|		node:"someId"
-		//	|	}).play()
+		//	|	require(["dojo/fx"], function(fx){
+		//	|		fx.wipeIn({
+		//	|			node:"someId"
+		//	|		}).play()
+		//	|	});
+
 		var node = args.node = dom.byId(args.node), s = node.style, o;
 
 		var anim = baseFx.animateProperty(lang.mixin({
@@ -31621,11 +31669,13 @@ define([
 		//		from it's current height to 1px, and then hide it.
 		//
 		// args: Object
-		//		A hash-map of standard `dojo.Animation` constructor properties
+		//		A hash-map of standard `dojo/_base/fx.Animation` constructor properties
 		//		(such as easing: node: duration: and so on)
 		//
 		// example:
-		//	|	fx.wipeOut({ node:"someId" }).play()
+		//	|	require(["dojo/fx"], function(fx){
+		//	|		fx.wipeOut({ node:"someId" }).play()
+		//	|	});
 
 		var node = args.node = dom.byId(args.node), s = node.style, o;
 
@@ -31663,7 +31713,7 @@ define([
 		//		the position defined by (args.left, args.top).
 		//
 		// args: Object
-		//		A hash-map of standard `dojo.Animation` constructor properties
+		//		A hash-map of standard `dojo/_base/fx.Animation` constructor properties
 		//		(such as easing: node: duration: and so on). Special args members
 		//		are `top` and `left`, which indicate the new position to slide to.
 		//
@@ -32568,14 +32618,14 @@ define([
 				on(this.containerNode, on.selector(".dijitTreeNode", touch.leave), function(evt){
 					self._onNodeMouseLeave(registry.byNode(this), evt);
 				}),
-				on(this.containerNode, a11yclick, function(evt){
-					var node = registry.getEnclosingWidget(evt.target);
-					if(node.isInstanceOf(TreeNode)){
-						self._onClick(node, evt);
-					}
+				on(this.containerNode, on.selector(".dijitTreeRow", a11yclick.press), function(evt){
+					self._onNodePress(registry.getEnclosingWidget(this), evt);
 				}),
-				on(this.containerNode, on.selector(".dijitTreeNode", "dblclick"), function(evt){
-					self._onDblClick(registry.byNode(this), evt);
+				on(this.containerNode, on.selector(".dijitTreeRow", a11yclick), function(evt){
+					self._onClick(registry.getEnclosingWidget(this), evt);
+				}),
+				on(this.containerNode, on.selector(".dijitTreeRow", "dblclick"), function(evt){
+					self._onDblClick(registry.getEnclosingWidget(this), evt);
 				})
 			);
 
@@ -33133,6 +33183,13 @@ define([
 			// summary:
 			//		check whether a dom node is the expandoNode for a particular TreeNode widget
 			return dom.isDescendant(node, widget.expandoNode) || dom.isDescendant(node, widget.expandoNodeText);
+		},
+
+		_onNodePress: function(/*TreeNode*/ nodeWidget, /*Event*/ e){
+			// Touching a node should focus it, even if you touch the expando node or the edges rather than the label.
+			// Especially important to avoid _KeyNavMixin._onContainerFocus() causing the previously focused TreeNode
+			// to get focus
+			nodeWidget.focus();
 		},
 
 		__click: function(/*TreeNode*/ nodeWidget, /*Event*/ e, /*Boolean*/doOpen, /*String*/func){

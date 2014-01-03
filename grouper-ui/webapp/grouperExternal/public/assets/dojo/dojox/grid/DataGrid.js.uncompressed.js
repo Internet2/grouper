@@ -154,7 +154,7 @@ string.trim = String.prototype.trim ?
 	 //		Returns the trimmed string
 	 // description:
 	 //		This version of trim() was taken from [Steven Levithan's blog](http://blog.stevenlevithan.com/archives/faster-trim-javascript).
-	 //		The short yet performant version of this function is dojo.trim(),
+	 //		The short yet performant version of this function is dojo/_base/lang.trim(),
 	 //		which is part of Dojo base.  Uses String.prototype.trim instead, if available.
 	 return "";	// String
  };
@@ -177,6 +177,8 @@ define([
 
 	// module:
 	//		dijit/a11y
+
+	var undefined;
 
 	var a11y = {
 		// summary:
@@ -234,20 +236,33 @@ define([
 			}
 		},
 
+		effectiveTabIndex: function(/*Element*/ elem){
+			// summary:
+			//		Returns effective tabIndex of an element, either a number, or undefined if element isn't focusable.
+
+			if(domAttr.get(elem, "disabled")){
+				return undefined;
+			}else if(domAttr.has(elem, "tabIndex")){
+				// Explicit tab index setting
+				return +domAttr.get(elem, "tabIndex");// + to convert string --> number
+			}else{
+				// No explicit tabIndex setting, so depends on node type
+				return a11y.hasDefaultTabStop(elem) ? 0 : undefined;
+			}
+		},
+
 		isTabNavigable: function(/*Element*/ elem){
 			// summary:
 			//		Tests if an element is tab-navigable
 
-			// TODO: convert (and rename method) to return effective tabIndex; will save time in _getTabNavigable()
-			if(domAttr.get(elem, "disabled")){
-				return false;
-			}else if(domAttr.has(elem, "tabIndex")){
-				// Explicit tab index setting
-				return domAttr.get(elem, "tabIndex") >= 0; // boolean
-			}else{
-				// No explicit tabIndex setting, so depends on node type
-				return a11y.hasDefaultTabStop(elem);
-			}
+			return a11y.effectiveTabIndex(elem) >= 0;
+		},
+
+		isFocusable: function(/*Element*/ elem){
+			// summary:
+			//		Tests if an element is focusable by tabbing to it, or clicking it with the mouse.
+
+			return a11y.effectiveTabIndex(elem) >= -1;
 		},
 
 		_getTabNavigable: function(/*DOMNode*/ root){
@@ -273,7 +288,7 @@ define([
 					node.name && node.name.toLowerCase();
 			}
 
-			var shown = a11y._isElementShown, isTabNavigable = a11y.isTabNavigable;
+			var shown = a11y._isElementShown, effectiveTabIndex = a11y.effectiveTabIndex;
 			var walkTree = function(/*DOMNode*/ parent){
 				for(var child = parent.firstChild; child; child = child.nextSibling){
 					// Skip text elements, hidden elements, and also non-HTML elements (those in custom namespaces) in IE,
@@ -282,9 +297,9 @@ define([
 						continue;
 					}
 
-					if(isTabNavigable(child)){
-						var tabindex = +domAttr.get(child, "tabIndex");	// + to convert string --> number
-						if(!domAttr.has(child, "tabIndex") || tabindex == 0){
+					var tabindex = effectiveTabIndex(child);
+					if(tabindex >= 0){
+						if(tabindex == 0){
 							if(!first){
 								first = child;
 							}
@@ -1196,7 +1211,7 @@ define([
 		_nativeScroll: false,
 
 		doscroll: function(inEvent){
-			if(has('ff') >= 13){
+			if(has('ff') >= 13 || has('chrome')){
 				this._nativeScroll = true;
 			}
 			//var s = dojo.marginBox(this.headerContentNode.firstChild);
@@ -1371,7 +1386,8 @@ define([
 		// summary:
 		//		A checkbox-like menu item for toggling on and off
 
-		baseClass: "dijitCheckedMenuItem",
+		// Use both base classes so we get styles like dijitMenuItemDisabled
+		baseClass: "dijitMenuItem dijitCheckedMenuItem",
 
 		templateString: template,
 
@@ -1379,12 +1395,8 @@ define([
 		//		Our checked state
 		checked: false,
 		_setCheckedAttr: function(/*Boolean*/ checked){
-			// summary:
-			//		Hook so attr('checked', bool) works.
-			//		Sets the class and state for the check box.
-			domClass.toggle(this.domNode, this.baseClass + "Checked", checked);
 			this.domNode.setAttribute("aria-checked", checked ? "true" : "false");
-			this._set("checked", checked);
+			this._set("checked", checked);	// triggers CSS update via _CssStateMixin
 		},
 
 		iconClass: "",	// override dijitNoIcon
@@ -1540,6 +1552,15 @@ define([
 			domAttr[val ? "set" : "remove"](this.domNode, attr, val);
 			this._set(attr, val);
 		};
+	}
+
+	function isEqual(a, b){
+		//	summary:
+		//		Function that determines whether two values are identical,
+		//		taking into account that NaN is not normally equal to itself
+		//		in JS.
+
+		return a === b || (/* a is NaN */ a !== a && /* b is NaN */ b !== b);
 	}
 
 	var _WidgetBase = declare("dijit._WidgetBase", [Stateful, Destroyable], {
@@ -2334,7 +2355,7 @@ define([
 			//		registered with watch() if the value has changed.
 			var oldValue = this[name];
 			this[name] = value;
-			if(this._created && value !== oldValue){
+			if(this._created && !isEqual(oldValue, value)){
 				if(this._watchCallbacks){
 					this._watchCallbacks(name, oldValue, value);
 				}
@@ -2623,10 +2644,13 @@ define([
 			//		Wrapper to setTimeout to avoid deferred functions executing
 			//		after the originating widget has been destroyed.
 			//		Returns an object handle with a remove method (that returns null) (replaces clearTimeout).
-			// fcn: function reference
-			// delay: Optional number (defaults to 0)
+			// fcn: Function
+			//		Function reference.
+			// delay: Number?
+			//		Delay, defaults to 0.
 			// tags:
-			//		protected.
+			//		protected
+
 			var timer = setTimeout(lang.hitch(this,
 				function(){
 					if(!timer){
@@ -2699,7 +2723,7 @@ exports.isFormElement = function(/*Event*/ e){
 	if(t.nodeType == 3 /*TEXT_NODE*/){
 		t = t.parentNode;
 	}
-	return " button textarea input select option ".indexOf(" " + t.tagName.toLowerCase() + " ") >= 0;	// Boolean
+	return " a button textarea input select option ".indexOf(" " + t.tagName.toLowerCase() + " ") >= 0;	// Boolean
 };
 
 return exports;
@@ -2733,7 +2757,16 @@ function(dojo, aspect, dom, domClass, lang, on, has, mouse, domReady, win){
 
 	var ios4 = has("ios") < 5;
 	
-	var msPointer = navigator.msPointerEnabled;
+	var msPointer = navigator.pointerEnabled || navigator.msPointerEnabled,
+		pointer = (function () {
+			var pointer = {};
+			for (var type in { down: 1, move: 1, up: 1, cancel: 1, over: 1, out: 1 }) {
+				pointer[type] = !navigator.pointerEnabled ?
+					"MSPointer" + type.charAt(0).toUpperCase() + type.slice(1) :
+					"pointer" + type;
+			}
+			return pointer;
+		})();
 
 	// Click generation variables
 	var clicksInited, clickTracker, clickTarget, clickX, clickY, clickDx, clickDy, clickTime;
@@ -2776,7 +2809,7 @@ function(dojo, aspect, dom, domClass, lang, on, has, mouse, domReady, win){
 	function marked(/*DOMNode*/ node){
 		// Test if a node or its ancestor has been marked with the dojoClick property to indicate special processing,
 		do{
-			if(node.dojoClick){ return node.dojoClick; }
+			if(node.dojoClick !== undefined){ return node.dojoClick; }
 		}while(node = node.parentNode);
 	}
 	
@@ -2785,7 +2818,9 @@ function(dojo, aspect, dom, domClass, lang, on, has, mouse, domReady, win){
 		//		Setup touch listeners to generate synthetic clicks immediately (rather than waiting for the browser
 		//		to generate clicks after the double-tap delay) and consistently (regardless of whether event.preventDefault()
 		//		was called in an event listener. Synthetic clicks are generated only if a node or one of its ancestors has
-		//		its dojoClick property set to truthy.
+		//      its dojoClick property set to truthy. If a node receives synthetic clicks because one of its ancestors has its
+		//      dojoClick property set to truthy, you can disable synthetic clicks on this node by setting its own dojoClick property
+		//      to falsy.
 		
 		clickTracker  = !e.target.disabled && marked(e.target); // click threshold = true, number or x/y object
 		if(clickTracker){
@@ -2866,8 +2901,8 @@ function(dojo, aspect, dom, domClass, lang, on, has, mouse, domReady, win){
 		if(msPointer){
 			 // MSPointer (IE10+) already has support for over and out, so we just need to init click support
 			domReady(function(){
-				win.doc.addEventListener("MSPointerDown", function(evt){
-					doClicks(evt, "MSPointerMove", "MSPointerUp");
+				win.doc.addEventListener(pointer.down, function(evt){
+					doClicks(evt, pointer.move, pointer.up);
 				}, true);
 			});		
 		}else{
@@ -2944,7 +2979,11 @@ function(dojo, aspect, dom, domClass, lang, on, has, mouse, domReady, win){
 
 						// Unlike a listener on "touchmove", on(node, "dojotouchmove", listener) fires when the finger
 						// drags over the specified node, regardless of which node the touch started on.
-						on.emit(newNode, "dojotouchmove", copyEventProps(evt));
+						if(!on.emit(newNode, "dojotouchmove", copyEventProps(evt))){
+							// emit returns false when synthetic event "dojotouchmove" is cancelled, so we prevent the
+							// default behavior of the underlying native event "touchmove".
+							evt.preventDefault();
+						}
 					}
 				});
 
@@ -2965,14 +3004,14 @@ function(dojo, aspect, dom, domClass, lang, on, has, mouse, domReady, win){
 
 	//device neutral events - touch.press|move|release|cancel/over/out
 	var touch = {
-		press: dualEvent("mousedown", "touchstart", "MSPointerDown"),
-		move: dualEvent("mousemove", "dojotouchmove", "MSPointerMove"),
-		release: dualEvent("mouseup", "dojotouchend", "MSPointerUp"),
-		cancel: dualEvent(mouse.leave, "touchcancel", hasTouch?"MSPointerCancel":null),
-		over: dualEvent("mouseover", "dojotouchover", "MSPointerOver"),
-		out: dualEvent("mouseout", "dojotouchout", "MSPointerOut"),
-		enter: mouse._eventHandler(dualEvent("mouseover","dojotouchover", "MSPointerOver")),
-		leave: mouse._eventHandler(dualEvent("mouseout", "dojotouchout", "MSPointerOut"))
+		press: dualEvent("mousedown", "touchstart", pointer.down),
+		move: dualEvent("mousemove", "dojotouchmove", pointer.move),
+		release: dualEvent("mouseup", "dojotouchend", pointer.up),
+		cancel: dualEvent(mouse.leave, "touchcancel", hasTouch ? pointer.cancel : null),
+		over: dualEvent("mouseover", "dojotouchover", pointer.over),
+		out: dualEvent("mouseout", "dojotouchout", pointer.out),
+		enter: mouse._eventHandler(dualEvent("mouseover","dojotouchover", pointer.over)),
+		leave: mouse._eventHandler(dualEvent("mouseout", "dojotouchout", pointer.out))
 	};
 
 	/*=====
@@ -2981,13 +3020,13 @@ function(dojo, aspect, dom, domClass, lang, on, has, mouse, domReady, win){
 		//		This module provides unified touch event handlers by exporting
 		//		press, move, release and cancel which can also run well on desktop.
 		//		Based on http://dvcs.w3.org/hg/webevents/raw-file/tip/touchevents.html
-		//		Also, if the dojoClick property is set to true on a DOM node, dojo/touch generates
-		//		click events immediately for this node and its descendants, to avoid the
-		//		delay before native browser click events, and regardless of whether evt.preventDefault()
-		//		was called in a touch.press event listener.
+		//      Also, if the dojoClick property is set to truthy on a DOM node, dojo/touch generates
+		//      click events immediately for this node and its descendants (except for descendants that
+		//      have a dojoClick property set to falsy), to avoid the delay before native browser click events,
+		//      and regardless of whether evt.preventDefault() was called in a touch.press event listener.
 		//
 		// example:
-		//		Used with dojo.on
+		//		Used with dojo/on
 		//		|	define(["dojo/on", "dojo/touch"], function(on, touch){
 		//		|		on(node, touch.press, function(e){});
 		//		|		on(node, touch.move, function(e){});
@@ -3008,7 +3047,9 @@ function(dojo, aspect, dom, domClass, lang, on, has, mouse, domReady, win){
 		// example:
 		//		Have dojo/touch generate clicks without delay, with a move threshold of 50 pixels horizontally and 10 pixels vertically
 		//		|	node.dojoClick = {x:50, y:5};
-		
+		// example:
+		//    Disable clicks without delay generated by dojo/touch on a node that has an ancestor with property dojoClick set to truthy
+		//    |  node.dojoClick = false;		
 
 		press: function(node, listener){
 			// summary:
@@ -3601,11 +3642,13 @@ return declare("dojo.Stateful", null, {
 	//		would have a custom getter of _fooGetter and a custom setter of _fooSetter.
 	//
 	// example:
-	//	|	var obj = new dojo.Stateful();
-	//	|	obj.watch("foo", function(){
-	//	|		console.log("foo changed to " + this.get("foo"));
+	//	|	require(["dojo/Stateful", function(Stateful) {
+	//	|		var obj = new Stateful();
+	//	|		obj.watch("foo", function(){
+	//	|			console.log("foo changed to " + this.get("foo"));
+	//	|		});
+	//	|		obj.set("foo","bar");
 	//	|	});
-	//	|	obj.set("foo","bar");
 
 	// _attrPairNames: Hash
 	//		Used across all instances a hash to cache attribute names and their getter 
@@ -3650,10 +3693,12 @@ return declare("dojo.Stateful", null, {
 		//		Get a named property on a Stateful object. The property may
 		//		potentially be retrieved via a getter method in subclasses. In the base class
 		//		this just retrieves the object's property.
-		//		For example:
-		//	|	stateful = new dojo.Stateful({foo: 3});
-		//	|	stateful.get("foo") // returns 3
-		//	|	stateful.foo // returns 3
+		// example:
+		//	|	require(["dojo/Stateful", function(Stateful) {
+		//	|		var stateful = new Stateful({foo: 3});
+		//	|		stateful.get("foo") // returns 3
+		//	|		stateful.foo // returns 3
+		//	|	});
 
 		return this._get(name, this._getAttrNames(name)); //Any
 	},
@@ -3669,18 +3714,19 @@ return declare("dojo.Stateful", null, {
 		// description:
 		//		Sets named properties on a stateful object and notifies any watchers of
 		//		the property. A programmatic setter may be defined in subclasses.
-		//		For example:
-		//	|	stateful = new dojo.Stateful();
-		//	|	stateful.watch(function(name, oldValue, value){
-		//	|		// this will be called on the set below
-		//	|	}
-		//	|	stateful.set(foo, 5);
-		//
+		// example:
+		//	|	require(["dojo/Stateful", function(Stateful) {
+		//	|		var stateful = new Stateful();
+		//	|		stateful.watch(function(name, oldValue, value){
+		//	|			// this will be called on the set below
+		//	|		}
+		//	|		stateful.set(foo, 5);
 		//	set() may also be called with a hash of name/value pairs, ex:
-		//	|	myObj.set({
-		//	|		foo: "Howdy",
-		//	|		bar: 3
-		//	|	})
+		//	|		stateful.set({
+		//	|			foo: "Howdy",
+		//	|			bar: 3
+		//	|		});
+		//	|	});
 		//	This is equivalent to calling set(foo, "Howdy") and set(bar, 3)
 
 		// If an object is used, iterate through object
@@ -3890,22 +3936,27 @@ define([
 				switch(event.type){
 					case "mouseover":
 					case "MSPointerOver":
+					case "pointerover":
 						this._set("hovering", true);
 						this._set("active", this._mouseDown);
 						break;
 					case "mouseout":
 					case "MSPointerOut":
+					case "pointerout":
 						this._set("hovering", false);
 						this._set("active", false);
 						break;
 					case "mousedown":
 					case "touchstart":
 					case "MSPointerDown":
+					case "pointerdown":
 					case "keydown":
 						this._set("active", true);
 						break;
 					case "mouseup":
 					case "dojotouchend":
+					case "MSPointerUp":
+					case "pointerup":
 					case "keyup":
 						this._set("active", false);
 						break;
@@ -4035,21 +4086,25 @@ define([
 			switch(evt.type){
 				case "mouseover":
 				case "MSPointerOver":
+				case "pointerover":
 					hover(true);
 					break;
 				case "mouseout":
 				case "MSPointerOut":
+				case "pointerout":
 					hover(false);
 					active(false);
 					break;
 				case "mousedown":
 				case "touchstart":
 				case "MSPointerDown":
+				case "pointerdown":
 				case "keydown":
 					active(true);
 					break;
 				case "mouseup":
 				case "MSPointerUp":
+				case "pointerup":
 				case "dojotouchend":
 				case "keyup":
 					active(false);
@@ -6986,7 +7041,7 @@ define(["./_base/lang", "./sniff", "./_base/window", "./dom", "./dom-geometry", 
 					isWK = has("webkit");
 				// if an untested browser, then use the native method
 				if(node == body || node == html){ return; }
-				if(!(has("mozilla") || isIE || isWK || has("opera")) && ("scrollIntoView" in node)){
+				if(!(has("mozilla") || isIE || isWK || has("opera") || has("trident")) && ("scrollIntoView" in node)){
 					node.scrollIntoView(false); // short-circuit to native if possible
 					return;
 				}
@@ -10862,7 +10917,7 @@ var _Widget = declare("dijit._Widget", [_WidgetBase, _OnDijitClickMixin, _FocusM
 
 	attr: function(/*String|Object*/name, /*Object?*/value){
 		// summary:
-		//		Set or get properties on a widget instance.
+		//		This method is deprecated, use get() or set() directly.
 		// name:
 		//		The property to get or set. If an object is passed here and not
 		//		a string, its keys are used as names of attributes to be set
@@ -10870,19 +10925,8 @@ var _Widget = declare("dijit._Widget", [_WidgetBase, _OnDijitClickMixin, _FocusM
 		// value:
 		//		Optional. If provided, attr() operates as a setter. If omitted,
 		//		the current value of the named property is returned.
-		// description:
-		//		This method is deprecated, use get() or set() directly.
-
-		// Print deprecation warning but only once per calling function
-		if(config.isDebug){
-			var alreadyCalledHash = arguments.callee._ach || (arguments.callee._ach = {}),
-				caller = (arguments.callee.caller || "unknown caller").toString();
-			if(!alreadyCalledHash[caller]){
-				kernel.deprecated(this.declaredClass + "::attr() is deprecated. Use get() or set() instead, called from " +
-				caller, "", "2.0");
-				alreadyCalledHash[caller] = true;
-			}
-		}
+		// tags:
+		//		deprecated
 
 		var args = arguments.length;
 		if(args >= 2 || typeof name === "object"){ // setter
@@ -11034,6 +11078,7 @@ define([
 	"dojo/_base/declare", // declare
 	"dojo/dom", // domAttr.get dom.isDescendant
 	"dojo/dom-attr", // domAttr.get dom.isDescendant
+	"dojo/dom-class",
 	"dojo/dom-construct", // connect to domConstruct.empty, domConstruct.destroy
 	"dojo/Evented",
 	"dojo/_base/lang", // lang.hitch
@@ -11046,7 +11091,7 @@ define([
 	"./a11y",	// a11y.isTabNavigable
 	"./registry",	// registry.byId
 	"./main"		// to set dijit.focus
-], function(aspect, declare, dom, domAttr, domConstruct, Evented, lang, on, domReady, has, Stateful, win, winUtils,
+], function(aspect, declare, dom, domAttr, domClass, domConstruct, Evented, lang, on, domReady, has, Stateful, win, winUtils,
 			a11y, registry, dijit){
 
 	// module:
@@ -11153,10 +11198,7 @@ define([
 					var tag = evt.target.tagName.toLowerCase();
 					if(tag == "#document" || tag == "body"){ return; }
 
-					if(a11y.isTabNavigable(evt.target)){
-						// If condition doesn't seem quite right, but it is correctly preventing focus events for
-						// clicks on disabled buttons.  (TODO: it doesn't register clicks on TabContainer tabs because
-						// they are tabIndex="-1")
+					if(a11y.isFocusable(evt.target)){
 						_this._onFocusNode(effectiveNode || evt.target);
 					}else{
 						// Previous code called _onTouchNode() for any activate event on a non-focusable node.   Can
@@ -11233,6 +11275,12 @@ define([
 			if(this._clearActiveWidgetsTimer){
 				clearTimeout(this._clearActiveWidgetsTimer);
 				delete this._clearActiveWidgetsTimer;
+			}
+
+			// if the click occurred on the scrollbar of a dropdown, treat it as a click on the dropdown,
+			// even though the scrollbar is technically on the popup wrapper (see #10631)
+			if(domClass.contains(node, "dijitPopup")){
+				node = node.firstChild;
 			}
 
 			// compute stack of active widgets (ex: ComboButton --> Menu --> MenuItem)

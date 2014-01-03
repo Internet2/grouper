@@ -63,7 +63,8 @@ define("dojox/charting/plot2d/CartesianBase", ["dojo/_base/lang", "dojo/_base/de
 			precision:		1,
 			labelStyle:		"inside",
 			htmlLabels:		true,		// use HTML to draw labels
-			omitLabels:		true
+			omitLabels:		true,
+			labelFunc:		null
         },
 
 		// summary:

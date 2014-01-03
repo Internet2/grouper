@@ -166,6 +166,10 @@ define("dojox/mobile/IconItem", [
 		unhighlight: function(){
 			// summary:
 			//		Stops shaking the icon.
+			if(!has("ie") && has("trident") === 7){
+				// Workaround on IE11: if just removing the style, the icon continues to shake
+				domStyle.set(this.iconDivNode, "animation-name", "");
+			}
 			domClass.remove(this.iconDivNode, "mblVibrate");
 		},
 

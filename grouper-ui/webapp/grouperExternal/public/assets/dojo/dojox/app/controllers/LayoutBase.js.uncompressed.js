@@ -97,7 +97,9 @@ function(lang, declare, has, win, config, domAttr, topic, domStyle, constraints,
 			if(!view){
 				return;
 			}
-			
+
+			this.app.log("in LayoutBase layoutView called for event.view.id="+event.view.id);
+
 			// if the parent has a child in the view constraint it has to be hidden, and this view displayed.
 			var parentSelChild = constraints.getSelectedChild(parent, view.constraint);
 			if(event.removeView){	// if this view is being removed set display to none and the selectedChildren entry to null
@@ -110,21 +112,29 @@ function(lang, declare, has, win, config, domAttr, topic, domStyle, constraints,
 				if(parentSelChild){
 				//	domStyle.set(parentSelChild.domNode, "zIndex", 25);
 					parentSelChild.viewShowing = false;
-					this.hideView(parentSelChild);
+					if(event.transition == "none" || event.currentLastSubChildMatch !== parentSelChild){
+						this.hideView(parentSelChild); // only call hideView for transition none or when the transition will not hide it
+					}
 				}
 				view.viewShowing = true;
 				this.showView(view);
 				//domStyle.set(view.domNode, "zIndex", 50);
 				constraints.setSelectedChild(parent, view.constraint, view);
+			}else{ // this view is already the selected child and showing
+				view.viewShowing = true;
 			}
 		},
 
 		hideView: function(view){
+			this.app.log("logTransitions:","LayoutBase"+" setting domStyle display none for view.id=["+view.id+"], visibility=["+view.domNode.style.visibility+"]");
 			domStyle.set(view.domNode, "display", "none");
 		},
 
 		showView: function(view){
-			domStyle.set(view.domNode, "display", "");
+			if(view.domNode){
+				this.app.log("logTransitions:","LayoutBase"+" setting domStyle display to display for view.id=["+view.id+"], visibility=["+view.domNode.style.visibility+"]");
+				domStyle.set(view.domNode, "display", "");
+			}
 		}
 	});
 });

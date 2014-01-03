@@ -29,7 +29,7 @@ function(declare, lang, array, win, query, domGeom, domAttr, domStyle, registry,
 
 		resizeSelectedChildren: function(w){
 			for(var hash in w.selectedChildren){	// need this to handle all selectedChildren
-				if(w.selectedChildren[hash]){
+				if(w.selectedChildren[hash] && w.selectedChildren[hash].domNode){
 					this.app.log("in Layout resizeSelectedChildren calling resizeSelectedChildren calling _doResize for w.selectedChildren[hash].id="+w.selectedChildren[hash].id);
 					this._doResize(w.selectedChildren[hash]);
 					// Call resize on child widgets, needed to get the scrollableView to resize correctly initially	
@@ -57,7 +57,9 @@ function(declare, lang, array, win, query, domGeom, domAttr, domStyle, registry,
 			this.app.log("in app/controllers/Layout.initLayout event=",event);
 			this.app.log("in app/controllers/Layout.initLayout event.view.parent.name=[",event.view.parent.name,"]");
 
-			event.view.parent.domNode.appendChild(event.view.domNode);
+			if (!event.view.domNode.parentNode) {
+				event.view.parent.domNode.appendChild(event.view.domNode);
+			}
 
 			domAttr.set(event.view.domNode, "data-app-constraint", event.view.constraint);
 
@@ -127,10 +129,11 @@ function(declare, lang, array, win, query, domGeom, domAttr, domStyle, registry,
 			// |		{"parent":parent, "view":view, "removeView": boolean}
 			if(event.view){
 				this.inherited(arguments);
-				// do selected view layout
-				// call _doResize for parent and view here, doResize will no longer call it for all children.
-				this._doResize(event.parent || this.app);
-				this._doResize(event.view);
+				// normally when called from transition doResize will be false, and the resize will only be done when the app-resize event is fired
+				if(event.doResize){
+					this._doResize(event.parent || this.app);
+					this._doResize(event.view);
+				}
 			}
 		},
 

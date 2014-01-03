@@ -239,18 +239,14 @@ function(
 			}
 
 			rd.startTime = this.newDate(rd.dates[0][0], rd);
-			rd.endTime = this.newDate(rd.dates[rd.rowCount-1][rd.columnCount-1], rd);
+			rd.endTime = this.newDate(rd.dates[rd.rowCount-1][rd.columnCount-1], rd);			
 			rd.endTime = rd.dateModule.add(rd.endTime, "day", 1);
 			rd.endTime = this.floorToDay(rd.endTime, true);
 			
-			if(this.displayedItemsInvalidated){
+			if(this.displayedItemsInvalidated && !this._isEditing){
 				this.displayedItemsInvalidated = false;
 				this._computeVisibleItems(rd);
-				
-				if(this._isEditing){
-					this._endItemEditing(null, false);
-				}
-				
+								
 			}else if(this.renderData){
 				rd.items = this.renderData.items;
 			}
@@ -428,9 +424,18 @@ function(
 			//		private
 			
 			if(renderData.rowHeight <= 0){
-				renderData.columnCount = 0;
-				renderData.rowCount = 0;
+				renderData.columnCount = 1;
+				renderData.rowCount = 1;
+				renderData.invalidRowHeight = true;
 				return;
+			}
+			
+			if(oldRenderData){
+				// make sure to have correct rowCount
+				if(this.itemContainerTable){
+					var rows = query(".dojoxCalendarItemContainerRow", this.itemContainerTable);					
+					oldRenderData.rowCount = rows.length;
+				}
 			}
 			
 			this._buildColumnHeader(renderData, oldRenderData);
@@ -602,8 +607,8 @@ function(
 			}else{ 
 				tbody = domConstruct.create("tbody", null, rowHeaderTable);
 			}				
-						
-			var count = renderData.rowCount - query("tr", rowHeaderTable).length;
+			
+			var count = renderData.rowCount - (oldRenderData ? oldRenderData.rowCount : 0);
 			
 			// Build HTML structure
 			if(count>0){ // creation
@@ -709,7 +714,7 @@ function(
 			var rowDiff = renderData.rowCount - currentTR.length;
 			var addRows = rowDiff > 0;
 			
-			var colDiff  = renderData.columnCount - (currentTR ? query("td", currentTR[0]).length : 0);
+			var colDiff  = renderData.columnCount - (oldRenderData ? oldRenderData.columnCount : 0);
 			
 			if(has("ie") == 8){
 				// workaround Internet Explorer 8 bug.
@@ -885,7 +890,7 @@ function(
 			
 			var rows = [];
 	
-			var count = renderData.rowCount - (oldRenderData ? oldRenderData.rowCount : 0);
+			var count = renderData.rowCount - (oldRenderData ? oldRenderData.rowCount : 0)
 			
 			if(has("ie") == 8){
 				// workaround Internet Explorer 8 bug.
@@ -940,8 +945,9 @@ function(
 			renderData.cells = rows;
 		},
 		
-		resize: function(e){
-			this._resizeHandler(e);
+		resize: function(changeSize){
+			this.inherited(arguments);
+			this._resizeHandler(null, false);
 		},
 
 		_resizeHandler: function(e, apply){
@@ -970,6 +976,14 @@ function(
 					this._resizeRows();
 				}else{
 					this.expandRow(rd.expandedRow, rd.expandedRowCol, 0, null, true);
+				}
+				if(rd.invalidRowHeight){
+					// complete recompute 
+					delete rd.invalidRowHeight;
+					this.renderData = null;
+					this.displayedItemsInvalidated = true;
+					this.refreshRendering();
+					return;
 				}
 			}
 			

@@ -248,14 +248,10 @@ function(
 			rd.maxDayCount = maxDayCount;
 			rd.sheetHeight = rd.daySize * maxDayCount;
 			
-			if(this.displayedItemsInvalidated){
+			if(this.displayedItemsInvalidated && !this._isEditing){
 				this.displayedItemsInvalidated = false;
 				this._computeVisibleItems(rd);
-				
-				if(this._isEditing){					
-					this._endItemEditing(null, false);
-				}
-				
+								
 			}else if (this.renderData){
 				rd.items = this.renderData.items;
 			}

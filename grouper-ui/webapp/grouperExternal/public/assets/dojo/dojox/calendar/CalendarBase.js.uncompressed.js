@@ -9,6 +9,7 @@ define("dojox/calendar/CalendarBase", [
 "dojo/dom-class", 
 "dojo/dom-style",
 "dojo/dom-construct", 
+"dojo/dom-geometry",
 "dojo/date", 
 "dojo/date/locale", 
 "dojo/_base/fx", 
@@ -33,6 +34,7 @@ dom,
 domClass, 
 domStyle,
 domConstruct, 
+domGeometry,
 date, 
 locale,
 coreFx,
@@ -360,9 +362,13 @@ _nls){
 			}
 		},
 		
-		resize: function(){
+		resize: function(changeSize){
+			if(changeSize){
+				domGeometry.setMarginBox(this.domNode, changeSize);
+			}
 			if(this.currentView){
-				this.currentView.resize();
+				// must not pass the size, children are sized depending on the parent by CSS.
+				this.currentView.resize();  
 			}
 		},
 				
@@ -1059,14 +1065,14 @@ _nls){
 			if(this.previousButton){
 				this.previousButton.set("label", _nls[rtl?"nextButton":"previousButton"]);
 				this.own(
-					on(this.previousButton, "click", lang.hitch(this, rtl?this.nextRange:this.previousRange))
+					on(this.previousButton, "click", lang.hitch(this, this.previousRange))
 				);	
 			}
 			
 			if(this.nextButton){
 				this.nextButton.set("label", _nls[rtl?"previousButton":"nextButton"]);
 				this.own(
-					on(this.nextButton, "click", lang.hitch(this, rtl?this.previousRange:this.nextRange))
+					on(this.nextButton, "click", lang.hitch(this, this.nextRange))
 				);	
 			}
 			

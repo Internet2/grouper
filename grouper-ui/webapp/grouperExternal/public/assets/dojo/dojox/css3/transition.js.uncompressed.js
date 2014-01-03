@@ -95,8 +95,8 @@ define("dojox/css3/transition", ["dojo/_base/lang",
 		},
 		
 		_beforeClear: function(){
-			this.node.style[transitionPrefix + "ransitionProperty"] = null;
-			this.node.style[transitionPrefix + "ransitionDuration"] = null;
+			this.node.style[transitionPrefix + "ransitionProperty"] = "";
+			this.node.style[transitionPrefix + "ransitionDuration"] = "";
 			if(this["in"] !== true){
 				this.node.style.display = "none";
 			}			 
@@ -172,7 +172,7 @@ define("dojox/css3/transition", ["dojo/_base/lang",
 			var style = this.node.style;
 			for(var property in state){
 				if(state.hasOwnProperty(property)){
-					style[property] = null;
+					style[property] = "";
 				}
 			}
 		}
@@ -347,7 +347,7 @@ define("dojox/css3/transition", ["dojo/_base/lang",
 				on.once(args[args.length-1].node, transitionEndEventName, function(){
 					var timeout;
 					for(var i=0; i<args.length-1; i++){
-						if(args[i].deferred.fired !== 0){
+						if(args[i].deferred.fired !== 0 && !args[i]._cleared){
 							timeout = new Date().getTime() - args[i]._startTime;
 							if(timeout >= args[i].duration){
 								args[i].clear();
@@ -355,8 +355,19 @@ define("dojox/css3/transition", ["dojo/_base/lang",
 						}
 					}
 				});
+				setTimeout(function(){
+					var timeout;
+					for(var i=0; i<args.length; i++){
+						if(args[i].deferred.fired !== 0 && !args[i]._cleared){
+							timeout = new Date().getTime() - args[i]._startTime;
+							if(timeout >= args[i].duration){
+								args[i].clear();
+							}
+						}
+					}
+				}, args[0].duration+50);
 			}, 33);
-		});		   
+		});
 	};
 	
 	transition.chainedPlay = function(/*Array*/args){

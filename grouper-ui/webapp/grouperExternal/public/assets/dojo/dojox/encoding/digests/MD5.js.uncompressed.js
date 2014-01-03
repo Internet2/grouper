@@ -125,7 +125,7 @@ define("dojox/encoding/digests/MD5", ["./_base"], function(base) {
 	}
 
 	//	public function
-	var MD5=function(/* string */data, /* dojox.encoding.digests.outputTypes? */outputType){
+	base.MD5=function(/* string */data, /* dojox.encoding.digests.outputTypes? */outputType){
 		// summary:
 		//		computes the digest of data, and returns the result according to type outputType
 		var out=outputType || base.outputTypes.Base64;
@@ -147,7 +147,7 @@ define("dojox/encoding/digests/MD5", ["./_base"], function(base) {
 	};
 
 	//	make this private, for later use with a generic HMAC calculator.
-	MD5._hmac=function(/* string */data, /* string */key, /* dojox.encoding.digests.outputTypes? */outputType){
+	base.MD5._hmac=function(/* string */data, /* string */key, /* dojox.encoding.digests.outputTypes? */outputType){
 		// summary:
 		//		computes the digest of data, and returns the result according to type outputType
 		var out=outputType || base.outputTypes.Base64;
@@ -168,5 +168,5 @@ define("dojox/encoding/digests/MD5", ["./_base"], function(base) {
 		}
 	};
 
-	return MD5;
+	return base.MD5;
 });

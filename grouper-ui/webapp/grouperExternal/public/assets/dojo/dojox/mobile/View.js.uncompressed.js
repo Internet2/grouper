@@ -131,8 +131,8 @@ define("dojox/mobile/View", [
 				});
 			}
 
-			if(this.domNode.style.visibility != "visible"){ // this check is to avoid screen flickers
-				this.domNode.style.visibility = "visible";
+			if(this.domNode.style.visibility === "hidden"){ // this check is to avoid screen flickers
+				this.domNode.style.visibility = "inherit";
 			}
 
 			// Need to call inherited first - so that child widgets get started
@@ -386,7 +386,8 @@ define("dojox/mobile/View", [
 					toNode.style.top = "0px";
 					if(scrollTop > 1 || toTop !== 0){
 						fromNode.style.top = toTop - scrollTop + "px";
-						if(config["mblHideAddressBar"] !== false){
+						// address bar hiding does not work on iOS 7+.
+						if(!(has("ios") >= 7) && config["mblHideAddressBar"] !== false){
 							this.defer(function(){ // iPhone needs setTimeout (via defer)
 								win.global.scrollTo(0, (toTop || 1));
 							});
@@ -399,7 +400,7 @@ define("dojox/mobile/View", [
 				connect.publish("/dojox/mobile/beforeTransitionIn", [toWidget].concat(lang._toArray(this._arguments)));
 			}
 			toNode.style.display = "none";
-			toNode.style.visibility = "visible";
+			toNode.style.visibility = "inherit";
 
 			common.fromView = this;
 			common.toView = toWidget;

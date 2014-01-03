@@ -114,7 +114,7 @@ define("dojox/calendar/StoreMixin", ["dojo/_base/declare", "dojo/_base/array", "
 			item[this.summaryAttr] = renderItem.summary;
 			item[this.startTimeAttr] = (this.encodeDate && this.encodeDate(renderItem.startTime)) || renderItem.startTime;
 			item[this.endTimeAttr] = (this.encodeDate && this.encodeDate(renderItem.endTime)) || renderItem.endTime;
-			return lang.mixin(store.get(renderItem.id), item);
+			return this.getItemStoreState(renderItem) == "unstored" ? item : lang.mixin(renderItem._item, item);
 		},			
 		
 		_computeVisibleItems: function(renderData){
@@ -179,6 +179,21 @@ define("dojox/calendar/StoreMixin", ["dojo/_base/declare", "dojo/_base/array", "
 				}
 			}else if(newIndex!=-1){
 				// this is a add
+				
+				var tempId = object.temporaryId;
+				if(tempId){
+					// this item had a temporary id that was changed
+					var l = this.items.length; 
+					for(var i=l-1; i>=0; i--){
+						if(this.items[i].id == tempId){
+							this.items[i] = newItem;
+							break;
+						}
+					}
+					this._cleanItemStoreState(tempId);
+					this._setItemStoreState(newItem, "storing");
+				}
+				
 				var s = this._getItemStoreStateObj(newItem);
 				if(s){
 					// if the item is at the correct index (creation)
@@ -322,8 +337,21 @@ define("dojox/calendar/StoreMixin", ["dojo/_base/declare", "dojo/_base/array", "
 						state: state
 				};						
 			}
-		}
-				
+		},
+		
+		_cleanItemStoreState: function(id){  
+			      
+			if(this.owner){
+				return this.owner._cleanItemStoreState(id);        
+			}			
+			var s = this._itemStoreState[id];
+			if(s){
+				delete this._itemStoreState[id];
+				return true;
+			}
+			return false;
+		} 
+
 	});
 
 });

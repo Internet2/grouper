@@ -9,11 +9,13 @@ define("dojox/calendar/ViewBase", [
 	"dojo/query",
 	"dojo/dom",
 	"dojo/dom-style",
+	"dojo/dom-class",
 	"dojo/dom-construct",
 	"dojo/dom-geometry",
 	"dojo/on",
 	"dojo/date",
 	"dojo/date/locale",
+	"dojo/when",
 	"dijit/_WidgetBase",
 	"dojox/widget/_Invalidating",
 	"dojox/widget/Selection",
@@ -31,11 +33,13 @@ define("dojox/calendar/ViewBase", [
 		query,
 		dom,
 		domStyle,
+		domClass,
 		domConstruct,
 		domGeometry,
 		on,
 		date,
 		locale,
+		when,
 		_WidgetBase,
 		_Invalidating,
 		Selection,
@@ -194,11 +198,14 @@ define("dojox/calendar/ViewBase", [
 		},
 		
 		
-		resize: function(){
+		resize: function(changeSize){
 			// summary:
 			//		Function to call when the view is resized. 
 			//		If the view is in a Dijit container or in a Dojo mobile container, it will be automatically called.
 			//		On other use cases, this method must called when the window is resized and/or when the orientation has changed.
+			if(changeSize){
+				domGeometry.setMarginBox(this.domNode, changeSize);
+			}
 		},
 		
 		_getTopOwner: function(){
@@ -270,7 +277,7 @@ define("dojox/calendar/ViewBase", [
 			
 			while(node != ancestor && node != document){
 				
-				if(dojo.hasClass(node, className)){
+				if(domClass.contains(node, className)){
 					return true;
 				}
 				
@@ -853,10 +860,6 @@ define("dojox/calendar/ViewBase", [
 			this._layoutRenderers(this.renderData);
 		},
 		
-		resize: function(){
-			//this.invalidateRendering();
-		},
-
 		////////////////////////////////////////////////////////
 		//
 		// Layout
@@ -1151,16 +1154,7 @@ define("dojox/calendar/ViewBase", [
 				if (res == null){
 
 					renderer = new rendererClass;
-
-					// the container allow to lay out the renderer
-					// this is important for styling (in box model 
-					// content size does take into account border)
-					var container = domConstruct.create("div");
-
-					// The DOM object that will contain the event renderer
-					container.className = "dojoxCalendarEventContainer "+ cssClass ;
-					container.appendChild(renderer.domNode);
-					
+									
 					res = {
 						renderer: renderer,
 						container: renderer.domNode,
@@ -1613,12 +1607,13 @@ define("dojox/calendar/ViewBase", [
 		createItemFunc: function(view, d, e){
 		 	// summary:
 			//		A user supplied function that creates a new event.
-			// view:
+			// view: ViewBase
 			//		the current view,
-			// d:
+			// d: Date
 			//		the date at the clicked location.
-			// e:
+			// e: MouseEvemt
 			//		the mouse event (can be used to return null for example)
+
 		},
 		=====*/
 
@@ -1649,6 +1644,8 @@ define("dojox/calendar/ViewBase", [
 		///////////////////////////////////////////////////////////////////	
 		
 		_gridMouseDown: false,		
+		_tempIdCount: 0,
+		_tempItemsMap: null,
 				
 		_onGridMouseDown: function(e){
 			// tags:
@@ -1686,7 +1683,17 @@ define("dojox/calendar/ViewBase", [
 					return;
 				}
 								
-				var newRenderItem = this.itemToRenderItem(newItem, store);
+				// calendar needs an ID to work with
+				if(store.getIdentity(newItem) == undefined){
+					var id = "_tempId_" + (this._tempIdCount++);
+					newItem[store.idProperty] = id;
+					if(this._tempItemsMap == null){
+						this._tempItemsMap = {};
+					}
+					this._tempItemsMap[id] = true;
+				}
+								
+				var newRenderItem = this.itemToRenderItem(newItem, store);				
 				newRenderItem._item = newItem;
 				this._setItemStoreState(newItem, "unstored");
 				
@@ -1705,6 +1712,7 @@ define("dojox/calendar/ViewBase", [
 					if(renderer){
 						// trigger editing
 						this._onRendererHandleMouseDown(e, renderer.renderer, "resizeEnd");
+						this._startItemEditing(newRenderItem, "mouse");	
 					}					
 				}
 			}
@@ -1728,7 +1736,7 @@ define("dojox/calendar/ViewBase", [
 
 			this._gridProps = {
 				event: e,				
-				fromItem: this.isAscendantHasClass(e.target, this.eventContainer, "dojoxCalendarEventContainer")
+				fromItem: this.isAscendantHasClass(e.target, this.eventContainer, "dojoxCalendarEvent")
 			};			
 	
 			if(this._isEditing){
@@ -2053,7 +2061,7 @@ define("dojox/calendar/ViewBase", [
 			var p = this._edProps;
 			
 			p.editedItem = item;
-			p.storeItem = this.renderItemToItem(item, this.get("store"));
+			p.storeItem = item._item;
 			p.eventSource = eventSource;
 			
 			p.secItem = this._secondarySheet ? this._findRenderItem(item.id, this._secondarySheet.renderData.items) : null;
@@ -2180,23 +2188,33 @@ define("dojox/calendar/ViewBase", [
 						// so we must do it here.
 						storeItem = lang.mixin(s.item, storeItem);
 						this._setItemStoreState(storeItem, "storing");
+						var oldID = store.getIdentity(storeItem);
+						var options = null;
+						
+						if(this._tempItemsMap && this._tempItemsMap[oldID]){
+							options = {temporaryId: oldID}; 
+							delete this._tempItemsMap[oldID];
+							delete storeItem[store.idProperty];							
+						}
 						
 						// add to the store.
-						store.add(storeItem);
+						when(store.add(storeItem, options), lang.hitch(this, function(res){
+							var id;
+							if(lang.isObject(res)){
+								id = store.getIdentity(res);
+							}else{
+								id = res;
+							}
+							
+							if(id != oldID){							
+								this._removeRenderItem(oldID);
+							}
+						}));
 						
 					}else{ // creation canceled
 						// cleanup items list
-						var owner = this._getTopOwner();
-						var items = owner.get("items");
-						var l = items.length; 
-						for(var i=l-1; i>=0; i--){
-							if(items[i].id == s.id){
-								items.splice(i, 1);
-								break;
-							}
-						}
-						this._setItemStoreState(storeItem, null);
-						owner.set("items", items);						
+						
+						this.removeRenderItem(s.id);											
 					}									
 					
 				} else if(e.completed){
@@ -2208,6 +2226,26 @@ define("dojox/calendar/ViewBase", [
 					e.item.startTime = this._editStartTimeSave; 
 					e.item.endTime = this._editEndTimeSave;
 				}
+			}
+		},
+		
+		_removeRenderItem: function(id){
+			
+			var owner = this._getTopOwner();
+			var items = owner.get("items");
+			var l = items.length; 
+			var found = false;
+			for(var i=l-1; i>=0; i--){
+				if(items[i].id == id){
+					items.splice(i, 1);
+					found = true;
+					break;
+				}
+			}
+			this._cleanItemStoreState(id);
+			if(found){
+				owner.set("items", items); //force a complete relayout	
+				this.invalidateLayout();
 			}
 		},
 		

@@ -108,7 +108,7 @@ time.floorToWeek = function(d, dateClassObj, dateModule, firstDayOfWeek, locale)
 		return d;
 	}
 	return time.floorToDay(
-		dateModule.add(d, "day", day > fd ? -day+fd : fd-day),
+		dateModule.add(d, "day", day > fd ? -day+fd : -day+fd-7),
 		true, dateClassObj);
 };
 

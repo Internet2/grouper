@@ -93,13 +93,14 @@ function(
 		},
 		
 		
-		resize: function(e){
+		resize: function(changedSize){
 			// tags:
 			//		private
 			
 			this.inherited(arguments);
 			if(this.secondarySheet){
-				this.secondarySheet.resize(e);
+				// secondary sheet is sized by CSS
+				this.secondarySheet.resize();
 			}
 		},
 

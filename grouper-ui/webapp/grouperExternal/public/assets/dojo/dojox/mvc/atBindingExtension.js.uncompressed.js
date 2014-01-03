@@ -28,6 +28,9 @@ define("dojox/mvc/atBindingExtension", [
 
 			// Monkey patch widget.startup to get data binds set up
 			aspect.before(w, "startup", function(){
+				if(this._started){
+					return;
+				}
 				this._startAtWatchHandles();
 			});
 
