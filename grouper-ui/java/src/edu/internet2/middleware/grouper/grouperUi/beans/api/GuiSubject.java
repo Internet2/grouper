@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -43,7 +44,7 @@ import edu.internet2.middleware.subject.Subject;
  * subject for gui has all attributes etc, and getter to be accessed from screen
  */
 @SuppressWarnings("serial")
-public class GuiSubject implements Serializable {
+public class GuiSubject extends GuiObjectBase implements Serializable {
 
   /**
    * 
@@ -402,6 +403,54 @@ public class GuiSubject implements Serializable {
     }
     //TODO switch this to attribute values comma separated
     return subject.getAttributeValue(attrName);
+  }
+
+  /**
+   * cant get grouper object
+   */
+  @Override
+  public GrouperObject getGrouperObject() {
+    return null;
+  }
+
+  /**
+   * if this is a subject
+   */
+  @Override
+  public boolean isSubject() {
+    return true;
+  }
+
+  /**
+   * path colon separated not applicable
+   */
+  @Override
+  public String getPathColonSpaceSeparated() {
+    return "This is a " + this.getClass().getSimpleName() + " and is not a real GrouperObject";
+  }
+
+  /**
+   * not applicable
+   */
+  @Override
+  public String getNameColonSpaceSeparated() {
+    return "This is a " + this.getClass().getSimpleName() + " and is not a real GrouperObject";
+  }
+
+  /**
+   * not applicable
+   */
+  @Override
+  public String getBreadcrumbs() {
+    return "This is a " + this.getClass().getSimpleName() + " and is not a real GrouperObject";
+  }
+
+  /**
+   * not applicable
+   */
+  @Override
+  public String getTitle() {
+    return "This is a " + this.getClass().getSimpleName() + " and is not a real GrouperObject";
   }
   
 }

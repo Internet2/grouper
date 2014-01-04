@@ -337,33 +337,15 @@ public class StemContainer {
    * @return gui groups, stems, etc
    */
   public Set<GuiObjectBase> getChildGuiObjectsAbbreviated() {
-    if (this.childGuiObjectsAbbreviated == null) {
-
-      Stem stem = this.getGuiStem().getStem();
-      int pageSize = this.getGuiPaging().getPageSize();
-      int pageNumber = this.getGuiPaging().getPageNumber();
-      QueryOptions queryOptions = QueryOptions.create("displayExtension", true, pageNumber, pageSize);
-      
-      GrouperObjectFinder grouperObjectFinder = new GrouperObjectFinder()
-        .assignObjectPrivilege(ObjectPrivilege.view)
-        .assignParentStemId(stem.getId())
-        .assignQueryOptions(queryOptions)
-        .assignSplitScope(true).assignStemScope(Scope.ONE)
-        .assignSubject(GrouperSession.staticGrouperSession().getSubject());
- 
-      if (!StringUtils.isBlank(this.filterText)) {
-        grouperObjectFinder.assignFilterText(this.filterText);
-      }
-
-      Set<GrouperObject> results = grouperObjectFinder.findGrouperObjects();
-      
-      this.childGuiObjectsAbbreviated = GuiObjectBase.convertFromGrouperObjects(results);
-      
-      this.getGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
-      
-      
-    }
     return this.childGuiObjectsAbbreviated;
+  }
+
+  /**
+   * groups, stems, etc in this stem which are children, only in the current page
+   * @param childGuiObjectsAbbreviated1
+   */
+  public void setChildGuiObjectsAbbreviated(Set<GuiObjectBase> childGuiObjectsAbbreviated1) {
+    this.childGuiObjectsAbbreviated = childGuiObjectsAbbreviated1;
   }
 
   /**

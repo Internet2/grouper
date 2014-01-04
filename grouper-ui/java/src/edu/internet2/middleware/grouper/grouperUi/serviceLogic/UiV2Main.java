@@ -18,14 +18,20 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.tree.DojoTreeItem;
 import edu.internet2.middleware.grouper.grouperUi.beans.tree.DojoTreeItemChild;
 import edu.internet2.middleware.grouper.grouperUi.beans.tree.DojoTreeItemChild.DojoTreeItemType;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.IndexContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.misc.GrouperObjectFinder;
+import edu.internet2.middleware.grouper.misc.GrouperObjectFinder.ObjectPrivilege;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -43,6 +49,134 @@ public class UiV2Main extends UiServiceLogicBase {
   /** logger */
   private static final Log LOG = LogFactory.getLog(UiV2Main.class);
 
+  /**
+   * search submit from upper right
+   * @param request
+   * @param response
+   */
+  public void searchSubmit(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/index/search.jsp"));
+
+      searchHelper(request, response);
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  
+  /**
+   * the search button was pressed, or paging or sorting, or something
+   * @param request
+   * @param response
+   */
+  private void searchHelper(HttpServletRequest request, HttpServletResponse response) {
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    String searchQuery = StringUtils.trimToEmpty(request.getParameter("searchQuery"));
+    
+    IndexContainer indexContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getIndexContainer();
+    
+    indexContainer.setSearchQuery(searchQuery);
+    
+    if (searchQuery.length() < 2) {
+
+      guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#searchQueryId",
+          TextContainer.retrieveFromRequest().getText().get("searchErrorNotEnoughChars")));
+      
+      //clear out the results
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#searchResultsId", ""));
+
+      return;
+    }
+    
+    String pageSizeString = request.getParameter("pagingTagPageSize");
+    int pageSize = -1;
+    if (!StringUtils.isBlank(pageSizeString)) {
+      pageSize = GrouperUtil.intValue(pageSizeString);
+    } else {
+      pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
+    }
+    indexContainer.getSearchGuiPaging().setPageSize(pageSize);
+    
+    //1 indexed
+    String pageNumberString = request.getParameter("pagingTagPageNumber");
+    
+    int pageNumber = 1;
+    if (!StringUtils.isBlank(pageNumberString)) {
+      pageNumber = GrouperUtil.intValue(pageNumberString);
+    }
+    
+    indexContainer.getSearchGuiPaging().setPageNumber(pageNumber);
+    
+    QueryOptions queryOptions = QueryOptions.create("displayName", true, pageNumber, pageSize);
+    
+    GrouperObjectFinder grouperObjectFinder = new GrouperObjectFinder()
+      .assignObjectPrivilege(ObjectPrivilege.view)
+      .assignQueryOptions(queryOptions)
+      .assignSplitScope(true)
+      .assignSubject(GrouperSession.staticGrouperSession().getSubject());
+
+    if (!StringUtils.isBlank(searchQuery)) {
+      grouperObjectFinder.assignFilterText(searchQuery);
+    }
+
+    Set<GrouperObject> results = grouperObjectFinder.findGrouperObjects();
+    
+    indexContainer.setSearchGuiObjectsResults(GuiObjectBase.convertFromGrouperObjects(results));
+    
+    indexContainer.getSearchGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+    
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#searchResultsId", 
+        "/WEB-INF/grouperUi2/index/searchContents.jsp"));
+
+  }
+
+  /**
+   * search reset
+   * @param request
+   * @param response
+   */
+  public void searchReset(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      //clear out the results
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#searchResultsId", ""));
+      
+      //clear out form
+      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("searchQuery", ""));
+      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("filterType", "all"));
+
+      
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  
   /**
    * request for a folder menu item
    * @param request
@@ -309,6 +443,7 @@ public class UiV2Main extends UiServiceLogicBase {
     }
   }
 
+
   /**
    * change a column to groups I manage
    * @param request
@@ -391,6 +526,29 @@ public class UiV2Main extends UiServiceLogicBase {
     }
   
     
+  }
+
+
+  /**
+   * search submit from upper right
+   * @param request
+   * @param response
+   */
+  public void searchFormSubmit(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      searchHelper(request, response);
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
   }
 
 }

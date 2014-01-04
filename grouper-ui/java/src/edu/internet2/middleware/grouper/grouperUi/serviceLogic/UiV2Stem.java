@@ -22,8 +22,10 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemCopy;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemMove;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemDeleteException;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogicBase;
@@ -35,6 +37,9 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.StemContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.misc.GrouperObjectFinder;
+import edu.internet2.middleware.grouper.misc.GrouperObjectFinder.ObjectPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
@@ -765,10 +770,11 @@ public class UiV2Stem {
     GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
     
-    grouperRequestContainer.getStemContainer().setGuiStem(new GuiStem(stem));      
+    StemContainer stemContainer = grouperRequestContainer.getStemContainer();
+    stemContainer.setGuiStem(new GuiStem(stem));      
     
     String filterText = request.getParameter("filterText");
-    grouperRequestContainer.getStemContainer().setFilterText(filterText);
+    stemContainer.setFilterText(filterText);
     
     String pageSizeString = request.getParameter("pagingTagPageSize");
     int pageSize = -1;
@@ -777,7 +783,7 @@ public class UiV2Stem {
     } else {
       pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
     }
-    grouperRequestContainer.getStemContainer().getGuiPaging().setPageSize(pageSize);
+    stemContainer.getGuiPaging().setPageSize(pageSize);
     
     //1 indexed
     String pageNumberString = request.getParameter("pagingTagPageNumber");
@@ -787,8 +793,26 @@ public class UiV2Stem {
       pageNumber = GrouperUtil.intValue(pageNumberString);
     }
     
-    grouperRequestContainer.getStemContainer().getGuiPaging().setPageNumber(pageNumber);
+    stemContainer.getGuiPaging().setPageNumber(pageNumber);
     
+    QueryOptions queryOptions = QueryOptions.create("displayExtension", true, pageNumber, pageSize);
+    
+    GrouperObjectFinder grouperObjectFinder = new GrouperObjectFinder()
+      .assignObjectPrivilege(ObjectPrivilege.view)
+      .assignParentStemId(stem.getId())
+      .assignQueryOptions(queryOptions)
+      .assignSplitScope(true).assignStemScope(Scope.ONE)
+      .assignSubject(GrouperSession.staticGrouperSession().getSubject());
+
+    if (!StringUtils.isBlank(filterText)) {
+      grouperObjectFinder.assignFilterText(filterText);
+    }
+
+    Set<GrouperObject> results = grouperObjectFinder.findGrouperObjects();
+    
+    stemContainer.setChildGuiObjectsAbbreviated(GuiObjectBase.convertFromGrouperObjects(results));
+    
+    stemContainer.getGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
     
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#stemFilterResultsId", 
         "/WEB-INF/grouperUi2/stem/stemContents.jsp"));

@@ -26,7 +26,9 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -46,6 +48,50 @@ import edu.internet2.middleware.subject.Subject;
 public class IndexContainer {
 
   /**
+   * search results
+   */
+  private Set<GuiObjectBase> searchGuiObjectsResults = null;
+  
+  /**
+   * search results
+   * @return the search results
+   */
+  public Set<GuiObjectBase> getSearchGuiObjectsResults() {
+    return this.searchGuiObjectsResults;
+  }
+  
+  /**
+   * search results
+   * @param searchGuiObjectsResults1
+   */
+  public void setSearchGuiObjectsResults(Set<GuiObjectBase> searchGuiObjectsResults1) {
+    this.searchGuiObjectsResults = searchGuiObjectsResults1;
+  }
+
+
+
+  /**
+   * search query
+   */
+  private String searchQuery;
+  
+  /**
+   * search query
+   * @return search query
+   */
+  public String getSearchQuery() {
+    return this.searchQuery;
+  }
+
+  /**
+   * search query
+   * @param searchQuery1
+   */
+  public void setSearchQuery(String searchQuery1) {
+    this.searchQuery = searchQuery1;
+  }
+
+  /**
    * various options for the panels on the main index screen
    * note, the name here must match exactly the substring of the name of the JSP
    * e.g. grouperUi2/index/indexGroupsImanage.jsp
@@ -53,8 +99,6 @@ public class IndexContainer {
   private static enum IndexPanel {
     GroupsImanage, MyFavorites, MyMemberships, MyServices, RecentlyUsed, StemsImanage;
   }
-  
-
   
   /**
    * panel (IndexPanel enum) for col 0 on main index page
@@ -327,6 +371,32 @@ public class IndexContainer {
    * for index page, this is a short list of stems the user has RecentlyUsed
    */
   private Set<GuiStem> guiStemsRecentlyUsedAbbreviated;
+
+  /**
+   * keep track of the paging on the search screen
+   */
+  private GuiPaging searchGuiPaging = null;
+  
+  /**
+   * keep track of the paging on the search screen
+   * @return the paging object
+   */
+  public GuiPaging getSearchGuiPaging() {
+    if (this.searchGuiPaging == null) {
+      this.searchGuiPaging = new GuiPaging();
+    }
+    return this.searchGuiPaging;
+  }
+
+  /**
+   * keep track of the paging on the search screen
+   * @param searchGuiPaging1
+   */
+  public void setSearchGuiPaging(GuiPaging searchGuiPaging1) {
+    this.searchGuiPaging = searchGuiPaging1;
+  }
+
+
 
   /** logger */
   protected static final Log LOG = LogFactory.getLog(IndexContainer.class);

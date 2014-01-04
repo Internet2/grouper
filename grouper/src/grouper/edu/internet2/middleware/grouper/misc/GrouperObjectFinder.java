@@ -657,8 +657,10 @@ public class GrouperObjectFinder {
           resultMap.put(StringUtils.defaultString(subject.getName() + subject.getSourceId() + subject.getId()).toLowerCase(), subject);
         }
         
-        int pageStartIndex = subjectQueryOptions == null ? 1 : subjectQueryOptions.getQueryPaging().getPageStartIndex();
-        int pageSize = subjectQueryOptions == null ? GrouperUtil.length(subjects) : subjectQueryOptions.getQueryPaging().getPageSize();
+        int pageStartIndex = subjectQueryOptions == null || subjectQueryOptions.getQueryPaging() == null ? 
+            1 : subjectQueryOptions.getQueryPaging().getPageStartIndex();
+        int pageSize = subjectQueryOptions == null || subjectQueryOptions.getQueryPaging() == null ? 
+            GrouperUtil.length(subjects) : subjectQueryOptions.getQueryPaging().getPageSize();
         
         int index = 0;
         int added = 0;

@@ -27,6 +27,7 @@
                     <a class="btn" onclick="$('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['stemResetButton'] }</a></div>
                   </div>
                 </form>
+                <%-- this div will be filled with stemContents.jsp via ajax --%>
                 <div id="stemFilterResultsId">
                 </div>
               </div>

@@ -12,8 +12,9 @@
         <div class="navbar-inner">
           <div class="container-fluid"><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');"><img class="brand" src="../../${mediaMap['image.organisation-logo']}" alt="Logo" /></a>
             <div class="pull-right">
-              <form action="search-results.html" class="navbar-search">
-                <input type="text" placeholder="Search" class="search-query"><i class="icon-search"></i>
+              <form id="searchForm" action="#" onsubmit="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery'});" class="navbar-search">
+                <input type="text" name="searchQuery" placeholder="${textContainer.text['searchPlaceholder']}" class="search-query"><a href="#" 
+                  onclick="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery'});"><i class="icon-search"></i></a>
               </form>
             </div>
             <div class="navbar-text pull-right">Logged in as <a href="view-person.html" class="navbar-link">${guiSettings.loggedInSubject.screenLabel}</a> &middot; <a href="#" class="navbar-link">Log out</a> &middot; <a href="#" class="navbar-link">Help</a></div>

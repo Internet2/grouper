@@ -34,7 +34,7 @@
 //         "dojo/store/JsonRest", "dojo/_base/declare", "dijit/form/ComboBox"]);
 
 //grouper is the dojo built file so there arent as many downloads
-require(["grouper/grouper"]);
+require(["grouper/grouperDojo"]);
 </script>
 
 <script src="../../grouperExternal/public/assets/js/jquery.js"></script>

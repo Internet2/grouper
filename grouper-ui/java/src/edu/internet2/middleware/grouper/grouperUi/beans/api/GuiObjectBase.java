@@ -12,11 +12,20 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 public abstract class GuiObjectBase {
 
+  /**
+   * if this is a subject
+   * @return if this is a subject
+   */
+  public boolean isSubject() {
+    return false;
+  }
+  
   /**
    * convert grouper objects to gui object bases
    * @param grouperObjects
@@ -34,6 +43,8 @@ public abstract class GuiObjectBase {
         tempObjectBases.add(new GuiAttributeDef((AttributeDef)grouperObject));
       } else if (grouperObject instanceof AttributeDefName) {
         tempObjectBases.add(new GuiAttributeDefName((AttributeDefName)grouperObject));
+      } else if (grouperObject instanceof GrouperObjectSubjectWrapper) {
+        tempObjectBases.add(new GuiSubject(((GrouperObjectSubjectWrapper)grouperObject).getSubject()));
       } else {
         throw new RuntimeException("Not expecting object of type: " 
             + grouperObject.getClass().getSimpleName() + ", " + grouperObject.getName());
