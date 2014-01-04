@@ -29,9 +29,9 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
@@ -183,7 +183,7 @@ public class GrouperObjectFinderTest extends GrouperTest {
     }
 
     //make a sub attribute def name
-    AttributeDefName subAttributeDefName = new AttributeDefNameSave(grouperSession, attributeDefs.get(0))
+    new AttributeDefNameSave(grouperSession, attributeDefs.get(0))
       .assignName("test:testStem_000:anAttributeDefName")
         .assignCreateParentStemsIfNotExist(true).save();
 
@@ -196,6 +196,7 @@ public class GrouperObjectFinderTest extends GrouperTest {
 
     Stem testStem = StemFinder.findByName(grouperSession, "test", false);
 
+    //find in a stem
     grouperObjectList = new ArrayList<GrouperObject>(new GrouperObjectFinder()
       .assignParentStemId(testStem.getId()).assignStemScope(Scope.SUB).findGrouperObjects());
 
@@ -315,12 +316,55 @@ public class GrouperObjectFinderTest extends GrouperTest {
     assertEquals("test:testAttributeDef_000", grouperObjectList.get(0).getName());
     assertEquals("test:testAttributeDefName_000", grouperObjectList.get(1).getName());
 
+    //lets find all based on a filter
+    grouperObjectList = new ArrayList<GrouperObject>(new GrouperObjectFinder().assignFilterText("test.").findGrouperObjects());
+
+    assertEquals(10, GrouperUtil.length(grouperObjectList));
     
-    //System.out.println(grouperObjectList.size());
-    //
-    //for (GrouperObject grouperObject : grouperObjectList) {
-    //  System.out.println(grouperObject.getClass().getSimpleName() + ": " + grouperObject.getName());
-    //}
+    for (int i=0;i<10;i++) {
+      assertEquals("test.subject." + i, ((GrouperObjectSubjectWrapper)grouperObjectList.get(i)).getSubject().getId());
+    }
+
+    //lets try the first two
+    grouperObjectList = new ArrayList<GrouperObject>(new GrouperObjectFinder().assignFilterText("test.")
+        .assignQueryOptions(QueryOptions.create(null, null, 1, 2)).findGrouperObjects());
+
+    assertEquals(2, GrouperUtil.length(grouperObjectList));
+    
+    for (int i=0;i<2;i++) {
+      assertEquals("test.subject." + i, ((GrouperObjectSubjectWrapper)grouperObjectList.get(i)).getSubject().getId());
+    }
+    
+    //lets try a bunch of objects
+    QueryOptions queryOptions = new QueryOptions();
+    queryOptions.retrieveCount(true);
+    queryOptions.retrieveResults(false);
+    grouperObjectList = new ArrayList<GrouperObject>(new GrouperObjectFinder().assignQueryOptions(queryOptions)
+        .assignFilterText("test").findGrouperObjects());
+
+    int theCount = queryOptions.getCount().intValue();
+
+    int pageNumber = 1+ (theCount / 10);
+
+    grouperObjectList = new ArrayList<GrouperObject>(new GrouperObjectFinder()
+      .assignQueryOptions(QueryOptions.create(null, null, pageNumber, 10))
+        .assignFilterText("test").findGrouperObjects());
+
+    int itemsOnLastPage = theCount % 10;
+    
+    assertEquals(itemsOnLastPage, GrouperUtil.length(grouperObjectList));
+    
+    for (int i=0;i<itemsOnLastPage;i++) {
+      assertEquals("test.subject." + (i+10-itemsOnLastPage), 
+          ((GrouperObjectSubjectWrapper)grouperObjectList.get(i)).getSubject().getId());
+    }
+
+    
+    System.out.println(grouperObjectList.size());
+    
+    for (GrouperObject grouperObject : grouperObjectList) {
+      System.out.println(grouperObject.getClass().getSimpleName() + ": " + grouperObject.getName());
+    }
 
   }
   

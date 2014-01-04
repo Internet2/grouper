@@ -3,17 +3,21 @@
  */
 package edu.internet2.middleware.grouper.misc;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
@@ -26,7 +30,9 @@ import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /**
@@ -440,7 +446,36 @@ public class GrouperObjectFinder {
     int groupSize = -1;
     int attributeDefSize = -1;
     int attributeDefNameSize = -1;
+    int subjectSize = -1;
+    boolean retrieveSubjects = true;
     
+    //if we are looking in a stem, then dont look for subjects
+    if (!StringUtils.isBlank(this.parentStemId) || StringUtils.isBlank(this.filterText)) {
+      retrieveSubjects = false;
+    }
+    
+    //retrieve them all, we cant page
+    Set<Subject> subjects = null;
+    
+    if (retrieveSubjects) {      
+      
+      //all sources except groups or entities
+      Set<Source> sources = new HashSet<Source>();
+      String gsaId = SubjectFinder.internal_getGSA().getId();
+      Source esa = SubjectFinder.internal_getEntitySourceAdapter(false);
+      String esaId = esa == null ? null : esa.getId();
+      for (Source source : SourceManager.getInstance().getSources()) {
+        if ( StringUtils.equals(source.getId(), gsaId  )
+            || (!StringUtils.isBlank(esaId)
+                && StringUtils.equals(source.getId(), esaId))) {
+          continue;
+        }
+        sources.add(source);
+      }
+
+      subjects = SubjectFinder.findAll(this.filterText, sources);
+    }
+
     if ((this.queryOptions != null && this.queryOptions.isRetrieveCount()) || paging) {
 
       stemFinder.findStems();
@@ -462,9 +497,15 @@ public class GrouperObjectFinder {
       
       attributeDefNameSize = countOptions.getCount().intValue();
       size += countOptions.getCount();
+
+      //subjects
+      subjectSize = GrouperUtil.length(subjects);
+      size += subjectSize;
       
       //total number of records
-      this.queryOptions.getQueryPaging().setTotalRecordCount(size);
+      if (this.queryOptions.getQueryPaging() != null) {
+        this.queryOptions.getQueryPaging().setTotalRecordCount(size);
+      }
       this.queryOptions.setCount(new Long(size));
       
       //if we are only here to get the count, get the count
@@ -561,30 +602,80 @@ public class GrouperObjectFinder {
       int firstAttributeDefNameIndex = attributeDefNameSize > 0 ? attributeDefSize + groupSize + stemSize : -1;
       int lastAttributeDefNameIndex = attributeDefNameSize > 0 ? attributeDefNameSize+stemSize+groupSize+attributeDefSize-1 : -1;
 
-      QueryOptions attributeDefQueryOptions = null;
+      QueryOptions attributeDefNameQueryOptions = null;
       
       if (this.queryOptions != null) {
-        attributeDefQueryOptions = new QueryOptions();
+        attributeDefNameQueryOptions = new QueryOptions();
         if (this.queryOptions.getQuerySort() != null) {
-          attributeDefQueryOptions.sort(this.queryOptions.getQuerySort().clone());
+          attributeDefNameQueryOptions.sort(this.queryOptions.getQuerySort().clone());
           
           //take out the display parts...
-          List<QuerySortField> querySortFields = attributeDefQueryOptions.getQuerySort().getQuerySortFields();
+          List<QuerySortField> querySortFields = attributeDefNameQueryOptions.getQuerySort().getQuerySortFields();
           for (int i=0;i<querySortFields.size();i++) {
             querySortFields.get(i).setColumn(AttributeDef.massageSortField(querySortFields.get(i).getColumn()));
           }
         }
       }
 
-      if (!paging || decoratePaging(attributeDefQueryOptions, firstIndexOnPage, lastIndexOnPage, firstAttributeDefNameIndex, 
+      if (!paging || decoratePaging(attributeDefNameQueryOptions, firstIndexOnPage, lastIndexOnPage, firstAttributeDefNameIndex, 
           lastAttributeDefNameIndex)) {
-        attributeDefNameFinder.assignQueryOptions(attributeDefQueryOptions);
+        attributeDefNameFinder.assignQueryOptions(attributeDefNameQueryOptions);
 
         Set<AttributeDefName> attributeDefNameSet = attributeDefNameFinder.findAttributeNames();
         
         results.addAll(attributeDefNameSet);
       }        
     }
+    
+    {
+      int firstSubjectIndex = subjectSize > 0 ? attributeDefNameSize + attributeDefSize + groupSize + stemSize : -1;
+      int lastSubjectIndex = subjectSize > 0 ? subjectSize+attributeDefNameSize+stemSize+groupSize+attributeDefSize-1 : -1;
+
+      QueryOptions subjectQueryOptions = null;
+      
+      if (this.queryOptions != null) {
+        subjectQueryOptions = new QueryOptions();
+        if (this.queryOptions.getQuerySort() != null) {
+          subjectQueryOptions.sort(this.queryOptions.getQuerySort().clone());
+          
+          //take out the display parts...
+          List<QuerySortField> querySortFields = subjectQueryOptions.getQuerySort().getQuerySortFields();
+          for (int i=0;i<querySortFields.size();i++) {
+            querySortFields.get(i).setColumn(AttributeDef.massageSortField(querySortFields.get(i).getColumn()));
+          }
+        }
+      }
+
+      if (retrieveSubjects && (!paging || decoratePaging(subjectQueryOptions, firstIndexOnPage, lastIndexOnPage, firstSubjectIndex, 
+          lastSubjectIndex))) {
+        
+        //sory by name (case insensitive)?  I guess
+        Map<String, Subject> resultMap = new TreeMap<String, Subject>();
+        
+        for (Subject subject : GrouperUtil.nonNull(subjects)) {
+          //concate source id and subject id since there could be multiple with same name
+          resultMap.put(StringUtils.defaultString(subject.getName() + subject.getSourceId() + subject.getId()).toLowerCase(), subject);
+        }
+        
+        int pageStartIndex = subjectQueryOptions == null ? 1 : subjectQueryOptions.getQueryPaging().getPageStartIndex();
+        int pageSize = subjectQueryOptions == null ? GrouperUtil.length(subjects) : subjectQueryOptions.getQueryPaging().getPageSize();
+        
+        int index = 0;
+        int added = 0;
+        //add the subjects which need to be added
+        for (String sortString : resultMap.keySet()) {
+          if (index >= pageStartIndex) {
+            results.add(new GrouperObjectSubjectWrapper(resultMap.get(sortString)));
+            added++;
+            if (added >= pageSize) {
+              break;
+            }
+          }
+          index++;
+        }
+      }        
+    }
+    
     return results;
   }
   

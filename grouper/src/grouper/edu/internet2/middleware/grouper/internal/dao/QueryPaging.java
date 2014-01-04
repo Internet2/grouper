@@ -60,7 +60,7 @@ public class QueryPaging {
   private int pageSize = 30;
   
   /**
-   * index of the first record on the first page (1 indexed, friendly) 
+   * getter for pageStartIndex: index of the first record on the first page, this was documented as 1 indexed, but it seems to be 0 indexed
    */
   private int pageStartIndex = -1;
   
@@ -109,7 +109,7 @@ public class QueryPaging {
   }
   
   /**
-   * getter for pageStartIndex: index of the first record on the first page (1 indexed, friendly)
+   * getter for pageStartIndex: index of the first record on the first page, this was documented as 1 indexed, but it seems to be 0 indexed
    * @return the value of the field
    */
   public int getPageStartIndex() {
@@ -153,7 +153,7 @@ public class QueryPaging {
   }
   
   /**
-   * setter for pageStartIndex: index of the first record on the first page (1 indexed, friendly)
+   * setter for pageStartIndex: index of the first record on the first page, this was documented as 1 indexed, but it seems to be 0 indexed
    * @param _pageStartIndex is the data to set
    */
   public void setPageStartIndex(int _pageStartIndex) {
