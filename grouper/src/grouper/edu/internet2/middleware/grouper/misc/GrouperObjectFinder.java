@@ -3,6 +3,8 @@
  */
 package edu.internet2.middleware.grouper.misc;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -15,9 +17,9 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
@@ -42,6 +44,80 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  */
 public class GrouperObjectFinder {
 
+  /**
+   * which types to look for (empty means all)
+   */
+  private Set<GrouperObjectFinderType> grouperObjectFinderTypes = new HashSet<GrouperObjectFinderType>();
+  
+  /**
+   * add grouper object finder type
+   * @param grouperObjectFinderType1
+   * @return this for chaining
+   */
+  public GrouperObjectFinder addGrouperObjectFinderType(GrouperObjectFinderType grouperObjectFinderType1) {
+    this.grouperObjectFinderTypes.add(grouperObjectFinderType1);
+    return this;
+  }
+
+  /**
+   * assign grouper object finder types (null or empty is all)
+   * @param grouperObjectFinderTypes1
+   * @return this for chaining
+   */
+  public GrouperObjectFinder assignGrouperObjectFinderType(Collection<GrouperObjectFinderType> grouperObjectFinderTypes1) {
+    
+    if (grouperObjectFinderTypes1 == null) {
+      grouperObjectFinderTypes1 = new HashSet<GrouperObjectFinderType>();
+    } else {
+    
+      this.grouperObjectFinderTypes = new HashSet<GrouperObjectFinderType>(grouperObjectFinderTypes1);
+    }
+    
+    return this;
+  }
+  
+  /**
+   * type of objects to get
+   *
+   */
+  public static enum GrouperObjectFinderType {
+
+    /** search includes stems */
+    stems,
+    
+    /** groups */
+    groups,
+    
+    /** subjects */
+    subjects,
+    
+    /** attribute def names */
+    attributeDefNames,
+    
+    /** attribute defs */
+    attributeDefs;
+
+    /** all types */
+    public static final Set<GrouperObjectFinderType> ALL_GROUPER_FINDER_TYPES =
+        Collections.unmodifiableSet(GrouperUtil.toSet(stems, groups, subjects, attributeDefNames, attributeDefs));
+    
+    /**
+     * do a case-insensitive matching
+     * 
+     * @param string
+     * @param exceptionOnNull will not allow null or blank entries
+     * @return the enum or null or exception if not found
+     */
+    public static GrouperObjectFinderType valueOfIgnoreCase(String string, boolean exceptionOnNull) {
+      
+      return GrouperUtil.enumValueOfIgnoreCase(GrouperObjectFinderType.class, 
+          string, exceptionOnNull);
+
+    }
+
+    
+  }
+  
   /**
    * which privileges should be used, see the enum for examples
    */
@@ -367,6 +443,22 @@ public class GrouperObjectFinder {
    * @return the set of objects
    */
   public Set<GrouperObject> findGrouperObjects() {
+    
+    boolean findGroups = GrouperUtil.length(this.grouperObjectFinderTypes) == 0 ? true : 
+      this.grouperObjectFinderTypes.contains(GrouperObjectFinderType.groups);
+    
+    boolean findStems = GrouperUtil.length(this.grouperObjectFinderTypes) == 0 ? true : 
+      this.grouperObjectFinderTypes.contains(GrouperObjectFinderType.stems);
+    
+    boolean findSubjects = GrouperUtil.length(this.grouperObjectFinderTypes) == 0 ? true : 
+      this.grouperObjectFinderTypes.contains(GrouperObjectFinderType.subjects);
+    
+    boolean findAttributeDefs = GrouperUtil.length(this.grouperObjectFinderTypes) == 0 ? true : 
+      this.grouperObjectFinderTypes.contains(GrouperObjectFinderType.attributeDefs);
+    
+    boolean findAttributeDefNames = GrouperUtil.length(this.grouperObjectFinderTypes) == 0 ? true : 
+      this.grouperObjectFinderTypes.contains(GrouperObjectFinderType.attributeDefNames);
+    
     //lets get the size of all objects
     int size = 0;
     
@@ -457,7 +549,7 @@ public class GrouperObjectFinder {
     //retrieve them all, we cant page
     Set<Subject> subjects = null;
     
-    if (retrieveSubjects) {      
+    if (retrieveSubjects && findSubjects) {
       
       //all sources except groups or entities
       Set<Source> sources = new HashSet<Source>();
@@ -478,26 +570,42 @@ public class GrouperObjectFinder {
 
     if ((this.queryOptions != null && this.queryOptions.isRetrieveCount()) || paging) {
 
-      stemFinder.findStems();
+      if (findStems) {
+        stemFinder.findStems();
+        
+        stemSize = countOptions.getCount().intValue();
+        size += countOptions.getCount();
+      } else {
+        stemSize = 0;
+      }
+
+      if (findGroups) {
+        groupFinder.findGroups();
+        
+        groupSize = countOptions.getCount().intValue();
+        size += countOptions.getCount();
+      } else {
+        groupSize = 0;
+      }
       
-      stemSize = countOptions.getCount().intValue();
-      size += countOptions.getCount();
+      if (findAttributeDefs) {
+        attributeDefFinder.findAttributes();
+  
+        attributeDefSize = countOptions.getCount().intValue();
+        size += countOptions.getCount();
+      } else {
+        attributeDefSize = 0;
+      }
 
-      groupFinder.findGroups();
+      if (findAttributeDefNames) {
+        attributeDefNameFinder.findAttributeNames();
+        
+        attributeDefNameSize = countOptions.getCount().intValue();
+        size += countOptions.getCount();
+      } else {
+        attributeDefNameSize = 0;
+      }
       
-      groupSize = countOptions.getCount().intValue();
-      size += countOptions.getCount();
-
-      attributeDefFinder.findAttributes();
-
-      attributeDefSize = countOptions.getCount().intValue();
-      size += countOptions.getCount();
-
-      attributeDefNameFinder.findAttributeNames();
-      
-      attributeDefNameSize = countOptions.getCount().intValue();
-      size += countOptions.getCount();
-
       //subjects
       subjectSize = GrouperUtil.length(subjects);
       size += subjectSize;
@@ -535,7 +643,7 @@ public class GrouperObjectFinder {
         }
       }
       
-      if (!paging || decoratePaging(stemQueryOptions, firstIndexOnPage, lastIndexOnPage, firstStemIndex, lastStemIndex)) {
+      if (findStems && (!paging || decoratePaging(stemQueryOptions, firstIndexOnPage, lastIndexOnPage, firstStemIndex, lastStemIndex))) {
 
         stemFinder.assignQueryOptions(stemQueryOptions);
 
@@ -560,7 +668,7 @@ public class GrouperObjectFinder {
         }
       }
 
-      if (!paging || decoratePaging(groupQueryOptions, firstIndexOnPage, lastIndexOnPage, firstGroupIndex, lastGroupIndex)) {
+      if (findGroups && (!paging || decoratePaging(groupQueryOptions, firstIndexOnPage, lastIndexOnPage, firstGroupIndex, lastGroupIndex))) {
         groupFinder.assignQueryOptions(groupQueryOptions);
 
         Set<Group> groups = groupFinder.findGroups();
@@ -587,8 +695,8 @@ public class GrouperObjectFinder {
         }
       }
 
-      if (!paging || decoratePaging(attributeDefQueryOptions, firstIndexOnPage, lastIndexOnPage, firstAttributeDefIndex, 
-          lastAttributeDefIndex)) {
+      if (findAttributeDefs && (!paging || decoratePaging(attributeDefQueryOptions, firstIndexOnPage, lastIndexOnPage, firstAttributeDefIndex, 
+          lastAttributeDefIndex))) {
 
         attributeDefFinder.assignQueryOptions(attributeDefQueryOptions);
         
@@ -617,8 +725,8 @@ public class GrouperObjectFinder {
         }
       }
 
-      if (!paging || decoratePaging(attributeDefNameQueryOptions, firstIndexOnPage, lastIndexOnPage, firstAttributeDefNameIndex, 
-          lastAttributeDefNameIndex)) {
+      if (findAttributeDefNames && (!paging || decoratePaging(attributeDefNameQueryOptions, firstIndexOnPage, lastIndexOnPage, firstAttributeDefNameIndex, 
+          lastAttributeDefNameIndex))) {
         attributeDefNameFinder.assignQueryOptions(attributeDefNameQueryOptions);
 
         Set<AttributeDefName> attributeDefNameSet = attributeDefNameFinder.findAttributeNames();
@@ -646,7 +754,7 @@ public class GrouperObjectFinder {
         }
       }
 
-      if (retrieveSubjects && (!paging || decoratePaging(subjectQueryOptions, firstIndexOnPage, lastIndexOnPage, firstSubjectIndex, 
+      if (findSubjects && retrieveSubjects && (!paging || decoratePaging(subjectQueryOptions, firstIndexOnPage, lastIndexOnPage, firstSubjectIndex, 
           lastSubjectIndex))) {
         
         //sory by name (case insensitive)?  I guess

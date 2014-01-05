@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectFinder;
+import edu.internet2.middleware.grouper.misc.GrouperObjectFinder.GrouperObjectFinderType;
 import edu.internet2.middleware.grouper.misc.GrouperObjectFinder.ObjectPrivilege;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
@@ -65,6 +66,12 @@ public class UiV2Main extends UiServiceLogicBase {
       grouperSession = GrouperSession.start(loggedInSubject);
   
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      String searchQuery = StringUtils.trimToEmpty(request.getParameter("searchQuery"));
+      
+      IndexContainer indexContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getIndexContainer();
+      
+      indexContainer.setSearchQuery(searchQuery);
 
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/index/search.jsp"));
@@ -134,6 +141,12 @@ public class UiV2Main extends UiServiceLogicBase {
       grouperObjectFinder.assignFilterText(searchQuery);
     }
 
+    String filterType = request.getParameter("filterType");
+    if (!StringUtils.isBlank(filterType) && !StringUtils.equals("all", filterType)) {
+      GrouperObjectFinderType grouperObjectFinderType = GrouperObjectFinderType.valueOfIgnoreCase(filterType, true);
+      grouperObjectFinder.addGrouperObjectFinderType(grouperObjectFinderType);
+    }
+    
     Set<GrouperObject> results = grouperObjectFinder.findGrouperObjects();
     
     indexContainer.setSearchGuiObjectsResults(GuiObjectBase.convertFromGrouperObjects(results));

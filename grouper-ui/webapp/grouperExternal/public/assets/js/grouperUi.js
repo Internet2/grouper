@@ -517,7 +517,10 @@ function dojoUnregisterWidget(id) {
  *  ajax(operation, {requestParams: {menuHtmlId: zoneId, menuRadioGroup: group, menuItemId: idClicked }});
  */
 function ajax(theUrl, options) {
-  
+
+  //hide messaging
+  $('#messaging').hide().empty();
+
   if (!guiStartsWith(theUrl, "../app/" )) {
     theUrl = "../app/" + theUrl; 
   }
