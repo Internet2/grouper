@@ -34,7 +34,6 @@ package edu.internet2.middleware.grouper.internal.dao;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
@@ -423,7 +422,7 @@ public interface StemDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  void renameStemAndChildren(Set children)
+  void renameStemAndChildren(Set<?> children)
     throws  GrouperDAOException;
 
   /**

@@ -44,6 +44,8 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  */
 public class GrouperObjectFinder {
 
+  
+  
   /**
    * which types to look for (empty means all)
    */

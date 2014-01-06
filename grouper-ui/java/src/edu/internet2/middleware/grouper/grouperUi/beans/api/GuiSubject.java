@@ -88,6 +88,9 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
    * @return if group
    */
   public boolean isGroup() {
+    if (this.subject == null) {
+      return false;
+    }
     return StringUtils.equals(SubjectFinder.internal_getGSA().getId(), this.subject.getSourceId());
   }
   

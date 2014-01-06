@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.service.ServiceRole;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -236,13 +237,18 @@ public class AttributeDefNameFinder {
           this.attributeDefId, this.subject, this.privileges, 
           this.queryOptions, this.attributeAssignType, 
           this.attributeDefType, 
-          this.serviceRole, this.anyServiceRole, this.parentStemId, this.stemScope);
+          this.serviceRole, this.anyServiceRole, this.parentStemId, 
+          this.stemScope, this.findByUuidOrName);
   }
   
   /**
    * mutually exclusive with serviceRole... this is true if looking for services where the user has any role
    */
   private boolean anyServiceRole = false;
+  /**
+   * if we are looking up a attribute def name, only look by uuid or name
+   */
+  private boolean findByUuidOrName;
 
   /**
    * mutually exclusive with serviceRole... this is true if looking for services where the user has any role
@@ -254,6 +260,28 @@ public class AttributeDefNameFinder {
     return this;
   }
   
+  /**
+   * if we are looking up an attributedefname, only look by uuid or name
+   * @param theFindByUuidOrName
+   * @return the attribute def name finder
+   */
+  public AttributeDefNameFinder assignFindByUuidOrName(boolean theFindByUuidOrName) {
+    
+    this.findByUuidOrName = theFindByUuidOrName;
+    
+    return this;
+  }
+
+  /**
+   * find the stem
+   * @return the stem or null
+   */
+  public AttributeDefName findAttributeName() {
+    Set<AttributeDefName> attributeDefNames = this.findAttributeNames();
+    
+    return GrouperUtil.setPopOne(attributeDefNames);
+  }
+
   /**
    * Find an attributeDefName within the registry by ID index.
    * @param idIndex id index of attributeDefName to find.

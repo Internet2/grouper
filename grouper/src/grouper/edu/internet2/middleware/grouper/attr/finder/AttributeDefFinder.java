@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -157,6 +158,11 @@ public class AttributeDefFinder {
    * this is the subject that has certain privileges
    */
   private Subject subject;
+  
+  /**
+   * if we are looking up an attribute def, only look by uuid or name
+   */
+  private boolean findByUuidOrName;
 
   /**
    * add a privilege to filter by that the subject has on the attribute definition
@@ -252,7 +258,29 @@ public class AttributeDefFinder {
     return GrouperDAOFactory.getFactory().getAttributeDef()
       .findAllAttributeDefsSecure(this.scope, this.splitScope, 
           this.subject, this.privileges, 
-          this.queryOptions, this.parentStemId, this.stemScope);
+          this.queryOptions, this.parentStemId, this.stemScope, this.findByUuidOrName);
+  }
+
+  /**
+   * if we are looking up a attribute def, only look by uuid or name
+   * @param theFindByUuidOrName
+   * @return the attribute def finder
+   */
+  public AttributeDefFinder assignFindByUuidOrName(boolean theFindByUuidOrName) {
+    
+    this.findByUuidOrName = theFindByUuidOrName;
+    
+    return this;
+  }
+
+  /**
+   * find the attributeDef
+   * @return the attributeDef or null
+   */
+  public AttributeDef findAttribute() {
+    Set<AttributeDef> attributeDefs = this.findAttributes();
+    
+    return GrouperUtil.setPopOne(attributeDefs);
   }
   
   

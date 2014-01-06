@@ -50,15 +50,13 @@ import org.hibernate.criterion.Restrictions;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
-import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.entity.EntityUtils;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
@@ -77,7 +75,6 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
-import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -2197,7 +2194,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       QueryOptions queryOptions, TypeOfGroup typeOfGroup) {
     Set<TypeOfGroup> typeOfGroups = typeOfGroup == null ? null : GrouperUtil.toSet(typeOfGroup);
     return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, 
-        queryOptions, true, typeOfGroups, null, null, null, null);
+        queryOptions, true, typeOfGroups, null, null, null, null, false);
   }
 
   /**
@@ -2208,7 +2205,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) {
     return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, 
-        queryOptions, true, typeOfGroups, null, null, null, null);
+        queryOptions, true, typeOfGroups, null, null, null, null, false);
   }
 
   /**
@@ -2222,13 +2219,15 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * @param membershipSubject
    * @param parentStemId
    * @param stemScope
+   * @param findByUuidOrName
+   * @param field
    * @return groups
    * 
    */
   private Set<Group> findAllGroupsSecureHelper(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions, boolean splitScope, Set<TypeOfGroup> typeOfGroups, Subject membershipSubject, 
-      Field field, String parentStemId, Scope stemScope) {
+      Field field, String parentStemId, Scope stemScope, boolean findByUuidOrName) {
 
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
@@ -2237,6 +2236,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       queryOptions.sortAsc("theGroup.displayNameDb");
     }
   
+    if (findByUuidOrName && StringUtils.isBlank(scope)) {
+      throw new RuntimeException("If you are looking by uuid or name, you need to pass in a scope");
+    }
+
     StringBuilder sql = new StringBuilder(
         "select distinct theGroup from Group theGroup ");
   
@@ -2296,6 +2299,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
       String[] scopes = splitScope ? GrouperUtil.splitTrim(scope, " ") : new String[]{scope};
 
+      if (scopes.length > 1 && findByUuidOrName) {
+        throw new RuntimeException("If you are looking by uuid or name, then you can only pass in one scope: " + scope);
+      }
+
       //TODO if entities are here, then search for the entity id too...
       
       if (whereClause.length() > 0) {
@@ -2313,15 +2320,24 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
         if (index != 0) {
           whereClause.append(" and ");
         }
-        whereClause.append(" ( lower(theGroup.nameDb) like :scope" + index 
-            + " or lower(theGroup.displayNameDb) like :scope" + index 
-            + " or lower(theGroup.descriptionDb) like :scope" + index + " ) ");
-        if (splitScope) {
-          theScope = "%" + theScope + "%";
-        } else if (!theScope.endsWith("%")) {
-          theScope += "%";
-        }
-        byHqlStatic.setString("scope" + index, theScope);
+        
+        if (findByUuidOrName) {
+          whereClause.append(" theGroup.nameDb = :scope" + index + " or theGroup.alternateNameDb = :scope" + index 
+              + " or theGroup.displayNameDb = :scope" + index + " ");
+          byHqlStatic.setString("scope" + index, theScope);
+        } else {
+          whereClause.append(" ( lower(theGroup.nameDb) like :scope" + index 
+              + " or lower(theGroup.displayNameDb) like :scope" + index 
+              + " or lower(theGroup.descriptionDb) like :scope" + index + " ) ");
+          if (splitScope) {
+            theScope = "%" + theScope + "%";
+          } else if (!theScope.endsWith("%")) {
+            theScope += "%";
+          }
+          byHqlStatic.setString("scope" + index, theScope.toLowerCase());
+
+        }        
+        
         index++;
       }
       whereClause.append(" ) ) ");
@@ -2367,6 +2383,32 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       .options(queryOptions)
       .listSet(Group.class);
     
+    //if find by uuid or name, try to narrow down to one...
+    if (findByUuidOrName) {
+      
+      //get the one with uuid
+      for (Group group : groups) {
+        if (StringUtils.equals(scope, group.getId())) {
+          return GrouperUtil.toSet(group);
+        }
+      }
+      
+      //get the one with name
+      for (Group group : groups) {
+        if (StringUtils.equals(scope, group.getName())) {
+          return GrouperUtil.toSet(group);
+        }
+      }
+      
+      //get the one with alternate name
+      for (Group group : groups) {
+        if (StringUtils.equals(scope, group.getAlternateName())) {
+          return GrouperUtil.toSet(group);
+        }
+      }
+      
+    }
+
     return groups;
   
   }
@@ -2713,18 +2755,20 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions,
       Set<TypeOfGroup> typeOfGroups, boolean splitScope, Subject membershipSubject, Field field) {
     return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, splitScope, 
-        typeOfGroups, membershipSubject, field, null, null);
+        typeOfGroups, membershipSubject, field, null, null, false);
   }
 
   /**
-   * @see GroupDAO#getAllGroupsSecure(String, GrouperSession, Subject, Set, QueryOptions, Set, boolean, Subject, Field, String, Scope)
+   * @see GroupDAO#getAllGroupsSecure(String, GrouperSession, Subject, Set, QueryOptions, Set, boolean, Subject, Field, String, Scope, boolean)
    */
   @Override
   public Set<Group> getAllGroupsSecure(String scope, GrouperSession grouperSession,
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions,
       Set<TypeOfGroup> typeOfGroups, boolean splitScope, Subject membershipSubject,
-      Field field, String parentStemId, Scope stemScope) {
-    return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, splitScope, typeOfGroups, membershipSubject, field, parentStemId, stemScope);
+      Field field, String parentStemId, Scope stemScope,  boolean findByUuidOrName) {
+    return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, 
+        splitScope, typeOfGroups, membershipSubject, field, parentStemId, stemScope,
+        findByUuidOrName);
   }
 } 
 

@@ -38,7 +38,6 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
-import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
@@ -767,12 +766,15 @@ public interface GroupDAO extends GrouperDAO {
    * @param field
    * @param parentStemId
    * @param stemScope
+   * @param findByUuidOrName
    * @return set of group
    * @since v2.2
    */
   public Set<Group> getAllGroupsSecure(String scope, GrouperSession grouperSession, 
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, 
-      Set<TypeOfGroup> typeOfGroup, boolean splitScope, Subject membershipSubject, Field field, String parentStemId, Scope stemScope);  
+      Set<TypeOfGroup> typeOfGroup, boolean splitScope, 
+      Subject membershipSubject, Field field, String parentStemId, Scope stemScope,
+      boolean findByUuidOrName);  
   
   /**
    * find by uuid secure

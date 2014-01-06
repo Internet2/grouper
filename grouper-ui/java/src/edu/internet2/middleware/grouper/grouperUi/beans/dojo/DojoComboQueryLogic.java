@@ -19,6 +19,13 @@ import edu.internet2.middleware.grouper.GrouperSession;
 public interface DojoComboQueryLogic<T> {
 
   /**
+   * return true if this is a valid query, or false for the default behavior
+   * @param grouperSession
+   * @param query
+   */
+  public boolean validQueryOverride(GrouperSession grouperSession, String query);
+  
+  /**
    * lookup one object (could be by name or id).  Note,
    * this should do the security too
    * @param query

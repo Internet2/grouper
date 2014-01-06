@@ -114,7 +114,7 @@ public class DojoComboLogic {
           query = StringUtils.replace(query, "*", "");
 
           //if its a blank query, then dont return anything...
-          if (query.length() > 1) {
+          if (query.length() > 1 || dojoComboQueryLogic.validQueryOverride(grouperSession, query)) {
 
             Collection<T> results = dojoComboQueryLogic.search(request, grouperSession, query);
             

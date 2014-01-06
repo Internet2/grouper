@@ -584,7 +584,8 @@ public class GroupFinder {
     
     return GrouperDAOFactory.getFactory().getGroup()
         .getAllGroupsSecure(this.scope, grouperSession, privSubject, this.privileges, 
-            this.queryOptions, this.typeOfGroups, this.splitScope, this.subject, this.field, this.parentStemId, this.stemScope);
+            this.queryOptions, this.typeOfGroups, this.splitScope, this.subject, 
+            this.field, this.parentStemId, this.stemScope, this.findByUuidOrName);
     
   }
 
@@ -687,6 +688,33 @@ public class GroupFinder {
   public GroupFinder assignStemScope(Scope theStemScope) {
     this.stemScope = theStemScope;
     return this;
+  }
+
+  /**
+   * if we are looking up a group, only look by uuid or name
+   */
+  private boolean findByUuidOrName;
+  
+  /**
+   * if we are looking up a group, only look by uuid or name
+   * @param theFindByUuidOrName
+   * @return the group finder
+   */
+  public GroupFinder assignFindByUuidOrName(boolean theFindByUuidOrName) {
+    
+    this.findByUuidOrName = theFindByUuidOrName;
+    
+    return this;
+  }
+
+  /**
+   * find the group
+   * @return the group or null
+   */
+  public Group findGroup() {
+    Set<Group> groups = this.findGroups();
+
+    return GrouperUtil.setPopOne(groups);
   }
 
 }

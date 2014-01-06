@@ -247,12 +247,14 @@ public interface AttributeDefNameDAO extends GrouperDAO {
    * @param anyServiceRole will see if the user has any role in a service, and return those services
    * @param parentStemId is the id of the parent or ancestor of the object returned
    * @param stemScope is if the stem scope is ONE or SUB
+   * @param findByUuidOrName if looking for attribute def names by uuid or name
    * @return set of attribute defs
    * @since v2.2.0
    */
   public Set<AttributeDefName> findAllAttributeNamesSecure(String scope, boolean splitScope,
       GrouperSession grouperSession, String attributeDefId, 
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, AttributeAssignType attributeAssignType,
-      AttributeDefType attributeDefType, ServiceRole serviceRole, boolean anyServiceRole, String parentStemId, Scope stemScope);
+      AttributeDefType attributeDefType, ServiceRole serviceRole, boolean anyServiceRole, 
+      String parentStemId, Scope stemScope, boolean findByUuidOrName);
 
 }

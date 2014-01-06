@@ -547,11 +547,12 @@ public class StemFinder {
   }
 
   /**
-   * find all the stem
-   * @return the set of stems or the empty set if none found
+   * find the stem
+   * @return the stem or null
    */
   public Stem findStem() {
     Set<Stem> stems = this.findStems();
+    
     return GrouperUtil.setPopOne(stems);
   }
 

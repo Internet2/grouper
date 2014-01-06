@@ -1316,7 +1316,7 @@ public class UiV2Group {
         //create the group
         GroupSave groupSave = new GroupSave(GROUPER_SESSION).assignUuid(group.getId())
             .assignSaveMode(SaveMode.UPDATE)
-            .assignName(group.getParentStemName() + ":" + group.getExtension())
+            .assignName(group.getParentStemName() + ":" + extension)
             .assignDisplayExtension(displayExtension).assignDescription(description).assignTypeOfGroup(typeOfGroup)
             .assignPrivAllAdmin(adminChecked).assignPrivAllAttrRead(attrReadChecked)
             .assignPrivAllAttrUpdate(attrUpdateChecked).assignPrivAllOptin(optinChecked)

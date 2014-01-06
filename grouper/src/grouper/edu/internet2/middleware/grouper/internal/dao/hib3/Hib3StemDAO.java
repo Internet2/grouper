@@ -1385,19 +1385,24 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
           }
           whereClause.append(" (( ");
         }
+
         if (findByUuidOrName) {
-          whereClause.append(" ns.nameDb = :scope" + index + " or ns.alternateNameDb = :scopea" + index + " ");
-          byHqlStatic.setString("scope" + index, theScope.toLowerCase());
-          byHqlStatic.setString("scopea" + index, theScope.toLowerCase());
+          whereClause.append(" ns.nameDb = :scope" + index + " or ns.alternateNameDb = :scope" + index 
+              + " or ns.displayNameDb = :scope" + index + " ");
+          byHqlStatic.setString("scope" + index, theScope);
         } else {
-          whereClause.append(" lower(ns.nameDb) like :scope" + index + " ");
+          whereClause.append(" ( lower(ns.nameDb) like :scope" + index 
+              + " or lower(ns.displayNameDb) like :scope" + index 
+              + " or lower(ns.descriptionDb) like :scope" + index + " ) ");
           if (splitScope) {
             theScope = "%" + theScope + "%";
           } else if (!theScope.endsWith("%")) {
             theScope += "%";
           }
           byHqlStatic.setString("scope" + index, theScope.toLowerCase());
-        }
+
+        }        
+        
         index++;
       }
 
@@ -1444,7 +1449,33 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     //if the hql didnt filter, this will
     Set<Stem> filteredStems = grouperSession.getNamingResolver()
       .postHqlFilterStems(stems, subject, inPrivSet);
-
+    
+    //if find by uuid or name, try to narrow down to one...
+    if (findByUuidOrName) {
+      
+      //get the one with uuid
+      for (Stem stem : stems) {
+        if (StringUtils.equals(scope, stem.getId())) {
+          return GrouperUtil.toSet(stem);
+        }
+      }
+      
+      //get the one with name
+      for (Stem stem : stems) {
+        if (StringUtils.equals(scope, stem.getName())) {
+          return GrouperUtil.toSet(stem);
+        }
+      }
+      
+      //get the one with alternate name
+      for (Stem stem : stems) {
+        if (StringUtils.equals(scope, stem.getAlternateName())) {
+          return GrouperUtil.toSet(stem);
+        }
+      }
+      
+    }
+    
     return filteredStems;
   }
 
@@ -1998,7 +2029,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   }
 
   /**
-   * @see StemDAO#getAllStemsSecure(String, GrouperSession, Subject, Set, QueryOptions, boolean, String, Scope, boolean)
+   * @see StemDAO#getAllStemsSecure(String, GrouperSession, Subject, Set, QueryOptions, boolean, String, Scope, boolean, boolean)
    */
   @Override
   public Set<Stem> getAllStemsSecure(String scope, GrouperSession grouperSession,

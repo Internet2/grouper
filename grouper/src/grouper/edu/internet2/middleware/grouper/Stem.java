@@ -164,6 +164,14 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     GrouperObject {
 
   /**
+   * get the name of the parent stem
+   * @return the name of the parent stem
+   */
+  public String getParentStemName() {
+    return GrouperUtil.parentStemNameFromName(this.getName(), false);
+  } 
+
+  /**
    * id is same as uuid
    * @return id
    */

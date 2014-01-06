@@ -332,7 +332,7 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions) {
     return getAllAttributeDefsSecureHelper(scope, grouperSession, subject, privileges, 
-        queryOptions, false, null, null, null, null);
+        queryOptions, false, null, null, null, null, false);
   }
 
   /**
@@ -346,13 +346,14 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
    * @param attributeDefType
    * @param parentStemId
    * @param stemScope
+   * @param findByUuidOrName
    * @return  attribute defs
    * 
    */
   private Set<AttributeDef> getAllAttributeDefsSecureHelper(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions, boolean splitScope, AttributeAssignType attributeAssignType,
-      AttributeDefType attributeDefType, String parentStemId, Scope stemScope) {
+      AttributeDefType attributeDefType, String parentStemId, Scope stemScope, boolean findByUuidOrName) {
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
     }
@@ -445,13 +446,22 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
           whereClause.append(" (( ");
         }
         firstScope = false;
-        whereClause.append(" lower(theAttributeDef.nameDb) like :scope" + index + " ");
-        if (splitScope) {
-          theScope = "%" + theScope + "%";
-        } else if (!theScope.endsWith("%")) {
-          theScope += "%";
-        }
-        byHqlStatic.setString("scope" + index, theScope.toLowerCase());
+
+        if (findByUuidOrName) {
+          whereClause.append(" theAttributeDef.nameDb = :scope" + index + " ");
+          byHqlStatic.setString("scope" + index, theScope);
+        } else {
+          whereClause.append(" ( lower(theAttributeDef.nameDb) like :scope" + index 
+              + " or lower(theAttributeDef.description) like :scope" + index + " ) ");
+          if (splitScope) {
+            theScope = "%" + theScope + "%";
+          } else if (!theScope.endsWith("%")) {
+            theScope += "%";
+          }
+          byHqlStatic.setString("scope" + index, theScope.toLowerCase());
+
+        }        
+        
         index++;
       }
 
@@ -504,6 +514,24 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     Set<AttributeDef> filteredAttributeDefs = GrouperUtil.length(privileges) == 0 ? attributeDefs 
         : grouperSession.getAttributeDefResolver()
             .postHqlFilterAttrDefs(attributeDefs, subject, privileges);
+
+    //if find by uuid or name, try to narrow down to one...
+    if (findByUuidOrName) {
+      
+      //get the one with uuid
+      for (AttributeDef attributeDef : filteredAttributeDefs) {
+        if (StringUtils.equals(scope, attributeDef.getId())) {
+          return GrouperUtil.toSet(attributeDef);
+        }
+      }
+
+      //get the one with name
+      for (AttributeDef attributeDef : filteredAttributeDefs) {
+        if (StringUtils.equals(scope, attributeDef.getName())) {
+          return GrouperUtil.toSet(attributeDef);
+        }
+      }
+    }
 
     return filteredAttributeDefs;
 
@@ -608,7 +636,7 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
       QueryOptions queryOptions, AttributeAssignType attributeAssignType,
       AttributeDefType attributeDefType) {
     return getAllAttributeDefsSecureHelper(scope, grouperSession, subject, 
-        privileges, queryOptions, true, attributeAssignType, attributeDefType, null, null);
+        privileges, queryOptions, true, attributeAssignType, attributeDefType, null, null, false);
   }
 
 
@@ -711,15 +739,15 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
   }
 
   /**
-   * @see AttributeDefDAO#findAllAttributeDefsSecure(String, boolean, Subject, Set, QueryOptions, String, Scope)
+   * @see AttributeDefDAO#findAllAttributeDefsSecure(String, boolean, Subject, Set, QueryOptions, String, Scope, boolean)
    */
   @Override
   public Set<AttributeDef> findAllAttributeDefsSecure(String scope, boolean splitScope,
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions,
-      String parentStemId, Scope stemScope) {
+      String parentStemId, Scope stemScope, boolean findByUuidOrName) {
     
     return getAllAttributeDefsSecureHelper(scope, GrouperSession.staticGrouperSession(), 
-        subject, privileges, queryOptions, splitScope, null, null, parentStemId, stemScope);
+        subject, privileges, queryOptions, splitScope, null, null, parentStemId, stemScope, findByUuidOrName);
     
   }
   

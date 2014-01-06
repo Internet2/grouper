@@ -12,6 +12,14 @@ import edu.internet2.middleware.grouper.GrouperSession;
 public abstract class DojoComboQueryLogicBase<T> implements DojoComboQueryLogic<T> {
 
   /**
+   * return true if this is a valid query, or false for the default behavior
+   */
+  @Override
+  public boolean validQueryOverride(GrouperSession grouperSession, String query) {
+    return false;
+  }
+
+  /**
    * @see DojoComboQueryLogic#retrieveHtmlLabel(GrouperSession, Object)
    */
   @Override
