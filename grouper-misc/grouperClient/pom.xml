@@ -77,7 +77,7 @@
             <resource>
                 <directory>conf</directory>
                 <includes>
-                    <include>*example*</include>
+                    <include>*base*</include>
                 </includes>
             </resource>
             <resource>
