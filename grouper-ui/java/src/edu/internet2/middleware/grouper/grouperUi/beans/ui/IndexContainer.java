@@ -284,6 +284,15 @@ public class IndexContainer {
   }
 
   /**
+   * for index page, this is a short list of groups the user manages, lazy load if null
+   * @param guiGroupsUserManagesAbbreviated1
+   */
+  public void setGuiGroupsUserManagesAbbreviated(
+      Set<GuiGroup> guiGroupsUserManagesAbbreviated1) {
+    this.guiGroupsUserManagesAbbreviated = guiGroupsUserManagesAbbreviated1;
+  }
+
+  /**
    * for index page, this is a short list of groups the user is a member of, lazy load if null
    * @return the list of groups
    */
@@ -371,6 +380,32 @@ public class IndexContainer {
    * for index page, this is a short list of stems the user has RecentlyUsed
    */
   private Set<GuiStem> guiStemsRecentlyUsedAbbreviated;
+
+  /**
+   * paging for my groups
+   */
+  private GuiPaging myGroupsGuiPaging = null;
+
+  /**
+   * paging for my groups
+   * @return paging
+   */
+  public GuiPaging getMyGroupsGuiPaging() {
+    if (this.myGroupsGuiPaging == null) {
+      this.myGroupsGuiPaging = new GuiPaging();
+    }
+    return this.myGroupsGuiPaging;
+  }
+
+  /**
+   * paging for my groups
+   * @param myGroupsGuiPaging1
+   */
+  public void setMyGroupsGuiPaging(GuiPaging myGroupsGuiPaging1) {
+    this.myGroupsGuiPaging = myGroupsGuiPaging1;
+  }
+
+
 
   /**
    * keep track of the paging on the search screen

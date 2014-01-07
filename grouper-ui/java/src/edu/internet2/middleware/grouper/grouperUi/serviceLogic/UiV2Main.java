@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -10,6 +11,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
@@ -18,6 +20,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -83,7 +86,157 @@ public class UiV2Main extends UiServiceLogicBase {
     }
   }
 
+  /**
+   * my groups
+   * @param request
+   * @param response
+   */
+  public void myGroups(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/index/myGroups.jsp"));
+
+      
+      myGroupsHelper(request, response);
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * my groups
+   * @param request
+   * @param response
+   */
+  public void myGroupsSubmit(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      myGroupsHelper(request, response);
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * my groups reset button
+   * @param request
+   * @param response
+   */
+  public void myGroupsReset(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      //clear out form
+      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("myGroupsFilter", ""));
+      
+      //get the unfiltered groups
+      myGroupsHelper(request, response);
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * the filter button was pressed on the my groups page, or paging or sorting, or something
+   * @param request
+   * @param response
+   */
+  private void myGroupsHelper(HttpServletRequest request, HttpServletResponse response) {
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    String myGroupsFilter = StringUtils.trimToEmpty(request.getParameter("myGroupsFilter"));
+    
+    IndexContainer indexContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getIndexContainer();
+    
+    indexContainer.setSearchQuery(myGroupsFilter);
+
+    //dont give an error if 0
+    if (myGroupsFilter.length() == 1) {
   
+      guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#myGroupsFilterId",
+          TextContainer.retrieveFromRequest().getText().get("myGroupsErrorNotEnoughChars")));
+      
+      //clear out the results
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#myGroupsResultsId", ""));
+  
+      return;
+    }
+    
+    String pageSizeString = request.getParameter("pagingTagPageSize");
+    int pageSize = -1;
+    if (!StringUtils.isBlank(pageSizeString)) {
+      pageSize = GrouperUtil.intValue(pageSizeString);
+    } else {
+      pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
+    }
+    indexContainer.getMyGroupsGuiPaging().setPageSize(pageSize);
+    
+    //1 indexed
+    String pageNumberString = request.getParameter("pagingTagPageNumber");
+    
+    int pageNumber = 1;
+    if (!StringUtils.isBlank(pageNumberString)) {
+      pageNumber = GrouperUtil.intValue(pageNumberString);
+    }
+
+    indexContainer.getMyGroupsGuiPaging().setPageNumber(pageNumber);
+
+    QueryOptions queryOptions = QueryOptions.create("displayName", true, pageNumber, pageSize);
+    queryOptions.getQueryPaging().setDoTotalCount(true);
+    GroupFinder groupFinder = new GroupFinder()
+      .assignSubject(GrouperSession.staticGrouperSession().getSubject())
+      .assignPrivileges(AccessPrivilege.MANAGE_PRIVILEGES)
+      .assignQueryOptions(queryOptions);
+
+    if (!StringUtils.isBlank(myGroupsFilter)) {
+      groupFinder.assignSplitScope(true);
+      groupFinder.assignScope(myGroupsFilter);
+    }
+  
+    Set<Group> results = groupFinder.findGroups();
+    
+    //this shouldnt be null, but make sure
+    if (results == null) {
+      results = new HashSet<Group>();
+    }
+    
+    indexContainer.setGuiGroupsUserManagesAbbreviated(GuiGroup.convertFromGroups(results));
+    
+    indexContainer.getMyGroupsGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+    
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#myGroupsResultsId", 
+        "/WEB-INF/grouperUi2/index/myGroupsContents.jsp"));
+}
+
   /**
    * the search button was pressed, or paging or sorting, or something
    * @param request
@@ -181,8 +334,6 @@ public class UiV2Main extends UiServiceLogicBase {
       //clear out form
       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("searchQuery", ""));
       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("filterType", "all"));
-
-      
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);

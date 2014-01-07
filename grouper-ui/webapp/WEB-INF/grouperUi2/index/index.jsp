@@ -51,10 +51,11 @@
               <div id="demo2" class="collapse in">
                 <div class="accordion-inner">
                   <ul class="nav nav-list">
-                    <li><a href="my-groups.html">My Groups</a></li>
-                    <li><a href="my-folders.html">My Folders</a></li>
-                    <li><a href="my-favorites.html">My Favorites</a></li>
-                    <li><a href="my-services.html">My Services</a></li>
+                    <li><a href="#" 
+                  onclick="return guiV2link('operation=UiV2Main.myGroups');">${textContainer.text['indexMyGroupsButton'] }</a></li>
+                    <li><a href="my-folders.html">My folders</a></li>
+                    <li><a href="my-favorites.html">My favorites</a></li>
+                    <li><a href="my-services.html">My services</a></li>
                   </ul>
                 </div>
               </div>
