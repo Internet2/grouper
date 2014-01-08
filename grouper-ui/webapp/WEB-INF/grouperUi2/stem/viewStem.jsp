@@ -19,7 +19,7 @@
                       <label for="table-filter" style="white-space: nowrap;">${textContainer.text['stemFilterFor'] }</label>
                     </div>
                     <div class="span4">
-                      <input type="text" placeholder="${textContainer.textEscapeDouble['stemFilterFormPlaceholder']}" 
+                      <input type="text" placeholder="${textContainer.textEscapeXml['stemFilterFormPlaceholder']}" 
                          name="filterText" id="table-filter" class="span12"/>
                     </div>
                     <div class="span3"><input type="submit" class="btn"  id="filterSubmitId" value="${textContainer.textEscapeDouble['stemApplyFilterButton'] }"

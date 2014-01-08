@@ -51,7 +51,7 @@
                       <span class="groupPrivilegeAdvancedHide"><label for="table-filter" style="white-space: nowrap;">${textContainer.text['groupPrivilegeFilterFor'] }</label></span>
                     </div>
                     <div class="span4">
-                      <input type="text" placeholder="${textContainer.textEscapeDouble['groupFilterPrivilegeFormPlaceholder']}" class="span12"
+                      <input type="text" placeholder="${textContainer.textEscapeXml['groupFilterPrivilegeFormPlaceholder']}" class="span12"
                        name="privilegeFilterText" id="table-filter">
                     </div>
                     <div class="span4"><input type="submit" class="btn"  id="filterSubmitId" value="${textContainer.textEscapeDouble['groupApplyFilterButton'] }"

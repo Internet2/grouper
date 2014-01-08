@@ -31,7 +31,7 @@
                       <label for="myGroupsFilterId">${textContainer.text['myGroupsFilterFor'] }</label>
                     </div>
                     <div class="span4" style="white-space: nowrap;">
-                      <input type="text" name="myGroupsFilter" placeholder="${textContainer.text['myGroupsSearchNamePlaceholder'] }" id="myGroupsFilterId" class="span12"/>
+                      <input type="text" name="myGroupsFilter" placeholder="${textContainer.textEscapeXml['myGroupsSearchNamePlaceholder'] }" id="myGroupsFilterId" class="span12"/>
                     </div>
                     
                     <div class="span3"><a class="btn" href="#" onclick="ajax('../app/UiV2Main.myGroupsSubmit', {formIds: 'myGroupsForm'}); return false;">${textContainer.text['myGroupsSearchButton'] }</a> &nbsp;

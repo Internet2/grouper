@@ -42,7 +42,7 @@
                       <span class="stemPrivilegeAdvancedHide"><label for="table-filter" style="white-space: nowrap;">${textContainer.text['stemPrivilegeFilterFor'] }</label></span>
                     </div>
                     <div class="span4">
-                      <input type="text" placeholder="${textContainer.textEscapeDouble['stemFilterPrivilegeFormPlaceholder']}" class="span12"
+                      <input type="text" placeholder="${textContainer.textEscapeXml['stemFilterPrivilegeFormPlaceholder']}" class="span12"
                        name="privilegeFilterText" id="table-filter">
                     </div>
                     <div class="span4"><input type="submit" class="btn"  id="filterSubmitId" value="${textContainer.textEscapeDouble['stemApplyFilterButton'] }"

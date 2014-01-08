@@ -44,14 +44,14 @@
                           <li class="divider"></li>
                         
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemCopy&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
-                              >Copy folder</a></li>
+                              >${textContainer.text['stemViewCopyStemButton'] }</a></li>
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemDelete&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
-                              >Delete folder</a></li>
+                              >${textContainer.text['stemViewDeleteStemButton'] }</a></li>
 
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemEdit&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;" class="btn btn-medium btn-block btn-primary">${textContainer.text['stemViewEditStemButton'] }</a></li>
 
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemMove&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
-                              >Move folder</a></li>
+                              >${textContainer.text['stemViewMoveStemButton'] }</a></li>
                           <li class="divider"></li>
                           <li><a href="voew-audit-log.html">View audit log</a></li>
                         </c:if>

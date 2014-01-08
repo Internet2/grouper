@@ -21,13 +21,20 @@
                         <li><a href="join-group.html">Join group</a></li>
                         <c:if test="${grouperRequestContainer.groupContainer.canAdmin }">
                           <li class="divider"></li>
-                          <li><a href="copy-group.html">Copy group</a></li>
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupCopy&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['groupViewCopyGroupButton'] }</a></li>
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupDelete&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                             >${textContainer.text['groupViewDeleteGroupButton'] }</a></li>
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupEdit&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                             >${textContainer.text['groupViewEditGroupButton'] }</a></li>
-                          <li><a href="move-group.html">Move group</a></li>
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupMove&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['groupViewMoveGroupButton'] }</a></li>
                         </c:if>
+                        
+
+                        
+                        
+                        
                         <li class="divider"></li>
                         <li><a href="export-group.html">Export members</a></li>
                         <li><a href="bulk-add.html">Import members</a></li>

@@ -31,7 +31,7 @@
                       </select>
                     </div>
                     <div class="span4">
-                      <input type="text" placeholder="${textContainer.textEscapeDouble['groupFilterFormPlaceholder']}" 
+                      <input type="text" placeholder="${textContainer.textEscapeXml['groupFilterFormPlaceholder']}" 
                          name="filterText" id="table-filter" class="span12"/>
                     </div>
 
