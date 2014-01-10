@@ -24,4 +24,4 @@
                 </table>
                 <grouper:paging2 guiPaging="${grouperRequestContainer.indexContainer.myGroupsGuiPaging}" 
                   formName="myGroupsPagingForm" ajaxFormIds="myGroupsForm"
-                  refreshOperation="../app/UiV2Main.myGroups" />
+                  refreshOperation="../app/UiV2Main.myGroupsSubmit" />

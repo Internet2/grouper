@@ -8,5 +8,7 @@
                         </li>
                       </c:forEach>
                     </ul>
-                    <p><strong><a href="my-stems.html">View all folders</a>  </strong></p>
+                    
+                    <p><strong><a href="#" 
+                  onclick="return guiV2link('operation=UiV2Main.myStems');">${textContainer.text['indexMyStemsViewAllStems'] }</a>  </strong></p>
                     <!-- end indexStemsImanage.jsp -->

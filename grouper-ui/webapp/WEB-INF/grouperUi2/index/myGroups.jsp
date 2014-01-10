@@ -8,7 +8,7 @@
               </ul>
               --%>
               <ul class="breadcrumb">
-                <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">Home </a><span class="divider"><i class='icon-angle-right'></i></span></li>
+                <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['myGroupsHomeBreadcrumb'] }</a><span class="divider"><i class='icon-angle-right'></i></span></li>
                 <li class="active">${textContainer.text['myGroupsBreadcrumb'] }</li>
               </ul>
               <div class="page-header blue-gradient">
@@ -28,13 +28,13 @@
                     onsubmit="ajax('../app/UiV2Main.myGroupsSubmit', {formIds: 'myGroupsForm'}); return false;">
                   <div class="row-fluid">
                     <div class="span1">
-                      <label for="myGroupsFilterId">${textContainer.text['myGroupsFilterFor'] }</label>
+                      <label for="myGroupsFilterId" style="white-space: nowrap;">${textContainer.text['myGroupsFilterFor'] }</label>
                     </div>
                     <div class="span4" style="white-space: nowrap;">
                       <input type="text" name="myGroupsFilter" placeholder="${textContainer.textEscapeXml['myGroupsSearchNamePlaceholder'] }" id="myGroupsFilterId" class="span12"/>
                     </div>
                     
-                    <div class="span3"><a class="btn" href="#" onclick="ajax('../app/UiV2Main.myGroupsSubmit', {formIds: 'myGroupsForm'}); return false;">${textContainer.text['myGroupsSearchButton'] }</a> &nbsp;
+                    <div class="span3">&nbsp; &nbsp; <a class="btn" href="#" onclick="ajax('../app/UiV2Main.myGroupsSubmit', {formIds: 'myGroupsForm'}); return false;">${textContainer.text['myGroupsSearchButton'] }</a> &nbsp;
                     <a href="#" onclick="ajax('../app/UiV2Main.myGroupsReset'); return false;" class="btn">${textContainer.text['myGroupsResetButton'] }</a></div>
                   </div>
                 </form>

@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
@@ -38,6 +39,7 @@ import edu.internet2.middleware.grouper.misc.GrouperObjectFinder.GrouperObjectFi
 import edu.internet2.middleware.grouper.misc.GrouperObjectFinder.ObjectPrivilege;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -177,8 +179,6 @@ public class UiV2Main extends UiServiceLogicBase {
     
     IndexContainer indexContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getIndexContainer();
     
-    indexContainer.setSearchQuery(myGroupsFilter);
-
     //dont give an error if 0
     if (myGroupsFilter.length() == 1) {
   
@@ -227,6 +227,11 @@ public class UiV2Main extends UiServiceLogicBase {
     //this shouldnt be null, but make sure
     if (results == null) {
       results = new HashSet<Group>();
+    }
+
+    if (GrouperUtil.length(results) == 0) {
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+        TextContainer.retrieveFromRequest().getText().get("myGroupsNoResultsFound")));
     }
     
     indexContainer.setGuiGroupsUserManagesAbbreviated(GuiGroup.convertFromGroups(results));
@@ -710,6 +715,182 @@ public class UiV2Main extends UiServiceLogicBase {
   
       searchHelper(request, response);
       
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * my folders
+   * @param request
+   * @param response
+   */
+  public void myStems(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/index/myStems.jsp"));
+  
+      
+      myStemsHelper(request, response);
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+     * the filter button was pressed on the my folders page, or paging or sorting, or something
+     * @param request
+     * @param response
+     */
+    private void myStemsHelper(HttpServletRequest request, HttpServletResponse response) {
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      String myStemsFilter = StringUtils.trimToEmpty(request.getParameter("myStemsFilter"));
+      
+      IndexContainer indexContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getIndexContainer();
+
+      //too short of a query
+      if (myStemsFilter.length() == 1) {
+    
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#myStemsFilterId",
+            TextContainer.retrieveFromRequest().getText().get("myStemsErrorNotEnoughChars")));
+        
+        //clear out the results
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#myStemsResultsId", ""));
+    
+        return;
+      }
+      
+      String pageSizeString = request.getParameter("pagingTagPageSize");
+      int pageSize = -1;
+      if (!StringUtils.isBlank(pageSizeString)) {
+        pageSize = GrouperUtil.intValue(pageSizeString);
+      } else {
+        pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
+      }
+      indexContainer.getMyStemsGuiPaging().setPageSize(pageSize);
+      
+      //1 indexed
+      String pageNumberString = request.getParameter("pagingTagPageNumber");
+      
+      int pageNumber = 1;
+      if (!StringUtils.isBlank(pageNumberString)) {
+        pageNumber = GrouperUtil.intValue(pageNumberString);
+      }
+  
+      indexContainer.getMyStemsGuiPaging().setPageNumber(pageNumber);
+  
+      QueryOptions queryOptions = QueryOptions.create("displayName", true, pageNumber, pageSize);
+      queryOptions.getQueryPaging().setDoTotalCount(true);
+
+      StemFinder stemFinder = new StemFinder()
+        .assignSubject(GrouperSession.staticGrouperSession().getSubject())
+        .assignQueryOptions(queryOptions);
+  
+      if (!StringUtils.isBlank(myStemsFilter)) {
+        stemFinder.assignSplitScope(true);
+        stemFinder.assignScope(myStemsFilter);
+      }
+  
+      String stemFilterType = request.getParameter("stemFilterType");
+      
+      if (StringUtils.equals("createGroups", stemFilterType)) {
+        stemFinder.assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES);
+        
+      } else if (StringUtils.equals("createStems", stemFilterType)) {
+        
+        stemFinder.addPrivilege(NamingPrivilege.STEM);
+      } else if (StringUtils.equals("attributeRead", stemFilterType)) {
+        
+        stemFinder.assignPrivileges(NamingPrivilege.ATTRIBUTE_READ_PRIVILEGES);
+      } else if (StringUtils.equals("attributeUpdate", stemFilterType)) {
+        
+        stemFinder.assignPrivileges(NamingPrivilege.ATTRIBUTE_UPDATE_PRIVILEGES);
+      } else if (StringUtils.equals("all", stemFilterType)) {
+        stemFinder.assignPrivileges(NamingPrivilege.ALL_ADMIN_PRIVILEGES);
+      } else if (!StringUtils.isBlank(stemFilterType)) {
+        throw new RuntimeException("Invalid value for stemFilterType: '" + stemFilterType + "'" );
+      }
+      
+      
+      Set<Stem> results = stemFinder.findStems();
+      
+      //this shouldnt be null, but make sure
+      if (results == null) {
+        results = new HashSet<Stem>();
+      }
+      
+      if (GrouperUtil.length(results) == 0) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("myStemsNoResultsFound")));
+      }
+      
+      indexContainer.setGuiStemsUserManagesAbbreviated(GuiStem.convertFromStems(results));
+      
+      indexContainer.getMyStemsGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#myStemsResultsId", 
+          "/WEB-INF/grouperUi2/index/myStemsContents.jsp"));
+  }
+
+  /**
+   * my folders reset button
+   * @param request
+   * @param response
+   */
+  public void myStemsReset(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      //clear out form
+      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("myStemsFilter", ""));
+      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("stemFilterType", "createGroups"));
+      
+      //get the unfiltered stems
+      myStemsHelper(request, response);
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * my folders
+   * @param request
+   * @param response
+   */
+  public void myStemsSubmit(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      myStemsHelper(request, response);
+  
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }

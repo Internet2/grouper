@@ -53,7 +53,7 @@ import edu.internet2.middleware.subject.Subject;
  * @author  blair christensen.
  * @version $Id: NamingPrivilege.java,v 1.8 2009-04-13 20:24:29 mchyzer Exp $
  */
-public class NamingPrivilege implements GrouperPrivilege, Comparable {
+public class NamingPrivilege implements GrouperPrivilege, Comparable<NamingPrivilege> {
 
   /** can create objects in this stem */
   public static final Privilege CREATE  = Privilege.getInstance("create");
@@ -86,6 +86,11 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable {
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> ADMIN_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(STEM));
+
+  /** any of these constitutes some sort of ADMIN on a stem
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> ALL_ADMIN_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(STEM, CREATE, STEM_ATTR_UPDATE, STEM_ATTR_READ));
 
   /** convert a list to priv */
   private static Map<String,Privilege> list2priv = new HashMap<String, Privilege>();
@@ -146,7 +151,7 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable {
   /**
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
-  public int compareTo(Object o) {
+  public int compareTo(NamingPrivilege o) {
     if (o == null || (!(o instanceof NamingPrivilege))) {
       return -1;
     }

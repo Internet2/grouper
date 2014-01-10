@@ -233,12 +233,20 @@ public class IndexContainer {
   private Set<GuiStem> guiStemsUserManagesAbbreviated;
   
   /**
+   * for the index page, this is a short list of stems the user manages
+   * @param guiStemsUserManagesAbbreviated1
+   */
+  public void setGuiStemsUserManagesAbbreviated(Set<GuiStem> guiStemsUserManagesAbbreviated1) {
+    this.guiStemsUserManagesAbbreviated = guiStemsUserManagesAbbreviated1;
+  }
+
+  /**
    * get the stems the user manages, size 10 for front screen
    * @return the stems
    */
   public Set<GuiStem> getGuiStemsUserManagesAbbreviated() {
 
-    if (this.guiGroupsUserManagesAbbreviated == null) {
+    if (this.guiStemsUserManagesAbbreviated == null) {
       
       GrouperSession grouperSession = GrouperSession.staticGrouperSession();
       Set<Stem> stems = new StemFinder().assignSubject(grouperSession.getSubject())
@@ -387,18 +395,18 @@ public class IndexContainer {
   private GuiPaging myGroupsGuiPaging = null;
 
   /**
-   * paging for my groups
+   * paging for my stems
    * @return paging
    */
-  public GuiPaging getMyGroupsGuiPaging() {
-    if (this.myGroupsGuiPaging == null) {
-      this.myGroupsGuiPaging = new GuiPaging();
+  public GuiPaging getMyStemsGuiPaging() {
+    if (this.myStemsGuiPaging == null) {
+      this.myStemsGuiPaging = new GuiPaging();
     }
-    return this.myGroupsGuiPaging;
+    return this.myStemsGuiPaging;
   }
 
   /**
-   * paging for my groups
+   * paging for my stems
    * @param myGroupsGuiPaging1
    */
   public void setMyGroupsGuiPaging(GuiPaging myGroupsGuiPaging1) {
@@ -411,6 +419,11 @@ public class IndexContainer {
    * keep track of the paging on the search screen
    */
   private GuiPaging searchGuiPaging = null;
+
+  /**
+   * paging for my stems
+   */
+  private GuiPaging myStemsGuiPaging = null;
   
   /**
    * keep track of the paging on the search screen
@@ -624,6 +637,25 @@ public class IndexContainer {
     }
     
     return this.guiStemsRecentlyUsedAbbreviated;
+  }
+
+  /**
+   * paging for my groups
+   * @return paging
+   */
+  public GuiPaging getMyGroupsGuiPaging() {
+    if (this.myStemsGuiPaging == null) {
+      this.myStemsGuiPaging = new GuiPaging();
+    }
+    return this.myStemsGuiPaging;
+  }
+
+  /**
+   * paging for my stems
+   * @param myStemsGuiPaging1
+   */
+  public void setMyStemsGuiPaging(GuiPaging myStemsGuiPaging1) {
+    this.myStemsGuiPaging = myStemsGuiPaging1;
   }
 
   
