@@ -46,8 +46,10 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.HttpContentType;
+import edu.internet2.middleware.grouper.userData.GrouperFavoriteFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -959,7 +961,7 @@ public class UiV2Main extends UiServiceLogicBase {
       } else {
         pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
       }
-      indexContainer.getMyStemsGuiPaging().setPageSize(pageSize);
+      indexContainer.getMyFavoritesGuiPaging().setPageSize(pageSize);
       
       //1 indexed
       String pageNumberString = request.getParameter("pagingTagPageNumber");
@@ -969,20 +971,26 @@ public class UiV2Main extends UiServiceLogicBase {
         pageNumber = GrouperUtil.intValue(pageNumberString);
       }
   
-      indexContainer.getMyStemsGuiPaging().setPageNumber(pageNumber);
+      indexContainer.getMyFavoritesGuiPaging().setPageNumber(pageNumber);
   
       QueryOptions queryOptions = QueryOptions.create("displayName", true, pageNumber, pageSize);
       queryOptions.getQueryPaging().setDoTotalCount(true);
-  
-      StemFinder stemFinder = new StemFinder()
+
+      GrouperFavoriteFinder grouperFavoriteFinder = new GrouperFavoriteFinder()
         .assignSubject(GrouperSession.staticGrouperSession().getSubject())
+        .assignUserDataGroupName(GrouperUiUserData.grouperUiGroupNameForUserData())
         .assignQueryOptions(queryOptions);
-  
-      Set<Stem> results = stemFinder.findStems();
+
+      if (!StringUtils.isBlank(myFavoritesFilter)) {
+        grouperFavoriteFinder.assignFilterText(myFavoritesFilter);
+        grouperFavoriteFinder.assignSplitScope(true);
+      }
+      
+      Set<GrouperObject> results = grouperFavoriteFinder.findFavorites();
       
       //this shouldnt be null, but make sure
       if (results == null) {
-        results = new HashSet<Stem>();
+        results = new HashSet<GrouperObject>();
       }
       
       if (GrouperUtil.length(results) == 0) {
@@ -990,16 +998,16 @@ public class UiV2Main extends UiServiceLogicBase {
             TextContainer.retrieveFromRequest().getText().get("myFavoritesNoResultsFound")));
       }
       
-//      indexContainer.set(GuiStem.convertFromStems(results));
+      indexContainer.setGuiObjectFavorites(GuiObjectBase.convertFromGrouperObjects(results));
       
-      indexContainer.getMyStemsGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+      indexContainer.getMyFavoritesGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#myFavoritesResultsId", 
           "/WEB-INF/grouperUi2/index/myFavoritesContents.jsp"));
   }
 
   /**
-   * my folders reset button
+   * my favorites reset button
    * @param request
    * @param response
    */
@@ -1016,11 +1024,10 @@ public class UiV2Main extends UiServiceLogicBase {
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
       //clear out form
-      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("myStemsFilter", ""));
-      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("stemFilterType", "createGroups"));
+      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("myFavoritesFilter", ""));
       
       //get the unfiltered stems
-      myStemsHelper(request, response);
+      myFavoritesHelper(request, response);
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -1028,7 +1035,7 @@ public class UiV2Main extends UiServiceLogicBase {
   }
 
   /**
-   * my folders
+   * my favorites
    * @param request
    * @param response
    */
@@ -1042,7 +1049,7 @@ public class UiV2Main extends UiServiceLogicBase {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      myStemsHelper(request, response);
+      myFavoritesHelper(request, response);
   
     } finally {
       GrouperSession.stopQuietly(grouperSession);

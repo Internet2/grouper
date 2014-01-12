@@ -431,6 +431,51 @@ public class IndexContainer {
   private GuiPaging myServicesGuiPaging = null;
   
   /**
+   * paging for my favorites
+   */
+  private GuiPaging myFavoritesGuiPaging = null;
+
+  /**
+   * gui object favorite results from my favorites
+   */
+  private Set<GuiObjectBase> guiObjectFavorites = null;
+  
+  /**
+   * gui object favorite results from my favorites
+   * @return favorites
+   */
+  public Set<GuiObjectBase> getGuiObjectFavorites() {
+    return this.guiObjectFavorites;
+  }
+
+  /**
+   * gui object favorite results from my favorites
+   * @param guiObjectFavorites1
+   */
+  public void setGuiObjectFavorites(Set<GuiObjectBase> guiObjectFavorites1) {
+    this.guiObjectFavorites = guiObjectFavorites1;
+  }
+
+  /**
+   * paging for my favorites
+   * @return favorites paging
+   */
+  public GuiPaging getMyFavoritesGuiPaging() {
+    if (this.myFavoritesGuiPaging == null) {
+      this.myFavoritesGuiPaging = new GuiPaging();
+    }
+    return this.myFavoritesGuiPaging;
+  }
+
+  /**
+   * paging for my favorites
+   * @param myFavoritesGuiPaging1
+   */
+  public void setMyFavoritesGuiPaging(GuiPaging myFavoritesGuiPaging1) {
+    this.myFavoritesGuiPaging = myFavoritesGuiPaging1;
+  }
+
+  /**
    * keep track of the paging on the search screen
    * @return the paging object
    */

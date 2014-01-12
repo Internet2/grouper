@@ -221,7 +221,7 @@ public class GrouperFavoriteFinder {
       
       String filterTokenLower = this.filterText.toLowerCase();
       
-      if (this.splitScope) {
+      if (this.splitScope != null && this.splitScope) {
         filterTokensLower.addAll(GrouperUtil.splitTrimToSet(filterTokenLower, " "));
       } else {
         filterTokensLower.add(filterTokenLower);

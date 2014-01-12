@@ -48,7 +48,8 @@
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemDelete&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                               >${textContainer.text['stemViewDeleteStemButton'] }</a></li>
 
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemEdit&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;" class="btn btn-medium btn-block btn-primary">${textContainer.text['stemViewEditStemButton'] }</a></li>
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemEdit&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                              >${textContainer.text['stemViewEditStemButton'] }</a></li>
 
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemMove&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                               >${textContainer.text['stemViewMoveStemButton'] }</a></li>

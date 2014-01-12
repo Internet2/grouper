@@ -22,7 +22,7 @@
 --%>
                     <c:forEach items="${grouperRequestContainer.indexContainer.searchGuiObjectsResults}" var="guiObjectBase">
                       <tr>
-                        <td>${guiObjectBase.subject ? textContainer.text['searchResultsStemNotApplicable'] : guiObjectBase.pathColonSpaceSeparated }</td>
+                        <td>${guiObjectBase.pathColonSpaceSeparated }</td>
                         <td>${guiObjectBase.shortLinkWithIcon }</td>
                       </tr>
                     </c:forEach>

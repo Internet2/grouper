@@ -78,6 +78,10 @@ public abstract class GuiObjectBase {
    */
   public String getPathColonSpaceSeparated() {
 
+    if (this.getGrouperObject() instanceof GrouperObjectSubjectWrapper) {
+      return TextContainer.retrieveFromRequest().getText().get("guiStemNotApplicable");
+    }
+    
     String parentStemName = GrouperUtil.parentStemNameFromName(this.getGrouperObject().getDisplayName());
     
     if (StringUtils.isBlank(parentStemName) || StringUtils.equals(":", parentStemName)) {

@@ -59,7 +59,6 @@
                   onclick="return guiV2link('operation=UiV2Main.myFavorites');">${textContainer.text['indexMyFavoritesButton'] }</a></li>
                     <li><a href="#" 
                   onclick="return guiV2link('operation=UiV2Main.myServices');">${textContainer.text['indexMyServicesButton'] }</a></li>
-                    <li><a href="my-services.html">My services</a></li>
                   </ul>
                 </div>
               </div>
