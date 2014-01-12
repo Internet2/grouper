@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.misc;
 
+import java.util.Set;
+
 
 /**
  * grouper objects extend this, e.g. groups, stems, attribute def names
@@ -8,6 +10,13 @@ package edu.internet2.middleware.grouper.misc;
  */
 public interface GrouperObject {
 
+  /**
+   * see if this object matches the filter strings
+   * @param filterStrings
+   * @return true if matches
+   */
+  public boolean matchesLowerSearchStrings(Set<String> filterStrings);
+  
   /**
    * name of object, e.g. a:b:c
    * @return the name of this object

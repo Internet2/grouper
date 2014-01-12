@@ -45,7 +45,7 @@ import edu.internet2.middleware.subject.Subject;
  *
  */
 public class GrouperUserDataApi {
-
+  
   /**
    * 
    * @param args

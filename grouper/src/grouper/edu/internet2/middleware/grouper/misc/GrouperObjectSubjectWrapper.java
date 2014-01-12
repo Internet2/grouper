@@ -1,5 +1,10 @@
 package edu.internet2.middleware.grouper.misc;
 
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -70,4 +75,31 @@ public class GrouperObjectSubjectWrapper implements GrouperObject {
     return this.subject.getName();
   }
   
+  /**
+   * @see GrouperObject#matchesLowerSearchStrings(Set)
+   */
+  @Override
+  public boolean matchesLowerSearchStrings(Set<String> filterStrings) {
+
+    if (GrouperUtil.length(filterStrings) == 0) {
+      return true;
+    }
+
+    String lowerId = this.subject.getId().toLowerCase();
+    String lowerName = StringUtils.defaultString(this.subject.getName()).toLowerCase();
+    String lowerDescription = StringUtils.defaultString(this.subject.getDescription()).toLowerCase();
+    
+    for (String filterString : GrouperUtil.nonNull(filterStrings)) {
+      
+      //if all dont match, return false
+      if (!lowerId.contains(filterString)
+          && !lowerName.contains(filterString)
+          && !lowerDescription.contains(filterString)) {
+        return false;
+      }
+      
+    }
+    return true;
+  }
+
 }

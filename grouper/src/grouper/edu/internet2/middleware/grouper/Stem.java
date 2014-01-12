@@ -4343,5 +4343,37 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   public void setIdIndex(Long idIndex1) {
     this.idIndex = idIndex1;
   }
+  
+  /**
+   * @see GrouperObject#matchesLowerSearchStrings(Set)
+   */
+  @Override
+  public boolean matchesLowerSearchStrings(Set<String> filterStrings) {
+
+    if (GrouperUtil.length(filterStrings) == 0) {
+      return true;
+    }
+
+    String lowerId = this.getId().toLowerCase();
+    String lowerName = StringUtils.defaultString(this.getName()).toLowerCase();
+    String lowerDisplayName = StringUtils.defaultString(this.getDisplayName()).toLowerCase();
+    String lowerDescription = StringUtils.defaultString(this.getDescription()).toLowerCase();
+    String lowerAlternateName = StringUtils.defaultString(this.getAlternateName()).toLowerCase();
+    
+    for (String filterString : GrouperUtil.nonNull(filterStrings)) {
+      
+      //if all dont match, return false
+      if (!lowerId.contains(filterString)
+          && !lowerName.contains(filterString)
+          && !lowerDisplayName.contains(filterString)
+          && !lowerDescription.contains(filterString)
+          && !lowerAlternateName.contains(filterString)) {
+        return false;
+      }
+      
+    }
+    return true;
+  }
+
 }
 
