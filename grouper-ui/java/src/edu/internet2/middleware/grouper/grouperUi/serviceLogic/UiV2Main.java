@@ -20,6 +20,8 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
@@ -35,6 +37,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectFinder;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperObjectFinder.GrouperObjectFinderType;
 import edu.internet2.middleware.grouper.misc.GrouperObjectFinder.ObjectPrivilege;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -890,6 +893,320 @@ public class UiV2Main extends UiServiceLogicBase {
       grouperSession = GrouperSession.start(loggedInSubject);
   
       myStemsHelper(request, response);
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * my favorites
+   * @param request
+   * @param response
+   */
+  public void myFavorites(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/index/myFavorites.jsp"));
+  
+      
+      myFavoritesHelper(request, response);
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+     * the filter button was pressed on the my favorites page, or paging or sorting, or something
+     * @param request
+     * @param response
+     */
+    private void myFavoritesHelper(HttpServletRequest request, HttpServletResponse response) {
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      String myFavoritesFilter = StringUtils.trimToEmpty(request.getParameter("myFavoritesFilter"));
+      
+      IndexContainer indexContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getIndexContainer();
+  
+      //too short of a query
+      if (myFavoritesFilter.length() == 1) {
+    
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#myFavoritesFilterId",
+            TextContainer.retrieveFromRequest().getText().get("myFavoritesErrorNotEnoughChars")));
+        
+        //clear out the results
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#myFavoritesResultsId", ""));
+    
+        return;
+      }
+      
+      String pageSizeString = request.getParameter("pagingTagPageSize");
+      int pageSize = -1;
+      if (!StringUtils.isBlank(pageSizeString)) {
+        pageSize = GrouperUtil.intValue(pageSizeString);
+      } else {
+        pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
+      }
+      indexContainer.getMyStemsGuiPaging().setPageSize(pageSize);
+      
+      //1 indexed
+      String pageNumberString = request.getParameter("pagingTagPageNumber");
+      
+      int pageNumber = 1;
+      if (!StringUtils.isBlank(pageNumberString)) {
+        pageNumber = GrouperUtil.intValue(pageNumberString);
+      }
+  
+      indexContainer.getMyStemsGuiPaging().setPageNumber(pageNumber);
+  
+      QueryOptions queryOptions = QueryOptions.create("displayName", true, pageNumber, pageSize);
+      queryOptions.getQueryPaging().setDoTotalCount(true);
+  
+      StemFinder stemFinder = new StemFinder()
+        .assignSubject(GrouperSession.staticGrouperSession().getSubject())
+        .assignQueryOptions(queryOptions);
+  
+      Set<Stem> results = stemFinder.findStems();
+      
+      //this shouldnt be null, but make sure
+      if (results == null) {
+        results = new HashSet<Stem>();
+      }
+      
+      if (GrouperUtil.length(results) == 0) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("myFavoritesNoResultsFound")));
+      }
+      
+//      indexContainer.set(GuiStem.convertFromStems(results));
+      
+      indexContainer.getMyStemsGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#myFavoritesResultsId", 
+          "/WEB-INF/grouperUi2/index/myFavoritesContents.jsp"));
+  }
+
+  /**
+   * my folders reset button
+   * @param request
+   * @param response
+   */
+  public void myFavoritesReset(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      //clear out form
+      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("myStemsFilter", ""));
+      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("stemFilterType", "createGroups"));
+      
+      //get the unfiltered stems
+      myStemsHelper(request, response);
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * my folders
+   * @param request
+   * @param response
+   */
+  public void myFavoritesSubmit(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      myStemsHelper(request, response);
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * my services
+   * @param request
+   * @param response
+   */
+  public void myServices(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/index/myServices.jsp"));
+  
+      
+      myServicesHelper(request, response);
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+     * the filter button was pressed on the my services page, or paging or sorting, or something
+     * @param request
+     * @param response
+     */
+    private void myServicesHelper(HttpServletRequest request, HttpServletResponse response) {
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      final String myServicesFilter = StringUtils.trimToEmpty(request.getParameter("myServicesFilter"));
+      
+      IndexContainer indexContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getIndexContainer();
+  
+      //too short of a query
+      if (myServicesFilter.length() == 1) {
+    
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#myServicesFilterId",
+            TextContainer.retrieveFromRequest().getText().get("myServicesErrorNotEnoughChars")));
+        
+        //clear out the results
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#myServicesResultsId", ""));
+    
+        return;
+      }
+      
+      String pageSizeString = request.getParameter("pagingTagPageSize");
+      int pageSize = -1;
+      if (!StringUtils.isBlank(pageSizeString)) {
+        pageSize = GrouperUtil.intValue(pageSizeString);
+      } else {
+        pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
+      }
+      indexContainer.getMyServicesGuiPaging().setPageSize(pageSize);
+      
+      //1 indexed
+      String pageNumberString = request.getParameter("pagingTagPageNumber");
+      
+      int pageNumber = 1;
+      if (!StringUtils.isBlank(pageNumberString)) {
+        pageNumber = GrouperUtil.intValue(pageNumberString);
+      }
+  
+      indexContainer.getMyServicesGuiPaging().setPageNumber(pageNumber);
+  
+      final QueryOptions queryOptions = QueryOptions.create("displayName", true, pageNumber, pageSize);
+      queryOptions.getQueryPaging().setDoTotalCount(true);
+
+      @SuppressWarnings("unchecked")
+      Set<AttributeDefName> results = (Set<AttributeDefName>)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), 
+          new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          AttributeDefNameFinder attributeDefNameFinder = new AttributeDefNameFinder().assignAnyRole(true)
+              .assignSubject(GrouperSession.staticGrouperSession().getSubject())
+              .assignQueryOptions(queryOptions);
+
+          if (!StringUtils.isBlank(myServicesFilter)) {
+            attributeDefNameFinder.assignSplitScope(true);
+            attributeDefNameFinder.assignScope(myServicesFilter);
+          }
+          
+          return attributeDefNameFinder.findAttributeNames();
+          
+        }
+      });
+      
+      //this shouldnt be null, but make sure
+      if (results == null) {
+        results = new HashSet<AttributeDefName>();
+      }
+      
+      if (GrouperUtil.length(results) == 0) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("myServicesNoResultsFound")));
+      }
+      
+      indexContainer.setGuiAttributeDefNamesMyServices(GuiAttributeDefName.convertFromAttributeDefNames(results));
+      
+      indexContainer.getMyServicesGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#myServicesResultsId", 
+          "/WEB-INF/grouperUi2/index/myServicesContents.jsp"));
+  }
+
+  /**
+   * my services reset button
+   * @param request
+   * @param response
+   */
+  public void myServicesReset(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      //clear out form
+      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("myServicesFilter", ""));
+      
+      //get the unfiltered stems
+      myServicesHelper(request, response);
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * my services
+   * @param request
+   * @param response
+   */
+  public void myServicesSubmit(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      myServicesHelper(request, response);
   
     } finally {
       GrouperSession.stopQuietly(grouperSession);

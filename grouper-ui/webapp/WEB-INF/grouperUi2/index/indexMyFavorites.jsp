@@ -34,6 +34,7 @@
                       </c:forEach>
 
                     </ul>
-                    <p><strong><a href="my-favorites.html">View all favorites</a></strong></p>
+                    <p><strong><a href="#" 
+                  onclick="return guiV2link('operation=UiV2Main.myFavorites');">${textContainer.text['indexMyFavoritesViewAllFavorites'] }</a></strong></p>
                     <!-- start indexMyFavorites.jsp -->
                     

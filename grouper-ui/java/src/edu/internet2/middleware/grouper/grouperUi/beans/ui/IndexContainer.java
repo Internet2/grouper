@@ -424,6 +424,11 @@ public class IndexContainer {
    * paging for my stems
    */
   private GuiPaging myStemsGuiPaging = null;
+
+  /**
+   * paging for my services
+   */
+  private GuiPaging myServicesGuiPaging = null;
   
   /**
    * keep track of the paging on the search screen
@@ -481,6 +486,15 @@ public class IndexContainer {
     }
     
     return this.guiAttributeDefNamesMyServices;
+  }
+
+  /**
+   * gui attribute def names my services
+   * @param guiAttributeDefNamesMyServices1
+   */
+  public void setGuiAttributeDefNamesMyServices(
+      Set<GuiAttributeDefName> guiAttributeDefNamesMyServices1) {
+    this.guiAttributeDefNamesMyServices = guiAttributeDefNamesMyServices1;
   }
 
   /**
@@ -644,10 +658,10 @@ public class IndexContainer {
    * @return paging
    */
   public GuiPaging getMyGroupsGuiPaging() {
-    if (this.myStemsGuiPaging == null) {
-      this.myStemsGuiPaging = new GuiPaging();
+    if (this.myGroupsGuiPaging == null) {
+      this.myGroupsGuiPaging = new GuiPaging();
     }
-    return this.myStemsGuiPaging;
+    return this.myGroupsGuiPaging;
   }
 
   /**
@@ -656,6 +670,25 @@ public class IndexContainer {
    */
   public void setMyStemsGuiPaging(GuiPaging myStemsGuiPaging1) {
     this.myStemsGuiPaging = myStemsGuiPaging1;
+  }
+
+  /**
+   * paging for my services
+   * @return paging
+   */
+  public GuiPaging getMyServicesGuiPaging() {
+    if (this.myServicesGuiPaging == null) {
+      this.myServicesGuiPaging = new GuiPaging();
+    }
+    return this.myServicesGuiPaging;
+  }
+
+  /**
+   * paging for my services
+   * @param myServicesGuiPaging1
+   */
+  public void setMyServicesGuiPaging(GuiPaging myServicesGuiPaging1) {
+    this.myServicesGuiPaging = myServicesGuiPaging1;
   }
 
   

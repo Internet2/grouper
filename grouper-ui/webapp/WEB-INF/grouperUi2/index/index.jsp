@@ -55,7 +55,10 @@
                   onclick="return guiV2link('operation=UiV2Main.myGroups');">${textContainer.text['indexMyGroupsButton'] }</a></li>
                     <li><a href="#" 
                   onclick="return guiV2link('operation=UiV2Main.myStems');">${textContainer.text['indexMyStemsButton'] }</a></li>
-                    <li><a href="my-favorites.html">My favorites</a></li>
+                    <li><a href="#" 
+                  onclick="return guiV2link('operation=UiV2Main.myFavorites');">${textContainer.text['indexMyFavoritesButton'] }</a></li>
+                    <li><a href="#" 
+                  onclick="return guiV2link('operation=UiV2Main.myServices');">${textContainer.text['indexMyServicesButton'] }</a></li>
                     <li><a href="my-services.html">My services</a></li>
                   </ul>
                 </div>
