@@ -1720,5 +1720,107 @@ public class UiV2Group {
     return result;
   }
 
+  
+  
+  /**
+   * this groups memberships
+   * @param request
+   * @param response
+   */
+  public void thisGroupsMemberships(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/group/thisGroupsMemberships.jsp"));
+      filterThisGroupsMembershipsHelper(request, response, group);
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * the filter button was pressed of this groups memberships screen, 
+   * or paging or sorting, or view Group or something
+   * @param request
+   * @param response
+   */
+  private void filterThisGroupsMembershipsHelper(HttpServletRequest request, HttpServletResponse response, Group group) {
+    
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    String filterText = request.getParameter("filterText");
+    GroupContainer groupContainer = grouperRequestContainer.getGroupContainer();
+    groupContainer.setFilterText(filterText);
+    
+    String pageSizeString = request.getParameter("pagingTagPageSize");
+    int pageSize = -1;
+    if (!StringUtils.isBlank(pageSizeString)) {
+      pageSize = GrouperUtil.intValue(pageSizeString);
+    } else {
+      pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
+    }
+    groupContainer.getGuiPaging().setPageSize(pageSize);
+    
+    //1 indexed
+    String pageNumberString = request.getParameter("pagingTagPageNumber");
+    
+    int pageNumber = 1;
+    if (!StringUtils.isBlank(pageNumberString)) {
+      pageNumber = GrouperUtil.intValue(pageNumberString);
+    }
+    
+    groupContainer.getGuiPaging().setPageNumber(pageNumber);
+  
+    QueryOptions queryOptions = new QueryOptions();
+    queryOptions.paging(pageSize, pageNumber, true);
+    
+    MembershipFinder membershipFinder = new MembershipFinder()
+      .addMemberId(group.toMember().getId())
+      .assignCheckSecurity(true)
+      .assignHasFieldForMember(true)
+      .assignEnabled(true)
+      .assignHasMembershipTypeForMember(true)
+      .assignQueryOptionsForMember(queryOptions)
+      .assignSplitScopeForMember(true);
+    
+    if (groupContainer.getMembershipType() != null) {
+      membershipFinder.assignMembershipType(groupContainer.getMembershipType());
+    }
+  
+    if (!StringUtils.isBlank(groupContainer.getFilterText())) {
+      membershipFinder.assignScope(groupContainer.getFilterText());
+    }
+  
+    //set of subjects, and what memberships each subject has
+    Set<MembershipSubjectContainer> results = membershipFinder
+        .findMembershipResult().getMembershipSubjectContainers();
+  
+    groupContainer.setGuiMembershipSubjectContainers(GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results));
+    
+    groupContainer.getGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+    
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#thisGroupsMembershipsFilterResultsId", 
+        "/WEB-INF/grouperUi2/group/thisGroupsMembershipsContents.jsp"));
+  
+  }
 
 }

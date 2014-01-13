@@ -22,6 +22,7 @@ package edu.internet2.middleware.grouper.membership;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,6 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
-import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.SubjectBean;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
@@ -51,6 +52,27 @@ import edu.internet2.middleware.subject.Subject;
  * in a list of memberships, this is one subject.  this only works when filtering for one owner
  */
 public class MembershipSubjectContainer {
+
+  /**
+   * group owner of this memberships
+   */
+  private Group groupOwner;
+  
+  /**
+   * group owner of this memberships
+   * @return group or null
+   */
+  public Group getGroupOwner() {
+    return this.groupOwner;
+  }
+
+  /**
+   * group owner of this memberships
+   * @param groupOwner1
+   */
+  public void setGroupOwner(Group groupOwner1) {
+    this.groupOwner = groupOwner1;
+  }
 
   /** subject */
   private Subject subject;
@@ -398,11 +420,8 @@ public class MembershipSubjectContainer {
    */
   public static Set<MembershipSubjectContainer> convertFromMembershipsOwnersMembers(Set<Object[]> memberships) {
     
-    //can only do for one owner...
-    String ownerId = null;
-    
     //lets put it all back together...
-    Set<MembershipSubjectContainer> results = new LinkedHashSet<MembershipSubjectContainer>();
+    Map<MultiKey, MembershipSubjectContainer> results = new LinkedHashMap<MultiKey, MembershipSubjectContainer>();
 
     if (GrouperUtil.length(memberships) > 0) {
 
@@ -427,71 +446,79 @@ public class MembershipSubjectContainer {
         }
       }
       
-      //memberId to membership subject container
-      Map<String, MembershipSubjectContainer> memberIdToResultsMap = new HashMap<String, MembershipSubjectContainer>();
+      //this multikey is sourceid, subjectid, ownerid, fieldid, 
+      Map<MultiKey, MembershipSubjectContainer> memberIdToResultsMap = new HashMap<MultiKey, MembershipSubjectContainer>();
 
-      //key is member id, source and subject
-      Map<String, List<Object[]>> memberIdToMembershipsMap = new HashMap<String, List<Object[]>>();
+      //this multikey is sourceid, subjectid, ownerid, fieldid, 
+      Map<MultiKey, List<Object[]>> memberIdToMembershipsMap = new HashMap<MultiKey, List<Object[]>>();
       
       //this multikey is sourceid, subjectid, ownerid, fieldid, 
       Map<MultiKey, MembershipAssignType> membershipAssignTypeMap = new HashMap<MultiKey, MembershipAssignType>();
+      
+      //this multikey is sourceid, subjectid, ownerid, fieldid, 
+      Map<MultiKey, Membership> immediateMembershipMap = new HashMap<MultiKey, Membership>();
       
       //lets get all the members first, and keep the answer
       for (Object[] objectArray: memberships) {
         
         Member member = (Member)objectArray[2];
+
+        GrouperObject owner = (GrouperObject)objectArray[1];
         
-        MembershipSubjectContainer membershipSubjectContainer = memberIdToResultsMap.get(member.getUuid());
-        if (membershipSubjectContainer == null) {
-          membershipSubjectContainer = new MembershipSubjectContainer();
-          membershipSubjectContainer.setSubject(memberIdToSubject.get(member.getUuid()));
-          membershipSubjectContainer.setMember(member);
-          memberIdToResultsMap.put(member.getUuid(), membershipSubjectContainer);
-          results.add(membershipSubjectContainer);
-        }            
+        String theOwnerId = owner.getId();
 
         Membership membership = (Membership)objectArray[0];
 
-        List<Object[]> membershipList = memberIdToMembershipsMap.get(member.getUuid());
+        MultiKey membershipAssignTypeKey = new MultiKey(member.getSubjectSourceId(), member.getSubjectId(), 
+            theOwnerId, membership.getFieldId());
+        
+        
+        MembershipSubjectContainer membershipSubjectContainer = memberIdToResultsMap.get(membershipAssignTypeKey);
+        if (membershipSubjectContainer == null) {
+          membershipSubjectContainer = new MembershipSubjectContainer();
+          membershipSubjectContainer.setSubject(memberIdToSubject.get(member.getId()));
+          membershipSubjectContainer.setMember(member);
+          if (objectArray[1] instanceof Group) {
+            membershipSubjectContainer.setGroupOwner((Group)objectArray[1]);
+          }
+          memberIdToResultsMap.put(membershipAssignTypeKey, membershipSubjectContainer);
+          results.put(membershipAssignTypeKey, membershipSubjectContainer);
+        }            
+
+
+        List<Object[]> membershipList = memberIdToMembershipsMap.get(membershipAssignTypeKey);
         
         if (membershipList == null) {
 
           membershipList = new ArrayList<Object[]>();
           
-          memberIdToMembershipsMap.put(member.getUuid(), membershipList);
+          memberIdToMembershipsMap.put(membershipAssignTypeKey, membershipList);
 
         }
 
         membershipList.add(objectArray);
         
-        String theOwnerId = membership.getOwnerId();
-        
-        if (StringUtils.isBlank(ownerId)) {
-          ownerId = theOwnerId;
-        } else {
-          if (!StringUtils.equals(ownerId, theOwnerId)) {
-            throw new RuntimeException("Cant make a membership subject container for different sources: " 
-                + ownerId + ", " + theOwnerId);
-          }
-        }
-        
-        MultiKey membershipAssignTypeKey = new MultiKey(member.getSubjectSourceId(), member.getSubjectId(), 
-            theOwnerId, membership.getFieldId());
-        
         MembershipAssignType membershipAssignType = membershipAssignTypeMap.get(membershipAssignTypeKey);
         membershipAssignType = MembershipAssignType.convertMembership(membershipAssignType, membership);
         membershipAssignTypeMap.put(membershipAssignTypeKey, membershipAssignType);
         
+        if (membership.isImmediate()) {
+          immediateMembershipMap.put(membershipAssignTypeKey, membership);
+        }
+        
+        
       }
       
-      for (MembershipSubjectContainer membershipSubjectContainer : results) {
+      for (MultiKey membershipAssignTypeKey : results.keySet()) {
+        
+        MembershipSubjectContainer membershipSubjectContainer = results.get(membershipAssignTypeKey);
         
         membershipSubjectContainer.setMembershipContainers(new TreeMap<String, MembershipContainer>());
         
         Member containerMember = membershipSubjectContainer.getMember();
         
         //lets get the memberships
-        List<Object[]> membershipList = memberIdToMembershipsMap.get(containerMember.getUuid());
+        List<Object[]> membershipList = memberIdToMembershipsMap.get(membershipAssignTypeKey);
         
         if (membershipList != null) {
           for (Object[] objectArray : membershipList) {
@@ -508,13 +535,20 @@ public class MembershipSubjectContainer {
               
               //if the subject, field, groupId match, then correlate the assign type...
               
-              MultiKey membershipAssignTypeKey = new MultiKey(member.getSubjectSourceId(), member.getSubjectId(), ownerId, membership.getFieldId());
+//              MultiKey membershipAssignTypeKey = new MultiKey(member.getSubjectSourceId(), member.getSubjectId(), ownerId, membership.getFieldId());
   
               MembershipAssignType membershipAssignType = membershipAssignTypeMap.get(membershipAssignTypeKey);
               if (membershipAssignType == null) {
                 throw new RuntimeException("Why is result not there???");
               }
               membershipContainer.setMembershipAssignType(membershipAssignType);
+              
+              //get the immediate membership so we can easily revoke
+              Membership immediateMembership = immediateMembershipMap.get(membershipAssignTypeKey);
+              if (immediateMembership != null) {
+                membershipContainer.setImmediateMembership(immediateMembership);
+              }
+              
               membershipSubjectContainer.getMembershipContainers().put(field.getName(), membershipContainer);
               
             }
@@ -522,7 +556,7 @@ public class MembershipSubjectContainer {
         }
       }
     }
-    return results;
+    return new LinkedHashSet<MembershipSubjectContainer>(results.values());
   }
   
 }

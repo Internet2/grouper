@@ -22,7 +22,7 @@ public abstract class GuiObjectBase {
    * if this is a subject
    * @return if this is a subject
    */
-  public boolean isSubject() {
+  public boolean isSubjectType() {
     return false;
   }
   

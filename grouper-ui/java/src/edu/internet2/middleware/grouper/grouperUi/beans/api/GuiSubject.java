@@ -420,7 +420,7 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
    * if this is a subject
    */
   @Override
-  public boolean isSubject() {
+  public boolean isSubjectType() {
     return true;
   }
 

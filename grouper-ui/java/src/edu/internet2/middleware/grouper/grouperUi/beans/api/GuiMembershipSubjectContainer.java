@@ -20,6 +20,14 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class GuiMembershipSubjectContainer {
 
   /**
+   * get the gui group
+   * @return gui gruop
+   */
+  public GuiGroup getGuiGroup() {
+    return this.guiGroup;
+  }
+  
+  /**
    * convert membership subject containers to gui membership subject containers
    * @param membershipSubjectContainers
    * @return the converted set
@@ -63,6 +71,11 @@ public class GuiMembershipSubjectContainer {
   }
 
   /**
+   * gui group
+   */
+  private GuiGroup guiGroup;
+  
+  /**
    * construct
    * @param membershipSubjectContainer1
    */
@@ -73,7 +86,9 @@ public class GuiMembershipSubjectContainer {
     this.guiMember = new GuiMember(membershipSubjectContainer1.getMember());
     this.guiSubject = new GuiSubject(membershipSubjectContainer1.getSubject());
     this.guiMembershipContainers = new LinkedHashMap<String, GuiMembershipContainer>();
-    
+    if (membershipSubjectContainer1.getGroupOwner() != null) {
+      this.guiGroup = new GuiGroup(membershipSubjectContainer1.getGroupOwner());
+    }
     for (String fieldName : GrouperUtil.nonNull(membershipSubjectContainer1.getMembershipContainers()).keySet()) {
       this.guiMembershipContainers.put(fieldName, new GuiMembershipContainer(
           membershipSubjectContainer1.getMembershipContainers().get(fieldName)));

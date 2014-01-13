@@ -11,6 +11,12 @@ import java.util.Set;
 public interface GrouperObject {
 
   /**
+   * id of object
+   * @return id
+   */
+  public String getId();
+  
+  /**
    * see if this object matches the filter strings
    * @param filterStrings
    * @return true if matches

@@ -14,6 +14,8 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class GrouperObjectSubjectWrapper implements GrouperObject {
 
+  
+  
   /**
    * subject
    */
@@ -100,6 +102,17 @@ public class GrouperObjectSubjectWrapper implements GrouperObject {
       
     }
     return true;
+  }
+
+  /**
+   * @see GrouperObject#getId
+   */
+  @Override
+  public String getId() {
+    if (this.subject == null) {
+      return null;
+    }
+    return this.subject.getSourceId() + "||||" + this.subject.getId();
   }
 
 }

@@ -15,6 +15,8 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.membership;
 
+import edu.internet2.middleware.grouper.Membership;
+
 
 
 /**
@@ -26,6 +28,27 @@ package edu.internet2.middleware.grouper.membership;
  * encapsulates a member in a field of an owner
  */
 public class MembershipContainer {
+
+  /**
+   * immediate membership or null if none
+   */
+  private Membership immediateMembership;
+  
+  /**
+   * immediate membership or null if none
+   * @return immediate membership or null if none
+   */
+  public Membership getImmediateMembership() {
+    return this.immediateMembership;
+  }
+
+  /**
+   * immediate membership or null if none
+   * @param immediateMembership1
+   */
+  public void setImmediateMembership(Membership immediateMembership1) {
+    this.immediateMembership = immediateMembership1;
+  }
 
   /**
    * 

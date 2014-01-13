@@ -101,10 +101,11 @@ public class MembershipResult {
     if (this.membershipSubjectContainers == null) {
       
       //only do this for one owner
-      if (GrouperUtil.length(this.groups) > 1 || GrouperUtil.length(this.stems) > 1) {
-        throw new RuntimeException("Cant have membership subject containers for more than one owner: " 
-            + GrouperUtil.length(this.groups) + ", " + GrouperUtil.length(this.stems));
-      }
+// MCH 20140113 : the caller should keep this straight
+//      if (GrouperUtil.length(this.groups) > 1 || GrouperUtil.length(this.stems) > 1) {
+//        throw new RuntimeException("Cant have membership subject containers for more than one owner: " 
+//            + GrouperUtil.length(this.groups) + ", " + GrouperUtil.length(this.stems));
+//      }
 
       this.membershipSubjectContainers = MembershipSubjectContainer.convertFromMembershipsOwnersMembers(this.membershipsOwnersMembers);
       
