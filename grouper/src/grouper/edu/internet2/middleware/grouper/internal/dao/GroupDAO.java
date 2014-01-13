@@ -92,6 +92,19 @@ public interface GroupDAO extends GrouperDAO {
             IllegalStateException
             ;
 
+  /**
+   * @param val
+   * @param scope
+   * @param secureQuery
+   * @return set
+   * @throws GrouperDAOException
+   * @throws IllegalStateException
+   */
+  Set<Group> findAllByAnyApproximateAttr(String val, String scope, boolean secureQuery) 
+    throws  GrouperDAOException,
+            IllegalStateException
+            ;
+  
 
   /**
    * @since   1.2.0
@@ -140,6 +153,19 @@ public interface GroupDAO extends GrouperDAO {
             IllegalStateException
             ;
 
+  /**
+   * @param attr
+   * @param val
+   * @param scope
+   * @param secureQuery
+   * @return set
+   * @throws GrouperDAOException
+   * @throws IllegalStateException
+   */
+  Set<Group> findAllByAttr(String attr, String val, String scope, boolean secureQuery) 
+    throws  GrouperDAOException,
+            IllegalStateException
+            ;
 
   /**
    * @since   1.2.0
@@ -267,6 +293,18 @@ public interface GroupDAO extends GrouperDAO {
    * @since   1.2.0
    */
   Group findByAttribute(String attr, String val, boolean exceptionIfNotFound) 
+    throws  GrouperDAOException, GroupNotFoundException;
+  
+  /**
+   * @param attr
+   * @param val
+   * @param exceptionIfNotFound
+   * @param secureQuery
+   * @return group
+   * @throws GrouperDAOException
+   * @throws GroupNotFoundException
+   */
+  Group findByAttribute(String attr, String val, boolean exceptionIfNotFound, boolean secureQuery) 
     throws  GrouperDAOException, GroupNotFoundException;
 
   /**

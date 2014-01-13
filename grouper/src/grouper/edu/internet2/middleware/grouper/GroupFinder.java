@@ -32,7 +32,6 @@
 
 package edu.internet2.middleware.grouper;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -40,11 +39,12 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
-import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -61,6 +61,7 @@ public class GroupFinder {
 
   // PRIVATE CLASS CONSTANTS //
   /** error for finding by attribute */
+  @SuppressWarnings("unused")
   private static final String ERR_FINDBYATTRIBUTE = "could not find group by attribute: ";
 
   /** error for finding by type */
@@ -125,16 +126,22 @@ public class GroupFinder {
     if (v.isInvalid()) {
       throw new IllegalArgumentException("null value");
     }
-    Group g = GrouperDAOFactory.getFactory().getGroup().findByAttribute(attr, val, exceptionOnNull);
-    if (g != null) {
-      if ( s.getMember().canView(g) ) {
-        return g;
+    
+    final String ATTR = attr;
+    final String VAL = val;
+    final boolean EXCEPTION_ON_NULL = exceptionOnNull;
+
+    return (Group)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+      
+      /**
+       *
+       */
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        return GrouperDAOFactory.getFactory().getGroup().findByAttribute(ATTR, VAL, EXCEPTION_ON_NULL, true);
       }
-    }
-    if (exceptionOnNull) {
-      throw new GroupNotFoundException( ERR_FINDBYATTRIBUTE + Quote.single(attr) );
-    }
-    return null;
+    });
+
   } 
 
   /**
@@ -164,16 +171,20 @@ public class GroupFinder {
     if (v.isInvalid()) {
       throw new IllegalArgumentException("null value");
     }
-    Set<Group> groupsDb = GrouperDAOFactory.getFactory().getGroup().findAllByAttr(attr, val);
-    Set<Group> groups= new LinkedHashSet<Group>();
-    if (groupsDb != null && groupsDb.size() > 0) {
-      for (Group group : groupsDb) {
-        if ( s.getMember().canView(group) ) {
-          groups.add(group);
-        }
+    
+    final String ATTR = attr;
+    final String VAL = val;
+    
+    return (Set<Group>)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+      
+      /**
+       *
+       */
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        return GrouperDAOFactory.getFactory().getGroup().findAllByAttr(ATTR, VAL, null, true);
       }
-    }
-    return groups;
+    });
   } 
 
   /**
@@ -631,7 +642,7 @@ public class GroupFinder {
   /**
    * 
    * @param typeOfGroup
-   * @return
+   * @return this
    */
   public GroupFinder addTypeOfGroup(TypeOfGroup typeOfGroup) {
     

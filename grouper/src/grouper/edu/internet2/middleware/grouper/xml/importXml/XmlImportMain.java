@@ -248,7 +248,7 @@ public class XmlImportMain {
       
       processXmlSecondPass(reader, filePath);
     } catch (FileNotFoundException fnfe) {
-      throw new RuntimeException("Cant find file: " + filePath);
+      throw new RuntimeException("Cant find file: " + filePath, fnfe);
     } finally {
       if (this.recordReport) {
         GrouperUtil.closeQuietly(this.recordReportWriter);
