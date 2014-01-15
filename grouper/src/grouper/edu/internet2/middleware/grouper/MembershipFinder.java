@@ -102,6 +102,20 @@ public class MembershipFinder {
    */
   private boolean hasFieldForMember;
 
+  /** 
+   * return memberships where the group has this field, note, it will return all the memberships for those members 
+   */
+  private boolean hasFieldForGroup;
+
+  /**
+   * return memberships where the group has this field, note, it will return all the memberships for those members 
+   * @return this for chaining
+   */
+  public MembershipFinder assignHasFieldForGroup(boolean theHasFieldForGroup) {
+    this.hasFieldForGroup = theHasFieldForGroup;
+    return this;
+  }
+  
   /**
    * return memberships where the member has this field, note, it will return all the memberships for those members 
    * @param theHasField
@@ -533,7 +547,9 @@ public class MembershipFinder {
         this.membershipIds, this.membershipType, this.field, this.sources, this.scope, this.stem, this.stemScope, 
         this.enabled, this.checkSecurity, this.fieldType, this.serviceId, this.serviceRole,
         this.queryOptionsForMember, this.scopeForMember, this.splitScopeForMember, 
-        this.hasFieldForMember, this.hasMembershipTypeForMember);  
+        this.hasFieldForMember, this.hasMembershipTypeForMember, this.queryOptionsForGroup, 
+        this.scopeForGroup, this.splitScopeForGroup, this.hasFieldForGroup,
+        this.hasMembershipTypeForGroup);  
 
 
 
@@ -981,7 +997,8 @@ public class MembershipFinder {
       FieldType fieldType, String serviceId, ServiceRole serviceRole) {    
     
     return GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(groupIds, memberIds,
-        membershipIds, membershipType, field, sources, scope, stem, stemScope, enabled, shouldCheckSecurity, fieldType, serviceId, serviceRole);  
+        membershipIds, membershipType, field, sources, scope, stem, stemScope, enabled, shouldCheckSecurity, 
+        fieldType, serviceId, serviceRole, null, null, false, false, false, null, null, false, false, false);  
   }
   
   /**
@@ -1592,6 +1609,66 @@ public class MembershipFinder {
    */
   private boolean splitScopeForMember;
 
+  /**
+   * query options for group.  must include paging.  if sorting then sort by group
+   */
+  private QueryOptions queryOptionsForGroup;
+
+  /**
+   * query options for group.  must include paging.  if sorting then sort by group
+   * @param theQueryOptionsForGroup
+   * @return this for chaining
+   */
+  public MembershipFinder assignQueryOptionsForGroup(QueryOptions theQueryOptionsForGroup) {
+    this.queryOptionsForGroup = theQueryOptionsForGroup;
+    return this;
+  }
+  
+  /**
+   * if the scope for group has spaces in it, then split by whitespace, and find results that contain all of the scope strings
+   */
+  private boolean splitScopeForGroup;
+
+  /**
+   * return memberships where the group has this field, note, it will return all the memberships for those groups
+   */
+  private boolean hasMembershipTypeForGroup;
+
+  /**
+   * if paging for group, then also filter for member
+   */
+  private String scopeForGroup;
+  
+  /**
+   * if paging for group, then also filter for member
+   * @param theScopeForGroup
+   * @return this for chaining
+   */
+  public MembershipFinder assignScopeForGroup(String theScopeForGroup) {
+    this.scopeForGroup = theScopeForGroup;
+    return this;
+  }
+  
+  /**
+   * return memberships where the group has this field, note, it will return all the memberships for those groups
+   * @param theHasMembershipTypeForGroup
+   * @return this for chaining
+   */
+  public MembershipFinder assignHasMembershipTypeForGroup(boolean theHasMembershipTypeForGroup) {
+    this.hasMembershipTypeForGroup = theHasMembershipTypeForGroup;
+    return this;
+  }
+  
+  /**
+   * if the scope for group has spaces in it, then split by whitespace, and find results that contain all of the scope strings
+   * @param theSplitScopeForGroup
+   * @return this for chaining
+   */
+  public MembershipFinder assignSplitScopeForGroup(boolean theSplitScopeForGroup) {
+    this.splitScopeForGroup = theSplitScopeForGroup;
+    return this;
+  }
+  
   /**
    * if the scope for member has spaces in it, then split by whitespace, and find results that contain all of the scope strings
    * @param theSplitScopeForMember

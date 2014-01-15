@@ -8,7 +8,7 @@
                     <tr>
                       <th>
                         <label class="checkbox checkbox-no-padding">
-                          <input type="checkbox">
+                          <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" onchange="$('.membershipCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
                         </label>
                       </th>
                       <th data-hide="phone,medium">${textContainer.text['thisGroupsMembershipsFolderColumn'] }</th>
@@ -26,7 +26,8 @@
                         <td>
                           <label class="checkbox checkbox-no-padding">
                             <c:choose>
-                              <c:when test="${guiMembershipContainer.membershipContainer.membershipAssignType.immediate}">
+                              <c:when test="${guiMembershipContainer.membershipContainer.membershipAssignType.immediate
+                                  && grouper:canHavePrivilege(guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner, 'update') }">
                                 <input type="checkbox" name="membershipSubjectRow_${guiMembershipContainer.membershipContainer}[]" value="${guiMembershipSubjectContainer.guiMember.member.uuid}" class="membershipCheckbox" />
                               </c:when>
                               <c:otherwise>
@@ -44,11 +45,12 @@
                           <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle">${textContainer.text['groupViewActionsButton'] } <span class="caret"></span></a>
                             <ul class="dropdown-menu dropdown-menu-right">
                               <li><a href="edit-person-membership.html">${textContainer.text['groupViewEditMembershipsAndPrivilegesButton'] }</a></li>
-                              <c:if test="${guiMembershipContainer.membershipContainer.membershipAssignType.immediate}">
-                                <li><a href="#" onclick="ajax('../app/UiV2Group.removeMember?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}', {formIds: 'groupFilterFormId,groupPagingFormId'}); return false;" class="actions-revoke-membership">${textContainer.text['groupViewRevokeMembershipButton'] }</a></li>
+                              <c:if test="${guiMembershipContainer.membershipContainer.membershipAssignType.immediate
+                                  && grouper:canHavePrivilege(guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner, 'update')}">
+                                <li><a href="#" onclick="ajax('../app/UiV2Group.removeMemberForThisGroupsMemberships?ownerGroupId=${guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner.id}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterFormId,groupPagingFormId'}); return false;" class="actions-revoke-membership">${textContainer.text['groupViewRevokeMembershipButton'] }</a></li>
                               </c:if>
                               <c:if test="${guiMembershipSubjectContainer.guiSubject.group}">
-                                <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${guiMembershipSubjectContainer.guiSubject.subject.id}');">${textContainer.text['groupViewViewGroupButton'] }</a></li>
+                                <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner.id}');">${textContainer.text['groupViewViewGroupButton'] }</a></li>
                               </c:if>
                             </ul>
                           </div>
@@ -59,5 +61,5 @@
                   </tbody>
                 </table>
                <grouper:paging2 guiPaging="${grouperRequestContainer.groupContainer.guiPaging}" formName="groupPagingForm" ajaxFormIds="groupFilterFormId"
-                  refreshOperation="../app/UiV2Group.filterThisGroupsMembershipsHelper?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&filterText=${grouper:escapeUrl(grouperRequestContainer.groupContainer.filterText)}" />
+                  refreshOperation="../app/UiV2Group.filterThisGroupsMemberships?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" />
                 

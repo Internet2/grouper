@@ -15,6 +15,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupCopy;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -186,6 +187,65 @@ public class UiV2Group {
    * @param request
    * @param response
    */
+  public void removeMemberForThisGroupsMemberships(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      final Group group = retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+  
+      if (group == null) {
+        return;
+      }
+
+      String ownerGroupId = request.getParameter("ownerGroupId");
+      
+      Group ownerGroup = GroupFinder.findByUuid(grouperSession, ownerGroupId, false);
+
+      //not sure why this would happen
+      if (ownerGroup == null) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("groupDeleteMemberCantFindOwnerGroup")));
+        
+      } else {
+      
+        boolean madeChanges = ownerGroup.deleteMember(group.toSubject(), false);
+        
+        if (madeChanges) {
+    
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+              TextContainer.retrieveFromRequest().getText().get("groupDeleteFromOwnerSuccess")));
+              
+        } else {
+          
+          //not sure why this would happen (race condition?)
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+              TextContainer.retrieveFromRequest().getText().get("groupDeleteFromOwnerNoChangesSuccess")));
+    
+        }
+      }
+      
+      filterThisGroupsMembershipsHelper(request, response, group);
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+
+  
+  /**
+   * the filter button was pressed, or paging or sorting, or view Group or something
+   * @param request
+   * @param response
+   */
   public void removeMember(HttpServletRequest request, HttpServletResponse response) {
   
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
@@ -250,8 +310,14 @@ public class UiV2Group {
     
     String filterText = request.getParameter("filterText");
     GroupContainer groupContainer = grouperRequestContainer.getGroupContainer();
-    groupContainer.setFilterText(filterText);
     
+    //if filtering by subjects that have a certain type
+    String membershipTypeString = request.getParameter("membershipType");
+    MembershipType membershipType = null;
+    if (!StringUtils.isBlank(membershipTypeString)) {
+      membershipType = MembershipType.valueOfIgnoreCase(membershipTypeString, true);
+    }
+
     String pageSizeString = request.getParameter("pagingTagPageSize");
     int pageSize = -1;
     if (!StringUtils.isBlank(pageSizeString)) {
@@ -282,12 +348,12 @@ public class UiV2Group {
       .assignQueryOptionsForMember(queryOptions)
       .assignSplitScopeForMember(true);
     
-    if (groupContainer.getMembershipType() != null) {
-      membershipFinder.assignMembershipType(groupContainer.getMembershipType());
+    if (membershipType != null) {
+      membershipFinder.assignMembershipType(membershipType);
     }
 
-    if (!StringUtils.isBlank(groupContainer.getFilterText())) {
-      membershipFinder.assignScopeForMember(groupContainer.getFilterText());
+    if (!StringUtils.isBlank(filterText)) {
+      membershipFinder.assignScopeForMember(filterText);
     }
 
     //set of subjects, and what memberships each subject has
@@ -842,6 +908,34 @@ public class UiV2Group {
   }
 
   /**
+   * the filter button for this groups memberships was pressed, or paging or sorting or something
+   * @param request
+   * @param response
+   */
+  public void filterThisGroupsMemberships(HttpServletRequest request, HttpServletResponse response) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+  
+      Group group = retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+  
+      filterThisGroupsMembershipsHelper(request, response, group);
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+
+  /**
    * the filter button was pressed for privileges, or paging or sorting, or view Group privileges or something
    * @param request
    * @param response
@@ -853,20 +947,20 @@ public class UiV2Group {
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
     //if filtering text in subjects
-    String filterText = request.getParameter("privilegeFilterText");
-    grouperRequestContainer.getGroupContainer().setPrivilegeFilterText(filterText);
+    String privilegeFilterText = request.getParameter("privilegeFilterText");
     
     String privilegeFieldName = request.getParameter("privilegeField");
+    
+    Field privilegeField = null;
     if (!StringUtils.isBlank(privilegeFieldName)) {
-      Field field = FieldFinder.find(privilegeFieldName, true);
-      grouperRequestContainer.getGroupContainer().setPrivilegeField(field);
+      privilegeField = FieldFinder.find(privilegeFieldName, true);
     }
     
     //if filtering by subjects that have a certain type
     String membershipTypeString = request.getParameter("privilegeMembershipType");
+    MembershipType membershipType = null;
     if (!StringUtils.isBlank(membershipTypeString)) {
-      MembershipType membershipType = MembershipType.valueOfIgnoreCase(membershipTypeString, true);
-      grouperRequestContainer.getGroupContainer().setPrivilegeMembershipType(membershipType);
+      membershipType = MembershipType.valueOfIgnoreCase(membershipTypeString, true);
     }
     
     //how many per page
@@ -888,7 +982,43 @@ public class UiV2Group {
     }
     
     grouperRequestContainer.getGroupContainer().getPrivilegeGuiPaging().setPageNumber(pageNumber);
+
+    QueryOptions queryOptions = new QueryOptions();
+    queryOptions.paging(pageSize, pageNumber, true);
     
+    MembershipFinder membershipFinder = new MembershipFinder()
+      .addGroupId(group.getId()).assignCheckSecurity(true)
+      .assignFieldType(FieldType.ACCESS)
+      .assignEnabled(true)
+      .assignHasFieldForMember(true)
+      .assignHasMembershipTypeForMember(true)
+      .assignQueryOptionsForMember(queryOptions)
+      .assignSplitScopeForMember(true);
+    
+    if (membershipType != null) {
+      membershipFinder.assignMembershipType(membershipType);
+    }
+
+    if (privilegeField != null) {
+      membershipFinder.assignField(privilegeField);
+    }
+
+    if (!StringUtils.isBlank(privilegeFilterText)) {
+      membershipFinder.assignScopeForMember(privilegeFilterText);
+    }
+
+    //set of subjects, and what privs each subject has
+    Set<MembershipSubjectContainer> results = membershipFinder
+        .findMembershipResult().getMembershipSubjectContainers();
+    
+    //inherit from grouperAll or Groupersystem or privilege inheritance
+    MembershipSubjectContainer.considerAccessPrivilegeInheritance(results, group);
+
+    grouperRequestContainer.getGroupContainer().setPrivilegeGuiMembershipSubjectContainers(
+        GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results));
+
+    grouperRequestContainer.getGroupContainer().getPrivilegeGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+
     
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupPrivilegeFilterResultsId", 
         "/WEB-INF/grouperUi2/group/groupPrivilegeContents.jsp"));
@@ -1769,8 +1899,14 @@ public class UiV2Group {
     
     String filterText = request.getParameter("filterText");
     GroupContainer groupContainer = grouperRequestContainer.getGroupContainer();
-    groupContainer.setFilterText(filterText);
     
+    //if filtering by subjects that have a certain type
+    String membershipTypeString = request.getParameter("membershipType");
+    MembershipType membershipType = null;
+    if (!StringUtils.isBlank(membershipTypeString)) {
+      membershipType = MembershipType.valueOfIgnoreCase(membershipTypeString, true);
+    }
+
     String pageSizeString = request.getParameter("pagingTagPageSize");
     int pageSize = -1;
     if (!StringUtils.isBlank(pageSizeString)) {
@@ -1796,18 +1932,18 @@ public class UiV2Group {
     MembershipFinder membershipFinder = new MembershipFinder()
       .addMemberId(group.toMember().getId())
       .assignCheckSecurity(true)
-      .assignHasFieldForMember(true)
+      .assignHasFieldForGroup(true)
       .assignEnabled(true)
-      .assignHasMembershipTypeForMember(true)
-      .assignQueryOptionsForMember(queryOptions)
-      .assignSplitScopeForMember(true);
+      .assignHasMembershipTypeForGroup(true)
+      .assignQueryOptionsForGroup(queryOptions)
+      .assignSplitScopeForGroup(true);
     
-    if (groupContainer.getMembershipType() != null) {
-      membershipFinder.assignMembershipType(groupContainer.getMembershipType());
+    if (membershipType != null) {
+      membershipFinder.assignMembershipType(membershipType);
     }
   
-    if (!StringUtils.isBlank(groupContainer.getFilterText())) {
-      membershipFinder.assignScope(groupContainer.getFilterText());
+    if (!StringUtils.isBlank(filterText)) {
+      membershipFinder.assignScopeForGroup(filterText);
     }
   
     //set of subjects, and what memberships each subject has

@@ -660,6 +660,20 @@
 
   <function>
     <description>
+      If the user using the app has a certain privilege (or privilege that implies that privilege) on an object
+    </description>
+    <name>canHavePrivilege</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>boolean canHavePrivilege(edu.internet2.middleware.grouper.misc.GrouperObject, java.lang.String)
+    </function-signature>
+    <example>
+      &lt;c:if test="${grouper:canHavePrivilege(owner, "ADMIN")}"&gt;
+    </example>
+  </function>
+
+  <function>
+    <description>
       Prints out appropriate styles (or none) for hide show. Note this will
       print a semi colon at end if something printed.
       Pass in the name of the hide show and

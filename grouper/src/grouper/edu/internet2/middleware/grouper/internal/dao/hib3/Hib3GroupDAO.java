@@ -201,7 +201,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     throws  GrouperDAOException,
             IllegalStateException {
     return findAllByAnyApproximateAttr(val, null);
-  } 
+          }
 
   /**
    * @param val 
@@ -215,8 +215,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     throws  GrouperDAOException,
             IllegalStateException {
     return findAllByAnyApproximateAttr(val, scope, false);
-  }
-  
+  } 
+
   /**
    * @param val 
    * @param scope
@@ -236,7 +236,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
-
+            
             ByHqlStatic byHql = HibernateSession.byHqlStatic();
             
             
@@ -308,12 +308,11 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             byHql.createQuery(hql.toString());
             Set<Group> groups = byHql.setCacheable(false).setCacheRegion(KLASS + ".FindAllByApproximateAttr")
               .setString( "value", "%" + val.toLowerCase() + "%" ).listSet(Group.class);
- 
+
             return groups;
-            
           }
     });
- 
+
     return resultGroups;
   } 
 
@@ -384,12 +383,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             //see if we are adding more to the query
             boolean changedQuery = false;
             StringBuilder sqlWhereClause = new StringBuilder();
-                
+            
             if (secureQuery) {
               if (Group._internal_fieldAttribute(attr)) {
-                changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
-                    grouperSession.getSubject(), byHql, 
-                    hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+              changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
+                  grouperSession.getSubject(), byHql, 
+                  hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
               } else {
                 grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
                     grouperSession.getSubject(), byHql, 
@@ -887,7 +886,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     });
     return resultGroups;
   } 
-  
+
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#findByAttribute(java.lang.String, java.lang.String, boolean, boolean)
    */
@@ -913,9 +912,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             //see if we are adding more to the query
             boolean changedQuery = false;
             StringBuilder sqlWhereClause = new StringBuilder();
-                
+    
             if (secureQuery) {
-              if (Group._internal_fieldAttribute(attr)) {
+    if (Group._internal_fieldAttribute(attr)) {
                 changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
                     grouperSession.getSubject(), byHql, 
                     hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
@@ -936,14 +935,14 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             
             if (!changedQuery) {
               hql.append(" where ");
-            } else {
+    } else {
               hql.append(" and ");
             }
             
             if (sqlWhereClause.toString().trim().length() > 0) {
               hql.append(sqlWhereClause).append(" and ");
-            }
-                        
+    }
+    
             if (Group._internal_fieldAttribute(attr)) {
               hql.append(" theGroup." + attr + "Db = :value ");
             } else {
@@ -957,16 +956,16 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
             byHql.createQuery(hql.toString());
             Group group = byHql.setCacheable(false).setCacheRegion(KLASS + ".FindByAttribute")
-              .setString("value", val).uniqueResult(Group.class);
- 
+      .setString("value", val).uniqueResult(Group.class);
+    
             return group;
             
           }
     });
  
     if (result == null && exceptionIfNotFound) {
-      throw new GroupNotFoundException();
-    }
+       throw new GroupNotFoundException();
+     }
     
     return result;
   }
@@ -1513,19 +1512,19 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
               hql.append(" and theGroup.nameDb like :scope");
               byHql.setString("scope", scope + "%");
             }
-
+            
             byHql.createQuery(hql.toString());
             Set<Group> groups = byHql.setCacheable(false).setCacheRegion(KLASS + ".FindAllByAttr")
               .setString("value", val).listSet(Group.class);
- 
+            
             return groups;
             
           }
     });
- 
+
     return resultGroups;
   }
-  
+
   /**
    * <p><b>Implementation Notes.</b></p>
    * <ol>
@@ -1537,8 +1536,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public Set<Group> findAllByAttr(final String attr, final String val, final String scope) throws GrouperDAOException,
       IllegalStateException {
     return findAllByAttr(attr, val, scope, false);
-  }
-
+            }
+            
   /**
    * find groups by creator or modifier
    * @param member
@@ -2479,6 +2478,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
           byHqlStatic.setString("scope" + index, theScope);
         } else {
           whereClause.append(" ( lower(theGroup.nameDb) like :scope" + index 
+              + " or lower(theGroup.alternateNameDb) like :scope" + index 
               + " or lower(theGroup.displayNameDb) like :scope" + index 
               + " or lower(theGroup.descriptionDb) like :scope" + index + " ) ");
           if (splitScope) {

@@ -2,22 +2,15 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-
 import edu.internet2.middleware.grouper.Field;
-import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
-import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
-import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
-import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
@@ -256,21 +249,9 @@ public class GroupContainer {
    */
   private Boolean canUpdate;
   /**
-   * filter text for the stem contents
-   */
-  private String filterText = null;
-  /**
    * keep track of the paging on the stem screen
    */
   private GuiPaging guiPaging = null;
-  /**
-   * if filtering privileges by field
-   */
-  private Field privilegeField;
-  /**
-   * filter text for privilege subjects
-   */
-  private String privilegeFilterText = null;
   /**
    * subjects and what privs they have on this stem
    */
@@ -279,32 +260,6 @@ public class GroupContainer {
    * gui paging for privileges
    */
   private GuiPaging privilegeGuiPaging;
-  /**
-   * membership type for the privilege filter
-   */
-  private MembershipType privilegeMembershipType;
-  
-  /**
-   * membership type for memberships
-   */
-  private MembershipType membershipType;
-  
-  /**
-   * membership type for memberships
-   * @return type
-   */
-  public MembershipType getMembershipType() {
-    return this.membershipType;
-  }
-
-  /**
-   * membership type for memberships
-   * @param membershipType1
-   */
-  public void setMembershipType(MembershipType membershipType1) {
-    this.membershipType = membershipType1;
-  }
-
   /**
    * groups, stems, etc in this stem which are children, only in the current page
    */
@@ -334,14 +289,6 @@ public class GroupContainer {
   }
 
   /**
-   * filter text
-   * @return filter text
-   */
-  public String getFilterText() {
-    return this.filterText;
-  }
-
-  /**
    * keep track of the paging on the stem screen
    * @return the paging object, init if not there...
    */
@@ -353,67 +300,10 @@ public class GroupContainer {
   }
 
   /**
-   * if filtering privileges by field
-   * @return field
-   */
-  public Field getPrivilegeField() {
-    return this.privilegeField;
-  }
-
-  /**
-   * filter text for privilege subjects
-   * @return filter text
-   */
-  public String getPrivilegeFilterText() {
-    return this.privilegeFilterText;
-  }
-
-  /**
    * subjects and what privs they have on this stem
    * @return membership subject containers
    */
   public Set<GuiMembershipSubjectContainer> getPrivilegeGuiMembershipSubjectContainers() {
-    if (this.privilegeGuiMembershipSubjectContainers == null) {
-  
-      Group group = this.getGuiGroup().getGroup();
-      int pageSize = this.getPrivilegeGuiPaging().getPageSize();
-      int pageNumber = this.getPrivilegeGuiPaging().getPageNumber();
-      QueryOptions queryOptions = new QueryOptions();
-      queryOptions.paging(pageSize, pageNumber, true);
-      
-      MembershipFinder membershipFinder = new MembershipFinder()
-        .addGroupId(group.getId()).assignCheckSecurity(true)
-        .assignFieldType(FieldType.ACCESS)
-        .assignEnabled(true)
-        .assignHasFieldForMember(true)
-        .assignHasMembershipTypeForMember(true)
-        .assignQueryOptionsForMember(queryOptions)
-        .assignSplitScopeForMember(true);
-      
-      if (this.privilegeMembershipType != null) {
-        membershipFinder.assignMembershipType(this.privilegeMembershipType);
-      }
-  
-      if (this.privilegeField != null) {
-        membershipFinder.assignField(this.privilegeField);
-      }
-  
-      if (!StringUtils.isBlank(this.privilegeFilterText)) {
-        membershipFinder.assignScopeForMember(this.privilegeFilterText);
-      }
-  
-      //set of subjects, and what privs each subject has
-      Set<MembershipSubjectContainer> results = membershipFinder
-          .findMembershipResult().getMembershipSubjectContainers();
-      
-      //inherit from grouperAll or Groupersystem or privilege inheritance
-      MembershipSubjectContainer.considerAccessPrivilegeInheritance(results, group);
-
-      this.privilegeGuiMembershipSubjectContainers = GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results);
-
-      this.getPrivilegeGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
-  
-    }
     return this.privilegeGuiMembershipSubjectContainers;
   }
 
@@ -428,40 +318,8 @@ public class GroupContainer {
     return this.privilegeGuiPaging;
   }
 
-  /**
-   * membership type for the privilege filter
-   * @return membership type for the privilege filter
-   */
-  public MembershipType getPrivilegeMembershipType() {
-    return this.privilegeMembershipType;
-  }
-
-  /**
-   * filter text
-   * @param filterText1
-   */
-  public void setFilterText(String filterText1) {
-    this.filterText = filterText1;
-  }
-
   public void setGuiPaging(GuiPaging guiPaging) {
     this.guiPaging = guiPaging;
-  }
-
-  /**
-   * if filtering privileges by field
-   * @param privilegeField1
-   */
-  public void setPrivilegeField(Field privilegeField1) {
-    this.privilegeField = privilegeField1;
-  }
-
-  /**
-   * filter text for privilege subjects
-   * @param privilegeFilterText1
-   */
-  public void setPrivilegeFilterText(String privilegeFilterText1) {
-    this.privilegeFilterText = privilegeFilterText1;
   }
 
   /**
@@ -479,14 +337,6 @@ public class GroupContainer {
    */
   public void setPrivilegeGuiPaging(GuiPaging privilegeGuiPaging1) {
     this.privilegeGuiPaging = privilegeGuiPaging1;
-  }
-
-  /**
-   * membership type for the privilege filter
-   * @param privilegeMembershipType1
-   */
-  public void setPrivilegeMembershipType(MembershipType privilegeMembershipType1) {
-    this.privilegeMembershipType = privilegeMembershipType1;
   }
 
   /**

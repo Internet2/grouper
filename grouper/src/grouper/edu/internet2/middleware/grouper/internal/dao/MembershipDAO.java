@@ -523,30 +523,6 @@ TODO update for 1.5
       Collection<String> membershipIds, MembershipType membershipType,
       Field field,  
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean shouldCheckSecurity);
-
-
-  /**
-   * find memberships by group owner and other options.  
-   * @param groupIds to limit memberships to
-   * @param memberIds to limit memberships to
-   * @param membershipIds to limit memberships to
-   * @param membershipType Immediate, NonImmediate, etc
-   * @param field if finding one field, list here, otherwise all list fields will be returned
-   * @param sources if limiting memberships of members in certain sources, list here
-   * @param scope sql like string which will have a % appended to it
-   * @param stem if looking in a certain stem
-   * @param stemScope if looking only in this stem, or all substems
-   * @param enabled null for all, true for enabled only, false for disabled only
-   * @param shouldCheckSecurity if we should check security, default to true
-   * @param fieldType field type of of memberships
-   * @return a set of membership, group, and member objects
-   */
-  public Set<Object[]> findAllByGroupOwnerOptions(Collection<String> groupIds, Collection<String> memberIds,
-      Collection<String> membershipIds, MembershipType membershipType,
-      Field field,  
-      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean shouldCheckSecurity, 
-      FieldType fieldType,
-      String serviceId, ServiceRole serviceRole);
   
   /**
    * find memberships by group owner and other options.  
@@ -576,7 +552,9 @@ TODO update for 1.5
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean shouldCheckSecurity, 
       FieldType fieldType,
       String serviceId, ServiceRole serviceRole, QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, 
-      boolean hasFieldForMember, boolean hasMembershipTypeForMember);
+      boolean hasFieldForMember, boolean hasMembershipTypeForMember, QueryOptions queryOptionsForGroup, 
+      String scopeForGroup, boolean splitScopeForGroup, boolean hasFieldForGroup,
+      boolean hasMembershipTypeForGroup);
 
   
   /**

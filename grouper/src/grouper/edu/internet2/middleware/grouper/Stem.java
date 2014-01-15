@@ -1433,6 +1433,33 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   } 
  
   /**
+   * see if the subject has a privilege
+   * @param subject
+   * @param privilegeOrListName
+   * @return true if has privilege
+   */
+  public boolean hasPrivilege(Subject subject, String privilegeOrListName) {
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM.getListName())) {
+      return this.hasStem(subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.CREATE.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.CREATE.getListName())) {
+      return this.hasCreate(subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_ATTR_READ.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_ATTR_READ.getListName())) {
+      return this.hasStemAttrRead(subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_ATTR_UPDATE.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_ATTR_UPDATE.getListName())) {
+      return this.hasStemAttrUpdate(subject);
+    }
+    throw new RuntimeException("Cant find privilege: '" + privilegeOrListName + "'");
+
+  }
+
+  /**
    * TODO 20070813 make public?
    * @param group group
    * @return  True if <i>group</i> is child, at any depth, of this stem.
@@ -4373,6 +4400,41 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       
     }
     return true;
+  }
+
+  /**
+   * see if the subject has a privilege or another privilege that implies this privilege.
+   * @param subject
+   * @param privilegeOrListName
+   * @param secure if the user must be an admin to check
+   * @return true if has privilege
+   */
+  public boolean canHavePrivilege(Subject subject, String privilegeOrListName, boolean secure) {
+    
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    if (secure) {
+      PrivilegeHelper.dispatch(grouperSession, this, grouperSession.getSubject(), NamingPrivilege.STEM);
+    }
+    
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM.getListName())) {
+      return PrivilegeHelper.canStem(grouperSession, this, subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.CREATE.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.CREATE.getListName())) {
+      return PrivilegeHelper.canCreate(grouperSession, this, subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_ATTR_READ.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_ATTR_READ.getListName())) {
+      return PrivilegeHelper.canStemAttrRead(grouperSession, this, subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_ATTR_UPDATE.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_ATTR_UPDATE.getListName())) {
+      return PrivilegeHelper.canStemAttrUpdate(grouperSession, this, subject);
+    }
+    throw new RuntimeException("Cant find privilege: '" + privilegeOrListName + "'");
+  
   }
 
 }

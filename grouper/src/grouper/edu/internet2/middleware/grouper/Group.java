@@ -4001,6 +4001,49 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   } 
   
   /**
+   * see if the subject has a privilege
+   * @param subject
+   * @param privilegeOrListName
+   * @return true if has privilege
+   */
+  public boolean hasPrivilege(Subject subject, String privilegeOrListName) {
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.ADMIN.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.ADMIN.getListName())) {
+      return this.hasAdmin(subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.READ.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.READ.getListName())) {
+      return this.hasRead(subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.VIEW.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.VIEW.getListName())) {
+      return this.hasView(subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.UPDATE.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.UPDATE.getListName())) {
+      return this.hasUpdate(subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.GROUP_ATTR_READ.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.GROUP_ATTR_READ.getListName())) {
+      return this.hasGroupAttrRead(subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.GROUP_ATTR_UPDATE.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.GROUP_ATTR_UPDATE.getListName())) {
+      return this.hasGroupAttrUpdate(subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.OPTIN.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.OPTIN.getListName())) {
+      return this.hasOptin(subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.OPTOUT.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.OPTOUT.getListName())) {
+      return this.hasOptout(subject);
+    }
+    throw new RuntimeException("Cant find privilege: '" + privilegeOrListName + "'");
+
+  }
+  
+  /**
    * Check whether the subject has ADMIN on this group.
    * <pre class="eg">
    * if (g.hasAdmin(subj)) {
@@ -7330,6 +7373,57 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       
     }
     return true;
+  }
+
+  /**
+   * see if the subject has a privilege or another privilege that implies this privilege.
+   * @param subject
+   * @param privilegeOrListName
+   * @param secure if the user must be an admin to check
+   * @return true if has privilege
+   */
+  public boolean canHavePrivilege(Subject subject, String privilegeOrListName, boolean secure) {
+    
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    if (secure) {
+      PrivilegeHelper.dispatch(grouperSession, this, grouperSession.getSubject(), AccessPrivilege.ADMIN);
+    }
+    
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.ADMIN.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.ADMIN.getListName())) {
+      return PrivilegeHelper.canAdmin(grouperSession, this, subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.READ.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.READ.getListName())) {
+      return PrivilegeHelper.canRead(grouperSession, this, subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.VIEW.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.VIEW.getListName())) {
+      return PrivilegeHelper.canView(grouperSession, this, subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.UPDATE.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.UPDATE.getListName())) {
+      return PrivilegeHelper.canUpdate(grouperSession, this, subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.GROUP_ATTR_READ.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.GROUP_ATTR_READ.getListName())) {
+      return PrivilegeHelper.canGroupAttrRead(grouperSession, this, subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.GROUP_ATTR_UPDATE.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.GROUP_ATTR_UPDATE.getListName())) {
+      return PrivilegeHelper.canGroupAttrUpdate(grouperSession, this, subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.OPTIN.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.OPTIN.getListName())) {
+      return PrivilegeHelper.canOptin(grouperSession, this, subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.OPTOUT.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AccessPrivilege.OPTOUT.getListName())) {
+      return PrivilegeHelper.canOptout(grouperSession, this, subject);
+    }
+    throw new RuntimeException("Cant find privilege: '" + privilegeOrListName + "'");
+  
   }
 
 }

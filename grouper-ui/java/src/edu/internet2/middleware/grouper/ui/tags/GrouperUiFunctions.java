@@ -26,13 +26,19 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiHideShow;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
@@ -46,6 +52,32 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  */
 public class GrouperUiFunctions {
 
+  /**
+   * if an owner has a privilege by the authenticated user
+   * @return true if has privilege, false if not
+   */
+  public static boolean canHavePrivilege(GrouperObject owner, String privilegeOrListName) {
+    
+    Subject subject = GrouperSession.staticGrouperSession().getSubject();
+    
+    //dont check security, this is on behalf of the UI, assume its allowed to check
+    
+    if (owner instanceof Group) {
+      return ((Group)owner).canHavePrivilege(subject, privilegeOrListName, false);
+    }
+    if (owner instanceof Stem) {
+      return ((Stem)owner).canHavePrivilege(subject, privilegeOrListName, false);
+    }
+    if (owner instanceof AttributeDef) {
+      return ((AttributeDef)owner).getPrivilegeDelegate().canHavePrivilege(subject, privilegeOrListName, false);
+    }
+    if (owner instanceof AttributeDefName) {
+      return ((AttributeDefName)owner).getAttributeDef().getPrivilegeDelegate().canHavePrivilege(subject, privilegeOrListName, false);
+    }
+    throw new RuntimeException("Cant find owner for '" + (owner == null ? null : owner.getClass()) + "'");
+    
+  }
+  
   /**
    * Escapes XML ( ampersand, lessthan, greater than, double quote), and single quote with slash
    * @param input 
