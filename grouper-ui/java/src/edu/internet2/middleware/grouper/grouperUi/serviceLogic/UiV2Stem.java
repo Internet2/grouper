@@ -18,6 +18,7 @@ import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemCopy;
@@ -26,6 +27,7 @@ import edu.internet2.middleware.grouper.StemMove;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemDeleteException;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
@@ -38,6 +40,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContain
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.StemContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectFinder;
@@ -821,7 +824,6 @@ public class UiV2Stem {
     stemContainer.setGuiStem(new GuiStem(stem));      
     
     String filterText = request.getParameter("filterText");
-    stemContainer.setFilterText(filterText);
     
     String pageSizeString = request.getParameter("pagingTagPageSize");
     int pageSize = -1;
@@ -1104,19 +1106,18 @@ public class UiV2Stem {
 
     //if filtering text in subjects
     String filterText = request.getParameter("privilegeFilterText");
-    grouperRequestContainer.getStemContainer().setPrivilegeFilterText(filterText);
     
     String privilegeFieldName = request.getParameter("privilegeField");
+    Field privilegeField = null;
     if (!StringUtils.isBlank(privilegeFieldName)) {
-      Field field = FieldFinder.find(privilegeFieldName, true);
-      grouperRequestContainer.getStemContainer().setPrivilegeField(field);
+      privilegeField = FieldFinder.find(privilegeFieldName, true);
     }
     
     //if filtering by subjects that have a certain type
     String membershipTypeString = request.getParameter("privilegeMembershipType");
+    MembershipType privilegeMembershipType = null;
     if (!StringUtils.isBlank(membershipTypeString)) {
-      MembershipType membershipType = MembershipType.valueOfIgnoreCase(membershipTypeString, true);
-      grouperRequestContainer.getStemContainer().setPrivilegeMembershipType(membershipType);
+      privilegeMembershipType = MembershipType.valueOfIgnoreCase(membershipTypeString, true);
     }
     
     //how many per page
@@ -1127,7 +1128,8 @@ public class UiV2Stem {
     } else {
       pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
     }
-    grouperRequestContainer.getStemContainer().getPrivilegeGuiPaging().setPageSize(pageSize);
+    StemContainer stemContainer = grouperRequestContainer.getStemContainer();
+    stemContainer.getPrivilegeGuiPaging().setPageSize(pageSize);
     
     //1 indexed
     String pageNumberString = request.getParameter("pagingTagPageNumber");
@@ -1137,8 +1139,41 @@ public class UiV2Stem {
       pageNumber = GrouperUtil.intValue(pageNumberString);
     }
     
-    grouperRequestContainer.getStemContainer().getPrivilegeGuiPaging().setPageNumber(pageNumber);
+    stemContainer.getPrivilegeGuiPaging().setPageNumber(pageNumber);
+
+    QueryOptions queryOptions = new QueryOptions();
+    queryOptions.paging(pageSize, pageNumber, true);
     
+    MembershipFinder membershipFinder = new MembershipFinder()
+      .addStemId(stem.getId()).assignCheckSecurity(true)
+      .assignHasFieldForMember(true)
+      .assignHasMembershipTypeForMember(true)
+      .assignEnabled(true)
+      .assignQueryOptionsForMember(queryOptions)
+      .assignSplitScopeForMember(true);
+    
+    if (privilegeMembershipType != null) {
+      membershipFinder.assignMembershipType(privilegeMembershipType);
+    }
+
+    if (privilegeField != null) {
+      membershipFinder.assignField(privilegeField);
+    }
+
+    if (!StringUtils.isBlank(filterText)) {
+      membershipFinder.assignScopeForMember(filterText);
+    }
+
+    //set of subjects, and what privs each subject has
+    Set<MembershipSubjectContainer> results = membershipFinder
+        .findMembershipResult().getMembershipSubjectContainers();
+
+    //inherit from grouperAll or Groupersystem or privilege inheritance
+    MembershipSubjectContainer.considerNamingPrivilegeInheritance(results, stem);
+    
+    stemContainer.setPrivilegeGuiMembershipSubjectContainers(GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results));
+    stemContainer.getPrivilegeGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+
     
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#stemPrivilegeFilterResultsId", 
         "/WEB-INF/grouperUi2/stem/stemPrivilegeContents.jsp"));

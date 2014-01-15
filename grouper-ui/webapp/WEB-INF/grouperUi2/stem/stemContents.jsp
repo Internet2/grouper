@@ -27,5 +27,5 @@
                   </tbody>
                 </table>
                 <grouper:paging2 guiPaging="${grouperRequestContainer.stemContainer.guiPaging}" formName="stemPagingForm" ajaxFormIds="stemFilterFormId"
-                  refreshOperation="../app/UiV2Stem.filter?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&filterText=${grouper:escapeUrl(grouperRequestContainer.stemContainer.filterText)}" />
+                  refreshOperation="../app/UiV2Stem.filter?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
  
