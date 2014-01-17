@@ -337,6 +337,9 @@ public class TestGQGroupAttributeExact extends TestCase {
     gq = GrouperQuery.createQuery(s, new GroupAttributeExactFilter("customAttribute", "String with i2 within", root));
     Assert.assertEquals(1, gq.getGroups().size());
     
+    gq = GrouperQuery.createQuery(s, new GroupAttributeExactFilter("etc:legacy:attribute:legacyAttribute_customAttribute", "String with i2 within", root));
+    Assert.assertEquals(1, gq.getGroups().size());
+    
     gq = GrouperQuery.createQuery(s, new GroupAttributeExactFilter("extension", "devclue", root));
     Assert.assertEquals(1, gq.getGroups().size());
     

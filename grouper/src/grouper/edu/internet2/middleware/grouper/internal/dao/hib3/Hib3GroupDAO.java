@@ -422,7 +422,13 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
               hql.append(" assign.ownerGroupId = theGroup.uuid and assign.id = assign2.ownerAttributeAssignId and assign2.id = value.attributeAssignId and assign2.attributeDefNameId = name2.id and assign.attributeDefNameId = name.id and " +
                 "name2.nameDb = :attributeName and lower(value.valueString) like :value ");
-              byHql.setString("attributeName", legacyAttributeStemName + ":" + legacyAttributePrefix + attr);
+              
+              String attributePrefix = legacyAttributeStemName + ":" + legacyAttributePrefix;
+              if (attr.startsWith(attributePrefix)) {
+                byHql.setString("attributeName",  attr);
+              } else {
+                byHql.setString("attributeName",  attributePrefix + attr);
+              }
             }
             if (!StringUtils.isBlank(scope)) {
               hql.append(" and theGroup.nameDb like :scope");
@@ -914,7 +920,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             StringBuilder sqlWhereClause = new StringBuilder();
     
             if (secureQuery) {
-    if (Group._internal_fieldAttribute(attr)) {
+              if (Group._internal_fieldAttribute(attr)) {
                 changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
                     grouperSession.getSubject(), byHql, 
                     hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
@@ -935,13 +941,13 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             
             if (!changedQuery) {
               hql.append(" where ");
-    } else {
+            } else {
               hql.append(" and ");
             }
             
             if (sqlWhereClause.toString().trim().length() > 0) {
               hql.append(sqlWhereClause).append(" and ");
-    }
+            }
     
             if (Group._internal_fieldAttribute(attr)) {
               hql.append(" theGroup." + attr + "Db = :value ");
@@ -951,12 +957,18 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
               hql.append(" assign.ownerGroupId = theGroup.uuid and assign.id = assign2.ownerAttributeAssignId and assign2.id = value.attributeAssignId and assign2.attributeDefNameId = name2.id and assign.attributeDefNameId = name.id and " +
                 "name2.nameDb = :attributeName and value.valueString like :value ");
-              byHql.setString("attributeName", legacyAttributeStemName + ":" + legacyAttributePrefix + attr);
+              
+              String attributePrefix = legacyAttributeStemName + ":" + legacyAttributePrefix;
+              if (attr.startsWith(attributePrefix)) {
+                byHql.setString("attributeName", attr);
+              } else {
+                byHql.setString("attributeName", attributePrefix + attr);
+              }
             }
 
             byHql.createQuery(hql.toString());
             Group group = byHql.setCacheable(false).setCacheRegion(KLASS + ".FindByAttribute")
-      .setString("value", val).uniqueResult(Group.class);
+              .setString("value", val).uniqueResult(Group.class);
     
             return group;
             
@@ -1506,7 +1518,13 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
               hql.append(" assign.ownerGroupId = theGroup.uuid and assign.id = assign2.ownerAttributeAssignId and assign2.id = value.attributeAssignId and assign2.attributeDefNameId = name2.id and assign.attributeDefNameId = name.id and " +
                 "name2.nameDb = :attributeName and value.valueString = :value ");
-              byHql.setString("attributeName", legacyAttributeStemName + ":" + legacyAttributePrefix + attr);
+              
+              String attributePrefix = legacyAttributeStemName + ":" + legacyAttributePrefix;
+              if (attr.startsWith(attributePrefix)) {
+                byHql.setString("attributeName", attr);
+              } else {
+                byHql.setString("attributeName", attributePrefix + attr);
+              }
             }
             if (!StringUtils.isBlank(scope)) {
               hql.append(" and theGroup.nameDb like :scope");
@@ -1536,7 +1554,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public Set<Group> findAllByAttr(final String attr, final String val, final String scope) throws GrouperDAOException,
       IllegalStateException {
     return findAllByAttr(attr, val, scope, false);
-            }
+  }
             
   /**
    * find groups by creator or modifier

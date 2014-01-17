@@ -606,6 +606,9 @@ public class TestGroupFinder extends GrouperTest {
     group = GroupFinder.findByAttribute(grouperSession, "type1Attr1", "test value 1");
     assertEquals(group1.getName(), group.getName());
     
+    group = GroupFinder.findByAttribute(grouperSession, "etc:legacy:attribute:legacyAttribute_type1Attr1", "test value 1");
+    assertEquals(group1.getName(), group.getName());
+    
     group = GroupFinder.findByAttribute(grouperSession, "type1Attr2", "test value 2");
     assertEquals(group1.getName(), group.getName());
     

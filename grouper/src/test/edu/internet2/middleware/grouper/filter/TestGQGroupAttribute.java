@@ -241,6 +241,10 @@ public class TestGQGroupAttribute extends TestCase {
     gq = GrouperQuery.createQuery(s, new GroupAttributeFilter("customAttribute", "i2", root));
     Assert.assertEquals(1, gq.getGroups().size());
     
+    // test using full attribute name
+    gq = GrouperQuery.createQuery(s, new GroupAttributeFilter("etc:legacy:attribute:legacyAttribute_customAttribute", "i2", root));
+    Assert.assertEquals(1, gq.getGroups().size());
+    
   } // public void testGroupAttributeFilterSomethingDisplayExtensionScoped()
 
 }
