@@ -2,7 +2,6 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -24,6 +23,48 @@ import edu.internet2.middleware.subject.Subject;
  *
  */
 public class GroupContainer {
+
+  /**
+   * how many successes
+   */
+  private int successCount;
+  
+  /**
+   * how many failures
+   */
+  private int failureCount;
+  
+  /**
+   * how many successes
+   * @return successes
+   */
+  public int getSuccessCount() {
+    return this.successCount;
+  }
+
+  /**
+   * how many successes
+   * @param successCount1
+   */
+  public void setSuccessCount(int successCount1) {
+    this.successCount = successCount1;
+  }
+
+  /**
+   * how many failures
+   * @return failures
+   */
+  public int getFailureCount() {
+    return this.failureCount;
+  }
+
+  /**
+   * how many failures
+   * @param failuresCount1
+   */
+  public void setFailureCount(int failuresCount1) {
+    this.failureCount = failuresCount1;
+  }
 
   /**
    * if entities get admin when added to a group

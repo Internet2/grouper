@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -24,6 +25,7 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -239,7 +241,76 @@ public class UiV2Group {
     }
   }
 
+  /**
+   * the remove from groups button was pressed
+   * @param request
+   * @param response
+   */
+  public void removeMembersForThisGroupsMemberships(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      final Group group = retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+  
+      if (group == null) {
+        return;
+      }
 
+      Set<String> membershipsIds = new HashSet<String>();
+      
+      for (int i=0;i<1000;i++) {
+        String membershipId = request.getParameter("membershipRow_" + i + "[]");
+        if (!StringUtils.isBlank(membershipId)) {
+          membershipsIds.add(membershipId);
+        }
+      }
+
+      if (membershipsIds.size() == 0) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("thisGroupsMembershipsRemoveNoGroupsSelects")));
+        return;
+      }
+      int successes = 0;
+      int failures = 0;
+      
+      Subject groupSubject = group.toSubject();
+      for (String membershipId : membershipsIds) {
+        try {
+          Membership membership = new MembershipFinder().addMembershipId(membershipId).findMembership(true);
+          Group ownerGroup = membership.getOwnerGroup();
+          //dont worry about if no change, thats a success
+          ownerGroup.deleteMember(groupSubject, false);
+          successes++;
+        } catch (Exception e) {
+          LOG.warn("Error with membership: " + membershipId + ", user: " + loggedInSubject, e);
+          failures++;
+        }
+      }
+
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setSuccessCount(successes);
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setFailureCount(failures);
+
+      if (failures > 0) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("groupDeleteFromOwnerErrors")));
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+            TextContainer.retrieveFromRequest().getText().get("groupDeleteFromOwnerSuccesses")));
+      }
+      
+      filterThisGroupsMembershipsHelper(request, response, group);
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
   
   /**
    * the filter button was pressed, or paging or sorting, or view Group or something
@@ -1957,6 +2028,76 @@ public class UiV2Group {
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#thisGroupsMembershipsFilterResultsId", 
         "/WEB-INF/grouperUi2/group/thisGroupsMembershipsContents.jsp"));
   
+  }
+
+  /**
+   * the remove members button was pressed
+   * @param request
+   * @param response
+   */
+  public void removeMembers(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      final Group group = retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+  
+      if (group == null) {
+        return;
+      }
+  
+      Set<String> membershipsIds = new HashSet<String>();
+      
+      for (int i=0;i<1000;i++) {
+        String membershipId = request.getParameter("membershipRow_" + i + "[]");
+        if (!StringUtils.isBlank(membershipId)) {
+          membershipsIds.add(membershipId);
+        }
+      }
+  
+      if (membershipsIds.size() == 0) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("groupMembershipsRemoveNoSubjectSelects")));
+        return;
+      }
+      int successes = 0;
+      int failures = 0;
+      
+      for (String membershipId : membershipsIds) {
+        try {
+          Membership membership = new MembershipFinder().addMembershipId(membershipId).findMembership(true);
+
+          group.deleteMember(membership.getMember(), false);
+
+          successes++;
+        } catch (Exception e) {
+          LOG.warn("Error with membership: " + membershipId + ", user: " + loggedInSubject, e);
+          failures++;
+        }
+      }
+
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setSuccessCount(successes);
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setFailureCount(failures);
+
+      if (failures > 0) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("groupDeleteMembersErrors")));
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+            TextContainer.retrieveFromRequest().getText().get("groupDeleteMembersSuccesses")));
+      }
+      
+      filterHelper(request, response, group);
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
   }
 
 }
