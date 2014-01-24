@@ -1204,12 +1204,11 @@ public abstract class ConfigPropertiesCascadeBase {
    * @param pattern
    * @return the keys.  if none, will return the empty set, not null set
    */
-  @SuppressWarnings("unchecked")
   public Map<String, String> propertiesMap(Pattern pattern) {
     Map<String, String> result = new LinkedHashMap<String, String>();
-    for (String key: (Set<String>)(Object)this.properties.keySet()) {
+    for (String key: (Set<String>)propertyNames()) {
       if (pattern.matcher(key).matches()) {
-        result.put(key, (String)this.properties.get(key));
+        result.put(key, propertyValueString(key));
       }
     }
     
