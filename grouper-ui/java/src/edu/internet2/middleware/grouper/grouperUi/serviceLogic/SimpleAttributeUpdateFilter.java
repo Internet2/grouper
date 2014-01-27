@@ -93,7 +93,7 @@ public class SimpleAttributeUpdateFilter {
       } else {
         queryOptions = new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("simpleAttributeUpdate.attributeDefComboboxResultSize", 200), 1, true).sortAsc("theAttributeDef.nameDb");
         attributeDefs = GrouperDAOFactory.getFactory().getAttributeDef().getAllAttributeDefsSplitScopeSecure(searchTerm, grouperSession, loggedInSubject, 
-            AttributeDefPrivilege.ATTRIBUTE_UPDATE_PRIVILEGES, queryOptions, null, null);
+            AttributeDefPrivilege.ATTR_UPDATE_PRIVILEGES, queryOptions, null, null);
         
         if (GrouperUtil.length(attributeDefs) == 0) {
           GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 

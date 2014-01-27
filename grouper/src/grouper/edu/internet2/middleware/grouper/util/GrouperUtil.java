@@ -2259,8 +2259,6 @@ public class GrouperUtil {
     return toList(classes);
   }
 
-
-
   /**
    * return a set of objects from varargs.
    *
@@ -2269,7 +2267,7 @@ public class GrouperUtil {
    * @return the set
    */
   public static <T> Set<T> toSet(T... objects) {
-    if (objects == null) {
+    if (objects == null || objects.length == 0 || (objects.length == 1 && objects[0] == null )) {
       return null;
     }
     Set<T> result = new LinkedHashSet<T>();

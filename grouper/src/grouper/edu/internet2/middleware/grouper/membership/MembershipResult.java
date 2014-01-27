@@ -15,6 +15,7 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.membership;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -23,6 +24,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
@@ -67,7 +69,16 @@ public class MembershipResult {
   /** field id we are looking for */
   private String fieldId;
 
-
+  /**
+   * fields queried for
+   */
+  private Collection<Field> fields;
+  
+  /**
+   * if the privilege fields should include inherited privileges (e.g. if UPDATE should also include ADMIN)
+   */
+  private boolean includeInheritedPrivileges;
+  
   /**
    * 
    */
@@ -107,7 +118,10 @@ public class MembershipResult {
 //            + GrouperUtil.length(this.groups) + ", " + GrouperUtil.length(this.stems));
 //      }
 
-      this.membershipSubjectContainers = MembershipSubjectContainer.convertFromMembershipsOwnersMembers(this.membershipsOwnersMembers);
+      //if we are including inherited privileges, then tell that to the converter to membership subject converters
+      
+      this.membershipSubjectContainers = MembershipSubjectContainer.convertFromMembershipsOwnersMembers(this.membershipsOwnersMembers, 
+          this.fields, this.includeInheritedPrivileges);
       
     }
     return this.membershipSubjectContainers;
@@ -119,8 +133,14 @@ public class MembershipResult {
    * 
    * @param theMembershipsGroupsMembers is the list of arrays of membership, group, member
    * @param theFieldId is null for members, or specify if something else
+   * @param theFields
+   * @param theIncludeInheritedPrivileges
    */
-  public MembershipResult(Set<Object[]> theMembershipsGroupsMembers, String theFieldId) {
+  public MembershipResult(Set<Object[]> theMembershipsGroupsMembers, String theFieldId, 
+      Collection<Field> theFields, boolean theIncludeInheritedPrivileges) {
+
+    this.fields = theFields;
+    this.includeInheritedPrivileges = theIncludeInheritedPrivileges;
     
     this.membershipsOwnersMembers = theMembershipsGroupsMembers;
     

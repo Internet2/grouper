@@ -275,11 +275,11 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             if (secureQuery) {
               grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
                   grouperSession.getSubject(), byHql, 
-                  hql, sqlWhereClause, "name.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+                  hql, sqlWhereClause, "name.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
               
               grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
                   grouperSession.getSubject(), byHql, 
-                  hql, sqlWhereClause, "name2.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+                  hql, sqlWhereClause, "name2.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
               
               changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
                   grouperSession.getSubject(), byHql, 
@@ -392,11 +392,11 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
               } else {
                 grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
                     grouperSession.getSubject(), byHql, 
-                    hql, sqlWhereClause, "name.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+                    hql, sqlWhereClause, "name.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
                 
                 grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
                     grouperSession.getSubject(), byHql, 
-                    hql, sqlWhereClause, "name2.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+                    hql, sqlWhereClause, "name2.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
                 
                 changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
                     grouperSession.getSubject(), byHql, 
@@ -927,11 +927,11 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
               } else {
                 grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
                     grouperSession.getSubject(), byHql, 
-                    hql, sqlWhereClause, "name.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+                    hql, sqlWhereClause, "name.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
                 
                 grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
                     grouperSession.getSubject(), byHql, 
-                    hql, sqlWhereClause, "name2.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+                    hql, sqlWhereClause, "name2.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
                 
                 changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
                     grouperSession.getSubject(), byHql, 
@@ -1488,11 +1488,11 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
               } else {
                 grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
                     grouperSession.getSubject(), byHql, 
-                    hql, sqlWhereClause, "name.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+                    hql, sqlWhereClause, "name.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
                 
                 grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
                     grouperSession.getSubject(), byHql, 
-                    hql, sqlWhereClause, "name2.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+                    hql, sqlWhereClause, "name2.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
                 
                 changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
                     grouperSession.getSubject(), byHql, 

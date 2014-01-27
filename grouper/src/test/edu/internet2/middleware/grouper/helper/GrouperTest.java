@@ -49,6 +49,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
@@ -774,6 +775,77 @@ public class GrouperTest extends TestCase {
     }
     //couldnt find it
     fail("Couldnt find privilege: " + stem.getName() + ", " + subject.getId() + ", " + privilege.getListName());
+  }
+  
+  /**
+   * make sure a result set has a privilege from a user and stem
+   * @param result set of object arrays of membership, stem, member
+   * @param stemA 
+   * @param subject
+   * @param privilege
+   */
+  public void assertHasPrivilege(Set<Object[]> results, Group group, Subject subject, Privilege privilege) {
+    for (Object[] result : results) {
+      Membership resultMembership = (Membership)result[0];
+      if (!(result[1] instanceof Group)) {
+        continue;
+      }
+      Group resultGroup = (Group)result[1];
+      Member resultMember = (Member)result[2];
+      
+      if (!StringUtils.equals(resultGroup.getId(), group.getId())) {
+        continue;
+      }
+      
+      if (!SubjectHelper.eq(resultMember.getSubject(), subject)) {
+        continue;
+      }
+
+      if (!StringUtils.equals(resultMembership.getListName(), privilege.getListName())) {
+        continue;
+      }
+      
+      if (!resultMembership.isEnabled()) {
+        continue;
+      }
+      //should be good
+      return;
+    }
+
+    printMemberships(results);
+    
+    //couldnt find it
+    fail("Couldnt find privilege: " + group.getName() + ", " + subject.getId() + ", " + privilege.getListName());
+  }
+
+  /**
+   * print out memberships to help with debugging
+   * @param memberships
+   */
+  public void printMemberships(Set<Object[]> results) {
+    //print out memberships
+    for (Object[] result : results) {
+      Membership resultMembership = (Membership)result[0];
+      if (!(result[1] instanceof Group)) {
+        System.out.println("Type: " + ((result[1] == null ? null : result[1].getClass().getName())));
+      }
+      Group resultGroup = (Group)result[1];
+      Member resultMember = (Member)result[2];
+      
+      String memberString = null;
+      
+      if (StringUtils.equals(resultMember.getSubjectSourceId(), GrouperSourceAdapter.groupSourceId())) {
+        Group theGroup = GroupFinder.findByUuid(
+            GrouperSession.staticGrouperSession().internal_getRootSession(), resultMember.getSubjectId(), false);
+        memberString = theGroup == null ? "null group?" : theGroup.getName();
+      } else {
+        memberString = resultMember.getSubjectId();
+      }
+      
+      System.out.println("Group: " + resultGroup.getName() + ", Member: " + memberString + ", Field: " + resultMembership.getListName());
+      
+    }    
+    
   }
   
   /**

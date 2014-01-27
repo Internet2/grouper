@@ -168,7 +168,7 @@ public class GrouperObjectFinder {
        */
       @Override
       public Set<Privilege> attributeDefPrivileges() {
-        return AttributeDefPrivilege.VIEW_PRIVILEGES;
+        return AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES;
       }
     }, 
     
@@ -199,7 +199,7 @@ public class GrouperObjectFinder {
        */
       @Override
       public Set<Privilege> attributeDefPrivileges() {
-        return AttributeDefPrivilege.READ_PRIVILEGES;
+        return AttributeDefPrivilege.ATTR_READ_PRIVILEGES;
       }
     },
     update {
@@ -249,7 +249,7 @@ public class GrouperObjectFinder {
        */
       @Override
       public Set<Privilege> attributeDefPrivileges() {
-        return AttributeDefPrivilege.ADMIN_PRIVILEGES;
+        return AttributeDefPrivilege.ATTR_ADMIN_PRIVILEGES;
       }
     };
     

@@ -711,7 +711,7 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
       //see if we are adding more to the query
       grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
           grouperSession.getSubject(), byHqlStatic, 
-          sql, whereClause, "theAttributeDef.id", AttributeDefPrivilege.VIEW_PRIVILEGES);
+          sql, whereClause, "theAttributeDef.id", AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES);
 
       sql.append(" where ").append(whereClause);
       

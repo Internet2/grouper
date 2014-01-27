@@ -132,8 +132,8 @@ public class MembershipFinder {
   /** membership type to look for */
   private MembershipType membershipType;
 
-  /** field to look for */
-  private Field field;
+  /** fields to look for */
+  private Collection<Field> fields = new HashSet<Field>();
 
   /** sql like string to limit the results of the owner */
   private String scope;
@@ -154,7 +154,8 @@ public class MembershipFinder {
    * @return this for chaining
    */
   public MembershipFinder assignField(Field theField) {
-    this.field = theField;
+    this.fields.clear();
+    this.fields.add(theField);
     return this;
   }
   
@@ -165,7 +166,7 @@ public class MembershipFinder {
    */
   public MembershipFinder assignFieldName(String theFieldName) {
     Field theField = FieldFinder.find(theFieldName, true);
-    this.field = theField;
+    this.assignField(theField);
     return this;
   }
   
@@ -327,6 +328,35 @@ public class MembershipFinder {
   }
   
   /**
+   * assign a collection of fields to look for
+   * @param theFields
+   * @return this for chaining
+   */
+  public MembershipFinder assignFields(Collection<Field> theFields) {
+    this.fields = theFields;
+    return this;
+  }
+  
+  /**
+   * assign a collection of fields to look for
+   * @param theFieldNames
+   * @return this for chaining
+   */
+  public MembershipFinder assignFieldsByName(Collection<String> theFieldNames) {
+    
+    Set<Field> theFields = new HashSet<Field>();
+
+    for (String fieldName : GrouperUtil.nonNull(theFieldNames)) {
+      Field field = FieldFinder.find(fieldName, true);
+      theFields.add(field);
+    }
+    
+    this.fields = theFields;
+    
+    return this;
+  }
+  
+  /**
    * assign a collection of stem ids to look for
    * @param theStemIds
    * @return this for chaining
@@ -445,6 +475,26 @@ public class MembershipFinder {
     return this.addGroupId(group.getId());
   }
   
+  /**
+   * add a field to filter by
+   * @param name
+   * @return this for chaining
+   */
+  public MembershipFinder addField(String name) {
+    Field field = FieldFinder.find(name, false);
+    this.addField(field);
+    return this;
+  }
+  
+  /**
+   * add a field to filter by
+   * @param field
+   * @return this for chaining
+   */
+  public MembershipFinder addField(Field field) {
+    this.fields.add(field);
+    return this;
+  }
   
   /** if we should look for all, or enabled only.  default is all */
   private Boolean enabled;
@@ -488,30 +538,87 @@ public class MembershipFinder {
   public MembershipResult findMembershipResult() {
     
     Set<Object[]> membershipsOwnersMembers = this.findMembershipsMembers();
-    String theFieldId = this.field == null ? null : this.field.getUuid();
-    return new MembershipResult(membershipsOwnersMembers, theFieldId);
+    Field field = this.field(false);
+    String theFieldId = field == null ? null : field.getUuid();
+    return new MembershipResult(membershipsOwnersMembers, theFieldId, this.fields, this.includeInheritedPrivileges);
+  }
+  
+  /**
+   * if inherited effective privileges should be included.  i.e. if you query for UPDATE, then also query for ADMIN
+   */
+  private boolean includeInheritedPrivileges = false;
+  
+  /**
+   * if inherited effective privileges should be included.  i.e. if you query for UPDATE, then also query for ADMIN
+   * @param theIncludeInheritedPrivileges
+   * @return this for chaining
+   */
+  public MembershipFinder assignIncludeInheritedPrivileges(boolean theIncludeInheritedPrivileges) {
+    this.includeInheritedPrivileges = theIncludeInheritedPrivileges;
+    return this;
+  }
+  
+  /**
+   * assuming one field
+   * @param firstFieldIfMultiple true if should get first field if multiple
+   * @return the field or null
+   */
+  private Field field(boolean firstFieldIfMultiple) {
+    if (!firstFieldIfMultiple) {
+      this.assertOneOrNoFields();
+    }
+    if (GrouperUtil.length(this.fields) == 0) {
+      return null;
+    }
+    if (GrouperUtil.length(this.fields) == 1) {
+      return this.fields.iterator().next();
+    }
+    //at this point there are multiple... make sure same type?  or dont worry?
+    FieldType fieldType = null;
+    for (Field field : this.fields) {
+      if (fieldType == null) {
+        fieldType = field.getType();
+      } else {
+        if (fieldType != field.getType()) {
+          throw new RuntimeException("Expecting field type of: " + fieldType + ", but received: " + field.getType());
+        }
+      }
+    }
+    return this.fields.iterator().next();
+  }
+  
+  /**
+   * make sure there is only one or no fields here
+   */
+  private void assertOneOrNoFields() {
+    if (GrouperUtil.length(this.fields) <= 1) {
+      return;
+    }
+    throw new RuntimeException("Expecting 0 or 1 fields but got: " + GrouperUtil.length(this.fields));
   }
   
   /**
    * find a set of object arrays which have a membership, group|stem|attributeDef, and member inside
    * @return the set of arrays never null
-   */
+   */ 
   public Set<Object[]> findMembershipsMembers() {
+    
+    Field field = this.field(true);
     if ((this.fieldType != null && this.fieldType == FieldType.NAMING )
-        || (this.field != null && this.field.isStemListField())
+        || (field != null && field.isStemListField())
         || GrouperUtil.length(this.stemIds) > 0) {
       return this.findMembershipsStemsMembers();
     } else if ((this.fieldType != null && this.fieldType == FieldType.ATTRIBUTE_DEF )
-        || (this.field != null && this.field.isAttributeDefListField())
+        || (field != null && field.isAttributeDefListField())
         || GrouperUtil.length(this.attributeDefIds) > 0) {
       return this.findMembershipsAttributeDefsMembers();
-    } else if ((this.field == null && this.fieldType == null) 
+    } else if ((field == null && this.fieldType == null) 
         || this.fieldType == FieldType.ACCESS || this.fieldType == FieldType.LIST
-        || (this.field != null && this.field.isGroupListField())
+        || (field != null && field.isGroupListField())
         || GrouperUtil.length(this.groupIds) > 0) {
       return this.findMembershipsGroupsMembers();
     } else {
-      throw new RuntimeException("Not expecting field / fieldType: " + this.field + ", " + this.fieldType);
+      throw new RuntimeException("Not expecting field / fieldType: " + field + ", " + this.fieldType);
     }
   }
   
@@ -522,8 +629,9 @@ public class MembershipFinder {
   private Set<Object[]> findMembershipsGroupsMembers() {
 
     //validate that we are looking at groups
-    if (this.field != null && !this.field.isGroupAccessField() && !this.field.isGroupListField()) {
-      throw new RuntimeException("Not expecting field: " + this.field +
+    Field field = this.field(true);
+    if (field != null && !field.isGroupAccessField() && !field.isGroupListField()) {
+      throw new RuntimeException("Not expecting field: " + field +
           ", expecting a group field since other part of the query involve group memberships");
     }
 
@@ -543,16 +651,15 @@ public class MembershipFinder {
           + " involve group memberships");
     }
 
+    Collection<Field> inheritedFields = Field.calculateInheritedPrivileges(this.fields, this.includeInheritedPrivileges);
+    
     return GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(this.groupIds, this.memberIds,
-        this.membershipIds, this.membershipType, this.field, this.sources, this.scope, this.stem, this.stemScope, 
+        this.membershipIds, this.membershipType, inheritedFields, this.sources, this.scope, this.stem, this.stemScope, 
         this.enabled, this.checkSecurity, this.fieldType, this.serviceId, this.serviceRole,
         this.queryOptionsForMember, this.scopeForMember, this.splitScopeForMember, 
         this.hasFieldForMember, this.hasMembershipTypeForMember, this.queryOptionsForGroup, 
         this.scopeForGroup, this.splitScopeForGroup, this.hasFieldForGroup,
         this.hasMembershipTypeForGroup);  
-
-
-
 
   }
 
@@ -562,9 +669,12 @@ public class MembershipFinder {
    */
   private Set<Object[]> findMembershipsStemsMembers() {
 
+    Collection<Field> inheritedFields = Field.calculateInheritedPrivileges(this.fields, this.includeInheritedPrivileges);
+    
     //validate that we are looking at stems
-    if (this.field != null && !this.field.isStemListField()) {
-      throw new RuntimeException("Not expecting field: " + this.field +
+    Field field = this.field(true);
+    if (field != null && !field.isStemListField()) {
+      throw new RuntimeException("Not expecting field: " + field +
           ", expecting a stem field since other part of the query involve stem memberships");
     }
 
@@ -585,7 +695,7 @@ public class MembershipFinder {
     }
 
     return GrouperDAOFactory.getFactory().getMembership().findAllByStemOwnerOptions(this.stemIds, this.memberIds,
-        this.membershipIds, this.membershipType, this.field, this.sources, 
+        this.membershipIds, this.membershipType, field, this.sources, 
         this.scope, this.stem, this.stemScope, this.enabled, this.checkSecurity, 
         this.queryOptionsForMember, this.scopeForMember, this.splitScopeForMember, 
         this.hasFieldForMember, this.hasMembershipTypeForMember);  
@@ -632,8 +742,8 @@ public class MembershipFinder {
     if (GrouperUtil.length(this.memberIds) > 0) {
       result.append("memberIds: ").append(GrouperUtil.toStringForLog(this.memberIds, 100));
     }
-    if (this.field != null) {
-      result.append("field: ").append(this.field);
+    if (GrouperUtil.length(this.fields) > 0) {
+      result.append("fields: ").append(GrouperUtil.toStringForLog(this.fields, 100));
     }
     if (GrouperUtil.length(this.groupIds) > 0) {
       result.append("groupIds: ").append(GrouperUtil.toStringForLog(this.groupIds, 100));
@@ -732,9 +842,12 @@ public class MembershipFinder {
    */
   private Set<Object[]> findMembershipsAttributeDefsMembers() {
   
+    Collection<Field> inheritedFields = Field.calculateInheritedPrivileges(this.fields, this.includeInheritedPrivileges);
+
     //validate that we are looking at attribute definitions
-    if (this.field != null && !this.field.isAttributeDefListField()) {
-      throw new RuntimeException("Not expecting field: " + this.field +
+    Field field = this.field(true);
+    if (field != null && !field.isAttributeDefListField()) {
+      throw new RuntimeException("Not expecting field: " + field +
           ", expecting an attribute definition field since other part of the query involve attribute definition memberships");
     }
 
@@ -754,9 +867,8 @@ public class MembershipFinder {
           + " involve attributeDef memberships");
     }
 
-
     return edu.internet2.middleware.grouper.MembershipFinder.findAttributeDefMemberships(this.attributeDefIds, this.memberIds, 
-        this.membershipIds, this.membershipType, this.field, this.sources, this.scope, this.stem, this.stemScope, this.enabled, this.checkSecurity);
+        this.membershipIds, this.membershipType, field, this.sources, this.scope, this.stem, this.stemScope, this.enabled, this.checkSecurity);
     
   }
 
@@ -997,7 +1109,7 @@ public class MembershipFinder {
       FieldType fieldType, String serviceId, ServiceRole serviceRole) {    
     
     return GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(groupIds, memberIds,
-        membershipIds, membershipType, field, sources, scope, stem, stemScope, enabled, shouldCheckSecurity, 
+        membershipIds, membershipType, GrouperUtil.toSet(field), sources, scope, stem, stemScope, enabled, shouldCheckSecurity, 
         fieldType, serviceId, serviceRole, null, null, false, false, false, null, null, false, false, false);  
   }
   

@@ -32,7 +32,9 @@
 
 package edu.internet2.middleware.grouper.privs;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -54,6 +56,60 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class Privilege implements Serializable {
 
+  /**
+   * convert a list to a privilege for any type of privilege
+   * @param list
+   * @return the privilege
+   */
+  public static Privilege listToPriv(String list, boolean exceptionOnNotFound) {
+    
+    Privilege privilege = AccessPrivilege.listToPriv(list);
+    
+    if (privilege != null) {
+      return privilege;
+    }
+    
+    privilege = NamingPrivilege.listToPriv(list);
+    
+    if (privilege != null) {
+      return privilege;
+    }
+    
+    privilege = AttributeDefPrivilege.listToPriv(list);
+    
+    if (privilege != null) {
+      return privilege;
+    }
+    
+    if (exceptionOnNotFound) {
+      throw new RuntimeException("Cant find privilege from field: " + list);
+    }
+    
+    return null;
+    
+    
+  }
+
+  /**
+   * convert a collection of privileges to a collection of fields
+   * @param privileges
+   * @return the fields
+   */
+  public static Collection<Field> convertPrivilegesToFields(Collection<Privilege> privileges) {
+    
+    Set<Field> result = new HashSet<Field>();
+    
+    for (Privilege privilege : GrouperUtil.nonNull(privileges)) {
+      
+      Field field = privilege.getField();
+      result.add(field);
+      
+    }
+    
+    return result;
+    
+  }
+  
   /** constant */
   public static final long serialVersionUID = 931658631999330719L;
 
@@ -147,6 +203,99 @@ public class Privilege implements Serializable {
 
   /** */
   private String name;
+
+  /**
+   * get the inherited privileges for this privilege (including this privilege
+   * for instance if the privilege is UPDATE, then return UPDATE and ADMIN
+   * @return the inherited privileges
+   *
+   */
+  public Collection<Privilege> getInheritedPrivileges() {
+    
+    if (this.equals(ADMIN)) {
+      return AccessPrivilege.ADMIN_PRIVILEGES;
+    }
+    
+    if (this.equals(VIEW)) {
+      return AccessPrivilege.VIEW_PRIVILEGES;
+    }
+    
+    if (this.equals(READ)) {
+      return AccessPrivilege.READ_PRIVILEGES;
+    }
+    
+    if (this.equals(UPDATE)) {
+      return AccessPrivilege.UPDATE_PRIVILEGES;
+    }
+    
+    if (this.equals(OPTIN)) {
+      return AccessPrivilege.OPTIN_PRIVILEGES;
+    }
+    
+    if (this.equals(OPTOUT)) {
+      return AccessPrivilege.OPTOUT_PRIVILEGES;
+    }
+    
+    if (this.equals(GROUP_ATTR_READ)) {
+      return AccessPrivilege.GROUP_ATTR_READ_PRIVILEGES;
+    }
+    
+    if (this.equals(GROUP_ATTR_UPDATE)) {
+      return AccessPrivilege.GROUP_ATTR_UPDATE_PRIVILEGES;
+    }
+    
+    if (this.equals(STEM)) {
+      return NamingPrivilege.STEM_PRIVILEGES;
+    }
+    
+    if (this.equals(CREATE)) {
+      return NamingPrivilege.CREATE_PRIVILEGES;
+    }
+    
+    if (this.equals(STEM_ATTR_READ)) {
+      return NamingPrivilege.STEM_ATTR_READ_PRIVILEGES;
+    }
+    
+    if (this.equals(STEM_ATTR_UPDATE)) {
+      return NamingPrivilege.STEM_ATTR_UPDATE_PRIVILEGES;
+    }
+
+    if (this.equals(ATTR_ADMIN)) {
+      return AttributeDefPrivilege.ATTR_ADMIN_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_DEF_ATTR_READ)) {
+      return AttributeDefPrivilege.ATTR_DEF_ATTR_READ_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_DEF_ATTR_UPDATE)) {
+      return AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_OPTIN)) {
+      return AttributeDefPrivilege.ATTR_OPTIN_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_OPTOUT)) {
+      return AttributeDefPrivilege.ATTR_OPTOUT_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_READ)) {
+      return AttributeDefPrivilege.ATTR_READ_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_UPDATE)) {
+      return AttributeDefPrivilege.ATTR_UPDATE_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_VIEW)) {
+      return AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES;
+    }
+
+    throw new RuntimeException("Cant find privilege: " + this.getName());
+    
+  }
+  
 
 
   // STATIC //

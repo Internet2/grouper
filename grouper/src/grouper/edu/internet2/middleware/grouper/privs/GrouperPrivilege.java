@@ -19,6 +19,8 @@
  */
 package edu.internet2.middleware.grouper.privs;
 
+import java.util.Collection;
+
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.subject.Subject;
 
@@ -26,7 +28,7 @@ import edu.internet2.middleware.subject.Subject;
  * combines AccessPrivilege and NamingPrivilege
  */
 public interface GrouperPrivilege {
-
+  
   /** get the object this privilege is assigned to (e.g. group or stem object) 
    * @return the group or stem
    */

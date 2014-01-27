@@ -255,7 +255,7 @@ public class Hib3AttributeAssignValueDAO extends Hib3DAO implements AttributeAss
     
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
     
     StringBuilder sql;
     sql = sqlTables.append(" where ").append(sqlWhereClause);

@@ -530,7 +530,7 @@ TODO update for 1.5
    * @param memberIds to limit memberships to
    * @param membershipIds to limit memberships to
    * @param membershipType Immediate, NonImmediate, etc
-   * @param field if finding one field, list here, otherwise all list fields will be returned
+   * @param fields if finding one field, list here, otherwise all list fields will be returned
    * @param sources if limiting memberships of members in certain sources, list here
    * @param scope sql like string which will have a % appended to it
    * @param stem if looking in a certain stem
@@ -548,7 +548,7 @@ TODO update for 1.5
    */
   public Set<Object[]> findAllByGroupOwnerOptions(Collection<String> groupIds, Collection<String> memberIds,
       Collection<String> membershipIds, MembershipType membershipType,
-      Field field,  
+      Collection<Field> fields,  
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean shouldCheckSecurity, 
       FieldType fieldType,
       String serviceId, ServiceRole serviceRole, QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, 

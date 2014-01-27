@@ -371,7 +371,7 @@ public class Hib3PITAttributeAssignDAO extends Hib3DAO implements PITAttributeAs
       
       grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
         grouperSessionSubject, byHqlStatic, 
-        sqlTables, sqlWhereClause, "ad.sourceId", AttributeDefPrivilege.READ_PRIVILEGES);
+        sqlTables, sqlWhereClause, "ad.sourceId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
       
       StringBuilder sql;
       sql = sqlTables.append(" where ").append(sqlWhereClause);

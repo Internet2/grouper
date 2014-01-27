@@ -39,6 +39,7 @@ import java.util.Set;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
@@ -54,6 +55,7 @@ import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -87,7 +89,7 @@ public class TestMembershipFinder extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMembershipFinder("testFindStemPrivileges"));
+    TestRunner.run(new TestMembershipFinder("testFindUpdatePrivileges"));
   }
 
   /**
@@ -314,6 +316,170 @@ public class TestMembershipFinder extends GrouperTest {
 
     assertEquals(0, queryOptions.getQueryPaging().getTotalRecordCount());
 
+  }
+
+  /**
+   * 
+   */
+  public void testFindUpdatePrivileges() {
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Group group = new GroupSave(grouperSession).assignName("theStem:theGroup").assignCreateParentStemsIfNotExist(true).save();
+
+    Group[] groups = new Group[26];
+    
+    for (int i=0;i<26;i++) {
+      groups[i] = new GroupSave(grouperSession).assignName("stemA:group" + (char)('A' + i)).assignCreateParentStemsIfNotExist(true).save();
+      
+      if (i>=0 && i <= 3) {
+        groups[i].grantPriv(group.toSubject(), AccessPrivilege.ADMIN, false);
+
+      }
+      if (i>=3 && i <= 6) {
+        groups[i].grantPriv(group.toSubject(), AccessPrivilege.UPDATE, false);
+
+      }
+      if (i>=6 && i <= 9) {
+        groups[i].grantPriv(group.toSubject(), AccessPrivilege.READ, false);
+
+      }
+      if (i>=9 && i <= 12) {
+        groups[i].grantPriv(group.toSubject(), AccessPrivilege.VIEW, false);
+
+      }
+      if (i>=12 && i <= 15) {
+        groups[i].grantPriv(group.toSubject(), AccessPrivilege.OPTIN, false);
+
+      }
+      if (i>=15 && i <= 18) {
+        groups[i].grantPriv(group.toSubject(), AccessPrivilege.OPTOUT, false);
+
+      }
+      if (i>=18 && i <= 21) {
+        groups[i].grantPriv(group.toSubject(), AccessPrivilege.GROUP_ATTR_READ, false);
+
+      }
+      if (i>=21 && i <= 24) {
+        groups[i].grantPriv(group.toSubject(), AccessPrivilege.GROUP_ATTR_UPDATE, false);
+
+      }
+      
+    }
+    
+
+    QueryOptions queryOptions = new QueryOptions();
+    queryOptions.paging(2, 1, true);
+    
+    MembershipFinder membershipFinder = new MembershipFinder()
+      .addMemberId(group.toMember().getId())
+      .assignCheckSecurity(true)
+      .assignHasFieldForGroup(false)
+      .assignEnabled(true)
+      .assignHasMembershipTypeForGroup(true)
+      .assignQueryOptionsForGroup(queryOptions)
+      .assignSplitScopeForGroup(true);
+  
+    membershipFinder.assignFieldName("admins");
+  
+    //membershipFinder.assignScopeForGroup("%");
+
+    //#############################  first page
+    
+    //membership, stem, member
+    //get them all for a stem
+    Set<Object[]> result = membershipFinder.findMembershipsMembers();
+    assertEquals(2, GrouperUtil.length(result));
+
+    assertHasPrivilege(result, groups[0], group.toSubject(), AccessPrivilege.ADMIN);
+    assertHasPrivilege(result, groups[1], group.toSubject(), AccessPrivilege.ADMIN);
+
+    //############################# second page
+    
+    queryOptions.paging(2, 2, true);
+
+    result = membershipFinder.findMembershipsMembers();
+    assertEquals(2, GrouperUtil.length(result));
+
+    assertHasPrivilege(result, groups[2], group.toSubject(), AccessPrivilege.ADMIN);
+    assertHasPrivilege(result, groups[3], group.toSubject(), AccessPrivilege.ADMIN);
+
+    //############################# indirect privilege all
+
+    queryOptions.paging(10, 1, true);
+    
+    membershipFinder.assignFieldsByName(GrouperUtil.toSet("admins", "updaters"));
+
+    result = membershipFinder.findMembershipsMembers();
+    assertEquals(8, GrouperUtil.length(result));
+
+    assertHasPrivilege(result, groups[0], group.toSubject(), AccessPrivilege.ADMIN);
+    assertHasPrivilege(result, groups[1], group.toSubject(), AccessPrivilege.ADMIN);
+    assertHasPrivilege(result, groups[3], group.toSubject(), AccessPrivilege.ADMIN);
+    assertHasPrivilege(result, groups[3], group.toSubject(), AccessPrivilege.UPDATE);
+    assertHasPrivilege(result, groups[4], group.toSubject(), AccessPrivilege.UPDATE);
+
+    //############################# indirect privilege all
+
+    queryOptions.paging(10, 1, true);
+    
+    membershipFinder.assignFieldsByName(GrouperUtil.toSet("updaters"));
+    membershipFinder.assignIncludeInheritedPrivileges(true);
+    
+    result = membershipFinder.findMembershipsMembers();
+    assertEquals(8, GrouperUtil.length(result));
+
+    assertHasPrivilege(result, groups[0], group.toSubject(), AccessPrivilege.ADMIN);
+    assertHasPrivilege(result, groups[1], group.toSubject(), AccessPrivilege.ADMIN);
+    assertHasPrivilege(result, groups[3], group.toSubject(), AccessPrivilege.ADMIN);
+    assertHasPrivilege(result, groups[3], group.toSubject(), AccessPrivilege.UPDATE);
+    assertHasPrivilege(result, groups[4], group.toSubject(), AccessPrivilege.UPDATE);
+
+    //############################# indirect privilege all membership subject containers
+    
+    List<MembershipSubjectContainer> membershipSubjectContainers = new ArrayList<MembershipSubjectContainer>(
+        membershipFinder.findMembershipResult().getMembershipSubjectContainers());
+    
+    assertEquals(GrouperUtil.toStringForLog(membershipSubjectContainers), 7, GrouperUtil.length(membershipSubjectContainers));
+
+    assertEquals(MembershipAssignType.EFFECTIVE, membershipSubjectContainers.get(0)
+        .getMembershipContainers().get(Field.FIELD_NAME_UPDATERS).getMembershipAssignType());
+    assertEquals(groups[0].getName(), membershipSubjectContainers.get(0)
+        .getGroupOwner().getName());
+
+    assertEquals(MembershipAssignType.EFFECTIVE, membershipSubjectContainers.get(1)
+        .getMembershipContainers().get(Field.FIELD_NAME_UPDATERS).getMembershipAssignType());
+    assertEquals(groups[1].getName(), membershipSubjectContainers.get(1)
+        .getGroupOwner().getName());
+
+    assertEquals(MembershipAssignType.EFFECTIVE, membershipSubjectContainers.get(2)
+        .getMembershipContainers().get(Field.FIELD_NAME_UPDATERS).getMembershipAssignType());
+    assertEquals(groups[2].getName(), membershipSubjectContainers.get(2)
+        .getGroupOwner().getName());
+
+    assertEquals(MembershipAssignType.IMMEDIATE_AND_EFFECTIVE, membershipSubjectContainers.get(3)
+        .getMembershipContainers().get(Field.FIELD_NAME_UPDATERS).getMembershipAssignType());
+    assertEquals(groups[3].getName(), membershipSubjectContainers.get(3)
+        .getGroupOwner().getName());
+
+    assertEquals(MembershipAssignType.IMMEDIATE, membershipSubjectContainers.get(4)
+        .getMembershipContainers().get(Field.FIELD_NAME_UPDATERS).getMembershipAssignType());
+    assertEquals(groups[4].getName(), membershipSubjectContainers.get(4)
+        .getGroupOwner().getName());
+
+    assertEquals(MembershipAssignType.IMMEDIATE, membershipSubjectContainers.get(5)
+        .getMembershipContainers().get(Field.FIELD_NAME_UPDATERS).getMembershipAssignType());
+    assertEquals(groups[5].getName(), membershipSubjectContainers.get(5)
+        .getGroupOwner().getName());
+
+    assertEquals(MembershipAssignType.IMMEDIATE, membershipSubjectContainers.get(6)
+        .getMembershipContainers().get(Field.FIELD_NAME_UPDATERS).getMembershipAssignType());
+    assertEquals(groups[6].getName(), membershipSubjectContainers.get(6)
+        .getGroupOwner().getName());
+
+    
   }
 
 

@@ -84,10 +84,10 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable {
   
   /** */
   public static final Privilege OPTIN   = Privilege.getInstance("optin");
-  
+
   /** */
   public static final Privilege OPTOUT  = Privilege.getInstance("optout");
-  
+
   /** */
   public static final Privilege READ    = Privilege.getInstance("read");
   
@@ -97,15 +97,36 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable {
   /** */
   public static final Privilege UPDATE  = Privilege.getInstance("update");
 
+  /** any of these constitutes OPTOUT on a group
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> OPTOUT_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(OPTOUT, ADMIN, UPDATE));
+  
+  /** any of these constitutes OPTIN on a group
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> OPTIN_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(OPTIN, ADMIN, UPDATE));
+
   /** */
   public static final Privilege VIEW    = Privilege.getInstance("view");
   
   /** */
   public static final Privilege GROUP_ATTR_READ    = Privilege.getInstance("groupAttrRead");
 
+  /** any of these constitutes GROUP_ATTR_READ on a group
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> GROUP_ATTR_READ_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(GROUP_ATTR_READ, ADMIN));
+  
+
   /** */
   public static final Privilege GROUP_ATTR_UPDATE    = Privilege.getInstance("groupAttrUpdate");
-  
+
+  /** any of these constitutes GROUP_ATTR_UPDATE on a group
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> GROUP_ATTR_UPDATE_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(GROUP_ATTR_UPDATE, ADMIN));
+
   /** any of these constitutes VIEW on a group
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> VIEW_PRIVILEGES = Collections.unmodifiableSet(
@@ -185,7 +206,7 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable {
   public static Set<Privilege> READ_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(READ, ADMIN));
   
-  /** any of these constitutes READ on a group
+  /** any of these constitutes ADMIN on a group
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> ADMIN_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(ADMIN));

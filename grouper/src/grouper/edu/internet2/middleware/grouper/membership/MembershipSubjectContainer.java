@@ -20,6 +20,7 @@
 package edu.internet2.middleware.grouper.membership;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -248,6 +249,13 @@ public class MembershipSubjectContainer {
   @Override
   public String toString() {
     StringBuilder result = new StringBuilder();
+    
+    if (this.groupOwner != null) {
+      result.append("Group: ");
+      result.append(this.groupOwner.getName());
+      result.append(", ");
+    }
+    
     if (this.subject == null) {
       result.append("Subject: null");
     } else {
@@ -416,9 +424,34 @@ public class MembershipSubjectContainer {
   /**
    * convert memberships into membership subject containers
    * @param membershipResults
+   * @param fields
+   * @param includeInheritedPrivileges
    * @return the containers per user
    */
-  public static Set<MembershipSubjectContainer> convertFromMembershipsOwnersMembers(Set<Object[]> memberships) {
+  public static Set<MembershipSubjectContainer> convertFromMembershipsOwnersMembers(Set<Object[]> memberships,
+      Collection<Field> fields, boolean includeInheritedPrivileges) {
+
+    //lets get the field ids that are only inherited, substitute for the original field
+    Set<String> inheritedFieldIdsOnly = new HashSet<String>();
+    Field fieldToSubstituteForInheritedField = null;
+    if (includeInheritedPrivileges && GrouperUtil.length(fields) > 0) {
+      
+      if (GrouperUtil.length(fields) > 1) {
+        throw new RuntimeException("Not yet implemented using includeInheritedPrivileges with more than one field");
+      }
+      
+      fieldToSubstituteForInheritedField = fields.iterator().next();
+      
+      Collection<Field> inheritedFields = Field.calculateInheritedPrivileges(fields, includeInheritedPrivileges);
+
+      for (Field inheritedField : GrouperUtil.nonNull(inheritedFields)) {
+        if (!fieldToSubstituteForInheritedField.equals(inheritedField)) {
+          inheritedFieldIdsOnly.add(inheritedField.getUuid());
+        }
+      }
+      
+    }
+    
     
     //lets put it all back together...
     Map<MultiKey, MembershipSubjectContainer> results = new LinkedHashMap<MultiKey, MembershipSubjectContainer>();
@@ -427,7 +460,7 @@ public class MembershipSubjectContainer {
 
       //lets get all the subjects by member id
       Map<String, Subject> memberIdToSubject = new HashMap<String, Subject>();
-      
+
       {
         Map<String, SubjectBean> memberIdToSubjectBean = new HashMap<String, SubjectBean>();
         Set<SubjectBean> subjectBeans = new HashSet<SubjectBean>();
@@ -469,6 +502,14 @@ public class MembershipSubjectContainer {
 
         Membership membership = (Membership)objectArray[0];
 
+        //massage inherited privileges to be the underlying privilege
+        if (inheritedFieldIdsOnly.contains(membership.getFieldId() )) {
+          membership.setUuid(null);
+          membership.setImmediateMembershipId(null);
+          membership.setType(MembershipType.EFFECTIVE.getTypeString());
+          membership.setFieldId(fieldToSubstituteForInheritedField.getUuid());
+        }
+        
         MultiKey membershipAssignTypeKey = new MultiKey(member.getSubjectSourceId(), member.getSubjectId(), 
             theOwnerId, membership.getFieldId());
         

@@ -389,6 +389,14 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   public static boolean failOnSearchForTesting = false;
   
   /**
+   * return the group source id
+   * @return the source id for the group source
+   */
+  public static String groupSourceId() {
+    return "g:gsa";
+  }
+  
+  /**
    * type of groups to search on
    * @return type of groups
    */

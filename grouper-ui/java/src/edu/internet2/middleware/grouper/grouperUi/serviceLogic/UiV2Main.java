@@ -400,13 +400,13 @@ public class UiV2Main extends UiServiceLogicBase {
 
         Set<AttributeDef> childrenAttributeDefs = new AttributeDefFinder()
           .assignQueryOptions(QueryOptions.create("extension", true, 1, 10))
-          .assignPrivileges(AttributeDefPrivilege.VIEW_PRIVILEGES)
+          .assignPrivileges(AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES)
           .assignSubject(GrouperSession.staticGrouperSession().getSubject())
           .assignParentStemId(stem.getId()).assignStemScope(Scope.ONE).findAttributes();
   
         Set<AttributeDefName> childrenAttributeDefNames = new AttributeDefNameFinder()
           .assignQueryOptions(QueryOptions.create("displayExtension", true, 1, 10))
-          .assignPrivileges(AttributeDefPrivilege.VIEW_PRIVILEGES)
+          .assignPrivileges(AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES)
           .assignSubject(GrouperSession.staticGrouperSession().getSubject())
           .assignParentStemId(stem.getId()).assignStemScope(Scope.ONE).findAttributeNames();
         

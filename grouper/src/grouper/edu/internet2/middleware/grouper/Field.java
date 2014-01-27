@@ -33,6 +33,7 @@
 package edu.internet2.middleware.grouper;
 import java.io.StringWriter;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -86,6 +87,32 @@ import edu.internet2.middleware.grouper.xml.export.XmlImportable;
  * @version $Id: Field.java,v 1.48 2009-09-24 18:07:16 shilen Exp $    
  */
 public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, XmlImportable<Field> {
+
+  
+  /**
+   * see if there are inherited privileges to also include
+   * @return the inherited fields
+   */
+  public static Collection<Field> calculateInheritedPrivileges(Collection<Field> fields, boolean includeInheritedPrivileges) {
+    if (!includeInheritedPrivileges || GrouperUtil.length(fields) == 0) {
+      return fields;
+    }
+    
+    Set<Field> additionalFields = new HashSet<Field>();
+    
+    for (Field field : GrouperUtil.nonNull(fields)) {
+      
+      if (field.isAttributeDefListField() || field.isGroupAccessField() || field.isStemListField()) {
+        Privilege privilege = Privilege.listToPriv(field.getName(), true);
+        Collection<Privilege> privileges = privilege.getInheritedPrivileges();
+        Collection<Field> theFields = Privilege.convertPrivilegesToFields(privileges);
+        additionalFields.addAll(theFields);
+      }
+      
+    }
+    
+    return additionalFields;
+  }
 
   /** field name for creators */
   public static final String FIELD_NAME_CREATORS = "creators";

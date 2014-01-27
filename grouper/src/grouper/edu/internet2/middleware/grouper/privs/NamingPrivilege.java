@@ -61,12 +61,29 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable<NamingPrivi
   /** can create stems in this stem */
   public static final Privilege STEM    = Privilege.getInstance("stem");
 
+  /** any of these constitutes STEM on a stem
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> STEM_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(STEM));
+  
+
   /** can read attributes on this stem */
   public static final Privilege STEM_ATTR_READ    = Privilege.getInstance("stemAttrRead");
 
+  /** any of these constitutes STEM_ATTR_READ on a stem
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> STEM_ATTR_READ_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(STEM_ATTR_READ, STEM));
+  
+
   /** can update attributes on this stem */
   public static final Privilege STEM_ATTR_UPDATE    = Privilege.getInstance("stemAttrUpdate");
-  
+
+  /** any of these constitutes STEM_ATTR_UPDATE on a stem
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> STEM_ATTR_UPDATE_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(STEM_ATTR_UPDATE, STEM));
+
   /** any of these constitutes CREATE on a stem
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> CREATE_PRIVILEGES = Collections.unmodifiableSet(
