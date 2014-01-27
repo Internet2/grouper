@@ -42,6 +42,8 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import sun.awt.windows.ThemeReader;
+
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
@@ -103,7 +105,7 @@ public class MembershipFinder {
   private boolean hasFieldForMember;
 
   /** 
-   * return memberships where the group has this field, note, it will return all the memberships for those members 
+   * return memberships where the group has this field, note, it will return all the memberships for those groups 
    */
   private boolean hasFieldForGroup;
 
@@ -695,10 +697,12 @@ public class MembershipFinder {
     }
 
     return GrouperDAOFactory.getFactory().getMembership().findAllByStemOwnerOptions(this.stemIds, this.memberIds,
-        this.membershipIds, this.membershipType, field, this.sources, 
+        this.membershipIds, this.membershipType, inheritedFields, this.sources, 
         this.scope, this.stem, this.stemScope, this.enabled, this.checkSecurity, 
         this.queryOptionsForMember, this.scopeForMember, this.splitScopeForMember, 
-        this.hasFieldForMember, this.hasMembershipTypeForMember);  
+        this.hasFieldForMember, this.hasMembershipTypeForMember, this.queryOptionsForStem, 
+        this.scopeForStem, this.splitScopeForStem, this.hasFieldForStem,
+        this.hasMembershipTypeForStem);  
 
   }
 
@@ -1747,9 +1751,83 @@ public class MembershipFinder {
   private boolean hasMembershipTypeForGroup;
 
   /**
-   * if paging for group, then also filter for member
+   * if paging for group, then also filter for group
    */
   private String scopeForGroup;
+
+  /** 
+   * return memberships where the stem has this field, note, it will return all the memberships for those stems 
+   */
+  private boolean hasFieldForStem;
+
+  /**
+   * return memberships where the stem has this field, note, it will return all the memberships for those stems 
+   * @param theHasFieldForStem
+   * @return this for chaining
+   */
+  public MembershipFinder assignHasFieldForStem(boolean theHasFieldForStem) {
+    this.hasFieldForStem = theHasFieldForStem;
+    return this;
+  }
+  
+  /**
+   * return memberships where the stem has this field, note, it will return all the memberships for those stems
+   */
+  private boolean hasMembershipTypeForStem;
+  
+  /**
+   * return memberships where the stem has this field, note, it will return all the memberships for those stems
+   * @return this for chaining
+   */
+  public MembershipFinder assignHasMembershipTypeForStem(boolean theHasMembershipTypeForStem) {
+    this.hasMembershipTypeForStem = theHasMembershipTypeForStem;
+    return this;
+  }
+  
+  /**
+   * query options for stem.  must include paging.  if sorting then sort by stem
+   */
+  private QueryOptions queryOptionsForStem;
+
+  /**
+   * query options for stem.  must include paging.  if sorting then sort by stem
+   * @param theQueryOptionsForStem
+   * @return this for chaining
+   */
+  public MembershipFinder assignQueryOptionsForStem(QueryOptions theQueryOptionsForStem) {
+    this.queryOptionsForStem = theQueryOptionsForStem;
+    return this;
+  }
+  
+  /**
+   * if paging for stem, then also filter for stem
+   */
+  private String scopeForStem;
+
+  /**
+   * if paging for stem, then also filter for stem
+   * @param theScopeForStem
+   * @return this for chaining
+   */
+  public MembershipFinder assignScopeForStem(String theScopeForStem) {
+    this.scopeForStem = theScopeForStem;
+    return this;
+  }
+  
+  /**
+   * if the scope for stem has spaces in it, then split by whitespace, and find results that contain all of the scope strings
+   */
+  private boolean splitScopeForStem;
+
+  /**
+   * if the scope for stem has spaces in it, then split by whitespace, and find results that contain all of the scope strings
+   * @param theSplitScopeForStem
+   * @return this for chaining
+   */
+  public MembershipFinder assignSplitScopeForStem(boolean theSplitScopeForStem) {
+    this.splitScopeForStem = theSplitScopeForStem;
+    return this;
+  }
   
   /**
    * if paging for group, then also filter for member

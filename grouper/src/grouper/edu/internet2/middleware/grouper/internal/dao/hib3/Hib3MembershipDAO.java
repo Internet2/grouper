@@ -520,7 +520,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       Field field,  
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled) {
     
-    return findAllByGroupOwnerOptions(totalGroupIds, totalMemberIds, totalMembershipIds, membershipType, field, sources, scope, stem, stemScope, enabled, null);
+    return findAllByGroupOwnerOptions(totalGroupIds, totalMemberIds, totalMembershipIds, membershipType, field, 
+        sources, scope, stem, stemScope, enabled, null);
     
   }
     
@@ -3486,42 +3487,50 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    * 
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByStemOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean, Boolean)
    */
+  @Override
   public Set<Object[]> findAllByStemOwnerOptions(Collection<String> totalStemIds, Collection<String> totalMemberIds,
       Collection<String> totalMembershipIds, MembershipType membershipType,
       Field field,  
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean checkSecurity) {
-    return findAllByStemOwnerOptionsHelper(totalStemIds, totalMemberIds, totalMembershipIds, membershipType, field, 
-        sources, scope, stem, stemScope, enabled, checkSecurity, null, null, false, false, false);
+    return findAllByStemOwnerOptionsHelper(totalStemIds, totalMemberIds, totalMembershipIds, membershipType, 
+        GrouperUtil.toSet(field), 
+        sources, scope, stem, stemScope, enabled, checkSecurity, null, null, false, false, false, null, null, false, false, false);
   }
 
   /**
    * 
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByStemOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean, Boolean, QueryOptions, String, boolean, Field, MembershipType)
    */
+  @Override
   public Set<Object[]> findAllByStemOwnerOptions(Collection<String> totalStemIds, Collection<String> totalMemberIds,
       Collection<String> totalMembershipIds, MembershipType membershipType,
-      Field field,  
+      Collection<Field> fields,  
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean checkSecurity, 
       QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, 
-      boolean hasFieldForMember, boolean hasMembershipTypeForMember) {
+      boolean hasFieldForMember, boolean hasMembershipTypeForMember, QueryOptions queryOptionsForStem, 
+      String scopeForStem, boolean splitScopeForStem, boolean hasFieldForStem,
+      boolean hasMembershipTypeForStem) {
 
-    return findAllByStemOwnerOptionsHelper(totalStemIds, totalMemberIds, totalMembershipIds, membershipType, field, 
+    return findAllByStemOwnerOptionsHelper(totalStemIds, totalMemberIds, totalMembershipIds, membershipType, fields, 
         sources, scope, stem, stemScope, enabled, checkSecurity, queryOptionsForMember, filterForMember, splitScopeForMember,
-        hasFieldForMember, hasMembershipTypeForMember);
+        hasFieldForMember, hasMembershipTypeForMember, queryOptionsForStem, scopeForStem, 
+        splitScopeForStem, hasFieldForStem, hasMembershipTypeForStem);
     
   }
     
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByStemOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean, Boolean, QueryOptions, String, boolean, boolean, boolean)
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByStemOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, Set, Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean, Boolean, QueryOptions, String, boolean, boolean, boolean, QueryOptions, String, boolean, boolean, boolean )
    */
   private Set<Object[]> findAllByStemOwnerOptionsHelper(Collection<String> totalStemIds, Collection<String> totalMemberIds,
       Collection<String> totalMembershipIds, MembershipType membershipType,
-      Field field,  
+      Collection<Field> fields,  
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean checkSecurity, 
       QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, 
-      boolean hasFieldForMember, boolean hasMembershipTypeForMember) {
+      boolean hasFieldForMember, boolean hasMembershipTypeForMember, QueryOptions queryOptionsForStem, 
+      String scopeForStem, boolean splitScopeForStem, boolean hasFieldForStem,
+      boolean hasMembershipTypeForStem) {
 
     if (checkSecurity == null) {
       checkSecurity = Boolean.TRUE;
@@ -3605,8 +3614,12 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           StringBuilder sql = new StringBuilder(" from Member m, MembershipEntry ms, Stem s ");
           
           //we need to make sure it is a list type field
-          if (field == null) {
+          boolean hasFieldJoin = false;
+          
+          //we need to make sure it is a list type field if the field ID is not sent in
+          if (GrouperUtil.length(fields) == 0) {
             sql.append(", Field f ");
+            hasFieldJoin = true;
           }
           
           //maybe we are checking security, maybe not
@@ -3662,13 +3675,18 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           if (membershipType != null) {
             sql.append(" and ms.type ").append(membershipType.queryClause()).append(" ");
           }
-          if (field != null) {
+          if (!hasFieldJoin) {
             //needs to be a members field
             //if (!StringUtils.equals("list",field.getTypeString())) {
             //  throw new RuntimeException("This method only works with members fields: " + field);
             //}
-            sql.append(" and ms.fieldId = :fieldId ");
-            byHqlStatic.setString("fieldId", field.getUuid());
+            sql.append(" and ms.fieldId in ( ");
+            Set<String> fieldStrings = new HashSet<String>();
+            for (Field field : fields) {
+              fieldStrings.add(field.getUuid());
+            }
+            sql.append(HibUtils.convertToInClause(fieldStrings, byHqlStatic));
+            sql.append(" ) ");
           } else {
             //add on the column
             sql.append(" and ms.fieldId = f.uuid and f.typeString = 'naming' ");
@@ -3722,6 +3740,43 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             }
             sql.append(" ) ");
           }
+
+          if (!StringUtils.isBlank(scopeForStem)) {
+
+            scopeForStem = scopeForStem.toLowerCase();
+
+            String[] scopesForStem = splitScopeForStem ? GrouperUtil.splitTrim(scopeForStem, " ") 
+                : new String[]{scopeForStem};
+
+            if (sql.length() > 0) {
+              sql.append(" and ");
+            }
+            sql.append(" ( ");
+
+            int index = 0;
+            
+            for (String theScopeForStem : scopesForStem) {
+              if (index != 0) {
+                sql.append(" and ");
+              }
+              
+              sql.append(" ( lower(s.nameDb) like :scopeForStem" + index 
+                  + " or lower(s.alternateNameDb) like :scopeForStem" + index 
+                  + " or lower(s.displayNameDb) like :scopeForStem" + index 
+                  + " or lower(s.descriptionDb) like :scopeForStem" + index + " ) ");
+              
+              if (!theScopeForStem.endsWith("%")) {
+                theScopeForStem += "%";
+              }
+              if (!theScopeForStem.startsWith("%")) {
+                theScopeForStem = "%" + theScopeForStem;
+              }
+              byHqlStatic.setString("scopeForStem" + index, theScopeForStem);
+              index++;
+            }
+            sql.append(" ) ");
+          }
+
           
           byHqlStatic
             .setCacheable(false)
@@ -3798,8 +3853,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             
             //dont pass for people with membership type or field... we already filtered by that...
             Set<Object[]> tempResults = findAllByStemOwnerOptionsHelper(totalStemIds, theMemberIds,
-                totalMembershipIds, hasMembershipTypeForMember ? null : membershipType, hasFieldForMember ? null : field,  
-                sources, scope, stem, stemScope, enabled, checkSecurity, null, null, false, false, false);
+                totalMembershipIds, hasMembershipTypeForMember ? null : membershipType, 
+                    hasFieldForMember ? null : fields,  
+                sources, scope, stem, stemScope, enabled, checkSecurity, null, null, false, false, false,
+                null, null, false, false, false);
             
             //lets sort these by member
             Set<Object[]> sortedResults = new LinkedHashSet<Object[]>();
@@ -3819,6 +3876,97 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
               }
             }
             return sortedResults;
+            
+          }
+
+          {
+            //sort for stems
+            boolean pageStems = queryOptionsForStem != null;
+            
+            if (pageStems) {
+
+              if (queryOptionsForStem.getQueryPaging() == null) {
+                throw new RuntimeException("If paging by stem, then paging must be set in the query options");
+              }
+
+              //cant page too much...
+              if (queryOptionsForStem.getQueryPaging().getPageSize() > 500) {
+                throw new RuntimeException("Cant get a page size greater then 500! " 
+                    + queryOptionsForStem.getQueryPaging().getPageSize());
+              }
+
+              if (stemBatches > 1) {
+                throw new RuntimeException("Cant have more than 1 stemBatch if paging stems");
+              }
+              
+              if (memberBatches > 1) {
+                throw new RuntimeException("Cant have more than 1 memberBatch if paging stems");
+              }
+              
+              if (membershipBatches > 1) {
+                throw new RuntimeException("Cant have more than 1 membershipBatch if paging stems");
+              }
+              
+            }
+
+            if (!StringUtils.isBlank(scopeForStem) && !pageStems) {
+              throw new RuntimeException("If you are filtering by stem, then you must page stems");
+            }
+            
+            //note, put in the size query conditional above
+
+            //if paging by members, get the members, then do the same query using those members...
+            if (pageStems) {
+              
+              //sort by default search string if not specified
+              if (queryOptionsForStem.getQuerySort() == null) {
+                queryOptionsForStem.sortAsc("s.displayNameDb");
+              }
+
+              byHqlStatic.options(queryOptionsForStem);
+              
+              String stemPrefix = "select distinct s ";
+
+              Set<Stem> stems = byHqlStatic.createQuery(stemPrefix + sql.toString()).listSet(Stem.class);
+
+              //no need to do another query if no stems
+              if (GrouperUtil.length(stems) == 0) {
+                return totalResults;
+              }
+              
+              Set<String> theStemIds = new LinkedHashSet<String>();
+              
+              for (Stem theStem : stems) {
+                theStemIds.add(theStem.getUuid());
+              }
+              
+              //dont pass for people with membership type or field... we already filtered by that...
+              Set<Object[]> tempResults = findAllByStemOwnerOptionsHelper(theStemIds, totalMemberIds,
+                  totalMembershipIds, hasMembershipTypeForStem ? null : membershipType, hasFieldForStem ? null : fields,  
+                  sources, scope, stem, stemScope, enabled, checkSecurity, null, null, false, false, false, 
+                  null, null, false, false, false);
+              
+              //lets sort these by member
+              Set<Object[]> sortedResults = new LinkedHashSet<Object[]>();
+              
+              for (Stem theStem : stems) {
+                Iterator<Object[]> iterator = tempResults.iterator();
+                while(iterator.hasNext()) {
+                  
+                  Object[] tempResult = iterator.next();
+                  //if the member is the same, put it in the sortedResults, and remove
+                  if (StringUtils.equals(((Stem)tempResult[1]).getUuid(), theStem.getUuid())) {
+                    
+                    sortedResults.add(tempResult);
+                    iterator.remove();
+                    
+                  }
+                }
+              }
+              return sortedResults;
+              
+            }
+
             
           }
           

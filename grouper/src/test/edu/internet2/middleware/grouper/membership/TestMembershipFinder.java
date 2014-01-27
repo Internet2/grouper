@@ -89,7 +89,7 @@ public class TestMembershipFinder extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMembershipFinder("testFindUpdatePrivileges"));
+    TestRunner.run(new TestMembershipFinder("testFindCreatePrivileges"));
   }
 
   /**
@@ -438,7 +438,22 @@ public class TestMembershipFinder extends GrouperTest {
     assertHasPrivilege(result, groups[4], group.toSubject(), AccessPrivilege.UPDATE);
 
     //############################# indirect privilege all membership subject containers
+
+    membershipFinder = new MembershipFinder()
+      .addMemberId(group.toMember().getId())
+      .assignCheckSecurity(true)
+      .assignHasFieldForGroup(false)
+      .assignEnabled(true)
+      .assignHasMembershipTypeForGroup(true)
+      .assignQueryOptionsForGroup(queryOptions)
+      .assignSplitScopeForGroup(true);
     
+    membershipFinder.assignFieldName("updaters");
+
+    queryOptions.paging(10, 1, true);
+    
+    membershipFinder.assignIncludeInheritedPrivileges(true);
+
     List<MembershipSubjectContainer> membershipSubjectContainers = new ArrayList<MembershipSubjectContainer>(
         membershipFinder.findMembershipResult().getMembershipSubjectContainers());
     
@@ -530,6 +545,165 @@ public class TestMembershipFinder extends GrouperTest {
                           ;
     g.addMember( SubjectFinder.findAllSubject() );
     assertEquals( 1, MembershipFinder.findMembers( g, Group.getDefaultList() ).size() );
+  }
+
+  /**
+   * 
+   */
+  public void testFindCreatePrivileges() {
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
+  
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Group group = new GroupSave(grouperSession).assignName("theStem:theGroup").assignCreateParentStemsIfNotExist(true).save();
+  
+    Stem[] stems = new Stem[26];
+    
+    for (int i=0;i<26;i++) {
+      stems[i] = new StemSave(grouperSession).assignName("stemA:stem" + (char)('A' + i)).assignCreateParentStemsIfNotExist(true).save();
+      
+      if (i>=0 && i <= 3) {
+        stems[i].grantPriv(group.toSubject(), NamingPrivilege.STEM, false);
+      }
+      if (i>=3 && i <= 6) {
+        stems[i].grantPriv(group.toSubject(), NamingPrivilege.CREATE, false);
+      }
+      if (i>=6 && i <= 9) {
+        stems[i].grantPriv(group.toSubject(), NamingPrivilege.STEM_ATTR_READ, false);
+      }
+      if (i>=9 && i <= 12) {
+        stems[i].grantPriv(group.toSubject(), NamingPrivilege.STEM_ATTR_UPDATE, false);
+      }
+      
+    }
+    
+  
+    QueryOptions queryOptions = new QueryOptions();
+    queryOptions.paging(2, 1, true);
+    
+    MembershipFinder membershipFinder = new MembershipFinder()
+      .addMemberId(group.toMember().getId())
+      .assignCheckSecurity(true)
+      //.assignHasFieldForGroup(false)
+      .assignEnabled(true)
+      //.assignHasMembershipTypeForGroup(true)
+      .assignQueryOptionsForStem(queryOptions)
+      .assignSplitScopeForStem(true);
+  
+    membershipFinder.assignFieldName("stemmers");
+  
+    //membershipFinder.assignScopeForGroup("%");
+  
+    //#############################  first page
+    
+    //membership, stem, member
+    //get them all for a stem
+    Set<Object[]> result = membershipFinder.findMembershipsMembers();
+    assertEquals(2, GrouperUtil.length(result));
+  
+    assertHasPrivilege(result, stems[0], group.toSubject(), NamingPrivilege.STEM);
+    assertHasPrivilege(result, stems[1], group.toSubject(), NamingPrivilege.STEM);
+  
+    //############################# second page
+    
+    queryOptions.paging(2, 2, true);
+  
+    result = membershipFinder.findMembershipsMembers();
+    assertEquals(2, GrouperUtil.length(result));
+  
+    assertHasPrivilege(result, stems[2], group.toSubject(), NamingPrivilege.STEM);
+    assertHasPrivilege(result, stems[3], group.toSubject(), NamingPrivilege.STEM);
+  
+    //############################# indirect privilege all
+  
+    queryOptions.paging(10, 1, true);
+    
+    membershipFinder.assignFieldsByName(GrouperUtil.toSet("stemmers", "creators"));
+  
+    result = membershipFinder.findMembershipsMembers();
+    assertEquals(8, GrouperUtil.length(result));
+  
+    assertHasPrivilege(result, stems[0], group.toSubject(), NamingPrivilege.STEM);
+    assertHasPrivilege(result, stems[1], group.toSubject(), NamingPrivilege.STEM);
+    assertHasPrivilege(result, stems[3], group.toSubject(), NamingPrivilege.STEM);
+    assertHasPrivilege(result, stems[3], group.toSubject(), NamingPrivilege.CREATE);
+    assertHasPrivilege(result, stems[4], group.toSubject(), NamingPrivilege.CREATE);
+  
+    //############################# indirect privilege all
+  
+    queryOptions.paging(10, 1, true);
+    
+    membershipFinder.assignFieldsByName(GrouperUtil.toSet("creators"));
+    membershipFinder.assignIncludeInheritedPrivileges(true);
+    
+    result = membershipFinder.findMembershipsMembers();
+    assertEquals(8, GrouperUtil.length(result));
+  
+    assertHasPrivilege(result, stems[0], group.toSubject(), NamingPrivilege.STEM);
+    assertHasPrivilege(result, stems[1], group.toSubject(), NamingPrivilege.STEM);
+    assertHasPrivilege(result, stems[3], group.toSubject(), NamingPrivilege.STEM);
+    assertHasPrivilege(result, stems[3], group.toSubject(), NamingPrivilege.CREATE);
+    assertHasPrivilege(result, stems[4], group.toSubject(), NamingPrivilege.CREATE);
+  
+    //############################# indirect privilege all membership subject containers
+  
+    membershipFinder = new MembershipFinder()
+      .addMemberId(group.toMember().getId())
+      .assignCheckSecurity(true)
+      .assignHasFieldForStem(false)
+      .assignEnabled(true)
+      .assignHasMembershipTypeForStem(true)
+      .assignQueryOptionsForStem(queryOptions)
+      .assignSplitScopeForStem(true);
+    
+    membershipFinder.assignFieldName("creators");
+  
+    queryOptions.paging(10, 1, true);
+    
+    membershipFinder.assignIncludeInheritedPrivileges(true);
+  
+    List<MembershipSubjectContainer> membershipSubjectContainers = new ArrayList<MembershipSubjectContainer>(
+        membershipFinder.findMembershipResult().getMembershipSubjectContainers());
+    
+    assertEquals(GrouperUtil.toStringForLog(membershipSubjectContainers), 7, GrouperUtil.length(membershipSubjectContainers));
+  
+    assertEquals(MembershipAssignType.EFFECTIVE, membershipSubjectContainers.get(0)
+        .getMembershipContainers().get(Field.FIELD_NAME_CREATORS).getMembershipAssignType());
+    assertEquals(stems[0].getName(), membershipSubjectContainers.get(0)
+        .getStemOwner().getName());
+  
+    assertEquals(MembershipAssignType.EFFECTIVE, membershipSubjectContainers.get(1)
+        .getMembershipContainers().get(Field.FIELD_NAME_CREATORS).getMembershipAssignType());
+    assertEquals(stems[1].getName(), membershipSubjectContainers.get(1)
+        .getStemOwner().getName());
+  
+    assertEquals(MembershipAssignType.EFFECTIVE, membershipSubjectContainers.get(2)
+        .getMembershipContainers().get(Field.FIELD_NAME_CREATORS).getMembershipAssignType());
+    assertEquals(stems[2].getName(), membershipSubjectContainers.get(2)
+        .getStemOwner().getName());
+  
+    assertEquals(MembershipAssignType.IMMEDIATE_AND_EFFECTIVE, membershipSubjectContainers.get(3)
+        .getMembershipContainers().get(Field.FIELD_NAME_CREATORS).getMembershipAssignType());
+    assertEquals(stems[3].getName(), membershipSubjectContainers.get(3)
+        .getStemOwner().getName());
+  
+    assertEquals(MembershipAssignType.IMMEDIATE, membershipSubjectContainers.get(4)
+        .getMembershipContainers().get(Field.FIELD_NAME_CREATORS).getMembershipAssignType());
+    assertEquals(stems[4].getName(), membershipSubjectContainers.get(4)
+        .getStemOwner().getName());
+  
+    assertEquals(MembershipAssignType.IMMEDIATE, membershipSubjectContainers.get(5)
+        .getMembershipContainers().get(Field.FIELD_NAME_CREATORS).getMembershipAssignType());
+    assertEquals(stems[5].getName(), membershipSubjectContainers.get(5)
+        .getStemOwner().getName());
+  
+    assertEquals(MembershipAssignType.IMMEDIATE, membershipSubjectContainers.get(6)
+        .getMembershipContainers().get(Field.FIELD_NAME_CREATORS).getMembershipAssignType());
+    assertEquals(stems[6].getName(), membershipSubjectContainers.get(6)
+        .getStemOwner().getName());
+  
+    
   }
 
 }

@@ -56,6 +56,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -773,6 +774,9 @@ public class GrouperTest extends TestCase {
       //should be good
       return;
     }
+    
+    printMemberships(results);
+
     //couldnt find it
     fail("Couldnt find privilege: " + stem.getName() + ", " + subject.getId() + ", " + privilege.getListName());
   }
@@ -829,7 +833,17 @@ public class GrouperTest extends TestCase {
       if (!(result[1] instanceof Group)) {
         System.out.println("Type: " + ((result[1] == null ? null : result[1].getClass().getName())));
       }
-      Group resultGroup = (Group)result[1];
+      String ownerName = null;
+      if (result[1] instanceof Group) {
+        ownerName = ((Group)result[1]).getName();
+      }
+      if (result[1] instanceof Stem) {
+        ownerName = ((Stem)result[1]).getName();
+      }
+      if (result[1] instanceof AttributeDef) {
+        ownerName = ((AttributeDef)result[1]).getName();
+      }
+        
       Member resultMember = (Member)result[2];
       
       String memberString = null;
@@ -842,7 +856,7 @@ public class GrouperTest extends TestCase {
         memberString = resultMember.getSubjectId();
       }
       
-      System.out.println("Group: " + resultGroup.getName() + ", Member: " + memberString + ", Field: " + resultMembership.getListName());
+      System.out.println("Group: " + ownerName + ", Member: " + memberString + ", Field: " + resultMembership.getListName());
       
     }    
     

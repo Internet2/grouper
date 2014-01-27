@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -59,6 +60,48 @@ public class MembershipSubjectContainer {
    */
   private Group groupOwner;
   
+  /**
+   * stem owner of this memberships
+   */
+  private Stem stemOwner;
+  
+  /**
+   * stem owner of this memberships
+   * @return stem owner
+   */
+  public Stem getStemOwner() {
+    return this.stemOwner;
+  }
+
+  /**
+   * stem owner of this memberships
+   * @param stemOwner1
+   */
+  public void setStemOwner(Stem stemOwner1) {
+    this.stemOwner = stemOwner1;
+  }
+
+  /**
+   * attribute def owner of membership
+   */
+  private AttributeDef attributeDefOwner;
+  
+  /**
+   * attribute def owner of membership
+   * @return attribute def
+   */
+  public AttributeDef getAttributeDefOwner() {
+    return this.attributeDefOwner;
+  }
+
+  /**
+   * attribute def owner of membership
+   * @param attributeDefOwner1
+   */
+  public void setAttributeDefOwner(AttributeDef attributeDefOwner1) {
+    this.attributeDefOwner = attributeDefOwner1;
+  }
+
   /**
    * group owner of this memberships
    * @return group or null
@@ -253,6 +296,18 @@ public class MembershipSubjectContainer {
     if (this.groupOwner != null) {
       result.append("Group: ");
       result.append(this.groupOwner.getName());
+      result.append(", ");
+    }
+    
+    if (this.stemOwner != null) {
+      result.append("Stem: ");
+      result.append(this.stemOwner.getName());
+      result.append(", ");
+    }
+    
+    if (this.attributeDefOwner != null) {
+      result.append("Attribute def: ");
+      result.append(this.attributeDefOwner.getName());
       result.append(", ");
     }
     
@@ -521,6 +576,12 @@ public class MembershipSubjectContainer {
           membershipSubjectContainer.setMember(member);
           if (objectArray[1] instanceof Group) {
             membershipSubjectContainer.setGroupOwner((Group)objectArray[1]);
+          }
+          if (objectArray[1] instanceof Stem) {
+            membershipSubjectContainer.setStemOwner((Stem)objectArray[1]);
+          }
+          if (objectArray[1] instanceof AttributeDef) {
+            membershipSubjectContainer.setAttributeDefOwner((AttributeDef)objectArray[1]);
           }
           memberIdToResultsMap.put(membershipAssignTypeKey, membershipSubjectContainer);
           results.put(membershipAssignTypeKey, membershipSubjectContainer);

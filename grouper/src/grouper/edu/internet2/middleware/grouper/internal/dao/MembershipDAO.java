@@ -1125,15 +1125,22 @@ TODO update for 1.5
    * @param splitScopeForMember if the scope for member has spaces in it, then split by whitespace, and find results that contain all of the scope strings
    * @param hasFieldForMember return memberships where the member has this field, note, it will return all the memberships for those members
    * @param hasMembershipTypeForMember return memberships where the member has this field, note, it will return all the memberships for those members
+   * @param queryOptionsForStem if paging by stem, then these are the query options
+   * @param scopeForStem scope to search for in stems if paging by stem
+   * @param splitScopeForStem if splitting scope when searching and paging by stem
+   * @param hasFieldForStem if has field for stem if paging by stem
+   * @param hasMembershipTypeForStem if paging for stems, this is the membership type to page on
    * @return a set of membership, stem, and member objects
    * @since v2.2
    */
   public Set<Object[]> findAllByStemOwnerOptions(Collection<String> stemIds, Collection<String> memberIds,
       Collection<String> membershipIds, MembershipType membershipType,
-      Field field,  
+      Collection<Field> field,  
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean shouldCheckSecurity,
       QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, 
-      boolean hasFieldForMember, boolean hasMembershipTypeForMember);
+      boolean hasFieldForMember, boolean hasMembershipTypeForMember, QueryOptions queryOptionsForStem, 
+      String scopeForStem, boolean splitScopeForStem, boolean hasFieldForStem,
+      boolean hasMembershipTypeForStem);
 
   /**
    * find memberships by stem owner and other options.  
