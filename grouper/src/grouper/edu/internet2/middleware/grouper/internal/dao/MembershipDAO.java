@@ -1162,5 +1162,37 @@ TODO update for 1.5
       Field field,  
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, 
       Boolean shouldCheckSecurity);
+  
+
+  /**
+   * find memberships by stem owner and other options.  
+   * @param attributeDefIds to limit memberships to
+   * @param memberIds to limit memberships to
+   * @param membershipIds to limit memberships to
+   * @param membershipType Immediate, NonImmediate, etc
+   * @param field if finding one field, list here, otherwise all list fields will be returned
+   * @param sources if limiting memberships of members in certain sources, list here
+   * @param scope sql like string which will have a % appended to it
+   * @param stem if looking in a certain stem
+   * @param stemScope if looking only in this stem, or all substems
+   * @param enabled null for all, true for enabled only, false for disabled only
+   * @param shouldCheckSecurity if we should check security, default to true
+   * @param queryOptionsForAttributeDef if paging for attribute defs, then these are the query options for the overall page
+   * @param scopeForAttributeDef if paging for attribute defs, this is the scope to search for on the attribute defs
+   * @param splitScopeForAttributeDef if scoping and paging for attribute defs, this will split the scope by whitespace
+   * @param hasFieldForAttributeDef if paging by attribute def you can look for a specific field for the attribute defs
+   * and then all fields for the resulting attribute defs
+   * @param hasMembershipTypeForAttributeDef if paging for attribute defs, this is the membership type
+   * @return a set of membership, stem, and member objects
+   * @since v2.2
+   */
+  public Set<Object[]> findAllByAttributeDefOwnerOptions(Collection<String> attributeDefIds, Collection<String> memberIds,
+      Collection<String> membershipIds, MembershipType membershipType,
+      Collection<Field> field,  
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, 
+      Boolean shouldCheckSecurity, QueryOptions queryOptionsForAttributeDef, 
+      String scopeForAttributeDef, boolean splitScopeForAttributeDef, boolean hasFieldForAttributeDef,
+      boolean hasMembershipTypeForAttributeDef);
+  
 } 
 

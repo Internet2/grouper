@@ -782,6 +782,47 @@ public class GrouperTest extends TestCase {
   }
   
   /**
+   * make sure a result set has a privilege from a user and attribute def
+   * @param result set of object arrays of membership, attribute def, member
+   * @param attributeDef 
+   * @param subject
+   * @param privilege
+   */
+  public void assertHasPrivilege(Set<Object[]> results, AttributeDef attributeDef, Subject subject, Privilege privilege) {
+    for (Object[] result : results) {
+      Membership resultMembership = (Membership)result[0];
+      if (!(result[1] instanceof AttributeDef)) {
+        continue;
+      }
+      AttributeDef resultAttributeDef = (AttributeDef)result[1];
+      Member resultMember = (Member)result[2];
+      
+      if (!StringUtils.equals(resultAttributeDef.getId(), attributeDef.getId())) {
+        continue;
+      }
+      
+      if (!SubjectHelper.eq(resultMember.getSubject(), subject)) {
+        continue;
+      }
+
+      if (!StringUtils.equals(resultMembership.getListName(), privilege.getListName())) {
+        continue;
+      }
+      
+      if (!resultMembership.isEnabled()) {
+        continue;
+      }
+      //should be good
+      return;
+    }
+    
+    printMemberships(results);
+
+    //couldnt find it
+    fail("Couldnt find privilege: " + attributeDef.getName() + ", " + subject.getId() + ", " + privilege.getListName());
+  }
+  
+  /**
    * make sure a result set has a privilege from a user and stem
    * @param result set of object arrays of membership, stem, member
    * @param stemA 

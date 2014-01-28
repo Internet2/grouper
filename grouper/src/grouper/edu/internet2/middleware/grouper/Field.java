@@ -123,26 +123,50 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
   /** field name for viewers */
   public static final String FIELD_NAME_VIEWERS = "viewers";
   
+  /** field name for attr viewers */
+  public static final String FIELD_NAME_ATTR_VIEWERS = "attrViewers";
+  
   /** field name for admins */
   public static final String FIELD_NAME_ADMINS = "admins";
+  
+  /** field name for attr admins */
+  public static final String FIELD_NAME_ATTR_ADMINS = "attrAdmins";
   
   /** field name for readers */
   public static final String FIELD_NAME_READERS = "readers";
   
+  /** field name for attr readers */
+  public static final String FIELD_NAME_ATTR_READERS = "attrReaders";
+  
   /** field name for updaters */
   public static final String FIELD_NAME_UPDATERS = "updaters";
+  
+  /** field name for attr updaters */
+  public static final String FIELD_NAME_ATTR_UPDATERS = "attrUpdaters";
   
   /** field name for optins */
   public static final String FIELD_NAME_OPTINS = "optins";
   
+  /** field name for attr optins */
+  public static final String FIELD_NAME_ATTR_OPTINS = "attrOptins";
+  
   /** field name for optouts */
   public static final String FIELD_NAME_OPTOUTS = "optouts";
+
+  /** field name for attr optouts */
+  public static final String FIELD_NAME_ATTR_OPTOUTS = "attrOptouts";
 
   /** field name for groupAttrReaders */
   public static final String FIELD_NAME_GROUP_ATTR_READERS = "groupAttrReaders";
   
   /** field name for groupAttrUpdaters */
   public static final String FIELD_NAME_GROUP_ATTR_UPDATERS = "groupAttrUpdaters";
+
+  /** field name for attrDefAttrReaders */
+  public static final String FIELD_NAME_ATTR_DEF_ATTR_READERS = "attrDefAttrReaders";
+  
+  /** field name for attrDefAttrUpdaters */
+  public static final String FIELD_NAME_ATTR_DEF_ATTR_UPDATERS = "attrDefAttrUpdaters";
 
   /** field name for stemAttrReaders */
   public static final String FIELD_NAME_STEM_ATTR_READERS = "stemAttrReaders";

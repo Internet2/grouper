@@ -46,6 +46,8 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -56,6 +58,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -89,7 +92,7 @@ public class TestMembershipFinder extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMembershipFinder("testFindCreatePrivileges"));
+    TestRunner.run(new TestMembershipFinder("testFindAttrUpdatePrivileges"));
   }
 
   /**
@@ -702,6 +705,186 @@ public class TestMembershipFinder extends GrouperTest {
         .getMembershipContainers().get(Field.FIELD_NAME_CREATORS).getMembershipAssignType());
     assertEquals(stems[6].getName(), membershipSubjectContainers.get(6)
         .getStemOwner().getName());
+  
+    
+  }
+
+  /**
+   * 
+   */
+  public void testFindAttrUpdatePrivileges() {
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
+  
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Group group = new GroupSave(grouperSession).assignName("theStem:theGroup").assignCreateParentStemsIfNotExist(true).save();
+  
+    AttributeDef[] attributeDefs = new AttributeDef[26];
+    
+    for (int i=0;i<26;i++) {
+      attributeDefs[i] = new AttributeDefSave(grouperSession).assignName("stemA:attrDef" + (char)('A' + i)).assignCreateParentStemsIfNotExist(true).save();
+      
+      if (i>=0 && i <= 3) {
+        attributeDefs[i].getPrivilegeDelegate().grantPriv(group.toSubject(), AttributeDefPrivilege.ATTR_ADMIN, false);
+  
+      }
+      if (i>=3 && i <= 6) {
+        attributeDefs[i].getPrivilegeDelegate().grantPriv(group.toSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
+  
+      }
+      if (i>=6 && i <= 9) {
+        attributeDefs[i].getPrivilegeDelegate().grantPriv(group.toSubject(), AttributeDefPrivilege.ATTR_READ, false);
+  
+      }
+      if (i>=9 && i <= 12) {
+        attributeDefs[i].getPrivilegeDelegate().grantPriv(group.toSubject(), AttributeDefPrivilege.ATTR_VIEW, false);
+  
+      }
+      if (i>=12 && i <= 15) {
+        attributeDefs[i].getPrivilegeDelegate().grantPriv(group.toSubject(), AttributeDefPrivilege.ATTR_OPTIN, false);
+  
+      }
+      if (i>=15 && i <= 18) {
+        attributeDefs[i].getPrivilegeDelegate().grantPriv(group.toSubject(), AttributeDefPrivilege.ATTR_OPTOUT, false);
+  
+      }
+      if (i>=18 && i <= 21) {
+        attributeDefs[i].getPrivilegeDelegate().grantPriv(group.toSubject(), AttributeDefPrivilege.ATTR_DEF_ATTR_READ, false);
+  
+      }
+      if (i>=21 && i <= 24) {
+        attributeDefs[i].getPrivilegeDelegate().grantPriv(group.toSubject(), AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, false);
+  
+      }
+      
+    }
+    
+  
+    QueryOptions queryOptions = new QueryOptions();
+    queryOptions.paging(2, 1, true);
+    
+    MembershipFinder membershipFinder = new MembershipFinder()
+      .addMemberId(group.toMember().getId())
+      .assignCheckSecurity(true)
+      .assignHasFieldForAttributeDef(false)
+      .assignEnabled(true)
+      .assignHasMembershipTypeForAttributeDef(true)
+      .assignQueryOptionsForAttributeDef(queryOptions)
+      .assignSplitScopeForAttributeDef(true);
+  
+    membershipFinder.assignFieldName("attrAdmins");
+  
+    //membershipFinder.assignScopeForAttributeDef("%");
+  
+    //#############################  first page
+    
+    //membership, stem, member
+    //get them all for a stem
+    Set<Object[]> result = membershipFinder.findMembershipsMembers();
+    assertEquals(2, GrouperUtil.length(result));
+  
+    assertHasPrivilege(result, attributeDefs[0], group.toSubject(), AttributeDefPrivilege.ATTR_ADMIN);
+    assertHasPrivilege(result, attributeDefs[1], group.toSubject(), AttributeDefPrivilege.ATTR_ADMIN);
+  
+    //############################# second page
+    
+    queryOptions.paging(2, 2, true);
+  
+    result = membershipFinder.findMembershipsMembers();
+    assertEquals(2, GrouperUtil.length(result));
+  
+    assertHasPrivilege(result, attributeDefs[2], group.toSubject(), AttributeDefPrivilege.ATTR_ADMIN);
+    assertHasPrivilege(result, attributeDefs[3], group.toSubject(), AttributeDefPrivilege.ATTR_ADMIN);
+  
+    //############################# indirect privilege all
+  
+    queryOptions.paging(10, 1, true);
+    
+    membershipFinder.assignFieldsByName(GrouperUtil.toSet("attrAdmins", "attrUpdaters"));
+  
+    result = membershipFinder.findMembershipsMembers();
+    assertEquals(8, GrouperUtil.length(result));
+  
+    assertHasPrivilege(result, attributeDefs[0], group.toSubject(), AttributeDefPrivilege.ATTR_ADMIN);
+    assertHasPrivilege(result, attributeDefs[1], group.toSubject(), AttributeDefPrivilege.ATTR_ADMIN);
+    assertHasPrivilege(result, attributeDefs[3], group.toSubject(), AttributeDefPrivilege.ATTR_ADMIN);
+    assertHasPrivilege(result, attributeDefs[3], group.toSubject(), AttributeDefPrivilege.ATTR_UPDATE);
+    assertHasPrivilege(result, attributeDefs[4], group.toSubject(), AttributeDefPrivilege.ATTR_UPDATE);
+  
+    //############################# indirect privilege all
+  
+    queryOptions.paging(10, 1, true);
+    
+    membershipFinder.assignFieldsByName(GrouperUtil.toSet("attrUpdaters"));
+    membershipFinder.assignIncludeInheritedPrivileges(true);
+    
+    result = membershipFinder.findMembershipsMembers();
+    assertEquals(8, GrouperUtil.length(result));
+  
+    assertHasPrivilege(result, attributeDefs[0], group.toSubject(), AttributeDefPrivilege.ATTR_ADMIN);
+    assertHasPrivilege(result, attributeDefs[1], group.toSubject(), AttributeDefPrivilege.ATTR_ADMIN);
+    assertHasPrivilege(result, attributeDefs[3], group.toSubject(), AttributeDefPrivilege.ATTR_ADMIN);
+    assertHasPrivilege(result, attributeDefs[3], group.toSubject(), AttributeDefPrivilege.ATTR_UPDATE);
+    assertHasPrivilege(result, attributeDefs[4], group.toSubject(), AttributeDefPrivilege.ATTR_UPDATE);
+  
+    //############################# indirect privilege all membership subject containers
+  
+    membershipFinder = new MembershipFinder()
+      .addMemberId(group.toMember().getId())
+      .assignCheckSecurity(true)
+      .assignHasFieldForAttributeDef(false)
+      .assignEnabled(true)
+      .assignHasMembershipTypeForAttributeDef(true)
+      .assignQueryOptionsForAttributeDef(queryOptions)
+      .assignSplitScopeForAttributeDef(true);
+    
+    membershipFinder.assignFieldName("attrUpdaters");
+  
+    queryOptions.paging(10, 1, true);
+    
+    membershipFinder.assignIncludeInheritedPrivileges(true);
+
+    List<MembershipSubjectContainer> membershipSubjectContainers = new ArrayList<MembershipSubjectContainer>(
+        membershipFinder.findMembershipResult().getMembershipSubjectContainers());
+
+    assertEquals(GrouperUtil.toStringForLog(membershipSubjectContainers), 7, GrouperUtil.length(membershipSubjectContainers));
+
+    assertEquals(GrouperUtil.toStringForLog(membershipSubjectContainers), 
+        MembershipAssignType.EFFECTIVE, membershipSubjectContainers.get(0)
+        .getMembershipContainers().get(Field.FIELD_NAME_ATTR_UPDATERS).getMembershipAssignType());
+    assertEquals(attributeDefs[0].getName(), membershipSubjectContainers.get(0)
+        .getAttributeDefOwner().getName());
+  
+    assertEquals(MembershipAssignType.EFFECTIVE, membershipSubjectContainers.get(1)
+        .getMembershipContainers().get(Field.FIELD_NAME_ATTR_UPDATERS).getMembershipAssignType());
+    assertEquals(attributeDefs[1].getName(), membershipSubjectContainers.get(1)
+        .getAttributeDefOwner().getName());
+  
+    assertEquals(MembershipAssignType.EFFECTIVE, membershipSubjectContainers.get(2)
+        .getMembershipContainers().get(Field.FIELD_NAME_ATTR_UPDATERS).getMembershipAssignType());
+    assertEquals(attributeDefs[2].getName(), membershipSubjectContainers.get(2)
+        .getAttributeDefOwner().getName());
+  
+    assertEquals(MembershipAssignType.IMMEDIATE_AND_EFFECTIVE, membershipSubjectContainers.get(3)
+        .getMembershipContainers().get(Field.FIELD_NAME_ATTR_UPDATERS).getMembershipAssignType());
+    assertEquals(attributeDefs[3].getName(), membershipSubjectContainers.get(3)
+        .getAttributeDefOwner().getName());
+  
+    assertEquals(MembershipAssignType.IMMEDIATE, membershipSubjectContainers.get(4)
+        .getMembershipContainers().get(Field.FIELD_NAME_ATTR_UPDATERS).getMembershipAssignType());
+    assertEquals(attributeDefs[4].getName(), membershipSubjectContainers.get(4)
+        .getAttributeDefOwner().getName());
+  
+    assertEquals(MembershipAssignType.IMMEDIATE, membershipSubjectContainers.get(5)
+        .getMembershipContainers().get(Field.FIELD_NAME_ATTR_UPDATERS).getMembershipAssignType());
+    assertEquals(attributeDefs[5].getName(), membershipSubjectContainers.get(5)
+        .getAttributeDefOwner().getName());
+  
+    assertEquals(MembershipAssignType.IMMEDIATE, membershipSubjectContainers.get(6)
+        .getMembershipContainers().get(Field.FIELD_NAME_ATTR_UPDATERS).getMembershipAssignType());
+    assertEquals(attributeDefs[6].getName(), membershipSubjectContainers.get(6)
+        .getAttributeDefOwner().getName());
   
     
   }

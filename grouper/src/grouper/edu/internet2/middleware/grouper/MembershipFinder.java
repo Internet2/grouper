@@ -42,8 +42,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
-import sun.awt.windows.ThemeReader;
-
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
@@ -613,7 +611,8 @@ public class MembershipFinder {
     } else if ((this.fieldType != null && this.fieldType == FieldType.ATTRIBUTE_DEF )
         || (field != null && field.isAttributeDefListField())
         || GrouperUtil.length(this.attributeDefIds) > 0) {
-      return this.findMembershipsAttributeDefsMembers();
+      Set<Object[]> result = this.findMembershipsAttributeDefsMembers();
+      return result;
     } else if ((field == null && this.fieldType == null) 
         || this.fieldType == FieldType.ACCESS || this.fieldType == FieldType.LIST
         || (field != null && field.isGroupListField())
@@ -871,9 +870,12 @@ public class MembershipFinder {
           + " involve attributeDef memberships");
     }
 
-    return edu.internet2.middleware.grouper.MembershipFinder.findAttributeDefMemberships(this.attributeDefIds, this.memberIds, 
-        this.membershipIds, this.membershipType, field, this.sources, this.scope, this.stem, this.stemScope, this.enabled, this.checkSecurity);
-    
+    Set<Object[]> result = GrouperDAOFactory.getFactory().getMembership().findAllByAttributeDefOwnerOptions(this.attributeDefIds, this.memberIds,
+        this.membershipIds, this.membershipType, inheritedFields, this.sources, this.scope, this.stem, this.stemScope, 
+        this.enabled, this.checkSecurity, 
+        this.queryOptionsForAttributeDef, this.scopeForAttributeDef, this.splitScopeForAttributeDef, this.hasFieldForAttributeDef, 
+        this.hasMembershipTypeForAttributeDef);  
+    return result;
   }
 
   /**
@@ -1819,6 +1821,81 @@ public class MembershipFinder {
    */
   private boolean splitScopeForStem;
 
+  /** 
+   * return memberships where the attributeDef has this field, note, it will return all the memberships for those attributeDefs 
+   */
+  private boolean hasFieldForAttributeDef;
+
+  /**
+   * return memberships where the attributeDef has this field, note, it will return all the memberships for those attributeDefs 
+   * @param theHasFieldForAttributeDef
+   * @return this for chaining
+   */
+  public MembershipFinder assignHasFieldForAttributeDef(boolean theHasFieldForAttributeDef) {
+    this.hasFieldForAttributeDef = theHasFieldForAttributeDef;
+    return this;
+  }
+  
+  /**
+   * return memberships where the attributeDef has this field, note, it will return all the memberships for those attributeDefs
+   */
+  private boolean hasMembershipTypeForAttributeDef;
+
+  /**
+   * return memberships where the attributeDef has this field, note, it will return all the memberships for those attributeDefs
+   * @param theHasMembershipTypeForAttributeDef
+   * @return this for chaining
+   */
+  public MembershipFinder assignHasMembershipTypeForAttributeDef(boolean theHasMembershipTypeForAttributeDef) {
+    this.hasMembershipTypeForAttributeDef = theHasMembershipTypeForAttributeDef;
+    return this;
+  }
+  
+  /**
+   * query options for attributeDef.  must include paging.  if sorting then sort by attributeDef
+   */
+  private QueryOptions queryOptionsForAttributeDef;
+
+  /**
+   * query options for attributeDef.  must include paging.  if sorting then sort by attributeDef
+   * @param theQueryOptionsForAttributeDef
+   * @return this for chaining
+   */
+  public MembershipFinder assignQueryOptionsForAttributeDef(QueryOptions theQueryOptionsForAttributeDef) {
+    this.queryOptionsForAttributeDef = theQueryOptionsForAttributeDef;
+    return this;
+  }
+  
+  /**
+   * if paging for attributeDef, then also filter for group
+   */
+  private String scopeForAttributeDef;
+
+  /**
+   * if paging for attributeDef, then also filter for group
+   * @param theScopeForAttributeDef
+   * @return this for chaining
+   */
+  public MembershipFinder assignScopeforAttributeDef(String theScopeForAttributeDef) {
+    this.scopeForAttributeDef = theScopeForAttributeDef;
+    return this;
+  }
+  
+  /**
+   * if the scope for attributeDef has spaces in it, then split by whitespace, and find results that contain all of the scope strings
+   */
+  private boolean splitScopeForAttributeDef;
+
+  /**
+   * if the scope for attributeDef has spaces in it, then split by whitespace, and find results that contain all of the scope strings
+   * @param theSplitScopeForAttributeDef
+   * @return this
+   */
+  public MembershipFinder assignSplitScopeForAttributeDef(boolean theSplitScopeForAttributeDef) {
+    this.splitScopeForAttributeDef = theSplitScopeForAttributeDef;
+    return this;
+  }
+  
   /**
    * if the scope for stem has spaces in it, then split by whitespace, and find results that contain all of the scope strings
    * @param theSplitScopeForStem

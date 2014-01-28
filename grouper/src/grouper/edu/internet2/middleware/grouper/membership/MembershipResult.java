@@ -145,6 +145,7 @@ public class MembershipResult {
     this.membershipsOwnersMembers = theMembershipsGroupsMembers;
     
     this.memberships = new HashSet<Membership>();
+    this.attributeDefs = new HashMap<String, AttributeDef>();
     this.groups = new HashMap<String, Group>();
     this.stems = new HashMap<String, Stem>();
     this.members = new HashMap<String, Member>();
@@ -157,6 +158,8 @@ public class MembershipResult {
         this.groups.put(((Group)theMembershipGroupMember[1]).getId(),(Group)theMembershipGroupMember[1]) ;
       } else if (theMembershipGroupMember[1] instanceof Stem) {
         this.stems.put(((Stem)theMembershipGroupMember[1]).getId(),(Stem)theMembershipGroupMember[1]) ;
+      } else if (theMembershipGroupMember[1] instanceof AttributeDef) {
+        this.attributeDefs.put(((AttributeDef)theMembershipGroupMember[1]).getId(),(AttributeDef)theMembershipGroupMember[1]) ;
       } else {
         throw new RuntimeException("Not expecting owner type: " + theMembershipGroupMember[1].getClass());
       }
