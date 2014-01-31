@@ -6093,10 +6093,10 @@ public class GrouperServiceLogic {
       StringBuilder errorMessage = new StringBuilder();
   
       //get the attributedefs to retrieve
-      Set<String> attributeDefIds = WsAttributeDefLookup.convertToAttributeDefIds(session, wsAttributeDefLookups, errorMessage, AttributeDefType.perm, usePIT, pointInTimeFrom, pointInTimeTo);
+      Set<String> attributeDefIds = GrouperUtil.nonNull(WsAttributeDefLookup.convertToAttributeDefIds(session, wsAttributeDefLookups, errorMessage, AttributeDefType.perm, usePIT, pointInTimeFrom, pointInTimeTo));
       
       //get the attributeDefNames to retrieve
-      Set<String> attributeDefNameIds = WsAttributeDefNameLookup.convertToAttributeDefNameIds(session, wsAttributeDefNameLookups, errorMessage, AttributeDefType.perm, usePIT, pointInTimeFrom, pointInTimeTo);
+      Set<String> attributeDefNameIds = GrouperUtil.nonNull(WsAttributeDefNameLookup.convertToAttributeDefNameIds(session, wsAttributeDefNameLookups, errorMessage, AttributeDefType.perm, usePIT, pointInTimeFrom, pointInTimeTo));
       
       //if you sent some in, and none are remaining, then that is bad...
       if (GrouperUtil.length(attributeDefNameIds) == 0 && GrouperUtil.length(wsAttributeDefNameLookups) > 0) {
