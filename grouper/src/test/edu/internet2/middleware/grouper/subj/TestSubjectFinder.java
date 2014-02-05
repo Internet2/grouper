@@ -95,8 +95,8 @@ public class TestSubjectFinder extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(TestSubjectFinder.class);
-    TestRunner.run(new TestSubjectFinder("testFindAllMultipleInSomeSources"));
+    TestRunner.run(TestSubjectFinder.class);
+    //TestRunner.run(new TestSubjectFinder("testFindPageMultipleInSomeSources"));
   }
   
   /**
@@ -1141,6 +1141,50 @@ public class TestSubjectFinder extends GrouperTest {
   }
 
   /**
+   * test that finding page by multiple comma separated queries will aggregate the results
+   */
+  public void testFindPageMultipleInAllSources() {
+
+    //############# test no find
+    Set<Subject> subjects = SubjectFinder.findPage("whatever, whatever2").getResults();
+    assertEquals(0, GrouperUtil.length(subjects));
+
+    //############# test find after comma
+    subjects = SubjectFinder.findPage("whatever, " + SubjectTestHelper.SUBJ0_ID).getResults();
+    
+    String postgresError = GrouperDdlUtils.isPostgres() ? "Note, with postgres, you need to adjust your sources.xml for it to " +
+        "work with postgres, uncomment the postgres part of the jdbc source, search sql " +
+        "part, and comment out the current part" : null;
+    
+    assertEquals(postgresError, 1, GrouperUtil.length(subjects));
+
+    assertEquals(SubjectTestHelper.SUBJ0_ID, subjects.iterator().next().getId());
+
+    //############# test find before comma
+    subjects = SubjectFinder.findPage(SubjectTestHelper.SUBJ0_ID + ", whatever").getResults();
+
+    assertEquals(postgresError, 1, GrouperUtil.length(subjects));
+
+    assertEquals(SubjectTestHelper.SUBJ0_ID, subjects.iterator().next().getId());
+
+    //############# test find multiple with dupe
+    subjects = SubjectFinder.findPage(SubjectTestHelper.SUBJ0_ID + ", " + SubjectTestHelper.SUBJ1_ID + ", " + SubjectTestHelper.SUBJ0_ID ).getResults();
+
+    assertEquals(postgresError, 2, GrouperUtil.length(subjects));
+
+    assertEquals(SubjectTestHelper.SUBJ0_ID, subjects.iterator().next().getId());
+
+    Subject subject = (Subject)GrouperUtil.get(subjects, 1);
+    assertEquals(GrouperUtil.subjectToString(subject), SubjectTestHelper.SUBJ1_ID, subject.getId());
+
+    //############# test find a lot
+    subjects = SubjectFinder.findPage("Test, somethingElse" ).getResults();
+
+    assertTrue("" + GrouperUtil.length(subjects) + StringUtils.trimToEmpty(postgresError), GrouperUtil.length(subjects) >= 10);
+    
+  }
+
+  /**
    * 
    */
   public void testFindAllSourceException() {
@@ -1664,6 +1708,48 @@ public class TestSubjectFinder extends GrouperTest {
     subjects = SubjectFinder.findAll("Test, somethingElse", GrouperUtil.convertSources("g:isa") );
   
     assertTrue("" + GrouperUtil.length(subjects) + StringUtils.trimToEmpty(postgresError), GrouperUtil.length(subjects) == 00);
+    
+  }
+
+  /**
+   * test that finding by multiple comma separated queries will aggregate the results
+   */
+  public void testFindPageMultipleInSomeSources() {
+  
+    //############# test no find
+    Set<Subject> subjects = SubjectFinder.findPage("whatever, whatever2", GrouperUtil.convertSources("jdbc,g:isa")).getResults();
+    assertEquals(GrouperUtil.toStringForLog(subjects), 0, GrouperUtil.length(subjects));
+  
+    //############# test find after comma
+    subjects = SubjectFinder.findPage("whatever, " + SubjectTestHelper.SUBJ0_ID, GrouperUtil.convertSources("jdbc, g:isa")).getResults();
+    
+    String postgresError = GrouperDdlUtils.isPostgres() ? "Note, with postgres, you need to adjust your sources.xml for it to " +
+        "work with postgres, uncomment the postgres part of the jdbc source, search sql " +
+        "part, and comment out the current part" : null;
+    
+    assertEquals(postgresError, 1, GrouperUtil.length(subjects));
+  
+    assertEquals(SubjectTestHelper.SUBJ0_ID, subjects.iterator().next().getId());
+  
+    //############# test find before comma
+    subjects = SubjectFinder.findPage(SubjectTestHelper.SUBJ0_ID + ", whatever", GrouperUtil.convertSources("g:isa")).getResults();
+  
+    assertEquals(postgresError, 0, GrouperUtil.length(subjects));
+  
+    //############# test find multiple with dupe
+    subjects = SubjectFinder.findPage(SubjectTestHelper.SUBJ0_ID + ", " + SubjectTestHelper.SUBJ1_ID + ", " + SubjectTestHelper.SUBJ0_ID, GrouperUtil.convertSources("jdbc") ).getResults();
+  
+    assertEquals(postgresError, 2, GrouperUtil.length(subjects));
+  
+    assertEquals(SubjectTestHelper.SUBJ0_ID, subjects.iterator().next().getId());
+  
+    Subject subject = (Subject)GrouperUtil.get(subjects, 1);
+    assertEquals(GrouperUtil.subjectToString(subject), SubjectTestHelper.SUBJ1_ID, subject.getId());
+  
+    //############# test find a lot
+    subjects = SubjectFinder.findPage("Test, somethingElse", GrouperUtil.convertSources("g:isa") ).getResults();
+  
+    assertTrue("" + GrouperUtil.length(subjects) + StringUtils.trimToEmpty(postgresError), GrouperUtil.length(subjects) == 0);
     
   }
 }
