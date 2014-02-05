@@ -47,6 +47,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -64,7 +65,6 @@ public class FieldFinder {
   /**
    * logger 
    */
-  @SuppressWarnings("unused")
   private static final Log LOG = GrouperUtil.getLog(FieldFinder.class);
 
   /** default field cache seconds */
@@ -206,6 +206,22 @@ public class FieldFinder {
     Map<String, Field> theFieldCache = fieldCache();
     if ( theFieldCache.containsKey(name) ) {
       return theFieldCache.get(name);
+    }
+    
+    //try by privilege name
+    try {
+      Privilege privilege = Privilege.getInstance(name);
+      if (privilege != null ) {
+        Field field = privilege.getField();
+        if (field != null) {
+          return field;
+        }
+      }
+    } catch (Exception e) {
+      //this is generally ok
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Problem finding privilege: " + name, e);
+      }
     }
     if (exceptionIfNotFound) {
       //dont refresh more than 2 minutes (or whatever it is set for)

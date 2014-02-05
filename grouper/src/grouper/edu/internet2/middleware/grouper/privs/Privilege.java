@@ -57,6 +57,31 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class Privilege implements Serializable {
 
   /**
+   * see if privilege involves group
+   * @return if involves groups
+   */
+  public boolean isAccess() {
+    return Privilege.isAccess(this);
+  }
+  
+  /**
+   * see if privilege involves stem
+   * @return if involves stems
+   */
+  public boolean isNaming() {
+    return Privilege.isNaming(this);
+  }
+  
+  /**
+   * see if privilege involves attribute def
+   * @return if involves attribute def
+   */
+  public boolean isAttributeDef() {
+    return Privilege.isAttributeDef(this);
+  }
+  
+
+  /**
    * convert a list to a privilege for any type of privilege
    * @param list
    * @return the privilege
@@ -110,6 +135,7 @@ public class Privilege implements Serializable {
     
   }
   
+
   /** constant */
   public static final long serialVersionUID = 931658631999330719L;
 
@@ -179,7 +205,7 @@ public class Privilege implements Serializable {
   private static final Privilege              GROUP_ATTR_READ    = new Privilege("groupAttrRead"  );
   /** */
   private static final Privilege              GROUP_ATTR_UPDATE    = new Privilege("groupAttrUpdate"  );
-  /** */
+  /** key is priv name to lower case */
   private static final Map<String,Privilege>  PRIVS   = new HashMap<String,Privilege>();
 
   /** */
@@ -300,47 +326,47 @@ public class Privilege implements Serializable {
 
   // STATIC //
   static {
-    PRIVS.put(  ADMIN.toString()  , ADMIN   );
+    PRIVS.put(  ADMIN.toString().toLowerCase()  , ADMIN   );
     ACCESS.add( ADMIN                       );
-    PRIVS.put(  CREATE.toString() , CREATE  );
+    PRIVS.put(  CREATE.toString().toLowerCase() , CREATE  );
     NAMING.add( CREATE                      );
-    PRIVS.put(  OPTIN.toString()  , OPTIN   );
+    PRIVS.put(  OPTIN.toString().toLowerCase()  , OPTIN   );
     ACCESS.add( OPTIN                       );
-    PRIVS.put(  OPTOUT.toString() , OPTOUT  );
+    PRIVS.put(  OPTOUT.toString().toLowerCase() , OPTOUT  );
     ACCESS.add( OPTOUT                      );
-    PRIVS.put(  READ.toString()   , READ    );
+    PRIVS.put(  READ.toString().toLowerCase()   , READ    );
     ACCESS.add( READ                        );
-    PRIVS.put(  STEM.toString()   , STEM    );
+    PRIVS.put(  STEM.toString().toLowerCase()   , STEM    );
     NAMING.add( STEM                        );
-    PRIVS.put(  SYSTEM.toString() , SYSTEM  );
-    PRIVS.put(  UPDATE.toString() , UPDATE  );
+    PRIVS.put(  SYSTEM.toString().toLowerCase() , SYSTEM  );
+    PRIVS.put(  UPDATE.toString().toLowerCase() , UPDATE  );
     ACCESS.add( UPDATE                      );
-    PRIVS.put(  VIEW.toString()   , VIEW    );
+    PRIVS.put(  VIEW.toString().toLowerCase()   , VIEW    );
     ACCESS.add( VIEW                        );
-    PRIVS.put(GROUP_ATTR_READ.toString(), GROUP_ATTR_READ);
+    PRIVS.put(GROUP_ATTR_READ.toString().toLowerCase(), GROUP_ATTR_READ);
     ACCESS.add(GROUP_ATTR_READ);
-    PRIVS.put(GROUP_ATTR_UPDATE.toString(), GROUP_ATTR_UPDATE);
+    PRIVS.put(GROUP_ATTR_UPDATE.toString().toLowerCase(), GROUP_ATTR_UPDATE);
     ACCESS.add(GROUP_ATTR_UPDATE);
-    PRIVS.put(STEM_ATTR_READ.toString(), STEM_ATTR_READ);
+    PRIVS.put(STEM_ATTR_READ.toString().toLowerCase(), STEM_ATTR_READ);
     NAMING.add(STEM_ATTR_READ);
-    PRIVS.put(STEM_ATTR_UPDATE.toString(), STEM_ATTR_UPDATE);
+    PRIVS.put(STEM_ATTR_UPDATE.toString().toLowerCase(), STEM_ATTR_UPDATE);
     NAMING.add(STEM_ATTR_UPDATE);
 
-    PRIVS.put(  ATTR_OPTIN.toString()   , ATTR_OPTIN    );
+    PRIVS.put(  ATTR_OPTIN.toString().toLowerCase()   , ATTR_OPTIN    );
     ATTRIBUTE_DEF.add( ATTR_OPTIN                        );
-    PRIVS.put(  ATTR_OPTOUT.toString()   , ATTR_OPTOUT    );
+    PRIVS.put(  ATTR_OPTOUT.toString().toLowerCase()   , ATTR_OPTOUT    );
     ATTRIBUTE_DEF.add( ATTR_OPTOUT                        );
-    PRIVS.put(  ATTR_READ.toString()   , ATTR_READ    );
+    PRIVS.put(  ATTR_READ.toString().toLowerCase()   , ATTR_READ    );
     ATTRIBUTE_DEF.add( ATTR_READ                        );
-    PRIVS.put(  ATTR_UPDATE.toString()   , ATTR_UPDATE    );
+    PRIVS.put(  ATTR_UPDATE.toString().toLowerCase()   , ATTR_UPDATE    );
     ATTRIBUTE_DEF.add( ATTR_UPDATE                        );
-    PRIVS.put(  ATTR_VIEW.toString()   , ATTR_VIEW    );
+    PRIVS.put(  ATTR_VIEW.toString().toLowerCase()   , ATTR_VIEW    );
     ATTRIBUTE_DEF.add( ATTR_VIEW                        );
-    PRIVS.put(  ATTR_ADMIN.toString()   , ATTR_ADMIN    );
+    PRIVS.put(  ATTR_ADMIN.toString().toLowerCase()   , ATTR_ADMIN    );
     ATTRIBUTE_DEF.add( ATTR_ADMIN                        );
-    PRIVS.put(ATTR_DEF_ATTR_READ.toString(), ATTR_DEF_ATTR_READ);
+    PRIVS.put(ATTR_DEF_ATTR_READ.toString().toLowerCase(), ATTR_DEF_ATTR_READ);
     ATTRIBUTE_DEF.add(ATTR_DEF_ATTR_READ);
-    PRIVS.put(ATTR_DEF_ATTR_UPDATE.toString(), ATTR_DEF_ATTR_UPDATE);
+    PRIVS.put(ATTR_DEF_ATTR_UPDATE.toString().toLowerCase(), ATTR_DEF_ATTR_UPDATE);
     ATTRIBUTE_DEF.add(ATTR_DEF_ATTR_UPDATE);
 
   
@@ -390,7 +416,7 @@ public class Privilege implements Serializable {
    * 
    * @return access (group) privs
    */
-  public static Set getAccessPrivs() {
+  public static Set<Privilege> getAccessPrivs() {
     return ACCESS;
   } // public static Set getAccessPrivs()
 
@@ -433,6 +459,11 @@ public class Privilege implements Serializable {
    * @return priv
    */
   public static Privilege getInstance(String name) {
+    
+    //all are upper case
+    if (name != null) {
+      name = name.toLowerCase();
+    }
     return (Privilege) PRIVS.get(name);
   } // public static Privilege getInstance(name)
 
@@ -440,7 +471,7 @@ public class Privilege implements Serializable {
    * get stem (naming) privs
    * @return set
    */
-  public static Set getNamingPrivs() {
+  public static Set<Privilege> getNamingPrivs() {
     return NAMING;
   }
   
@@ -448,7 +479,7 @@ public class Privilege implements Serializable {
    * get attribute def privs
    * @return attr def privs
    */
-  public static Set getAttributeDefPrivs() {
+  public static Set<Privilege> getAttributeDefPrivs() {
     return ATTRIBUTE_DEF;
   }
 

@@ -672,16 +672,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           //note: mysql wont let you do count distinct of multiple columns
           String countPrefix = "select count(*) ";
 
-          StringBuilder sql = new StringBuilder(" from Member m, MembershipEntry ms, Group g ");
+          StringBuilder sql = new StringBuilder(" from Member m, MembershipEntry ms, Group g, Field f  ");
           
-          boolean hasField = false;
-          
-          //we need to make sure it is a list type field if the field ID is not sent in
-          if (GrouperUtil.length(fields) > 0 || fieldType != null) {
-            sql.append(", Field f ");
-            hasField = true;
-          }
-
           if (serviceRole == null != StringUtils.isBlank(serviceId)) {
             throw new RuntimeException("If you pass in the serviceRole you must pass in the serviceId and visa versa");
           }
@@ -755,9 +747,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             sql.append(" and ms.type ").append(membershipType.queryClause()).append(" ");
           }
           
-          if (hasField) {
-            sql.append(" and ms.fieldId = f.uuid ");
-          }
+          sql.append(" and ms.fieldId = f.uuid ");
           if (GrouperUtil.length(fields) > 0) {
             if (serviceRole != null) {
               throw new RuntimeException("If you specify the field, you cannot specify the serviceRole (and vice versa)");
@@ -779,7 +769,6 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             sql.append(" and f.typeString = 'list' ");
           }
           if (fieldType == FieldType.ACCESS) {
-            sql.append(" and ms.fieldId = f.uuid ");
             if (serviceRole == null) {
               //add on the column
               //this was changed to list for some reason, but i changed it back to access 2013/10/21
@@ -2488,7 +2477,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllNonImmediateByMember(java.lang.String, boolean)
    */
-  public Set findAllNonImmediateByMember(String memberUUID, boolean enabledOnly)
+  public Set<Membership> findAllNonImmediateByMember(String memberUUID, boolean enabledOnly)
       throws GrouperDAOException {
     StringBuilder sql = new StringBuilder(
         "select ms, m from MembershipEntry as ms, Member as m where  "

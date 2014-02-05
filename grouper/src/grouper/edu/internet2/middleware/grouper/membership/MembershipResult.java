@@ -119,7 +119,6 @@ public class MembershipResult {
 //      }
 
       //if we are including inherited privileges, then tell that to the converter to membership subject converters
-      
       this.membershipSubjectContainers = MembershipSubjectContainer.convertFromMembershipsOwnersMembers(this.membershipsOwnersMembers, 
           this.fields, this.includeInheritedPrivileges);
       

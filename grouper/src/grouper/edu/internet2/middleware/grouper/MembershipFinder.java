@@ -160,12 +160,12 @@ public class MembershipFinder {
   }
   
   /**
-   * assign a field to filter by
+   * assign a field to filter by, or a privilege name
    * @param theField
    * @return this for chaining
    */
-  public MembershipFinder assignFieldName(String theFieldName) {
-    Field theField = FieldFinder.find(theFieldName, true);
+  public MembershipFinder assignFieldName(String theFieldOrPrivilegeName) {
+    Field theField = FieldFinder.find(theFieldOrPrivilegeName, true);
     this.assignField(theField);
     return this;
   }
@@ -540,7 +540,8 @@ public class MembershipFinder {
     Set<Object[]> membershipsOwnersMembers = this.findMembershipsMembers();
     Field field = this.field(false);
     String theFieldId = field == null ? null : field.getUuid();
-    return new MembershipResult(membershipsOwnersMembers, theFieldId, this.fields, this.includeInheritedPrivileges);
+    return new MembershipResult(membershipsOwnersMembers, theFieldId, this.hasFieldForGroup ? null : this.fields, 
+        this.hasFieldForGroup ? false : this.includeInheritedPrivileges);
   }
   
   /**
@@ -600,7 +601,7 @@ public class MembershipFinder {
   /**
    * find a set of object arrays which have a membership, group|stem|attributeDef, and member inside
    * @return the set of arrays never null
-   */ 
+   */
   public Set<Object[]> findMembershipsMembers() {
     
     Field field = this.field(true);
@@ -661,6 +662,9 @@ public class MembershipFinder {
         this.hasFieldForMember, this.hasMembershipTypeForMember, this.queryOptionsForGroup, 
         this.scopeForGroup, this.splitScopeForGroup, this.hasFieldForGroup,
         this.hasMembershipTypeForGroup);  
+
+
+
 
   }
 
@@ -1756,8 +1760,8 @@ public class MembershipFinder {
    * if paging for group, then also filter for group
    */
   private String scopeForGroup;
-
-  /** 
+  
+  /**
    * return memberships where the stem has this field, note, it will return all the memberships for those stems 
    */
   private boolean hasFieldForStem;
