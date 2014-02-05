@@ -89,6 +89,7 @@ public class GuiMembershipSubjectContainer {
     if (membershipSubjectContainer1.getGroupOwner() != null) {
       this.guiGroup = new GuiGroup(membershipSubjectContainer1.getGroupOwner());
     }
+    
     for (String fieldName : GrouperUtil.nonNull(membershipSubjectContainer1.getMembershipContainers()).keySet()) {
       this.guiMembershipContainers.put(fieldName, new GuiMembershipContainer(
           membershipSubjectContainer1.getMembershipContainers().get(fieldName)));
