@@ -35,15 +35,14 @@ import org.apache.commons.collections.keyvalue.MultiKey;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.subj.SubjectBean;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -126,89 +125,101 @@ public class MembershipSubjectContainer {
    * GrouperAll for stem
    * @param membershipSubjectContainers
    */
-  public static void considerNamingPrivilegeInheritance(final Set<MembershipSubjectContainer> membershipSubjectContainers,
-      final Stem stem) {
+  public static void considerNamingPrivilegeInheritance(final Set<MembershipSubjectContainer> membershipSubjectContainers) {
 
-    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession(), new GrouperSessionHandler() {
+    Set<Stem> stems = new HashSet<Stem>();
+    
+    //get the list of groups
+    for (MembershipSubjectContainer membershipSubjectContainer : membershipSubjectContainers) {
+      Stem stem = membershipSubjectContainer.getStemOwner();
+      stems.add(stem);
+    }
+    
+    Map<MultiKey, Boolean> stemIdPermissionNameAllowedForGrouperAll = new HashMap<MultiKey, Boolean>();
+
+    for (Stem stem : stems) {
+
+      boolean grouperAllHasStem = stem.hasStem(SubjectFinder.findAllSubject());
+      stemIdPermissionNameAllowedForGrouperAll.put(new MultiKey(stem.getId(), NamingPrivilege.STEM.getName()), grouperAllHasStem);
       
-      /**
-       * 
-       */
-      @Override
-      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-        boolean grouperAllHasStem = stem.hasStem(SubjectFinder.findAllSubject());
-        boolean grouperAllHasCreate = grouperAllHasStem || stem.hasCreate(SubjectFinder.findAllSubject());
-        boolean grouperAllHasAttrRead = grouperAllHasStem || grouperAllHasCreate || stem.hasStemAttrRead(SubjectFinder.findAllSubject());
-        boolean grouperAllHasAttrUpdate = grouperAllHasStem || grouperAllHasCreate || stem.hasStemAttrUpdate(SubjectFinder.findAllSubject());
-        
-        Set<String> stemFieldNames = GrouperUtil.toSet(Field.FIELD_NAME_STEMMERS, Field.FIELD_NAME_CREATORS, 
-            Field.FIELD_NAME_STEM_ATTR_READERS, Field.FIELD_NAME_STEM_ATTR_UPDATERS);
-        
-        Subject rootSubject = SubjectFinder.findRootSubject();
-        Subject everyEntitySubject = SubjectFinder.findAllSubject();
-        
-        for (MembershipSubjectContainer membershipSubjectContainer : membershipSubjectContainers) {
-          
-          Subject subject = membershipSubjectContainer.getSubject();
-          
-          //if we are on grouper system
-          if (SubjectHelper.eq(subject, rootSubject)) {
-            
-            for (String fieldName : stemFieldNames) {
-              //it is also effective, merge that with whatever was there
-              membershipSubjectContainer.addMembership(fieldName, MembershipAssignType.EFFECTIVE);
-            }
-            
-          } else {
-            //else
-            boolean isEveryEntity = SubjectHelper.eq(everyEntitySubject, membershipSubjectContainer.getSubject());
-            
-            //see what the subject has
-            boolean subjectHasStemEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEMMERS) != null
-                && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEMMERS).getMembershipAssignType().isNonImmediate()
-                || (isEveryEntity ? false : grouperAllHasStem);
+      boolean grouperAllHasCreate = grouperAllHasStem || stem.hasCreate(SubjectFinder.findAllSubject());
+      stemIdPermissionNameAllowedForGrouperAll.put(new MultiKey(stem.getId(), NamingPrivilege.CREATE.getName()), grouperAllHasCreate);
 
-            boolean subjectHasStem = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEMMERS) != null 
-                || subjectHasStemEffective || grouperAllHasStem;
-            
-            boolean subjectHasCreateEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_CREATORS) != null
-                && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_CREATORS).getMembershipAssignType().isNonImmediate()
-                || subjectHasStem || (isEveryEntity ? false : grouperAllHasCreate);
-            
-            boolean subjectHasCreate = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_CREATORS) != null 
-                || subjectHasCreateEffective || grouperAllHasCreate;
-            
-            boolean subjectHasAttrReadEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEM_ATTR_READERS) != null
-                && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEM_ATTR_READERS).getMembershipAssignType().isNonImmediate()
-                || subjectHasCreate || subjectHasStem || (isEveryEntity ? false : grouperAllHasAttrRead);
-            
-            boolean subjectHasAttrUpdateEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEM_ATTR_UPDATERS) != null
-                && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEM_ATTR_UPDATERS).getMembershipAssignType().isNonImmediate()
-                || subjectHasCreate || subjectHasStem  || (isEveryEntity ? false : grouperAllHasAttrUpdate);
+      boolean grouperAllHasAttrRead = grouperAllHasStem || grouperAllHasCreate || stem.hasStemAttrRead(SubjectFinder.findAllSubject());
+      stemIdPermissionNameAllowedForGrouperAll.put(new MultiKey(stem.getId(), NamingPrivilege.STEM_ATTR_READ.getName()), grouperAllHasAttrRead);
 
-            //if the subject has an effective stem priv, add it in
-            if (subjectHasStemEffective) {
-              membershipSubjectContainer.addMembership(Field.FIELD_NAME_STEMMERS, MembershipAssignType.EFFECTIVE);
-            }
-            if (subjectHasCreateEffective) {
-              membershipSubjectContainer.addMembership(Field.FIELD_NAME_CREATORS, MembershipAssignType.EFFECTIVE);
-            }
-            if (subjectHasAttrReadEffective) {
-              membershipSubjectContainer.addMembership(Field.FIELD_NAME_STEM_ATTR_READERS, MembershipAssignType.EFFECTIVE);
-            }
-            if (subjectHasAttrUpdateEffective) {
-              membershipSubjectContainer.addMembership(Field.FIELD_NAME_STEM_ATTR_UPDATERS, MembershipAssignType.EFFECTIVE);
-            }
-            
-          }
-          
-          
+      boolean grouperAllHasAttrUpdate = grouperAllHasStem || grouperAllHasCreate || stem.hasStemAttrUpdate(SubjectFinder.findAllSubject());
+      stemIdPermissionNameAllowedForGrouperAll.put(new MultiKey(stem.getId(), NamingPrivilege.STEM_ATTR_UPDATE.getName()), grouperAllHasAttrUpdate);
+    }
+    
+    Set<String> stemFieldNames = GrouperUtil.toSet(Field.FIELD_NAME_STEMMERS, Field.FIELD_NAME_CREATORS, 
+        Field.FIELD_NAME_STEM_ATTR_READERS, Field.FIELD_NAME_STEM_ATTR_UPDATERS);
+    
+    Subject rootSubject = SubjectFinder.findRootSubject();
+    Subject everyEntitySubject = SubjectFinder.findAllSubject();
+    
+    for (MembershipSubjectContainer membershipSubjectContainer : membershipSubjectContainers) {
+      
+      Stem stem = membershipSubjectContainer.getStemOwner();
+      
+      boolean grouperAllHasStem = stemIdPermissionNameAllowedForGrouperAll.get(new MultiKey(stem.getId(), NamingPrivilege.STEM.getName()));
+      boolean grouperAllHasCreate = stemIdPermissionNameAllowedForGrouperAll.get(new MultiKey(stem.getId(), NamingPrivilege.CREATE.getName()));
+      boolean grouperAllHasAttrRead = stemIdPermissionNameAllowedForGrouperAll.get(new MultiKey(stem.getId(), NamingPrivilege.STEM_ATTR_READ.getName()));
+      boolean grouperAllHasAttrUpdate = stemIdPermissionNameAllowedForGrouperAll.get(new MultiKey(stem.getId(), NamingPrivilege.STEM_ATTR_UPDATE.getName()));
+      
+      Subject subject = membershipSubjectContainer.getSubject();
+      
+      //if we are on grouper system
+      if (SubjectHelper.eq(subject, rootSubject)) {
+        
+        for (String fieldName : stemFieldNames) {
+          //it is also effective, merge that with whatever was there
+          membershipSubjectContainer.addMembership(fieldName, MembershipAssignType.EFFECTIVE);
         }
         
-        return null;
-      }
-    });
+      } else {
+        //else
+        boolean isEveryEntity = SubjectHelper.eq(everyEntitySubject, membershipSubjectContainer.getSubject());
+        
+        //see what the subject has
+        boolean subjectHasStemEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEMMERS) != null
+            && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEMMERS).getMembershipAssignType().isNonImmediate()
+            || (isEveryEntity ? false : grouperAllHasStem);
 
+        boolean subjectHasStem = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEMMERS) != null 
+            || subjectHasStemEffective || grouperAllHasStem;
+        
+        boolean subjectHasCreateEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_CREATORS) != null
+            && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_CREATORS).getMembershipAssignType().isNonImmediate()
+            || subjectHasStem || (isEveryEntity ? false : grouperAllHasCreate);
+        
+        boolean subjectHasCreate = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_CREATORS) != null 
+            || subjectHasCreateEffective || grouperAllHasCreate;
+        
+        boolean subjectHasAttrReadEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEM_ATTR_READERS) != null
+            && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEM_ATTR_READERS).getMembershipAssignType().isNonImmediate()
+            || subjectHasCreate || subjectHasStem || (isEveryEntity ? false : grouperAllHasAttrRead);
+        
+        boolean subjectHasAttrUpdateEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEM_ATTR_UPDATERS) != null
+            && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEM_ATTR_UPDATERS).getMembershipAssignType().isNonImmediate()
+            || subjectHasCreate || subjectHasStem  || (isEveryEntity ? false : grouperAllHasAttrUpdate);
+
+        //if the subject has an effective stem priv, add it in
+        if (subjectHasStemEffective) {
+          membershipSubjectContainer.addMembership(Field.FIELD_NAME_STEMMERS, MembershipAssignType.EFFECTIVE);
+        }
+        if (subjectHasCreateEffective) {
+          membershipSubjectContainer.addMembership(Field.FIELD_NAME_CREATORS, MembershipAssignType.EFFECTIVE);
+        }
+        if (subjectHasAttrReadEffective) {
+          membershipSubjectContainer.addMembership(Field.FIELD_NAME_STEM_ATTR_READERS, MembershipAssignType.EFFECTIVE);
+        }
+        if (subjectHasAttrUpdateEffective) {
+          membershipSubjectContainer.addMembership(Field.FIELD_NAME_STEM_ATTR_UPDATERS, MembershipAssignType.EFFECTIVE);
+        }
+        
+      }
+    }
   }
 
   /**
@@ -339,141 +350,164 @@ public class MembershipSubjectContainer {
    * GrouperAll for group
    * @param membershipSubjectContainers
    */
-  public static void considerAccessPrivilegeInheritance(final Set<MembershipSubjectContainer> membershipSubjectContainers,
-      final Group group) {
-  
-    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession(), new GrouperSessionHandler() {
+  public static void considerAccessPrivilegeInheritance(final Set<MembershipSubjectContainer> membershipSubjectContainers) {
+
+    Set<Group> groups = new HashSet<Group>();
+    
+    //get the list of groups
+    for (MembershipSubjectContainer membershipSubjectContainer : membershipSubjectContainers) {
+      Group group = membershipSubjectContainer.getGroupOwner();
+      groups.add(group);
+    }
+    
+    Map<MultiKey, Boolean> groupIdPermissionNameAllowedForGrouperAll = new HashMap<MultiKey, Boolean>();
+
+    for (Group group : groups) {
       
-      /**
-       * 
-       */
-      @Override
-      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-        boolean grouperAllHasAdmin = group.hasAdmin(SubjectFinder.findAllSubject());
-        boolean grouperAllHasUpdate = grouperAllHasAdmin || group.hasUpdate(SubjectFinder.findAllSubject());
-        boolean grouperAllHasRead = grouperAllHasAdmin || group.hasRead(SubjectFinder.findAllSubject());
-        boolean grouperAllHasOptin = grouperAllHasAdmin || group.hasOptin(SubjectFinder.findAllSubject());
-        boolean grouperAllHasOptout = grouperAllHasAdmin || group.hasOptout(SubjectFinder.findAllSubject());
-        boolean grouperAllHasAttrRead = grouperAllHasAdmin || group.hasGroupAttrRead(SubjectFinder.findAllSubject());
-        boolean grouperAllHasAttrUpdate = grouperAllHasAdmin || group.hasGroupAttrUpdate(SubjectFinder.findAllSubject());
-        boolean grouperAllHasView = grouperAllHasAdmin || grouperAllHasUpdate || grouperAllHasRead 
-            || grouperAllHasOptin || grouperAllHasOptout || grouperAllHasAttrRead || grouperAllHasAttrUpdate
-            || group.hasView(SubjectFinder.findAllSubject());
+      boolean grouperAllHasAdmin = group.hasAdmin(SubjectFinder.findAllSubject());
+      groupIdPermissionNameAllowedForGrouperAll.put(new MultiKey(group.getId(), AccessPrivilege.ADMIN.getName()), grouperAllHasAdmin);
+      
+      boolean grouperAllHasUpdate = grouperAllHasAdmin || group.hasUpdate(SubjectFinder.findAllSubject());
+      groupIdPermissionNameAllowedForGrouperAll.put(new MultiKey(group.getId(), AccessPrivilege.UPDATE.getName()), grouperAllHasUpdate);
+
+      boolean grouperAllHasRead = grouperAllHasAdmin || group.hasRead(SubjectFinder.findAllSubject());
+      groupIdPermissionNameAllowedForGrouperAll.put(new MultiKey(group.getId(), AccessPrivilege.READ.getName()), grouperAllHasRead);
+
+      boolean grouperAllHasOptin = grouperAllHasAdmin || group.hasOptin(SubjectFinder.findAllSubject());
+      groupIdPermissionNameAllowedForGrouperAll.put(new MultiKey(group.getId(), AccessPrivilege.OPTIN.getName()), grouperAllHasOptin);
+
+      boolean grouperAllHasOptout = grouperAllHasAdmin || group.hasOptout(SubjectFinder.findAllSubject());
+      groupIdPermissionNameAllowedForGrouperAll.put(new MultiKey(group.getId(), AccessPrivilege.OPTOUT.getName()), grouperAllHasOptout);
+
+      boolean grouperAllHasAttrRead = grouperAllHasAdmin || group.hasGroupAttrRead(SubjectFinder.findAllSubject());
+      groupIdPermissionNameAllowedForGrouperAll.put(new MultiKey(group.getId(), AccessPrivilege.GROUP_ATTR_READ.getName()), grouperAllHasAttrRead);
+
+      boolean grouperAllHasAttrUpdate = grouperAllHasAdmin || group.hasGroupAttrUpdate(SubjectFinder.findAllSubject());
+      groupIdPermissionNameAllowedForGrouperAll.put(new MultiKey(group.getId(), AccessPrivilege.GROUP_ATTR_UPDATE.getName()), grouperAllHasAttrUpdate);
+
+      boolean grouperAllHasView = grouperAllHasAdmin || grouperAllHasUpdate || grouperAllHasRead 
+          || grouperAllHasOptin || grouperAllHasOptout || grouperAllHasAttrRead || grouperAllHasAttrUpdate
+          || group.hasView(SubjectFinder.findAllSubject());
+      groupIdPermissionNameAllowedForGrouperAll.put(new MultiKey(group.getId(), AccessPrivilege.VIEW.getName()), grouperAllHasView);
+
+    }
+    
+    
+    Set<String> groupFieldNames = GrouperUtil.toSet(Field.FIELD_NAME_ADMINS, Field.FIELD_NAME_UPDATERS, 
+        Field.FIELD_NAME_GROUP_ATTR_READERS, Field.FIELD_NAME_GROUP_ATTR_UPDATERS,
+        Field.FIELD_NAME_READERS, Field.FIELD_NAME_OPTINS, Field.FIELD_NAME_OPTOUTS, Field.FIELD_NAME_VIEWERS);
+    
+    Subject rootSubject = SubjectFinder.findRootSubject();
+    Subject everyEntitySubject = SubjectFinder.findAllSubject();
+    
+    for (MembershipSubjectContainer membershipSubjectContainer : membershipSubjectContainers) {
+      Group group = membershipSubjectContainer.getGroupOwner();
+      boolean grouperAllHasAdmin = groupIdPermissionNameAllowedForGrouperAll.get(new MultiKey(group.getId(), AccessPrivilege.ADMIN.getName()));
+      boolean grouperAllHasUpdate = groupIdPermissionNameAllowedForGrouperAll.get(new MultiKey(group.getId(), AccessPrivilege.UPDATE.getName()));
+      boolean grouperAllHasRead = groupIdPermissionNameAllowedForGrouperAll.get(new MultiKey(group.getId(), AccessPrivilege.READ.getName()));
+      boolean grouperAllHasOptin = groupIdPermissionNameAllowedForGrouperAll.get(new MultiKey(group.getId(), AccessPrivilege.OPTIN.getName()));
+      boolean grouperAllHasOptout = groupIdPermissionNameAllowedForGrouperAll.get(new MultiKey(group.getId(), AccessPrivilege.OPTOUT.getName()));
+      boolean grouperAllHasAttrRead = groupIdPermissionNameAllowedForGrouperAll.get(new MultiKey(group.getId(), AccessPrivilege.GROUP_ATTR_READ.getName()));
+      boolean grouperAllHasAttrUpdate = groupIdPermissionNameAllowedForGrouperAll.get(new MultiKey(group.getId(), AccessPrivilege.GROUP_ATTR_UPDATE.getName()));
+      boolean grouperAllHasView = groupIdPermissionNameAllowedForGrouperAll.get(new MultiKey(group.getId(), AccessPrivilege.VIEW.getName()));;
+
+      Subject subject = membershipSubjectContainer.getSubject();
+      
+      //if we are on grouper system
+      if (SubjectHelper.eq(subject, rootSubject)) {
         
-        Set<String> groupFieldNames = GrouperUtil.toSet(Field.FIELD_NAME_ADMINS, Field.FIELD_NAME_UPDATERS, 
-            Field.FIELD_NAME_GROUP_ATTR_READERS, Field.FIELD_NAME_GROUP_ATTR_UPDATERS,
-            Field.FIELD_NAME_READERS, Field.FIELD_NAME_OPTINS, Field.FIELD_NAME_OPTOUTS, Field.FIELD_NAME_VIEWERS);
-        
-        Subject rootSubject = SubjectFinder.findRootSubject();
-        Subject everyEntitySubject = SubjectFinder.findAllSubject();
-        
-        for (MembershipSubjectContainer membershipSubjectContainer : membershipSubjectContainers) {
-          
-          Subject subject = membershipSubjectContainer.getSubject();
-          
-          //if we are on grouper system
-          if (SubjectHelper.eq(subject, rootSubject)) {
-            
-            for (String fieldName : groupFieldNames) {
-              //it is also effective, merge that with whatever was there
-              membershipSubjectContainer.addMembership(fieldName, MembershipAssignType.EFFECTIVE);
-            }
-            
-          } else {
-            //else
-            boolean isEveryEntity = SubjectHelper.eq(everyEntitySubject, membershipSubjectContainer.getSubject());
-            
-            //see what the subject has
-            boolean subjectHasAdminEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ADMINS) != null
-                && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ADMINS).getMembershipAssignType().isNonImmediate()
-                || (isEveryEntity ? false : grouperAllHasAdmin);
-  
-            boolean subjectHasAdmin = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ADMINS) != null 
-                || subjectHasAdminEffective || grouperAllHasAdmin;
-            
-            boolean subjectHasUpdateEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_UPDATERS) != null
-                && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_UPDATERS).getMembershipAssignType().isNonImmediate()
-                || subjectHasAdmin || (isEveryEntity ? false : grouperAllHasUpdate);
-            
-            boolean subjectHasUpdate = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_UPDATERS) != null 
-                || subjectHasUpdateEffective || grouperAllHasUpdate;
-            
-            boolean subjectHasReadEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_READERS) != null
-                && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_READERS).getMembershipAssignType().isNonImmediate()
-                || subjectHasAdmin || (isEveryEntity ? false : grouperAllHasRead);
-            
-            boolean subjectHasRead = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_READERS) != null 
-                || subjectHasReadEffective || grouperAllHasRead;
-            
-            boolean subjectHasOptinEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_OPTINS) != null
-                && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_OPTINS).getMembershipAssignType().isNonImmediate()
-                || subjectHasAdmin || (isEveryEntity ? false : grouperAllHasOptin);
-            
-            boolean subjectHasOptin = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_OPTINS) != null 
-                || subjectHasOptinEffective || grouperAllHasOptin;
-            
-            boolean subjectHasOptoutEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_OPTOUTS) != null
-                && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_OPTOUTS).getMembershipAssignType().isNonImmediate()
-                || subjectHasAdmin || (isEveryEntity ? false : grouperAllHasOptout);
-            
-            boolean subjectHasOptout = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_OPTOUTS) != null 
-                || subjectHasReadEffective || grouperAllHasOptout;
-
-            boolean subjectHasAttrReadEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_GROUP_ATTR_READERS) != null
-                && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_GROUP_ATTR_READERS).getMembershipAssignType().isNonImmediate()
-                || subjectHasAdmin || (isEveryEntity ? false : grouperAllHasAttrRead);
-
-            boolean subjectHasAttrRead = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_GROUP_ATTR_READERS) != null 
-                || subjectHasAttrReadEffective || grouperAllHasAttrRead;
-
-            boolean subjectHasAttrUpdateEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_GROUP_ATTR_UPDATERS) != null
-                && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_GROUP_ATTR_UPDATERS).getMembershipAssignType().isNonImmediate()
-                || subjectHasAdmin  || (isEveryEntity ? false : grouperAllHasAttrUpdate);
-
-            boolean subjectHasAttrUpdate = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_GROUP_ATTR_UPDATERS) != null 
-                || subjectHasAttrUpdateEffective || grouperAllHasAttrUpdate;
-            
-            boolean subjectHasViewEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_VIEWERS) != null
-                && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_VIEWERS).getMembershipAssignType().isNonImmediate()
-                || subjectHasAdmin || subjectHasUpdate || subjectHasRead || subjectHasOptout || subjectHasOptin
-                || subjectHasAttrUpdate || subjectHasAttrRead || (isEveryEntity ? false : grouperAllHasView);
-
-
-            //if the subject has an effective stem priv, add it in
-            if (subjectHasAdminEffective) {
-              membershipSubjectContainer.addMembership(Field.FIELD_NAME_ADMINS, MembershipAssignType.EFFECTIVE);
-            }
-            if (subjectHasUpdateEffective) {
-              membershipSubjectContainer.addMembership(Field.FIELD_NAME_UPDATERS, MembershipAssignType.EFFECTIVE);
-            }
-            if (subjectHasReadEffective) {
-              membershipSubjectContainer.addMembership(Field.FIELD_NAME_READERS, MembershipAssignType.EFFECTIVE);
-            }
-            if (subjectHasViewEffective) {
-              membershipSubjectContainer.addMembership(Field.FIELD_NAME_VIEWERS, MembershipAssignType.EFFECTIVE);
-            }
-            if (subjectHasOptinEffective) {
-              membershipSubjectContainer.addMembership(Field.FIELD_NAME_OPTINS, MembershipAssignType.EFFECTIVE);
-            }
-            if (subjectHasOptoutEffective) {
-              membershipSubjectContainer.addMembership(Field.FIELD_NAME_OPTOUTS, MembershipAssignType.EFFECTIVE);
-            }
-            if (subjectHasAttrReadEffective) {
-              membershipSubjectContainer.addMembership(Field.FIELD_NAME_GROUP_ATTR_READERS, MembershipAssignType.EFFECTIVE);
-            }
-            if (subjectHasAttrUpdateEffective) {
-              membershipSubjectContainer.addMembership(Field.FIELD_NAME_GROUP_ATTR_UPDATERS, MembershipAssignType.EFFECTIVE);
-            }
-            
-          }
-          
-          
+        for (String fieldName : groupFieldNames) {
+          //it is also effective, merge that with whatever was there
+          membershipSubjectContainer.addMembership(fieldName, MembershipAssignType.EFFECTIVE);
         }
         
-        return null;
-      }
-    });
-  
+      } else {
+        //else
+        boolean isEveryEntity = SubjectHelper.eq(everyEntitySubject, membershipSubjectContainer.getSubject());
+        
+        //see what the subject has
+        boolean subjectHasAdminEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ADMINS) != null
+            && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ADMINS).getMembershipAssignType().isNonImmediate()
+            || (isEveryEntity ? false : grouperAllHasAdmin);
+
+        boolean subjectHasAdmin = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ADMINS) != null 
+            || subjectHasAdminEffective || grouperAllHasAdmin;
+        
+        boolean subjectHasUpdateEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_UPDATERS) != null
+            && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_UPDATERS).getMembershipAssignType().isNonImmediate()
+            || subjectHasAdmin || (isEveryEntity ? false : grouperAllHasUpdate);
+        
+        boolean subjectHasUpdate = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_UPDATERS) != null 
+            || subjectHasUpdateEffective || grouperAllHasUpdate;
+        
+        boolean subjectHasReadEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_READERS) != null
+            && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_READERS).getMembershipAssignType().isNonImmediate()
+            || subjectHasAdmin || (isEveryEntity ? false : grouperAllHasRead);
+        
+        boolean subjectHasRead = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_READERS) != null 
+            || subjectHasReadEffective || grouperAllHasRead;
+        
+        boolean subjectHasOptinEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_OPTINS) != null
+            && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_OPTINS).getMembershipAssignType().isNonImmediate()
+            || subjectHasAdmin || (isEveryEntity ? false : grouperAllHasOptin);
+        
+        boolean subjectHasOptin = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_OPTINS) != null 
+            || subjectHasOptinEffective || grouperAllHasOptin;
+        
+        boolean subjectHasOptoutEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_OPTOUTS) != null
+            && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_OPTOUTS).getMembershipAssignType().isNonImmediate()
+            || subjectHasAdmin || (isEveryEntity ? false : grouperAllHasOptout);
+        
+        boolean subjectHasOptout = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_OPTOUTS) != null 
+            || subjectHasReadEffective || grouperAllHasOptout;
+
+        boolean subjectHasAttrReadEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_GROUP_ATTR_READERS) != null
+            && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_GROUP_ATTR_READERS).getMembershipAssignType().isNonImmediate()
+            || subjectHasAdmin || (isEveryEntity ? false : grouperAllHasAttrRead);
+
+        boolean subjectHasAttrRead = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_GROUP_ATTR_READERS) != null 
+            || subjectHasAttrReadEffective || grouperAllHasAttrRead;
+
+        boolean subjectHasAttrUpdateEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_GROUP_ATTR_UPDATERS) != null
+            && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_GROUP_ATTR_UPDATERS).getMembershipAssignType().isNonImmediate()
+            || subjectHasAdmin  || (isEveryEntity ? false : grouperAllHasAttrUpdate);
+
+        boolean subjectHasAttrUpdate = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_GROUP_ATTR_UPDATERS) != null 
+            || subjectHasAttrUpdateEffective || grouperAllHasAttrUpdate;
+        
+        boolean subjectHasViewEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_VIEWERS) != null
+            && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_VIEWERS).getMembershipAssignType().isNonImmediate()
+            || subjectHasAdmin || subjectHasUpdate || subjectHasRead || subjectHasOptout || subjectHasOptin
+            || subjectHasAttrUpdate || subjectHasAttrRead || (isEveryEntity ? false : grouperAllHasView);
+
+
+        //if the subject has an effective stem priv, add it in
+        if (subjectHasAdminEffective) {
+          membershipSubjectContainer.addMembership(Field.FIELD_NAME_ADMINS, MembershipAssignType.EFFECTIVE);
+        }
+        if (subjectHasUpdateEffective) {
+          membershipSubjectContainer.addMembership(Field.FIELD_NAME_UPDATERS, MembershipAssignType.EFFECTIVE);
+        }
+        if (subjectHasReadEffective) {
+          membershipSubjectContainer.addMembership(Field.FIELD_NAME_READERS, MembershipAssignType.EFFECTIVE);
+        }
+        if (subjectHasViewEffective) {
+          membershipSubjectContainer.addMembership(Field.FIELD_NAME_VIEWERS, MembershipAssignType.EFFECTIVE);
+        }
+        if (subjectHasOptinEffective) {
+          membershipSubjectContainer.addMembership(Field.FIELD_NAME_OPTINS, MembershipAssignType.EFFECTIVE);
+        }
+        if (subjectHasOptoutEffective) {
+          membershipSubjectContainer.addMembership(Field.FIELD_NAME_OPTOUTS, MembershipAssignType.EFFECTIVE);
+        }
+        if (subjectHasAttrReadEffective) {
+          membershipSubjectContainer.addMembership(Field.FIELD_NAME_GROUP_ATTR_READERS, MembershipAssignType.EFFECTIVE);
+        }
+        if (subjectHasAttrUpdateEffective) {
+          membershipSubjectContainer.addMembership(Field.FIELD_NAME_GROUP_ATTR_UPDATERS, MembershipAssignType.EFFECTIVE);
+        }
+      }  
+    }
   }
 
   /**

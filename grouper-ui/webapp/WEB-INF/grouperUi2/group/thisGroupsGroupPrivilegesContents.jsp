@@ -38,7 +38,7 @@
                           </div>
                           <div class="span4">
                             <button type="submit" class="btn" 
-                              onclick="ajax('../app/UiV2Group.thisGroupsPrivilegesAssignPrivilegeBatch?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId,groupPrivilegeFormId'}); return false;">Update selected</button>
+                              onclick="ajax('../app/UiV2Group.thisGroupsPrivilegesAssignPrivilegeBatch?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId,groupPrivilegeFormId'}); return false;">${textContainer.text['thisGroupPrivilegeUpdateSelectedButton'] }</button>
                           </div>
                         </div>
                       </td>
@@ -83,13 +83,13 @@
                             <c:choose>
                               <c:when test="${guiMembershipContainer != null 
                                    && guiMembershipContainer.membershipContainer.membershipAssignType.immediate}">
-                                <i class="icon-ok icon-direct"></i><a title="Remove this privilege" class="btn btn-inverse btn-super-mini remove" href="#" 
+                                <i class="icon-ok icon-direct"></i><a title="${textContainer.textEscapeXml['thisGroupsPrivilegesRemoveTitle'] }" class="btn btn-inverse btn-super-mini remove" href="#" 
                                    onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['groupConfirmChanges']}')) {ajax('../app/UiV2Group.thisGroupsPrivilegesAssignPrivilege?assign=false&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&fieldName=${fieldName}&parentGroupId=${guiMembershipSubjectContainer.guiGroup.group.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId'});} return false;"
                                   ><i class="icon-remove"></i></a>
                               </c:when>
                               <c:otherwise>
                                 <c:if test="${guiMembershipContainer != null}"><i class="icon-ok icon-disabled"></i></c:if><a  
-                                  title="Assign this privilege" class="btn btn-inverse btn-super-mini remove" href="#" 
+                                  title="${textContainer.textEscapeXml['thisGroupsPrivilegesAssignTitle'] }" class="btn btn-inverse btn-super-mini remove" href="#" 
                                    onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['groupConfirmChanges']}')) {ajax('../app/UiV2Group.thisGroupsPrivilegesAssignPrivilege?assign=true&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&fieldName=${fieldName}&parentGroupId=${guiMembershipSubjectContainer.guiGroup.group.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId'});} return false;"
                                   ><i class="icon-plus"></i></a>
                               </c:otherwise>
@@ -97,19 +97,11 @@
                           </td>
                         </c:forEach>
                         <td>
-                          <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle">Actions <span class="caret"></span></a>
+                          <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle">${textContainer.text['thisGroupsPrivilegesActionsButton']} <span class="caret"></span></a>
                             <ul class="dropdown-menu dropdown-menu-right">
-                              <li><a href="edit-person-membership.html">Edit membership &amp; privileges</a></li>
-                              <li><a href="trace-privileges.html">Trace privileges</a></li>
-                              <c:choose>
-                                <c:when test="${guiMembershipSubjectContainer.guiSubject.group}">
-                                  <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${guiMembershipSubjectContainer.guiGroup.group.id}');">View group</a></li>
-                                </c:when>
-                                <c:otherwise>
-                                  <li><a href="view-profile.html">View Profile</a></li>
-                                </c:otherwise>
-                              </c:choose>
-                              </li>
+                              <li><a href="edit-person-membership.html">${textContainer.text['thisGroupsPrivilegesActionsMenuEditMembershipsAndPrivileges'] }</a></li>
+                              <li><a href="trace-privileges.html">${textContainer.text['thisGroupsPrivilegesActionsMenuTracePrivileges']}</a></li>
+                              <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${guiMembershipSubjectContainer.guiGroup.group.id}');">${textContainer.text['thisGroupsPrivilegesActionsMenuViewGroup']}</a></li>
                             </ul>
                           </div>
                         </td>

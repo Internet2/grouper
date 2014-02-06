@@ -13,6 +13,30 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 public class GrouperRequestContainer {
 
   /**
+   * subject container
+   */
+  private SubjectContainer subjectContainer;
+
+  /**
+   * subject container lazy loaded
+   * @return subject container
+   */
+  public SubjectContainer getSubjectContainer() {
+    if (this.subjectContainer == null) {
+      this.subjectContainer = new SubjectContainer();
+    }
+    return this.subjectContainer;
+  }
+
+  /**
+   * 
+   * @param subjectContainer1
+   */
+  public void setSubjectContainer(SubjectContainer subjectContainer1) {
+    this.subjectContainer = subjectContainer1;
+  }
+
+  /**
    * common request bean
    */
   private CommonRequestContainer commonRequestContainer;

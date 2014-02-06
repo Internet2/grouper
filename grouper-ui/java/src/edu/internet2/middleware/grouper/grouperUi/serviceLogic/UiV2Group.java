@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupDeleteException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
@@ -59,7 +60,9 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
  * operations in the group screen
@@ -566,8 +569,42 @@ public class UiV2Group {
             TextContainer.retrieveFromRequest().getText().get("groupAddMemberNotEnoughChars")));
         return;
       }
+
+      String matchExactIdString = request.getParameter("matchExactId[]");
+      boolean matchExactId = GrouperUtil.booleanValue(matchExactIdString, false);
+
+      String sourceId = request.getParameter("sourceId");
       
-      Set<Subject> subjects = SubjectFinder.findPageInStem(group.getParentStemName(), searchString).getResults();
+      Set<Subject> subjects = null;
+      if (matchExactId) {
+        if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperQuerySubjectsMultipleQueriesCommaSeparated", true)) {
+          Set<String> searchStrings = GrouperUtil.splitTrimToSet(searchString, ",");
+          if (StringUtils.equals("all", sourceId)) {
+            subjects = new LinkedHashSet<Subject>(GrouperUtil.nonNull(SubjectFinder.findByIdsOrIdentifiers(searchStrings)).values());
+          } else {
+            subjects = new LinkedHashSet<Subject>(GrouperUtil.nonNull(SubjectFinder.findByIdsOrIdentifiers(searchStrings, sourceId)).values());
+          }
+        } else {
+          Subject subject = null;
+          if (StringUtils.equals("all", sourceId)) {
+            subject = SubjectFinder.findByIdOrIdentifier(searchString, false);
+          } else {
+            subject = SubjectFinder.findByIdOrIdentifierAndSource(searchString, sourceId, false);
+          }
+
+          subjects = new LinkedHashSet<Subject>();
+          if (subject != null) {
+            subjects.add(subject);
+          }
+        }
+      } else {
+        if (StringUtils.equals("all", sourceId)) {
+          subjects = SubjectFinder.findPageInStem(group.getParentStemName(), searchString).getResults();
+        } else {
+          Set<Source> sources = GrouperUtil.toSet(SourceManager.getInstance().getSource(sourceId));
+          subjects = SubjectFinder.findPageInStem(group.getParentStemName(), searchString, sources).getResults();
+        }
+      }
       
       if (GrouperUtil.length(subjects) == 0) {
 
@@ -1083,7 +1120,7 @@ public class UiV2Group {
         .findMembershipResult().getMembershipSubjectContainers();
     
     //inherit from grouperAll or Groupersystem or privilege inheritance
-    MembershipSubjectContainer.considerAccessPrivilegeInheritance(results, group);
+    MembershipSubjectContainer.considerAccessPrivilegeInheritance(results);
 
     grouperRequestContainer.getGroupContainer().setPrivilegeGuiMembershipSubjectContainers(
         GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results));
@@ -2117,7 +2154,7 @@ public class UiV2Group {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      group = retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+      group = retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
       
       if (group == null) {
         return;
@@ -2148,7 +2185,7 @@ public class UiV2Group {
       grouperSession = GrouperSession.start(loggedInSubject);
   
   
-      Group group = retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+      Group group = retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
       
       if (group == null) {
         return;
@@ -2240,8 +2277,7 @@ public class UiV2Group {
     Set<MembershipSubjectContainer> results = membershipFinder
         .findMembershipResult().getMembershipSubjectContainers();
 
-    //inherit from grouperAll or Groupersystem or privilege inheritance
-    MembershipSubjectContainer.considerAccessPrivilegeInheritance(results, group);
+    MembershipSubjectContainer.considerAccessPrivilegeInheritance(results);
 
     grouperRequestContainer.getGroupContainer().setPrivilegeGuiMembershipSubjectContainers(
         GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results));
@@ -2283,7 +2319,7 @@ public class UiV2Group {
   
       Group parentGroup = GroupFinder.findByUuid(grouperSession, parentGroupId, false);
       
-      if (parentGroup == null || !parentGroup.canHavePrivilege(loggedInSubject, "admin", false)) {
+      if (parentGroup == null || !parentGroup.canHavePrivilege(loggedInSubject, AccessPrivilege.ADMIN.getName(), false)) {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
             TextContainer.retrieveFromRequest().getText().get("groupNotAllowedToAdminAnotherGroup")));
         filterThisGroupsGroupPrivilegesHelper(request, response, group);
@@ -2376,7 +2412,7 @@ public class UiV2Group {
           
           Group parentGroup = GroupFinder.findByUuid(grouperSession, parentGroupId, false);
           
-          if (parentGroup != null && parentGroup.canHavePrivilege(loggedInSubject, "admin", false)) {
+          if (parentGroup != null && parentGroup.canHavePrivilege(loggedInSubject, AccessPrivilege.ADMIN.getName(), false)) {
             parentGroups.add(parentGroup);
           }
         }
@@ -2431,6 +2467,336 @@ public class UiV2Group {
       guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTop()"));
   
       filterThisGroupsGroupPrivilegesHelper(request, response, group);
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  
+  }
+
+  /**
+   * the filter button for this groups stem privileges was pressed, or paging or sorting or something
+   * @param request
+   * @param response
+   */
+  public void filterThisGroupsStemPrivileges(HttpServletRequest request, HttpServletResponse response) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+  
+      Group group = retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+  
+      filterThisGroupsStemPrivilegesHelper(request, response, group);
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  
+  }
+
+  /**
+   * the filter button was pressed of this groups stem privileges screen, 
+   * or paging or sorting, or view Group or something
+   * @param request
+   * @param response
+   */
+  private void filterThisGroupsStemPrivilegesHelper(HttpServletRequest request, HttpServletResponse response, Group group) {
+  
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    //if filtering text in subjects
+    String privilegeFilterText = request.getParameter("privilegeFilterText");
+    
+    String privilegeFieldName = request.getParameter("privilegeField");
+    
+    Field privilegeField = null;
+    if (!StringUtils.isBlank(privilegeFieldName)) {
+      privilegeField = FieldFinder.find(privilegeFieldName, true);
+    }
+    
+    //if filtering by subjects that have a certain type
+    String membershipTypeString = request.getParameter("privilegeMembershipType");
+    MembershipType membershipType = null;
+    if (!StringUtils.isBlank(membershipTypeString)) {
+      membershipType = MembershipType.valueOfIgnoreCase(membershipTypeString, true);
+    }
+    
+    //how many per page
+    String pageSizeString = request.getParameter("pagingTagPageSize");
+    int pageSize = -1;
+    if (!StringUtils.isBlank(pageSizeString)) {
+      pageSize = GrouperUtil.intValue(pageSizeString);
+    } else {
+      pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
+    }
+    grouperRequestContainer.getGroupContainer().getPrivilegeGuiPaging().setPageSize(pageSize);
+    
+    //1 indexed
+    String pageNumberString = request.getParameter("pagingTagPageNumber");
+    
+    int pageNumber = 1;
+    if (!StringUtils.isBlank(pageNumberString)) {
+      pageNumber = GrouperUtil.intValue(pageNumberString);
+    }
+    
+    grouperRequestContainer.getGroupContainer().getPrivilegeGuiPaging().setPageNumber(pageNumber);
+  
+    QueryOptions queryOptions = new QueryOptions();
+    queryOptions.paging(pageSize, pageNumber, true);
+    
+    MembershipFinder membershipFinder = new MembershipFinder()
+      .addSubject(group.toSubject()).assignCheckSecurity(true)
+      .assignFieldType(FieldType.NAMING)
+      .assignEnabled(true)
+      .assignHasFieldForStem(true)
+      .assignHasMembershipTypeForStem(true)
+      .assignQueryOptionsForStem(queryOptions)
+      .assignSplitScopeForStem(true);
+    
+    if (membershipType != null) {
+      membershipFinder.assignMembershipType(membershipType);
+    }
+  
+    if (privilegeField != null) {
+      membershipFinder.assignField(privilegeField);
+      membershipFinder.assignIncludeInheritedPrivileges(true);
+    }
+  
+    if (!StringUtils.isBlank(privilegeFilterText)) {
+      membershipFinder.assignScopeForStem(privilegeFilterText);
+    }
+  
+    //set of subjects, and what privs each subject has
+    Set<MembershipSubjectContainer> results = membershipFinder
+        .findMembershipResult().getMembershipSubjectContainers();
+  
+    //inherit from grouperAll or Groupersystem or privilege inheritance
+    MembershipSubjectContainer.considerNamingPrivilegeInheritance(results);
+  
+    grouperRequestContainer.getGroupContainer().setPrivilegeGuiMembershipSubjectContainers(
+        GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results));
+  
+    grouperRequestContainer.getGroupContainer().getPrivilegeGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+  
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#thisGroupsStemPrivilegesFilterResultsId", 
+        "/WEB-INF/grouperUi2/group/thisGroupsStemPrivilegesContents.jsp"));
+  
+  }
+
+  /**
+   * this groups stem privileges
+   * @param request
+   * @param response
+   */
+  public void thisGroupsStemPrivileges(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/group/thisGroupsStemPrivileges.jsp"));
+      filterThisGroupsStemPrivilegesHelper(request, response, group);
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * assign or remove a privilege from a stem, on this groups privileges
+   * @param request
+   * @param response
+   */
+  public void thisGroupsPrivilegesAssignStemPrivilege(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      Group group = retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+  
+      if (group == null) {
+        return;
+      }
+  
+      //?assign=false&groupId=${grouperRequestContainer.groupContainer.guiGroup.stem.id}&fieldName=${fieldName}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}
+      String assignString = request.getParameter("assign");
+      boolean assign = GrouperUtil.booleanValue(assignString);
+      String fieldName = request.getParameter("fieldName");
+      String parentStemId = request.getParameter("parentStemId");
+  
+      Stem parentStem = StemFinder.findByUuid(grouperSession, parentStemId, false);
+      
+      if (parentStem == null || !parentStem.canHavePrivilege(loggedInSubject, NamingPrivilege.STEM.getName(), false)) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+            TextContainer.retrieveFromRequest().getText().get("groupNotAllowedToAdminAnotherStem")));
+        filterThisGroupsGroupPrivilegesHelper(request, response, group);
+        return;
+      }
+      
+      Privilege privilege = NamingPrivilege.listToPriv(fieldName);
+      
+      if (privilege == null) {
+        throw new RuntimeException("Why is privilege not found???? " + fieldName);
+      }
+      
+      //if someone revoked in the meantime, who cares...
+      if (assign) {
+        parentStem.grantPriv(group.toSubject(), privilege, false);
+        
+        //set a success message
+        //messes up screen
+        //guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+        //    TextContainer.retrieveFromRequest().getText().get("stemSuccessGrantedPrivilege")));
+        
+      } else {
+        parentStem.revokePriv(group.toSubject(), privilege, false);
+        
+        //messes up screen
+        //set a success message
+        //guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+        //    TextContainer.retrieveFromRequest().getText().get("stemSuccessRevokedPrivilege")));
+      }
+  
+      filterThisGroupsStemPrivilegesHelper(request, response, group);
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  
+  }
+
+  /**
+   * submit the main form on the this groups stem privilege screen which can do batch operations on a number of rows
+   * @param request
+   * @param response
+   */
+  public void thisGroupsPrivilegesAssignStemPrivilegeBatch(HttpServletRequest request, HttpServletResponse response) {
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      Group group = retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+  
+      if (group == null) {
+        return;
+      }
+        
+      String groupPrivilegeBatchUpdateOperation = request.getParameter("groupPrivilegeBatchUpdateOperation");
+      Pattern operationPattern = Pattern.compile("^(assign|revoke)_(.*)$");
+      Matcher operationMatcher = operationPattern.matcher(groupPrivilegeBatchUpdateOperation);
+      if (!operationMatcher.matches()) {
+        throw new RuntimeException("Invalid submission, should have a valid operation: '" + groupPrivilegeBatchUpdateOperation + "'");
+      }
+      
+      String assignOrRevokeString = operationMatcher.group(1);
+      boolean assign = StringUtils.equals("assign", assignOrRevokeString);
+      if (!assign && !StringUtils.equals("revoke", assignOrRevokeString)) {
+        throw new RuntimeException("Cant find assign or revoke: '" + assignOrRevokeString + "'");
+      }
+      String fieldName = operationMatcher.group(2);
+      
+      boolean assignAll = StringUtils.equals(fieldName, "all");
+      
+      //lets see how many are on a page
+      String pageSizeString = request.getParameter("pagingTagPageSize");
+      int pageSize = GrouperUtil.intValue(pageSizeString);
+      
+      //lets loop and get all the checkboxes
+      Set<Stem> parentStems = new LinkedHashSet<Stem>();
+      
+      //loop through all the checkboxes and collect all the groups
+      for (int i=0;i<pageSize;i++) {
+        String parentStemId = request.getParameter("privilegeSubjectRow_" + i + "[]");
+        if (!StringUtils.isBlank(parentStemId)) {
+          
+          Stem parentStem = StemFinder.findByUuid(grouperSession, parentStemId, false);
+          
+          if (parentStem != null && parentStem.canHavePrivilege(loggedInSubject, NamingPrivilege.STEM.getName(), false)) {
+            parentStems.add(parentStem);
+          }
+        }
+      }
+  
+      if (GrouperUtil.length(parentStems) == 0) {
+  
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("thisGroupsPrivilegesErrorStemRequired")));
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTop()"));
+        filterThisGroupsStemPrivilegesHelper(request, response, group);
+        return;
+      }
+      
+      int changes = 0;
+      
+      Privilege[] privileges = assignAll ? (assign ? new Privilege[]{  
+          NamingPrivilege.listToPriv(Field.FIELD_NAME_STEMMERS)} : new Privilege[]{  
+            NamingPrivilege.listToPriv(Field.FIELD_NAME_STEMMERS),
+            NamingPrivilege.listToPriv(Field.FIELD_NAME_CREATORS),
+            NamingPrivilege.listToPriv(Field.FIELD_NAME_STEM_ATTR_READERS),
+            NamingPrivilege.listToPriv(Field.FIELD_NAME_STEM_ATTR_UPDATERS)
+          } ) : new Privilege[]{NamingPrivilege.listToPriv(fieldName)};
+      
+      for (Stem parentStem : parentStems) {
+        
+        for (Privilege privilege : privileges) {
+          if (assign) {
+            changes += parentStem.grantPriv(group.toSubject(), privilege, false) ? 1 : 0;
+          } else {
+            changes += parentStem.revokePriv(group.toSubject(), privilege, false) ? 1 : 0;
+          }
+        }
+      }
+      
+      if (changes > 0) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+            TextContainer.retrieveFromRequest().getText().get(
+                assign ? "groupSuccessGrantedPrivileges" : "groupSuccessRevokedPrivileges")));
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+            TextContainer.retrieveFromRequest().getText().get(
+                assign ? "groupNoteNoGrantedPrivileges" : "groupNoteNoRevokedPrivileges")));
+        
+      }
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTop()"));
+  
+      filterThisGroupsStemPrivilegesHelper(request, response, group);
   
     } finally {
       GrouperSession.stopQuietly(grouperSession);

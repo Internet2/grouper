@@ -691,9 +691,23 @@ public class SourcesXmlResolver implements SubjectResolver {
    */
   public SearchPageResult findPageInStem(String stemName, String query)
       throws IllegalArgumentException {
+    Set<Source> sources = new LinkedHashSet<Source>(SourceManager.getInstance().getSources());
+    return findPageInStem(stemName, query, sources);
+  }
+
+  /**
+   * note if stem name is blank, it means root
+   * @see edu.internet2.middleware.grouper.subj.SubjectResolver#findAllInStem(java.lang.String, java.lang.String, Set)
+   */
+  public SearchPageResult findPageInStem(String stemName, String query, Set<Source> sources)
+      throws IllegalArgumentException {
     
     SearchPageResult searchPageResult = new SearchPageResult();
     searchPageResult.setTooManyResults(false);
+    
+    if (GrouperUtil.length(sources) == 0) {
+      sources = this.getSources();
+    }
     
     Set<Source> sourcesToLookIn = new LinkedHashSet<Source>();
     
@@ -704,7 +718,7 @@ public class SourcesXmlResolver implements SubjectResolver {
     }
     
     //loop through sources
-    for ( Source sa : this.getSources() ) {
+    for ( Source sa : sources ) {
       
         //see if it is restricted
         RestrictSourceForGroup restrictSourceForGroup = SubjectFinder.restrictSourceForGroup(stemName, sa.getId());

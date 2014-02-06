@@ -28,6 +28,14 @@ public class GuiMembershipSubjectContainer {
   }
   
   /**
+   * get the gui group
+   * @return gui stem
+   */
+  public GuiStem getGuiStem() {
+    return this.guiStem;
+  }
+
+  /**
    * convert membership subject containers to gui membership subject containers
    * @param membershipSubjectContainers
    * @return the converted set
@@ -71,9 +79,27 @@ public class GuiMembershipSubjectContainer {
   }
 
   /**
+   * gui attribute def
+   */
+  private GuiAttributeDef guiAttributeDef;
+  
+  /**
+   * gui attribute def
+   * @return gui attribute def
+   */
+  public GuiAttributeDef getGuiAttributeDef() {
+    return this.guiAttributeDef;
+  }
+
+  /**
    * gui group
    */
   private GuiGroup guiGroup;
+  
+  /**
+   * gui stem
+   */
+  private GuiStem guiStem;
   
   /**
    * construct
@@ -88,6 +114,12 @@ public class GuiMembershipSubjectContainer {
     this.guiMembershipContainers = new LinkedHashMap<String, GuiMembershipContainer>();
     if (membershipSubjectContainer1.getGroupOwner() != null) {
       this.guiGroup = new GuiGroup(membershipSubjectContainer1.getGroupOwner());
+    }
+    if (membershipSubjectContainer1.getStemOwner() != null) {
+      this.guiStem = new GuiStem(membershipSubjectContainer1.getStemOwner());
+    }
+    if (membershipSubjectContainer1.getAttributeDefOwner() != null) {
+      this.guiAttributeDef = new GuiAttributeDef(membershipSubjectContainer1.getAttributeDefOwner());
     }
     
     for (String fieldName : GrouperUtil.nonNull(membershipSubjectContainer1.getMembershipContainers()).keySet()) {

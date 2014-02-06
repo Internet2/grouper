@@ -1340,6 +1340,34 @@ public class SubjectFinder {
   }
 
   /**
+   * Find a page of subjects matching the query, in a certain folder.  If there are
+   * rules restricting subjects, then dont search those folders
+   * <p>
+   * The query string specification is currently unique to each subject
+   * source adapter.  Queries may not work or may lead to erratic
+   * results across different source adapters.  Consult the
+   * documentation for each source adapter for more information on the
+   * query language supported by each adapter.
+   * </p>
+   * <p>
+   * <b>NOTE:</b> This method does not perform any caching.
+   * </p>
+   * <pre class="eg">
+   * // Find all subjects matching the given query string.
+   * Set subjects = SubjectFinder.findAll(query);
+   * </pre>
+   * @param stemName stem name to search in
+   * @param   query     Subject query string.
+   * @return  A {@link Set} of {@link Subject} objects.
+   * @throws SubjectTooManyResults if more results than configured
+   */
+  public static SearchPageResult findPageInStem(String stemName, String query, Set<Source> sources) {
+    
+    return getResolver().findPageInStem(stemName, query, sources);
+    
+  }
+
+  /**
    * find subjects by identifiers
    * @param identifiers
    * @param source

@@ -212,7 +212,7 @@ public abstract class BaseSourceAdapter implements Source {
     Map<String, Subject> result = new LinkedHashMap<String, Subject>();
     
     Subject subject = null;
-    for (String theId : ids) {
+    for (String theId : SubjectUtils.nonNull(ids)) {
       try {
         subject = getSubject(theId, true);
         result.put(theId, subject);
@@ -261,15 +261,19 @@ public abstract class BaseSourceAdapter implements Source {
   public Map<String, Subject> getSubjectsByIdsOrIdentifiers(
       Collection<String> idsOrIdentifiers) {
     Map<String, Subject> result = new LinkedHashMap<String, Subject>();
-    
+
+    if (SubjectUtils.length(idsOrIdentifiers) == 0) {
+      return result;
+    }
     //do these in batches so they have the batched performance...
     result.putAll(SubjectUtils.nonNull(this.getSubjectsByIdentifiers(idsOrIdentifiers)));
     
     //take out the ones that were found
     Set<String> identifiers = new HashSet<String>(idsOrIdentifiers);
     identifiers.removeAll(result.keySet());
-    
-    result.putAll(SubjectUtils.nonNull(this.getSubjectsByIds(identifiers)));
+    if (SubjectUtils.length(identifiers) > 0) {
+      result.putAll(SubjectUtils.nonNull(this.getSubjectsByIds(identifiers)));
+    }
     
     return result;
   }

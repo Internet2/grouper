@@ -24,6 +24,23 @@
                         <form class="form form-inline" id="addMemberSearchFormId">
                           <input name="addMemberSubjectSearch" type="text" placeholder="Search for an entity"/>
                           <button class="btn" onclick="ajax('../app/UiV2Group.addMemberSearch?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'addMemberSearchFormId'}); return false;" >Search</button>
+                          <br />
+                          <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true"/> ${textContainer.text['groupLabelExactIdMatch'] }</span>
+                          <br />
+                          <span style="white-space: nowrap;">${textContainer.text['find.search-source'] } 
+                          <select name="sourceId">
+                            <option value="all">${textContainer.textEscapeXml['find.search-all-sources'] }</option>
+                            <c:forEach items="${grouperRequestContainer.subjectContainer.sources}" var="source" >
+                              <option value="${grouper:escapeHtml(source.id)}">
+                                ${grouper:escapeHtml(source.name) } (
+                                  <c:forEach var="subjectType" items="${source.subjectTypes}" varStatus="typeStatus">
+                                    <c:if test="${typeStatus.count>1}">, </c:if>
+                                    ${grouper:escapeHtml(subjectType)}
+                                  </c:forEach>
+                                )                               
+                              </option>
+                            </c:forEach>
+                          </select></span>
                         </form>
                         <div id="addMemberResults">
                         </div>

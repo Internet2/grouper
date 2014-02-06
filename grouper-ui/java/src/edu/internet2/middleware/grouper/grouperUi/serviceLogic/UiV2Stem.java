@@ -1169,7 +1169,7 @@ public class UiV2Stem {
         .findMembershipResult().getMembershipSubjectContainers();
 
     //inherit from grouperAll or Groupersystem or privilege inheritance
-    MembershipSubjectContainer.considerNamingPrivilegeInheritance(results, stem);
+    MembershipSubjectContainer.considerNamingPrivilegeInheritance(results);
     
     stemContainer.setPrivilegeGuiMembershipSubjectContainers(GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results));
     stemContainer.getPrivilegeGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());

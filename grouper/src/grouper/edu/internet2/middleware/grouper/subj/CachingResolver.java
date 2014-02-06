@@ -507,15 +507,26 @@ public class CachingResolver extends SubjectResolverDecorator {
    */
   public SearchPageResult findPageInStem(String stemName, String query)
       throws IllegalArgumentException {
+    return findPageInStem(stemName, query, null);
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.subj.SubjectResolver#findPageInStem(java.lang.String, java.lang.String, Set)
+   */
+  @Override
+  public SearchPageResult findPageInStem(String stemName, String query, Set<Source> sources)
+      throws IllegalArgumentException {
   
     Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
     if (LOG.isDebugEnabled()) {
-      debugMap.put("operation", "findAllInStem");
+      debugMap.put("operation", "findPageInStem");
       debugMap.put("stemName", stemName);
       debugMap.put("query", query);
+      debugMap.put("sources", GrouperUtil.toStringForLog(sources));
     }
   
-    SearchPageResult subjects = this.getFromFindPageCache(stemName, query, (String)null);
+    SearchPageResult subjects = this.getFromFindPageCache(stemName, query, sources);
     
     //TODO do this caching better... need to clear when group changes???
     //for now dont cache if finding in stem name
@@ -523,8 +534,8 @@ public class CachingResolver extends SubjectResolverDecorator {
       if (LOG.isDebugEnabled()) {
         debugMap.put("foundInCache", Boolean.FALSE);
       }
-      subjects = super.getDecoratedResolver().findPageInStem(stemName, query);
-      this.putInFindPageCache(stemName, query, (String)null, subjects);
+      subjects = super.getDecoratedResolver().findPageInStem(stemName, query, sources);
+      this.putInFindPageCache(stemName, query, sources, subjects);
     } else {
       if (LOG.isDebugEnabled()) {
         debugMap.put("foundInCache", Boolean.TRUE);
@@ -576,10 +587,14 @@ public class CachingResolver extends SubjectResolverDecorator {
         debugMap.put("isTooManyResults", searchPageResult.isTooManyResults());
         
         if (GrouperUtil.length(searchPageResult.getResults()) > 0) {
-          debugMap.put("firstResult", searchPageResult.getResults().iterator().next().getDescription());
+          if (LOG.isDebugEnabled()) {
+            debugMap.put("firstResult", searchPageResult.getResults().iterator().next().getDescription());
+          }
         }
-      }      
-      LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
     }
   
     return searchPageResult;
@@ -614,7 +629,9 @@ public class CachingResolver extends SubjectResolverDecorator {
         debugMap.put("firstResult", searchPageResult.getResults().iterator().next().getDescription());
       }
       
-      LOG.debug(GrouperUtil.mapToString(debugMap));
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
     }
 
     findPageCache.put(multiKey, searchPageResult );
@@ -718,7 +735,9 @@ public class CachingResolver extends SubjectResolverDecorator {
           debugMap.put("firstResult", searchPageResult.getResults().iterator().next().getDescription());
         }
       }      
-      LOG.debug(GrouperUtil.mapToString(debugMap));
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
     }
 
     
@@ -756,7 +775,9 @@ public class CachingResolver extends SubjectResolverDecorator {
         debugMap.put("firstResult", searchPageResult.getResults().iterator().next().getDescription());
       }
       
-      LOG.debug(GrouperUtil.mapToString(debugMap));
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
     }
 
     findPageCache.put( multiKey, searchPageResult );
@@ -1002,7 +1023,6 @@ public class CachingResolver extends SubjectResolverDecorator {
     return result;
 
   }
-
 
 }
 

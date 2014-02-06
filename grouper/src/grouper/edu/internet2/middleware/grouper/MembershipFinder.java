@@ -540,8 +540,21 @@ public class MembershipFinder {
     Set<Object[]> membershipsOwnersMembers = this.findMembershipsMembers();
     Field field = this.field(false);
     String theFieldId = field == null ? null : field.getUuid();
-    return new MembershipResult(membershipsOwnersMembers, theFieldId, this.hasFieldForGroup ? null : this.fields, 
-        this.hasFieldForGroup ? false : this.includeInheritedPrivileges);
+    
+    Collection<Field> theFields = this.fields;
+    
+    if (this.hasFieldForGroup || this.hasFieldForStem || this.hasFieldForAttributeDef || this.hasFieldForMember) {
+      theFields = null;
+    }
+    
+    boolean theIncludeInheritedPrivileges = this.includeInheritedPrivileges;
+    
+    if (this.hasFieldForGroup || this.hasFieldForStem || this.hasFieldForAttributeDef || this.hasFieldForMember) {
+      theIncludeInheritedPrivileges = false;
+    }
+    
+    return new MembershipResult(membershipsOwnersMembers, theFieldId, theFields, 
+        theIncludeInheritedPrivileges);
   }
   
   /**

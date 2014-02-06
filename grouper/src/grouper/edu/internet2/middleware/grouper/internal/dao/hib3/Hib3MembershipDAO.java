@@ -3805,8 +3805,11 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             throw new RuntimeException("If you are filtering by member, then you must page members");
           }
 
+          //sort for stems
+          boolean pageStems = queryOptionsForStem != null;
+
           //if -1, lets not check
-          if (maxMemberships >= 0 && !pageMembers) {
+          if (maxMemberships >= 0 && !pageMembers && !pageStems) {
   
             long size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
             
@@ -3870,8 +3873,6 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
           {
             //sort for stems
-            boolean pageStems = queryOptionsForStem != null;
-            
             if (pageStems) {
 
               if (queryOptionsForStem.getQueryPaging() == null) {
@@ -3925,15 +3926,37 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
               
               Set<String> theStemIds = new LinkedHashSet<String>();
               
-              for (Stem theStem : stems) {
-                theStemIds.add(theStem.getUuid());
-              }
+              //StringBuilder debugBuilder = new StringBuilder("Found in stem query " + stems.size() + " stems: ");
+              //
+              //for (Stem theStem : stems) {
+              //  theStemIds.add(theStem.getUuid());
+              //  debugBuilder.append(theStem.getName() + ", ");
+              //}
+              //
+              //System.out.printl(debugBuilder);
               
               //dont pass for people with membership type or field... we already filtered by that...
               Set<Object[]> tempResults = findAllByStemOwnerOptionsHelper(theStemIds, totalMemberIds,
                   totalMembershipIds, hasMembershipTypeForStem ? null : membershipType, hasFieldForStem ? null : fields,  
                   sources, scope, stem, stemScope, enabled, checkSecurity, null, null, false, false, false, 
                   null, null, false, false, false);
+
+              //{
+              //  Set<Stem> tempStems = new LinkedHashSet<Stem>();
+              //  for (Object[] row : tempResults) {
+              //    tempStems.add((Stem)row[1]);
+              //  }
+              //  
+              //  debugBuilder = new StringBuilder("Found in membership query " + stems.size() + " stems: ");
+              //  
+              //  for (Stem theStem : stems) {
+              //    theStemIds.add(theStem.getUuid());
+              //    debugBuilder.append(theStem.getName() + ", ");
+              //  }
+              //  
+              //  System.out.printl(debugBuilder);
+              //  
+              //}
               
               //lets sort these by member
               Set<Object[]> sortedResults = new LinkedHashSet<Object[]>();
@@ -3952,6 +3975,24 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
                   }
                 }
               }
+
+              //{
+              //  Set<Stem> tempStems = new LinkedHashSet<Stem>();
+              //  for (Object[] row : tempResults) {
+              //    tempStems.add((Stem)row[1]);
+              //  }
+              //  
+              //  debugBuilder = new StringBuilder("Found in sorted results " + stems.size() + " stems: ");
+              //  
+              //  for (Stem theStem : stems) {
+              //    theStemIds.add(theStem.getUuid());
+              //    debugBuilder.append(theStem.getName() + ", ");
+              //  }
+              //  
+              //  System.out.printl(debugBuilder);
+              //  
+              //}
+
               return sortedResults;
               
             }
