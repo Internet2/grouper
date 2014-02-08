@@ -1104,15 +1104,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       }
     }
     
-    //lets assign the members to the memberships so they dont have to be queried later
-    for (Object[] row : totalResults) {
-      Membership membership = (Membership)row[0];
-      Group group = (Group)row[1];
-      Member member = (Member)row[2];
-      membership.setMember(member);
-      membership.setOwnerGroup(group);
-    }
-    
+    assignMembersOwnersToMemberships(totalResults);
     //we should be down to the cesure list
     return totalResults;
     
@@ -1446,9 +1438,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       }
       return null;
     }
+    assignMemberOwnerToMembership(result);
     Membership ms = (Membership) result[0];
-    Member m = (Member) result[1];
-    ms.setMember(m);
     return ms;
   }
 
@@ -1487,9 +1478,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     } 
     return null;
   }
+  assignMemberOwnerToMembership(result);
   Membership ms = (Membership)result[0];
-  Member m = (Member)result[1];
-  ms.setMember(m);
   return ms;
   }
 
@@ -1910,9 +1900,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       }
       return null;
     }
+    assignMemberOwnerToMembership(result);
     Membership ms = (Membership)result[0];
-    Member m = (Member)result[1];
-    ms.setMember(m);
     return ms;
     
   }
@@ -2072,9 +2061,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     Set<Membership> memberships = new LinkedHashSet<Membership>();
     
     for(Object[] tuple:mships) {
+      assignMemberOwnerToMembership(tuple);
       Membership currMembership = (Membership)tuple[0];
-      Member currMember = (Member)tuple[1];
-      currMembership.setMember(currMember);
       memberships.add(currMembership);
     }
     return memberships;
@@ -2093,9 +2081,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     List<Membership> memberships = new ArrayList<Membership>();
     
     for(Object[] tuple:mships) {
+      assignMemberOwnerToMembership(tuple);
       Membership currMembership = (Membership)tuple[0];
-      Member currMember = (Member)tuple[1];
-      currMembership.setMember(currMember);
       memberships.add(currMembership);
     }
     return memberships;
@@ -2122,9 +2109,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       throw new MembershipNotFoundException();
     }
     
+    assignMemberOwnerToMembership(result);
     Membership ms = (Membership) result[0];
-    Member m = (Member) result[1];
-    ms.setMember(m);
     return ms;
   }
 
@@ -2205,9 +2191,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       }
       return null;
     }
+    assignMemberOwnerToMembership(result);
     Membership ms = (Membership) result[0];
-    Member m = (Member) result[1];
-    ms.setMember(m);
     return ms;
   }
 
@@ -4035,15 +4020,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         }
       }
     }
-    
-    //lets assign the members to the memberships so they dont have to be queried later
-    for (Object[] row : totalResults) {
-      Membership membership = (Membership)row[0];
-      Stem theStem = (Stem)row[1];
-      Member member = (Member)row[2];
-      membership.setMember(member);
-      membership.setOwnerStem(theStem);
-    }
+
+    assignMembersOwnersToMemberships(totalResults);
 
     //we should be down to the cesure list
     return totalResults;
@@ -4374,18 +4352,50 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     }
 
     //lets assign the members to the memberships so they dont have to be queried later
-    for (Object[] row : totalResults) {
-      Membership membership = (Membership)row[0];
-      AttributeDef attributeDef = (AttributeDef)row[1];
-      Member member = (Member)row[2];
-      membership.setMember(member);
-      membership.setOwnerAttributeDef(attributeDef);
-    }
+    assignMembersOwnersToMemberships(totalResults);
     
     //we should be down to the cesure list
     return totalResults;
   }
 
+  /**
+   * assign objects to memberships to reduce further querying
+   * @param membershipArrays
+   */
+  private static void assignMembersOwnersToMemberships(Collection<Object[]> membershipArrays) {
+    for (Object[] membershipArray : GrouperUtil.nonNull(membershipArrays)) {
+      assignMemberOwnerToMembership(membershipArray);
+    }    
+  }
+
+  /**
+   * assign member and owner to membership
+   * @param membershipArray
+   */
+  private static void assignMemberOwnerToMembership(Object[] membershipArray) {
+    Membership membership = (Membership)membershipArray[0];
+    if (membershipArray[1] instanceof Member) {
+      Member member = (Member)membershipArray[1];
+      membership.setMember(member);
+    }
+    if (membershipArray[1] instanceof AttributeDef) {
+      AttributeDef attributeDef = (AttributeDef)membershipArray[1];
+      membership.setOwnerAttributeDef(attributeDef);
+    }
+    if (membershipArray[1] instanceof Stem) {
+      Stem stem = (Stem)membershipArray[1];
+      membership.setOwnerStem(stem);
+    }
+    if (membershipArray[1] instanceof Group) {
+      Group theGroup = (Group)membershipArray[1];
+      membership.setOwnerGroup(theGroup);
+    }
+    if (membershipArray.length >= 3 && membershipArray[2] instanceof Member) {
+      Member member = (Member)membershipArray[2];
+      membership.setMember(member);
+    }
+  }
+  
   /**
    * @see MembershipDAO#findAllByAttributeDefOwnerOptions(Collection, Collection, Collection, MembershipType, Collection, Set, String, Stem, Scope, Boolean, Boolean, QueryOptions, String, boolean, boolean, boolean)
    */

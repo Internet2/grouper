@@ -1893,7 +1893,7 @@ public class MembershipFinder {
    * @param theScopeForAttributeDef
    * @return this for chaining
    */
-  public MembershipFinder assignScopeforAttributeDef(String theScopeForAttributeDef) {
+  public MembershipFinder assignScopeForAttributeDef(String theScopeForAttributeDef) {
     this.scopeForAttributeDef = theScopeForAttributeDef;
     return this;
   }

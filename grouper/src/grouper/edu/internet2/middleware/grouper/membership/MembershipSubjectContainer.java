@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.subj.SubjectBean;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
@@ -132,7 +133,11 @@ public class MembershipSubjectContainer {
     //get the list of groups
     for (MembershipSubjectContainer membershipSubjectContainer : membershipSubjectContainers) {
       Stem stem = membershipSubjectContainer.getStemOwner();
-      stems.add(stem);
+      
+      //note not sure why this would be null, these should be stem owned memberships
+      if (stem != null) {
+        stems.add(stem);
+      }
     }
     
     Map<MultiKey, Boolean> stemIdPermissionNameAllowedForGrouperAll = new HashMap<MultiKey, Boolean>();
@@ -347,6 +352,175 @@ public class MembershipSubjectContainer {
   
   /**
    * add effective memberships for inheritance of privileges or 
+   * GrouperAll for attributeDef
+   * @param membershipSubjectContainers
+   */
+  public static void considerAttributeDefPrivilegeInheritance(final Set<MembershipSubjectContainer> membershipSubjectContainers) {
+
+    Set<AttributeDef> attributeDefs = new HashSet<AttributeDef>();
+    
+    //get the list of attribute defs
+    for (MembershipSubjectContainer membershipSubjectContainer : membershipSubjectContainers) {
+      AttributeDef attributeDef = membershipSubjectContainer.getAttributeDefOwner();
+      
+      //note, not sure why this would be null, these should be attribute def owned memberships
+      if (attributeDef != null) {
+        attributeDefs.add(attributeDef);
+      }
+    }
+    
+    Map<MultiKey, Boolean> attributeDefIdPermissionNameAllowedForGrouperAll = new HashMap<MultiKey, Boolean>();
+
+    for (AttributeDef attributeDef : attributeDefs) {
+      
+      boolean grouperAllHasAdmin = attributeDef.getPrivilegeDelegate().hasAttrAdmin(SubjectFinder.findAllSubject());
+      attributeDefIdPermissionNameAllowedForGrouperAll.put(new MultiKey(attributeDef.getId(), AttributeDefPrivilege.ATTR_ADMIN.getName()), grouperAllHasAdmin);
+      
+      boolean grouperAllHasUpdate = grouperAllHasAdmin || attributeDef.getPrivilegeDelegate().hasAttrUpdate(SubjectFinder.findAllSubject());
+      attributeDefIdPermissionNameAllowedForGrouperAll.put(new MultiKey(attributeDef.getId(), AttributeDefPrivilege.ATTR_UPDATE.getName()), grouperAllHasUpdate);
+
+      boolean grouperAllHasRead = grouperAllHasAdmin || attributeDef.getPrivilegeDelegate().hasAttrRead(SubjectFinder.findAllSubject());
+      attributeDefIdPermissionNameAllowedForGrouperAll.put(new MultiKey(attributeDef.getId(), AttributeDefPrivilege.ATTR_READ.getName()), grouperAllHasRead);
+
+      boolean grouperAllHasOptin = grouperAllHasAdmin || attributeDef.getPrivilegeDelegate().hasAttrOptin(SubjectFinder.findAllSubject());
+      attributeDefIdPermissionNameAllowedForGrouperAll.put(new MultiKey(attributeDef.getId(), AttributeDefPrivilege.ATTR_OPTIN.getName()), grouperAllHasOptin);
+
+      boolean grouperAllHasOptout = grouperAllHasAdmin || attributeDef.getPrivilegeDelegate().hasAttrOptout(SubjectFinder.findAllSubject());
+      attributeDefIdPermissionNameAllowedForGrouperAll.put(new MultiKey(attributeDef.getId(), AttributeDefPrivilege.ATTR_OPTOUT.getName()), grouperAllHasOptout);
+
+      boolean grouperAllHasAttrRead = grouperAllHasAdmin || attributeDef.getPrivilegeDelegate().hasAttrDefAttrRead(SubjectFinder.findAllSubject());
+      attributeDefIdPermissionNameAllowedForGrouperAll.put(new MultiKey(attributeDef.getId(), AttributeDefPrivilege.ATTR_DEF_ATTR_READ.getName()), grouperAllHasAttrRead);
+
+      boolean grouperAllHasAttrUpdate = grouperAllHasAdmin || attributeDef.getPrivilegeDelegate().hasAttrDefAttrUpdate(SubjectFinder.findAllSubject());
+      attributeDefIdPermissionNameAllowedForGrouperAll.put(new MultiKey(attributeDef.getId(), AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE.getName()), grouperAllHasAttrUpdate);
+
+      boolean grouperAllHasView = grouperAllHasAdmin || grouperAllHasUpdate || grouperAllHasRead 
+          || grouperAllHasOptin || grouperAllHasOptout || grouperAllHasAttrRead || grouperAllHasAttrUpdate
+          || attributeDef.getPrivilegeDelegate().hasAttrView(SubjectFinder.findAllSubject());
+      attributeDefIdPermissionNameAllowedForGrouperAll.put(new MultiKey(attributeDef.getId(), AttributeDefPrivilege.ATTR_VIEW.getName()), grouperAllHasView);
+
+    }
+    
+    
+    Set<String> groupFieldNames = GrouperUtil.toSet(Field.FIELD_NAME_ATTR_ADMINS, Field.FIELD_NAME_ATTR_UPDATERS, 
+        Field.FIELD_NAME_ATTR_DEF_ATTR_READERS, Field.FIELD_NAME_ATTR_DEF_ATTR_UPDATERS,
+        Field.FIELD_NAME_ATTR_READERS, Field.FIELD_NAME_ATTR_OPTINS, Field.FIELD_NAME_ATTR_OPTOUTS, Field.FIELD_NAME_ATTR_VIEWERS);
+    
+    Subject rootSubject = SubjectFinder.findRootSubject();
+    Subject everyEntitySubject = SubjectFinder.findAllSubject();
+    
+    for (MembershipSubjectContainer membershipSubjectContainer : membershipSubjectContainers) {
+      AttributeDef attributeDef = membershipSubjectContainer.getAttributeDefOwner();
+      boolean grouperAllHasAdmin = attributeDefIdPermissionNameAllowedForGrouperAll.get(new MultiKey(attributeDef.getId(), AttributeDefPrivilege.ATTR_ADMIN.getName()));
+      boolean grouperAllHasUpdate = attributeDefIdPermissionNameAllowedForGrouperAll.get(new MultiKey(attributeDef.getId(), AttributeDefPrivilege.ATTR_UPDATE.getName()));
+      boolean grouperAllHasRead = attributeDefIdPermissionNameAllowedForGrouperAll.get(new MultiKey(attributeDef.getId(), AttributeDefPrivilege.ATTR_READ.getName()));
+      boolean grouperAllHasOptin = attributeDefIdPermissionNameAllowedForGrouperAll.get(new MultiKey(attributeDef.getId(), AttributeDefPrivilege.ATTR_OPTIN.getName()));
+      boolean grouperAllHasOptout = attributeDefIdPermissionNameAllowedForGrouperAll.get(new MultiKey(attributeDef.getId(), AttributeDefPrivilege.ATTR_OPTOUT.getName()));
+      boolean grouperAllHasAttrRead = attributeDefIdPermissionNameAllowedForGrouperAll.get(new MultiKey(attributeDef.getId(), AttributeDefPrivilege.ATTR_DEF_ATTR_READ.getName()));
+      boolean grouperAllHasAttrUpdate = attributeDefIdPermissionNameAllowedForGrouperAll.get(new MultiKey(attributeDef.getId(), AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE.getName()));
+      boolean grouperAllHasView = attributeDefIdPermissionNameAllowedForGrouperAll.get(new MultiKey(attributeDef.getId(), AttributeDefPrivilege.ATTR_VIEW.getName()));;
+
+      Subject subject = membershipSubjectContainer.getSubject();
+      
+      //if we are on grouper system
+      if (SubjectHelper.eq(subject, rootSubject)) {
+        
+        for (String fieldName : groupFieldNames) {
+          //it is also effective, merge that with whatever was there
+          membershipSubjectContainer.addMembership(fieldName, MembershipAssignType.EFFECTIVE);
+        }
+        
+      } else {
+        //else
+        boolean isEveryEntity = SubjectHelper.eq(everyEntitySubject, membershipSubjectContainer.getSubject());
+        
+        //see what the subject has
+        boolean subjectHasAdminEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_ADMINS) != null
+            && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_ADMINS).getMembershipAssignType().isNonImmediate()
+            || (isEveryEntity ? false : grouperAllHasAdmin);
+
+        boolean subjectHasAdmin = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_ADMINS) != null 
+            || subjectHasAdminEffective || grouperAllHasAdmin;
+        
+        boolean subjectHasUpdateEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_UPDATERS) != null
+            && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_UPDATERS).getMembershipAssignType().isNonImmediate()
+            || subjectHasAdmin || (isEveryEntity ? false : grouperAllHasUpdate);
+        
+        boolean subjectHasUpdate = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_UPDATERS) != null 
+            || subjectHasUpdateEffective || grouperAllHasUpdate;
+        
+        boolean subjectHasReadEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_READERS) != null
+            && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_READERS).getMembershipAssignType().isNonImmediate()
+            || subjectHasAdmin || (isEveryEntity ? false : grouperAllHasRead);
+        
+        boolean subjectHasRead = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_READERS) != null 
+            || subjectHasReadEffective || grouperAllHasRead;
+        
+        boolean subjectHasOptinEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_OPTINS) != null
+            && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_OPTINS).getMembershipAssignType().isNonImmediate()
+            || subjectHasAdmin || (isEveryEntity ? false : grouperAllHasOptin);
+        
+        boolean subjectHasOptin = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_OPTINS) != null 
+            || subjectHasOptinEffective || grouperAllHasOptin;
+        
+        boolean subjectHasOptoutEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_OPTOUTS) != null
+            && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_OPTOUTS).getMembershipAssignType().isNonImmediate()
+            || subjectHasAdmin || (isEveryEntity ? false : grouperAllHasOptout);
+        
+        boolean subjectHasOptout = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_OPTOUTS) != null 
+            || subjectHasReadEffective || grouperAllHasOptout;
+
+        boolean subjectHasAttrReadEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_DEF_ATTR_READERS) != null
+            && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_DEF_ATTR_READERS).getMembershipAssignType().isNonImmediate()
+            || subjectHasAdmin || (isEveryEntity ? false : grouperAllHasAttrRead);
+
+        boolean subjectHasAttrRead = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_DEF_ATTR_READERS) != null 
+            || subjectHasAttrReadEffective || grouperAllHasAttrRead;
+
+        boolean subjectHasAttrUpdateEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_DEF_ATTR_UPDATERS) != null
+            && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_DEF_ATTR_UPDATERS).getMembershipAssignType().isNonImmediate()
+            || subjectHasAdmin  || (isEveryEntity ? false : grouperAllHasAttrUpdate);
+
+        boolean subjectHasAttrUpdate = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_DEF_ATTR_UPDATERS) != null 
+            || subjectHasAttrUpdateEffective || grouperAllHasAttrUpdate;
+        
+        boolean subjectHasViewEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_VIEWERS) != null
+            && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_VIEWERS).getMembershipAssignType().isNonImmediate()
+            || subjectHasAdmin || subjectHasUpdate || subjectHasRead || subjectHasOptout || subjectHasOptin
+            || subjectHasAttrUpdate || subjectHasAttrRead || (isEveryEntity ? false : grouperAllHasView);
+
+
+        //if the subject has an effective stem priv, add it in
+        if (subjectHasAdminEffective) {
+          membershipSubjectContainer.addMembership(Field.FIELD_NAME_ATTR_ADMINS, MembershipAssignType.EFFECTIVE);
+        }
+        if (subjectHasUpdateEffective) {
+          membershipSubjectContainer.addMembership(Field.FIELD_NAME_ATTR_UPDATERS, MembershipAssignType.EFFECTIVE);
+        }
+        if (subjectHasReadEffective) {
+          membershipSubjectContainer.addMembership(Field.FIELD_NAME_ATTR_READERS, MembershipAssignType.EFFECTIVE);
+        }
+        if (subjectHasViewEffective) {
+          membershipSubjectContainer.addMembership(Field.FIELD_NAME_ATTR_VIEWERS, MembershipAssignType.EFFECTIVE);
+        }
+        if (subjectHasOptinEffective) {
+          membershipSubjectContainer.addMembership(Field.FIELD_NAME_ATTR_OPTINS, MembershipAssignType.EFFECTIVE);
+        }
+        if (subjectHasOptoutEffective) {
+          membershipSubjectContainer.addMembership(Field.FIELD_NAME_ATTR_OPTOUTS, MembershipAssignType.EFFECTIVE);
+        }
+        if (subjectHasAttrReadEffective) {
+          membershipSubjectContainer.addMembership(Field.FIELD_NAME_ATTR_DEF_ATTR_READERS, MembershipAssignType.EFFECTIVE);
+        }
+        if (subjectHasAttrUpdateEffective) {
+          membershipSubjectContainer.addMembership(Field.FIELD_NAME_ATTR_DEF_ATTR_UPDATERS, MembershipAssignType.EFFECTIVE);
+        }
+      }  
+    }
+  }
+
+  /**
+   * add effective memberships for inheritance of privileges or 
    * GrouperAll for group
    * @param membershipSubjectContainers
    */
@@ -357,7 +531,10 @@ public class MembershipSubjectContainer {
     //get the list of groups
     for (MembershipSubjectContainer membershipSubjectContainer : membershipSubjectContainers) {
       Group group = membershipSubjectContainer.getGroupOwner();
-      groups.add(group);
+      //note, not sure why it would be null, these should be group owned memberships
+      if (group != null) {
+        groups.add(group);
+      }
     }
     
     Map<MultiKey, Boolean> groupIdPermissionNameAllowedForGrouperAll = new HashMap<MultiKey, Boolean>();
@@ -509,7 +686,7 @@ public class MembershipSubjectContainer {
       }  
     }
   }
-
+  
   /**
    * convert memberships into membership subject containers
    * @param membershipResults

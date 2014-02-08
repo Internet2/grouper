@@ -7,7 +7,7 @@
                       <td colspan="11" class="table-toolbar gradient-background">
                         <div class="row-fluid">
                           <div class="span1">
-                            <label for="people-update">Update:</label>
+                            <label for="people-update">${textContainer.text['groupPrivilegesUpdateBulkLabel']}</label>
                           </div>
                           <div class="span4">
 
