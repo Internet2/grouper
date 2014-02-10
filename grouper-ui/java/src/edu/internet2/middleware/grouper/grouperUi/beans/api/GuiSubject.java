@@ -20,6 +20,7 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -30,12 +31,15 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
+import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -46,6 +50,41 @@ import edu.internet2.middleware.subject.Subject;
 @SuppressWarnings("serial")
 public class GuiSubject extends GuiObjectBase implements Serializable {
 
+  /**
+   * get the member id of the subject or null if not there
+   * @return the member id if exists or null if not
+   */
+  public String getMemberId() {
+    
+    Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), this.getSubject(), false);
+    if (member != null) {
+      return member.getId();
+    }
+    return null;
+  }
+  
+  /**
+   * if the gui subject has an email address
+   * @return true if the subject has email
+   */
+  public boolean isHasEmailAttributeInSource() {
+    
+    //if there is an email attribute in the source, then this is true
+    return !StringUtils.isBlank(GrouperEmailUtils.emailAttributeNameForSource(this.subject.getSourceId()));
+  }
+
+  /**
+   * get the email attribute value
+   * @return the email or null or blank if not there
+   */
+  public String getEmail() {
+    String emailAttributeName = GrouperEmailUtils.emailAttributeNameForSource(this.subject.getSourceId());
+    if (StringUtils.isBlank(emailAttributeName)) {
+      return null;
+    }
+    return this.subject.getAttributeValue(emailAttributeName);
+  }
+  
   /**
    * 
    * @param subjects
@@ -310,6 +349,58 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
   }
   
   /**
+   * attribute names for this subject
+   * @return the attribute names for this subject
+   */
+  public Set<String> getAttributeNames() {
+    Set<String> attributeNames = new LinkedHashSet<String>();
+    attributeNames.addAll(GrouperUtil.nonNull(this.getAttributes().keySet()));
+    return attributeNames;
+  }
+
+  /**
+   * dynamic map of attribute name to attribute label
+   */
+  @SuppressWarnings("serial")
+  private Map<String, String> attributeLabelMap = new HashMap<String, String>() {
+
+    /**
+     * @see java.util.HashMap#get(java.lang.Object)
+     */
+    @Override
+    public String get(Object attributeName) {
+      
+      String sourceId = GuiSubject.this.getSubject().getSourceId();
+      String sourceTextId = GrouperUiUtils.convertSourceIdToTextId(sourceId);
+      
+      // subjectViewLabel__sourceTextId__attributeName
+      String key = "subjectViewLabel__" + sourceTextId + "__" + attributeName;
+      
+      String value = TextContainer.textOrNull(key);
+      
+      if (StringUtils.isBlank(value)) {
+        return (String)attributeName;
+      }
+      return value;
+      
+    }
+
+  };
+
+  
+  /**
+   * attribute label for this attribute if configured
+   * first get the text id for the source, then look in the externalized text
+   * for a label for the attribute, if not there, just use the attribute name
+   * @return the attribute label for this attribute
+   */
+  public Map<String, String> getAttributeLabel() {
+    
+    return this.attributeLabelMap;
+    
+  }
+  
+  /**
    * Gets a map attribute names and value. The map's key
    * contains the attribute name and the map's value
    * contains a Set of attribute value(s).  Note, this only does single valued attributes
@@ -327,11 +418,11 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
             result.put(key, (String)value);
           } else if (value instanceof Set) {
             //if set of one string, then add it
-            if (((Set)value).size() == 1) {
-              result.put(key, (String)((Set)value).iterator().next());
-            } else if (((Set)value).size() > 1) {
+            if (((Set<?>)value).size() == 1) {
+              result.put(key, (String)((Set<?>)value).iterator().next());
+            } else if (((Set<?>)value).size() > 1) {
               //put commas in between?  not sure what else to do here
-              result.put(key, GrouperUtil.setToString((Set)value));
+              result.put(key, GrouperUtil.setToString((Set<?>)value));
             }
           }
         }

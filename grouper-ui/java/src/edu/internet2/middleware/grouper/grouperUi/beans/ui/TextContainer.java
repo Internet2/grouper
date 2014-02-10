@@ -30,6 +30,18 @@ public class TextContainer {
   protected static final Log LOG = LogFactory.getLog(TextContainer.class);
 
   /**
+   * get the text or null if not found
+   * @param key
+   * @return the text or null if not found
+   */
+  public static String textOrNull(String key) {
+    GrouperUiTextConfig grouperTextConfig = GrouperUiTextConfig.retrieveTextConfig();
+    String value = grouperTextConfig.propertyValueString(key);
+    value = massageText(key, value, false);
+    return value;
+  }
+  
+  /**
    * retrieve the container from the request or create a new one if not there
    * @return the container
    */
@@ -71,7 +83,21 @@ public class TextContainer {
    * @return the text
    */
   public static String massageText(String key, String value) {
+    return massageText(key, value, true);
+  }
+
+  /**
+   * massage text with substitutions etc
+   * @param key
+   * @param value
+   * @param errorIfNotFound true if error text if not found
+   * @return the text
+   */
+  public static String massageText(String key, String value, boolean errorIfNotFound) {
     if (StringUtils.isBlank(value)) {
+      if (!errorIfNotFound) {
+        return null;
+      }
       LOG.error("Cant find text for variable: '" + key + "'");
       return "$$not found: " + key + "$$";
     }

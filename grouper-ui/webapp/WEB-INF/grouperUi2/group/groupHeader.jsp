@@ -22,7 +22,7 @@
                       </div>
                       <div class="modal-body">
                         <form class="form form-inline" id="addMemberSearchFormId">
-                          <input name="addMemberSubjectSearch" type="text" placeholder="Search for an entity"/>
+                          <input name="addMemberSubjectSearch" type="text" placeholder=""/>
                           <button class="btn" onclick="ajax('../app/UiV2Group.addMemberSearch?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'addMemberSearchFormId'}); return false;" >${textContainer.text['groupSearchButton'] }</button>
                           <br />
                           <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true"/> ${textContainer.text['groupLabelExactIdMatch'] }</span>
@@ -46,7 +46,7 @@
                         </div>
                       </div>
                       <div class="modal-footer">
-                        <button data-dismiss="modal" aria-hidden="true" class="btn">Close</button>
+                        <button data-dismiss="modal" aria-hidden="true" class="btn">${textContainer.text['groupSearchCloseButton']}</button>
                       </div>
                     </div>
                     <div id="add-block-container" class="well hide">

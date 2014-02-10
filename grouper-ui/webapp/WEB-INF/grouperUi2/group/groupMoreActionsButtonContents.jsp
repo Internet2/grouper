@@ -15,7 +15,7 @@
                           <c:otherwise>
                             <li><a href="#" 
                             onclick="ajax('../app/UiV2Group.addToMyFavorites?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;" 
-                            >Add to my favorites</a></li>
+                            >${textContainer.text['groupViewMoreActionsAddToMyFavorites']}</a></li>
                           </c:otherwise>
                         </c:choose>
                         <li><a href="join-group.html">Join group</a></li>

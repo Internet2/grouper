@@ -23,6 +23,7 @@ import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -64,10 +65,12 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.j2ee.GenericServletResponseWrapper;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -1237,6 +1240,46 @@ public class GrouperUiUtils {
     String result = GrouperUtil.substituteExpressionLanguage("${subject.getAttributeValue('displayName')}", variableMap);
     System.out.println(result);
     GrouperSession.stopQuietly(grouperSession);
+  }
+
+  /**
+   * source id to an id to use to look up thing in the text file for the source (if special chars in source id)
+   */
+  private static GrouperCache<String, String> sourceIdToSourceTextIdCache = null;
+
+  /**
+   * source id to an id to use to look up thing in the text file for the source (if special chars in source id)
+   * (use the source id if not configured to be different)
+   * lazy load
+   * @return sourceId cache
+   */
+  private static GrouperCache<String, String> sourceIdToSourceTextIdCache() {
+    if (sourceIdToSourceTextIdCache == null) {
+      synchronized(GrouperStartup.class) {
+        if (sourceIdToSourceTextIdCache == null) {
+          sourceIdToSourceTextIdCache = new GrouperCache<String, String>(
+              "edu.internet2.middleware.grouper.ui.util.GrouperUiUtils.sourceIdToSourceTextIdCache",
+              2000, false, 60, 60, false);
+        }
+      }
+    }
+    return sourceIdToSourceTextIdCache;
+  }
+
+  /**
+   * convert a source id to a text id (use the source id if not configured to be different)
+   * @param sourceId
+   * @return the text id
+   */
+  public static String convertSourceIdToTextId(String sourceId) {
+    GrouperCache<String, String> theSourceIdToTextIdCache = sourceIdToSourceTextIdCache();
+    String textId = theSourceIdToTextIdCache.get(sourceId);
+    
+    //this is optional, if not configured, then just use the sourceId
+    if (!StringUtils.isBlank(textId)) {
+      return textId;
+    }
+    return sourceId;
   }
   
   /**

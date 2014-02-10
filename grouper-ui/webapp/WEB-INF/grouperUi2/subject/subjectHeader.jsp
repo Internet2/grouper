@@ -13,196 +13,52 @@
                 <div class="row-fluid">
                   <div class="span9">
                     <h1><i class="icon-user"></i> ${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.screenLabelShort2noLink)}</h1>
-
                     <div id="group-search" tabindex="-1" role="dialog" aria-labelledby="group-search-label" aria-hidden="true" class="modal hide fade">
                       <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
                         <h3 id="group-search-label">${textContainer.text['subjectSearchForGroupButton']}</h3>
                       </div>
 
-                    <div id="member-search" tabindex="-1" role="dialog" aria-labelledby="member-search-label" aria-hidden="true" class="modal hide fade">
-                      <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
-                        <h3 id="member-search-label">${textContainer.text['groupSearchForEntityButton'] }</h3>
-                      </div>
-
-
                       <div class="modal-body">
-                        <form class="form form-inline">
-                          <input type="text" placeholder="Search for a group" value=""/> 
-                          <button class="btn">Search</button>
+                        <form class="form form-inline" id="addGroupSearchFormId">
+                          <input name="addGroupSubjectSearch" type="text" placeholder="${textContainer.text['subjectSearchGroupPlaceholder']}" />
+                          <button class="btn" onclick="ajax('../app/UiV2Subject.addGroupSearch?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'addGroupSearchFormId'}); return false;" >${textContainer.text['subjectSearchButton'] }</button>
+                          <br />
+                          <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true"/> ${textContainer.text['subjectSearchExactIdMatch'] }</span>
                         </form>
-                        <p>The table below lists groups in which you are allowed to manage memberships.</p>
-                        <table class="table table-hover table-bordered table-striped table-condensed data-table">
-                          <thead>
-                            <tr>
-                              <th class="sorted">Folder</th>
-                              <th>Group Name</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td>Root : Applications : Directories</td>
-                              <td><i class="icon-group"></i> <a href="#" data-dismiss="modal">Admins</a></td>
-                            </tr>
-                            <tr>
-                              <td>Root : Applications : Directories</td>
-                              <td><i class="icon-group"></i> <a href="#" data-dismiss="modal">Managers</a></td>
-                            </tr>
-                            <tr>
-                              <td>Root : Applications : Wiki</td>
-                              <td><i class="icon-group"></i> <a href="#" data-dismiss="modal">Approvers</a></td>
-                            </tr>
-                            <tr>
-                              <td>Root : Applications : Wiki</td>
-                              <td><i class="icon-group"></i> <a href="#" data-dismiss="modal">Editors</a></td>
-                            </tr>
-                            <tr>
-                              <td>Root : Applications : Wiki</td>
-                              <td><i class="icon-group"></i> <a href="#" data-dismiss="modal">Interns</a></td>
-                            </tr>
-                            <tr>
-                              <td>Root : Applications : Wiki</td>
-                              <td><i class="icon-group"></i> <a href="#" data-dismiss="modal">Senior Approvers</a></td>
-                            </tr>
-                            <tr>
-                              <td>Root : Applications : Wiki</td>
-                              <td><i class="icon-group"></i> <a href="#" data-dismiss="modal">Senior Editors</a></td>
-                            </tr>
-                            <tr>
-                              <td>Root : Applications : Virtual Private Network</td>
-                              <td><i class="icon-group"></i> <a href="#" data-dismiss="modal">Admins</a></td>
-                            </tr>
-                            <tr>
-                              <td>Root : Applications : Virtual Private Network</td>
-                              <td><i class="icon-group"></i> <a href="#" data-dismiss="modal">Senior Managers</a></td>
-                            </tr>
-                            <tr>
-                              <td>Root : Applications : Virtual Private Network</td>
-                              <td><i class="icon-group"></i> <a href="#" data-dismiss="modal">Support</a></td>
-                            </tr>
-                          </tbody>
-                        </table>
-                        <div class="data-table-bottom clearfix">
-                          <div class="pull-right">Showing 1-10 of 25 &middot; <a href="#">First</a> | <a href="#">Prev</a> | <a href="#">Next</a> | <a href="#">Last</a></div>    
+                        <div id="addGroupResults">
                         </div>
                       </div>
                       <div class="modal-footer">
-                        <button data-dismiss="modal" aria-hidden="true" class="btn">Close</button>
+                        <button data-dismiss="modal" aria-hidden="true" class="btn">${textContainer.text['subjectSearchCloseButton']}</button>
                       </div>
                     </div>
+
                     <div id="add-block-container" class="well gradient-background hide">
-                      <form class="form-horizontal form-highlight">
-                        <div class="control-group">
-                          <label for="add-block-input" class="control-label">Group name:</label>
-                          <div class="controls">
-                            <input type="text" placeholder="Enter the name of a group" id="add-block-input"/> <a href="#group-search" role="button" data-toggle="modal" class="btn"><i class="icon-search"></i></a>
-                          </div>
-                        </div>
-                        <div class="control-group">
-                          <div class="controls"><a class="btn btn-primary">Add</a></div>
-                        </div>
-                      </form>
-                    </div>
-                    <div class="row-fluid">
-                      <div class="span2"><strong>Unique ID:</strong></div>
-                      <div class="span10">
-                        <p>hcarlin</p>
-                      </div>
-                    </div>
-                    <div class="row-fluid">
-                      <div class="span2"><strong>Email:</strong></div>
-                      <div class="span10">
-                        <p>hcarlin@uhe.edu</p>
-                      </div>
-                    </div>
-                    <div id="group-details" class="collapse">
-                      <table class="table table-condensed table-striped">
-                        <tbody>
-                          <tr>
-                            <td><strong>Jabber:</strong></td>
-                            <td>hcarlin@im.uhe.edu</td>
-                          </tr>
-                          <tr>
-                            <td><strong>Identifier:</strong></td>
-                            <td>hcarlin@uhe.eud</td>
-                          </tr>
-                          <tr>
-                            <td><strong>Institution:</strong></td>
-                            <td>null</td>
-                          </tr>
-                          <tr>
-                            <td><strong>Entity type:</strong></td>
-                            <td>person</td>
-                          </tr>
-                          <tr>
-                            <td><strong>UUID:</strong></td>
-                            <td>ab8efebl6a034b0c8c435dcd0a7a3a33</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                    <p><a href="#" data-toggle="collapse" data-target="#group-details" id="toggle-group-details">More <i class="icon-angle-down"></i></a></p>
-                  </div>
-                  <div class="span3"><a id="show-add-block" href="#" class="btn btn-medium btn-block btn-primary"><i class="icon-plus"></i> Add to a group</a> <a class="btn btn-medium btn-block add-to-my-favorites">Add to My Favorites</a></div>
-                </div>
-              </div>
-            </div>
-
-
-                      <div class="modal-body">
-                        <form class="form form-inline" id="addMemberSearchFormId">
-                          <input name="addMemberSubjectSearch" type="text" placeholder="Search for an entity"/>
-                          <button class="btn" onclick="ajax('../app/UiV2Group.addMemberSearch?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'addMemberSearchFormId'}); return false;" >${textContainer.text['groupSearchButton'] }</button>
-                          <br />
-                          <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true"/> ${textContainer.text['groupLabelExactIdMatch'] }</span>
-                          <br />
-                          <span style="white-space: nowrap;">${textContainer.text['find.search-source'] } 
-                          <select name="sourceId">
-                            <option value="all">${textContainer.textEscapeXml['find.search-all-sources'] }</option>
-                            <c:forEach items="${grouperRequestContainer.subjectContainer.sources}" var="source" >
-                              <option value="${grouper:escapeHtml(source.id)}">
-                                ${grouper:escapeHtml(source.name) } (
-                                  <c:forEach var="subjectType" items="${source.subjectTypes}" varStatus="typeStatus">
-                                    <c:if test="${typeStatus.count>1}">, </c:if>
-                                    ${grouper:escapeHtml(subjectType)}
-                                  </c:forEach>
-                                )                               
-                              </option>
-                            </c:forEach>
-                          </select></span>
-                        </form>
-                        <div id="addMemberResults">
-                        </div>
-                      </div>
-                      <div class="modal-footer">
-                        <button data-dismiss="modal" aria-hidden="true" class="btn">Close</button>
-                      </div>
-                    </div>
-                    <div id="add-block-container" class="well hide">
-                      <div id="add-members">
-                        <form id="add-members-form" target="#" class="form-horizontal form-highlight">
+                      <div id="add-groups">
+                        <form id="add-groups-form" target="#" class="form-horizontal form-highlight">
                           <div class="control-group">
-                            <label for="add-block-input" class="control-label">${textContainer.text['groupSearchMemberOrId'] }</label>
+                            <label for="add-block-input" class="control-label">${textContainer.text['subjectSearchGroupName'] }</label>
                             <div class="controls">
                               <div id="add-members-container">
 
-                                <%-- placeholder: Enter the name of a person, group, or other entity --%>
+                                <%-- placeholder: Enter the name of a group --%>
                                 <grouper:combobox2 idBase="groupAddMemberCombo" style="width: 30em"
-                                  filterOperation="../app/UiV2Group.addMemberFilter?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}"/>
+                                  filterOperation="../app/UiV2Group.addMemberFilter?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}"/>
                                 <%--a href="#member-search" onclick="$('#addMemberResults').empty();" role="button" data-toggle="modal" class="btn"><i class="icon-search"></i></a --%>
                                 <br />
-                                ${textContainer.text['groupSearchLabelPreComboLink']} <a href="#member-search" onclick="$('#addMemberResults').empty();" role="button" data-toggle="modal" style="text-decoration: underline !important;">${textContainer.text['groupSearchForEntityLink']}</a>
+                                ${textContainer.text['subjectSearchLabelPreComboLink']} <a href="#group-search" onclick="$('#addGroupResults').empty();" role="button" data-toggle="modal" style="text-decoration: underline !important;">${textContainer.text['subjectSearchForGroupLink']}</a>
                                 
                               </div>
                             </div>
                           </div>
                           <div id="add-members-privileges-select" class="control-group">
-                            <label class="control-label">${textContainer.text['groupViewAssignThesePrivileges']}</label>
+                            <label class="control-label">${textContainer.text['subjectViewAssignThesePrivileges']}</label>
                             <div class="controls">
                               <label class="radio inline">
-                                <input type="radio" id="priv1" value="default" name="privilege-options" checked="checked" onclick="this.blur();" value="true" onchange="$('#add-members-privileges').hide('slow');"/>${textContainer.text['groupViewDefaultPrivileges'] }
+                                <input type="radio" id="priv1" value="default" name="privilege-options" checked="checked" onclick="this.blur();" value="true" onchange="$('#add-members-privileges').hide('slow');"/>${textContainer.text['subjectViewDefaultPrivileges'] }
                               </label>
                               <label class="radio inline">
-                                <input type="radio" id="priv2" value="custom" name="privilege-options" onclick="this.blur();" value="true" onchange="$('#add-members-privileges').show('slow');"/>${textContainer.text['groupViewCustomPrivileges'] }
+                                <input type="radio" id="priv2" value="custom" name="privilege-options" onclick="this.blur();" value="true" onchange="$('#add-members-privileges').show('slow');"/>${textContainer.text['subjectViewCustomPrivileges'] }
                               </label>
                             </div>
                           </div>
@@ -243,69 +99,73 @@
                           </div>
                           <div class="control-group">
                             <div class="controls">
-                              <button onclick="ajax('../app/UiV2Group.addMemberSubmit?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'add-members-form,groupFilterFormId,groupPagingFormId'}); return false;" 
-                                id="add-members-submit" type="submit" class="btn btn-primary">${textContainer.text['groupViewAddMemberLink']}</button> ${textContainer.text['groupViewTextBetweenAddAndBulk']} <a href="bulk-add.html" class="blue-link">${textContainer.text['groupViewBulkLink'] }</a> ${textContainer.text['groupViewTextPostBulkLink'] }
+                              <button onclick="ajax('../app/UiV2Subject.addMemberSubmit?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'add-members-form,subjectFilterFormId,subjectPagingFormId'}); return false;" 
+                                id="add-members-submit" type="submit" class="btn btn-primary">${textContainer.text['subjectViewAddMemberLink']}</button> ${textContainer.text['subjectViewTextBetweenAddAndBulk']} <a href="bulk-add.html" class="blue-link">${textContainer.text['subjectViewBulkLink'] }</a> ${textContainer.text['subjectViewTextPostBulkLink'] }
                             </div>
                           </div>
                         </form>
                       </div>
                     </div>
-                    <p>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.description)}</p>
-                    <div id="groupDetailsId" style="display: none;">
+
+
+                    <div class="row-fluid">
+                      <div class="span2"><strong>${textContainer.text['subjectViewLabelId'] }</strong></div>
+                      <div class="span10">
+                        <p>${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}</p>
+                      </div>
+                    </div>
+                    <c:if test="grouperRequestContainer.subjectContainer.guiSubject.hasEmail">
+                      <div class="row-fluid">
+                        <div class="span2"><strong>${textContainer.text['subjectViewLabelEmail']}</strong></div>
+                        <div class="span10">
+                          <p>${grouperRequestContainer.subjectContainer.guiSubject.email}</p>
+                        </div>
+                      </div>
+                    </c:if>
+                    <div class="row-fluid">
+                      <div class="span2"><strong>${textContainer.text['subjectViewLabelName'] }</strong></div>
+                      <div class="span10">
+                        <p>${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.subject.name)}</p>
+                      </div>
+                    </div>
+                    <div class="row-fluid">
+                      <div class="span2"><strong>${textContainer.text['subjectViewLabelDescription'] }</strong></div>
+                      <div class="span10">
+                        <p>${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.subject.description)}</p>
+                      </div>
+                    </div>
+                    <div id="subject-details" class="collapse" id="subjectDetailsId">
                       <table class="table table-condensed table-striped">
                         <tbody>
+                          <c:forEach items="${grouperRequestContainer.subjectContainer.guiSubject.attributeNames}" 
+                              var="attributeName" >
+                            <tr>
+                              <td><strong>${grouperRequestContainer.subjectContainer.guiSubject.attributeLabel[attributeName] }</strong></td>
+                              <td>${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.attributes[attributeName]) }</td>
+                            </tr>
+
+                          </c:forEach>
+
                           <tr>
-                            <td><strong>${textContainer.text['groupLabelName']}</strong></td>
-                            <td>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}</td>
+                            <td><strong>${textContainer.text['subjectViewLabelMemberId']}</strong></td>
+                            <td>${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.memberId)}</td>
                           </tr>
                           <tr>
-                            <td><strong>${textContainer.text['groupLabelPath']}</strong></td>
-                            <td>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayName)}</td>
+                            <td><strong>${textContainer.text['subjectViewLabelSourceId'] }</strong></td>
+                            <td>${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}</td>
                           </tr>
                           <tr>
-                            <td><strong>${textContainer.text['groupLabelIdPath']}</strong></td>
-                            <td>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.name)}</td>
-                          </tr>
-                          <tr>
-                            <td><strong>${textContainer.text['groupLabelAlternateIdPath']}</strong></td>
-                            <td>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.alternateName)}</td>
-                          </tr>
-                          <tr>
-                            <td><strong>${textContainer.text['groupLabelId']}</strong></td>
-                            <td>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.extension)}</td>
-                          </tr>
-                          <tr>
-                            <td><strong>${textContainer.text['groupLabelCreated'] }</strong></td>
-                            <td>${grouperRequestContainer.groupContainer.guiGroup.createdString }</td>
-                          </tr>
-                          <tr>
-                            <td><strong>${textContainer.text['groupLabelCreator'] }</strong></td>
-                            <td>${grouperRequestContainer.groupContainer.guiGroup.creatorGuiSubject.shortLinkWithIcon}</td>
-                          </tr>
-                          <tr>
-                            <td><strong>${textContainer.text['groupLabelLastEdited']}</strong></td>
-                            <td>${grouperRequestContainer.groupContainer.guiGroup.lastEditedString}</td>
-                          </tr>
-                          <tr>
-                            <td><strong>${textContainer.text['groupLabelLastEditedBy']}</strong></td>
-                            <td>${grouperRequestContainer.groupContainer.guiGroup.lastUpdatedByGuiSubject.shortLinkWithIcon}</td>
-                          </tr>
-                          <tr>
-                            <td><strong>${textContainer.text['groupLabelEntityType']}</strong></td>
-                            <td>${textContainer.text[grouper:concat2('simpleGroupUpdate.type.', grouperRequestContainer.groupContainer.guiGroup.group.typeOfGroup)]}</td>
-                          </tr>
-                          <tr>
-                            <td><strong>${textContainer.text['groupLabelUuid']}</strong></td>
-                            <td>${grouperRequestContainer.groupContainer.guiGroup.group.uuid}</td>
+                            <td><strong>${textContainer.text['subjectViewLabelSourceName'] }</strong></td>
+                            <td>${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.subject.source.name)}</td>
                           </tr>
                         </tbody>
                       </table>
                     </div>
-                    <p id="groupDetailsMoreId"><a href="#" onclick="$('#groupDetailsId').show('slow'); $('#groupDetailsMoreId').hide(); $('#groupDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i class="icon-angle-down"></i></a></p>
-                    <p id="groupDetailsLessId" style="display: none"><a href="#" onclick="$('#groupDetailsId').hide('slow'); $('#groupDetailsLessId').hide(); $('#groupDetailsMoreId').show(); return false" >${textContainer.text['guiLess']} <i class="icon-angle-up"></i></a></p>
+                    <p id="subjectDetailsMoreId"><a href="#" onclick="$('#subjectDetailsId').show('slow'); $('#subjectDetailsMoreId').hide(); $('#subjectDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i class="icon-angle-down"></i></a></p>
+                    <p id="subjectDetailsLessId" style="display: none"><a href="#" onclick="$('#subjectDetailsId').hide('slow'); $('#subjectDetailsLessId').hide(); $('#subjectDetailsMoreId').show(); return false" >${textContainer.text['guiLess']} <i class="icon-angle-up"></i></a></p>
                   </div>
-                  <div class="span2" id="groupMoreActionsButtonContentsDivId">
-                    <%@ include file="groupMoreActionsButtonContents.jsp"%>
+                  <div class="span2" id="subjectMoreActionsButtonContentsDivId">
+                    <%@ include file="subjectMoreActionsButtonContents.jsp"%>
                   </div>
                 </div>
               </div>

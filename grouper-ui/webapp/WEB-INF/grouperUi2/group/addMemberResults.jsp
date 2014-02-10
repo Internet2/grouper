@@ -3,7 +3,7 @@
                           <table class="table table-hover table-bordered table-striped table-condensed">
                             <thead>
                               <tr>
-                                <th class="sorted">Entity Name</th>
+                                <th class="sorted">${textContainer.text['groupSearchResultsColumnName'] }</th>
                               </tr>
                             </thead>
                             <tbody>

@@ -12,7 +12,7 @@
                 <ul class="nav nav-tabs">
                   <li class="active"><a href="#" onclick="return false;" >${textContainer.text['groupMembersTab'] }</a></li>
                   <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
-                    <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupPrivilegesTab'] }</a></li>
+                    <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupPrivileges&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {dontScrollTop: true});" >${textContainer.text['groupPrivilegesTab'] }</a></li>
                   </c:if>
                   <%@ include file="groupMoreTab.jsp" %>
                 </ul>
@@ -36,7 +36,7 @@
                     </div>
 
                     <div class="span3"><input type="submit" class="btn"  id="filterSubmitId" value="${textContainer.textEscapeDouble['groupApplyFilterButton'] }"
-                        onclick="ajax('../app/UiV2Group.filter?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterFormId,groupPagingFormId'}); return false;"> 
+                        onclick="ajax('../app/UiV2Group.filter?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'groupFilterFormId,groupPagingFormId'}); return false;"> 
                       <a class="btn" onclick="$('#people-filter').val(''); $('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['groupResetButton'] }</a>
                     </div>
                     

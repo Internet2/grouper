@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
@@ -12,6 +13,48 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 public class SubjectContainer {
+
+  /**
+   * gui paging for search results when looking for a group to add the subject to
+   */
+  private GuiPaging guiPagingSearchGroupResults;
+
+  /**
+   * gui paging for search results when looking for a group to add the subject to
+   * @return the paging object
+   */
+  public GuiPaging getGuiPagingSearchGroupResults() {
+    return this.guiPagingSearchGroupResults;
+  }
+
+  /**
+   * gui paging for search results when looking for a group to add the subject to
+   * @param guiPagingSearchGroupResults1
+   */
+  public void setGuiPagingSearchGroupResults(GuiPaging guiPagingSearchGroupResults1) {
+    this.guiPagingSearchGroupResults = guiPagingSearchGroupResults1;
+  }
+
+  /**
+   * search results when looking for a group to add the subject to
+   */
+  private Set<GuiGroup> guiGroupsAddMember;
+  
+  /**
+   * search results when looking for a group to add the subject to
+   * @return the gui groups
+   */
+  public Set<GuiGroup> getGuiGroupsAddMember() {
+    return this.guiGroupsAddMember;
+  }
+
+  /**
+   * search results when looking for a group to add the subject to
+   * @param guiGroupsAddMember1
+   */
+  public void setGuiGroupsAddMember(Set<GuiGroup> guiGroupsAddMember1) {
+    this.guiGroupsAddMember = guiGroupsAddMember1;
+  }
 
   /**
    * gui subject on the screen
