@@ -30,6 +30,8 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
@@ -406,6 +408,21 @@ public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHa
    */
   public String getCreatorId() {
     return this.creatorId;
+  }
+
+  /**
+   * get the subject that created this object or null if null or not found
+   * @return the subject or null
+   */
+  public Subject getCreateSubject() {
+    if (StringUtils.isBlank(this.getCreatorId())) {
+      return null;
+    }
+    Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), this.getCreatorId(), false);
+    if (member != null) {
+      return member.getSubject();
+    }
+    return null;
   }
 
   
@@ -1262,7 +1279,7 @@ public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHa
   public Long getLastUpdatedDb() {
     return this.lastUpdatedDb;
   }
-
+  
   /**
    * when last updated
    * @param lastUpdated1

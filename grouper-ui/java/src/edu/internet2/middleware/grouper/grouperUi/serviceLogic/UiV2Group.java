@@ -23,6 +23,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupMove;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
@@ -1880,7 +1881,9 @@ public class UiV2Group {
     Group group = null;
   
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-  
+
+    
+    
     String groupId = request.getParameter("groupId");
     String groupIndex = request.getParameter("groupIndex");
     String groupName = request.getParameter("groupName");
@@ -1895,9 +1898,16 @@ public class UiV2Group {
       long idIndex = GrouperUtil.longValue(groupIndex);
       group = GroupFinder.findByIdIndexSecure(idIndex, false, null);
     } else {
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-          TextContainer.retrieveFromRequest().getText().get("groupCantFindGroupId")));
-      addedError = true;
+      
+      //if viewing a subject, and that subject is a group, just show the group screen
+      Subject subject = UiV2Subject.retrieveSubjectHelper(request, false);
+      if (subject != null && GrouperSourceAdapter.groupSourceId().equals(subject.getSourceId())) {
+        group = GroupFinder.findByUuid(grouperSession, subject.getId(), false);
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("groupCantFindGroupId")));
+        addedError = true;
+      }
     }
   
     if (group != null) {

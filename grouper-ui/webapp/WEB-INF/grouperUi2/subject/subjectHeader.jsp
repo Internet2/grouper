@@ -5,21 +5,149 @@
               <%--
               <ul class="breadcrumb">
                 <li><a href="index.html">Home </a><span class="divider"><i class='icon-angle-right'></i></span></li>
-                <li><a href="#">Root </a><span class="divider"><i class='icon-angle-right'></i></span></li>
-                <li><a href="view-folder-applications.html">Applications </a><span class="divider"><i class='icon-angle-right'></i></span></li>
-                <li><a href="view-folder.html">Wiki </a><span class="divider"><i class='icon-angle-right'></i></span></li>
-                <li class="active">Editors</li>
+                <li class="active">${grouperRequestContainer.subjectContainer.guiSubject.shortLinkWithIcon}</li>
               </ul>
               --%>
-              ${grouperRequestContainer.groupContainer.guiGroup.breadcrumbs}
+              ${grouperRequestContainer.subjectContainer.guiSubject.breadcrumbs}
               <div class="page-header blue-gradient">
                 <div class="row-fluid">
-                  <div class="span10">
-                    <h1><i class="icon-group icon-header"></i> ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}</h1>
+                  <div class="span9">
+                    <h1><i class="icon-user"></i> ${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.screenLabelShort2noLink)}</h1>
+
+                    <div id="group-search" tabindex="-1" role="dialog" aria-labelledby="group-search-label" aria-hidden="true" class="modal hide fade">
+                      <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
+                        <h3 id="group-search-label">${textContainer.text['subjectSearchForGroupButton']}</h3>
+                      </div>
+
                     <div id="member-search" tabindex="-1" role="dialog" aria-labelledby="member-search-label" aria-hidden="true" class="modal hide fade">
                       <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
                         <h3 id="member-search-label">${textContainer.text['groupSearchForEntityButton'] }</h3>
                       </div>
+
+
+                      <div class="modal-body">
+                        <form class="form form-inline">
+                          <input type="text" placeholder="Search for a group" value=""/> 
+                          <button class="btn">Search</button>
+                        </form>
+                        <p>The table below lists groups in which you are allowed to manage memberships.</p>
+                        <table class="table table-hover table-bordered table-striped table-condensed data-table">
+                          <thead>
+                            <tr>
+                              <th class="sorted">Folder</th>
+                              <th>Group Name</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>Root : Applications : Directories</td>
+                              <td><i class="icon-group"></i> <a href="#" data-dismiss="modal">Admins</a></td>
+                            </tr>
+                            <tr>
+                              <td>Root : Applications : Directories</td>
+                              <td><i class="icon-group"></i> <a href="#" data-dismiss="modal">Managers</a></td>
+                            </tr>
+                            <tr>
+                              <td>Root : Applications : Wiki</td>
+                              <td><i class="icon-group"></i> <a href="#" data-dismiss="modal">Approvers</a></td>
+                            </tr>
+                            <tr>
+                              <td>Root : Applications : Wiki</td>
+                              <td><i class="icon-group"></i> <a href="#" data-dismiss="modal">Editors</a></td>
+                            </tr>
+                            <tr>
+                              <td>Root : Applications : Wiki</td>
+                              <td><i class="icon-group"></i> <a href="#" data-dismiss="modal">Interns</a></td>
+                            </tr>
+                            <tr>
+                              <td>Root : Applications : Wiki</td>
+                              <td><i class="icon-group"></i> <a href="#" data-dismiss="modal">Senior Approvers</a></td>
+                            </tr>
+                            <tr>
+                              <td>Root : Applications : Wiki</td>
+                              <td><i class="icon-group"></i> <a href="#" data-dismiss="modal">Senior Editors</a></td>
+                            </tr>
+                            <tr>
+                              <td>Root : Applications : Virtual Private Network</td>
+                              <td><i class="icon-group"></i> <a href="#" data-dismiss="modal">Admins</a></td>
+                            </tr>
+                            <tr>
+                              <td>Root : Applications : Virtual Private Network</td>
+                              <td><i class="icon-group"></i> <a href="#" data-dismiss="modal">Senior Managers</a></td>
+                            </tr>
+                            <tr>
+                              <td>Root : Applications : Virtual Private Network</td>
+                              <td><i class="icon-group"></i> <a href="#" data-dismiss="modal">Support</a></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <div class="data-table-bottom clearfix">
+                          <div class="pull-right">Showing 1-10 of 25 &middot; <a href="#">First</a> | <a href="#">Prev</a> | <a href="#">Next</a> | <a href="#">Last</a></div>    
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button data-dismiss="modal" aria-hidden="true" class="btn">Close</button>
+                      </div>
+                    </div>
+                    <div id="add-block-container" class="well gradient-background hide">
+                      <form class="form-horizontal form-highlight">
+                        <div class="control-group">
+                          <label for="add-block-input" class="control-label">Group name:</label>
+                          <div class="controls">
+                            <input type="text" placeholder="Enter the name of a group" id="add-block-input"/> <a href="#group-search" role="button" data-toggle="modal" class="btn"><i class="icon-search"></i></a>
+                          </div>
+                        </div>
+                        <div class="control-group">
+                          <div class="controls"><a class="btn btn-primary">Add</a></div>
+                        </div>
+                      </form>
+                    </div>
+                    <div class="row-fluid">
+                      <div class="span2"><strong>Unique ID:</strong></div>
+                      <div class="span10">
+                        <p>hcarlin</p>
+                      </div>
+                    </div>
+                    <div class="row-fluid">
+                      <div class="span2"><strong>Email:</strong></div>
+                      <div class="span10">
+                        <p>hcarlin@uhe.edu</p>
+                      </div>
+                    </div>
+                    <div id="group-details" class="collapse">
+                      <table class="table table-condensed table-striped">
+                        <tbody>
+                          <tr>
+                            <td><strong>Jabber:</strong></td>
+                            <td>hcarlin@im.uhe.edu</td>
+                          </tr>
+                          <tr>
+                            <td><strong>Identifier:</strong></td>
+                            <td>hcarlin@uhe.eud</td>
+                          </tr>
+                          <tr>
+                            <td><strong>Institution:</strong></td>
+                            <td>null</td>
+                          </tr>
+                          <tr>
+                            <td><strong>Entity type:</strong></td>
+                            <td>person</td>
+                          </tr>
+                          <tr>
+                            <td><strong>UUID:</strong></td>
+                            <td>ab8efebl6a034b0c8c435dcd0a7a3a33</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <p><a href="#" data-toggle="collapse" data-target="#group-details" id="toggle-group-details">More <i class="icon-angle-down"></i></a></p>
+                  </div>
+                  <div class="span3"><a id="show-add-block" href="#" class="btn btn-medium btn-block btn-primary"><i class="icon-plus"></i> Add to a group</a> <a class="btn btn-medium btn-block add-to-my-favorites">Add to My Favorites</a></div>
+                </div>
+              </div>
+            </div>
+
+
                       <div class="modal-body">
                         <form class="form form-inline" id="addMemberSearchFormId">
                           <input name="addMemberSubjectSearch" type="text" placeholder="Search for an entity"/>

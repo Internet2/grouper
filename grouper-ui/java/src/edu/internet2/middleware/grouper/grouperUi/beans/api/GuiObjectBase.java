@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -14,6 +16,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 
 public abstract class GuiObjectBase {
@@ -93,6 +96,91 @@ public abstract class GuiObjectBase {
   }
 
   /**
+   * e.g. Sun Feb 9 5:48:12 PM EST 2014
+   */
+  final static SimpleDateFormat dateUiFormat = new SimpleDateFormat(
+      "EE MMM d h:mm:ss aa zz yyyy");
+
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    System.out.println(dateUiFormat.format(new Date(System.currentTimeMillis())));
+  }
+  
+  /**
+   * who created the object
+   * @return subject or null if none registered
+   */
+  public GuiSubject getCreatorGuiSubject() {
+    Subject creator = null;
+    if (this instanceof GuiGroup) {
+      creator = ((GuiGroup)this).getGroup().getCreateSubject();
+    } else if (this instanceof GuiStem) {
+      creator = ((GuiStem)this).getStem().getCreateSubject();
+    } else if (this instanceof GuiAttributeDef) {
+      creator = ((GuiAttributeDef)this).getAttributeDef().getCreateSubject();
+    } else if (this instanceof GuiAttributeDefName) {
+      creator = ((GuiGroup)this).getGroup().getCreateSubject();
+    }
+    return creator == null ? null : new GuiSubject(creator);
+  }
+  
+  /**
+   * who lsat updated the object
+   * @return subject or null if none registered
+   */
+  public GuiSubject getLastUpdatedByGuiSubject() {
+    Subject lastUpdater = null;
+    if (this instanceof GuiGroup) {
+      lastUpdater = ((GuiGroup)this).getGroup().getModifySubject();
+    } else if (this instanceof GuiStem) {
+      lastUpdater = ((GuiStem)this).getStem().getModifySubject();
+    }
+    //note: attributes dont have this attribute
+    return lastUpdater == null ? null : new GuiSubject(lastUpdater);
+  }
+  
+  /**
+   * get last edited string: Tue Sep 25 12:01:07 PM CDT 2012
+   * @return the string of when last edited
+   */
+  public String getLastEditedString() {
+    long lastEditedTimeLong = -1;
+    if (this instanceof GuiGroup) {
+      lastEditedTimeLong = ((GuiGroup)this).getGroup().getModifyTimeLong();
+    } else if (this instanceof GuiStem) {
+        lastEditedTimeLong = ((GuiStem)this).getStem().getModifyTimeLong();
+    } else if (this instanceof GuiAttributeDef) {
+      lastEditedTimeLong = GrouperUtil.longValue(((GuiAttributeDef)this).getAttributeDef().getLastUpdatedDb(), 0);
+    } else if (this instanceof GuiAttributeDefName) {
+      lastEditedTimeLong = GrouperUtil.longValue(((GuiAttributeDefName)this).getAttributeDefName().getLastUpdatedDb(), 0);
+    }
+    return lastEditedTimeLong <= 0 ? "" : dateUiFormat.format(new Date(lastEditedTimeLong));
+  }
+  
+  /**
+   * get created string: Tue Sep 25 12:01:07 PM CDT 2012
+   * @return
+   */
+  public String getCreatedString() {
+    long createTimeLong = -1;
+    if (this instanceof GuiGroup) {
+      createTimeLong = ((GuiGroup)this).getGroup().getCreateTimeLong();
+    } else if (this instanceof GuiStem) {
+        createTimeLong = ((GuiStem)this).getStem().getCreateTimeLong();
+    } else if (this instanceof GuiAttributeDef) {
+      createTimeLong = GrouperUtil.longValue(((GuiAttributeDef)this).getAttributeDef().getCreatedOnDb(), 0);
+    } else if (this instanceof GuiAttributeDefName) {
+      createTimeLong = GrouperUtil.longValue(((GuiAttributeDefName)this).getAttributeDefName().getCreatedOnDb(), 0);
+    } else {
+      return null;
+    }
+    return createTimeLong <= 0 ? "" : dateUiFormat.format(new Date(createTimeLong));
+  }
+  
+  /**
    * colon space separated name e.g.
    * Full : Path : To : The : Entity
    * @return the colon space separated path
@@ -129,11 +217,14 @@ public abstract class GuiObjectBase {
       .append(" </a><span class=\"divider\"><i class='icon-angle-right'></i></span></li>");
 
     GrouperObject grouperObject = this.getGrouperObject();
-    if (grouperObject instanceof Stem && ((Stem)grouperObject).isRootStem()) {
+    if (this instanceof GuiSubject) {
+      GuiSubject guiSubject = (GuiSubject)this;
+      result.append("<li class=\"active\">").append(GrouperUtil.xmlEscape(guiSubject.getSubject().getName())).append("</li>");
+    } else if (grouperObject instanceof Stem && ((Stem)grouperObject).isRootStem()) {
       result.append("<li class=\"active\">").append(TextContainer.retrieveFromRequest().getText().get("stem.root.display-name")).append("</li>");
     } else {
       List<String> displayExtenstionsList = GrouperUtil.splitTrimToList(grouperObject.getDisplayName(), ":");
-      List<String> theExtenstionsList = GrouperUtil.splitTrimToList(grouperObject.getDisplayName(), ":");
+      List<String> theExtenstionsList = GrouperUtil.splitTrimToList(grouperObject.getName(), ":");
       displayExtenstionsList.add(0, TextContainer.retrieveFromRequest().getText().get("stem.root.display-name"));
       theExtenstionsList.add(0, ":");
       
@@ -144,7 +235,7 @@ public abstract class GuiObjectBase {
         String stemName = null;
         if (i == theExtenstionsList.size() -1) {
           //  <li class="active">Editors</li>
-          result.append("<li class=\"active\">").append(displayExtenstionsList.get(i)).append("</li>");
+          result.append("<li class=\"active\">").append(GrouperUtil.xmlEscape(displayExtenstionsList.get(i))).append("</li>");
         } else {
           if (i == 0) {
             stemName = ":";
