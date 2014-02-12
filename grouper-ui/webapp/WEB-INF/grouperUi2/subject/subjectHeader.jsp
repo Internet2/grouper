@@ -12,7 +12,7 @@
               <div class="page-header blue-gradient">
                 <div class="row-fluid">
                   <div class="span9">
-                    <h1><i class="icon-user"></i> ${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.screenLabelShort2noLink)}</h1>
+                    <h1><i class="icon-user"></i> ${grouperRequestContainer.subjectContainer.guiSubject.screenLabelShort2noLink}</h1>
                     <div id="group-search" tabindex="-1" role="dialog" aria-labelledby="group-search-label" aria-hidden="true" class="modal hide fade">
                       <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
                         <h3 id="group-search-label">${textContainer.text['subjectSearchForGroupButton']}</h3>
@@ -43,7 +43,7 @@
 
                                 <%-- placeholder: Enter the name of a group --%>
                                 <grouper:combobox2 idBase="groupAddMemberCombo" style="width: 30em"
-                                  filterOperation="../app/UiV2Group.addMemberFilter?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}"/>
+                                  filterOperation="../app/UiV2Subject.addToGroupFilter?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}"/>
                                 <%--a href="#member-search" onclick="$('#addMemberResults').empty();" role="button" data-toggle="modal" class="btn"><i class="icon-search"></i></a --%>
                                 <br />
                                 ${textContainer.text['subjectSearchLabelPreComboLink']} <a href="#group-search" onclick="$('#addGroupResults').empty();" role="button" data-toggle="modal" style="text-decoration: underline !important;">${textContainer.text['subjectSearchForGroupLink']}</a>
@@ -100,7 +100,7 @@
                           <div class="control-group">
                             <div class="controls">
                               <button onclick="ajax('../app/UiV2Subject.addMemberSubmit?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'add-members-form,subjectFilterFormId,subjectPagingFormId'}); return false;" 
-                                id="add-members-submit" type="submit" class="btn btn-primary">${textContainer.text['subjectViewAddMemberLink']}</button> ${textContainer.text['subjectViewTextBetweenAddAndBulk']} <a href="bulk-add.html" class="blue-link">${textContainer.text['subjectViewBulkLink'] }</a> ${textContainer.text['subjectViewTextPostBulkLink'] }
+                                id="add-members-submit" type="submit" class="btn btn-primary">${textContainer.text['subjectViewAddGroupLink']}</button> ${textContainer.text['subjectViewTextBetweenAddAndBulk']} <a href="bulk-add.html" class="blue-link">${textContainer.text['subjectViewBulkLink'] }</a> ${textContainer.text['subjectViewTextPostBulkLink'] }
                             </div>
                           </div>
                         </form>
@@ -114,7 +114,7 @@
                         <p>${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}</p>
                       </div>
                     </div>
-                    <c:if test="grouperRequestContainer.subjectContainer.guiSubject.hasEmail">
+                    <c:if test="${grouperRequestContainer.subjectContainer.guiSubject.hasEmailAttributeInSource }">
                       <div class="row-fluid">
                         <div class="span2"><strong>${textContainer.text['subjectViewLabelEmail']}</strong></div>
                         <div class="span10">
@@ -134,10 +134,10 @@
                         <p>${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.subject.description)}</p>
                       </div>
                     </div>
-                    <div id="subject-details" class="collapse" id="subjectDetailsId">
+                    <div style="display: none;" id="subjectDetailsId">
                       <table class="table table-condensed table-striped">
                         <tbody>
-                          <c:forEach items="${grouperRequestContainer.subjectContainer.guiSubject.attributeNames}" 
+                          <c:forEach items="${grouperRequestContainer.subjectContainer.guiSubject.attributeNamesNonInternal}" 
                               var="attributeName" >
                             <tr>
                               <td><strong>${grouperRequestContainer.subjectContainer.guiSubject.attributeLabel[attributeName] }</strong></td>
@@ -164,7 +164,7 @@
                     <p id="subjectDetailsMoreId"><a href="#" onclick="$('#subjectDetailsId').show('slow'); $('#subjectDetailsMoreId').hide(); $('#subjectDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i class="icon-angle-down"></i></a></p>
                     <p id="subjectDetailsLessId" style="display: none"><a href="#" onclick="$('#subjectDetailsId').hide('slow'); $('#subjectDetailsLessId').hide(); $('#subjectDetailsMoreId').show(); return false" >${textContainer.text['guiLess']} <i class="icon-angle-up"></i></a></p>
                   </div>
-                  <div class="span2" id="subjectMoreActionsButtonContentsDivId">
+                  <div class="span3" id="subjectMoreActionsButtonContentsDivId">
                     <%@ include file="subjectMoreActionsButtonContents.jsp"%>
                   </div>
                 </div>

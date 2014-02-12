@@ -56,6 +56,7 @@ import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimplePermissionU
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Group;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Main;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Stem;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Subject;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter.UiSection;
@@ -131,7 +132,9 @@ public class GrouperUiRestServlet extends HttpServlet {
       UiV2Group.class.getSimpleName() + ".addMemberFilter",
       UiV2Stem.class.getSimpleName() + ".stemCopyParentFolderFilter",
       UiV2Stem.class.getSimpleName() + ".createGroupParentFolderFilter",
-      UiV2Stem.class.getSimpleName() + ".createStemParentFolderFilter"
+      UiV2Stem.class.getSimpleName() + ".createStemParentFolderFilter",
+      UiV2Subject.class.getSimpleName() + ".addToGroupFilter",
+      UiV2Group.class.getSimpleName() + ".groupUpdateFilter"
   );
 
   /**
@@ -280,7 +283,7 @@ public class GrouperUiRestServlet extends HttpServlet {
       LOG.error(error);
       GrouperUiUtils.appendErrorToRequest(error);
     }
-    
+
     if (printToScreen) {
       guiResponseJs.printToScreen();
     }

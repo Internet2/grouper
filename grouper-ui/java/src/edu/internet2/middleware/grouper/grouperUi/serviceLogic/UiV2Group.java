@@ -485,7 +485,7 @@ public class UiV2Group {
       @Override
       public Collection<Subject> search(HttpServletRequest request, GrouperSession grouperSession, String query) {
         
-        Group group = UiV2Group.this.retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+        Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
         String stemName = group.getParentStemName();
         return SubjectFinder.findPageInStem(stemName, query).getResults();
       
@@ -3154,6 +3154,74 @@ public class UiV2Group {
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
+  }
+
+  /**
+   * combo filter create group folder
+   * @param request
+   * @param response
+   */
+  public void groupUpdateFilter(final HttpServletRequest request, HttpServletResponse response) {
+  
+    //run the combo logic
+    DojoComboLogic.logic(request, response, new DojoComboQueryLogicBase<Group>() {
+  
+      /**
+       * 
+       */
+      @Override
+      public Group lookup(HttpServletRequest request, GrouperSession grouperSession, String query) {
+        Subject loggedInSubject = grouperSession.getSubject();
+        Group theGroup = new GroupFinder().assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
+            .assignSubject(loggedInSubject)
+            .assignFindByUuidOrName(true).assignScope(query).findGroup();
+        return theGroup;
+      }
+  
+      /**
+       * 
+       */
+      @Override
+      public Collection<Group> search(HttpServletRequest request, GrouperSession grouperSession, String query) {
+        Subject loggedInSubject = grouperSession.getSubject();
+        int groupComboSize = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.groupComboboxResultSize", 200);
+        QueryOptions queryOptions = QueryOptions.create(null, null, 1, groupComboSize);
+        return new GroupFinder().assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
+            .assignScope(query).assignSubject(loggedInSubject)
+            .assignSplitScope(true).assignQueryOptions(queryOptions).findGroups();
+      }
+  
+      /**
+       * 
+       * @param t
+       * @return
+       */
+      @Override
+      public String retrieveId(GrouperSession grouperSession, Group t) {
+        return t.getId();
+      }
+      
+      /**
+       * 
+       */
+      @Override
+      public String retrieveLabel(GrouperSession grouperSession, Group t) {
+        return t.getDisplayName();
+      }
+  
+      /**
+       * 
+       */
+      @Override
+      public String retrieveHtmlLabel(GrouperSession grouperSession, Group t) {
+        //description could be null?
+        String label = GrouperUiUtils.escapeHtml(t.getDisplayName(), true);
+        String htmlLabel = "<img src=\"../../grouperExternal/public/assets/images/group.gif\" /> " + label;
+        return htmlLabel;
+      }
+  
+    });
+    
   }
 
 }

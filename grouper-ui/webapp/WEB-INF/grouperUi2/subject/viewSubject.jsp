@@ -11,12 +11,9 @@
 
                 <ul class="nav nav-tabs">
                   <li class="active"><a href="#" onclick="return false;" >${textContainer.text['groupMembersTab'] }</a></li>
-                  <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
-                    <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupPrivileges&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {dontScrollTop: true});" >${textContainer.text['groupPrivilegesTab'] }</a></li>
-                  </c:if>
-                  <%@ include file="groupMoreTab.jsp" %>
+                  <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupPrivileges&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {dontScrollTop: true});" >${textContainer.text['groupPrivilegesTab'] }</a></li>
                 </ul>
-
+<%--
                 <p class="lead">The following table lists all entities which are members of this group.</p>
                 <form class="form-inline form-small form-filter" id="groupFilterFormId">
                   <div class="row-fluid">
@@ -42,6 +39,7 @@
                     
                   </div>
                 </form>
+                --%>
                 <script>
                   //set this flag so we get one confirm message on this screen
                   confirmedChanges = false;

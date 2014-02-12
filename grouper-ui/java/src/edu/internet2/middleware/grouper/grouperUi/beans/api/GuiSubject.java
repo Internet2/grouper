@@ -56,9 +56,14 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
    */
   public String getMemberId() {
     
-    Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), this.getSubject(), false);
-    if (member != null) {
-      return member.getId();
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    
+    //when converting json this is null, so dont do a query if just doing json beans
+    if (grouperSession != null) {
+      Member member = MemberFinder.findBySubject(grouperSession, this.getSubject(), false);
+      if (member != null) {
+        return member.getId();
+      }
     }
     return null;
   }
@@ -169,6 +174,7 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
   private void initScreenLabels() {
     if (this.screenLabelLong == null && this.screenLabelShort == null) {
       
+      
       String screenLabel = GrouperUiUtils.convertSubjectToLabelLong(this.subject);
             
       this.screenLabelLong = screenLabel;
@@ -193,8 +199,8 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
       boolean hasTooltip = this.subject != null 
         && !StringUtils.isBlank(this.subject.getDescription()) && !StringUtils.equals(this.subject.getName(), this.subject.getDescription());
       
-      GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiSubject(this);
       GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowTooltip(hasTooltip);
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiSubject(this);
       
       try {
         
@@ -352,16 +358,24 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
    * attribute names for this subject
    * @return the attribute names for this subject
    */
-  public Set<String> getAttributeNames() {
+  public Set<String> getAttributeNamesNonInternal() {
     Set<String> attributeNames = new LinkedHashSet<String>();
-    attributeNames.addAll(GrouperUtil.nonNull(this.getAttributes().keySet()));
+    String emailAttributeName = GrouperEmailUtils.emailAttributeNameForSource(this.subject.getSourceId());
+
+    for (String attributeName : GrouperUtil.nonNull(this.getAttributes().keySet())) {
+      if (!StringUtils.equalsIgnoreCase("name", attributeName)
+          && !StringUtils.equalsIgnoreCase("description", attributeName)
+          && !StringUtils.equalsIgnoreCase("subjectId", attributeName)
+          && !StringUtils.equalsIgnoreCase(emailAttributeName, attributeName)) {
+        attributeNames.add(attributeName);
+      }
+    }
     return attributeNames;
   }
 
   /**
    * dynamic map of attribute name to attribute label
    */
-  @SuppressWarnings("serial")
   private Map<String, String> attributeLabelMap = new HashMap<String, String>() {
 
     /**
@@ -379,7 +393,7 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
       String value = TextContainer.textOrNull(key);
       
       if (StringUtils.isBlank(value)) {
-        return (String)attributeName;
+        return ((String)attributeName) + ":";
       }
       return value;
       
@@ -528,14 +542,6 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
    */
   @Override
   public String getNameColonSpaceSeparated() {
-    return "This is a " + this.getClass().getSimpleName() + " and is not a real GrouperObject";
-  }
-
-  /**
-   * not applicable
-   */
-  @Override
-  public String getBreadcrumbs() {
     return "This is a " + this.getClass().getSimpleName() + " and is not a real GrouperObject";
   }
 
