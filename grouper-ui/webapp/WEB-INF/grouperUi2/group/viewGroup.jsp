@@ -17,7 +17,7 @@
                   <%@ include file="groupMoreTab.jsp" %>
                 </ul>
 
-                <p class="lead">The following table lists all entities which are members of this group.</p>
+                <p class="lead">${textContainer.text['groupViewMembersDescription'] }</p>
                 <form class="form-inline form-small form-filter" id="groupFilterFormId">
                   <div class="row-fluid">
                     <div class="span1">

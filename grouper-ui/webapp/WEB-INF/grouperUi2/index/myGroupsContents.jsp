@@ -22,6 +22,8 @@
                     </c:forEach>
                   </tbody>
                 </table>
-                <grouper:paging2 guiPaging="${grouperRequestContainer.indexContainer.myGroupsGuiPaging}" 
-                  formName="myGroupsPagingForm" ajaxFormIds="myGroupsForm"
-                  refreshOperation="../app/UiV2Main.myGroupsSubmit" />
+                <div class="data-table-bottom gradient-background">
+                  <grouper:paging2 guiPaging="${grouperRequestContainer.indexContainer.myGroupsGuiPaging}" 
+                    formName="myGroupsPagingForm" ajaxFormIds="myGroupsForm"
+                    refreshOperation="../app/UiV2Main.myGroupsSubmit" />
+                </div>

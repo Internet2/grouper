@@ -17,16 +17,15 @@
                               </tr> --%>
                               <tr>
                                 <td>${guiGroup.pathColonSpaceSeparated}</td>
-                                <td><a href="#" onclick="dijit.byId('subjectAddGroupComboId').set('displayedValue', '${grouper:escapeJavascript(guiGroup.displayName)}'); dijit.byId('subjectAddGroupComboId').set('value', '${guiGroup.group.id}'); return true;" data-dismiss="modal">${grouper:escapeHtml(guiGroup.group.displayExtension)}</a></td>
+                                <td><a href="#" onclick="dijit.byId('groupAddMemberComboId').set('displayedValue', '${grouper:escapeJavascript(guiGroup.group.displayName)}'); dijit.byId('groupAddMemberComboId').set('value', '${guiGroup.group.id}'); return true;" data-dismiss="modal">${grouper:escapeHtml(guiGroup.group.displayExtension)}</a></td>
                               </tr>
 
                               </c:forEach>
                             </tbody>
                           </table>
+                          
                           <div class="data-table-bottom clearfix">
-                            <div class="pull-right">
-                              <grouper:paging2 guiPaging="${grouperRequestContainer.subjectContainer.guiPagingSearchGroupResults}" 
-                                formName="subjectSearchGroupPagingForm" ajaxFormIds="addGroupSearchFormId"
-                                refreshOperation="../app/UiV2Subject.groupFilter?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}" />
-                            </div>
+                            <grouper:paging2 guiPaging="${grouperRequestContainer.subjectContainer.guiPagingSearchGroupResults}" 
+                              formName="subjectSearchGroupPagingForm" ajaxFormIds="addGroupSearchFormId"
+                              refreshOperation="../app/UiV2Subject.addGroupSearch?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}" />
                           </div>

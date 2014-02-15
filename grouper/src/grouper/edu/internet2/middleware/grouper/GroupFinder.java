@@ -201,7 +201,7 @@ public class GroupFinder {
    * @param   name  Name of group to find.
    * @return  A {@link Group}
    * @throws  GroupNotFoundException
-   * @Deprecated
+   * @Deprecated use the overload
    */
   @Deprecated
   public static Group findByName(GrouperSession s, String name) 

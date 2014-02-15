@@ -100,6 +100,7 @@
                   </tbody>
                 </table>
               </form>
-             <grouper:paging2 guiPaging="${grouperRequestContainer.stemContainer.privilegeGuiPaging}" formName="stemPagingPrivilegesForm" ajaxFormIds="stemFilterPrivilegesFormId"
-                refreshOperation="../app/UiV2Stem.filterPrivileges?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
- 
+              <div class="data-table-bottom gradient-background">
+                <grouper:paging2 guiPaging="${grouperRequestContainer.stemContainer.privilegeGuiPaging}" formName="stemPagingPrivilegesForm" ajaxFormIds="stemFilterPrivilegesFormId"
+                  refreshOperation="../app/UiV2Stem.filterPrivileges?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
+              </div>

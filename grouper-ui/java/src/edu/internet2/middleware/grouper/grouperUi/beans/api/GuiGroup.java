@@ -31,9 +31,11 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -268,6 +270,19 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
   public boolean isGrantAllAdmin() {
     return this.group.hasAdmin(SubjectFinder.findAllSubject());
   }
+
+  /**
+   * if the logged in user has update
+   * @return true
+   */
+  public boolean isHasUpdate() {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    return this.group.hasUpdate(loggedInSubject);
+
+  }
+
 
   /**
    * if the group has update granted to all

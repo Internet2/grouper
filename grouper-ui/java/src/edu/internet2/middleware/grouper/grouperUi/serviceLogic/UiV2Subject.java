@@ -1,18 +1,23 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
@@ -25,6 +30,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -40,6 +46,9 @@ import edu.internet2.middleware.subject.Subject;
  *
  */
 public class UiV2Subject {
+
+  /** logger */
+  protected static final Log LOG = LogFactory.getLog(UiV2Subject.class);
 
   /**
    * modal search form results for add this subject to a group
@@ -66,7 +75,7 @@ public class UiV2Subject {
   
       SubjectContainer subjectContainer = grouperRequestContainer.getSubjectContainer();
   
-      String searchString = request.getParameter("addMemberGroupSearch");
+      String searchString = request.getParameter("addGroupSubjectSearch");
       
       boolean searchOk = GrouperUiUtils.searchStringValid(searchString);
       if (!searchOk) {
@@ -78,12 +87,35 @@ public class UiV2Subject {
 
       String matchExactIdString = request.getParameter("matchExactId[]");
       boolean matchExactId = GrouperUtil.booleanValue(matchExactIdString, false);
+
       
+      String pageSizeString = request.getParameter("pagingTagPageSize");
+      int pageSize = -1;
+      if (!StringUtils.isBlank(pageSizeString)) {
+        pageSize = GrouperUtil.intValue(pageSizeString);
+      } else {
+        pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
+      }
+      subjectContainer.getGuiPagingSearchGroupResults().setPageSize(pageSize);
+      
+      //1 indexed
+      String pageNumberString = request.getParameter("pagingTagPageNumber");
+      
+      int pageNumber = 1;
+      if (!StringUtils.isBlank(pageNumberString)) {
+        pageNumber = GrouperUtil.intValue(pageNumberString);
+      }
+
+      subjectContainer.getGuiPagingSearchGroupResults().setPageNumber(pageNumber);
+
+      QueryOptions queryOptions = new QueryOptions();
+      queryOptions.paging(pageSize, pageNumber, true);
+
       Set<Group> groups = null;
     
     
       GroupFinder groupFinder = new GroupFinder().assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
-        .assignScope(searchString).assignSplitScope(true);
+        .assignScope(searchString).assignSplitScope(true).assignQueryOptions(queryOptions);
       
       if (matchExactId) {
         groupFinder.assignFindByUuidOrName(true);
@@ -91,6 +123,7 @@ public class UiV2Subject {
       
       groups = groupFinder.findGroups();
       
+      subjectContainer.getGuiPagingSearchGroupResults().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
       
       if (GrouperUtil.length(groups) == 0) {
 
@@ -301,14 +334,14 @@ public class UiV2Subject {
     //set of subjects, and what memberships each subject has
     Set<MembershipSubjectContainer> results = membershipFinder
         .findMembershipResult().getMembershipSubjectContainers();
-  
+
     subjectContainer.setGuiMembershipSubjectContainers(GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results));
-    
+
     subjectContainer.getGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
-    
+
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#subjectFilterResultsId", 
         "/WEB-INF/grouperUi2/subject/subjectContents.jsp"));
-  
+
   }
 
   /**
@@ -383,6 +416,287 @@ public class UiV2Subject {
       //redisplay so the button will change
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#subjectMoreActionsButtonContentsDivId", 
           "/WEB-INF/grouperUi2/subject/subjectMoreActionsButtonContents.jsp"));
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  
+  }
+
+  /**
+   * the filter button was pressed, or paging or sorting or something
+   * @param request
+   * @param response
+   */
+  public void filter(HttpServletRequest request, HttpServletResponse response) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+        
+    GrouperSession grouperSession = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      Subject subject = retrieveSubjectHelper(request);
+  
+      if (subject == null) {
+        return;
+      }
+  
+      filterHelper(request, response, subject);
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+
+  /**
+   * remove subject from this one group
+   * @param request
+   * @param response
+   */
+  public void removeGroup(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      final Subject subject = retrieveSubjectHelper(request);
+  
+      if (subject == null) {
+        return;
+      }
+  
+      final String groupId = request.getParameter("groupId");
+      
+      Group group = (Group)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), 
+          new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          Group group = GroupFinder.findByUuid(grouperSession, groupId, false);
+          if (group.hasUpdate(loggedInSubject)) {
+            return group;
+          }
+          return null;
+        }
+      });
+          
+      //not sure why this would happen
+      if (group == null) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("subjectDeleteGroupCantFindGroup")));
+
+      } else {
+
+        boolean madeChanges = group.deleteMember(subject, false);
+
+        if (madeChanges) {
+    
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+              TextContainer.retrieveFromRequest().getText().get("groupDeleteMemberSuccess")));
+              
+        } else {
+          
+          //not sure why this would happen (race condition?)
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+              TextContainer.retrieveFromRequest().getText().get("groupDeleteMemberNoChangesSuccess")));
+    
+        }
+      }
+      
+      filterHelper(request, response, subject);
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * the remove groups button was pressed
+   * @param request
+   * @param response
+   */
+  public void removeGroups(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      final Subject subject = retrieveSubjectHelper(request);
+  
+      if (subject == null) {
+        return;
+      }
+  
+      Set<String> membershipsIds = new HashSet<String>();
+      
+      for (int i=0;i<1000;i++) {
+        String membershipId = request.getParameter("membershipRow_" + i + "[]");
+        if (!StringUtils.isBlank(membershipId)) {
+          membershipsIds.add(membershipId);
+        }
+      }
+  
+      if (membershipsIds.size() == 0) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("subjectMembershipsRemoveNoGroupSelects")));
+        return;
+      }
+      int successes = 0;
+      int failures = 0;
+      
+      for (String membershipId : membershipsIds) {
+        try {
+          final Membership membership = new MembershipFinder().addMembershipId(membershipId).findMembership(true);
+  
+          final Group group = membership.getOwnerGroup();
+
+          boolean allowed = (Boolean)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), 
+              new GrouperSessionHandler() {
+            
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              if (group.hasUpdate(loggedInSubject)) {
+                return true;
+              }
+              return false;
+            }
+          });
+          
+          if (!allowed) {
+            failures++;
+          } else {
+            group.deleteMember(membership.getMember(), false);
+          }
+          
+          successes++;
+        } catch (Exception e) {
+          LOG.warn("Error with membership: " + membershipId + ", user: " + loggedInSubject, e);
+          failures++;
+        }
+      }
+  
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setSuccessCount(successes);
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setFailureCount(failures);
+  
+      if (failures > 0) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("groupDeleteMembersErrors")));
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+            TextContainer.retrieveFromRequest().getText().get("groupDeleteMembersSuccesses")));
+      }
+      
+      filterHelper(request, response, subject);
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * submit button on add group form pressed
+   * @param request
+   * @param response
+   */
+  public void addGroupSubmit(final HttpServletRequest request, final HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      Subject subject = retrieveSubjectHelper(request);
+  
+      if (subject == null) {
+        return;
+      }
+    
+      final String groupString = request.getParameter("groupAddMemberComboName");
+  
+      Group group = (Group)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          Group group = null;
+          
+          if (!StringUtils.isBlank(groupString)) {
+            group = new GroupFinder().assignScope(groupString).assignFindByUuidOrName(true)
+                .assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES).findGroup();
+          }
+          return group;
+        }
+      });
+        
+      if (group == null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("subjectAddMemberCantFindGroup")));
+        return;
+      }      
+  
+      Boolean defaultPrivs = null;
+      
+      {
+        String privilegeOptionsValue = request.getParameter("privilege-options[]");
+        
+        if (StringUtils.equals(privilegeOptionsValue, "default")) {
+          defaultPrivs = true;
+        } else if (StringUtils.equals(privilegeOptionsValue, "custom")) {
+          defaultPrivs = false;
+        } else {
+          throw new RuntimeException("For privilege-options expecting default or custom but was: '" + privilegeOptionsValue + "'");
+        }
+      }
+      
+      boolean memberChecked = GrouperUtil.booleanValue(request.getParameter("privileges_members[]"), false);
+      boolean adminChecked = GrouperUtil.booleanValue(request.getParameter("privileges_admins[]"), false);
+      boolean updateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_updaters[]"), false);
+      boolean readChecked = GrouperUtil.booleanValue(request.getParameter("privileges_readers[]"), false);
+      boolean viewChecked = GrouperUtil.booleanValue(request.getParameter("privileges_viewers[]"), false);
+      boolean optinChecked = GrouperUtil.booleanValue(request.getParameter("privileges_optins[]"), false);
+      boolean optoutChecked = GrouperUtil.booleanValue(request.getParameter("privileges_optouts[]"), false);
+      boolean attrReadChecked = GrouperUtil.booleanValue(request.getParameter("privileges_groupAttrReaders[]"), false);
+      boolean attrUpdateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_groupAttrUpdaters[]"), false);
+      
+      boolean madeChanges = group.addMember(subject, defaultPrivs, memberChecked, adminChecked, 
+          updateChecked, readChecked, viewChecked, optinChecked, optoutChecked, attrReadChecked, 
+          attrUpdateChecked);
+      
+      if (madeChanges) {
+  
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+            TextContainer.retrieveFromRequest().getText().get("groupAddMemberMadeChangesSuccess")));
+  
+        filterHelper(request, response, subject);
+  
+  
+      } else {
+  
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+            TextContainer.retrieveFromRequest().getText().get("groupAddMemberNoChangesSuccess")));
+  
+      }
+  
+      //clear out the combo
+      guiResponseJs.addAction(GuiScreenAction.newScript(
+          "dijit.byId('groupAddMemberComboId').set('displayedValue', ''); " +
+          "dijit.byId('groupAddMemberComboId').set('value', '');"));
   
     } finally {
       GrouperSession.stopQuietly(grouperSession);

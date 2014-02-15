@@ -25,6 +25,8 @@
                     </c:forEach>
                   </tbody>
                 </table>
-                <grouper:paging2 guiPaging="${grouperRequestContainer.indexContainer.myFavoritesGuiPaging}" 
-                  formName="myFavoritesPagingForm" ajaxFormIds="myFavoritesForm"
-                  refreshOperation="../app/UiV2Main.myFavoritesSubmit" />
+                <div class="data-table-bottom gradient-background">
+                  <grouper:paging2 guiPaging="${grouperRequestContainer.indexContainer.myFavoritesGuiPaging}" 
+                    formName="myFavoritesPagingForm" ajaxFormIds="myFavoritesForm"
+                    refreshOperation="../app/UiV2Main.myFavoritesSubmit" />
+                </div>

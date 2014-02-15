@@ -28,7 +28,8 @@
                     <%-- div class="data-table-bottom clearfix">
                       <div class="pull-right">Showing 1-10 of 25 &middot; <a href="#">First</a> | <a href="#">Prev</a> | <a href="#">Next</a> | <a href="#">Last</a></div>    
                     </div --%>
-                    <grouper:paging2 guiPaging="${grouperRequestContainer.stemContainer.parentStemGuiPaging}" formName="parentStemPagingForm" ajaxFormIds="stemSearchFormId"
-                      refreshOperation="../app/UiV2Stem.${grouperRequestContainer.stemContainer.stemSearchType.operationMethod}?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
-                    
+                    <div class="data-table-bottom gradient-background">
+                      <grouper:paging2 guiPaging="${grouperRequestContainer.stemContainer.parentStemGuiPaging}" formName="parentStemPagingForm" ajaxFormIds="stemSearchFormId"
+                        refreshOperation="../app/UiV2Stem.${grouperRequestContainer.stemContainer.stemSearchType.operationMethod}?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
+                    </div>            
                           

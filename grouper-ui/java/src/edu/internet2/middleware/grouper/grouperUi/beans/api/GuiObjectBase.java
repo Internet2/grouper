@@ -122,11 +122,30 @@ public abstract class GuiObjectBase {
     } else if (this instanceof GuiAttributeDef) {
       creator = ((GuiAttributeDef)this).getAttributeDef().getCreateSubject();
     } else if (this instanceof GuiAttributeDefName) {
-      creator = ((GuiGroup)this).getGroup().getCreateSubject();
+      creator = ((GuiAttributeDefName)this).getAttributeDefName().getAttributeDef().getCreateSubject();
     }
     return creator == null ? null : new GuiSubject(creator);
   }
   
+  /**
+   * 
+   * @return the parent gui stem
+   */
+  public GuiStem getParentGuiStem() {
+    Stem parentStem = null;
+    if (this instanceof GuiGroup) {
+      parentStem = ((GuiGroup)this).getGroup().getParentStem();
+    } else if (this instanceof GuiStem) {
+      parentStem = ((GuiStem)this).getStem().getParentStem();
+    } else if (this instanceof GuiAttributeDef) {
+      parentStem = ((GuiAttributeDef)this).getAttributeDef().getParentStem();
+    } else if (this instanceof GuiAttributeDefName) {
+      parentStem = ((GuiAttributeDefName)this).getAttributeDefName().getAttributeDef().getParentStem();
+    }
+    return parentStem == null ? null : new GuiStem(parentStem);
+  }
+  
+
   /**
    * who lsat updated the object
    * @return subject or null if none registered

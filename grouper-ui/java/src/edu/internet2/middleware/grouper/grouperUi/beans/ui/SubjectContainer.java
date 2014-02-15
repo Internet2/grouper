@@ -30,6 +30,9 @@ public class SubjectContainer {
    * @return the paging object
    */
   public GuiPaging getGuiPagingSearchGroupResults() {
+    if (this.guiPagingSearchGroupResults == null) {
+      this.guiPagingSearchGroupResults = new GuiPaging();
+    }
     return this.guiPagingSearchGroupResults;
   }
 

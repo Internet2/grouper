@@ -111,5 +111,7 @@
                   </tbody>
                 </table>
               </form>
-              <grouper:paging2 guiPaging="${grouperRequestContainer.groupContainer.privilegeGuiPaging}" formName="groupPagingPrivilegesForm" ajaxFormIds="groupFilterPrivilegesFormId"
+              <div class="data-table-bottom gradient-background">
+                <grouper:paging2 guiPaging="${grouperRequestContainer.groupContainer.privilegeGuiPaging}" formName="groupPagingPrivilegesForm" ajaxFormIds="groupFilterPrivilegesFormId"
                   refreshOperation="../app/UiV2Group.filterThisGroupsAttributeDefPrivileges?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" />
+              </div>

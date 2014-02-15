@@ -25,6 +25,8 @@
                     </c:forEach>
                   </tbody>
                 </table>
-                <grouper:paging2 guiPaging="${grouperRequestContainer.indexContainer.myStemsGuiPaging}" 
-                  formName="myStemsPagingForm" ajaxFormIds="myStemsForm"
-                  refreshOperation="../app/UiV2Main.myStemsSubmit" />
+                <div class="data-table-bottom gradient-background">
+                  <grouper:paging2 guiPaging="${grouperRequestContainer.indexContainer.myStemsGuiPaging}" 
+                    formName="myStemsPagingForm" ajaxFormIds="myStemsForm"
+                    refreshOperation="../app/UiV2Main.myStemsSubmit" />
+                </div>

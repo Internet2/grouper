@@ -320,7 +320,7 @@ public class UiV2Group {
   }
   
   /**
-   * the filter button was pressed, or paging or sorting, or view Group or something
+   * remove one member from the group
    * @param request
    * @param response
    */

@@ -139,9 +139,12 @@ public class GrouperPagingTag2 extends SimpleTagSupport {
   @Override
   public void doTag() throws JspException, IOException {
     
+    if (this.guiPaging == null) {
+      throw new NullPointerException("guiPaging cannot be null, does it exist not null in the objec model?");
+    }
+    
     StringBuilder result = new StringBuilder();
     
-    //<div class="data-table-bottom gradient-background">
     //  <div class="pull-right">Showing 1-10 of 25 &middot; <a href="#">First</a> | <a href="#">Prev</a> | <a href="#">Next</a> | <a href="#">Last</a></div>
     //  <form class="form-inline form-small">
     //    <label for="show-entries">Show:&nbsp;</label>
@@ -155,10 +158,7 @@ public class GrouperPagingTag2 extends SimpleTagSupport {
     //  <form style="display:none;">
     //    <input type="hidden" name="pagingTagPageNumber" value="" />
     //  </form>
-    //</div>
 
-    result.append("<div class=\"data-table-bottom gradient-background\">\n");
-    
     QueryPaging queryPaging = this.guiPaging.queryPaging();
     
     result.append("  <div class=\"pull-right\">Showing " + (queryPaging.getFirstIndexOnPage()+1) 
@@ -215,9 +215,6 @@ public class GrouperPagingTag2 extends SimpleTagSupport {
     result.append("  <form style=\"display:none;\" name=\"" + this.formName + "PageNumber\" id=\"" + this.formName + "PageNumberId\">\n");
     result.append("    <input type=\"hidden\" name=\"pagingTagPageNumber\" value=\"" + queryPaging.getPageNumber() + "\" />\n");
     result.append("  </form>\n");
-    
-    result.append("</div>\n");
-
     
     this.getJspContext().getOut().print(result.toString());
   }

@@ -28,6 +28,8 @@
                     </c:forEach>
                   </tbody>
                 </table>
-                <grouper:paging2 guiPaging="${grouperRequestContainer.indexContainer.searchGuiPaging}" formName="searchPagingForm" ajaxFormIds="searchPageForm"
-                  refreshOperation="../app/UiV2Main.searchFormSubmit" />
+                <div class="data-table-bottom gradient-background">
+                  <grouper:paging2 guiPaging="${grouperRequestContainer.indexContainer.searchGuiPaging}" formName="searchPagingForm" ajaxFormIds="searchPageForm"
+                    refreshOperation="../app/UiV2Main.searchFormSubmit" />
+                </div>
 <%-- ?searchFormQuery=${grouper:escapeUrl(grouperRequestContainer.indexContainer.searchQuery)} --%>
