@@ -458,14 +458,14 @@ public class MembershipSubjectContainer {
         
         boolean subjectHasOptinEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_OPTINS) != null
             && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_OPTINS).getMembershipAssignType().isNonImmediate()
-            || subjectHasAdmin || (isEveryEntity ? false : grouperAllHasOptin);
+            || subjectHasAdmin || subjectHasUpdate || (isEveryEntity ? false : grouperAllHasOptin);
         
         boolean subjectHasOptin = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_OPTINS) != null 
             || subjectHasOptinEffective || grouperAllHasOptin;
         
         boolean subjectHasOptoutEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_OPTOUTS) != null
             && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_OPTOUTS).getMembershipAssignType().isNonImmediate()
-            || subjectHasAdmin || (isEveryEntity ? false : grouperAllHasOptout);
+            || subjectHasAdmin || subjectHasUpdate || (isEveryEntity ? false : grouperAllHasOptout);
         
         boolean subjectHasOptout = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_ATTR_OPTOUTS) != null 
             || subjectHasReadEffective || grouperAllHasOptout;
@@ -626,14 +626,14 @@ public class MembershipSubjectContainer {
         
         boolean subjectHasOptinEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_OPTINS) != null
             && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_OPTINS).getMembershipAssignType().isNonImmediate()
-            || subjectHasAdmin || (isEveryEntity ? false : grouperAllHasOptin);
+            || subjectHasAdmin || subjectHasUpdate || (isEveryEntity ? false : grouperAllHasOptin);
         
         boolean subjectHasOptin = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_OPTINS) != null 
             || subjectHasOptinEffective || grouperAllHasOptin;
         
         boolean subjectHasOptoutEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_OPTOUTS) != null
             && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_OPTOUTS).getMembershipAssignType().isNonImmediate()
-            || subjectHasAdmin || (isEveryEntity ? false : grouperAllHasOptout);
+            || subjectHasAdmin || subjectHasUpdate || (isEveryEntity ? false : grouperAllHasOptout);
         
         boolean subjectHasOptout = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_OPTOUTS) != null 
             || subjectHasReadEffective || grouperAllHasOptout;

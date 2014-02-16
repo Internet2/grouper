@@ -24,13 +24,13 @@
                       <select id="people-filter" class="span12" name="privilegeField">
                         <option value="">${textContainer.text['groupFilterAllAttributeDefs'] }</option>
                         <option value="attrAdmin">${textContainer.text['thisGroupsPrivilegesPriv_attrAdmin'] }</option>
-                        <option value="attrUpdate">${textContainer.text['thisSubjectsPrivilegesPriv_attrUpdate'] }</option>
-                        <option value="attrRead">${textContainer.text['thisSubjectsPrivilegesPriv_attrRead'] }</option>
-                        <option value="attrView">${textContainer.text['thisSubjectsPrivilegesPriv_attrView'] }</option>
-                        <option value="attrOptin">${textContainer.text['thisSubjectsPrivilegesPriv_attrOptin'] }</option>
-                        <option value="attrOptout">${textContainer.text['thisSubjectsPrivilegesPriv_attrOptout'] }</option>
-                        <option value="attrDefAttrRead">${textContainer.text['thisSubjectsPrivilegesPriv_attrDefAttrRead'] }</option>
-                        <option value="attrDefAttrUpdate">${textContainer.text['thisSubjectsPrivilegesPriv_attrDefAttrUpdate'] }</option>
+                        <option value="attrUpdate">${textContainer.text['thisGroupsPrivilegesPriv_attrUpdate'] }</option>
+                        <option value="attrRead">${textContainer.text['thisGroupsPrivilegesPriv_attrRead'] }</option>
+                        <option value="attrView">${textContainer.text['thisGroupsPrivilegesPriv_attrView'] }</option>
+                        <option value="attrOptin">${textContainer.text['thisGroupsPrivilegesPriv_attrOptin'] }</option>
+                        <option value="attrOptout">${textContainer.text['thisGroupsPrivilegesPriv_attrOptout'] }</option>
+                        <option value="attrDefAttrRead">${textContainer.text['thisGroupsPrivilegesPriv_attrDefAttrRead'] }</option>
+                        <option value="attrDefAttrUpdate">${textContainer.text['thisGroupsPrivilegesPriv_attrDefAttrUpdate'] }</option>
                       </select>
 
                     </div>

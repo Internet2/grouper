@@ -1507,26 +1507,26 @@ public class UiV2Subject {
     if (membershipType != null) {
       membershipFinder.assignMembershipType(membershipType);
     }
-  
+
     if (privilegeField != null) {
       membershipFinder.assignField(privilegeField);
       membershipFinder.assignIncludeInheritedPrivileges(true);
     }
-  
+
     if (!StringUtils.isBlank(privilegeFilterText)) {
       membershipFinder.assignScopeForAttributeDef(privilegeFilterText);
     }
-  
+
     //set of subjects, and what privs each subject has
     Set<MembershipSubjectContainer> results = membershipFinder
         .findMembershipResult().getMembershipSubjectContainers();
-  
+
     //inherit from grouperAll or Groupersystem or privilege inheritance
     MembershipSubjectContainer.considerAttributeDefPrivilegeInheritance(results);
-  
+
     grouperRequestContainer.getSubjectContainer().setPrivilegeGuiMembershipSubjectContainers(
         GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results));
-  
+
     guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
   
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#thisSubjectsAttributeDefPrivilegesFilterResultsId", 
