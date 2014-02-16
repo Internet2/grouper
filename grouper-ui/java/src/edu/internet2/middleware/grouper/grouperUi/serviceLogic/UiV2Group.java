@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubject
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogicBase;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
@@ -59,6 +60,7 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
@@ -396,28 +398,11 @@ public class UiV2Group {
       membershipType = MembershipType.valueOfIgnoreCase(membershipTypeString, true);
     }
 
-    String pageSizeString = request.getParameter("pagingTagPageSize");
-    int pageSize = -1;
-    if (!StringUtils.isBlank(pageSizeString)) {
-      pageSize = GrouperUtil.intValue(pageSizeString);
-    } else {
-      pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
-    }
-    groupContainer.getGuiPaging().setPageSize(pageSize);
-    
-    //1 indexed
-    String pageNumberString = request.getParameter("pagingTagPageNumber");
-    
-    int pageNumber = 1;
-    if (!StringUtils.isBlank(pageNumberString)) {
-      pageNumber = GrouperUtil.intValue(pageNumberString);
-    }
-    
-    groupContainer.getGuiPaging().setPageNumber(pageNumber);
-
+    GuiPaging guiPaging = groupContainer.getGuiPaging();
     QueryOptions queryOptions = new QueryOptions();
-    queryOptions.paging(pageSize, pageNumber, true);
-    
+
+    GrouperPagingTag2.processRequest(request, guiPaging, queryOptions);
+
     MembershipFinder membershipFinder = new MembershipFinder()
       .addGroupId(group.getId()).assignCheckSecurity(true)
       .assignHasFieldForMember(true)
@@ -440,7 +425,7 @@ public class UiV2Group {
 
     groupContainer.setGuiMembershipSubjectContainers(GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results));
     
-    groupContainer.getGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+    guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
     
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupFilterResultsId", 
         "/WEB-INF/grouperUi2/group/groupContents.jsp"));
@@ -918,8 +903,7 @@ public class UiV2Group {
       boolean readersUpdaters = StringUtils.equals(fieldName, "readersUpdaters");
       
       //lets see how many are on a page
-      String pageSizeString = request.getParameter("pagingTagPageSize");
-      int pageSize = GrouperUtil.intValue(pageSizeString);
+      int pageSize = GrouperPagingTag2.pageSize(request);
       
       //lets loop and get all the checkboxes
       Set<Member> members = new LinkedHashSet<Member>();
@@ -1074,29 +1058,11 @@ public class UiV2Group {
     if (!StringUtils.isBlank(membershipTypeString)) {
       membershipType = MembershipType.valueOfIgnoreCase(membershipTypeString, true);
     }
-    
-    //how many per page
-    String pageSizeString = request.getParameter("pagingTagPageSize");
-    int pageSize = -1;
-    if (!StringUtils.isBlank(pageSizeString)) {
-      pageSize = GrouperUtil.intValue(pageSizeString);
-    } else {
-      pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
-    }
-    grouperRequestContainer.getGroupContainer().getPrivilegeGuiPaging().setPageSize(pageSize);
-    
-    //1 indexed
-    String pageNumberString = request.getParameter("pagingTagPageNumber");
-    
-    int pageNumber = 1;
-    if (!StringUtils.isBlank(pageNumberString)) {
-      pageNumber = GrouperUtil.intValue(pageNumberString);
-    }
-    
-    grouperRequestContainer.getGroupContainer().getPrivilegeGuiPaging().setPageNumber(pageNumber);
 
+    GuiPaging guiPaging = grouperRequestContainer.getGroupContainer().getPrivilegeGuiPaging();
     QueryOptions queryOptions = new QueryOptions();
-    queryOptions.paging(pageSize, pageNumber, true);
+    
+    GrouperPagingTag2.processRequest(request, guiPaging, queryOptions);
     
     MembershipFinder membershipFinder = new MembershipFinder()
       .addGroupId(group.getId()).assignCheckSecurity(true)
@@ -1129,7 +1095,7 @@ public class UiV2Group {
     grouperRequestContainer.getGroupContainer().setPrivilegeGuiMembershipSubjectContainers(
         GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results));
 
-    grouperRequestContainer.getGroupContainer().getPrivilegeGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+    guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
 
     
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupPrivilegeFilterResultsId", 
@@ -2028,27 +1994,10 @@ public class UiV2Group {
       membershipType = MembershipType.valueOfIgnoreCase(membershipTypeString, true);
     }
 
-    String pageSizeString = request.getParameter("pagingTagPageSize");
-    int pageSize = -1;
-    if (!StringUtils.isBlank(pageSizeString)) {
-      pageSize = GrouperUtil.intValue(pageSizeString);
-    } else {
-      pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
-    }
-    groupContainer.getGuiPaging().setPageSize(pageSize);
-    
-    //1 indexed
-    String pageNumberString = request.getParameter("pagingTagPageNumber");
-    
-    int pageNumber = 1;
-    if (!StringUtils.isBlank(pageNumberString)) {
-      pageNumber = GrouperUtil.intValue(pageNumberString);
-    }
-    
-    groupContainer.getGuiPaging().setPageNumber(pageNumber);
-  
+    GuiPaging guiPaging = groupContainer.getGuiPaging();
     QueryOptions queryOptions = new QueryOptions();
-    queryOptions.paging(pageSize, pageNumber, true);
+    
+    GrouperPagingTag2.processRequest(request, guiPaging, queryOptions);
     
     MembershipFinder membershipFinder = new MembershipFinder()
       .addMemberId(group.toMember().getId())
@@ -2073,7 +2022,7 @@ public class UiV2Group {
   
     groupContainer.setGuiMembershipSubjectContainers(GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results));
     
-    groupContainer.getGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+    guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
     
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#thisGroupsMembershipsFilterResultsId", 
         "/WEB-INF/grouperUi2/group/thisGroupsMembershipsContents.jsp"));
@@ -2241,28 +2190,10 @@ public class UiV2Group {
       membershipType = MembershipType.valueOfIgnoreCase(membershipTypeString, true);
     }
     
-    //how many per page
-    String pageSizeString = request.getParameter("pagingTagPageSize");
-    int pageSize = -1;
-    if (!StringUtils.isBlank(pageSizeString)) {
-      pageSize = GrouperUtil.intValue(pageSizeString);
-    } else {
-      pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
-    }
-    grouperRequestContainer.getGroupContainer().getPrivilegeGuiPaging().setPageSize(pageSize);
-    
-    //1 indexed
-    String pageNumberString = request.getParameter("pagingTagPageNumber");
-    
-    int pageNumber = 1;
-    if (!StringUtils.isBlank(pageNumberString)) {
-      pageNumber = GrouperUtil.intValue(pageNumberString);
-    }
-    
-    grouperRequestContainer.getGroupContainer().getPrivilegeGuiPaging().setPageNumber(pageNumber);
-
+    GuiPaging guiPaging = grouperRequestContainer.getGroupContainer().getPrivilegeGuiPaging();
     QueryOptions queryOptions = new QueryOptions();
-    queryOptions.paging(pageSize, pageNumber, true);
+    
+    GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
     
     MembershipFinder membershipFinder = new MembershipFinder()
       .addSubject(group.toSubject()).assignCheckSecurity(true)
@@ -2295,7 +2226,7 @@ public class UiV2Group {
     grouperRequestContainer.getGroupContainer().setPrivilegeGuiMembershipSubjectContainers(
         GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results));
 
-    grouperRequestContainer.getGroupContainer().getPrivilegeGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+    guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
 
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#thisGroupsGroupPrivilegesFilterResultsId", 
         "/WEB-INF/grouperUi2/group/thisGroupsGroupPrivilegesContents.jsp"));
@@ -2412,8 +2343,7 @@ public class UiV2Group {
       boolean readersUpdaters = StringUtils.equals(fieldName, "readersUpdaters");
       
       //lets see how many are on a page
-      String pageSizeString = request.getParameter("pagingTagPageSize");
-      int pageSize = GrouperUtil.intValue(pageSizeString);
+      int pageSize = GrouperPagingTag2.pageSize(request);
       
       //lets loop and get all the checkboxes
       Set<Group> parentGroups = new LinkedHashSet<Group>();
@@ -2544,29 +2474,10 @@ public class UiV2Group {
       membershipType = MembershipType.valueOfIgnoreCase(membershipTypeString, true);
     }
     
-    //how many per page
-    String pageSizeString = request.getParameter("pagingTagPageSize");
-    int pageSize = -1;
-    if (!StringUtils.isBlank(pageSizeString)) {
-      pageSize = GrouperUtil.intValue(pageSizeString);
-    } else {
-      pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
-    }
-    grouperRequestContainer.getGroupContainer().getPrivilegeGuiPaging().setPageSize(pageSize);
-    
-    //1 indexed
-    String pageNumberString = request.getParameter("pagingTagPageNumber");
-    
-    int pageNumber = 1;
-    if (!StringUtils.isBlank(pageNumberString)) {
-      pageNumber = GrouperUtil.intValue(pageNumberString);
-    }
-    
-    grouperRequestContainer.getGroupContainer().getPrivilegeGuiPaging().setPageNumber(pageNumber);
-  
+    GuiPaging guiPaging = grouperRequestContainer.getGroupContainer().getPrivilegeGuiPaging();
     QueryOptions queryOptions = new QueryOptions();
-    queryOptions.paging(pageSize, pageNumber, true);
-    
+    GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
+      
     MembershipFinder membershipFinder = new MembershipFinder()
       .addSubject(group.toSubject()).assignCheckSecurity(true)
       .assignFieldType(FieldType.NAMING)
@@ -2599,7 +2510,7 @@ public class UiV2Group {
     grouperRequestContainer.getGroupContainer().setPrivilegeGuiMembershipSubjectContainers(
         GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results));
   
-    grouperRequestContainer.getGroupContainer().getPrivilegeGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+    guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
   
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#thisGroupsStemPrivilegesFilterResultsId", 
         "/WEB-INF/grouperUi2/group/thisGroupsStemPrivilegesContents.jsp"));
@@ -2748,8 +2659,7 @@ public class UiV2Group {
       boolean assignAll = StringUtils.equals(fieldName, "all");
       
       //lets see how many are on a page
-      String pageSizeString = request.getParameter("pagingTagPageSize");
-      int pageSize = GrouperUtil.intValue(pageSizeString);
+      int pageSize = GrouperPagingTag2.pageSize(request);
       
       //lets loop and get all the checkboxes
       Set<Stem> parentStems = new LinkedHashSet<Stem>();
@@ -2874,28 +2784,10 @@ public class UiV2Group {
       membershipType = MembershipType.valueOfIgnoreCase(membershipTypeString, true);
     }
     
-    //how many per page
-    String pageSizeString = request.getParameter("pagingTagPageSize");
-    int pageSize = -1;
-    if (!StringUtils.isBlank(pageSizeString)) {
-      pageSize = GrouperUtil.intValue(pageSizeString);
-    } else {
-      pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
-    }
-    grouperRequestContainer.getGroupContainer().getPrivilegeGuiPaging().setPageSize(pageSize);
-    
-    //1 indexed
-    String pageNumberString = request.getParameter("pagingTagPageNumber");
-    
-    int pageNumber = 1;
-    if (!StringUtils.isBlank(pageNumberString)) {
-      pageNumber = GrouperUtil.intValue(pageNumberString);
-    }
-    
-    grouperRequestContainer.getGroupContainer().getPrivilegeGuiPaging().setPageNumber(pageNumber);
-  
+    GuiPaging guiPaging = grouperRequestContainer.getGroupContainer().getPrivilegeGuiPaging();
     QueryOptions queryOptions = new QueryOptions();
-    queryOptions.paging(pageSize, pageNumber, true);
+
+    GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
     
     MembershipFinder membershipFinder = new MembershipFinder()
       .addSubject(group.toSubject()).assignCheckSecurity(true)
@@ -2929,7 +2821,7 @@ public class UiV2Group {
     grouperRequestContainer.getGroupContainer().setPrivilegeGuiMembershipSubjectContainers(
         GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results));
   
-    grouperRequestContainer.getGroupContainer().getPrivilegeGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+    guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
   
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#thisGroupsAttributeDefPrivilegesFilterResultsId", 
         "/WEB-INF/grouperUi2/group/thisGroupsAttributeDefPrivilegesContents.jsp"));
@@ -3047,8 +2939,7 @@ public class UiV2Group {
       boolean readersUpdaters = StringUtils.equals(fieldName, "readersUpdaters");
       
       //lets see how many are on a page
-      String pageSizeString = request.getParameter("pagingTagPageSize");
-      int pageSize = GrouperUtil.intValue(pageSizeString);
+      int pageSize = GrouperPagingTag2.pageSize(request);
       
       //lets loop and get all the checkboxes
       Set<AttributeDef> parentAttributeDefs = new LinkedHashSet<AttributeDef>();

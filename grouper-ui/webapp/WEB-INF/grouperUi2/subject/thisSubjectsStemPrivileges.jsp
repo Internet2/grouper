@@ -1,11 +1,8 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
-            <!-- start group/thisSubjectsStemPrivileges.jsp -->
+            <!-- start subject/thisSubjectsStemPrivileges.jsp -->
             
-            <%-- for the new group or new stem button --%>
-            <input type="hidden" name="objectStemId" value="${grouperRequestContainer.groupContainer.guiGroup.group.parentUuid}" />
-
-            <%@ include file="groupHeader.jsp" %>
+            <%@ include file="subjectHeader.jsp" %>
 
             <div class="row-fluid">
               <div class="span12">
@@ -41,7 +38,7 @@
                     </div>
 
                     <div class="span3"><input type="submit" class="btn"  id="filterSubmitId" value="${textContainer.textEscapeDouble['groupApplyFilterButton'] }"
-                        onclick="ajax('../app/UiV2Group.filterThisSubjectsStemPrivileges?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId'}); return false;"> 
+                        onclick="ajax('../app/UiV2Subject.filterThisSubjectsStemPrivileges?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId'}); return false;"> 
                       <a class="btn" onclick="$('#people-filter').val(''); $('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['groupResetButton'] }</a>
                     </div>
                     
@@ -55,4 +52,4 @@
                 </div>                
               </div>
             </div>
-            <!-- end group/thisSubjectsStemPrivileges.jsp -->
+            <!-- end subject/thisSubjectsStemPrivileges.jsp -->

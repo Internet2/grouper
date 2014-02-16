@@ -1,9 +1,6 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
-            <%-- for the new group or new stem button --%>
-            <input type="hidden" name="objectStemId" value="${grouperRequestContainer.groupContainer.guiGroup.group.parentUuid}" />
-
-            <%@ include file="groupHeader.jsp" %>
+            <%@ include file="subjectHeader.jsp" %>
 
             <div class="row-fluid">
               <div class="span12">
@@ -12,7 +9,7 @@
                 <ul class="nav nav-tabs">
                   <li><a href="#" onclick="return guiV2link('operation=UiV2Subject.viewSubject&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {dontScrollTop: true});" >${textContainer.text['subjectMembershipsTab'] }</a></li>
                   <li><a href="#" onclick="return guiV2link('operation=UiV2Subject.thisSubjectsGroupPrivileges&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {dontScrollTop: true});" >${textContainer.text['subjectPrivilegesTab'] }</a></li>
-                  <li><a href="#" onclick="return guiV2link('operation=UiV2Subject.thisSubjectsSubjectPrivileges&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {dontScrollTop: true});" >${textContainer.text['subjectStemPrivilegesTab'] }</a></li>
+                  <li><a href="#" onclick="return guiV2link('operation=UiV2Subject.thisSubjectsStemPrivileges&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {dontScrollTop: true});" >${textContainer.text['subjectStemPrivilegesTab'] }</a></li>
                   <li class="active"><a href="#" onclick="return false;" >${textContainer.text['subjectAttributePrivilegesTab'] }</a></li>
                 </ul>
 
@@ -57,4 +54,4 @@
                 </div>                
               </div>
             </div>
-            <!-- end group/thisSubjectsAttributeDefPrivileges.jsp -->
+            <!-- end subject/thisSubjectsAttributeDefPrivileges.jsp -->

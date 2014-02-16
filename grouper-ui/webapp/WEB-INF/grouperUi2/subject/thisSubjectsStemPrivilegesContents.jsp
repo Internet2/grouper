@@ -51,7 +51,7 @@
                   </thead>
                   <tbody>
                     <c:set var="i" value="0" />
-                    <c:forEach  items="${grouperRequestContainer.groupContainer.privilegeGuiMembershipSubjectContainers}" 
+                    <c:forEach  items="${grouperRequestContainer.subjectContainer.privilegeGuiMembershipSubjectContainers}" 
                         var="guiMembershipSubjectContainer" >
                       <tr>
                         <td>
@@ -98,7 +98,7 @@
                 </table>
               </form>
               <div class="data-table-bottom gradient-background">
-                <grouper:paging2 guiPaging="${grouperRequestContainer.groupContainer.privilegeGuiPaging}" formName="groupPagingPrivilegesForm" ajaxFormIds="groupFilterPrivilegesFormId"
-                  refreshOperation="../app/UiV2Group.filterThisSubjectsStemPrivileges?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}" />
+                <grouper:paging2 guiPaging="${grouperRequestContainer.subjectContainer.privilegeGuiPaging}" formName="groupPagingPrivilegesForm" ajaxFormIds="groupFilterPrivilegesFormId"
+                  refreshOperation="../app/UiV2Subject.filterThisSubjectsStemPrivileges?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}" />
               </div>
               

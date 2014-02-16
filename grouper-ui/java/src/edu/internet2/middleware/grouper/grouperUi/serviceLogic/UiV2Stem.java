@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogic;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogicBase;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
@@ -51,6 +52,7 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
@@ -149,28 +151,11 @@ public class UiV2Stem {
       }
       
       stemContainer.setParentStemFilterText(searchString);
-      
-      String pageSizeString = request.getParameter("pagingTagPageSize");
-      int pageSize = -1;
-      if (!StringUtils.isBlank(pageSizeString)) {
-        pageSize = GrouperUtil.intValue(pageSizeString);
-      } else {
-        pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
-      }
-      stemContainer.getParentStemGuiPaging().setPageSize(pageSize);
-      
-      //1 indexed
-      String pageNumberString = request.getParameter("pagingTagPageNumber");
-      
-      int pageNumber = 1;
-      if (!StringUtils.isBlank(pageNumberString)) {
-        pageNumber = GrouperUtil.intValue(pageNumberString);
-      }
-      
-      stemContainer.getParentStemGuiPaging().setPageNumber(pageNumber);
-
       QueryOptions queryOptions = new QueryOptions();
-      queryOptions.paging(pageSize, pageNumber, true);
+      
+      GuiPaging guiPaging = stemContainer.getParentStemGuiPaging();
+      
+      GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
       
       StemFinder stemFinder = new StemFinder().assignScope(searchString).assignSplitScope(true)
           .addPrivilege(NamingPrivilege.STEM).assignSubject(loggedInSubject)
@@ -183,7 +168,7 @@ public class UiV2Stem {
       
       stemContainer.setParentStemSearchResults(guiResults);
       
-      stemContainer.getParentStemGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+      guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
 
       if (GrouperUtil.length(guiResults) == 0) {
    
@@ -675,8 +660,7 @@ public class UiV2Stem {
       boolean assignAll = StringUtils.equals(fieldName, "all");
       
       //lets see how many are on a page
-      String pageSizeString = request.getParameter("pagingTagPageSize");
-      int pageSize = GrouperUtil.intValue(pageSizeString);
+      int pageSize = GrouperPagingTag2.pageSize(request);
       
       //lets loop and get all the checkboxes
       Set<Member> members = new LinkedHashSet<Member>();
@@ -824,27 +808,10 @@ public class UiV2Stem {
     stemContainer.setGuiStem(new GuiStem(stem));      
     
     String filterText = request.getParameter("filterText");
+    GuiPaging guiPaging = stemContainer.getGuiPaging();
+    QueryOptions queryOptions = QueryOptions.create("displayExtension", true, null, null);
     
-    String pageSizeString = request.getParameter("pagingTagPageSize");
-    int pageSize = -1;
-    if (!StringUtils.isBlank(pageSizeString)) {
-      pageSize = GrouperUtil.intValue(pageSizeString);
-    } else {
-      pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
-    }
-    stemContainer.getGuiPaging().setPageSize(pageSize);
-    
-    //1 indexed
-    String pageNumberString = request.getParameter("pagingTagPageNumber");
-    
-    int pageNumber = 1;
-    if (!StringUtils.isBlank(pageNumberString)) {
-      pageNumber = GrouperUtil.intValue(pageNumberString);
-    }
-    
-    stemContainer.getGuiPaging().setPageNumber(pageNumber);
-    
-    QueryOptions queryOptions = QueryOptions.create("displayExtension", true, pageNumber, pageSize);
+    GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
     
     GrouperObjectFinder grouperObjectFinder = new GrouperObjectFinder()
       .assignObjectPrivilege(ObjectPrivilege.view)
@@ -861,7 +828,7 @@ public class UiV2Stem {
     
     stemContainer.setChildGuiObjectsAbbreviated(GuiObjectBase.convertFromGrouperObjects(results));
     
-    stemContainer.getGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+    guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
     
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#stemFilterResultsId", 
         "/WEB-INF/grouperUi2/stem/stemContents.jsp"));
@@ -940,7 +907,6 @@ public class UiV2Stem {
      * if added error to screen
      * @return if error
      */
-    @SuppressWarnings("unused")
     public boolean isAddedError() {
       return this.addedError;
     }
@@ -1120,29 +1086,11 @@ public class UiV2Stem {
       privilegeMembershipType = MembershipType.valueOfIgnoreCase(membershipTypeString, true);
     }
     
-    //how many per page
-    String pageSizeString = request.getParameter("pagingTagPageSize");
-    int pageSize = -1;
-    if (!StringUtils.isBlank(pageSizeString)) {
-      pageSize = GrouperUtil.intValue(pageSizeString);
-    } else {
-      pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
-    }
     StemContainer stemContainer = grouperRequestContainer.getStemContainer();
-    stemContainer.getPrivilegeGuiPaging().setPageSize(pageSize);
-    
-    //1 indexed
-    String pageNumberString = request.getParameter("pagingTagPageNumber");
-    
-    int pageNumber = 1;
-    if (!StringUtils.isBlank(pageNumberString)) {
-      pageNumber = GrouperUtil.intValue(pageNumberString);
-    }
-    
-    stemContainer.getPrivilegeGuiPaging().setPageNumber(pageNumber);
-
+    GuiPaging guiPaging = stemContainer.getPrivilegeGuiPaging();
     QueryOptions queryOptions = new QueryOptions();
-    queryOptions.paging(pageSize, pageNumber, true);
+    
+    GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
     
     MembershipFinder membershipFinder = new MembershipFinder()
       .addStemId(stem.getId()).assignCheckSecurity(true)
@@ -1172,7 +1120,7 @@ public class UiV2Stem {
     MembershipSubjectContainer.considerNamingPrivilegeInheritance(results);
     
     stemContainer.setPrivilegeGuiMembershipSubjectContainers(GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results));
-    stemContainer.getPrivilegeGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+    guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
 
     
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#stemPrivilegeFilterResultsId", 

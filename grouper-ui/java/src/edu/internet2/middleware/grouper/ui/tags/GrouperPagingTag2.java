@@ -21,6 +21,7 @@ package edu.internet2.middleware.grouper.ui.tags;
 import java.io.IOException;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 
@@ -28,6 +29,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -40,6 +42,62 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class GrouperPagingTag2 extends SimpleTagSupport {
 
+  /**
+   * process a request from a paging tag
+   * @param request
+   * @param queryOptions
+   * @param guiPaging
+   */
+  public static void processRequest(HttpServletRequest request, GuiPaging guiPaging, QueryOptions queryOptions) {
+    processRequest(request, guiPaging, queryOptions, null);
+  }
+
+  /**
+   * page size from http request from paging gui object
+   * @param request
+   * @return the page size
+   */
+  public static int pageSize(HttpServletRequest request) {
+    String pageSizeString = request.getParameter("pagingTagPageSize");
+    int pageSize = GrouperUtil.intValue(pageSizeString);
+    return pageSize;
+  }
+
+  /**
+   * process a request from a paging tag
+   * @param request
+   * @param guiPaging
+   * @param pagesizeDefaultProperty
+   */
+  public static void processRequest(HttpServletRequest request, GuiPaging guiPaging, 
+      QueryOptions queryOptions, String pagesizeDefaultProperty) {
+
+    //how many per page
+    String pageSizeString = request.getParameter("pagingTagPageSize");
+    int pageSize = -1;
+    if (!StringUtils.isBlank(pageSizeString)) {
+      pageSize = GrouperUtil.intValue(pageSizeString);
+    } else {
+      pagesizeDefaultProperty = StringUtils.defaultIfEmpty(pagesizeDefaultProperty, "pager.pagesize.default");
+      pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt(pagesizeDefaultProperty, 50);
+    }
+    guiPaging.setPageSize(pageSize);
+    
+    //1 indexed
+    String pageNumberString = request.getParameter("pagingTagPageNumber");
+    
+    int pageNumber = 1;
+    if (!StringUtils.isBlank(pageNumberString)) {
+      pageNumber = GrouperUtil.intValue(pageNumberString);
+    }
+    
+    guiPaging.setPageNumber(pageNumber);
+
+    if (queryOptions != null) {
+      queryOptions.paging(pageSize, pageNumber, true);
+    }
+  }
+  
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperPagingTag2.class);
   

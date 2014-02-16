@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
@@ -37,14 +38,15 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectFinder;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperObjectFinder.GrouperObjectFinderType;
 import edu.internet2.middleware.grouper.misc.GrouperObjectFinder.ObjectPrivilege;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
+import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
@@ -196,26 +198,11 @@ public class UiV2Main extends UiServiceLogicBase {
       return;
     }
     
-    String pageSizeString = request.getParameter("pagingTagPageSize");
-    int pageSize = -1;
-    if (!StringUtils.isBlank(pageSizeString)) {
-      pageSize = GrouperUtil.intValue(pageSizeString);
-    } else {
-      pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
-    }
-    indexContainer.getMyGroupsGuiPaging().setPageSize(pageSize);
+    GuiPaging guiPaging = indexContainer.getMyGroupsGuiPaging();
+    QueryOptions queryOptions = QueryOptions.create("displayName", true, null, null);
     
-    //1 indexed
-    String pageNumberString = request.getParameter("pagingTagPageNumber");
+    GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
     
-    int pageNumber = 1;
-    if (!StringUtils.isBlank(pageNumberString)) {
-      pageNumber = GrouperUtil.intValue(pageNumberString);
-    }
-
-    indexContainer.getMyGroupsGuiPaging().setPageNumber(pageNumber);
-
-    QueryOptions queryOptions = QueryOptions.create("displayName", true, pageNumber, pageSize);
     queryOptions.getQueryPaging().setDoTotalCount(true);
     GroupFinder groupFinder = new GroupFinder()
       .assignSubject(GrouperSession.staticGrouperSession().getSubject())
@@ -241,7 +228,7 @@ public class UiV2Main extends UiServiceLogicBase {
     
     indexContainer.setGuiGroupsUserManagesAbbreviated(GuiGroup.convertFromGroups(results));
     
-    indexContainer.getMyGroupsGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+    guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
     
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#myGroupsResultsId", 
         "/WEB-INF/grouperUi2/index/myGroupsContents.jsp"));
@@ -272,27 +259,11 @@ public class UiV2Main extends UiServiceLogicBase {
 
       return;
     }
-    
-    String pageSizeString = request.getParameter("pagingTagPageSize");
-    int pageSize = -1;
-    if (!StringUtils.isBlank(pageSizeString)) {
-      pageSize = GrouperUtil.intValue(pageSizeString);
-    } else {
-      pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
-    }
-    indexContainer.getSearchGuiPaging().setPageSize(pageSize);
-    
-    //1 indexed
-    String pageNumberString = request.getParameter("pagingTagPageNumber");
-    
-    int pageNumber = 1;
-    if (!StringUtils.isBlank(pageNumberString)) {
-      pageNumber = GrouperUtil.intValue(pageNumberString);
-    }
-    
-    indexContainer.getSearchGuiPaging().setPageNumber(pageNumber);
-    
-    QueryOptions queryOptions = QueryOptions.create("displayName", true, pageNumber, pageSize);
+
+    GuiPaging guiPaging = indexContainer.getSearchGuiPaging();
+    QueryOptions queryOptions = QueryOptions.create("displayName", true, null, null);
+
+    GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
     
     GrouperObjectFinder grouperObjectFinder = new GrouperObjectFinder()
       .assignObjectPrivilege(ObjectPrivilege.view)
@@ -314,7 +285,7 @@ public class UiV2Main extends UiServiceLogicBase {
     
     indexContainer.setSearchGuiObjectsResults(GuiObjectBase.convertFromGrouperObjects(results));
     
-    indexContainer.getSearchGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+    guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
     
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#searchResultsId", 
         "/WEB-INF/grouperUi2/index/searchContents.jsp"));
@@ -778,28 +749,12 @@ public class UiV2Main extends UiServiceLogicBase {
         return;
       }
       
-      String pageSizeString = request.getParameter("pagingTagPageSize");
-      int pageSize = -1;
-      if (!StringUtils.isBlank(pageSizeString)) {
-        pageSize = GrouperUtil.intValue(pageSizeString);
-      } else {
-        pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
-      }
-      indexContainer.getMyStemsGuiPaging().setPageSize(pageSize);
-      
-      //1 indexed
-      String pageNumberString = request.getParameter("pagingTagPageNumber");
-      
-      int pageNumber = 1;
-      if (!StringUtils.isBlank(pageNumberString)) {
-        pageNumber = GrouperUtil.intValue(pageNumberString);
-      }
-  
-      indexContainer.getMyStemsGuiPaging().setPageNumber(pageNumber);
-  
-      QueryOptions queryOptions = QueryOptions.create("displayName", true, pageNumber, pageSize);
-      queryOptions.getQueryPaging().setDoTotalCount(true);
+      GuiPaging guiPaging = indexContainer.getMyStemsGuiPaging();
 
+      QueryOptions queryOptions = QueryOptions.create("displayName", true, null, null);
+      
+      GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
+      
       StemFinder stemFinder = new StemFinder()
         .assignSubject(GrouperSession.staticGrouperSession().getSubject())
         .assignQueryOptions(queryOptions);
@@ -844,7 +799,7 @@ public class UiV2Main extends UiServiceLogicBase {
       
       indexContainer.setGuiStemsUserManagesAbbreviated(GuiStem.convertFromStems(results));
       
-      indexContainer.getMyStemsGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+      guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#myStemsResultsId", 
           "/WEB-INF/grouperUi2/index/myStemsContents.jsp"));
@@ -954,28 +909,11 @@ public class UiV2Main extends UiServiceLogicBase {
         return;
       }
       
-      String pageSizeString = request.getParameter("pagingTagPageSize");
-      int pageSize = -1;
-      if (!StringUtils.isBlank(pageSizeString)) {
-        pageSize = GrouperUtil.intValue(pageSizeString);
-      } else {
-        pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
-      }
-      indexContainer.getMyFavoritesGuiPaging().setPageSize(pageSize);
-      
-      //1 indexed
-      String pageNumberString = request.getParameter("pagingTagPageNumber");
-      
-      int pageNumber = 1;
-      if (!StringUtils.isBlank(pageNumberString)) {
-        pageNumber = GrouperUtil.intValue(pageNumberString);
-      }
-  
-      indexContainer.getMyFavoritesGuiPaging().setPageNumber(pageNumber);
-  
-      QueryOptions queryOptions = QueryOptions.create("displayName", true, pageNumber, pageSize);
-      queryOptions.getQueryPaging().setDoTotalCount(true);
+      GuiPaging guiPaging = indexContainer.getMyFavoritesGuiPaging();
+      QueryOptions queryOptions = QueryOptions.create("displayName", true, null, null);
 
+      GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
+      
       GrouperFavoriteFinder grouperFavoriteFinder = new GrouperFavoriteFinder()
         .assignSubject(GrouperSession.staticGrouperSession().getSubject())
         .assignUserDataGroupName(GrouperUiUserData.grouperUiGroupNameForUserData())
@@ -1000,7 +938,7 @@ public class UiV2Main extends UiServiceLogicBase {
       
       indexContainer.setGuiObjectFavorites(GuiObjectBase.convertFromGrouperObjects(results));
       
-      indexContainer.getMyFavoritesGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+      guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#myFavoritesResultsId", 
           "/WEB-INF/grouperUi2/index/myFavoritesContents.jsp"));
@@ -1109,27 +1047,10 @@ public class UiV2Main extends UiServiceLogicBase {
         return;
       }
       
-      String pageSizeString = request.getParameter("pagingTagPageSize");
-      int pageSize = -1;
-      if (!StringUtils.isBlank(pageSizeString)) {
-        pageSize = GrouperUtil.intValue(pageSizeString);
-      } else {
-        pageSize = GrouperUiConfig.retrieveConfig().propertyValueInt("pager.pagesize.default", 50);
-      }
-      indexContainer.getMyServicesGuiPaging().setPageSize(pageSize);
-      
-      //1 indexed
-      String pageNumberString = request.getParameter("pagingTagPageNumber");
-      
-      int pageNumber = 1;
-      if (!StringUtils.isBlank(pageNumberString)) {
-        pageNumber = GrouperUtil.intValue(pageNumberString);
-      }
-  
-      indexContainer.getMyServicesGuiPaging().setPageNumber(pageNumber);
-  
-      final QueryOptions queryOptions = QueryOptions.create("displayName", true, pageNumber, pageSize);
-      queryOptions.getQueryPaging().setDoTotalCount(true);
+      GuiPaging guiPaging = indexContainer.getMyServicesGuiPaging();
+      final QueryOptions queryOptions = QueryOptions.create("displayName", true, null, null);
+
+      GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
 
       @SuppressWarnings("unchecked")
       Set<AttributeDefName> results = (Set<AttributeDefName>)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), 
@@ -1164,7 +1085,7 @@ public class UiV2Main extends UiServiceLogicBase {
       
       indexContainer.setGuiAttributeDefNamesMyServices(GuiAttributeDefName.convertFromAttributeDefNames(results));
       
-      indexContainer.getMyServicesGuiPaging().setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+      guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
 
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#myServicesResultsId", 
           "/WEB-INF/grouperUi2/index/myServicesContents.jsp"));
