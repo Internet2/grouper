@@ -19,13 +19,13 @@
             <div class="row-fluid">
               <div class="span12">
                 <ul class="nav nav-tabs">
-                  <li class="active"><a href="#" onclick="return false;">${textContainer.text['myGroupsTabMyGroups'] }</a></li>
+                  <li><a href="#" onclick="return guiV2link('operation=UiV2MyGroups.myGroups', {dontScrollTop: true});" >${textContainer.text['myGroupsTabMyGroups'] }</a></li>
                   <li><a href="my-groups-memberships.html">${textContainer.text['myGroupsTabMyMemberships'] }</a></li>
-                  <li><a href="my-groups-join.html">${textContainer.text['myGroupsTabGroupsCanJoin'] }</a></li>
+                  <li class="active"><a href="#" onclick="return false">${textContainer.text['myGroupsTabGroupsCanJoin'] }</a></li>
                 </ul>
-                <p class="lead">${textContainer.text['myGroupsDescription'] }</p>
+                <p class="lead">${textContainer.text['myGroupsJoinDescription'] }</p>
                 <form class="form-inline form-filter" id="myGroupsForm"
-                    onsubmit="ajax('../app/UiV2Main.myGroupsSubmit', {formIds: 'myGroupsForm'}); return false;">
+                    onsubmit="ajax('../app/UiV2MyGroups.myGroupsSubmit', {formIds: 'myGroupsForm'}); return false;">
                   <div class="row-fluid">
                     <div class="span1">
                       <label for="myGroupsFilterId" style="white-space: nowrap;">${textContainer.text['myGroupsFilterFor'] }</label>
@@ -34,8 +34,8 @@
                       <input type="text" name="myGroupsFilter" placeholder="${textContainer.textEscapeXml['myGroupsSearchNamePlaceholder'] }" id="myGroupsFilterId" class="span12"/>
                     </div>
                     
-                    <div class="span3">&nbsp; &nbsp; <a class="btn" href="#" onclick="ajax('../app/UiV2Main.myGroupsSubmit', {formIds: 'myGroupsForm'}); return false;">${textContainer.text['myGroupsSearchButton'] }</a> &nbsp;
-                    <a href="#" onclick="ajax('../app/UiV2Main.myGroupsReset'); return false;" class="btn">${textContainer.text['myGroupsResetButton'] }</a></div>
+                    <div class="span3">&nbsp; &nbsp; <a class="btn" href="#" onclick="ajax('../app/UiV2MyGroups.myGroupsSubmit', {formIds: 'myGroupsForm'}); return false;">${textContainer.text['myGroupsSearchButton'] }</a> &nbsp;
+                    <a href="#" onclick="ajax('../app/UiV2MyGroups.myGroupsReset'); return false;" class="btn">${textContainer.text['myGroupsResetButton'] }</a></div>
                   </div>
                 </form>
                 <div id="myGroupsResultsId">

@@ -52,7 +52,7 @@
                 <div class="accordion-inner">
                   <ul class="nav nav-list">
                     <li><a href="#" 
-                  onclick="return guiV2link('operation=UiV2Main.myGroups');">${textContainer.text['indexMyGroupsButton'] }</a></li>
+                  onclick="return guiV2link('operation=UiV2MyGroups.myGroups');">${textContainer.text['indexMyGroupsButton'] }</a></li>
                     <li><a href="#" 
                   onclick="return guiV2link('operation=UiV2Main.myStems');">${textContainer.text['indexMyStemsButton'] }</a></li>
                     <li><a href="#" 

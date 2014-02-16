@@ -9,6 +9,6 @@
                       </c:forEach>
                     </ul>
                     <p><strong><a href="#" 
-                  onclick="return guiV2link('operation=UiV2Main.myGroups');">${textContainer.text['indexMyGroupsViewAllGroups'] }</a>  </strong></p>
+                  onclick="return guiV2link('operation=UiV2MyGroups.myGroups');">${textContainer.text['indexMyGroupsViewAllGroups'] }</a>  </strong></p>
                     <!-- end indexGroupsIManage.jsp -->
                     

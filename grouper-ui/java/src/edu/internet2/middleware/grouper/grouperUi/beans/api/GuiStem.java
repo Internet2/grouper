@@ -138,6 +138,15 @@ public class GuiStem extends GuiObjectBase implements Serializable {
   }
 
   /**
+   * &lt;a href="#" rel="tooltip" data-html="true" data-delay-show='200' data-placement="right" title="&amp;lt;strong&amp;gt;FOLDER:&amp;lt;/strong&amp;gt;&amp;lt;br /&amp;gt;Full : Path : To : The : Entity&lt;br /&gt;&lt;br /&gt;This is the description for this entity. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.">Editors</a>
+   * @return short link
+   */
+  public String getLink() {
+    
+    return linkHelper(false, false);
+  }
+
+  /**
    * display short link with image next to it in li
    * &lt;a href="#" rel="tooltip" data-html="true" data-delay-show='200' data-placement="right" title="&amp;lt;strong&amp;gt;FOLDER:&amp;lt;/strong&amp;gt;&amp;lt;br /&amp;gt;Full : Path : To : The : Entity&lt;br /&gt;&lt;br /&gt;This is the description for this entity. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.">Editors</a>
    * @return short link
@@ -186,6 +195,57 @@ public class GuiStem extends GuiObjectBase implements Serializable {
   
     }
   
+  }
+
+  /**
+   * display short link with image next to it in li
+   * &lt;a href="#" rel="tooltip" data-html="true" data-delay-show='200' data-placement="right" title="&amp;lt;strong&amp;gt;FOLDER:&amp;lt;/strong&amp;gt;&amp;lt;br /&amp;gt;Full : Path : To : The : Entity&lt;br /&gt;&lt;br /&gt;This is the description for this entity. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.">Editors</a>
+   * @return short link
+   */
+  public String getLinkWithIcon() {
+    
+    return linkHelper(true, false);
+  }
+
+  /**
+   * 
+   * @param showIcon
+   * @return the link
+   */
+  private String linkHelper(boolean showIcon, boolean showPath) {
+    
+    if (this.stem == null) {
+      //TODO put icon here?
+      return TextContainer.retrieveFromRequest().getText().get("guiObjectUnknown");
+    }
+    
+    GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiStem(this);
+    GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowIcon(showIcon);
+    GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowPath(showPath);
+    
+    try {
+      
+      String result = TextContainer.retrieveFromRequest().getText().get("guiStemLink");
+      return result;
+      
+    } finally {
+  
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiStem(null);
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowIcon(false);
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowPath(false);
+  
+    }
+  
+  }
+
+  /**
+   * display short link with image next to it in li and the path info below it
+   * &lt;a href="#" rel="tooltip" data-html="true" data-delay-show='200' data-placement="right" title="&amp;lt;strong&amp;gt;FOLDER:&amp;lt;/strong&amp;gt;&amp;lt;br /&amp;gt;Full : Path : To : The : Entity&lt;br /&gt;&lt;br /&gt;This is the description for this entity. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.">Editors</a>
+   * @return short link
+   */
+  public String getLinkWithIconAndPath() {
+    
+    return linkHelper(true, true);
   }
   
 }

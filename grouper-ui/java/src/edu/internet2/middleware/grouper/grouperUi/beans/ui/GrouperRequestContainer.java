@@ -98,6 +98,30 @@ public class GrouperRequestContainer {
   }
 
   /**
+   * container for my groups screens
+   */
+  private MyGroupsContainer myGroupsContainer = null;
+  
+  /**
+   * container for my groups screens
+   * @return my groups container
+   */
+  public MyGroupsContainer getMyGroupsContainer() {
+    if (this.myGroupsContainer == null) {
+      this.myGroupsContainer = new MyGroupsContainer();
+    }
+    return this.myGroupsContainer;
+  }
+
+  /**
+   * container for my groups screens
+   * @param myGroupsContainer1
+   */
+  public void setMyGroupsContainer(MyGroupsContainer myGroupsContainer1) {
+    this.myGroupsContainer = myGroupsContainer1;
+  }
+
+  /**
    * container for index screen and general components
    */
   private IndexContainer indexContainer = null;
