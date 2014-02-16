@@ -84,6 +84,16 @@ public class SubjectContainer {
    * if the group is a favorite for the logged in user
    */
   private Boolean favorite;
+
+  /**
+   * gui paging for privileges
+   */
+  private GuiPaging privilegeGuiPaging;
+
+  /**
+   * subjects and what privs they have on this stem
+   */
+  private Set<GuiMembershipSubjectContainer> privilegeGuiMembershipSubjectContainers;
   
   /**
    * gui subject on the screen
@@ -170,6 +180,42 @@ public class SubjectContainer {
     }
     
     return this.favorite;
+  }
+
+  /**
+   * gui paging for privileges, lazy load if null
+   * @return gui paging for privs
+   */
+  public GuiPaging getPrivilegeGuiPaging() {
+    if (this.privilegeGuiPaging == null) {
+      this.privilegeGuiPaging = new GuiPaging();
+    }
+    return this.privilegeGuiPaging;
+  }
+
+  /**
+   * gui paging for privileges
+   * @param privilegeGuiPaging1
+   */
+  public void setPrivilegeGuiPaging(GuiPaging privilegeGuiPaging1) {
+    this.privilegeGuiPaging = privilegeGuiPaging1;
+  }
+
+  /**
+   * subjects and what privs they have on this stem
+   * @return membership subject containers
+   */
+  public Set<GuiMembershipSubjectContainer> getPrivilegeGuiMembershipSubjectContainers() {
+    return this.privilegeGuiMembershipSubjectContainers;
+  }
+
+  /**
+   * clear this out to requery
+   * @param privilegeGuiMembershipSubjectContainers1
+   */
+  public void setPrivilegeGuiMembershipSubjectContainers(
+      Set<GuiMembershipSubjectContainer> privilegeGuiMembershipSubjectContainers1) {
+    this.privilegeGuiMembershipSubjectContainers = privilegeGuiMembershipSubjectContainers1;
   }
   
 }

@@ -28,7 +28,7 @@
                           </div>
                           <div class="span4">
                             <button type="submit" class="btn" 
-                              onclick="ajax('../app/UiV2Group.thisGroupsPrivilegesAssignStemPrivilegeBatch?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId,groupPrivilegeFormId'}); return false;">${textContainer.text['thisGroupPrivilegeUpdateSelectedButton'] }</button>
+                              onclick="ajax('../app/UiV2Subject.thisSubjectsPrivilegesAssignStemPrivilegeBatch?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId,groupPrivilegeFormId'}); return false;">${textContainer.text['thisSubjectPrivilegeUpdateSelectedButton'] }</button>
                           </div>
                         </div>
                       </td>
@@ -40,7 +40,7 @@
                         </label>
                       </th>
                       <th>
-                        ${textContainer.text['thisGroupsPrivilegesStemColumn'] }
+                        ${textContainer.text['thisSubjectsPrivilegesStemColumn'] }
                       </th>
                       <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colStem'] }</th>
                       <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colCreate'] }</th>
@@ -69,25 +69,25 @@
                             <c:choose>
                               <c:when test="${guiMembershipContainer != null 
                                    && guiMembershipContainer.membershipContainer.membershipAssignType.immediate}">
-                                <i class="icon-ok icon-direct"></i><a title="${textContainer.textEscapeXml['thisGroupsPrivilegesRemoveTitle'] }" class="btn btn-inverse btn-super-mini remove" href="#" 
-                                   onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['groupConfirmChanges']}')) {ajax('../app/UiV2Group.thisGroupsPrivilegesAssignStemPrivilege?assign=false&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&fieldName=${fieldName}&parentStemId=${guiMembershipSubjectContainer.guiStem.stem.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId'});} return false;"
+                                <i class="icon-ok icon-direct"></i><a title="${textContainer.textEscapeXml['thisSubjectsPrivilegesRemoveTitle'] }" class="btn btn-inverse btn-super-mini remove" href="#" 
+                                   onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['groupConfirmChanges']}')) {ajax('../app/UiV2Subject.thisSubjectsPrivilegesAssignStemPrivilege?assign=false&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}&fieldName=${fieldName}&parentStemId=${guiMembershipSubjectContainer.guiStem.stem.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId'});} return false;"
                                   ><i class="icon-remove"></i></a>
                               </c:when>
                               <c:otherwise>
                                 <c:if test="${guiMembershipContainer != null}"><i class="icon-ok icon-disabled"></i></c:if><a  
-                                  title="${textContainer.textEscapeXml['thisGroupsPrivilegesAssignTitle'] }" class="btn btn-inverse btn-super-mini remove" href="#" 
-                                   onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['groupConfirmChanges']}')) {ajax('../app/UiV2Group.thisGroupsPrivilegesAssignStemPrivilege?assign=true&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&fieldName=${fieldName}&parentStemId=${guiMembershipSubjectContainer.guiStem.stem.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId'});} return false;"
+                                  title="${textContainer.textEscapeXml['thisSubjectsPrivilegesAssignTitle'] }" class="btn btn-inverse btn-super-mini remove" href="#" 
+                                   onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['groupConfirmChanges']}')) {ajax('../app/UiV2Subject.thisSubjectsPrivilegesAssignStemPrivilege?assign=true&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}&fieldName=${fieldName}&parentStemId=${guiMembershipSubjectContainer.guiStem.stem.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId'});} return false;"
                                   ><i class="icon-plus"></i></a>
                               </c:otherwise>
                             </c:choose>
                           </td>
                         </c:forEach>
                         <td>
-                          <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle">${textContainer.text['thisGroupsPrivilegesActionsButton']} <span class="caret"></span></a>
+                          <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle">${textContainer.text['thisSubjectsPrivilegesActionsButton']} <span class="caret"></span></a>
                             <ul class="dropdown-menu dropdown-menu-right">
-                              <li><a href="edit-person-membership.html">${textContainer.text['thisGroupsPrivilegesActionsMenuEditMembershipsAndPrivileges'] }</a></li>
-                              <li><a href="trace-privileges.html">${textContainer.text['thisGroupsPrivilegesActionsMenuTracePrivileges']}</a></li>
-                              <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.viewStem&stemId=${guiMembershipSubjectContainer.guiStem.stem.id}');">${textContainer.text['thisGroupsPrivilegesActionsMenuViewStem']}</a></li>
+                              <li><a href="edit-person-membership.html">${textContainer.text['thisSubjectsPrivilegesActionsMenuEditMembershipsAndPrivileges'] }</a></li>
+                              <li><a href="trace-privileges.html">${textContainer.text['thisSubjectsPrivilegesActionsMenuTracePrivileges']}</a></li>
+                              <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.viewStem&stemId=${guiMembershipSubjectContainer.guiStem.stem.id}');">${textContainer.text['thisSubjectsPrivilegesActionsMenuViewStem']}</a></li>
                             </ul>
                           </div>
                         </td>
@@ -99,6 +99,6 @@
               </form>
               <div class="data-table-bottom gradient-background">
                 <grouper:paging2 guiPaging="${grouperRequestContainer.groupContainer.privilegeGuiPaging}" formName="groupPagingPrivilegesForm" ajaxFormIds="groupFilterPrivilegesFormId"
-                  refreshOperation="../app/UiV2Group.filterThisGroupsStemPrivileges?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" />
+                  refreshOperation="../app/UiV2Group.filterThisSubjectsStemPrivileges?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}" />
               </div>
               
