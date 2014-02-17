@@ -543,6 +543,7 @@ TODO update for 1.5
    * @param splitScopeForMember if the scope for member has spaces in it, then split by whitespace, and find results that contain all of the scope strings
    * @param hasFieldForMember return memberships where the member has this field, note, it will return all the memberships for those members
    * @param hasMembershipTypeForMember return memberships where the member has this field, note, it will return all the memberships for those members
+   * @param memberHasMembershipForGroup makes sure this member has a membership in the group before returning any results
    * @return a set of membership, group, and member objects
    * @since v2.2
    */
@@ -554,7 +555,7 @@ TODO update for 1.5
       String serviceId, ServiceRole serviceRole, QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, 
       boolean hasFieldForMember, boolean hasMembershipTypeForMember, QueryOptions queryOptionsForGroup, 
       String scopeForGroup, boolean splitScopeForGroup, boolean hasFieldForGroup,
-      boolean hasMembershipTypeForGroup);
+      boolean hasMembershipTypeForGroup, Member memberHasMembershipForGroup);
 
   
   /**

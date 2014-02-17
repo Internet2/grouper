@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 
 /**
@@ -39,6 +40,11 @@ public class MyGroupsContainer {
   private Set<GuiGroup> guiGroupsUserManages;
 
   /**
+   * groups the user is in
+   */
+  private Set<GuiMembershipSubjectContainer> guiMembershipSubjectContainers;
+
+  /**
    * paging for my groups
    * @return paging
    */
@@ -55,6 +61,23 @@ public class MyGroupsContainer {
    */
   public void setMyGroupsGuiPaging(GuiPaging myGroupsGuiPaging1) {
     this.myGroupsGuiPaging = myGroupsGuiPaging1;
+  }
+
+  /**
+   * groups the user is in
+   * @return subjects and memberships
+   */
+  public Set<GuiMembershipSubjectContainer> getGuiMembershipSubjectContainers() {
+    return this.guiMembershipSubjectContainers;
+  }
+
+  /**
+   * groups the user is in
+   * @param guiMembershipSubjectContainers
+   */
+  public void setGuiMembershipSubjectContainers(
+      Set<GuiMembershipSubjectContainer> guiMembershipSubjectContainers) {
+    this.guiMembershipSubjectContainers = guiMembershipSubjectContainers;
   }
 
 }

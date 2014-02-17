@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.Subject;
  * @author  blair christensen.
  * @version $Id: AccessPrivilege.java,v 1.12 2009-09-25 16:13:45 tzeller Exp $
  */
-public class AccessPrivilege implements GrouperPrivilege, Comparable {
+public class AccessPrivilege implements GrouperPrivilege, Comparable<AccessPrivilege> {
 
   /**
    * filter some privs for access privs
@@ -107,6 +107,13 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable {
   public static Set<Privilege> OPTIN_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(OPTIN, ADMIN, UPDATE));
 
+  /**
+   * if any of the opt privs, or update, or read, or admin.  to see if 
+   * someone can opt themselves out of their membership
+   */
+  public static Set<Privilege> OPT_OR_READ_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(OPTIN, OPTOUT, READ, UPDATE, ADMIN));
+  
   /** */
   public static final Privilege VIEW    = Privilege.getInstance("view");
   
@@ -386,12 +393,10 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable {
   /**
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
-  public int compareTo(Object o) {
-    if (o == null || (!(o instanceof AccessPrivilege))) {
+  public int compareTo(AccessPrivilege that) {
+    if (that == null) {
       return -1;
     }
-    AccessPrivilege that = (AccessPrivilege)o;
-    
     //dont use source since might be down
     String thisSubjectId = this.subj == null ? null : this.subj.getId();
     String thatSubjectId = that.subj == null ? null : that.subj.getId();

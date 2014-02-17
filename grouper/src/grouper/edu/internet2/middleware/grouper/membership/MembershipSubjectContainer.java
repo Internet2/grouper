@@ -56,6 +56,27 @@ import edu.internet2.middleware.subject.Subject;
 public class MembershipSubjectContainer {
 
   /**
+   * if update exists for this row
+   * @return true if update exists for this row
+   */
+  public boolean isHasUpdate() {
+
+    return GrouperUtil.nonNull(this.membershipContainers).get(Field.FIELD_NAME_UPDATERS) != null;
+      
+  }
+  
+  /**
+   * if optout exists for this row
+   * @return true if optout exists for this row
+   */
+  public boolean isHasOptout() {
+
+    return GrouperUtil.nonNull(this.membershipContainers).get(Field.FIELD_NAME_OPTOUTS) != null;
+      
+  }
+  
+
+  /**
    * group owner of this memberships
    */
   private Group groupOwner;

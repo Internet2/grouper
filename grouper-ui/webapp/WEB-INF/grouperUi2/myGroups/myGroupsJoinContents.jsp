@@ -28,5 +28,5 @@
                 <div class="data-table-bottom gradient-background">
                   <grouper:paging2 guiPaging="${grouperRequestContainer.myGroupsContainer.myGroupsGuiPaging}" 
                     formName="myGroupsPagingForm" ajaxFormIds="myGroupsForm"
-                    refreshOperation="../app/UiV2MyGroups.myGroupsSubmit" />
+                    refreshOperation="../app/UiV2MyGroups.myGroupsJoinSubmit" />
                 </div>

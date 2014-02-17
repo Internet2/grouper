@@ -49,6 +49,20 @@ public class GuiMembershipSubjectContainer {
       GuiMembershipSubjectContainer guiMembershipSubjectContainer = new GuiMembershipSubjectContainer(membershipSubjectContainer);
       results.add(guiMembershipSubjectContainer);
     }
+    
+    //for (GuiMembershipSubjectContainer guiMembershipSubjectContainer : GrouperUtil.nonNull(results)) {
+    //  
+    //  MembershipSubjectContainer membershipSubjectContainer = guiMembershipSubjectContainer.getMembershipSubjectContainer();
+    //  System.ou t.print("Group: " + membershipSubjectContainer.getGroupOwner().getName() + ", ");
+    //  System.ou t.print(" subject: " + GrouperUtil.subjectToString(membershipSubjectContainer.getSubject()) + ", ");
+    //  System.ou t.print(" hasOptout? " + membershipSubjectContainer.isHasOptout() + ", ");
+    //  MembershipContainer membershipContainer = membershipSubjectContainer.getMembershipContainers().get(Group.getDefaultList().getName());
+    //  System.ou t.print(" member? " + (membershipContainer != null) + ", ");
+    //  if (membershipContainer != null) {
+    //    System.ou t.print(" direct member? " + membershipContainer.getMembershipAssignType().isImmediate());
+    //  }
+    //  System.ou t.println("");
+    //}
     return results;
   }
 

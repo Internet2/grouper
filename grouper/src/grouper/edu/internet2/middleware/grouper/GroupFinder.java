@@ -498,6 +498,21 @@ public class GroupFinder {
   private Subject subject;
 
   /**
+   * this is a subject which is not in the group already
+   */
+  private Subject subjectNotInGroup;
+  
+  /**
+   * assign a subject which does not have a membership in the group
+   * @param theSubjectNotInGroup
+   * @return this for chaining
+   */
+  public GroupFinder assignSubjectNotInGroup(Subject theSubjectNotInGroup) {
+    this.subjectNotInGroup = theSubjectNotInGroup;
+    return this;
+  }
+  
+  /**
    * add a privilege to filter by that the subject has on the group
    * @param privilege should be AccessPrivilege
    * @return this for chaining
@@ -596,7 +611,7 @@ public class GroupFinder {
     return GrouperDAOFactory.getFactory().getGroup()
         .getAllGroupsSecure(this.scope, grouperSession, privSubject, this.privileges, 
             this.queryOptions, this.typeOfGroups, this.splitScope, this.subject, 
-            this.field, this.parentStemId, this.stemScope, this.findByUuidOrName);
+            this.field, this.parentStemId, this.stemScope, this.findByUuidOrName, this.subjectNotInGroup);
     
   }
 

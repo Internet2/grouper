@@ -61,6 +61,7 @@ import edu.internet2.middleware.grouper.membership.MembershipResult;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.service.ServiceRole;
 import edu.internet2.middleware.grouper.subj.LazySubject;
@@ -82,6 +83,19 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  */
 public class MembershipFinder {
 
+  /**
+   * if the subject has a membership in the group
+   */
+  private Subject subjectHasMembershipForGroup;
+  
+  /**
+   * if the subject has a membership in the group
+   */
+  public MembershipFinder assignSubjectHasMembershipForGroup(Subject theSubjectHasMembershipForGroup) {
+    this.subjectHasMembershipForGroup = theSubjectHasMembershipForGroup;
+    return this;
+  }
+  
   /**
    * return memberships where the member has this field, note, it will return all the memberships for those members
    */
@@ -338,6 +352,16 @@ public class MembershipFinder {
   }
   
   /**
+   * assign a collection of privileges (fields) to look for
+   * @param thePrivileges
+   * @return this for chaining
+   */
+  public MembershipFinder assignPrivileges(Collection<Privilege> thePrivileges) {
+    this.fields = Privilege.convertPrivilegesToFields(thePrivileges);
+    return this;
+  }
+  
+  /**
    * assign a collection of fields to look for
    * @param theFieldNames
    * @return this for chaining
@@ -538,7 +562,7 @@ public class MembershipFinder {
   public MembershipResult findMembershipResult() {
     
     Set<Object[]> membershipsOwnersMembers = this.findMembershipsMembers();
-    Field field = this.field(false);
+    Field field = this.field(true);
     String theFieldId = field == null ? null : field.getUuid();
     
     Collection<Field> theFields = this.fields;
@@ -668,15 +692,23 @@ public class MembershipFinder {
 
     Collection<Field> inheritedFields = Field.calculateInheritedPrivileges(this.fields, this.includeInheritedPrivileges);
     
+    Member memberHasMembershipForGroup = null;
+    
+    if (this.subjectHasMembershipForGroup != null) {
+      memberHasMembershipForGroup = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), 
+          this.subjectHasMembershipForGroup, false);
+      if (memberHasMembershipForGroup == null) {
+        new HashSet<Object[]>();
+      }
+    }
+    
     return GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(this.groupIds, this.memberIds,
         this.membershipIds, this.membershipType, inheritedFields, this.sources, this.scope, this.stem, this.stemScope, 
         this.enabled, this.checkSecurity, this.fieldType, this.serviceId, this.serviceRole,
         this.queryOptionsForMember, this.scopeForMember, this.splitScopeForMember, 
         this.hasFieldForMember, this.hasMembershipTypeForMember, this.queryOptionsForGroup, 
         this.scopeForGroup, this.splitScopeForGroup, this.hasFieldForGroup,
-        this.hasMembershipTypeForGroup);  
-
-
+        this.hasMembershipTypeForGroup, memberHasMembershipForGroup);  
 
 
   }
@@ -1133,7 +1165,7 @@ public class MembershipFinder {
     
     return GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(groupIds, memberIds,
         membershipIds, membershipType, GrouperUtil.toSet(field), sources, scope, stem, stemScope, enabled, shouldCheckSecurity, 
-        fieldType, serviceId, serviceRole, null, null, false, false, false, null, null, false, false, false);  
+        fieldType, serviceId, serviceRole, null, null, false, false, false, null, null, false, false, false, null);  
   }
   
   /**

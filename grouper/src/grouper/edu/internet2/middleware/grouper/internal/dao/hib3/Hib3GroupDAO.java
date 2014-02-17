@@ -2363,7 +2363,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       QueryOptions queryOptions, TypeOfGroup typeOfGroup) {
     Set<TypeOfGroup> typeOfGroups = typeOfGroup == null ? null : GrouperUtil.toSet(typeOfGroup);
     return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, 
-        queryOptions, true, typeOfGroups, null, null, null, null, false);
+        queryOptions, true, typeOfGroups, null, null, null, null, false, null);
   }
 
   /**
@@ -2374,7 +2374,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) {
     return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, 
-        queryOptions, true, typeOfGroups, null, null, null, null, false);
+        queryOptions, true, typeOfGroups, null, null, null, null, false, null);
   }
 
   /**
@@ -2390,13 +2390,14 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * @param stemScope
    * @param findByUuidOrName
    * @param field
+   * @param subjectNotInGroup
    * @return groups
    * 
    */
   private Set<Group> findAllGroupsSecureHelper(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions, boolean splitScope, Set<TypeOfGroup> typeOfGroups, Subject membershipSubject, 
-      Field field, String parentStemId, Scope stemScope, boolean findByUuidOrName) {
+      Field field, String parentStemId, Scope stemScope, boolean findByUuidOrName, Subject subjectNotInGroup) {
 
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
@@ -2460,6 +2461,27 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       byHqlStatic.setString("fieldId", field.getUuid());
       byHqlStatic.setString("fieldMembershipMemberUuid", membershipMember.getUuid());
             
+    }
+
+    if (subjectNotInGroup != null) {
+
+      if (whereClause.length() > 0) {
+        
+        whereClause.append(" and ");
+        
+      }
+
+      Member membershipMember = MemberFinder.findBySubject(grouperSession, subjectNotInGroup, false);
+      
+      //if a member does not exist, its not in any groups
+      if (membershipMember != null) {
+        whereClause.append(" not exists (select 1 from MembershipEntry fieldMembership where fieldMembership.ownerGroupId = theGroup.uuid " +
+            " and fieldMembership.fieldId = :fieldId2 " +
+            " and fieldMembership.memberUuid = :fieldMembershipMemberUuid2 and fieldMembership.enabledDb = 'T' ) ");
+        byHqlStatic.setString("fieldId2", Group.getDefaultList().getUuid());
+        byHqlStatic.setString("fieldMembershipMemberUuid2", membershipMember.getUuid());
+      }
+
     }
     
     //see if there is a scope
@@ -2925,20 +2947,20 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions,
       Set<TypeOfGroup> typeOfGroups, boolean splitScope, Subject membershipSubject, Field field) {
     return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, splitScope, 
-        typeOfGroups, membershipSubject, field, null, null, false);
+        typeOfGroups, membershipSubject, field, null, null, false, null);
   }
 
   /**
-   * @see GroupDAO#getAllGroupsSecure(String, GrouperSession, Subject, Set, QueryOptions, Set, boolean, Subject, Field, String, Scope, boolean)
+   * @see GroupDAO#getAllGroupsSecure(String, GrouperSession, Subject, Set, QueryOptions, Set, boolean, Subject, Field, String, Scope, boolean, Subject)
    */
   @Override
   public Set<Group> getAllGroupsSecure(String scope, GrouperSession grouperSession,
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions,
       Set<TypeOfGroup> typeOfGroups, boolean splitScope, Subject membershipSubject,
-      Field field, String parentStemId, Scope stemScope,  boolean findByUuidOrName) {
+      Field field, String parentStemId, Scope stemScope,  boolean findByUuidOrName, Subject subjectNotInGroup) {
     return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, 
         splitScope, typeOfGroups, membershipSubject, field, parentStemId, stemScope,
-        findByUuidOrName);
+        findByUuidOrName, subjectNotInGroup);
   }
 } 
 
