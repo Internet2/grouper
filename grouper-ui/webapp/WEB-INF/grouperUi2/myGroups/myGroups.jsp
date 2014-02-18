@@ -34,8 +34,8 @@
                       <input type="text" name="myGroupsFilter" placeholder="${textContainer.textEscapeXml['myGroupsSearchNamePlaceholder'] }" id="myGroupsFilterId" class="span12"/>
                     </div>
                     
-                    <div class="span3">&nbsp; &nbsp; <a class="btn" href="#" onclick="ajax('../app/UiV2MyGroups.myGroupsSubmit', {formIds: 'myGroupsForm'}); return false;">${textContainer.text['myGroupsSearchButton'] }</a> &nbsp;
-                    <a href="#" onclick="ajax('../app/UiV2MyGroups.myGroupsReset'); return false;" class="btn">${textContainer.text['myGroupsResetButton'] }</a></div>
+                    <div class="span3">&nbsp; &nbsp; <a class="btn" href="#" onclick="ajax('../app/UiV2MyGroups.myGroupsSubmit', {formIds: 'myGroupsPagingFormId,myGroupsForm'}); return false;">${textContainer.text['myGroupsSearchButton'] }</a> &nbsp;
+                    <a href="#" onclick="ajax('../app/UiV2MyGroups.myGroupsReset', {formIds: 'myGroupsPagingFormId'}); return false;" class="btn">${textContainer.text['myGroupsResetButton'] }</a></div>
                   </div>
                 </form>
                 <div id="myGroupsResultsId">

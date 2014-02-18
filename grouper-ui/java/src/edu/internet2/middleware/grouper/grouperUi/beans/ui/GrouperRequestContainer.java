@@ -98,6 +98,30 @@ public class GrouperRequestContainer {
   }
 
   /**
+   * container for my stems screens
+   */
+  private MyStemsContainer myStemsContainer = null;
+  
+  /**
+   * container for my stems screens
+   * @return my stems
+   */
+  public MyStemsContainer getMyStemsContainer() {
+    if (this.myStemsContainer == null) {
+      this.myStemsContainer = new MyStemsContainer();
+    }
+    return this.myStemsContainer;
+  }
+
+  /**
+   * container for my stems screens
+   * @param myStemsContainer1
+   */
+  public void setMyStemsContainer(MyStemsContainer myStemsContainer1) {
+    this.myStemsContainer = myStemsContainer1;
+  }
+
+  /**
    * container for my groups screens
    */
   private MyGroupsContainer myGroupsContainer = null;

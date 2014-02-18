@@ -36,6 +36,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -494,13 +495,15 @@ public interface StemDAO extends GrouperDAO {
    * @param parentStemId true if filtering by parent of ancestor
    * @param stemScope ONE or SUB
    * @param findByUuidOrName if we are looking up a stem, only look by uuid or name
+   * @param userHasInGroupFields find stems where the user has these fields in a group
    * @return the stems
    * @throws GrouperDAOException
    * @since v2.2
    */
   Set<Stem> getAllStemsSecure(String scope, GrouperSession grouperSession, 
       Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions,
-      boolean splitScope, String parentStemId, Scope stemScope, boolean findByUuidOrName)
+      boolean splitScope, String parentStemId, Scope stemScope, boolean findByUuidOrName,
+      Collection<Field> userHasInGroupFields)
     throws  GrouperDAOException;
 
   /**

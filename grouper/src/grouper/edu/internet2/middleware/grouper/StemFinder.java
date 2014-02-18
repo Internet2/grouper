@@ -60,6 +60,34 @@ import edu.internet2.middleware.subject.Subject;
 public class StemFinder {
 
   /**
+   * find stems where the user has these fields in a group
+   */
+  private Collection<Field> userHasInGroupFields;
+  
+  /**
+   * find stems where the user has these fields in a group
+   * @param theUserHasInGroupField
+   * @return this for chaining
+   */
+  public StemFinder addUserHasInGroupField(Field theUserHasInGroupField) {
+    if (this.userHasInGroupFields == null) {
+      this.userHasInGroupFields = new HashSet<Field>();
+    }
+    this.userHasInGroupFields.add(theUserHasInGroupField);
+    return this;
+  }
+  
+  /**
+   * 
+   * @param theUserHasInGroupFields
+   * @return
+   */
+  public StemFinder assignUserHasInGroupField(Collection<Field> theUserHasInGroupFields) {
+    this.userHasInGroupFields = theUserHasInGroupFields;
+    return this;
+  }
+  
+  /**
    * Find stem by name.
    * <pre class="eg">
    * try {
@@ -558,14 +586,14 @@ public class StemFinder {
 
   /**
    * find all the stems
-   * @return the set of stemss or the empty set if none found
+   * @return the set of stems or the empty set if none found
    */
   public Set<Stem> findStems() {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
   
     return GrouperDAOFactory.getFactory().getStem()
         .getAllStemsSecure(this.scope, grouperSession, this.subject, this.privileges, 
-            this.queryOptions, this.splitScope, this.parentStemId, this.stemScope, this.findByUuidOrName);
+            this.queryOptions, this.splitScope, this.parentStemId, this.stemScope, this.findByUuidOrName, this.userHasInGroupFields);
     
   }
 

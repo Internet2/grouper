@@ -390,25 +390,9 @@ public class IndexContainer {
   private Set<GuiStem> guiStemsRecentlyUsedAbbreviated;
 
   /**
-   * paging for my stems
-   * @return paging
-   */
-  public GuiPaging getMyStemsGuiPaging() {
-    if (this.myStemsGuiPaging == null) {
-      this.myStemsGuiPaging = new GuiPaging();
-    }
-    return this.myStemsGuiPaging;
-  }
-
-  /**
    * keep track of the paging on the search screen
    */
   private GuiPaging searchGuiPaging = null;
-
-  /**
-   * paging for my stems
-   */
-  private GuiPaging myStemsGuiPaging = null;
 
   /**
    * paging for my services
@@ -681,14 +665,6 @@ public class IndexContainer {
     }
     
     return this.guiStemsRecentlyUsedAbbreviated;
-  }
-
-  /**
-   * paging for my stems
-   * @param myStemsGuiPaging1
-   */
-  public void setMyStemsGuiPaging(GuiPaging myStemsGuiPaging1) {
-    this.myStemsGuiPaging = myStemsGuiPaging1;
   }
 
   /**

@@ -36,6 +36,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -52,6 +53,7 @@ import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
@@ -1307,7 +1309,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   public Set<Stem> getAllStemsSecure(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet,
       QueryOptions queryOptions) throws GrouperDAOException {
-    return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet, queryOptions, false, null, null, false);
+    return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet, queryOptions, false, null, null, false, null);
   }
 
   /**
@@ -1320,13 +1322,15 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
    * @param parentStemId
    * @param stemScope
    * @param findByUuidOrName if we are looking by uuid or name
+   * @param userHasInGroupFields find stems where the user has these fields in a group
    * @return the matching stems
    * @throws GrouperDAOException
    */
   private Set<Stem> getAllStemsSecureHelper(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet,
       QueryOptions queryOptions, boolean splitScope,
-      String parentStemId, Scope stemScope, boolean findByUuidOrName) throws GrouperDAOException {
+      String parentStemId, Scope stemScope, boolean findByUuidOrName,
+      Collection<Field> userHasInGroupFields) throws GrouperDAOException {
 
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
@@ -1338,11 +1342,11 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     StringBuilder sql = new StringBuilder("select distinct ns from Stem ns ");
 
     if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
-      
+
       if (StringUtils.isBlank(parentStemId) || stemScope == null) {
         throw new RuntimeException("If you are passing in a parentStemId or a stemScope, then you need to pass both of them: " + parentStemId + ", " + stemScope);
       }
-      
+
       if (stemScope == Scope.SUB) {
         sql.append(", StemSet theStemSet ");
       }
@@ -1419,6 +1423,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       }  else {
         sql.append(" where ");
       }
+      changedQuery = true;
       switch(stemScope) {
         case ONE:
           sql.append(" ns.parentUuid = :theStemId ");
@@ -1435,6 +1440,29 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       }
     }
 
+
+    if (GrouperUtil.length(userHasInGroupFields) > 0) {
+      
+      if (changedQuery) {
+        sql.append(" and ");
+      } else {
+        sql.append(" where ");
+      }
+      
+      Member membershipMember = MemberFinder.findBySubject(grouperSession, subject, false);
+      
+      if (membershipMember == null) {
+        return new HashSet<Stem>();
+      }
+      
+      sql.append(" exists (select 1 from Group theGroup, MembershipEntry fieldMembership " +
+      		" where fieldMembership.ownerGroupId = theGroup.uuid " +
+          " and theGroup.parentUuid = ns.uuid ");
+      HibUtils.convertFieldsToSqlInString(userHasInGroupFields, byHqlStatic, sql, "fieldMembership.fieldId");
+  		sql.append(" and fieldMembership.memberUuid = :fieldMembershipMemberUuid and fieldMembership.enabledDb = 'T' ) ");
+      byHqlStatic.setString("fieldMembershipMemberUuid", membershipMember.getUuid());
+      
+    }
     
     if (queryOptions != null) {
       massageSortFields(queryOptions.getQuerySort());
@@ -1963,7 +1991,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   public Set<Stem> getAllStemsSplitScopeSecure(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions) {
-    return this.getAllStemsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, true, null, null, false);
+    return this.getAllStemsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, true, null, null, false, null);
   }
 
   /**
@@ -2029,15 +2057,16 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   }
 
   /**
-   * @see StemDAO#getAllStemsSecure(String, GrouperSession, Subject, Set, QueryOptions, boolean, String, Scope, boolean, boolean)
+   * @see StemDAO#getAllStemsSecure(String, GrouperSession, Subject, Set, QueryOptions, boolean, String, Scope, boolean, boolean, Collection)
    */
   @Override
   public Set<Stem> getAllStemsSecure(String scope, GrouperSession grouperSession,
       Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions,
-      boolean splitScope, String parentStemId, Scope stemScope, boolean findByUuidOrName)
+      boolean splitScope, String parentStemId, Scope stemScope, boolean findByUuidOrName,
+      Collection<Field> userHasInGroupFields)
       throws GrouperDAOException {
     return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet, queryOptions, 
-        splitScope, parentStemId, stemScope, findByUuidOrName);
+        splitScope, parentStemId, stemScope, findByUuidOrName, userHasInGroupFields);
   }
 
 } 

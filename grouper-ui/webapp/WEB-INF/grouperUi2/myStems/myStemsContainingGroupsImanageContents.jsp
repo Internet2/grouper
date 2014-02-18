@@ -9,7 +9,7 @@
                   </thead>
                   <tbody>
 
-                    <c:forEach items="${grouperRequestContainer.indexContainer.guiStemsUserManagesAbbreviated}" var="guiStem">
+                    <c:forEach items="${grouperRequestContainer.myStemsContainer.guiStemsUserManages}" var="guiStem">
 
                       <%-- <tr>
                         <td>Root : Applications</td>
@@ -26,7 +26,7 @@
                   </tbody>
                 </table>
                 <div class="data-table-bottom gradient-background">
-                  <grouper:paging2 guiPaging="${grouperRequestContainer.indexContainer.myStemsGuiPaging}" 
+                  <grouper:paging2 guiPaging="${grouperRequestContainer.myStemsContainer.myStemsGuiPaging}" 
                     formName="myStemsPagingForm" ajaxFormIds="myStemsForm"
-                    refreshOperation="../app/UiV2Main.myStemsSubmit" />
+                    refreshOperation="../app/UiV2MyStems.myStemsContainingGroupsImanageSubmit" />
                 </div>
