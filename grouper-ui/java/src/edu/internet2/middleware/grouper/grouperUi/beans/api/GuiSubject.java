@@ -56,13 +56,15 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
    */
   public String getMemberId() {
     
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
-    
-    //when converting json this is null, so dont do a query if just doing json beans
-    if (grouperSession != null) {
-      Member member = MemberFinder.findBySubject(grouperSession, this.getSubject(), false);
-      if (member != null) {
-        return member.getId();
+    if (this.subject != null) {
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+      
+      //when converting json this is null, so dont do a query if just doing json beans
+      if (grouperSession != null) {
+        Member member = MemberFinder.findBySubject(grouperSession, this.getSubject(), false);
+        if (member != null) {
+          return member.getId();
+        }
       }
     }
     return null;
@@ -73,7 +75,9 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
    * @return true if the subject has email
    */
   public boolean isHasEmailAttributeInSource() {
-    
+    if (this.subject == null) {
+      return false;
+    }
     //if there is an email attribute in the source, then this is true
     return !StringUtils.isBlank(GrouperEmailUtils.emailAttributeNameForSource(this.subject.getSourceId()));
   }
@@ -83,6 +87,9 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
    * @return the email or null or blank if not there
    */
   public String getEmail() {
+    if (this.subject == null) {
+      return null;
+    }
     String emailAttributeName = GrouperEmailUtils.emailAttributeNameForSource(this.subject.getSourceId());
     if (StringUtils.isBlank(emailAttributeName)) {
       return null;
@@ -172,6 +179,11 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
    * init screen labels
    */
   private void initScreenLabels() {
+    
+    if (this.subject == null) {
+      return;
+    }
+    
     if (this.screenLabelLong == null && this.screenLabelShort == null) {
       
       
@@ -360,14 +372,16 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
    */
   public Set<String> getAttributeNamesNonInternal() {
     Set<String> attributeNames = new LinkedHashSet<String>();
-    String emailAttributeName = GrouperEmailUtils.emailAttributeNameForSource(this.subject.getSourceId());
-
-    for (String attributeName : GrouperUtil.nonNull(this.getAttributes().keySet())) {
-      if (!StringUtils.equalsIgnoreCase("name", attributeName)
-          && !StringUtils.equalsIgnoreCase("description", attributeName)
-          && !StringUtils.equalsIgnoreCase("subjectId", attributeName)
-          && !StringUtils.equalsIgnoreCase(emailAttributeName, attributeName)) {
-        attributeNames.add(attributeName);
+    if (this.subject != null) {
+      String emailAttributeName = GrouperEmailUtils.emailAttributeNameForSource(this.subject.getSourceId());
+  
+      for (String attributeName : GrouperUtil.nonNull(this.getAttributes().keySet())) {
+        if (!StringUtils.equalsIgnoreCase("name", attributeName)
+            && !StringUtils.equalsIgnoreCase("description", attributeName)
+            && !StringUtils.equalsIgnoreCase("subjectId", attributeName)
+            && !StringUtils.equalsIgnoreCase(emailAttributeName, attributeName)) {
+          attributeNames.add(attributeName);
+        }
       }
     }
     return attributeNames;
