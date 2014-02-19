@@ -81,11 +81,17 @@ public abstract class GuiObjectBase {
    */
   public String getPathColonSpaceSeparated() {
 
-    if (this.getGrouperObject() instanceof GrouperObjectSubjectWrapper) {
+    GrouperObject grouperObject = this.getGrouperObject();
+    
+    if (grouperObject == null) {
+      return null;
+    }
+    
+    if (grouperObject instanceof GrouperObjectSubjectWrapper) {
       return TextContainer.retrieveFromRequest().getText().get("guiStemNotApplicable");
     }
     
-    String parentStemName = GrouperUtil.parentStemNameFromName(this.getGrouperObject().getDisplayName());
+    String parentStemName = GrouperUtil.parentStemNameFromName(grouperObject.getDisplayName());
     
     if (StringUtils.isBlank(parentStemName) || StringUtils.equals(":", parentStemName)) {
       return TextContainer.retrieveFromRequest().getText().get("stem.root.display-name");
@@ -206,7 +212,12 @@ public abstract class GuiObjectBase {
    */
   public String getNameColonSpaceSeparated() {
 
-    String displayName = this.getGrouperObject().getDisplayName();
+    GrouperObject grouperObject = this.getGrouperObject();
+    
+    if (grouperObject == null) {
+      return null;
+    }
+    String displayName = grouperObject.getDisplayName();
     
     if (StringUtils.isBlank(displayName) || StringUtils.equals(":", displayName)) {
       return TextContainer.retrieveFromRequest().getText().get("stem.root.display-name");
@@ -238,7 +249,9 @@ public abstract class GuiObjectBase {
 
     if (this instanceof GuiSubject) {
       GuiSubject guiSubject = (GuiSubject)this;
-      result.append("<li class=\"active\">").append(GrouperUtil.xmlEscape(guiSubject.getSubject().getName())).append("</li>");
+      if (guiSubject.getSubject() != null) {
+        result.append("<li class=\"active\">").append(GrouperUtil.xmlEscape(guiSubject.getSubject().getName())).append("</li>");
+      }
     } else {
       GrouperObject grouperObject = this.getGrouperObject();
       if (grouperObject instanceof Stem && ((Stem)grouperObject).isRootStem()) {
@@ -287,14 +300,18 @@ public abstract class GuiObjectBase {
    * @return the title
    */
   public String getTitle() {
-    
+    GrouperObject grouperObject = this.getGrouperObject();
+
+    if (grouperObject == null) {
+      return null;
+    }
     StringBuilder result = new StringBuilder();
     
     result.append("<strong>").append(
         TextContainer.retrieveFromRequest().getText().get("guiTooltipFolderLabel"))
         .append("</string><br />").append(GrouperUtil.xmlEscape(this.getPathColonSpaceSeparated(), true));
     result.append("<br />");
-    result.append(GrouperUtil.xmlEscape(StringUtils.abbreviate(StringUtils.defaultString(this.getGrouperObject().getDescription()), 100), true));
+    result.append(GrouperUtil.xmlEscape(StringUtils.abbreviate(StringUtils.defaultString(grouperObject.getDescription()), 100), true));
     
     String resultString = result.toString();
     return resultString;
