@@ -1309,7 +1309,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   public Set<Stem> getAllStemsSecure(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet,
       QueryOptions queryOptions) throws GrouperDAOException {
-    return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet, queryOptions, false, null, null, false, null);
+    return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet, queryOptions, false, null, null, false, null, null);
   }
 
   /**
@@ -1323,6 +1323,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
    * @param stemScope
    * @param findByUuidOrName if we are looking by uuid or name
    * @param userHasInGroupFields find stems where the user has these fields in a group
+   * @param userHasInGroupFields find stems where the user has these fields in an attribute
    * @return the matching stems
    * @throws GrouperDAOException
    */
@@ -1330,7 +1331,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet,
       QueryOptions queryOptions, boolean splitScope,
       String parentStemId, Scope stemScope, boolean findByUuidOrName,
-      Collection<Field> userHasInGroupFields) throws GrouperDAOException {
+      Collection<Field> userHasInGroupFields, Collection<Field> userHasInAttributeFields) 
+          throws GrouperDAOException {
 
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
@@ -1464,6 +1466,29 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       
     }
     
+    if (GrouperUtil.length(userHasInAttributeFields) > 0) {
+      
+      if (changedQuery) {
+        sql.append(" and ");
+      } else {
+        sql.append(" where ");
+      }
+      
+      Member membershipMember = MemberFinder.findBySubject(grouperSession, subject, false);
+      
+      if (membershipMember == null) {
+        return new HashSet<Stem>();
+      }
+      
+      sql.append(" exists (select 1 from AttributeDef theAttributeDef, MembershipEntry fieldMembership " +
+          " where fieldMembership.ownerAttrDefId = theAttributeDef.id " +
+          " and theAttributeDef.stemId = ns.uuid ");
+      HibUtils.convertFieldsToSqlInString(userHasInGroupFields, byHqlStatic, sql, "fieldMembership.fieldId");
+      sql.append(" and fieldMembership.memberUuid = :fieldMembershipMemberUuid and fieldMembership.enabledDb = 'T' ) ");
+      byHqlStatic.setString("fieldMembershipMemberUuid", membershipMember.getUuid());
+      
+    }
+        
     if (queryOptions != null) {
       massageSortFields(queryOptions.getQuerySort());
     }
@@ -1991,7 +2016,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   public Set<Stem> getAllStemsSplitScopeSecure(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions) {
-    return this.getAllStemsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, true, null, null, false, null);
+    return this.getAllStemsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, true, null, null, false, null, null);
   }
 
   /**
@@ -2057,16 +2082,16 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   }
 
   /**
-   * @see StemDAO#getAllStemsSecure(String, GrouperSession, Subject, Set, QueryOptions, boolean, String, Scope, boolean, boolean, Collection)
+   * @see StemDAO#getAllStemsSecure(String, GrouperSession, Subject, Set, QueryOptions, boolean, String, Scope, boolean, boolean, Collection, Collection)
    */
   @Override
   public Set<Stem> getAllStemsSecure(String scope, GrouperSession grouperSession,
       Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions,
       boolean splitScope, String parentStemId, Scope stemScope, boolean findByUuidOrName,
-      Collection<Field> userHasInGroupFields)
+      Collection<Field> userHasInGroupFields, Collection<Field> userHasInAttributeFields)
       throws GrouperDAOException {
     return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet, queryOptions, 
-        splitScope, parentStemId, stemScope, findByUuidOrName, userHasInGroupFields);
+        splitScope, parentStemId, stemScope, findByUuidOrName, userHasInGroupFields, userHasInAttributeFields);
   }
 
 } 

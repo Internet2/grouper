@@ -20,12 +20,12 @@
               <div class="span12">
                 <ul class="nav nav-tabs">
                   <li><a href="#" onclick="return guiV2link('operation=UiV2MyStems.myStems', {dontScrollTop: true});" >${textContainer.text['myStemsImanageTab'] }</a></li>
-                  <li class="active"><a href="#" onclick="return false;">${textContainer.text['myStemsContainingGroupsImanageTab'] }</a></li>
-                  <li><a href="#" onclick="return guiV2link('operation=UiV2MyStems.myStemsContainingAttributesImanage', {dontScrollTop: true});" >${textContainer.text['myStemsContainingAttributesImanageTab'] }</a></li>
+                  <li><a href="#" onclick="return guiV2link('operation=UiV2MyStems.myStemsContainingGroupsImanage', {dontScrollTop: true});" >${textContainer.text['myStemsContainingGroupsImanageTab'] }</a></li>
+                  <li class="active"><a href="#" onclick="return false;">${textContainer.text['myStemsContainingAttributesImanageTab'] }</a></li>
                 </ul>
-                <p class="lead">${textContainer.text['myStemsContainingGroupsImanageDescription'] }</p>
+                <p class="lead">${textContainer.text['myStemsContainingAttributesImanageDescription'] }</p>
                 <form class="form-inline form-filter" id="myStemsForm"
-                    onsubmit="ajax('../app/UiV2MyStems.myStemsContainingGroupsImanageSubmit', {formIds: 'myStemsForm'}); return false;">
+                    onsubmit="ajax('../app/UiV2MyStems.myStemsContainingAttributesImanageSubmit', {formIds: 'myStemsForm'}); return false;">
                   <div class="row-fluid">
 
                     <div class="span1">
@@ -46,8 +46,8 @@
                       <input type="text" name="myStemsFilter" placeholder="${textContainer.textEscapeXml['myStemsSearchNamePlaceholder'] }" id="myStemsFilterId" class="span12"/>
                     </div>
                     <div class="span3"> &nbsp; &nbsp;
-                      <button type="submit" class="btn" onclick="ajax('../app/UiV2MyStems.myStemsContainingGroupsImanageSubmit', {formIds: 'myStemsPagingFormId,myStemsForm'}); return false;">${textContainer.text['myStemsApplyFilterButton'] }</button>
-                      <button type="submit" onclick="ajax('../app/UiV2MyStems.myStemsContainingGroupsImanageReset', {formIds: 'myStemsPagingFormId'}); return false;" class="btn">${textContainer.text['myStemsResetButton'] }</button>
+                      <button type="submit" class="btn" onclick="ajax('../app/UiV2MyStems.myStemsContainingAttributesImanageSubmit', {formIds: 'myStemsPagingFormId,myStemsForm'}); return false;">${textContainer.text['myStemsApplyFilterButton'] }</button>
+                      <button type="submit" onclick="ajax('../app/UiV2MyStems.myStemsContainingAttributesImanageReset', {formIds: 'myStemsPagingFormId'}); return false;" class="btn">${textContainer.text['myStemsResetButton'] }</button>
                     </div>
                   </div>
                 </form>

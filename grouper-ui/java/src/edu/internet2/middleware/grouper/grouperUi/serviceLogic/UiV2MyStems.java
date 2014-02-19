@@ -21,6 +21,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.MyStemsContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -196,7 +197,7 @@ public class UiV2MyStems {
   }
 
   /**
-   * my folders
+   * folders with groups I manage
    * @param request
    * @param response
    */
@@ -224,7 +225,7 @@ public class UiV2MyStems {
   }
 
   /**
-     * the filter button was pressed on the my folders page, or paging or sorting, or something
+     * the filter button was pressed on the my folders of groups i manage page, or paging or sorting, or something
      * @param request
      * @param response
      */
@@ -311,7 +312,7 @@ public class UiV2MyStems {
   }
 
   /**
-   * my folders reset button
+   * folders containing groups reset button
    * @param request
    * @param response
    */
@@ -340,7 +341,7 @@ public class UiV2MyStems {
   }
 
   /**
-   * my folders
+   * folders with groups i manage
    * @param request
    * @param response
    */
@@ -355,6 +356,172 @@ public class UiV2MyStems {
       grouperSession = GrouperSession.start(loggedInSubject);
   
       myStemsContainingGroupsImanageHelper(request, response);
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * folders with attributes I manage
+   * @param request
+   * @param response
+   */
+  public void myStemsContainingAttributesImanage(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/myStems/myStemsContainingAttributesImanage.jsp"));
+  
+      
+      myStemsContainingAttributesImanageHelper(request, response);
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+     * the filter button was pressed on the my folders with attributes i manage page, or paging or sorting, or something
+     * @param request
+     * @param response
+     */
+    private void myStemsContainingAttributesImanageHelper(HttpServletRequest request, HttpServletResponse response) {
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      String myStemsFilter = StringUtils.trimToEmpty(request.getParameter("myStemsFilter"));
+      
+      MyStemsContainer myStemsContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getMyStemsContainer();
+  
+      //too short of a query
+      if (myStemsFilter.length() == 1) {
+    
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#myStemsFilterId",
+            TextContainer.retrieveFromRequest().getText().get("myStemsErrorNotEnoughChars")));
+        
+        //clear out the results
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#myStemsResultsId", ""));
+    
+        return;
+      }
+      
+      GuiPaging guiPaging = myStemsContainer.getMyStemsGuiPaging();
+  
+      QueryOptions queryOptions = QueryOptions.create("displayName", true, null, null);
+      
+      GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
+
+      StemFinder stemFinder = new StemFinder()
+        .assignSubject(GrouperSession.staticGrouperSession().getSubject())
+        .assignUserHasInAttributeField(Privilege.convertPrivilegesToFields(AttributeDefPrivilege.MANAGE_PRIVILEGES))
+        .assignQueryOptions(queryOptions);
+
+      if (!StringUtils.isBlank(myStemsFilter)) {
+        stemFinder.assignSplitScope(true);
+        stemFinder.assignScope(myStemsFilter);
+      }
+
+      String stemFilterType = request.getParameter("stemFilterType");
+
+      if (StringUtils.equals("createGroups", stemFilterType)) {
+  
+        stemFinder.assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES);
+        
+      } else if (StringUtils.equals("createStems", stemFilterType)) {
+        
+        stemFinder.addPrivilege(NamingPrivilege.STEM);
+      
+      } else if (StringUtils.equals("attributeRead", stemFilterType)) {
+        
+        stemFinder.assignPrivileges(NamingPrivilege.ATTRIBUTE_READ_PRIVILEGES);
+      
+      } else if (StringUtils.equals("attributeUpdate", stemFilterType)) {
+        
+        stemFinder.assignPrivileges(NamingPrivilege.ATTRIBUTE_UPDATE_PRIVILEGES);
+      
+      } else if (StringUtils.equals("all", stemFilterType)) {
+      
+        //if looking for all, then dont look for any privilege, just the folders with groups the user manages
+      
+      } else if (!StringUtils.isBlank(stemFilterType)) {
+        throw new RuntimeException("Invalid value for stemFilterType: '" + stemFilterType + "'" );
+      }
+      
+      Set<Stem> results = stemFinder.findStems();
+      
+      //this shouldnt be null, but make sure
+      if (results == null) {
+        results = new HashSet<Stem>();
+      }
+      
+      if (GrouperUtil.length(results) == 0) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("myStemsNoResultsFound")));
+      }
+      
+      myStemsContainer.setGuiStemsUserManages(GuiStem.convertFromStems(results));
+      
+      guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#myStemsResultsId", 
+          "/WEB-INF/grouperUi2/myStems/myStemsContainingAttributesImanageContents.jsp"));
+  }
+
+  /**
+   * folders containing attributes reset button
+   * @param request
+   * @param response
+   */
+  public void myStemsContainingAttributesImanageReset(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      //clear out form
+      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("myStemsFilter", ""));
+      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("stemFilterType", "createGroups"));
+      
+      //get the unfiltered stems
+      myStemsContainingAttributesImanageHelper(request, response);
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * folders with attributes i manage
+   * @param request
+   * @param response
+   */
+  public void myStemsContainingAttributesImanageSubmit(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      myStemsContainingAttributesImanageHelper(request, response);
   
     } finally {
       GrouperSession.stopQuietly(grouperSession);

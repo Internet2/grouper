@@ -76,14 +76,42 @@ public class StemFinder {
     this.userHasInGroupFields.add(theUserHasInGroupField);
     return this;
   }
-  
+
   /**
-   * 
+   * find stems where the user has these fields in an attribute
+   */
+  private Collection<Field> userHasInAttributeFields;
+
+  /**
+   * find stems where the user has these fields in an attribute
+   * @param theUserHasInAttributeField
+   * @return this for chaining
+   */
+  public StemFinder addUserHasInAttributeField(Field theUserHasInAttributeField) {
+    if (this.userHasInAttributeFields == null) {
+      this.userHasInAttributeFields = new HashSet<Field>();
+    }
+    this.userHasInAttributeFields.add(theUserHasInAttributeField);
+    return this;
+  }
+
+  /**
+   * find stems where the user has these fields in an attribute
    * @param theUserHasInGroupFields
-   * @return
+   * @return this for chaining
    */
   public StemFinder assignUserHasInGroupField(Collection<Field> theUserHasInGroupFields) {
     this.userHasInGroupFields = theUserHasInGroupFields;
+    return this;
+  }
+
+  /**
+   * find stems where the user has these fields in an attribute
+   * @param theUserHasInAttributeFields
+   * @return this for chaining
+   */
+  public StemFinder assignUserHasInAttributeField(Collection<Field> theUserHasInAttributeFields) {
+    this.userHasInAttributeFields = theUserHasInAttributeFields;
     return this;
   }
   
@@ -593,7 +621,9 @@ public class StemFinder {
   
     return GrouperDAOFactory.getFactory().getStem()
         .getAllStemsSecure(this.scope, grouperSession, this.subject, this.privileges, 
-            this.queryOptions, this.splitScope, this.parentStemId, this.stemScope, this.findByUuidOrName, this.userHasInGroupFields);
+            this.queryOptions, this.splitScope, this.parentStemId, this.stemScope, 
+            this.findByUuidOrName, this.userHasInGroupFields,
+            this.userHasInAttributeFields);
     
   }
 

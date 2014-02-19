@@ -21,6 +21,7 @@
                 <ul class="nav nav-tabs">
                   <li class="active"><a href="#" onclick="return false;">${textContainer.text['myStemsImanageTab'] }</a></li>
                   <li><a href="#" onclick="return guiV2link('operation=UiV2MyStems.myStemsContainingGroupsImanage', {dontScrollTop: true});" >${textContainer.text['myStemsContainingGroupsImanageTab'] }</a></li>
+                  <li><a href="#" onclick="return guiV2link('operation=UiV2MyStems.myStemsContainingAttributesImanage', {dontScrollTop: true});" >${textContainer.text['myStemsContainingAttributesImanageTab'] }</a></li>
                 </ul>
                 <p class="lead">${textContainer.text['myStemsDescription'] }</p>
                 <form class="form-inline form-filter" id="myStemsForm"
