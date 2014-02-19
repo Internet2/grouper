@@ -11,6 +11,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubject
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
@@ -194,8 +195,10 @@ public class GroupContainer {
    */
   public boolean isShowJoinGroup() {
     if (this.showJoinGroup == null) {
-      
-      
+
+      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+      this.showJoinGroup = GroupContainer.this.getGuiGroup().getGroup().canHavePrivilege(loggedInSubject, AccessPrivilege.OPTIN.getName(), false);
       
     }
     return this.showJoinGroup;
@@ -221,7 +224,7 @@ public class GroupContainer {
             
             @Override
             public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-              return GroupContainer.this.getGuiGroup().getGroup().hasAdmin(loggedInSubject);
+              return GroupContainer.this.getGuiGroup().getGroup().canHavePrivilege(loggedInSubject, AccessPrivilege.ADMIN.getName(), false);
             }
           });
     }
@@ -249,7 +252,7 @@ public class GroupContainer {
             
             @Override
             public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-              return GroupContainer.this.getGuiGroup().getGroup().hasView(loggedInSubject);
+              return GroupContainer.this.getGuiGroup().getGroup().canHavePrivilege(loggedInSubject, AccessPrivilege.VIEW.getName(), false);
             }
           });
     }
@@ -277,7 +280,7 @@ public class GroupContainer {
             
             @Override
             public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-              return GroupContainer.this.getGuiGroup().getGroup().hasRead(loggedInSubject);
+              return GroupContainer.this.getGuiGroup().getGroup().canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false);
             }
           });
     }
@@ -321,7 +324,7 @@ public class GroupContainer {
             
             @Override
             public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-              return GroupContainer.this.getGuiGroup().getGroup().hasUpdate(loggedInSubject);
+              return GroupContainer.this.getGuiGroup().getGroup().canHavePrivilege(loggedInSubject, AccessPrivilege.UPDATE.getName(), false);
             }
           });
     }
