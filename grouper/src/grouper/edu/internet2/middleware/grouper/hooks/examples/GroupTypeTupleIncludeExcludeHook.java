@@ -146,7 +146,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
   @Override
   public void groupTypeTuplePostDelete(HooksContext hooksContext,
       HooksGroupTypeTupleBean postDeleteBean) {
-    groupTypeTupleHelper(postDeleteBean, true);
+    groupTypeTupleHelper(postDeleteBean, false);
   }
 
   /**
@@ -157,15 +157,15 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
   public void groupTypeTuplePostInsert(HooksContext hooksContext,
       HooksGroupTypeTupleBean postInsertBean) {
     
-    groupTypeTupleHelper(postInsertBean, false);
+    groupTypeTupleHelper(postInsertBean, true);
   
   }
 
   /**
    * @param postInsertBean
-   * @param requireRequireGroups true if only callable from required groups type
+   * @param isInsert
    */
-  private void groupTypeTupleHelper(HooksGroupTypeTupleBean postInsertBean, @SuppressWarnings("unused") boolean requireRequireGroups) {
+  private void groupTypeTupleHelper(HooksGroupTypeTupleBean postInsertBean, boolean isInsert) {
     boolean useGrouperIncludeExclude = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperIncludeExclude.use", false);
     boolean useRequireGroups = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperIncludeExclude.requireGroups.use", false);
     
@@ -188,7 +188,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
     try {
       
       GroupType includeExcludeType = useGrouperIncludeExclude ? GroupTypeFinder.find(includeExcludeTypeName, false) : null;
-      boolean fireHook = useGrouperIncludeExclude 
+      boolean fireHook = (useGrouperIncludeExclude && isInsert)
         ? StringUtils.equals(groupTypeTuple.getTypeUuid(), 
             includeExcludeType == null ? null : includeExcludeType.getUuid()) : false;
 

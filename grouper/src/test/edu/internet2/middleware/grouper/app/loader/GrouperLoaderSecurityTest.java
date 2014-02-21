@@ -20,11 +20,11 @@
 package edu.internet2.middleware.grouper.app.loader;
 
 import junit.textui.TestRunner;
-import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.hooks.examples.GroupTypeSecurityHook;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.subject.Subject;
 
@@ -54,7 +55,7 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperLoaderSecurityTest("testSecurityUserEditTypeNonGroupFail"));
+    TestRunner.run(new GrouperLoaderSecurityTest("testGroupAutoCreate"));
   }
   
   /**
@@ -71,9 +72,14 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
 
       //make sure a user can change a type
       this.groupType = GroupType.createType(grouperSession, "groupType", false);
-
+      
       this.attr = this.groupType.addAttribute(grouperSession,"attribute", 
           false);
+      
+      this.groupType.getAttributeDefName().getAttributeDef().getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
+      this.groupType.getAttributeDefName().getAttributeDef().getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
+      this.groupType.internal_getAttributeDefForAttributes().getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
+      this.groupType.internal_getAttributeDefForAttributes().getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
     
       String groupName = "aStem:testUserEditType";
       this.group = Group.saveGroup(this.grouperSession, groupName, 
