@@ -79,7 +79,7 @@ public class AuditTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(new AuditTest("testGroupPrivileges"));
-    TestRunner.run(new AuditTest("testAttributeAssignsMember"));
+    TestRunner.run(new AuditTest("testFields"));
   }
   
   /**
@@ -744,10 +744,11 @@ public class AuditTest extends GrouperTest {
     int newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_audit_entry");
     
-    assertEquals("Should have added exactly one audit", auditCount+1, newAuditCount);
+    assertTrue("Should have added multiple audit entries", auditCount+1 < newAuditCount);
     
     AuditEntry auditEntry = HibernateSession.byHqlStatic()
-      .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
+      .createQuery("from AuditEntry where auditTypeId = :auditTypeId")
+      .setString("auditTypeId", AuditTypeBuiltin.GROUP_FIELD_ADD.getAuditType().getId()).uniqueResult(AuditEntry.class);
     
     assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
     assertTrue("durationMicros should exist", auditEntry.getDurationMicroseconds() > 0);
@@ -762,12 +763,15 @@ public class AuditTest extends GrouperTest {
     GrouperUtil.sleep(1000);
 
     //try a delete
+    auditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
     groupType.deleteField(grouperSession, "test1attr");
   
     newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_audit_entry");
   
-    assertEquals("Should have added exactly three audits", auditCount+2, newAuditCount);
+    assertEquals("Should have another audit", auditCount+1, newAuditCount);
   
      List<AuditEntry> auditEntries = HibernateSession.byHqlStatic()
       .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);

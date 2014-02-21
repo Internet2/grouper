@@ -188,6 +188,7 @@ public class TestMemberChangeSubject extends GrouperTest {
           try {
             sysadmingroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.UPDATE);
             sysadmingroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.READ);
+            groupType = GroupType.createType(grouperSession, "groupType");
           } catch (Exception e) {
             throw new RuntimeException(e);
           }
@@ -195,9 +196,7 @@ public class TestMemberChangeSubject extends GrouperTest {
         }
         
       });
-      sysadmingroup.addMember(SubjectTestHelper.SUBJ0);
-      groupType = GroupType.createType(grouperSession, "groupType");
-      
+      sysadmingroup.addMember(SubjectTestHelper.SUBJ0);      
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
