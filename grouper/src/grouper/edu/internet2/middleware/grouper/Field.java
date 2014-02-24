@@ -88,6 +88,13 @@ import edu.internet2.middleware.grouper.xml.export.XmlImportable;
  */
 public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, XmlImportable<Field> {
 
+  /**
+   * return the uuid
+   * @return uuid
+   */
+  public String getId() {
+    return this.getUuid();
+  }
   
   /**
    * see if there are inherited privileges to also include

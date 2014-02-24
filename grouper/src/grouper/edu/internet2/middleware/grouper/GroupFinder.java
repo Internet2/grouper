@@ -31,6 +31,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -559,6 +560,34 @@ public class GroupFinder {
   private Field field;
 
   /**
+   * group ids to find
+   */
+  private Collection<String> groupIds;
+
+  /**
+   * add a group id to search for
+   * @param groupId
+   * @return this for chaining
+   */
+  public GroupFinder addGroupId(String groupId) {
+    if (this.groupIds == null) {
+      this.groupIds = new HashSet<String>();
+    }
+    this.groupIds.add(groupId);
+    return this;
+  }
+
+  /**
+   * assign group ids to search for
+   * @param theGroupIds
+   * @return this for chaining
+   */
+  public GroupFinder assignGroupIds(Collection<String> theGroupIds) {
+    this.groupIds = theGroupIds;
+    return this;
+  }
+  
+  /**
    * field to look for if searching for memberships in groups
    * @param theField
    * @return this for chaining
@@ -611,7 +640,8 @@ public class GroupFinder {
     return GrouperDAOFactory.getFactory().getGroup()
         .getAllGroupsSecure(this.scope, grouperSession, privSubject, this.privileges, 
             this.queryOptions, this.typeOfGroups, this.splitScope, this.subject, 
-            this.field, this.parentStemId, this.stemScope, this.findByUuidOrName, this.subjectNotInGroup);
+            this.field, this.parentStemId, this.stemScope, this.findByUuidOrName, 
+            this.subjectNotInGroup, this.groupIds);
     
   }
 

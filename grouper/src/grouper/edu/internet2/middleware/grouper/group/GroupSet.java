@@ -27,10 +27,12 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupSetNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -44,6 +46,7 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.pit.PITGroupSet;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -53,6 +56,38 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 @SuppressWarnings("serial")
 public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
+  
+  /**
+   * @see Object#toString()
+   */
+  @Override
+  public String toString() {
+    final StringBuilder result = new StringBuilder();
+    
+    result.append("id: ").append(this.id);
+    result.append(", type: ").append(this.type);
+    result.append(", depth: ").append(this.depth);
+    result.append(", parent: ").append(this.parentId);
+    
+    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+ 
+      /**
+       * 
+       */
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        if (!StringUtils.isBlank(GroupSet.this.ownerGroupId)) {
+          Group ownerGroup = GroupFinder.findByUuid(grouperSession, GroupSet.this.ownerGroupId, true);
+          result.append(", ownerGroup: ").append(ownerGroup.getName());
+          Group memberGroup = GroupFinder.findByUuid(grouperSession, GroupSet.this.memberGroupId, true);
+          result.append(", memberGroup: ").append(memberGroup.getName());
+        }
+        return null;
+      }
+    });
+    
+    return result.toString();
+  }
   
   /** db id for this row */
   public static final String COLUMN_ID = "id";

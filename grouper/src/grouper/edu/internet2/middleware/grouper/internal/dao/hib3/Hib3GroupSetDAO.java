@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupSetNotFoundException;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
@@ -761,6 +762,34 @@ return groupSets;
       .listSet(Object[].class);
     
     return results;  
+  }
+
+  /**
+   * @see GroupSetDAO#findAllByOwnerGroupAndFieldAndMembershipMember(String, String, Member)
+   */
+  @Override
+  public Set<GroupSet> findAllByOwnerGroupAndFieldAndMembershipMember(String ownerGroupId,
+      String fieldId, Member membershipMember) {
+
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    StringBuilder sql = new StringBuilder();
+    
+    sql.append("select distinct gs from GroupSet gs, " +
+        " MembershipEntry listMembership where gs.ownerGroupId = :ownerGroupId and gs.memberGroupId = listMembership.ownerGroupId " +
+        " and gs.fieldId = :fieldId ");
+    sql.append(" and listMembership.ownerGroupId = gs.memberGroupId and listMembership.fieldId = gs.fieldId " +
+        " and listMembership.memberUuid = :memberId  and listMembership.enabledDb = 'T' ");
+    
+    Set<GroupSet> groupSets = byHqlStatic
+        .createQuery(sql.toString())
+        .setCacheable(false)
+        .setString("ownerGroupId", ownerGroupId)
+        .setString("memberId", membershipMember.getId())
+        .setString("fieldId", fieldId)
+        .listSet(GroupSet.class);
+
+    return groupSets;
   }
 }
 

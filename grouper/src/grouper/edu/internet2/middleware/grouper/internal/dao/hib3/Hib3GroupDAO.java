@@ -2363,7 +2363,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       QueryOptions queryOptions, TypeOfGroup typeOfGroup) {
     Set<TypeOfGroup> typeOfGroups = typeOfGroup == null ? null : GrouperUtil.toSet(typeOfGroup);
     return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, 
-        queryOptions, true, typeOfGroups, null, null, null, null, false, null);
+        queryOptions, true, typeOfGroups, null, null, null, null, false, null, null);
   }
 
   /**
@@ -2374,7 +2374,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) {
     return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, 
-        queryOptions, true, typeOfGroups, null, null, null, null, false, null);
+        queryOptions, true, typeOfGroups, null, null, null, null, false, null, null);
   }
 
   /**
@@ -2391,13 +2391,15 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * @param findByUuidOrName
    * @param field
    * @param subjectNotInGroup
+   * @param groupIds
    * @return groups
    * 
    */
   private Set<Group> findAllGroupsSecureHelper(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions, boolean splitScope, Set<TypeOfGroup> typeOfGroups, Subject membershipSubject, 
-      Field field, String parentStemId, Scope stemScope, boolean findByUuidOrName, Subject subjectNotInGroup) {
+      Field field, String parentStemId, Scope stemScope, boolean findByUuidOrName, Subject subjectNotInGroup,
+      Collection<String> totalGroupIds) {
 
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
@@ -2410,190 +2412,219 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       throw new RuntimeException("If you are looking by uuid or name, you need to pass in a scope");
     }
 
-    StringBuilder sql = new StringBuilder(
-        "select distinct theGroup from Group theGroup ");
-  
-    if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
-      
-      if (StringUtils.isBlank(parentStemId) || stemScope == null) {
-        throw new RuntimeException("If you are passing in a parentStemId or a stemScope, then you need to pass both of them: " + parentStemId + ", " + stemScope);
-      }
-      
-      if (stemScope == Scope.SUB) {
-        sql.append(", StemSet theStemSet ");
-      }
-    }      
-
-    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
-  
-    //see if we are adding more to the query
-    boolean changedQuery = false;
+    Set<Group> overallResults = new LinkedHashSet<Group>();
     
-    if (GrouperUtil.length(privileges) > 0) {
-      changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic,
-          sql, "theGroup.uuid", privileges);
-    }
+    int groupBatches = GrouperUtil.batchNumberOfBatches(totalGroupIds, 100);
 
-    StringBuilder whereClause = new StringBuilder();
-
-    if (field != null) {
-      
-      if (whereClause.length() > 0) {
-        
-        whereClause.append(" and ");
-        
-      }
-
-      if (membershipSubject == null) {
-        throw new RuntimeException("Why is membershipSubject null if passing in a field for memberships???");
-      }
-      
-      Member membershipMember = MemberFinder.findBySubject(grouperSession, membershipSubject, false);
-      
-      //if a member does not exist, its not in any groups
-      if (membershipMember == null) {
-        return new HashSet<Group>();
-      }
-      
-      whereClause.append(" exists (select 1 from MembershipEntry fieldMembership where fieldMembership.ownerGroupId = theGroup.uuid " +
-      		" and fieldMembership.fieldId = :fieldId " +
-      		" and fieldMembership.memberUuid = :fieldMembershipMemberUuid and fieldMembership.enabledDb = 'T' ) ");
-      byHqlStatic.setString("fieldId", field.getUuid());
-      byHqlStatic.setString("fieldMembershipMemberUuid", membershipMember.getUuid());
-            
-    }
-
-    if (subjectNotInGroup != null) {
-
-      if (whereClause.length() > 0) {
-        
-        whereClause.append(" and ");
-        
-      }
-
-      Member membershipMember = MemberFinder.findBySubject(grouperSession, subjectNotInGroup, false);
-      
-      //if a member does not exist, its not in any groups
-      if (membershipMember != null) {
-        whereClause.append(" not exists (select 1 from MembershipEntry fieldMembership where fieldMembership.ownerGroupId = theGroup.uuid " +
-            " and fieldMembership.fieldId = :fieldId2 " +
-            " and fieldMembership.memberUuid = :fieldMembershipMemberUuid2 and fieldMembership.enabledDb = 'T' ) ");
-        byHqlStatic.setString("fieldId2", Group.getDefaultList().getUuid());
-        byHqlStatic.setString("fieldMembershipMemberUuid2", membershipMember.getUuid());
-      }
-
-    }
+    List<String> totalGroupIdsList = new ArrayList<String>(GrouperUtil.nonNull(totalGroupIds));
     
-    //see if there is a scope
-    if (!StringUtils.isBlank(scope)) {
-      scope = scope.toLowerCase();
-
-      String[] scopes = splitScope ? GrouperUtil.splitTrim(scope, " ") : new String[]{scope};
-
-      if (scopes.length > 1 && findByUuidOrName) {
-        throw new RuntimeException("If you are looking by uuid or name, then you can only pass in one scope: " + scope);
-      }
-
-      //TODO if entities are here, then search for the entity id too...
+    for (int groupIndex = 0; groupIndex < groupBatches; groupIndex++) {
       
-      if (whereClause.length() > 0) {
-        whereClause.append(" and ");
-      }
-      if (GrouperUtil.length(scopes) == 1) {
-        whereClause.append(" ( theGroup.id = :theGroupIdScope or ( ");
-        byHqlStatic.setString("theGroupIdScope", scope);
-      } else {
-        whereClause.append(" ( ( ");
-      }
+      List<String> groupIds = GrouperUtil.batchList(totalGroupIdsList, 100, groupIndex);
 
-      int index = 0;
-      for (String theScope : scopes) {
-        if (index != 0) {
-          whereClause.append(" and ");
+    
+      StringBuilder sql = new StringBuilder(
+          "select distinct theGroup from Group theGroup ");
+    
+      if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
+        
+        if (StringUtils.isBlank(parentStemId) || stemScope == null) {
+          throw new RuntimeException("If you are passing in a parentStemId or a stemScope, then you need to pass both of them: " + parentStemId + ", " + stemScope);
         }
         
-        if (findByUuidOrName) {
-          whereClause.append(" theGroup.nameDb = :scope" + index + " or theGroup.alternateNameDb = :scope" + index 
-              + " or theGroup.displayNameDb = :scope" + index + " ");
-          byHqlStatic.setString("scope" + index, theScope);
+        if (stemScope == Scope.SUB) {
+          sql.append(", StemSet theStemSet ");
+        }
+      }      
+  
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+    
+      //see if we are adding more to the query
+      boolean changedQuery = false;
+      
+      if (GrouperUtil.length(privileges) > 0) {
+        changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic,
+            sql, "theGroup.uuid", privileges);
+      }
+
+      StringBuilder whereClause = new StringBuilder();
+
+      if (GrouperUtil.length(groupIds) > 0) {
+
+        if (whereClause.length() > 0) {
+          
+          whereClause.append(" and ");
+          
+        }
+
+        whereClause.append(" theGroup.uuid in (");
+        whereClause.append(HibUtils.convertToInClause(groupIds, byHqlStatic));
+        whereClause.append(") ");
+        
+      }
+      
+      if (field != null) {
+        
+        if (whereClause.length() > 0) {
+          
+          whereClause.append(" and ");
+          
+        }
+  
+        if (membershipSubject == null) {
+          throw new RuntimeException("Why is membershipSubject null if passing in a field for memberships???");
+        }
+        
+        Member membershipMember = MemberFinder.findBySubject(grouperSession, membershipSubject, false);
+        
+        //if a member does not exist, its not in any groups
+        if (membershipMember == null) {
+          return new HashSet<Group>();
+        }
+        
+        whereClause.append(" exists (select 1 from MembershipEntry fieldMembership where fieldMembership.ownerGroupId = theGroup.uuid " +
+        		" and fieldMembership.fieldId = :fieldId " +
+        		" and fieldMembership.memberUuid = :fieldMembershipMemberUuid and fieldMembership.enabledDb = 'T' ) ");
+        byHqlStatic.setString("fieldId", field.getUuid());
+        byHqlStatic.setString("fieldMembershipMemberUuid", membershipMember.getUuid());
+              
+      }
+  
+      if (subjectNotInGroup != null) {
+  
+        if (whereClause.length() > 0) {
+          
+          whereClause.append(" and ");
+          
+        }
+  
+        Member membershipMember = MemberFinder.findBySubject(grouperSession, subjectNotInGroup, false);
+        
+        //if a member does not exist, its not in any groups
+        if (membershipMember != null) {
+          whereClause.append(" not exists (select 1 from MembershipEntry fieldMembership where fieldMembership.ownerGroupId = theGroup.uuid " +
+              " and fieldMembership.fieldId = :fieldId2 " +
+              " and fieldMembership.memberUuid = :fieldMembershipMemberUuid2 and fieldMembership.enabledDb = 'T' ) ");
+          byHqlStatic.setString("fieldId2", Group.getDefaultList().getUuid());
+          byHqlStatic.setString("fieldMembershipMemberUuid2", membershipMember.getUuid());
+        }
+  
+      }
+      
+      //see if there is a scope
+      if (!StringUtils.isBlank(scope)) {
+        scope = scope.toLowerCase();
+  
+        String[] scopes = splitScope ? GrouperUtil.splitTrim(scope, " ") : new String[]{scope};
+  
+        if (scopes.length > 1 && findByUuidOrName) {
+          throw new RuntimeException("If you are looking by uuid or name, then you can only pass in one scope: " + scope);
+        }
+  
+        //TODO if entities are here, then search for the entity id too...
+        
+        if (whereClause.length() > 0) {
+          whereClause.append(" and ");
+        }
+        if (GrouperUtil.length(scopes) == 1) {
+          whereClause.append(" ( theGroup.id = :theGroupIdScope or ( ");
+          byHqlStatic.setString("theGroupIdScope", scope);
         } else {
-          whereClause.append(" ( lower(theGroup.nameDb) like :scope" + index 
-              + " or lower(theGroup.alternateNameDb) like :scope" + index 
-              + " or lower(theGroup.displayNameDb) like :scope" + index 
-              + " or lower(theGroup.descriptionDb) like :scope" + index + " ) ");
-          if (splitScope) {
-            theScope = "%" + theScope + "%";
-          } else if (!theScope.endsWith("%")) {
-            theScope += "%";
+          whereClause.append(" ( ( ");
+        }
+  
+        int index = 0;
+        for (String theScope : scopes) {
+          if (index != 0) {
+            whereClause.append(" and ");
           }
-          byHqlStatic.setString("scope" + index, theScope.toLowerCase());
-
-        }        
-        
-        index++;
-      }
-      whereClause.append(" ) ) ");
-    }
-    
-    if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
-      if (whereClause.length() > 0) {
-        whereClause.append(" and ");
-      }
-      switch(stemScope) {
-        case ONE:
           
-          whereClause.append(" theGroup.parentUuid = :theStemId ");
-          byHqlStatic.setString("theStemId", parentStemId);
-          break;
-        case SUB:
+          if (findByUuidOrName) {
+            whereClause.append(" theGroup.nameDb = :scope" + index + " or theGroup.alternateNameDb = :scope" + index 
+                + " or theGroup.displayNameDb = :scope" + index + " ");
+            byHqlStatic.setString("scope" + index, theScope);
+          } else {
+            whereClause.append(" ( lower(theGroup.nameDb) like :scope" + index 
+                + " or lower(theGroup.alternateNameDb) like :scope" + index 
+                + " or lower(theGroup.displayNameDb) like :scope" + index 
+                + " or lower(theGroup.descriptionDb) like :scope" + index + " ) ");
+            if (splitScope) {
+              theScope = "%" + theScope + "%";
+            } else if (!theScope.endsWith("%")) {
+              theScope += "%";
+            }
+            byHqlStatic.setString("scope" + index, theScope.toLowerCase());
+  
+          }        
           
-          whereClause.append(" theGroup.parentUuid = theStemSet.ifHasStemId " +
-            " and theStemSet.thenHasStemId = :theStemId ");
-          byHqlStatic.setString("theStemId", parentStemId);
-          
-          break;
-        
+          index++;
+        }
+        whereClause.append(" ) ) ");
       }
+      
+      if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
+        if (whereClause.length() > 0) {
+          whereClause.append(" and ");
+        }
+        switch(stemScope) {
+          case ONE:
+            
+            whereClause.append(" theGroup.parentUuid = :theStemId ");
+            byHqlStatic.setString("theStemId", parentStemId);
+            break;
+          case SUB:
+            
+            whereClause.append(" theGroup.parentUuid = theStemSet.ifHasStemId " +
+              " and theStemSet.thenHasStemId = :theStemId ");
+            byHqlStatic.setString("theStemId", parentStemId);
+            
+            break;
+          
+        }
+      }
+      
+      if (changedQuery) {
+        sql.append(" and ");
+      } else {
+        sql.append(" where ");
+      }
+      sql.append(whereClause);
+  
+      TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, sql, byHqlStatic);
+  
+      if (queryOptions != null) {
+        massageSortFields(queryOptions.getQuerySort());
+      }
+  
+      Set<Group> tempGroups = byHqlStatic.createQuery(sql.toString())
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".GetAllGroupsSecure")
+        .options(queryOptions)
+        .listSet(Group.class);
+      
+      overallResults.addAll(GrouperUtil.nonNull(tempGroups));
+      
     }
-    
-    if (changedQuery) {
-      sql.append(" and ");
-    } else {
-      sql.append(" where ");
-    }
-    sql.append(whereClause);
-
-    TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, sql, byHqlStatic);
-
-    if (queryOptions != null) {
-      massageSortFields(queryOptions.getQuerySort());
-    }
-
-    Set<Group> groups = byHqlStatic.createQuery(sql.toString())
-      .setCacheable(false)
-      .setCacheRegion(KLASS + ".GetAllGroupsSecure")
-      .options(queryOptions)
-      .listSet(Group.class);
     
     //if find by uuid or name, try to narrow down to one...
     if (findByUuidOrName) {
       
       //get the one with uuid
-      for (Group group : groups) {
+      for (Group group : overallResults) {
         if (StringUtils.equals(scope, group.getId())) {
           return GrouperUtil.toSet(group);
         }
       }
       
       //get the one with name
-      for (Group group : groups) {
+      for (Group group : overallResults) {
         if (StringUtils.equals(scope, group.getName())) {
           return GrouperUtil.toSet(group);
         }
       }
       
       //get the one with alternate name
-      for (Group group : groups) {
+      for (Group group : overallResults) {
         if (StringUtils.equals(scope, group.getAlternateName())) {
           return GrouperUtil.toSet(group);
         }
@@ -2601,7 +2632,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       
     }
 
-    return groups;
+    return overallResults;
   
   }
 
@@ -2947,7 +2978,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions,
       Set<TypeOfGroup> typeOfGroups, boolean splitScope, Subject membershipSubject, Field field) {
     return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, splitScope, 
-        typeOfGroups, membershipSubject, field, null, null, false, null);
+        typeOfGroups, membershipSubject, field, null, null, false, null, null);
   }
 
   /**
@@ -2957,10 +2988,11 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public Set<Group> getAllGroupsSecure(String scope, GrouperSession grouperSession,
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions,
       Set<TypeOfGroup> typeOfGroups, boolean splitScope, Subject membershipSubject,
-      Field field, String parentStemId, Scope stemScope,  boolean findByUuidOrName, Subject subjectNotInGroup) {
+      Field field, String parentStemId, Scope stemScope,  
+      boolean findByUuidOrName, Subject subjectNotInGroup, Collection<String> groupIds) {
     return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, 
         splitScope, typeOfGroups, membershipSubject, field, parentStemId, stemScope,
-        findByUuidOrName, subjectNotInGroup);
+        findByUuidOrName, subjectNotInGroup, groupIds);
   }
 } 
 

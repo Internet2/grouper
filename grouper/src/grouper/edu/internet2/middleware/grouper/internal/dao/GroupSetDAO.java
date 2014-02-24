@@ -297,4 +297,16 @@ public interface GroupSetDAO extends GrouperDAO {
    * @return set
    */
   public Set<GroupSet> findAllByOwnerAndMemberAndField(String ownerId, String memberId, String fieldId);
+
+  /**
+   * find all group sets by owner group id,  field id, and member who is a member of that owner.
+   * this is used to analyze memberships.  Note, this is not a secure method, i.e. 
+   * doesnt check to see if the grouper session can READ all the groups returned
+   * @param ownerGroupId
+   * @param fieldId
+   * @param membershipMember
+   * @return the group sets
+   */
+  public Set<GroupSet> findAllByOwnerGroupAndFieldAndMembershipMember(String ownerGroupId, String fieldId, Member membershipMember);
+
 }
