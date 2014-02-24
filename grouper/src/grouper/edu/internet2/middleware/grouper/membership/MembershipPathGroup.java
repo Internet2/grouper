@@ -243,11 +243,6 @@ public class MembershipPathGroup {
       
     }
     
-    for (GroupSet groupSet: groupSets) {
-      System.out.println(groupSet);
-    }
-
-
   }
 
   /**

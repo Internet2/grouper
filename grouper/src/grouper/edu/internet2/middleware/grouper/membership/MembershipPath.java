@@ -25,6 +25,7 @@ public class MembershipPath implements Comparable<MembershipPath> {
    * construct with fields
    * @param member1
    * @param membershipPathNodes1
+   * @param theMembershipType
    */
   public MembershipPath(Member member1, List<MembershipPathNode> membershipPathNodes1, MembershipType theMembershipType) {
     super();
@@ -107,6 +108,10 @@ public class MembershipPath implements Comparable<MembershipPath> {
     return result.toString();
   }
 
+  /**
+   * 
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   */
   @Override
   public int compareTo(MembershipPath membershipPath) {
     
