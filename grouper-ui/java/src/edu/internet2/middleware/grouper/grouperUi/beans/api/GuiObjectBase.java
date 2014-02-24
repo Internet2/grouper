@@ -226,23 +226,54 @@ public abstract class GuiObjectBase {
     return displayName.replace(":", " : ");
     
   }
+
+  /**
+   * if true, then this is a subpage, show a link for the last time so we can drill down one item lower
+   */
+  private boolean showBreadcrumbLink;
+
+  /**
+   * if true, then this is a subpage, show a link for the last time so we can drill down one item lower
+   * @return if show breadcrumb link
+   */
+  public boolean isShowBreadcrumbLink() {
+    return this.showBreadcrumbLink;
+  }
+
+  /**
+   * if true, then this is a subpage, show a link for the last time so we can drill down one item lower
+   * @param showBreadcrumbLink1
+   */
+  public void setShowBreadcrumbLink(boolean showBreadcrumbLink1) {
+    this.showBreadcrumbLink = showBreadcrumbLink1;
+  }
+
+  /**
+   * get the full breadcrumbs with list tags outside
+   * @return breancrumbs
+   */
+  public String getBreadcrumbs() {
+    StringBuilder result = new StringBuilder();
+    result.append("<ul class=\"breadcrumb\">");
+    result.append(this.getBreadcrumbBullets());
+    result.append("</ul>");
+    return result.toString();
+  }
+  
    /**
    * breadcrumbs for v2 ui
    * @return the breadcrumbs
    */
-  public String getBreadcrumbs() {
+  public String getBreadcrumbBullets() {
 
-    //<ul class="breadcrumb">
     //  <li><a href="index.html">Home </a><span class="divider"><i class='icon-angle-right'></i></span></li>
     //  <li><a href="#">Root </a><span class="divider"><i class='icon-angle-right'></i></span></li>
     //  <li><a href="view-folder-applications.html">Applications </a><span class="divider"><i class='icon-angle-right'></i></span></li>
     //  <li><a href="view-folder.html">Wiki </a><span class="divider"><i class='icon-angle-right'></i></span></li>
     //  <li class="active">Editors</li>
-    //</ul>
     //GrouperUtil.xmlEscape(this.getPathColonSpaceSeparated(), true));
     
     StringBuilder result = new StringBuilder();
-    result.append("<ul class=\"breadcrumb\">");
     result.append("<li><a href=\"#\" onclick=\"return guiV2link('operation=UiV2Main.indexMain');\">")
       .append(TextContainer.retrieveFromRequest().getText().get("guiBreadcrumbsHomeLabel"))
       .append(" </a><span class=\"divider\"><i class='icon-angle-right'></i></span></li>");
@@ -267,19 +298,41 @@ public abstract class GuiObjectBase {
         for (int i=0;i<theExtenstionsList.size();i++) {
           //  <li><a href="view-folder-applications.html">Applications </a><span class="divider"><i class='icon-angle-right'></i></span></li>
           String stemName = null;
-          if (i == theExtenstionsList.size() -1) {
-            //  <li class="active">Editors</li>
-            result.append("<li class=\"active\">").append(GrouperUtil.xmlEscape(displayExtenstionsList.get(i))).append("</li>");
+
+          if (i == 0) {
+            stemName = ":";
           } else {
-            if (i == 0) {
-              stemName = ":";
-            } else {
-              if (i > 1) {
-                stemNameBuilder.append(":");
-              }
-              stemNameBuilder.append(theExtenstionsList.get(i));
-              stemName = stemNameBuilder.toString();
+            if (i > 1) {
+              stemNameBuilder.append(":");
             }
+            stemNameBuilder.append(theExtenstionsList.get(i));
+            stemName = stemNameBuilder.toString();
+          }
+
+          if (i == theExtenstionsList.size() -1) {
+            if (!this.showBreadcrumbLink) {
+              //  <li class="active">Editors</li>
+              result.append("<li class=\"active\">").append(GrouperUtil.xmlEscape(displayExtenstionsList.get(i))).append("</li>");
+            } else {
+              if (this instanceof GuiGroup) {
+                
+                result.append("<li><a href=\"#\" onclick=\"return guiV2link('operation=UiV2Group.viewGroup&groupName=")
+                  .append(GrouperUtil.escapeUrlEncode(stemName))
+                  .append("');\" >").append(GrouperUtil.xmlEscape(displayExtenstionsList.get(i)))
+                  .append(" </a><span class=\"divider\"><i class='icon-angle-right'></i></span></li>");
+
+              } else if (this instanceof GuiStem) {
+                
+                result.append("<li><a href=\"#\" onclick=\"return guiV2link('operation=UiV2Stem.viewStem&stemName=")
+                  .append(GrouperUtil.escapeUrlEncode(stemName))
+                  .append("');\" >").append(GrouperUtil.xmlEscape(displayExtenstionsList.get(i)))
+                  .append(" </a><span class=\"divider\"><i class='icon-angle-right'></i></span></li>");
+
+              } else {
+                throw new RuntimeException("Not expecting object type: " + this.getClass().getName());
+              }
+            }
+          } else {
             result.append("<li><a href=\"#\" onclick=\"return guiV2link('operation=UiV2Stem.viewStem&stemName=")
               .append(GrouperUtil.escapeUrlEncode(stemName))
               .append("');\" >").append(GrouperUtil.xmlEscape(displayExtenstionsList.get(i)))
@@ -288,8 +341,6 @@ public abstract class GuiObjectBase {
         }
       }
     }
-    
-    result.append("</ul>");
     return result.toString();
   }
   

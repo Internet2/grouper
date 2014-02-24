@@ -82,7 +82,7 @@ public class UiV2Group {
    * results from retrieving results
    *
    */
-  private static class RetrieveGroupHelperResult {
+  public static class RetrieveGroupHelperResult {
   
     /**
      * group
@@ -1833,7 +1833,7 @@ public class UiV2Group {
    * @param requirePrivilege (view is automatic)
    * @return the group finder result
    */
-  private static RetrieveGroupHelperResult retrieveGroupHelper(HttpServletRequest request, Privilege requirePrivilege) {
+  public static RetrieveGroupHelperResult retrieveGroupHelper(HttpServletRequest request, Privilege requirePrivilege) {
   
     //initialize the bean
     GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();

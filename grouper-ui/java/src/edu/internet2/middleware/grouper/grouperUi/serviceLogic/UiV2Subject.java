@@ -218,7 +218,7 @@ public class UiV2Subject {
   
     //go back to the main screen, cant find group
     if (addedError) {
-      if (!displayErrorIfProblem) {
+      if (displayErrorIfProblem) {
         guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
             "/WEB-INF/grouperUi2/index/indexMain.jsp"));
       }

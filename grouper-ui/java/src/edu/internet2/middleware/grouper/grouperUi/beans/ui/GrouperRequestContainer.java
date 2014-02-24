@@ -98,6 +98,30 @@ public class GrouperRequestContainer {
   }
 
   /**
+   * gui container for membership data
+   */
+  private MembershipGuiContainer membershipGuiContainer;
+  
+  /**
+   * gui container for membership data
+   * @return gui container
+   */
+  public MembershipGuiContainer getMembershipGuiContainer() {
+    if (this.membershipGuiContainer == null) {
+      this.membershipGuiContainer = new MembershipGuiContainer();
+    }
+    return this.membershipGuiContainer;
+  }
+
+  /**
+   * gui container for membership data
+   * @param guiMembershipContainer1
+   */
+  public void setMembershipGuiContainer(MembershipGuiContainer guiMembershipContainer1) {
+    this.membershipGuiContainer = guiMembershipContainer1;
+  }
+
+  /**
    * container for my stems screens
    */
   private MyStemsContainer myStemsContainer = null;
