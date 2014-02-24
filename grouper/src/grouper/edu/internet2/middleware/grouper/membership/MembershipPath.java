@@ -125,7 +125,8 @@ public class MembershipPath implements Comparable<MembershipPath> {
     }
     
     //fewer paths wins
-    compare = Integer.compare(GrouperUtil.length(this.membershipPathNodes), GrouperUtil.length(membershipPath.membershipPathNodes));
+    compare = new Integer(GrouperUtil.length(this.membershipPathNodes))
+      .compareTo(GrouperUtil.length(membershipPath.membershipPathNodes));
     if (compare != 0) {
       return compare;
     }
