@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 
 
 /**
@@ -9,7 +10,71 @@ import edu.internet2.middleware.grouper.Field;
  *
  */
 public class MembershipGuiContainer {
+
+  /**
+   * line number of trace starting with 0
+   */
+  private int lineNumber;
   
+  /**
+   * line number of trace starting with 0
+   * @return line number
+   */
+  public int getLineNumber() {
+    return this.lineNumber;
+  }
+
+  /**
+   * line number of trace starting with 0
+   * @param lineNumber1
+   */
+  public void setLineNumber(int lineNumber1) {
+    this.lineNumber = lineNumber1;
+  }
+
+  /**
+   * gui group that is the factor of the composite
+   */
+  private GuiGroup guiGroupFactor;
+  
+  /**
+   * gui group that is the factor of the composite
+   * @return group
+   */
+  public GuiGroup getGuiGroupFactor() {
+    return this.guiGroupFactor;
+  }
+
+  /**
+   * gui group that is the factor of the composite
+   * @param guiGroupFactor1
+   */
+  public void setGuiGroupFactor(GuiGroup guiGroupFactor1) {
+    this.guiGroupFactor = guiGroupFactor1;
+  }
+
+  /**
+   * current gui group e.g. when tracing memberships
+   */
+  private GuiGroup guiGroupCurrent;
+  
+  /**
+   * current gui group e.g. when tracing memberships
+   * @return gui group
+   */
+  public GuiGroup getGuiGroupCurrent() {
+    return this.guiGroupCurrent;
+  }
+
+  /**
+   * current gui group e.g. when tracing memberships
+   * @param guiGroupCurrent1
+   */
+  public void setGuiGroupCurrent(GuiGroup guiGroupCurrent1) {
+    this.guiGroupCurrent = guiGroupCurrent1;
+  }
+
+
   /**
    * string of trace memberships
    */

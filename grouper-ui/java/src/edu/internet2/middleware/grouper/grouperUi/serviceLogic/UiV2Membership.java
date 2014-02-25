@@ -1,5 +1,8 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -11,15 +14,19 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.MembershipGuiContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.membership.MembershipPath;
 import edu.internet2.middleware.grouper.membership.MembershipPathGroup;
+import edu.internet2.middleware.grouper.membership.MembershipPathNode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -146,15 +153,103 @@ public class UiV2Membership {
       if (field == null) {
         return;
       }
+      
+      MembershipGuiContainer membershipGuiContainer = grouperRequestContainer.getMembershipGuiContainer();
 
       //this is a subobject
       grouperRequestContainer.getGroupContainer().getGuiGroup().setShowBreadcrumbLink(true);
 
       MembershipPathGroup membershipPathGroup = MembershipPathGroup.analyze(group, member, field);
       
-      String traceMembershipString = membershipPathGroup.toString();
+      StringBuilder result = new StringBuilder();
       
-      grouperRequestContainer.getMembershipGuiContainer().setTraceMembershipsString(traceMembershipString);
+      //massage the paths to only consider the ones that are allowed
+      int membershipUnallowedCount = 0;
+      List<MembershipPath> membershipPathsAllowed = new ArrayList<MembershipPath>();
+      for (MembershipPath membershipPath : GrouperUtil.nonNull(membershipPathGroup.getMembershipPaths())) {
+        if (membershipPath.isPathAllowed()) {
+          membershipPathsAllowed.add(membershipPath);
+        } else {
+          membershipUnallowedCount++;
+        }
+      }
+
+      //TODO show a message about the number of 
+      
+      //<p>Danielle Knotts is an <a href="#"><span class="label label-inverse">indirect member</span></a> of</p>
+      //<p style="margin-left:20px;"><i class="icon-circle-arrow-right"></i> <a href="#">Root : Departments : Information Technology : Staff</a></p>
+      //<p style="margin-left:40px;"><i class="icon-circle-arrow-right"></i> which is a <a href="#"><span class="label label-info">direct member</span></a> of</p>
+      //<p style="margin-left:60px"><i class="icon-circle-arrow-right"></i> Root : Applications : Wiki : Editors</p><a href="#" class="pull-right btn btn-primary btn-cancel">Back to previous page</a>
+      //<hr />
+      boolean firstPath = true;
+      // loop through each membership path
+      for (MembershipPath membershipPath : membershipPathsAllowed) {
+        
+        if (!firstPath) {
+          result.append("<br /><hr /><br />\n");
+        }
+        
+        int pathLineNumber = 0;
+        membershipGuiContainer.setLineNumber(pathLineNumber);
+        result.append(TextContainer.retrieveFromRequest().getText().get("membershipTracePathFirstLine")).append("\n");
+        pathLineNumber++;
+        membershipGuiContainer.setLineNumber(pathLineNumber);
+        
+        boolean firstNode = true;
+
+        //loop through each node in the path
+        for (MembershipPathNode membershipPathNode : membershipPath.getMembershipPathNodes()) {
+          
+          Group ownerGroup = membershipPathNode.getOwnerGroup();
+
+          if (!firstNode) {
+
+            if (membershipPathNode.isComposite()) {
+              
+              //dont know what branch of the composite we are on... so 
+              Group factor = ownerGroup.equals(membershipPathNode.getLeftCompositeFactor()) 
+                  ? membershipPathNode.getRightCompositeFactor() : membershipPathNode.getLeftCompositeFactor();
+              membershipGuiContainer.setGuiGroupFactor(new GuiGroup(factor));
+              switch(membershipPathNode.getCompositeType()) {
+                case UNION:
+                  
+                  result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupCompositeOfUnion")).append("\n");
+                  break;
+                case INTERSECTION:
+
+                  result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupCompositeOfIntersection")).append("\n");
+                  break;
+                case COMPLEMENT:
+                  
+                  result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupCompositeOfMinus")).append("\n");
+                  break;
+                default:
+                  throw new RuntimeException("Not expecting composite type: " + membershipPathNode.getCompositeType());  
+              }
+              
+            } else {
+              result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupMemberOf")).append("\n");
+              
+            }
+
+            pathLineNumber++;
+            membershipGuiContainer.setLineNumber(pathLineNumber);
+
+          }
+          
+          membershipGuiContainer.setGuiGroupCurrent(new GuiGroup(ownerGroup));
+
+          result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupLine")).append("\n");
+
+          firstNode = false;
+          pathLineNumber++;
+          membershipGuiContainer.setLineNumber(pathLineNumber);
+        }
+        
+        firstPath = false;
+      }
+      
+      grouperRequestContainer.getMembershipGuiContainer().setTraceMembershipsString(result.toString());
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/membership/traceMembership.jsp"));

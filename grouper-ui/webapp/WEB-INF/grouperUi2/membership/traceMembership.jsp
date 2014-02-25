@@ -30,8 +30,6 @@
                   <p style="margin-left:60px"><i class="icon-circle-arrow-right"></i> Root : Applications : Wiki : Editors</p><a href="#" class="pull-right btn btn-primary btn-cancel">Back to previous page</a>
                   <hr />
                 --%>
-                <pre>
-                  ${grouperRequestContainer.membershipGuiContainer.traceMembershipsString }
-                </pre>                
+                ${grouperRequestContainer.membershipGuiContainer.traceMembershipsString }
               </div>
             </div>
