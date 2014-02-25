@@ -12,6 +12,48 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 public class MembershipGuiContainer {
 
   /**
+   * number of paths the user is not allowed to see
+   */
+  private int pathCountNotAllowed;
+
+  /**
+   * number of paths the user is not allowed to see
+   * @return paths
+   */
+  public int getPathCountNotAllowed() {
+    return this.pathCountNotAllowed;
+  }
+
+  /**
+   * number of paths the user is not allowed to see
+   * @param pathCountNotAllowed1
+   */
+  public void setPathCountNotAllowed(int pathCountNotAllowed1) {
+    this.pathCountNotAllowed = pathCountNotAllowed1;
+  }
+
+  /**
+   * if should trace memberships from a subject
+   */
+  private boolean traceMembershipFromSubject;
+
+  /**
+   * if should trace memberships from a subject
+   * @return if should trace
+   */
+  public boolean isTraceMembershipFromSubject() {
+    return this.traceMembershipFromSubject;
+  }
+
+  /**
+   * if should trace memberships from a subject
+   * @param traceMembershipFromSubject1
+   */
+  public void setTraceMembershipFromSubject(boolean traceMembershipFromSubject1) {
+    this.traceMembershipFromSubject = traceMembershipFromSubject1;
+  }
+
+  /**
    * line number of trace starting with 0
    */
   private int lineNumber;

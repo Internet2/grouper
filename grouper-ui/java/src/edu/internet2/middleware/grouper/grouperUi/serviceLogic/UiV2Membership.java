@@ -152,12 +152,18 @@ public class UiV2Membership {
       
       if (field == null) {
         return;
-      }
+      }      
       
       MembershipGuiContainer membershipGuiContainer = grouperRequestContainer.getMembershipGuiContainer();
+      
+      //see where to go back to
+      if (StringUtils.equalsIgnoreCase(request.getParameter("backTo"), "subject")) {
+        membershipGuiContainer.setTraceMembershipFromSubject(true);
+      }
 
       //this is a subobject
       grouperRequestContainer.getGroupContainer().getGuiGroup().setShowBreadcrumbLink(true);
+      grouperRequestContainer.getSubjectContainer().getGuiSubject().setShowBreadcrumbLink(true);
 
       MembershipPathGroup membershipPathGroup = MembershipPathGroup.analyze(group, member, field);
       
@@ -174,7 +180,27 @@ public class UiV2Membership {
         }
       }
 
-      //TODO show a message about the number of 
+      if (membershipUnallowedCount > 0) {
+        membershipGuiContainer.setPathCountNotAllowed(membershipUnallowedCount);
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info,
+            TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupPathsNotAllowed")));
+      }
+
+      if (GrouperUtil.length(membershipPathsAllowed) == 0) {
+
+        if (membershipUnallowedCount > 0) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+              TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupNoPathsAllowed")));
+          
+        } else {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+              TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupNoPaths")));
+          
+        }
+      }
+      
+
+
       
       //<p>Danielle Knotts is an <a href="#"><span class="label label-inverse">indirect member</span></a> of</p>
       //<p style="margin-left:20px;"><i class="icon-circle-arrow-right"></i> <a href="#">Root : Departments : Information Technology : Staff</a></p>

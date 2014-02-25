@@ -281,7 +281,11 @@ public abstract class GuiObjectBase {
     if (this instanceof GuiSubject) {
       GuiSubject guiSubject = (GuiSubject)this;
       if (guiSubject.getSubject() != null) {
-        result.append("<li class=\"active\">").append(GrouperUtil.xmlEscape(guiSubject.getSubject().getName())).append("</li>");
+        if (!this.showBreadcrumbLink) {
+          result.append("<li class=\"active\">").append(guiSubject.getScreenLabelShort2noLink()).append("</li>");
+        } else {
+          result.append("<li>").append(guiSubject.getShortLink()).append("<span class=\"divider\"><i class='icon-angle-right'></i></span></li>");
+        }
       }
     } else {
       GrouperObject grouperObject = this.getGrouperObject();

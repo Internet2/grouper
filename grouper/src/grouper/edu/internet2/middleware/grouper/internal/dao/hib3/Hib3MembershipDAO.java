@@ -590,6 +590,9 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       boolean hasFieldForMember, boolean hasMembershipTypeForMember, QueryOptions queryOptionsForGroup, 
       String scopeForGroup, boolean splitScopeForGroup, boolean hasFieldForGroup,
       boolean hasMembershipTypeForGroup, Member memberHasMembershipForGroup) {
+
+    QueryOptions.initTotalCount(queryOptionsForGroup);
+    QueryOptions.initTotalCount(queryOptionsForMember);
     
     if (checkSecurity == null) {
       checkSecurity = Boolean.TRUE;
@@ -627,7 +630,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           if (theGroup == null) {
             return false;
           }
-          return theGroup.hasAdmin(grouperSessionSubject);
+          return theGroup.canHavePrivilege(grouperSessionSubject, AccessPrivilege.READ.getName(), false);
         }
       });
 
@@ -3527,6 +3530,9 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       String scopeForStem, boolean splitScopeForStem, boolean hasFieldForStem,
       boolean hasMembershipTypeForStem) {
 
+    QueryOptions.initTotalCount(queryOptionsForStem);
+    QueryOptions.initTotalCount(queryOptionsForMember);
+
     if (checkSecurity == null) {
       checkSecurity = Boolean.TRUE;
     }
@@ -4031,6 +4037,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       Boolean checkSecurity, QueryOptions queryOptionsForAttributeDef,
       String scopeForAttributeDef, boolean splitScopeForAttributeDef,
       boolean hasFieldForAttributeDef, boolean hasMembershipTypeForAttributeDef) {
+
+    QueryOptions.initTotalCount(queryOptionsForAttributeDef);
 
     if (checkSecurity == null) {
       checkSecurity = Boolean.TRUE;
