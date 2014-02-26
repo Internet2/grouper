@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GroupSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author shilen
@@ -771,22 +772,24 @@ return groupSets;
   public Set<GroupSet> findAllByOwnerGroupAndFieldAndMembershipMember(String ownerGroupId,
       String fieldId, Member membershipMember) {
 
+    
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
     StringBuilder sql = new StringBuilder();
     
     sql.append("select distinct gs from GroupSet gs, " +
-        " MembershipEntry listMembership where gs.ownerGroupId = :ownerGroupId and gs.memberGroupId = listMembership.ownerGroupId " +
-        " and gs.fieldId = :fieldId ");
-    sql.append(" and listMembership.ownerGroupId = gs.memberGroupId and listMembership.fieldId = gs.fieldId " +
-        " and listMembership.memberUuid = :memberId  and listMembership.enabledDb = 'T' ");
-    
+        " MembershipEntry listMembership where gs.ownerGroupId = :ownerGroupId and gs.memberGroupId = listMembership.ownerGroupId ");
+    sql.append(" and gs.fieldId = :fieldId ");
+    sql.append(" and listMembership.ownerGroupId = gs.memberGroupId ");
+    sql.append(" and listMembership.fieldId = gs.memberFieldId ");
+    sql.append(" and listMembership.memberUuid = :memberId  and listMembership.enabledDb = 'T' ");
+    byHqlStatic
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setString("ownerGroupId", ownerGroupId)
+      .setString("memberId", membershipMember.getId());
+    byHqlStatic.setString("fieldId", fieldId);
     Set<GroupSet> groupSets = byHqlStatic
-        .createQuery(sql.toString())
-        .setCacheable(false)
-        .setString("ownerGroupId", ownerGroupId)
-        .setString("memberId", membershipMember.getId())
-        .setString("fieldId", fieldId)
         .listSet(GroupSet.class);
 
     return groupSets;

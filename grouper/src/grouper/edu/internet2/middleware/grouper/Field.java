@@ -86,7 +86,7 @@ import edu.internet2.middleware.grouper.xml.export.XmlImportable;
  * @author  blair christensen.
  * @version $Id: Field.java,v 1.48 2009-09-24 18:07:16 shilen Exp $    
  */
-public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, XmlImportable<Field> {
+public class Field extends GrouperAPI implements Comparable<Field>, GrouperHasContext, Hib3GrouperVersioned, XmlImportable<Field> {
 
   /**
    * return the uuid
@@ -894,6 +894,18 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
     return getGroupType(true);
   }
   
+  /**
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   */
+  public int compareTo(Field that) {
+    if (that==null) {
+      return 1;
+    }
+    String thisName = StringUtils.defaultString(this.getName());
+    String thatName = StringUtils.defaultString(that.getName());
+    return thisName.compareTo(thatName);
+  }
+
   /**
    * add a field if it is not already there
    * @param s

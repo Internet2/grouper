@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperAPI;
@@ -67,6 +68,9 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
     result.append("id: ").append(this.id);
     result.append(", type: ").append(this.type);
     result.append(", depth: ").append(this.depth);
+    result.append(", parent: ").append(this.parentId);
+    result.append(", field: ").append(FieldFinder.findById(this.fieldId, true).getName());
+    result.append(", memberField: ").append(FieldFinder.findById(this.memberFieldId, true).getName());
     result.append(", parent: ").append(this.parentId);
     
     GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {

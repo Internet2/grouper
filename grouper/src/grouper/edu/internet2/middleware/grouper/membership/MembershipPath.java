@@ -1,7 +1,12 @@
 package edu.internet2.middleware.grouper.membership;
 
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+
+import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -14,6 +19,30 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *
  */
 public class MembershipPath implements Comparable<MembershipPath> {
+
+  /**
+   * field for this path, generally one for list, or multiple for privileges
+   */
+  private Set<Field> fields;
+  
+  /**
+   * field for this path, generally one for list, or multiple for privileges
+   * @return the fields
+   */
+  public Set<Field> getFields() {
+    if (this.fields == null) {
+      this.fields = new TreeSet<Field>();
+    }
+    return this.fields;
+  }
+
+  /**
+   * field for this path, generally one for list, or multiple for privileges
+   * @param fields
+   */
+  public void setFields(Set<Field> fields) {
+    this.fields = fields;
+  }
 
   /**
    * default constructor
@@ -55,6 +84,29 @@ public class MembershipPath implements Comparable<MembershipPath> {
     this.member = member1;
   }
 
+  /**
+   * see if it is the same path except the field
+   * @param that
+   * @return if same path
+   */
+  public boolean equalsExceptFields(MembershipPath that) {
+    boolean equals = new EqualsBuilder()
+      .append(this.member, that.member)
+      .append(this.membershipType, that.membershipType)
+      .append(this.pathAllowed, that.pathAllowed)
+      .isEquals();
+    if (!equals) {
+      return false;
+    }
+    
+    //compare the list of nodes
+    if (!GrouperUtil.equalsList(this.membershipPathNodes, that.membershipPathNodes)) {
+      return false;
+    }
+    
+    return true;
+  }
+  
   /**
    * ordered list of nodes for this membership path
    */
@@ -98,6 +150,19 @@ public class MembershipPath implements Comparable<MembershipPath> {
     }
 
     result.append(this.member.getSubjectId());
+    
+    if (GrouperUtil.length(this.fields) != 0) {
+      boolean first = true;
+      result.append(" (fields: ");
+      for (Field field : this.fields) {
+        if (!first) {
+          result.append(", ");
+        }
+        result.append(field.getName());
+        first = false;
+      }
+      result.append("): ");
+    }
     
     for (int i=0;i<GrouperUtil.length(this.membershipPathNodes); i++) {
       

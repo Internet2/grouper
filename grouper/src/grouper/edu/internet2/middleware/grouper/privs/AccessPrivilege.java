@@ -139,6 +139,11 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable<AccessPrivi
   public static Set<Privilege> VIEW_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(VIEW, READ, ADMIN, UPDATE, GROUP_ATTR_READ, GROUP_ATTR_UPDATE, OPTIN, OPTOUT));
   
+  /** these are all the group access privileges
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> ALL_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(VIEW, READ, ADMIN, UPDATE, GROUP_ATTR_READ, GROUP_ATTR_UPDATE, OPTIN, OPTOUT));
+  
   /** any of these constitutes GROUP_ATTR_READ on a group
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> ATTRIBUTE_READ_PRIVILEGES = Collections.unmodifiableSet(

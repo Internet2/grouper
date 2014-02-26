@@ -286,4 +286,181 @@ public class UiV2Membership {
     
   }
 
+  /**
+   * trace group privileges
+   * @param request
+   * @param response
+   */
+  public void traceGroupPrivileges(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+    Subject subject = null;
+    Field field = null;
+  
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+  
+      if (group == null) {
+        return;
+      }
+  
+      subject = UiV2Subject.retrieveSubjectHelper(request, true);
+  
+      if (subject == null) {
+        return;
+      }
+      
+      Member member = MemberFinder.findBySubject(grouperSession, subject, false);
+  
+      if (member == null) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("membershipTraceNoMembershipFound")));
+        
+        return;
+      }
+            
+      MembershipGuiContainer membershipGuiContainer = grouperRequestContainer.getMembershipGuiContainer();
+      
+      //see where to go back to
+      if (StringUtils.equalsIgnoreCase(request.getParameter("backTo"), "subject")) {
+        membershipGuiContainer.setTraceMembershipFromSubject(true);
+      }
+  
+      //this is a subobject
+      grouperRequestContainer.getGroupContainer().getGuiGroup().setShowBreadcrumbLink(true);
+      grouperRequestContainer.getSubjectContainer().getGuiSubject().setShowBreadcrumbLink(true);
+  
+      MembershipPathGroup membershipPathGroup = MembershipPathGroup.analyzePrivileges(group, member);
+      
+      StringBuilder result = new StringBuilder();
+      
+      //massage the paths to only consider the ones that are allowed
+      int membershipUnallowedCount = 0;
+      List<MembershipPath> membershipPathsAllowed = new ArrayList<MembershipPath>();
+      for (MembershipPath membershipPath : GrouperUtil.nonNull(membershipPathGroup.getMembershipPaths())) {
+        if (membershipPath.isPathAllowed()) {
+          membershipPathsAllowed.add(membershipPath);
+        } else {
+          membershipUnallowedCount++;
+        }
+      }
+  
+      if (membershipUnallowedCount > 0) {
+        membershipGuiContainer.setPathCountNotAllowed(membershipUnallowedCount);
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info,
+            TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupPathsNotAllowed")));
+      }
+  
+      if (GrouperUtil.length(membershipPathsAllowed) == 0) {
+  
+        if (membershipUnallowedCount > 0) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+              TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupNoPathsAllowed")));
+          
+        } else {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+              TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupNoPaths")));
+          
+        }
+      }
+      
+  
+  
+      
+      //<p>Danielle Knotts is an <a href="#"><span class="label label-inverse">indirect member</span></a> of</p>
+      //<p style="margin-left:20px;"><i class="icon-circle-arrow-right"></i> <a href="#">Root : Departments : Information Technology : Staff</a></p>
+      //<p style="margin-left:40px;"><i class="icon-circle-arrow-right"></i> which is a <a href="#"><span class="label label-info">direct member</span></a> of</p>
+      //<p style="margin-left:60px"><i class="icon-circle-arrow-right"></i> Root : Applications : Wiki : Editors</p><a href="#" class="pull-right btn btn-primary btn-cancel">Back to previous page</a>
+      //<hr />
+      boolean firstPath = true;
+      // loop through each membership path
+      for (MembershipPath membershipPath : membershipPathsAllowed) {
+        
+        if (!firstPath) {
+          result.append("<br /><hr /><br />\n");
+        }
+        
+        int pathLineNumber = 0;
+        membershipGuiContainer.setLineNumber(pathLineNumber);
+        result.append(TextContainer.retrieveFromRequest().getText().get("membershipTracePathFirstLine")).append("\n");
+        pathLineNumber++;
+        membershipGuiContainer.setLineNumber(pathLineNumber);
+        
+        boolean firstNode = true;
+  
+        //loop through each node in the path
+        for (MembershipPathNode membershipPathNode : membershipPath.getMembershipPathNodes()) {
+          
+          Group ownerGroup = membershipPathNode.getOwnerGroup();
+  
+          if (!firstNode) {
+  
+            if (membershipPathNode.isComposite()) {
+              
+              //dont know what branch of the composite we are on... so 
+              Group factor = ownerGroup.equals(membershipPathNode.getLeftCompositeFactor()) 
+                  ? membershipPathNode.getRightCompositeFactor() : membershipPathNode.getLeftCompositeFactor();
+              membershipGuiContainer.setGuiGroupFactor(new GuiGroup(factor));
+              switch(membershipPathNode.getCompositeType()) {
+                case UNION:
+                  
+                  result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupCompositeOfUnion")).append("\n");
+                  break;
+                case INTERSECTION:
+  
+                  result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupCompositeOfIntersection")).append("\n");
+                  break;
+                case COMPLEMENT:
+                  
+                  result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupCompositeOfMinus")).append("\n");
+                  break;
+                default:
+                  throw new RuntimeException("Not expecting composite type: " + membershipPathNode.getCompositeType());  
+              }
+              
+            } else {
+              result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupMemberOf")).append("\n");
+              
+            }
+  
+            pathLineNumber++;
+            membershipGuiContainer.setLineNumber(pathLineNumber);
+  
+          }
+          
+          membershipGuiContainer.setGuiGroupCurrent(new GuiGroup(ownerGroup));
+  
+          result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupLine")).append("\n");
+  
+          firstNode = false;
+          pathLineNumber++;
+          membershipGuiContainer.setLineNumber(pathLineNumber);
+        }
+        
+        firstPath = false;
+      }
+      
+      grouperRequestContainer.getMembershipGuiContainer().setTraceMembershipsString(result.toString());
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/membership/traceMembership.jsp"));
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+
 }

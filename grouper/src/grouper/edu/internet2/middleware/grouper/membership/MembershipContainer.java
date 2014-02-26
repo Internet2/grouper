@@ -33,7 +33,7 @@ public class MembershipContainer {
    * immediate membership or null if none
    */
   private Membership immediateMembership;
-  
+    
   /**
    * immediate membership or null if none
    * @return immediate membership or null if none

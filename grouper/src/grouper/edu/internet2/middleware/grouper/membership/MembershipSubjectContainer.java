@@ -56,6 +56,19 @@ import edu.internet2.middleware.subject.Subject;
 public class MembershipSubjectContainer {
 
   /**
+   * if there is a non immediate in all the fields
+   * @return true if has non immediate
+   */
+  public boolean isHasNonImmediate() {
+    for (MembershipContainer membershipContainer : GrouperUtil.nonNull(this.membershipContainers).values()) {
+      if (membershipContainer.getMembershipAssignType().isNonImmediate()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * if update exists for this row
    * @return true if update exists for this row
    */

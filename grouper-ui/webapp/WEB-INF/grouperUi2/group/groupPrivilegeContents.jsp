@@ -98,6 +98,9 @@
                           <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle">Actions <span class="caret"></span></a>
                             <ul class="dropdown-menu dropdown-menu-right">
                               <li><a href="edit-person-membership.html">Edit membership &amp; privileges</a></li>
+                              <c:if test="${guiMembershipSubjectContainer.membershipSubjectContainer.hasNonImmediate}">
+                                <li><a href="#"  onclick="return guiV2link('operation=UiV2Membership.traceGroupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}'); return false;" class="actions-revoke-membership">${textContainer.text['groupViewTracePrivilegeButton'] }</a></li>
+                              </c:if>
                               <li><a href="trace-privileges.html">Trace privileges</a></li>
                               <c:choose>
                                 <c:when test="${guiMembershipSubjectContainer.guiSubject.group}">

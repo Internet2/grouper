@@ -122,7 +122,6 @@ import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
-import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -8786,6 +8785,31 @@ public class GrouperUtil {
       return object1.equals(object2);
   }
 
+  /**
+   * see if two lists are deep equals using the equals() method on each item
+   * @param list1
+   * @param list2
+   * @return if lists are equal
+   */
+  public static boolean equalsList(List<?> list1, List<?> list2) {
+    if (list1 == list2) {
+      return true;
+    }
+    if (list1 == null || list2 == null) {
+      return false;
+    }
+    if (list1.size() != list2.size()) {
+      return false;
+    }
+    for (int i = 0; i < list1.size(); ++i) {
+      if (!equals(list1.get(i), list2.get(i))) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+  
   /**
    * <p>A way to get the entire nested stack-trace of an throwable.</p>
    *

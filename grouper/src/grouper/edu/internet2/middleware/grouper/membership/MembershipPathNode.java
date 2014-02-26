@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.membership;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
@@ -18,6 +20,25 @@ public class MembershipPathNode implements Comparable<MembershipPathNode> {
    */
   public MembershipPathNode() {
     
+  }
+  
+  /**
+   * @see Object#equals(Object)
+   */
+  public boolean equals(Object other) {
+    if (!(other instanceof MembershipPathNode)) {
+      return false;
+    }
+    MembershipPathNode that = (MembershipPathNode)other;
+    return new EqualsBuilder()
+      .append(this.composite, that.composite)
+      .append(this.compositeType, that.compositeType)
+      .append(this.leftCompositeFactor, that.leftCompositeFactor)
+      .append(this.membershipOwnerType, that.membershipOwnerType)
+      .append(this.ownerAttributeDef, that.ownerAttributeDef)
+      .append(this.ownerGroup, that.ownerGroup)
+      .append(this.ownerStem, that.ownerStem)
+      .isEquals();
   }
 
   /**
