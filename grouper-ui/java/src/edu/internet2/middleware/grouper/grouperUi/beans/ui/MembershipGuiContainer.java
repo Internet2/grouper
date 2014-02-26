@@ -12,6 +12,27 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 public class MembershipGuiContainer {
 
   /**
+   * list of comma separated privileges for this trace of path
+   */
+  private String privilegeLabelsString;
+
+  /**
+   * list of comma separated privileges for this trace of path
+   * @return comma separated privileges
+   */
+  public String getPrivilegeLabelsString() {
+    return this.privilegeLabelsString;
+  }
+
+  /**
+   * list of comma separated privileges for this trace of path
+   * @param privilegeLabelsString1
+   */
+  public void setPrivilegeLabelsString(String privilegeLabelsString1) {
+    this.privilegeLabelsString = privilegeLabelsString1;
+  }
+
+  /**
    * number of paths the user is not allowed to see
    */
   private int pathCountNotAllowed;

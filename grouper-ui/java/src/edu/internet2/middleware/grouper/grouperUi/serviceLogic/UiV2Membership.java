@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.membership.MembershipPath;
 import edu.internet2.middleware.grouper.membership.MembershipPathGroup;
 import edu.internet2.middleware.grouper.membership.MembershipPathNode;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -212,7 +213,7 @@ public class UiV2Membership {
       for (MembershipPath membershipPath : membershipPathsAllowed) {
         
         if (!firstPath) {
-          result.append("<br /><hr /><br />\n");
+          result.append("<hr />\n");
         }
         
         int pathLineNumber = 0;
@@ -299,7 +300,6 @@ public class UiV2Membership {
   
     Group group = null;
     Subject subject = null;
-    Field field = null;
   
     GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
     
@@ -326,7 +326,7 @@ public class UiV2Membership {
       if (member == null) {
         
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("membershipTraceNoMembershipFound")));
+            TextContainer.retrieveFromRequest().getText().get("privilegesTraceNoPrivilegesFound")));
         
         return;
       }
@@ -360,24 +360,19 @@ public class UiV2Membership {
       if (membershipUnallowedCount > 0) {
         membershipGuiContainer.setPathCountNotAllowed(membershipUnallowedCount);
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info,
-            TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupPathsNotAllowed")));
+            TextContainer.retrieveFromRequest().getText().get("privilegesTraceGroupPathsNotAllowed")));
       }
   
       if (GrouperUtil.length(membershipPathsAllowed) == 0) {
   
         if (membershipUnallowedCount > 0) {
           guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-              TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupNoPathsAllowed")));
-          
+              TextContainer.retrieveFromRequest().getText().get("privilegesTraceGroupNoPathsAllowed")));
         } else {
           guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-              TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupNoPaths")));
-          
+              TextContainer.retrieveFromRequest().getText().get("privilegesTraceGroupNoPaths")));
         }
       }
-      
-  
-  
       
       //<p>Danielle Knotts is an <a href="#"><span class="label label-inverse">indirect member</span></a> of</p>
       //<p style="margin-left:20px;"><i class="icon-circle-arrow-right"></i> <a href="#">Root : Departments : Information Technology : Staff</a></p>
@@ -389,19 +384,48 @@ public class UiV2Membership {
       for (MembershipPath membershipPath : membershipPathsAllowed) {
         
         if (!firstPath) {
-          result.append("<br /><hr /><br />\n");
+          result.append("<hr />\n");
         }
         
         int pathLineNumber = 0;
         membershipGuiContainer.setLineNumber(pathLineNumber);
-        result.append(TextContainer.retrieveFromRequest().getText().get("membershipTracePathFirstLine")).append("\n");
+        
+        //get privs like ADMIN, READ
+        {
+          StringBuilder privilegeNames = new StringBuilder();
+          boolean first = true;
+          for (Field field : GrouperUtil.nonNull(membershipPath.getFields())) {
+            if (!first) {
+              privilegeNames.append(", ");
+            }
+            
+            String textKey = "priv." + field.getName() + "Upper";
+
+            String privilegeLabel = TextContainer.retrieveFromRequest().getText().get(textKey);
+            
+            privilegeNames.append(privilegeLabel);
+            
+            first = false;
+          }
+          
+          membershipGuiContainer.setPrivilegeLabelsString(privilegeNames.toString());
+        }
+
+        result.append(TextContainer.retrieveFromRequest().getText().get("privilegesTracePrivilegesLine")).append("\n");
+        if (membershipPath.getMembershipType() == MembershipType.IMMEDIATE) {
+          result.append(TextContainer.retrieveFromRequest().getText().get("privilegesTracePathFirstLine")).append("\n");
+        } else {
+          result.append(TextContainer.retrieveFromRequest().getText().get("membershipTracePathFirstLine")).append("\n");
+        }
         pathLineNumber++;
         membershipGuiContainer.setLineNumber(pathLineNumber);
         
         boolean firstNode = true;
   
         //loop through each node in the path
-        for (MembershipPathNode membershipPathNode : membershipPath.getMembershipPathNodes()) {
+        for (int i = 0; i < GrouperUtil.length(membershipPath.getMembershipPathNodes()); i++) {
+          
+          MembershipPathNode membershipPathNode = membershipPath.getMembershipPathNodes().get(i);
           
           Group ownerGroup = membershipPathNode.getOwnerGroup();
   
@@ -431,7 +455,15 @@ public class UiV2Membership {
               }
               
             } else {
-              result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupMemberOf")).append("\n");
+              
+              //if last line
+              if (i == GrouperUtil.length(membershipPath.getMembershipPathNodes()) - 1) {
+                result.append(TextContainer.retrieveFromRequest().getText().get("privilegesTracePathLastLine")).append("\n");
+                
+              } else {
+                result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupMemberOf")).append("\n");
+              }
+              
               
             }
   
@@ -455,7 +487,7 @@ public class UiV2Membership {
       grouperRequestContainer.getMembershipGuiContainer().setTraceMembershipsString(result.toString());
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-          "/WEB-INF/grouperUi2/membership/traceMembership.jsp"));
+          "/WEB-INF/grouperUi2/membership/tracePrivileges.jsp"));
   
     } finally {
       GrouperSession.stopQuietly(grouperSession);

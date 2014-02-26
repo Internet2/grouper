@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContain
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.SubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -48,7 +49,6 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
-import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
@@ -745,6 +745,10 @@ public class UiV2Subject {
 
     QueryOptions queryOptions = new QueryOptions();
 
+    QuerySort querySort = new QuerySort("g.displayNameDb", true);
+    querySort.insertSortToBeginning("g.displayExtensionDb", true);
+    queryOptions.sort(querySort);
+    
     GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
     
     MembershipFinder membershipFinder = new MembershipFinder()
