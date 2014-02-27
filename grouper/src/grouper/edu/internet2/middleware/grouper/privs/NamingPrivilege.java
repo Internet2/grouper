@@ -89,6 +89,11 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable<NamingPrivi
   public static Set<Privilege> CREATE_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(CREATE, STEM));
   
+  /** ALL
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> ALL_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(CREATE, STEM, STEM_ATTR_READ, STEM_ATTR_UPDATE));
+  
   /** any of these constitutes STEM_ATTR_READ on a group
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> ATTRIBUTE_READ_PRIVILEGES = Collections.unmodifiableSet(
