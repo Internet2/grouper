@@ -537,6 +537,11 @@ public class StemFinder {
   private Scope stemScope;
 
   /**
+   * stem ids to find
+   */
+  private Collection<String> stemIds;
+
+  /**
    * add a privilege to filter by that the subject has on the stem
    * @param privilege should be AccessPrivilege
    * @return this for chaining
@@ -623,7 +628,7 @@ public class StemFinder {
         .getAllStemsSecure(this.scope, grouperSession, this.subject, this.privileges, 
             this.queryOptions, this.splitScope, this.parentStemId, this.stemScope, 
             this.findByUuidOrName, this.userHasInGroupFields,
-            this.userHasInAttributeFields);
+            this.userHasInAttributeFields, this.stemIds);
     
   }
 
@@ -644,6 +649,29 @@ public class StemFinder {
    */
   public StemFinder assignStemScope(Scope theStemScope) {
     this.stemScope = theStemScope;
+    return this;
+  }
+
+  /**
+   * add a stem id to search for
+   * @param stemId
+   * @return this for chaining
+   */
+  public StemFinder addStemId(String stemId) {
+    if (this.stemIds == null) {
+      this.stemIds = new HashSet<String>();
+    }
+    this.stemIds.add(stemId);
+    return this;
+  }
+
+  /**
+   * assign stem ids to search for
+   * @param theStemIds
+   * @return this for chaining
+   */
+  public StemFinder assignStemIds(Collection<String> theStemIds) {
+    this.stemIds = theStemIds;
     return this;
   }
 

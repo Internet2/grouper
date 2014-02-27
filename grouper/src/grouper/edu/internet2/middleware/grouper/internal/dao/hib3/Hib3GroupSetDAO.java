@@ -778,7 +778,7 @@ return groupSets;
     StringBuilder sql = new StringBuilder();
     
     sql.append("select distinct gs from GroupSet gs, " +
-        " MembershipEntry listMembership where gs.ownerGroupId = :ownerGroupId and gs.memberGroupId = listMembership.ownerGroupId ");
+        " MembershipEntry listMembership where gs.ownerGroupId = :ownerGroupId ");
     sql.append(" and gs.fieldId = :fieldId ");
     sql.append(" and listMembership.ownerGroupId = gs.memberGroupId ");
     sql.append(" and listMembership.fieldId = gs.memberFieldId ");
@@ -792,6 +792,68 @@ return groupSets;
     Set<GroupSet> groupSets = byHqlStatic
         .listSet(GroupSet.class);
 
+    return groupSets;
+  }
+
+  /**
+   * @see GroupSetDAO#findAllByOwnerStemAndFieldAndMembershipMember(String, String, Member)
+   */
+  @Override
+  public Set<GroupSet> findAllByOwnerStemAndFieldAndMembershipMember(String ownerStemId,
+      String fieldId, Member membershipMember) {
+  
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+  
+    StringBuilder sql = new StringBuilder();
+    
+    sql.append("select distinct gs from GroupSet gs, " +
+        " MembershipEntry listMembership where gs.ownerStemId = :ownerStemId ");
+    sql.append(" and gs.fieldId = :fieldId ");
+    sql.append(" and ( listMembership.ownerGroupId = gs.memberGroupId ");
+    sql.append(" or listMembership.ownerStemId = gs.memberStemId ) ");
+    sql.append(" and listMembership.fieldId = gs.memberFieldId ");
+    sql.append(" and listMembership.memberUuid = :memberId  and listMembership.enabledDb = 'T' ");
+    byHqlStatic
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setString("ownerStemId", ownerStemId)
+      .setString("memberId", membershipMember.getId());
+    byHqlStatic.setString("fieldId", fieldId);
+    Set<GroupSet> groupSets = byHqlStatic
+        .listSet(GroupSet.class);
+  
+    return groupSets;
+  }
+
+  /**
+   * @see GroupSetDAO#findAllByOwnerAttributeDefAndFieldAndMembershipMember(String, String, Member)
+   */
+  @Override
+  public Set<GroupSet> findAllByOwnerAttributeDefAndFieldAndMembershipMember(String ownerAttrDefId,
+      String fieldId, Member membershipMember) {
+  
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+  
+    StringBuilder sql = new StringBuilder();
+    
+    sql.append("select distinct gs from GroupSet gs, " +
+        " MembershipEntry listMembership where gs.ownerAttrDefId = :ownerAttrDefId ");
+    sql.append(" and gs.fieldId = :fieldId ");
+    sql.append(" and (listMembership.ownerGroupId = gs.memberGroupId ");
+    sql.append(" or listMembership.ownerAttrDefId = gs.memberAttrDefId) ");
+    sql.append(" and listMembership.fieldId = gs.memberFieldId ");
+    sql.append(" and listMembership.memberUuid = :memberId  and listMembership.enabledDb = 'T' ");
+    byHqlStatic
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setString("ownerAttrDefId", ownerAttrDefId)
+      .setString("memberId", membershipMember.getId());
+    byHqlStatic.setString("fieldId", fieldId);
+    Set<GroupSet> groupSets = byHqlStatic
+        .listSet(GroupSet.class);
+  
     return groupSets;
   }
 }

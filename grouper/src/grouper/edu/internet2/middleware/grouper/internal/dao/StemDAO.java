@@ -504,7 +504,8 @@ public interface StemDAO extends GrouperDAO {
   Set<Stem> getAllStemsSecure(String scope, GrouperSession grouperSession, 
       Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions,
       boolean splitScope, String parentStemId, Scope stemScope, boolean findByUuidOrName,
-      Collection<Field> userHasInGroupFields, Collection<Field> userHasInAttributeFields)
+      Collection<Field> userHasInGroupFields, Collection<Field> userHasInAttributeFields,
+      Collection<String> stemIds)
     throws  GrouperDAOException;
 
   /**

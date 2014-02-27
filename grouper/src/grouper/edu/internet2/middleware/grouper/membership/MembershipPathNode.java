@@ -76,6 +76,34 @@ public class MembershipPathNode implements Comparable<MembershipPathNode> {
   }
 
   /**
+   * constructor for stem path code
+   * @param field
+   * @param theOwnerGroup
+   */
+  public MembershipPathNode(Field field, Stem theOwnerStem) {
+    if (field.isStemListField()) {
+      this.setMembershipOwnerType(MembershipOwnerType.stemPrivilege);
+    } else {
+      throw new RuntimeException("Not expecting field type: " + field);
+    }
+    this.setOwnerStem(theOwnerStem);
+  }
+
+  /**
+   * constructor for attributeDef path code
+   * @param field
+   * @param theOwnerAttributeDef
+   */
+  public MembershipPathNode(Field field, AttributeDef theOwnerAttributeDef) {
+    if (field.isAttributeDefListField()) {
+      this.setMembershipOwnerType(MembershipOwnerType.attributeDefPrivilege);
+    } else {
+      throw new RuntimeException("Not expecting field type: " + field);
+    }
+    this.setOwnerAttributeDef(theOwnerAttributeDef);
+  }
+
+  /**
    * @see Object#toString()
    */
   @Override

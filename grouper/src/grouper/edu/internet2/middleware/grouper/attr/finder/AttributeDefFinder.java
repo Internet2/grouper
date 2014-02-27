@@ -19,6 +19,7 @@
  */
 package edu.internet2.middleware.grouper.attr.finder;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -163,6 +164,10 @@ public class AttributeDefFinder {
    * if we are looking up an attribute def, only look by uuid or name
    */
   private boolean findByUuidOrName;
+  /**
+   * group ids to find
+   */
+  private Collection<String> attributeDefIds;
 
   /**
    * add a privilege to filter by that the subject has on the attribute definition
@@ -258,7 +263,7 @@ public class AttributeDefFinder {
     return GrouperDAOFactory.getFactory().getAttributeDef()
       .findAllAttributeDefsSecure(this.scope, this.splitScope, 
           this.subject, this.privileges, 
-          this.queryOptions, this.parentStemId, this.stemScope, this.findByUuidOrName);
+          this.queryOptions, this.parentStemId, this.stemScope, this.findByUuidOrName, this.attributeDefIds);
   }
 
   /**
@@ -282,7 +287,28 @@ public class AttributeDefFinder {
     
     return GrouperUtil.setPopOne(attributeDefs);
   }
-  
-  
+
+  /**
+   * add a attribute def id to search for
+   * @param attributeDefId
+   * @return this for chaining
+   */
+  public AttributeDefFinder addAttributeDefId(String attributeDefId) {
+    if (this.attributeDefIds == null) {
+      this.attributeDefIds = new HashSet<String>();
+    }
+    this.attributeDefIds.add(attributeDefId);
+    return this;
+  }
+
+  /**
+   * assign attributeDef ids to search for
+   * @param theAttributeDefIds
+   * @return this for chaining
+   */
+  public AttributeDefFinder assignAttributeDefIds(Collection<String> theAttributeDefIds) {
+    this.attributeDefIds = theAttributeDefIds;
+    return this;
+  }
   
 }

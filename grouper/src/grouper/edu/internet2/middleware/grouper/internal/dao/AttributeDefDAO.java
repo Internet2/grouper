@@ -238,10 +238,12 @@ public interface AttributeDefDAO extends GrouperDAO {
    * @param parentStemId
    * @param stemScope
    * @param findByUuidOrName
+   * @param attributeDefIds
    * @return the result set
    */
   public Set<AttributeDef> findAllAttributeDefsSecure(String scope, boolean splitScope, 
       Subject subject, Set<Privilege> privileges, 
-      QueryOptions queryOptions, String parentStemId, Scope stemScope, boolean findByUuidOrName);
+      QueryOptions queryOptions, String parentStemId, Scope stemScope, boolean findByUuidOrName,
+      Collection<String> attributeDefIds);
 
 }

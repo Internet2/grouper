@@ -22,14 +22,19 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -134,8 +139,8 @@ public class MembershipPathGroup {
    * @param field
    * @param callingSubject is who is executing the call
    */
-  private void analyzeHelper(final Group ownerGroup, Member theMember, final Field field, final Subject callingSubject) {
-    this.ownerGroup = ownerGroup;
+  private void analyzeHelper(final Group theGroup, Member theMember, final Field field, final Subject callingSubject) {
+    this.ownerGroup = theGroup;
     this.member = theMember;
 
     if (field.isGroupAccessField()) {
@@ -150,13 +155,13 @@ public class MembershipPathGroup {
 
     //if cant admin the owner group for group privileges, then cant see anything
     if (field.isGroupAccessField() 
-        && !ownerGroup.canHavePrivilege(callingSubject, AccessPrivilege.ADMIN.toString(), false)) {
+        && !theGroup.canHavePrivilege(callingSubject, AccessPrivilege.ADMIN.toString(), false)) {
       return;
     }
     
     //lets get the groupsets
     Set<GroupSet> groupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerGroupAndFieldAndMembershipMember(
-        ownerGroup.getId(), field.getId(), this.member);
+        theGroup.getId(), field.getId(), this.member);
 
     //System.out.pri ntln("##### groupsets #######");
     //System.out.pri ntln(GrouperUtil.toStringForLog(groupSets));
@@ -164,7 +169,7 @@ public class MembershipPathGroup {
 
     //lets get all the groups (not secure for calling user
     final Set<String> groupIds = new HashSet<String>();
-    groupIds.add(ownerGroup.getId());
+    groupIds.add(theGroup.getId());
     for (GroupSet groupSet : GrouperUtil.nonNull(groupSets)) {
       
       groupIds.add(groupSet.getOwnerGroupId());
@@ -368,6 +373,10 @@ public class MembershipPathGroup {
     
     Group privGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:mpaths:privGroup").save();    
     
+    Stem privStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:mpaths").save();
+
+    AttributeDef privAttributeDef = new AttributeDefSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.attr).assignName("test:mpaths:privAttrDef").assignToStem(true).save();
+
     endGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
     endGroup.grantPriv(sessionSubject2, AccessPrivilege.READ, false);
     endGroup.grantPriv(sessionSubject3, AccessPrivilege.ADMIN, false);
@@ -376,6 +385,14 @@ public class MembershipPathGroup {
     privGroup.grantPriv(endGroup.toSubject(), AccessPrivilege.READ, false);
     privGroup.grantPriv(endGroup.toSubject(), AccessPrivilege.UPDATE, false);
     privGroup.grantPriv(memberSubject, AccessPrivilege.VIEW, false);
+
+    privStem.grantPriv(endGroup.toSubject(), NamingPrivilege.STEM, false);
+    privStem.grantPriv(endGroup.toSubject(), NamingPrivilege.CREATE, false);
+    privStem.grantPriv(memberSubject, NamingPrivilege.STEM_ATTR_READ, false);
+
+    privAttributeDef.getPrivilegeDelegate().grantPriv(endGroup.toSubject(), Privilege.getInstance("attrRead"), false);
+    privAttributeDef.getPrivilegeDelegate().grantPriv(endGroup.toSubject(), Privilege.getInstance("attrUpdate"), false);
+    privAttributeDef.getPrivilegeDelegate().grantPriv(memberSubject, Privilege.getInstance("attrView"), false);
 
     endGroup.addMember(memberSubject, false);
     
@@ -392,6 +409,8 @@ public class MembershipPathGroup {
       intermediateGroup.addMember(memberSubject, false);
 
       privGroup.grantPriv(intermediateGroup.toSubject(), AccessPrivilege.ADMIN, false);
+      privStem.grantPriv(intermediateGroup.toSubject(), NamingPrivilege.STEM_ATTR_UPDATE, false);
+      privAttributeDef.getPrivilegeDelegate().grantPriv(intermediateGroup.toSubject(), Privilege.getInstance("attrAdmin"), false);
     }
     
     //two hop membership
@@ -500,6 +519,10 @@ public class MembershipPathGroup {
     System.out.println(membershipPathGroup.toString());
 
     membershipPathGroup = MembershipPathGroup.analyzePrivileges(privGroup, memberMember);
+    
+    System.out.println(membershipPathGroup.toString());
+    
+    membershipPathGroup = MembershipPathGroup.analyzePrivileges(privStem, memberMember);
     
     System.out.println(membershipPathGroup.toString());
     
@@ -737,8 +760,8 @@ public class MembershipPathGroup {
    * @param theMember
    * @param callingSubject is who is executing the call
    */
-  private void analyzePrivilegesHelper(Group ownerGroup, Member theMember, final Subject callingSubject) {
-    this.ownerGroup = ownerGroup;
+  private void analyzePrivilegesHelper(Group group, Member theMember, final Subject callingSubject) {
+    this.ownerGroup = group;
     this.member = theMember;
     this.membershipPaths = new TreeSet<MembershipPath>();
 
@@ -746,7 +769,7 @@ public class MembershipPathGroup {
     for (Privilege privilege : AccessPrivilege.ALL_PRIVILEGES) {
       
       Field field = privilege.getField();
-      MembershipPathGroup fieldMembershipPathGroup = MembershipPathGroup.analyze(ownerGroup, theMember, field, callingSubject);
+      MembershipPathGroup fieldMembershipPathGroup = MembershipPathGroup.analyze(group, theMember, field, callingSubject);
       
       //merge this field in with the overall
       this.mergeFieldMembershipPathGroup(fieldMembershipPathGroup);
@@ -788,6 +811,603 @@ public class MembershipPathGroup {
         
       }
     }
+  }
+
+  /**
+   * analyze the privileges of a member in a stem by various paths,  This should be called with a root session
+   * @param stem
+   * @param theMember
+   * @param callingSubject is who is executing the call
+   */
+  private void analyzePrivilegesHelper(Stem stem, Member theMember, final Subject callingSubject) {
+    this.ownerStem = stem;
+    this.member = theMember;
+    this.membershipPaths = new TreeSet<MembershipPath>();
+  
+    //loop through all the access privileges, and analyze them
+    for (Privilege privilege : AccessPrivilege.ALL_PRIVILEGES) {
+      
+      Field field = privilege.getField();
+      MembershipPathGroup fieldMembershipPathGroup = MembershipPathGroup.analyze(stem, theMember, field, callingSubject);
+      
+      //merge this field in with the overall
+      this.mergeFieldMembershipPathGroup(fieldMembershipPathGroup);
+      
+    }
+    
+  }
+
+  /**
+   * analyze the privileges of a member in a attributedef by various paths,  This should be called with a root session
+   * @param attributeDef
+   * @param theMember
+   * @param callingSubject is who is executing the call
+   */
+  private void analyzePrivilegesHelper(AttributeDef attributeDef, Member theMember, final Subject callingSubject) {
+    this.ownerAttributeDef = attributeDef;
+    this.member = theMember;
+    this.membershipPaths = new TreeSet<MembershipPath>();
+  
+    //loop through all the access privileges, and analyze them
+    for (Privilege privilege : AccessPrivilege.ALL_PRIVILEGES) {
+      
+      Field field = privilege.getField();
+      MembershipPathGroup fieldMembershipPathGroup = MembershipPathGroup.analyze(attributeDef, theMember, field, callingSubject);
+      
+      //merge this field in with the overall
+      this.mergeFieldMembershipPathGroup(fieldMembershipPathGroup);
+      
+    }
+    
+  }
+
+  /**
+   * analyze the membership/privilege of a member in a group by various paths,  This should be called with a root session
+   * @param theStem
+   * @param theMember
+   * @param field
+   * @param callingSubject is who is executing the call
+   */
+  private void analyzeHelper(final Stem theStem, Member theMember, final Field field, final Subject callingSubject) {
+    this.ownerStem = theStem;
+    this.member = theMember;
+  
+    if (field.isGroupAccessField()) {
+      this.membershipOwnerType = MembershipOwnerType.groupPrivilege;
+    } else if (field.isGroupListField()) {
+      this.membershipOwnerType = MembershipOwnerType.list;
+    } else {
+      throw new RuntimeException("Not expecting field: " + field);
+    }
+    
+    this.membershipPaths = new TreeSet<MembershipPath>();
+  
+    //if cant admin the owner group for group privileges, then cant see anything
+    if (field.isGroupAccessField() 
+        && !theStem.canHavePrivilege(callingSubject, AccessPrivilege.ADMIN.toString(), false)) {
+      return;
+    }
+    
+    //lets get the groupsets
+    Set<GroupSet> groupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerGroupAndFieldAndMembershipMember(
+        theStem.getId(), field.getId(), this.member);
+  
+    //System.out.pri ntln("##### groupsets #######");
+    //System.out.pri ntln(GrouperUtil.toStringForLog(groupSets));
+    //System.out.pri ntln("##### end groupsets #######");
+  
+    //lets get all the groups (not secure for calling user
+    final Set<String> groupIds = new HashSet<String>();
+    groupIds.add(theStem.getId());
+    for (GroupSet groupSet : GrouperUtil.nonNull(groupSets)) {
+      
+      groupIds.add(groupSet.getOwnerGroupId());
+      groupIds.add(groupSet.getMemberGroupId());
+      
+    }
+    
+    Set<Group> groups = new GroupFinder().assignGroupIds(groupIds).findGroups();
+    
+    //lets put these in a map
+    Map<String, Group> groupIdToGroupMapUnsecure = new HashMap<String, Group>();
+    for (Group group : GrouperUtil.nonNull(groups)) {
+      groupIdToGroupMapUnsecure.put(group.getId(), group);
+    }
+    
+    //secure group query, see what the subject can READ
+    GrouperSession secureSession = GrouperSession.start(callingSubject, false);
+    @SuppressWarnings("unchecked")
+    Set<Group> groupsSecure = (Set<Group>)GrouperSession.callbackGrouperSession(secureSession, new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        GroupFinder groupFinder = new GroupFinder().assignGroupIds(groupIds).assignSubject(callingSubject);
+        //this is read since it is more about the groups in groups as members
+        groupFinder.assignPrivileges(AccessPrivilege.READ_PRIVILEGES);
+        return groupFinder.findGroups();
+      }
+    });
+    GrouperSession.stopQuietly(secureSession);
+    
+    Map<String, GroupSet> groupSetIdToGroupSet = new HashMap<String, GroupSet>();
+    for (GroupSet groupSet : GrouperUtil.nonNull(groupSets)) {
+      groupSetIdToGroupSet.put(groupSet.getId(), groupSet);
+    }
+  
+    //see which groups have immediate memberships (these are the ones we care about).  get the list for this field and members
+    Set<Object[]> membershipGroupMemberSet = new MembershipFinder().assignGroupIds(groupIds).assignMembershipType(MembershipType.IMMEDIATE)
+        .addField(field).addMemberId(member.getId()).findMembershipsMembers();
+  
+    if (!field.equals(Group.getDefaultList())) {
+      //also add in the list ones, since a subject could be a member of a group that has a field on something else. 
+      //note, you cant do this above since membership finder works on one field type at a time
+      Set<Object[]> listMembershipGroupMemberSet = new MembershipFinder().assignGroupIds(groupIds).assignMembershipType(MembershipType.IMMEDIATE)
+          .addField(Group.getDefaultList()).addMemberId(member.getId()).findMembershipsMembers();
+      
+      membershipGroupMemberSet.addAll(listMembershipGroupMemberSet);
+    }
+    
+    //multikey is the groupId and fieldId combination
+    Set<MultiKey> groupIdFieldIdWithImmediateMemberships = new HashSet<MultiKey>();
+  
+    for (Object[] membershipGroupMember : GrouperUtil.nonNull(membershipGroupMemberSet)) {
+      String groupId = ((Group)membershipGroupMember[1]).getId();
+      String fieldId = ((Membership)membershipGroupMember[0]).getFieldId();
+      groupIdFieldIdWithImmediateMemberships.add(new MultiKey(groupId, fieldId));
+    }
+  
+    for (GroupSet groupSet : GrouperUtil.nonNull(groupSets)) {
+  
+      MembershipType membershipType = null;
+      if (StringUtils.equals("immediate", groupSet.getType())) {
+        membershipType = MembershipType.IMMEDIATE;
+      } else if (StringUtils.equals("effective", groupSet.getType())) {
+        membershipType = MembershipType.EFFECTIVE;
+      } else if (StringUtils.equals("composite", groupSet.getType())) {
+        membershipType = MembershipType.COMPOSITE;
+      } else  {
+        throw new RuntimeException("Not expecting groupSet type: " + groupSet.getType());
+      }
+      
+      List<MembershipPathNode> membershipPathNodes = new ArrayList<MembershipPathNode>();
+      
+      GroupSet currentGroupSet = groupSet;
+      
+      boolean allowed = true;
+      
+      for (int i=groupSet.getDepth(); i>=0; i--) {
+        
+        Group memberGroup = groupIdToGroupMapUnsecure.get(currentGroupSet.getMemberGroupId());
+        allowed = allowed && groupsSecure.contains(memberGroup);
+        MembershipPathNode membershipPathNode = null;
+        if (memberGroup.hasComposite()) {
+  
+          Composite composite = memberGroup.getComposite(true);
+          CompositeType compositeType = composite.getType();
+          
+          Group leftGroup = composite.getLeftGroup();
+          Group rightGroup = composite.getRightGroup();
+  
+          membershipPathNode = new MembershipPathNode(field, memberGroup, compositeType, leftGroup, rightGroup);
+  
+        } else {
+        
+          membershipPathNode = new MembershipPathNode(field, memberGroup);
+        }
+        membershipPathNodes.add(membershipPathNode);
+        
+        //move up the chain
+        currentGroupSet = groupSetIdToGroupSet.get(currentGroupSet.getParentId());
+  
+      }
+  
+      //if its a composite, we need to deal with the factors
+      Group memberGroup = groupIdToGroupMapUnsecure.get(groupSet.getMemberGroupId());
+  
+      MembershipPath membershipPath = new MembershipPath(this.member, membershipPathNodes, membershipType);
+      
+      membershipPath.getFields().add(field);
+      
+      membershipPath.setPathAllowed(allowed);
+  
+      //is it immediate, or a means to an end?
+      
+      MultiKey groupIdFieldId = new MultiKey(groupSet.getMemberGroupId(), groupSet.getMemberFieldId());
+      
+      if (groupIdFieldIdWithImmediateMemberships.contains(groupIdFieldId)) {
+        this.membershipPaths.add(membershipPath);
+        
+      }
+      
+      if (memberGroup.hasComposite()) {
+        
+        //lets analyze each factor
+        Composite composite = memberGroup.getComposite(true);
+        CompositeType compositeType = composite.getType();
+        if (compositeType == CompositeType.UNION) {
+          
+          MembershipPathGroup membershipPathGroupLeft = MembershipPathGroup.analyze(composite.getLeftGroup(), theMember, Group.getDefaultList(), callingSubject);
+          mergeMembershipPathGroup(membershipPath, membershipPathGroupLeft);
+          MembershipPathGroup membershipPathGroupRight = MembershipPathGroup.analyze(composite.getRightGroup(), theMember, Group.getDefaultList(), callingSubject);
+          mergeMembershipPathGroup(membershipPath, membershipPathGroupRight);
+          
+        } else if (compositeType == CompositeType.COMPLEMENT) {
+  
+          MembershipPathGroup membershipPathGroupLeft = MembershipPathGroup.analyze(composite.getLeftGroup(), theMember, Group.getDefaultList(), callingSubject);
+          mergeMembershipPathGroup(membershipPath, membershipPathGroupLeft);
+          
+        } else if (compositeType == CompositeType.INTERSECTION) {
+          MembershipPathGroup membershipPathGroupLeft = MembershipPathGroup.analyze(composite.getLeftGroup(), theMember, Group.getDefaultList(), callingSubject);
+          mergeMembershipPathGroup(membershipPath, membershipPathGroupLeft);
+          MembershipPathGroup membershipPathGroupRight = MembershipPathGroup.analyze(composite.getRightGroup(), theMember, Group.getDefaultList(), callingSubject);
+          mergeMembershipPathGroup(membershipPath, membershipPathGroupRight);
+          
+        }
+      }
+      
+    }
+    
+  }
+
+  /**
+   * analyze the membership/privilege of a member in a attributeDef by various paths,  This should be called with a root session
+   * @param theAttributeDef
+   * @param theMember
+   * @param field
+   * @param callingSubject is who is executing the call
+   */
+  private void analyzeHelper(final AttributeDef theAttributeDef, Member theMember, final Field field, final Subject callingSubject) {
+    this.ownerAttributeDef = theAttributeDef;
+    this.member = theMember;
+  
+    if (field.isGroupAccessField()) {
+      this.membershipOwnerType = MembershipOwnerType.groupPrivilege;
+    } else if (field.isGroupListField()) {
+      this.membershipOwnerType = MembershipOwnerType.list;
+    } else {
+      throw new RuntimeException("Not expecting field: " + field);
+    }
+    
+    this.membershipPaths = new TreeSet<MembershipPath>();
+  
+    //if cant admin the owner group for group privileges, then cant see anything
+    if (!theAttributeDef.getPrivilegeDelegate().canHavePrivilege(callingSubject, AttributeDefPrivilege.ATTR_ADMIN.toString(), false)) {
+      return;
+    }
+    
+    //lets get the groupsets
+    Set<GroupSet> groupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByOwnerAttributeDefAndFieldAndMembershipMember(
+        theAttributeDef.getId(), field.getId(), this.member);
+  
+    //System.out.pri ntln("##### groupsets #######");
+    //System.out.pri ntln(GrouperUtil.toStringForLog(groupSets));
+    //System.out.pri ntln("##### end groupsets #######");
+  
+    //lets get all the groups (not secure for calling user
+    final Set<String> groupIds = new HashSet<String>();
+    for (GroupSet groupSet : GrouperUtil.nonNull(groupSets)) {
+      
+      groupIds.add(groupSet.getMemberGroupId());
+      
+    }
+    
+    Set<Group> groups = GrouperUtil.length(groupIds) == 0 ? new HashSet<Group>() 
+        : new GroupFinder().assignGroupIds(groupIds).findGroups();
+    
+    //lets put these in a map
+    Map<String, Group> groupIdToGroupMapUnsecure = new HashMap<String, Group>();
+    for (Group group : GrouperUtil.nonNull(groups)) {
+      groupIdToGroupMapUnsecure.put(group.getId(), group);
+    }
+    
+    //secure group query, see what the subject can READ
+    GrouperSession secureSession = GrouperSession.start(callingSubject, false);
+    @SuppressWarnings("unchecked")
+    Set<Group> groupsSecure = (Set<Group>)GrouperSession.callbackGrouperSession(secureSession, new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        GroupFinder groupFinder = new GroupFinder().assignGroupIds(groupIds).assignSubject(callingSubject);
+        //this is read since it is more about the groups in groups as members
+        groupFinder.assignPrivileges(AccessPrivilege.READ_PRIVILEGES);
+        return groupFinder.findGroups();
+      }
+    });
+    GrouperSession.stopQuietly(secureSession);
+    
+    Map<String, GroupSet> groupSetIdToGroupSet = new HashMap<String, GroupSet>();
+    for (GroupSet groupSet : GrouperUtil.nonNull(groupSets)) {
+      groupSetIdToGroupSet.put(groupSet.getId(), groupSet);
+    }
+  
+    //see which groups have immediate memberships (these are the ones we care about).  get the list for this field and members
+    Set<Object[]> membershipGroupMemberSet = new MembershipFinder().addAttributeDefId(theAttributeDef.getId())
+        .assignMembershipType(MembershipType.IMMEDIATE)
+        .addField(field).addMemberId(member.getId()).findMembershipsMembers();
+  
+    if (!field.equals(Group.getDefaultList())) {
+      //also add in the list ones, since a subject could be a member of a group that has a field on something else. 
+      //note, you cant do this above since membership finder works on one field type at a time
+      Set<Object[]> listMembershipGroupMemberSet = new MembershipFinder().assignGroupIds(groupIds).assignMembershipType(MembershipType.IMMEDIATE)
+          .addField(Group.getDefaultList()).addMemberId(member.getId()).findMembershipsMembers();
+      
+      membershipGroupMemberSet.addAll(listMembershipGroupMemberSet);
+    }
+    
+    //multikey is the groupId/attributeDefId and fieldId combination
+    Set<MultiKey> ownerIdFieldIdWithImmediateMemberships = new HashSet<MultiKey>();
+  
+    for (Object[] membershipGroupMember : GrouperUtil.nonNull(membershipGroupMemberSet)) {
+      String ownerId = null;
+        if (membershipGroupMember[1] instanceof Group) {
+          ownerId = ((Group)membershipGroupMember[1]).getId();
+        } else if (membershipGroupMember[1] instanceof AttributeDef) {
+          ownerId = ((AttributeDef)membershipGroupMember[1]).getId();
+        } else {
+          throw new RuntimeException("Not expecting owner type: " + membershipGroupMember[1]);
+        }
+        
+      String fieldId = ((Membership)membershipGroupMember[0]).getFieldId();
+      ownerIdFieldIdWithImmediateMemberships.add(new MultiKey(ownerId, fieldId));
+    }
+  
+    for (GroupSet groupSet : GrouperUtil.nonNull(groupSets)) {
+  
+      MembershipType membershipType = null;
+      if (StringUtils.equals("immediate", groupSet.getType())) {
+        membershipType = MembershipType.IMMEDIATE;
+      } else if (StringUtils.equals("effective", groupSet.getType())) {
+        membershipType = MembershipType.EFFECTIVE;
+      } else if (StringUtils.equals("composite", groupSet.getType())) {
+        membershipType = MembershipType.COMPOSITE;
+      } else  {
+        throw new RuntimeException("Not expecting groupSet type: " + groupSet.getType());
+      }
+      
+      List<MembershipPathNode> membershipPathNodes = new ArrayList<MembershipPathNode>();
+      
+      GroupSet currentGroupSet = groupSet;
+      
+      boolean allowed = true;
+      
+      for (int i=groupSet.getDepth(); i>=0; i--) {
+
+        MembershipPathNode membershipPathNode = null;
+
+        if (!StringUtils.isBlank(currentGroupSet.getMemberGroupId())) {
+          Group memberGroup = groupIdToGroupMapUnsecure.get(currentGroupSet.getMemberGroupId());
+          allowed = allowed && groupsSecure.contains(memberGroup);
+          if (memberGroup.hasComposite()) {
+    
+            Composite composite = memberGroup.getComposite(true);
+            CompositeType compositeType = composite.getType();
+            
+            Group leftGroup = composite.getLeftGroup();
+            Group rightGroup = composite.getRightGroup();
+    
+            membershipPathNode = new MembershipPathNode(field, memberGroup, compositeType, leftGroup, rightGroup);
+    
+          } else {
+          
+            membershipPathNode = new MembershipPathNode(field, memberGroup);
+          }
+        } else {
+          //else its an attribute def direct assignment
+          if (StringUtils.equals(theAttributeDef.getId(), currentGroupSet.getMemberAttrDefId())) {
+            membershipPathNode = new MembershipPathNode(field, theAttributeDef);
+            
+          } else {
+            throw new RuntimeException("Not expecting group set: " + groupSet);
+          }
+        }
+        membershipPathNodes.add(membershipPathNode);
+        
+        //move up the chain
+        currentGroupSet = groupSetIdToGroupSet.get(currentGroupSet.getParentId());
+  
+      }
+  
+      //if its a composite, we need to deal with the factors
+      Group memberGroup = groupIdToGroupMapUnsecure.get(groupSet.getMemberGroupId());
+  
+      MembershipPath membershipPath = new MembershipPath(this.member, membershipPathNodes, membershipType);
+      
+      membershipPath.getFields().add(field);
+      
+      membershipPath.setPathAllowed(allowed);
+  
+      //is it immediate, or a means to an end?
+      
+      MultiKey ownerIdFieldId = new MultiKey(StringUtils.defaultString(groupSet.getMemberGroupId(), groupSet.getMemberAttrDefId()), 
+          groupSet.getMemberFieldId());
+      
+      if (ownerIdFieldIdWithImmediateMemberships.contains(ownerIdFieldId)) {
+        this.membershipPaths.add(membershipPath);
+        
+      }
+      
+      if (memberGroup != null && memberGroup.hasComposite()) {
+        
+        //lets analyze each factor
+        Composite composite = memberGroup.getComposite(true);
+        CompositeType compositeType = composite.getType();
+        if (compositeType == CompositeType.UNION) {
+          
+          MembershipPathGroup membershipPathGroupLeft = MembershipPathGroup.analyze(composite.getLeftGroup(), theMember, Group.getDefaultList(), callingSubject);
+          mergeMembershipPathGroup(membershipPath, membershipPathGroupLeft);
+          MembershipPathGroup membershipPathGroupRight = MembershipPathGroup.analyze(composite.getRightGroup(), theMember, Group.getDefaultList(), callingSubject);
+          mergeMembershipPathGroup(membershipPath, membershipPathGroupRight);
+          
+        } else if (compositeType == CompositeType.COMPLEMENT) {
+  
+          MembershipPathGroup membershipPathGroupLeft = MembershipPathGroup.analyze(composite.getLeftGroup(), theMember, Group.getDefaultList(), callingSubject);
+          mergeMembershipPathGroup(membershipPath, membershipPathGroupLeft);
+          
+        } else if (compositeType == CompositeType.INTERSECTION) {
+          MembershipPathGroup membershipPathGroupLeft = MembershipPathGroup.analyze(composite.getLeftGroup(), theMember, Group.getDefaultList(), callingSubject);
+          mergeMembershipPathGroup(membershipPath, membershipPathGroupLeft);
+          MembershipPathGroup membershipPathGroupRight = MembershipPathGroup.analyze(composite.getRightGroup(), theMember, Group.getDefaultList(), callingSubject);
+          mergeMembershipPathGroup(membershipPath, membershipPathGroupRight);
+          
+        }
+      }
+      
+    }
+    
+  }
+
+  /**
+   * analyze the membership/privilege of a member in a stem by various paths
+   * @param stem
+   * @param member
+   * @param field
+   * @return the group of paths
+   */
+  public static MembershipPathGroup analyze(final Stem stem, final Member member, final Field field) {
+    final MembershipPathGroup membershipPathGroup = new MembershipPathGroup();
+    final GrouperSession GROUPER_SESSION = GrouperSession.staticGrouperSession();
+    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        membershipPathGroup.analyzeHelper(stem, member, field, GROUPER_SESSION.getSubject());
+        return null;
+      }
+    });
+  
+    return membershipPathGroup;
+  }
+
+  /**
+   * analyze the membership/privilege of a member in a attributeDef by various paths
+   * @param group
+   * @param member
+   * @param field
+   * @return the group of paths
+   */
+  public static MembershipPathGroup analyze(final AttributeDef attributeDef, final Member member, final Field field) {
+    final MembershipPathGroup membershipPathGroup = new MembershipPathGroup();
+    final GrouperSession GROUPER_SESSION = GrouperSession.staticGrouperSession();
+    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        membershipPathGroup.analyzeHelper(attributeDef, member, field, GROUPER_SESSION.getSubject());
+        return null;
+      }
+    });
+  
+    return membershipPathGroup;
+  }
+
+  /**
+   * analyze the membership/privilege of a member in a attributeDef by various paths
+   * @param attributeDef
+   * @param member
+   * @param field
+   * @param callingSubject
+   * @return the group of paths
+   */
+  public static MembershipPathGroup analyze(final AttributeDef attributeDef, final Member member, final Field field, Subject callingSubject) {
+    MembershipPathGroup membershipPathGroup = new MembershipPathGroup();
+    membershipPathGroup.analyzeHelper(attributeDef, member, field, callingSubject);
+    return membershipPathGroup;
+  }
+
+  /**
+   * analyze the membership/privilege of a member in a stem by various paths
+   * @param stem
+   * @param member
+   * @param field
+   * @param callingSubject
+   * @return the group of paths
+   */
+  public static MembershipPathGroup analyze(final Stem stem, final Member member, final Field field, Subject callingSubject) {
+    MembershipPathGroup membershipPathGroup = new MembershipPathGroup();
+    membershipPathGroup.analyzeHelper(stem, member, field, callingSubject);
+    return membershipPathGroup;
+  }
+
+  /**
+   * analyze stem privileges for a stem and a member
+   * @param stem
+   * @param member
+   * @return the membershipPathGroup
+   */
+  public static MembershipPathGroup analyzePrivileges(final Stem stem, final Member member) {
+    
+    final MembershipPathGroup membershipPathGroup = new MembershipPathGroup();
+    final GrouperSession GROUPER_SESSION = GrouperSession.staticGrouperSession();
+    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        membershipPathGroup.analyzePrivilegesHelper(stem, member, GROUPER_SESSION.getSubject());
+        return null;
+      }
+    });
+  
+    return membershipPathGroup;
+  
+    
+  }
+
+  /**
+   * analyze the privileges of a member in a stem by various paths
+   * @param stem
+   * @param member
+   * @param field
+   * @param callingSubject
+   * @return the group of paths
+   */
+  public static MembershipPathGroup analyzePrivileges(final Stem stem, final Member member, Subject callingSubject) {
+    MembershipPathGroup membershipPathGroup = new MembershipPathGroup();
+    membershipPathGroup.analyzePrivilegesHelper(stem, member, callingSubject);
+    return membershipPathGroup;
+  }
+
+  /**
+   * analyze attributeDef privileges for a attributeDef and a member
+   * @param attributeDef
+   * @param member
+   * @return the membershipPathGroup
+   */
+  public static MembershipPathGroup analyzePrivileges(final AttributeDef attributeDef, final Member member) {
+    
+    final MembershipPathGroup membershipPathGroup = new MembershipPathGroup();
+    final GrouperSession GROUPER_SESSION = GrouperSession.staticGrouperSession();
+    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        membershipPathGroup.analyzePrivilegesHelper(attributeDef, member, GROUPER_SESSION.getSubject());
+        return null;
+      }
+    });
+  
+    return membershipPathGroup;
+  
+    
+  }
+
+  /**
+   * analyze the privileges of a member in a attributeDef by various paths
+   * @param attributeDef
+   * @param member
+   * @param field
+   * @param callingSubject
+   * @return the group of paths
+   */
+  public static MembershipPathGroup analyzePrivileges(final AttributeDef attributeDef, final Member member, Subject callingSubject) {
+    MembershipPathGroup membershipPathGroup = new MembershipPathGroup();
+    membershipPathGroup.analyzePrivilegesHelper(attributeDef, member, callingSubject);
+    return membershipPathGroup;
   }
 
 
