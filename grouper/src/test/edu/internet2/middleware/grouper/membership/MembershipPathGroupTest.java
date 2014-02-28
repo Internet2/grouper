@@ -62,7 +62,6 @@ public class MembershipPathGroupTest extends GrouperTest {
   public void testMembershipPathGroup() {
     
     //########################## Non composite
-    //System.out.prin tln("########################## Non composite\n");
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
     Subject memberSubject = SubjectFinder.findById("test.subject.0", true);
@@ -76,7 +75,7 @@ public class MembershipPathGroupTest extends GrouperTest {
         .assignName("test:mpaths:overallGroup").save();
     
     Group privGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:mpaths:privGroup").save();    
-
+    
     Stem privStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:mpaths").save();
 
     AttributeDef privAttributeDef = new AttributeDefSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.attr).assignName("test:mpaths:privAttrDef").assignToStem(true).save();
@@ -88,9 +87,9 @@ public class MembershipPathGroupTest extends GrouperTest {
 
     privGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
     privGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN, false);
-    privGroup.grantPriv(sessionSubject2, AccessPrivilege.READ, false);
+    privGroup.grantPriv(sessionSubject2, AccessPrivilege.ADMIN, false);
     privGroup.grantPriv(sessionSubject3, AccessPrivilege.ADMIN, false);
-    privGroup.grantPriv(sessionSubject4, AccessPrivilege.READ, false);
+    privGroup.grantPriv(sessionSubject4, AccessPrivilege.ADMIN, false);
 
     privGroup.grantPriv(endGroup.toSubject(), AccessPrivilege.READ, false);
     privGroup.grantPriv(endGroup.toSubject(), AccessPrivilege.UPDATE, false);
@@ -100,20 +99,20 @@ public class MembershipPathGroupTest extends GrouperTest {
     privStem.grantPriv(sessionSubject2, NamingPrivilege.STEM, false);
     privStem.grantPriv(sessionSubject3, NamingPrivilege.STEM, false);
     privStem.grantPriv(sessionSubject4, NamingPrivilege.STEM, false);
-
-    privStem.grantPriv(endGroup.toSubject(), NamingPrivilege.STEM, false);
-    privStem.grantPriv(endGroup.toSubject(), NamingPrivilege.CREATE, false);
-    privStem.grantPriv(memberSubject, NamingPrivilege.STEM_ATTR_READ, false);
-
+    
     privAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_OPTIN, false);
     privAttributeDef.getPrivilegeDelegate().grantPriv(sessionSubject2, AttributeDefPrivilege.ATTR_READ, false);
     privAttributeDef.getPrivilegeDelegate().grantPriv(sessionSubject3, AttributeDefPrivilege.ATTR_ADMIN, false);
     privAttributeDef.getPrivilegeDelegate().grantPriv(sessionSubject4, AttributeDefPrivilege.ATTR_READ, false);
+    
+    privStem.grantPriv(endGroup.toSubject(), NamingPrivilege.STEM, false);
+    privStem.grantPriv(endGroup.toSubject(), NamingPrivilege.CREATE, false);
+    privStem.grantPriv(memberSubject, NamingPrivilege.STEM_ATTR_READ, false);
 
     privAttributeDef.getPrivilegeDelegate().grantPriv(endGroup.toSubject(), Privilege.getInstance("attrRead"), false);
     privAttributeDef.getPrivilegeDelegate().grantPriv(endGroup.toSubject(), Privilege.getInstance("attrUpdate"), false);
     privAttributeDef.getPrivilegeDelegate().grantPriv(memberSubject, Privilege.getInstance("attrView"), false);
-    
+
     endGroup.addMember(memberSubject, false);
     
     //one hop membership
@@ -131,7 +130,6 @@ public class MembershipPathGroupTest extends GrouperTest {
       privGroup.grantPriv(intermediateGroup.toSubject(), AccessPrivilege.ADMIN, false);
       privStem.grantPriv(intermediateGroup.toSubject(), NamingPrivilege.STEM_ATTR_UPDATE, false);
       privAttributeDef.getPrivilegeDelegate().grantPriv(intermediateGroup.toSubject(), Privilege.getInstance("attrAdmin"), false);
-
     }
     
     //two hop membership
@@ -142,7 +140,7 @@ public class MembershipPathGroupTest extends GrouperTest {
       Group intermediateGroup2b_owner = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
           .assignName("test:mpaths:intermediateGroup2b_owner").save();
       intermediateGroup2b_owner.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
-  
+
       endGroup.addMember(intermediateGroup2b_owner.toSubject(), false);
       intermediateGroup2b_owner.addMember(intermediateGroup2a_member.toSubject(), false);
       intermediateGroup2a_member.addMember(memberSubject, false);
@@ -152,6 +150,7 @@ public class MembershipPathGroupTest extends GrouperTest {
         .assignName("test:mpaths:overallComposite").save();
     overallComposite.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
     overallComposite.grantPriv(sessionSubject4, AccessPrivilege.READ, false);
+    overallComposite.grantPriv(endGroup.toSubject(), AccessPrivilege.OPTOUT, false);
     
     {
       Group appGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
@@ -249,6 +248,45 @@ public class MembershipPathGroupTest extends GrouperTest {
     assertTrue(membershipPaths.get(1).isPathAllowed());
     assertEquals("test:mpaths:intermediateGroup", membershipPaths.get(1).getMembershipPathNodes().get(0).getOwnerGroup().getName());
     assertEquals("test:mpaths:overallGroup", membershipPaths.get(1).getMembershipPathNodes().get(1).getOwnerGroup().getName());
+
+    // privs
+    membershipPathGroup = MembershipPathGroup.analyzePrivileges(privGroup, memberMember);
+    
+    //grouper system
+    membershipPaths = new ArrayList<MembershipPath>(membershipPathGroup.getMembershipPaths());
+    
+    assertEquals(11, GrouperUtil.length(membershipPaths));
+    
+    assertTrue(membershipPaths.get(0).isPathAllowed());
+    assertEquals(1, membershipPaths.get(0).getMembershipPathNodes().size());
+    assertEquals("test:mpaths:privGroup", membershipPaths.get(0).getMembershipPathNodes().get(0).getOwnerGroup().getName());
+    assertEquals(1, membershipPaths.get(0).getFields().size());
+    assertEquals("viewers", membershipPaths.get(0).getFields().iterator().next());
+
+    assertTrue(membershipPaths.get(1).isPathAllowed());
+    assertEquals(1, membershipPaths.get(1).getMembershipPathNodes().size());
+    assertEquals("test:mpaths:intermediateGroup", membershipPaths.get(1).getMembershipPathNodes().get(0).getOwnerGroup().getName());
+    assertEquals("test:mpaths:privGroup", membershipPaths.get(1).getMembershipPathNodes().get(1).getOwnerGroup().getName());
+    assertEquals(1, membershipPaths.get(1).getFields().size());
+    assertEquals("admins", membershipPaths.get(1).getFields().iterator().next());
+
+    assertTrue(membershipPaths.get(2).isPathAllowed());
+    assertEquals(2, membershipPaths.get(2).getMembershipPathNodes().size());
+    assertEquals("test:mpaths:overallGroup", membershipPaths.get(2).getMembershipPathNodes().get(0).getOwnerGroup().getName());
+    assertEquals("test:mpaths:privGroup", membershipPaths.get(2).getMembershipPathNodes().get(1).getOwnerGroup().getName());
+    assertEquals(2, membershipPaths.get(2).getFields().size());
+    assertTrue(membershipPaths.get(2).getFields().contains(AccessPrivilege.READ.getField()));
+    assertTrue(membershipPaths.get(2).getFields().contains(AccessPrivilege.UPDATE.getField()));
+    
+    assertEquals(3, membershipPaths.get(3).getMembershipPathNodes().size());
+    assertTrue(membershipPaths.get(3).isPathAllowed());
+    assertEquals("test:mpaths:intermediateGroup", membershipPaths.get(3).getMembershipPathNodes().get(0).getOwnerGroup().getName());
+    assertEquals("test:mpaths:overallGroup", membershipPaths.get(3).getMembershipPathNodes().get(1).getOwnerGroup().getName());
+    assertEquals("test:mpaths:privGroup", membershipPaths.get(3).getMembershipPathNodes().get(2).getOwnerGroup().getName());
+    assertEquals(2, membershipPaths.get(3).getFields().size());
+    assertTrue(membershipPaths.get(3).getFields().contains(AccessPrivilege.READ.getField()));
+    assertTrue(membershipPaths.get(3).getFields().contains(AccessPrivilege.UPDATE.getField()));
+
     
     //System.out.prin tln(membershipPathGroup.toString());
 
