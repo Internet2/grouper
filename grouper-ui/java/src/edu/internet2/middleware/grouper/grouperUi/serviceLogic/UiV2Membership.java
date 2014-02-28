@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -26,6 +27,7 @@ import edu.internet2.middleware.grouper.membership.MembershipPathGroup;
 import edu.internet2.middleware.grouper.membership.MembershipPathNode;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -341,14 +343,26 @@ public class UiV2Membership {
       grouperRequestContainer.getGroupContainer().getGuiGroup().setShowBreadcrumbLink(true);
       grouperRequestContainer.getSubjectContainer().getGuiSubject().setShowBreadcrumbLink(true);
   
-      MembershipPathGroup membershipPathGroup = MembershipPathGroup.analyzePrivileges(group, member);
+      List<MembershipPath> allMembershipPaths = new ArrayList<MembershipPath>();
+      {
+        MembershipPathGroup membershipPathGroup = MembershipPathGroup.analyzePrivileges(group, member);
+        allMembershipPaths.addAll(GrouperUtil.nonNull(membershipPathGroup.getMembershipPaths()));
+      }
+      
+      //lets try with every entity too
+      Subject everyEntitySubject = SubjectFinder.findAllSubject();
+      {
+        MembershipPathGroup membershipPathGroup = MembershipPathGroup.analyzePrivileges(group, everyEntitySubject);
+        allMembershipPaths.addAll(GrouperUtil.nonNull(membershipPathGroup.getMembershipPaths()));
+      }
       
       StringBuilder result = new StringBuilder();
       
       //massage the paths to only consider the ones that are allowed
       int membershipUnallowedCount = 0;
       List<MembershipPath> membershipPathsAllowed = new ArrayList<MembershipPath>();
-      for (MembershipPath membershipPath : GrouperUtil.nonNull(membershipPathGroup.getMembershipPaths())) {
+
+      for (MembershipPath membershipPath : allMembershipPaths) {
         if (membershipPath.isPathAllowed()) {
           membershipPathsAllowed.add(membershipPath);
         } else {
@@ -412,9 +426,17 @@ public class UiV2Membership {
 
         result.append(TextContainer.retrieveFromRequest().getText().get("privilegesTracePrivilegesLine")).append("\n");
         if (membershipPath.getMembershipType() == MembershipType.IMMEDIATE) {
-          result.append(TextContainer.retrieveFromRequest().getText().get("privilegesTracePathFirstLine")).append("\n");
+          if (SubjectHelper.eq(everyEntitySubject, membershipPath.getMember().getSubject())) {
+            result.append(TextContainer.retrieveFromRequest().getText().get("privilegesTracePathEveryEntityFirstLine")).append("\n");
+          } else {
+            result.append(TextContainer.retrieveFromRequest().getText().get("privilegesTracePathFirstLine")).append("\n");
+          }
         } else {
-          result.append(TextContainer.retrieveFromRequest().getText().get("membershipTracePathFirstLine")).append("\n");
+          if (SubjectHelper.eq(everyEntitySubject, membershipPath.getMember().getSubject())) {
+            result.append(TextContainer.retrieveFromRequest().getText().get("privilegesTraceMembershipPathEveryEntityFirstLine")).append("\n");
+          } else {
+            result.append(TextContainer.retrieveFromRequest().getText().get("membershipTracePathFirstLine")).append("\n");
+          }
         }
         pathLineNumber++;
         membershipGuiContainer.setLineNumber(pathLineNumber);
