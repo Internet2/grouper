@@ -99,6 +99,7 @@ import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
@@ -1612,6 +1613,34 @@ public class Membership extends GrouperAPI implements
   }
 
   /**
+   * convert membership owner member to string
+   * @param membershipGroupMembers
+   * @return the string
+   */
+  public static String membershipOwnerMemberToString(Collection<Object[]> membershipGroupMembers) {
+    
+    StringBuilder result = new StringBuilder();
+    
+    for (Object[] membershipGroupMember : GrouperUtil.nonNull(membershipGroupMembers)) {
+      Membership membership = (Membership)membershipGroupMember[0];
+      if (membershipGroupMember[1] instanceof GrouperObject) {
+        GrouperObject grouperObject = (GrouperObject)membershipGroupMember[1];
+        result.append(grouperObject.getName()).append(" ");
+      }
+      if (membershipGroupMember[1] instanceof Member) {
+        Member member = (Member)membershipGroupMember[1];
+        result.append(member.getSubjectId()).append(" ");
+      }
+      if (membershipGroupMember.length > 2 && membershipGroupMember[2] instanceof Member) {
+        Member member = (Member)membershipGroupMember[2];
+        result.append(member.getSubjectId()).append(" ");
+      }
+      result.append(membership.getField().getName()).append("\n");
+    }
+    return result.toString();
+  }
+  
+  /**
    * 
    * @return list name
    */
@@ -1624,7 +1653,7 @@ public class Membership extends GrouperAPI implements
    * get the field based on field id (if there is one there)
    * @return the field or null if not there
    */
-  private Field getField() {
+  public Field getField() {
     if (StringUtils.isBlank(this.fieldId)) {
       return null;
     }
