@@ -13,10 +13,18 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -67,10 +75,44 @@ public class MembershipPathGroupTest extends GrouperTest {
     Group endGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
         .assignName("test:mpaths:overallGroup").save();
     
+    Group privGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:mpaths:privGroup").save();    
+
+    Stem privStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:mpaths").save();
+
+    AttributeDef privAttributeDef = new AttributeDefSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.attr).assignName("test:mpaths:privAttrDef").assignToStem(true).save();
+
     endGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
     endGroup.grantPriv(sessionSubject2, AccessPrivilege.READ, false);
     endGroup.grantPriv(sessionSubject3, AccessPrivilege.ADMIN, false);
     endGroup.grantPriv(sessionSubject4, AccessPrivilege.READ, false);
+
+    privGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    privGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN, false);
+    privGroup.grantPriv(sessionSubject2, AccessPrivilege.READ, false);
+    privGroup.grantPriv(sessionSubject3, AccessPrivilege.ADMIN, false);
+    privGroup.grantPriv(sessionSubject4, AccessPrivilege.READ, false);
+
+    privGroup.grantPriv(endGroup.toSubject(), AccessPrivilege.READ, false);
+    privGroup.grantPriv(endGroup.toSubject(), AccessPrivilege.UPDATE, false);
+    privGroup.grantPriv(memberSubject, AccessPrivilege.VIEW, false);
+
+    privStem.grantPriv(SubjectFinder.findAllSubject(), NamingPrivilege.STEM_ATTR_READ, false);
+    privStem.grantPriv(sessionSubject2, NamingPrivilege.STEM, false);
+    privStem.grantPriv(sessionSubject3, NamingPrivilege.STEM, false);
+    privStem.grantPriv(sessionSubject4, NamingPrivilege.STEM, false);
+
+    privStem.grantPriv(endGroup.toSubject(), NamingPrivilege.STEM, false);
+    privStem.grantPriv(endGroup.toSubject(), NamingPrivilege.CREATE, false);
+    privStem.grantPriv(memberSubject, NamingPrivilege.STEM_ATTR_READ, false);
+
+    privAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_OPTIN, false);
+    privAttributeDef.getPrivilegeDelegate().grantPriv(sessionSubject2, AttributeDefPrivilege.ATTR_READ, false);
+    privAttributeDef.getPrivilegeDelegate().grantPriv(sessionSubject3, AttributeDefPrivilege.ATTR_ADMIN, false);
+    privAttributeDef.getPrivilegeDelegate().grantPriv(sessionSubject4, AttributeDefPrivilege.ATTR_READ, false);
+
+    privAttributeDef.getPrivilegeDelegate().grantPriv(endGroup.toSubject(), Privilege.getInstance("attrRead"), false);
+    privAttributeDef.getPrivilegeDelegate().grantPriv(endGroup.toSubject(), Privilege.getInstance("attrUpdate"), false);
+    privAttributeDef.getPrivilegeDelegate().grantPriv(memberSubject, Privilege.getInstance("attrView"), false);
     
     endGroup.addMember(memberSubject, false);
     
@@ -85,6 +127,11 @@ public class MembershipPathGroupTest extends GrouperTest {
 
       endGroup.addMember(intermediateGroup.toSubject(), false);
       intermediateGroup.addMember(memberSubject, false);
+
+      privGroup.grantPriv(intermediateGroup.toSubject(), AccessPrivilege.ADMIN, false);
+      privStem.grantPriv(intermediateGroup.toSubject(), NamingPrivilege.STEM_ATTR_UPDATE, false);
+      privAttributeDef.getPrivilegeDelegate().grantPriv(intermediateGroup.toSubject(), Privilege.getInstance("attrAdmin"), false);
+
     }
     
     //two hop membership
