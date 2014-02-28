@@ -234,8 +234,7 @@ public class UiV2Membership {
             if (membershipPathNode.isComposite()) {
               
               //dont know what branch of the composite we are on... so 
-              Group factor = ownerGroup.equals(membershipPathNode.getLeftCompositeFactor()) 
-                  ? membershipPathNode.getRightCompositeFactor() : membershipPathNode.getLeftCompositeFactor();
+              Group factor = membershipPathNode.getOtherFactor();
               membershipGuiContainer.setGuiGroupFactor(new GuiGroup(factor));
               switch(membershipPathNode.getCompositeType()) {
                 case UNION:
@@ -434,8 +433,7 @@ public class UiV2Membership {
             if (membershipPathNode.isComposite()) {
               
               //dont know what branch of the composite we are on... so 
-              Group factor = ownerGroup.equals(membershipPathNode.getLeftCompositeFactor()) 
-                  ? membershipPathNode.getRightCompositeFactor() : membershipPathNode.getLeftCompositeFactor();
+              Group factor = membershipPathNode.getOtherFactor();
               membershipGuiContainer.setGuiGroupFactor(new GuiGroup(factor));
               switch(membershipPathNode.getCompositeType()) {
                 case UNION:

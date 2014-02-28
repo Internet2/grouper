@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.membership;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
@@ -23,22 +24,48 @@ public class MembershipPathNode implements Comparable<MembershipPathNode> {
   }
   
   /**
-   * @see Object#equals(Object)
+   * @see java.lang.Object#clone()
    */
-  public boolean equals(Object other) {
-    if (!(other instanceof MembershipPathNode)) {
+  @Override
+  protected Object clone() {
+    MembershipPathNode membershipPathNode = new MembershipPathNode();
+    membershipPathNode.setComposite(this.composite);
+    membershipPathNode.setCompositeType(this.compositeType);
+    membershipPathNode.setLeftCompositeFactor(this.leftCompositeFactor);
+    membershipPathNode.setMembershipOwnerType(this.membershipOwnerType);
+    membershipPathNode.setOwnerAttributeDef(this.ownerAttributeDef);
+    membershipPathNode.setOwnerGroup(this.ownerGroup);
+    membershipPathNode.setOwnerStem(this.ownerStem);
+    membershipPathNode.setRightCompositeFactor(this.rightCompositeFactor);
+    return membershipPathNode;
+  }
+
+
+
+  /**
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    
+    return new HashCodeBuilder().append(this.composite).append(this.compositeType).append(this.ownerAttributeDef)
+      .append(this.ownerGroup).append(this.ownerStem).append(this.membershipOwnerType).toHashCode();
+    
+  }
+
+  /**
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof MembershipPathNode)) {
       return false;
     }
-    MembershipPathNode that = (MembershipPathNode)other;
-    return new EqualsBuilder()
-      .append(this.composite, that.composite)
-      .append(this.compositeType, that.compositeType)
-      .append(this.leftCompositeFactor, that.leftCompositeFactor)
-      .append(this.membershipOwnerType, that.membershipOwnerType)
-      .append(this.ownerAttributeDef, that.ownerAttributeDef)
-      .append(this.ownerGroup, that.ownerGroup)
-      .append(this.ownerStem, that.ownerStem)
-      .isEquals();
+    MembershipPathNode that = (MembershipPathNode)obj;
+    return new EqualsBuilder().append(this.composite, that.composite)
+      .append(this.compositeType, that.compositeType).append(this.membershipOwnerType, that.membershipOwnerType)
+      .append(this.ownerAttributeDef, that.ownerAttributeDef).append(this.ownerGroup, that.ownerGroup)
+      .append(this.ownerStem, that.ownerStem).isEquals();
   }
 
   /**
@@ -64,21 +91,23 @@ public class MembershipPathNode implements Comparable<MembershipPathNode> {
    * @param compositeType
    * @param theLeftCompositeFactor
    * @param theRightCompositeFactor
+   * @param theOtherFactor
    */
   public MembershipPathNode(Field field, Group ownerGroup,
       CompositeType compositeType,
-      Group theLeftCompositeFactor, Group theRightCompositeFactor) {
+      Group theLeftCompositeFactor, Group theRightCompositeFactor, Group theOtherFactor) {
     this(field, ownerGroup);
     this.composite = true;
     this.compositeType = compositeType;
     this.leftCompositeFactor = theLeftCompositeFactor;
     this.rightCompositeFactor = theRightCompositeFactor;
+    this.otherFactor = theOtherFactor;
   }
 
   /**
    * constructor for stem path code
    * @param field
-   * @param theOwnerGroup
+   * @param theOwnerStem
    */
   public MembershipPathNode(Field field, Stem theOwnerStem) {
     if (field.isStemListField()) {
@@ -114,11 +143,11 @@ public class MembershipPathNode implements Comparable<MembershipPathNode> {
         if (this.composite) {
           switch (this.compositeType) {
             case COMPLEMENT:
-              return this.ownerGroup.getName() + " (composite " + this.compositeType + " in " + this.leftCompositeFactor.getName() + " and not in " + this.rightCompositeFactor.getName() + ")";
+              return this.ownerGroup.getName() + " (composite " + this.compositeType + " with " + this.leftCompositeFactor.getName() + " and not in " + this.rightCompositeFactor.getName() + ")";
             case INTERSECTION:
-              return this.ownerGroup.getName() + " (composite " + this.compositeType + " in " + this.leftCompositeFactor.getName() + " and in " + this.rightCompositeFactor.getName() + ")";
+              return this.ownerGroup.getName() + " (composite " + this.compositeType + " of " + this.leftCompositeFactor.getName() + " and in " + this.rightCompositeFactor.getName() + ")";
             case UNION:
-              return this.ownerGroup.getName() + " (composite " + this.compositeType + " in " + this.leftCompositeFactor.getName() + " or in " + this.rightCompositeFactor.getName() + ")";
+              return this.ownerGroup.getName() + " (composite " + this.compositeType + " of " + this.leftCompositeFactor.getName() + " or in " + this.rightCompositeFactor.getName() + ")";
             default:
               throw new RuntimeException("Not expecting compositeType: " + this.compositeType);  
           }
@@ -182,8 +211,27 @@ public class MembershipPathNode implements Comparable<MembershipPathNode> {
    */
   private Group rightCompositeFactor;
 
+  /**
+   * this is the factor not in the path
+   */
+  private Group otherFactor;
   
+  /**
+   * this is the factor not in the path
+   * @return the otherFactor
+   */
+  public Group getOtherFactor() {
+    return this.otherFactor;
+  }
   
+  /**
+   * this is the factor not in the path
+   * @param otherFactor1 the otherFactor to set
+   */
+  public void setOtherFactor(Group otherFactor1) {
+    this.otherFactor = otherFactor1;
+  }
+
   /**
    * if this is a composite group
    * @return composite

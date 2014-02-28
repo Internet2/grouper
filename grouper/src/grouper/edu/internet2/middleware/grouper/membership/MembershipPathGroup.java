@@ -52,6 +52,17 @@ public class MembershipPathGroup {
   /**
    * analyze group privileges for a group and a member
    * @param group
+   * @param subject
+   * @return the membershipPathGroup
+   */
+  public static MembershipPathGroup analyzePrivileges(final Group group, final Subject subject) {
+    Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
+    return analyzePrivileges(group, member);
+  }
+  
+  /**
+   * analyze group privileges for a group and a member
+   * @param group
    * @param member
    * @return the membershipPathGroup
    */
@@ -80,6 +91,19 @@ public class MembershipPathGroup {
    */
   public boolean isHasMembership() {
     return GrouperUtil.length(this.membershipPaths) > 0;
+  }
+  
+  /**
+   * analyze the membership/privilege of a member in a group by various paths
+   * @param group
+   * @param subject
+   * @param field
+   * @return the group of paths
+   */
+  public static MembershipPathGroup analyze(final Group group, final Subject subject, final Field field) {
+    Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
+    return analyze(group, member, field);
+
   }
   
   /**
@@ -145,12 +169,34 @@ public class MembershipPathGroup {
       for (MembershipPath membershipPath : membershipPathGroup.getMembershipPaths()) {
 
         List<MembershipPathNode> membershipPathNodes = new ArrayList<MembershipPathNode>();
-        
         //first add the closest
         membershipPathNodes.addAll(membershipPath.getMembershipPathNodes());
         
         //then add the ones all the way to the destination
-        membershipPathNodes.addAll(compositePath.getMembershipPathNodes());
+        //we need to clone the composite and put the other node in there, since we dont want to edit the original node
+        boolean first = true;
+        for (MembershipPathNode membershipPathNode : compositePath.getMembershipPathNodes()) {
+          if (first) {
+            
+            {
+              MembershipPathNode compositePathNode = (MembershipPathNode)membershipPathNode.clone();
+              MembershipPathNode factorPathNode = membershipPath.getMembershipPathNodes().get(membershipPath.getMembershipPathNodes().size()-1);
+              Group factorGroup = factorPathNode.getOwnerGroup();
+              if (factorGroup.equals(compositePathNode.getLeftCompositeFactor())) {
+                compositePathNode.setOtherFactor(compositePathNode.getRightCompositeFactor());
+              } else if (factorGroup.equals(compositePathNode.getRightCompositeFactor())) {
+                compositePathNode.setOtherFactor(compositePathNode.getLeftCompositeFactor());
+              } else {
+                throw new RuntimeException("Why is path node not a factor: " + factorGroup + ", " 
+                    + compositePathNode.getLeftCompositeFactor() + ", " + compositePathNode.getRightCompositeFactor());
+              }
+              membershipPathNodes.add(compositePathNode);
+            }
+          } else {
+            membershipPathNodes.add(membershipPathNode);
+          }
+          first = false;
+        }
         
         MembershipPath newMembershipPath = new MembershipPath(membershipPath.getMember(), membershipPathNodes, 
             membershipPath.getMembershipType() == MembershipType.IMMEDIATE ? MembershipType.EFFECTIVE : membershipPath.getMembershipType());
@@ -654,6 +700,10 @@ public class MembershipPathGroup {
     this.member = theMember;
     this.membershipPaths = new TreeSet<MembershipPath>();
 
+    if (theMember == null) {
+      return;
+    }
+    
     //loop through all the access privileges, and analyze them
     for (Privilege privilege : AccessPrivilege.ALL_PRIVILEGES) {
       
@@ -793,6 +843,11 @@ public class MembershipPathGroup {
     
     this.membershipPaths = new TreeSet<MembershipPath>();
 
+    //subject not a member?
+    if (this.member == null) {
+      return;
+    }
+    
     if (--timeToLive < 0) {
       //we are done
       return;
@@ -874,13 +929,13 @@ public class MembershipPathGroup {
     }
     Set<Object[]> membershipGroupMemberSet = membershipFinder
         .assignMembershipType(MembershipType.IMMEDIATE)
-        .addField(field).addMemberId(member.getId()).findMembershipsMembers();
+        .addField(field).addMemberId(this.member.getId()).findMembershipsMembers();
 
     {  
       //also add in the list ones, since a subject could be a member of a group that has a field on something else. 
       //note, you cant do this above since membership finder works on one field type at a time
       Set<Object[]> listMembershipGroupMemberSet = new MembershipFinder().assignGroupIds(groupIds).assignMembershipType(MembershipType.IMMEDIATE)
-          .addField(Group.getDefaultList()).addMemberId(member.getId()).findMembershipsMembers();
+          .addField(Group.getDefaultList()).addMemberId(this.member.getId()).findMembershipsMembers();
       
       membershipGroupMemberSet.addAll(listMembershipGroupMemberSet);
     }
@@ -922,33 +977,38 @@ public class MembershipPathGroup {
       GroupSet currentGroupSet = groupSet;
       
       boolean allowed = true;
-      
+
       for (int i=groupSet.getDepth(); i>=0; i--) {
 
         MembershipPathNode membershipPathNode = null;
 
         if (!StringUtils.isBlank(currentGroupSet.getMemberGroupId())) {
           //if direct, use that field
+          Group memberGroup = null;
+          Field memberField = null;
+          
           if (isGroup && StringUtils.equals(currentGroupSet.getMemberGroupId(), this.ownerGroup.getId())) {
-            membershipPathNode = new MembershipPathNode(field, this.ownerGroup);
+            memberField = field;
+            memberGroup = this.ownerGroup;
           } else {
             //else its a member of a group
-            Group memberGroup = groupIdToGroupMapUnsecure.get(currentGroupSet.getMemberGroupId());
+            memberGroup = groupIdToGroupMapUnsecure.get(currentGroupSet.getMemberGroupId());
+            memberField = Group.getDefaultList();
             allowed = allowed && groupsSecure.contains(memberGroup);
-            if (memberGroup.hasComposite()) {
-      
-              Composite composite = memberGroup.getComposite(true);
-              CompositeType compositeType = composite.getType();
-              
-              Group leftGroup = composite.getLeftGroup();
-              Group rightGroup = composite.getRightGroup();
-      
-              membershipPathNode = new MembershipPathNode(Group.getDefaultList(), memberGroup, compositeType, leftGroup, rightGroup);
-      
-            } else {
+          }
+          if (memberGroup.hasComposite()) {
+    
+            Composite composite = memberGroup.getComposite(true);
+            CompositeType compositeType = composite.getType();
             
-              membershipPathNode = new MembershipPathNode(Group.getDefaultList(), memberGroup);
-            }
+            Group leftGroup = composite.getLeftGroup();
+            Group rightGroup = composite.getRightGroup();
+    
+            membershipPathNode = new MembershipPathNode(memberField, memberGroup, compositeType, leftGroup, rightGroup, null);
+    
+          } else {
+          
+            membershipPathNode = new MembershipPathNode(memberField, memberGroup);
           }
         } else if (isStem && !StringUtils.isBlank(currentGroupSet.getMemberStemId())
             && StringUtils.equals(currentGroupSet.getMemberStemId(), this.ownerStem.getId())) {

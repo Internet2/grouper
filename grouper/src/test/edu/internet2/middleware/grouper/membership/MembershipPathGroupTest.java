@@ -39,7 +39,7 @@ public class MembershipPathGroupTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new MembershipPathGroupTest("testMembershipPathGroup"));
+    TestRunner.run(new MembershipPathGroupTest("testCompositePrivilege"));
   }
   
   /**
@@ -56,6 +56,80 @@ public class MembershipPathGroupTest extends GrouperTest {
     super(name);
   }
 
+  /**
+   * 
+   */
+  public void testCompositePrivilege() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Group g0 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:mpaths2:privGroup").save();
+    Group g1 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:mpaths2:endGroup").save();
+    Group g2 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:mpaths2:factor1").save();
+    Group g3 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:mpaths2:factor2").save();
+    Subject s0 = SubjectFinder.findById("test.subject.0", true);
+
+    
+    g0.grantPriv(g1.toSubject(), AccessPrivilege.OPTIN);
+    g1.addCompositeMember(CompositeType.INTERSECTION, g2, g3);
+    g2.addMember(s0);
+    g3.addMember(s0);
+
+    MembershipPathGroup membershipPathGroup = MembershipPathGroup.analyzePrivileges(g0, s0);
+
+    List<MembershipPath> membershipPaths = new ArrayList<MembershipPath>(membershipPathGroup.getMembershipPaths());
+
+    assertEquals(2, membershipPaths.size());
+
+    assertTrue(membershipPaths.get(0).isPathAllowed());
+    assertEquals(3, membershipPaths.get(0).getMembershipPathNodes().size());
+    assertEquals("test:mpaths2:factor1", membershipPaths.get(0).getMembershipPathNodes().get(0).getOwnerGroup().getName());
+    assertEquals("test:mpaths2:endGroup", membershipPaths.get(0).getMembershipPathNodes().get(1).getOwnerGroup().getName());
+    assertEquals("test:mpaths2:factor2", membershipPaths.get(0).getMembershipPathNodes().get(1).getOtherFactor().getName());
+    assertEquals("test:mpaths2:privGroup", membershipPaths.get(0).getMembershipPathNodes().get(2).getOwnerGroup().getName());
+    assertEquals(1, membershipPaths.get(0).getFields().size());
+    assertEquals("optins", membershipPaths.get(0).getFields().iterator().next().getName());
+
+    assertTrue(membershipPaths.get(1).isPathAllowed());
+    assertEquals(3, membershipPaths.get(1).getMembershipPathNodes().size());
+    assertEquals("test:mpaths2:factor2", membershipPaths.get(1).getMembershipPathNodes().get(0).getOwnerGroup().getName());
+    assertEquals("test:mpaths2:endGroup", membershipPaths.get(1).getMembershipPathNodes().get(1).getOwnerGroup().getName());
+    assertEquals("test:mpaths2:factor1", membershipPaths.get(1).getMembershipPathNodes().get(1).getOtherFactor().getName());
+    assertEquals("test:mpaths2:privGroup", membershipPaths.get(1).getMembershipPathNodes().get(2).getOwnerGroup().getName());
+    assertEquals(1, membershipPaths.get(1).getFields().size());
+    assertEquals("optins", membershipPaths.get(1).getFields().iterator().next().getName());
+
+    membershipPathGroup = MembershipPathGroup.analyze(g1, s0, Group.getDefaultList());
+
+    membershipPaths = new ArrayList<MembershipPath>(membershipPathGroup.getMembershipPaths());
+    
+    String membershipPathGroupString = membershipPathGroup.toString();
+    
+    assertEquals(membershipPathGroupString, 2, membershipPaths.size());
+
+    assertTrue(membershipPathGroupString, membershipPaths.get(0).isPathAllowed());
+    assertEquals(membershipPathGroupString, 2, membershipPaths.get(0).getMembershipPathNodes().size());
+    assertEquals(membershipPathGroupString, "test:mpaths2:factor1", membershipPaths.get(0).getMembershipPathNodes().get(0).getOwnerGroup().getName());
+    assertEquals(membershipPathGroupString, "test:mpaths2:endGroup", membershipPaths.get(0).getMembershipPathNodes().get(1).getOwnerGroup().getName());
+    assertEquals(membershipPathGroupString, "test:mpaths2:factor2", membershipPaths.get(0).getMembershipPathNodes().get(1).getOtherFactor().getName());
+    assertEquals(membershipPathGroupString, 1, membershipPaths.get(0).getFields().size());
+    assertEquals(membershipPathGroupString, "members", membershipPaths.get(0).getFields().iterator().next().getName());
+
+    assertTrue(membershipPathGroupString, membershipPaths.get(1).isPathAllowed());
+    assertEquals(membershipPathGroupString, 2, membershipPaths.get(1).getMembershipPathNodes().size());
+    assertEquals(membershipPathGroupString, "test:mpaths2:factor2", membershipPaths.get(1).getMembershipPathNodes().get(0).getOwnerGroup().getName());
+    assertEquals(membershipPathGroupString, "test:mpaths2:endGroup", membershipPaths.get(1).getMembershipPathNodes().get(1).getOwnerGroup().getName());
+    assertEquals(membershipPathGroupString, "test:mpaths2:factor1", membershipPaths.get(1).getMembershipPathNodes().get(1).getOtherFactor().getName());
+    assertEquals(membershipPathGroupString, 1, membershipPaths.get(1).getFields().size());
+    assertEquals(membershipPathGroupString, "members", membershipPaths.get(1).getFields().iterator().next().getName());
+
+    
+//    test.subject.0 (fields: optins):  -> test:mpaths2:factor1 -> test:mpaths2:endGroup (composite intersection in test:mpaths2:factor1 and in test:mpaths2:factor2) -> test:mpaths2:privGroup
+//    test.subject.0 (fields: optins):  -> test:mpaths2:factor2 -> test:mpaths2:endGroup (composite intersection in test:mpaths2:factor1 and in test:mpaths2:factor2) -> test:mpaths2:privGroup
+
+
+  }
+  
   /**
    * 
    */
@@ -261,14 +335,14 @@ public class MembershipPathGroupTest extends GrouperTest {
     assertEquals(1, membershipPaths.get(0).getMembershipPathNodes().size());
     assertEquals("test:mpaths:privGroup", membershipPaths.get(0).getMembershipPathNodes().get(0).getOwnerGroup().getName());
     assertEquals(1, membershipPaths.get(0).getFields().size());
-    assertEquals("viewers", membershipPaths.get(0).getFields().iterator().next());
+    assertEquals("viewers", membershipPaths.get(0).getFields().iterator().next().getName());
 
     assertTrue(membershipPaths.get(1).isPathAllowed());
-    assertEquals(1, membershipPaths.get(1).getMembershipPathNodes().size());
+    assertEquals(2, membershipPaths.get(1).getMembershipPathNodes().size());
     assertEquals("test:mpaths:intermediateGroup", membershipPaths.get(1).getMembershipPathNodes().get(0).getOwnerGroup().getName());
     assertEquals("test:mpaths:privGroup", membershipPaths.get(1).getMembershipPathNodes().get(1).getOwnerGroup().getName());
     assertEquals(1, membershipPaths.get(1).getFields().size());
-    assertEquals("admins", membershipPaths.get(1).getFields().iterator().next());
+    assertEquals("admins", membershipPaths.get(1).getFields().iterator().next().getName());
 
     assertTrue(membershipPaths.get(2).isPathAllowed());
     assertEquals(2, membershipPaths.get(2).getMembershipPathNodes().size());
