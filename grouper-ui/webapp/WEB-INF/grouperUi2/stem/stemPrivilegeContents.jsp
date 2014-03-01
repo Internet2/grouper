@@ -81,7 +81,10 @@
                         <td>
                           <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle">Actions <span class="caret"></span></a>
                             <ul class="dropdown-menu dropdown-menu-right">
-                              <li><a href="trace-privileges.html">Trace privileges</a></li>
+                              <c:if test="${guiMembershipContainer.membershipContainer.membershipAssignType.nonImmediate}">
+                                <li><a href="#"  onclick="return guiV2link('operation=UiV2Membership.traceStemPrivileges&stemId=${guiMembershipSubjectContainer.guiStem.stem.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}'); return false;" class="actions-revoke-membership">${textContainer.text['thisSubjectsPrivilegesActionsMenuTracePrivileges'] }</a></li>
+                              </c:if>
+                              
                               <c:choose>
                                 <c:when test="${guiMembershipSubjectContainer.guiSubject.group}">
                                   <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${guiMembershipSubjectContainer.guiSubject.subject.id}');">View group</a></li>

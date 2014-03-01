@@ -14,8 +14,12 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
@@ -355,9 +359,7 @@ public class UiV2Membership {
         MembershipPathGroup membershipPathGroup = MembershipPathGroup.analyzePrivileges(group, everyEntitySubject);
         allMembershipPaths.addAll(GrouperUtil.nonNull(membershipPathGroup.getMembershipPaths()));
       }
-      
-      StringBuilder result = new StringBuilder();
-      
+            
       //massage the paths to only consider the ones that are allowed
       int membershipUnallowedCount = 0;
       List<MembershipPath> membershipPathsAllowed = new ArrayList<MembershipPath>();
@@ -387,127 +389,372 @@ public class UiV2Membership {
         }
       }
       
-      //<p>Danielle Knotts is an <a href="#"><span class="label label-inverse">indirect member</span></a> of</p>
-      //<p style="margin-left:20px;"><i class="icon-circle-arrow-right"></i> <a href="#">Root : Departments : Information Technology : Staff</a></p>
-      //<p style="margin-left:40px;"><i class="icon-circle-arrow-right"></i> which is a <a href="#"><span class="label label-info">direct member</span></a> of</p>
-      //<p style="margin-left:60px"><i class="icon-circle-arrow-right"></i> Root : Applications : Wiki : Editors</p><a href="#" class="pull-right btn btn-primary btn-cancel">Back to previous page</a>
-      //<hr />
-      boolean firstPath = true;
-      // loop through each membership path
-      for (MembershipPath membershipPath : membershipPathsAllowed) {
-        
-        if (!firstPath) {
-          result.append("<hr />\n");
-        }
-        
-        int pathLineNumber = 0;
-        membershipGuiContainer.setLineNumber(pathLineNumber);
-        
-        //get privs like ADMIN, READ
-        {
-          StringBuilder privilegeNames = new StringBuilder();
-          boolean first = true;
-          for (Field field : GrouperUtil.nonNull(membershipPath.getFields())) {
-            if (!first) {
-              privilegeNames.append(", ");
-            }
-            
-            String textKey = "priv." + field.getName() + "Upper";
-
-            String privilegeLabel = TextContainer.retrieveFromRequest().getText().get(textKey);
-            
-            privilegeNames.append(privilegeLabel);
-            
-            first = false;
-          }
-          
-          membershipGuiContainer.setPrivilegeLabelsString(privilegeNames.toString());
-        }
-
-        result.append(TextContainer.retrieveFromRequest().getText().get("privilegesTracePrivilegesLine")).append("\n");
-        if (membershipPath.getMembershipType() == MembershipType.IMMEDIATE) {
-          if (SubjectHelper.eq(everyEntitySubject, membershipPath.getMember().getSubject())) {
-            result.append(TextContainer.retrieveFromRequest().getText().get("privilegesTracePathEveryEntityFirstLine")).append("\n");
-          } else {
-            result.append(TextContainer.retrieveFromRequest().getText().get("privilegesTracePathFirstLine")).append("\n");
-          }
-        } else {
-          if (SubjectHelper.eq(everyEntitySubject, membershipPath.getMember().getSubject())) {
-            result.append(TextContainer.retrieveFromRequest().getText().get("privilegesTraceMembershipPathEveryEntityFirstLine")).append("\n");
-          } else {
-            result.append(TextContainer.retrieveFromRequest().getText().get("membershipTracePathFirstLine")).append("\n");
-          }
-        }
-        pathLineNumber++;
-        membershipGuiContainer.setLineNumber(pathLineNumber);
-        
-        boolean firstNode = true;
-  
-        //loop through each node in the path
-        for (int i = 0; i < GrouperUtil.length(membershipPath.getMembershipPathNodes()); i++) {
-          
-          MembershipPathNode membershipPathNode = membershipPath.getMembershipPathNodes().get(i);
-          
-          Group ownerGroup = membershipPathNode.getOwnerGroup();
-  
-          if (!firstNode) {
-  
-            if (membershipPathNode.isComposite()) {
-              
-              //dont know what branch of the composite we are on... so 
-              Group factor = membershipPathNode.getOtherFactor();
-              membershipGuiContainer.setGuiGroupFactor(new GuiGroup(factor));
-              switch(membershipPathNode.getCompositeType()) {
-                case UNION:
-                  
-                  result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupCompositeOfUnion")).append("\n");
-                  break;
-                case INTERSECTION:
-  
-                  result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupCompositeOfIntersection")).append("\n");
-                  break;
-                case COMPLEMENT:
-                  
-                  result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupCompositeOfMinus")).append("\n");
-                  break;
-                default:
-                  throw new RuntimeException("Not expecting composite type: " + membershipPathNode.getCompositeType());  
-              }
-              
-            } else {
-              
-              //if last line
-              if (i == GrouperUtil.length(membershipPath.getMembershipPathNodes()) - 1) {
-                result.append(TextContainer.retrieveFromRequest().getText().get("privilegesTracePathLastLine")).append("\n");
-                
-              } else {
-                result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupMemberOf")).append("\n");
-              }
-              
-              
-            }
-  
-            pathLineNumber++;
-            membershipGuiContainer.setLineNumber(pathLineNumber);
-  
-          }
-          
-          membershipGuiContainer.setGuiGroupCurrent(new GuiGroup(ownerGroup));
-  
-          result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupLine")).append("\n");
-  
-          firstNode = false;
-          pathLineNumber++;
-          membershipGuiContainer.setLineNumber(pathLineNumber);
-        }
-        
-        firstPath = false;
-      }
-      
-      grouperRequestContainer.getMembershipGuiContainer().setTraceMembershipsString(result.toString());
+      tracePrivilegesHelper(membershipPathsAllowed, true, false, false);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/membership/tracePrivileges.jsp"));
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+
+  /**
+   * trace the 
+   * @param membershipPathsAllowed
+   * @param isGroup
+   * @param isStem
+   * @param isAttributeDef
+   */
+  public void tracePrivilegesHelper(List<MembershipPath> membershipPathsAllowed, boolean isGroup, boolean isStem, boolean isAttributeDef) {
+    
+    StringBuilder result = new StringBuilder();
+    Subject everyEntitySubject = SubjectFinder.findAllSubject();
+
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    
+    MembershipGuiContainer membershipGuiContainer = grouperRequestContainer.getMembershipGuiContainer();
+    
+    //<p>Danielle Knotts is an <a href="#"><span class="label label-inverse">indirect member</span></a> of</p>
+    //<p style="margin-left:20px;"><i class="icon-circle-arrow-right"></i> <a href="#">Root : Departments : Information Technology : Staff</a></p>
+    //<p style="margin-left:40px;"><i class="icon-circle-arrow-right"></i> which is a <a href="#"><span class="label label-info">direct member</span></a> of</p>
+    //<p style="margin-left:60px"><i class="icon-circle-arrow-right"></i> Root : Applications : Wiki : Editors</p><a href="#" class="pull-right btn btn-primary btn-cancel">Back to previous page</a>
+    //<hr />
+    boolean firstPath = true;
+    // loop through each membership path
+    for (MembershipPath membershipPath : membershipPathsAllowed) {
+      
+      if (!firstPath) {
+        result.append("<hr />\n");
+      }
+      
+      int pathLineNumber = 0;
+      membershipGuiContainer.setLineNumber(pathLineNumber);
+      
+      //get privs like ADMIN, READ
+      {
+        StringBuilder privilegeNames = new StringBuilder();
+        boolean first = true;
+        for (Field field : GrouperUtil.nonNull(membershipPath.getFields())) {
+          if (!first) {
+            privilegeNames.append(", ");
+          }
+          
+          String textKey = "priv." + field.getName() + "Upper";
+
+          String privilegeLabel = TextContainer.retrieveFromRequest().getText().get(textKey);
+          
+          privilegeNames.append(privilegeLabel);
+          
+          first = false;
+        }
+        
+        membershipGuiContainer.setPrivilegeLabelsString(privilegeNames.toString());
+      }
+
+      result.append(TextContainer.retrieveFromRequest().getText().get("privilegesTracePrivilegesLine")).append("\n");
+      if (membershipPath.getMembershipType() == MembershipType.IMMEDIATE) {
+        if (SubjectHelper.eq(everyEntitySubject, membershipPath.getMember().getSubject())) {
+          result.append(TextContainer.retrieveFromRequest().getText().get("privilegesTracePathEveryEntityFirstLine")).append("\n");
+        } else {
+          result.append(TextContainer.retrieveFromRequest().getText().get("privilegesTracePathFirstLine")).append("\n");
+        }
+      } else {
+        if (SubjectHelper.eq(everyEntitySubject, membershipPath.getMember().getSubject())) {
+          result.append(TextContainer.retrieveFromRequest().getText().get("privilegesTraceMembershipPathEveryEntityFirstLine")).append("\n");
+        } else {
+          result.append(TextContainer.retrieveFromRequest().getText().get("membershipTracePathFirstLine")).append("\n");
+        }
+      }
+      pathLineNumber++;
+      membershipGuiContainer.setLineNumber(pathLineNumber);
+      
+      boolean firstNode = true;
+ 
+      //loop through each node in the path
+      for (int i = 0; i < GrouperUtil.length(membershipPath.getMembershipPathNodes()); i++) {
+        
+        MembershipPathNode membershipPathNode = membershipPath.getMembershipPathNodes().get(i);
+        
+        Group ownerGroup = membershipPathNode.getOwnerGroup();
+        Stem ownerStem = membershipPathNode.getOwnerStem();
+        AttributeDef ownerAttributeDef = membershipPathNode.getOwnerAttributeDef();
+ 
+        if (!firstNode) {
+ 
+          if (membershipPathNode.isComposite()) {
+            
+            //dont know what branch of the composite we are on... so 
+            Group factor = membershipPathNode.getOtherFactor();
+            membershipGuiContainer.setGuiGroupFactor(new GuiGroup(factor));
+            switch(membershipPathNode.getCompositeType()) {
+              case UNION:
+                
+                result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupCompositeOfUnion")).append("\n");
+                break;
+              case INTERSECTION:
+ 
+                result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupCompositeOfIntersection")).append("\n");
+                break;
+              case COMPLEMENT:
+                
+                result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupCompositeOfMinus")).append("\n");
+                break;
+              default:
+                throw new RuntimeException("Not expecting composite type: " + membershipPathNode.getCompositeType());  
+            }
+            
+          } else {
+            
+            //if last line
+            if (i == GrouperUtil.length(membershipPath.getMembershipPathNodes()) - 1) {
+              result.append(TextContainer.retrieveFromRequest().getText().get("privilegesTracePathLastLine")).append("\n");
+              
+            } else {
+              result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupMemberOf")).append("\n");
+            }
+            
+            
+          }
+ 
+          pathLineNumber++;
+          membershipGuiContainer.setLineNumber(pathLineNumber);
+ 
+        }
+        
+        if (ownerGroup != null) {
+          membershipGuiContainer.setGuiGroupCurrent(new GuiGroup(ownerGroup));
+          result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupLine")).append("\n");
+        } else if (ownerStem != null) {
+          membershipGuiContainer.setGuiStemCurrent(new GuiStem(ownerStem));
+          result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceStemLine")).append("\n");
+        } else if (ownerAttributeDef != null) {
+          membershipGuiContainer.setGuiAttributeDefCurrent(new GuiAttributeDef(ownerAttributeDef));
+          result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceAttributeDefLine")).append("\n");
+        }
+ 
+ 
+        firstNode = false;
+        pathLineNumber++;
+        membershipGuiContainer.setLineNumber(pathLineNumber);
+      }
+      
+      firstPath = false;
+    }
+    
+    grouperRequestContainer.getMembershipGuiContainer().setTraceMembershipsString(result.toString());
+  }
+
+  /**
+   * trace stem privileges
+   * @param request
+   * @param response
+   */
+  public void traceStemPrivileges(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+    Subject subject = null;
+  
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+  
+      if (stem == null) {
+        return;
+      }
+  
+      subject = UiV2Subject.retrieveSubjectHelper(request, true);
+  
+      if (subject == null) {
+        return;
+      }
+      
+      Member member = MemberFinder.findBySubject(grouperSession, subject, false);
+  
+      if (member == null) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("privilegesTraceNoPrivilegesFound")));
+        
+        return;
+      }
+            
+      MembershipGuiContainer membershipGuiContainer = grouperRequestContainer.getMembershipGuiContainer();
+      
+      //see where to go back to
+      if (StringUtils.equalsIgnoreCase(request.getParameter("backTo"), "subject")) {
+        membershipGuiContainer.setTraceMembershipFromSubject(true);
+      }
+  
+      //this is a subobject
+      grouperRequestContainer.getStemContainer().getGuiStem().setShowBreadcrumbLink(true);
+      grouperRequestContainer.getSubjectContainer().getGuiSubject().setShowBreadcrumbLink(true);
+  
+      List<MembershipPath> allMembershipPaths = new ArrayList<MembershipPath>();
+      {
+        MembershipPathGroup membershipPathGroup = MembershipPathGroup.analyzePrivileges(stem, member);
+        allMembershipPaths.addAll(GrouperUtil.nonNull(membershipPathGroup.getMembershipPaths()));
+      }
+      
+      //lets try with every entity too
+      Subject everyEntitySubject = SubjectFinder.findAllSubject();
+      {
+        MembershipPathGroup membershipPathGroup = MembershipPathGroup.analyzePrivileges(stem, everyEntitySubject);
+        allMembershipPaths.addAll(GrouperUtil.nonNull(membershipPathGroup.getMembershipPaths()));
+      }
+            
+      //massage the paths to only consider the ones that are allowed
+      int membershipUnallowedCount = 0;
+      List<MembershipPath> membershipPathsAllowed = new ArrayList<MembershipPath>();
+  
+      for (MembershipPath membershipPath : allMembershipPaths) {
+        if (membershipPath.isPathAllowed()) {
+          membershipPathsAllowed.add(membershipPath);
+        } else {
+          membershipUnallowedCount++;
+        }
+      }
+
+      if (membershipUnallowedCount > 0) {
+        membershipGuiContainer.setPathCountNotAllowed(membershipUnallowedCount);
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info,
+            TextContainer.retrieveFromRequest().getText().get("privilegesTraceGroupPathsNotAllowed")));
+      }
+  
+      if (GrouperUtil.length(membershipPathsAllowed) == 0) {
+  
+        if (membershipUnallowedCount > 0) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+              TextContainer.retrieveFromRequest().getText().get("privilegesTraceGroupNoPathsAllowed")));
+        } else {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+              TextContainer.retrieveFromRequest().getText().get("privilegesTraceStemNoPaths")));
+        }
+      }
+      
+      tracePrivilegesHelper(membershipPathsAllowed, false, true, false);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/membership/traceStemPrivileges.jsp"));
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+
+  /**
+   * trace attribute definition privileges
+   * @param request
+   * @param response
+   */
+  public void traceAttributeDefPrivileges(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+    Subject subject = null;
+  
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+  
+      if (stem == null) {
+        return;
+      }
+  
+      subject = UiV2Subject.retrieveSubjectHelper(request, true);
+  
+      if (subject == null) {
+        return;
+      }
+      
+      Member member = MemberFinder.findBySubject(grouperSession, subject, false);
+  
+      if (member == null) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("privilegesTraceNoPrivilegesFound")));
+        
+        return;
+      }
+            
+      MembershipGuiContainer membershipGuiContainer = grouperRequestContainer.getMembershipGuiContainer();
+      
+      //see where to go back to
+      if (StringUtils.equalsIgnoreCase(request.getParameter("backTo"), "subject")) {
+        membershipGuiContainer.setTraceMembershipFromSubject(true);
+      }
+  
+      //this is a subobject
+      grouperRequestContainer.getStemContainer().getGuiStem().setShowBreadcrumbLink(true);
+      grouperRequestContainer.getSubjectContainer().getGuiSubject().setShowBreadcrumbLink(true);
+  
+      List<MembershipPath> allMembershipPaths = new ArrayList<MembershipPath>();
+      {
+        MembershipPathGroup membershipPathGroup = MembershipPathGroup.analyzePrivileges(stem, member);
+        allMembershipPaths.addAll(GrouperUtil.nonNull(membershipPathGroup.getMembershipPaths()));
+      }
+      
+      //lets try with every entity too
+      Subject everyEntitySubject = SubjectFinder.findAllSubject();
+      {
+        MembershipPathGroup membershipPathGroup = MembershipPathGroup.analyzePrivileges(stem, everyEntitySubject);
+        allMembershipPaths.addAll(GrouperUtil.nonNull(membershipPathGroup.getMembershipPaths()));
+      }
+            
+      //massage the paths to only consider the ones that are allowed
+      int membershipUnallowedCount = 0;
+      List<MembershipPath> membershipPathsAllowed = new ArrayList<MembershipPath>();
+  
+      for (MembershipPath membershipPath : allMembershipPaths) {
+        if (membershipPath.isPathAllowed()) {
+          membershipPathsAllowed.add(membershipPath);
+        } else {
+          membershipUnallowedCount++;
+        }
+      }
+  
+      if (membershipUnallowedCount > 0) {
+        membershipGuiContainer.setPathCountNotAllowed(membershipUnallowedCount);
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info,
+            TextContainer.retrieveFromRequest().getText().get("privilegesTraceGroupPathsNotAllowed")));
+      }
+  
+      if (GrouperUtil.length(membershipPathsAllowed) == 0) {
+  
+        if (membershipUnallowedCount > 0) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+              TextContainer.retrieveFromRequest().getText().get("privilegesTraceGroupNoPathsAllowed")));
+        } else {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+              TextContainer.retrieveFromRequest().getText().get("privilegesTraceAttributeDefNoPaths")));
+        }
+      }
+      
+      tracePrivilegesHelper(membershipPathsAllowed, false, false, true);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/membership/traceAttributeDefPrivileges.jsp"));
   
     } finally {
       GrouperSession.stopQuietly(grouperSession);

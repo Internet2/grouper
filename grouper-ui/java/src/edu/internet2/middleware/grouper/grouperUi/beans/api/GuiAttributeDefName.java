@@ -173,5 +173,53 @@ public class GuiAttributeDefName extends GuiObjectBase implements Serializable {
   public GrouperObject getGrouperObject() {
     return this.attributeDefName;
   }
+
+  /**
+   * &lt;a href="#" rel="tooltip" data-html="true" data-delay-show='200' data-placement="right" title="&amp;lt;strong&amp;gt;FOLDER:&amp;lt;/strong&amp;gt;&amp;lt;br /&amp;gt;Full : Path : To : The : Entity&lt;br /&gt;&lt;br /&gt;This is the description for this entity. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.">Editors</a>
+   * @return short link
+   */
+  public String getLink() {
+    
+    return linkHelper(false);
+  }
+
+  /**
+   * display short link with image next to it in li
+   * &lt;a href="#" rel="tooltip" data-html="true" data-delay-show='200' data-placement="right" title="&amp;lt;strong&amp;gt;FOLDER:&amp;lt;/strong&amp;gt;&amp;lt;br /&amp;gt;Full : Path : To : The : Entity&lt;br /&gt;&lt;br /&gt;This is the description for this entity. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.">Editors</a>
+   * @return short link
+   */
+  public String getLinkWithIcon() {
+    
+    return linkHelper(true);
+  }
+
+  /**
+   * 
+   * @param showIcon
+   * @return the link
+   */
+  private String linkHelper(boolean showIcon) {
+    
+    if (this.attributeDefName == null) {
+      //TODO put icon here?
+      return TextContainer.retrieveFromRequest().getText().get("guiObjectUnknown");
+    }
+    
+    GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiAttributeDefName(this);
+    GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowIcon(showIcon);
+    
+    try {
+      
+      String result = TextContainer.retrieveFromRequest().getText().get("guiAttributeDefNameLink");
+      return result;
+      
+    } finally {
+  
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setGuiAttributeDefName(null);
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setShowIcon(false);
+  
+    }
+  
+  }
   
 }

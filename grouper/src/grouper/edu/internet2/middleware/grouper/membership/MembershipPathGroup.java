@@ -1083,6 +1083,28 @@ public class MembershipPathGroup {
   }
 
   /**
+   * analyze stem privileges for a stem and a member
+   * @param stem
+   * @param subject
+   * @return the membershipPathGroup
+   */
+  public static MembershipPathGroup analyzePrivileges(final Stem stem, final Subject subject) {
+    Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
+    return analyzePrivileges(stem, member);
+  }
+
+  /**
+   * analyze attrDef privileges for an attrDef and a member
+   * @param attributeDef
+   * @param subject
+   * @return the membershipPathGroup
+   */
+  public static MembershipPathGroup analyzePrivileges(final AttributeDef attributeDef, final Subject subject) {
+    Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
+    return analyzePrivileges(attributeDef, member);
+  }
+
+  /**
    * analyze the membership/privilege of a member in a stem by various paths
    * @param stem
    * @param member

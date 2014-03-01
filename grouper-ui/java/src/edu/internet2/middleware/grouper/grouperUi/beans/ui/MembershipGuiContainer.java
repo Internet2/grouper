@@ -1,7 +1,9 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 
 
 /**
@@ -120,6 +122,48 @@ public class MembershipGuiContainer {
    * current gui group e.g. when tracing memberships
    */
   private GuiGroup guiGroupCurrent;
+  
+  /**
+   * current gui stem e.g. when tracing memberships
+   */
+  private GuiStem guiStemCurrent;
+  
+  /**
+   * current gui stem e.g. when tracing memberships
+   * @return gui stem
+   */
+  public GuiStem getGuiStemCurrent() {
+    return this.guiStemCurrent;
+  }
+
+  /**
+   * current gui stem e.g. when tracing memberships
+   * @param guiStemCurrent1
+   */
+  public void setGuiStemCurrent(GuiStem guiStemCurrent1) {
+    this.guiStemCurrent = guiStemCurrent1;
+  }
+
+  /**
+   * current gui attributeDef e.g. when tracing memberships
+   * @return attribute def
+   */
+  public GuiAttributeDef getGuiAttributeDefCurrent() {
+    return this.guiAttributeDefCurrent;
+  }
+
+  /**
+   * current gui attributeDef e.g. when tracing memberships
+   * @param guiAttributeDefCurrent1
+   */
+  public void setGuiAttributeDefCurrent(GuiAttributeDef guiAttributeDefCurrent1) {
+    this.guiAttributeDefCurrent = guiAttributeDefCurrent1;
+  }
+
+  /**
+   * current gui attributeDef e.g. when tracing memberships
+   */
+  private GuiAttributeDef guiAttributeDefCurrent;
   
   /**
    * current gui group e.g. when tracing memberships

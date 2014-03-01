@@ -1,7 +1,7 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
             <%-- for the new group or new stem button --%>
-            <input type="hidden" name="objectStemId" value="${grouperRequestContainer.groupContainer.guiGroup.group.parentUuid}" />
+            <input type="hidden" name="objectStemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
 
 
             <div class="bread-header-container">
@@ -17,7 +17,7 @@
                     ${grouperRequestContainer.subjectContainer.guiSubject.breadcrumbBullets}
                   </c:when>
                   <c:otherwise>
-                    ${grouperRequestContainer.groupContainer.guiGroup.breadcrumbBullets}
+                    ${grouperRequestContainer.stemContainer.guiStem.breadcrumbBullets}
                   </c:otherwise>
                 </c:choose>
                 <li class="active">${textContainer.text['privilegesTraceBreadcrumb']}</li>
@@ -29,16 +29,16 @@
                       ${grouperRequestContainer.subjectContainer.guiSubject.screenLabelShort2noLink}
                     </c:when>
                     <c:otherwise>
-                      ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}
+                      ${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.stem.displayExtension)}
                     </c:otherwise>
                   </c:choose>
                 <br /><small>
                   <c:choose>
                     <c:when test="${grouperRequestContainer.membershipGuiContainer.traceMembershipFromSubject}">
-                      ${textContainer.text['privilegesTraceSubjectSubHeader']}
+                      ${textContainer.text['privilegesTraceStemSubjectSubHeader']}
                     </c:when>
                     <c:otherwise>
-                      ${textContainer.text['privilegesTraceSubHeader']}
+                      ${textContainer.text['privilegesTraceStemSubHeader']}
                     </c:otherwise>
                   </c:choose>
                 </small></h1>
@@ -47,7 +47,7 @@
             </div>
             <div class="row-fluid">
               <div class="span12">
-                <p class="lead">${textContainer.text['privilegesTracePageLead'] }</p>
+                <p class="lead">${textContainer.text['privilegesTraceStemPageLead'] }</p>
                 
                 <%-- 
                   <p>Danielle Knotts is an <a href="#"><span class="label label-inverse">indirect member</span></a> of</p>
@@ -61,12 +61,12 @@
 
                 <c:choose>
                   <c:when test="${grouperRequestContainer.membershipGuiContainer.traceMembershipFromSubject}">
-                    <a href="#" onclick="return guiV2link('operation=UiV2Subject.thisSubjectsGroupPrivileges&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}');"
+                    <a href="#" onclick="return guiV2link('operation=UiV2Subject.thisSubjectsStemPrivileges&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}');"
                        class="pull-right btn btn-primary btn-cancel">${textContainer.text['membershipTraceBackToSubjectButton']}</a>
                   </c:when>
                   <c:otherwise>
-                    <a href="#" onclick="return guiV2link('operation=UiV2Group.groupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');"
-                       class="pull-right btn btn-primary btn-cancel">${textContainer.text['membershipTraceBackToGroupButton']}</a>
+                    <a href="#" onclick="return guiV2link('operation=UiV2Stem.stemPrivileges&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}');"
+                       class="pull-right btn btn-primary btn-cancel">${textContainer.text['membershipTraceBackToStemButton']}</a>
                   </c:otherwise>
                 </c:choose>
                 

@@ -995,7 +995,14 @@ public class UiV2Subject {
       if (subject == null) {
         return;
       }
-  
+
+      //if viewing a subject, and that subject is a group, just show the group screen
+      if (GrouperSourceAdapter.groupSourceId().equals(subject.getSourceId())) {
+        //hmmm, should we change to the group url?  i guess not... hmmm
+        new UiV2Group().thisGroupsGroupPrivileges(request, response);
+        return;
+      }
+
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
@@ -1029,7 +1036,14 @@ public class UiV2Subject {
       if (subject == null) {
         return;
       }
-  
+
+      //if viewing a subject, and that subject is a group, just show the group screen
+      if (GrouperSourceAdapter.groupSourceId().equals(subject.getSourceId())) {
+        //hmmm, should we change to the group url?  i guess not... hmmm
+        new UiV2Group().thisGroupsAttributeDefPrivileges(request, response);
+        return;
+      }
+
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
@@ -1424,7 +1438,14 @@ public class UiV2Subject {
       if (subject == null) {
         return;
       }
-  
+
+      //if viewing a subject, and that subject is a group, just show the group screen
+      if (GrouperSourceAdapter.groupSourceId().equals(subject.getSourceId())) {
+        //hmmm, should we change to the group url?  i guess not... hmmm
+        new UiV2Group().thisGroupsStemPrivileges(request, response);
+        return;
+      }
+
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
@@ -1597,7 +1618,11 @@ public class UiV2Subject {
     
     GuiPaging guiPaging = grouperRequestContainer.getSubjectContainer().getPrivilegeGuiPaging();
     QueryOptions queryOptions = new QueryOptions();
-    
+
+    QuerySort querySort = new QuerySort("s.displayNameDb", true);
+    querySort.insertSortToBeginning("s.displayExtensionDb", true);
+    queryOptions.sort(querySort);
+
     GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
     
     MembershipFinder membershipFinder = new MembershipFinder()
