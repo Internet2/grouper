@@ -27,27 +27,6 @@ import edu.internet2.middleware.subject.Subject;
 public class GroupContainer {
 
   /**
-   * sorting, e.g. for the audit screen
-   */
-  private GuiSorting guiSorting;
-  
-  /**
-   * sorting, e.g. for the audit screen
-   * @return the sorting
-   */
-  public GuiSorting getGuiSorting() {
-    return this.guiSorting;
-  }
-
-  /**
-   * sorting, e.g. for the audit screen
-   * @param guiSorting1
-   */
-  public void setGuiSorting(GuiSorting guiSorting1) {
-    this.guiSorting = guiSorting1;
-  }
-
-  /**
    * if extended results on audit display
    */
   private boolean auditExtendedResults = false;
@@ -66,6 +45,27 @@ public class GroupContainer {
    */
   public void setAuditExtendedResults(boolean auditExtendedResults1) {
     this.auditExtendedResults = auditExtendedResults1;
+  }
+
+  /**
+   * sorting, e.g. for the audit screen
+   */
+  private GuiSorting guiSorting;
+  
+  /**
+   * sorting, e.g. for the audit screen
+   * @return the sorting
+   */
+  public GuiSorting getGuiSorting() {
+    return this.guiSorting;
+  }
+
+  /**
+   * sorting, e.g. for the audit screen
+   * @param guiSorting1
+   */
+  public void setGuiSorting(GuiSorting guiSorting1) {
+    this.guiSorting = guiSorting1;
   }
 
   /**

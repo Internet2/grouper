@@ -3275,8 +3275,6 @@ public class UiV2Group {
     
     GroupContainer groupContainer = grouperRequestContainer.getGroupContainer();
     
-    groupContainer.setAuditExtendedResults(extendedResults);
-  
     GuiPaging guiPaging = groupContainer.getGuiPaging();
     QueryOptions queryOptions = new QueryOptions();
   
@@ -3319,6 +3317,7 @@ public class UiV2Group {
           TextContainer.retrieveFromRequest().getText().get("groupAuditLogNoEntriesFound")));
     }
     
+    groupContainer.setAuditExtendedResults(extendedResults);
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupAuditFilterResultsId", 
         "/WEB-INF/grouperUi2/group/groupViewAuditsContents.jsp"));
   

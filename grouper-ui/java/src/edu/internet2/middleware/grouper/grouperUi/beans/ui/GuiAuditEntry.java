@@ -53,6 +53,22 @@ import edu.internet2.middleware.subject.Subject;
 public class GuiAuditEntry {
 
   /**
+   * duration in seconds
+   * @return duration in seconds
+   */
+  public String getDurationLabel() {
+    int millis = Math.round(this.auditEntry.getDurationMicroseconds()/1000);
+
+    if (millis < 400) {
+      return millis + " " + TextContainer.retrieveFromRequest().getText().get("groupAuditLogFilterColumnDurationMillis");
+    }
+    int seconds = millis / 1000;
+    int tenths = (millis % 1000) / 100;
+    return seconds + "." + tenths + " " + TextContainer.retrieveFromRequest().getText().get("groupAuditLogFilterColumnDurationSeconds");
+    
+  }
+  
+  /**
    * 
    * @param auditEntries
    * @param configMax
@@ -268,7 +284,7 @@ public class GuiAuditEntry {
 
     if (this.guiSubjectPerformedAction == null) {
       String memberId = this.auditEntry.getActAsMemberId();
-      if (!StringUtils.isBlank(memberId)) {
+      if (StringUtils.isBlank(memberId)) {
         memberId = this.auditEntry.getLoggedInMemberId();
       }
       if (!StringUtils.isBlank(memberId)) {
