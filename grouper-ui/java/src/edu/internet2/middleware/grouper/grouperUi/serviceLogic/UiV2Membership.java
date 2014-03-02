@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.membership.MembershipPathGroup;
 import edu.internet2.middleware.grouper.membership.MembershipPathNode;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -665,7 +666,7 @@ public class UiV2Membership {
     
     GrouperSession grouperSession = null;
   
-    Stem stem = null;
+    AttributeDef attributeDef = null;
     Subject subject = null;
   
     GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
@@ -676,9 +677,10 @@ public class UiV2Membership {
   
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
-      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+      attributeDef = UiV2AttributeDef.retrieveAttributeDefHelper(request, 
+          AttributeDefPrivilege.ATTR_ADMIN, true).getAttributeDef();
   
-      if (stem == null) {
+      if (attributeDef == null) {
         return;
       }
   
@@ -706,19 +708,19 @@ public class UiV2Membership {
       }
   
       //this is a subobject
-      grouperRequestContainer.getStemContainer().getGuiStem().setShowBreadcrumbLink(true);
+      grouperRequestContainer.getAttributeDefContainer().getGuiAttributeDef().setShowBreadcrumbLink(true);
       grouperRequestContainer.getSubjectContainer().getGuiSubject().setShowBreadcrumbLink(true);
   
       List<MembershipPath> allMembershipPaths = new ArrayList<MembershipPath>();
       {
-        MembershipPathGroup membershipPathGroup = MembershipPathGroup.analyzePrivileges(stem, member);
+        MembershipPathGroup membershipPathGroup = MembershipPathGroup.analyzePrivileges(attributeDef, member);
         allMembershipPaths.addAll(GrouperUtil.nonNull(membershipPathGroup.getMembershipPaths()));
       }
       
       //lets try with every entity too
       Subject everyEntitySubject = SubjectFinder.findAllSubject();
       {
-        MembershipPathGroup membershipPathGroup = MembershipPathGroup.analyzePrivileges(stem, everyEntitySubject);
+        MembershipPathGroup membershipPathGroup = MembershipPathGroup.analyzePrivileges(attributeDef, everyEntitySubject);
         allMembershipPaths.addAll(GrouperUtil.nonNull(membershipPathGroup.getMembershipPaths()));
       }
             

@@ -1518,6 +1518,10 @@ public class UiV2Subject {
 
     QueryOptions queryOptions = new QueryOptions();
 
+    QuerySort querySort = new QuerySort("a.nameDb", true);
+    querySort.insertSortToBeginning("a.extensionDb", true);
+    queryOptions.sort(querySort);
+
     GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
     
     MembershipFinder membershipFinder = new MembershipFinder()

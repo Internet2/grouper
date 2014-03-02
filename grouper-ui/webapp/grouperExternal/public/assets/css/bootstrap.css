@@ -5121,10 +5121,23 @@ a [class*=" icon-"] {
   color: #555555;
 }
 .data-table tr th:hover {
+  cursor: default;
+}
+
+.data-table tr th.sorted:hover, .data-table tr th.sortedAsc:hover {
   cursor: pointer;
 }
+
+
 .data-table tr th.sorted:after {
   content: "\f0d7";
+  font-family: FontAwesome;
+  padding-left: 5px;
+  position: relative;
+  top: 1px;
+}
+.data-table tr th.sortedAsc:after {
+  content: "\f0d8";
   font-family: FontAwesome;
   padding-left: 5px;
   position: relative;

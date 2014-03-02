@@ -12,6 +12,26 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
  */
 public class GrouperRequestContainer {
 
+  /** 
+   * attribute def container 
+   */
+  private AttributeDefContainer attributeDefContainer;
+  
+  /**
+   * attribute def container 
+   * @return attribute def container
+   */
+  public AttributeDefContainer getAttributeDefContainer() {
+    if (this.attributeDefContainer == null) {
+      this.attributeDefContainer = new AttributeDefContainer();
+    }
+    return this.attributeDefContainer;
+  }
+  
+  public void setAttributeDefContainer(AttributeDefContainer attributeDefContainer) {
+    this.attributeDefContainer = attributeDefContainer;
+  }
+
   /**
    * subject container
    */

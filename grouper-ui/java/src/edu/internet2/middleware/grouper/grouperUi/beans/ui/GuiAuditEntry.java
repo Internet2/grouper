@@ -5,6 +5,7 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -37,10 +38,12 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPrivilege;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -56,7 +59,7 @@ public class GuiAuditEntry {
    * @param max
    * @return gui audit entries
    */
-  public static Set<GuiAuditEntry> convertFromAuditEntries(Set<AuditEntry> auditEntries) {
+  public static Set<GuiAuditEntry> convertFromAuditEntries(Collection<AuditEntry> auditEntries) {
     return convertFromAuditEntries(auditEntries, null, -1);
   }
 
@@ -66,7 +69,7 @@ public class GuiAuditEntry {
    * @param max
    * @return gui audit entries
    */
-  public static Set<GuiAuditEntry> convertFromAuditEntries(Set<AuditEntry> auditEntries, String configMax, int defaultMax) {
+  public static Set<GuiAuditEntry> convertFromAuditEntries(Collection<AuditEntry> auditEntries, String configMax, int defaultMax) {
     Set<GuiAuditEntry> tempAuditEntries = new LinkedHashSet<GuiAuditEntry>();
     
     Integer max = null;
@@ -250,6 +253,51 @@ public class GuiAuditEntry {
     this.auditEntry = theAuditEntry;
   }
 
+  /**
+   * get the gui subject who performed this action
+   * default to the act as id, and if null, then the logged in id
+   */
+  private GuiSubject guiSubjectPerformedAction;
+  
+  /**
+   * get the gui subject who performed this action
+   * default to the act as id, and if null, then the logged in id
+   * @return the gui subject
+   */
+  public GuiSubject getGuiSubjectPerformedAction() {
+
+    if (this.guiSubjectPerformedAction == null) {
+      String memberId = this.auditEntry.getActAsMemberId();
+      if (!StringUtils.isBlank(memberId)) {
+        memberId = this.auditEntry.getLoggedInMemberId();
+      }
+      if (!StringUtils.isBlank(memberId)) {
+        Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(),
+            memberId, false);
+        Subject subject = member == null ? null : member.getSubject();
+        this.guiSubjectPerformedAction = new GuiSubject(subject);
+      }
+    }
+    
+    return this.guiSubjectPerformedAction;
+    
+  }
+
+  /**
+   * try to get a friendly label for engine from the externalized text file
+   * @return engine
+   */
+  public String getGrouperEngineLabel() {
+    String engine = this.auditEntry.getGrouperEngine();
+    
+    if (StringUtils.isBlank(engine)) {
+      return null;
+    }
+    
+    String engineLabel = TextContainer.textOrNull("auditLogEngine_" + engine);
+    
+    return StringUtils.defaultString(engineLabel, engine);
+  }
   
   /**
    * 2/1/2013 8:03 AM

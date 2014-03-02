@@ -1,8 +1,10 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,6 +35,8 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.UserAuditQuery;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupDeleteException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -46,8 +50,10 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSorting;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
@@ -114,7 +120,6 @@ public class UiV2Group {
      * if added error to screen
      * @return if error
      */
-    @SuppressWarnings("unused")
     public boolean isAddedError() {
       return this.addedError;
     }
@@ -1602,6 +1607,41 @@ public class UiV2Group {
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/groupCopy.jsp"));
   
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * view audits for group
+   * @param request
+   * @param response
+   */
+  public void viewAudits(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/group/groupViewAudits.jsp"));
+  
+      viewAuditsHelper(request, response, group);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -3113,6 +3153,175 @@ public class UiV2Group {
   
     });
     
+  }
+
+  /**
+   * filter audits for group
+   * @param request
+   * @param response
+   */
+  public void viewAuditsFilter(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+  
+      viewAuditsHelper(request, response, group);
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * the audit filter button was pressed, or paging or sorting, or view audits or something
+   * @param request
+   * @param response
+   */
+  private void viewAuditsHelper(HttpServletRequest request, HttpServletResponse response, Group group) {
+    
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    //all, on, before, between, or since
+    String filterTypeString = request.getParameter("filterType");
+  
+    if (StringUtils.isBlank(filterTypeString)) {
+      filterTypeString = "all";
+    }
+    
+    String filterFromDateString = request.getParameter("filterFromDate");
+    String filterToDateString = request.getParameter("filterToDate");
+
+    //massage dates
+    if (StringUtils.equals(filterTypeString, "all")) {
+      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("filterFromDate", ""));
+      filterFromDateString = null;
+      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("filterToDate", ""));
+      filterToDateString = null;
+    } else if (StringUtils.equals(filterTypeString, "on")) {
+
+      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("filterToDate", ""));
+      filterToDateString = null;
+    } else if (StringUtils.equals(filterTypeString, "before")) {
+      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("filterToDate", ""));
+      filterToDateString = null;
+    } else if (StringUtils.equals(filterTypeString, "between")) {
+    } else if (StringUtils.equals(filterTypeString, "since")) {
+      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("filterToDate", ""));
+      filterToDateString = null;
+    } else {
+      //should never happen
+      throw new RuntimeException("Not expecting filterType string: " + filterTypeString);
+    }
+
+    Date filterFromDate = null;
+    Date filterToDate = null;
+
+    if (StringUtils.equals(filterTypeString, "on") || StringUtils.equals(filterTypeString, "before")
+        || StringUtils.equals(filterTypeString, "between") || StringUtils.equals(filterTypeString, "since")) {
+      if (StringUtils.isBlank(filterFromDateString)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#from-date",
+            TextContainer.retrieveFromRequest().getText().get("groupAuditLogFilterFromDateRequired")));
+        return;
+      }
+      try {
+        filterFromDate = GrouperUtil.stringToTimestamp(filterFromDateString);
+      } catch (Exception e) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#from-date",
+            TextContainer.retrieveFromRequest().getText().get("groupAuditLogFilterFromDateInvalid")));
+        return;
+      }
+    }
+    if (StringUtils.equals(filterTypeString, "between")) {
+      if (StringUtils.isBlank(filterToDateString)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#to-date",
+            TextContainer.retrieveFromRequest().getText().get("groupAuditLogFilterToDateRequired")));
+        return;
+      }
+      try {
+        filterToDate = GrouperUtil.stringToTimestamp(filterToDateString);
+      } catch (Exception e) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#to-date",
+            TextContainer.retrieveFromRequest().getText().get("groupAuditLogFilterToDateInvalid")));
+        return;
+      }
+    }
+    
+    boolean extendedResults = false;
+
+    {
+      String showExtendedResultsString = request.getParameter("showExtendedResults[]");
+      if (!StringUtils.isBlank(showExtendedResultsString)) {
+        extendedResults = GrouperUtil.booleanValue(showExtendedResultsString);
+      }
+    }
+    
+    GroupContainer groupContainer = grouperRequestContainer.getGroupContainer();
+    
+    groupContainer.setAuditExtendedResults(extendedResults);
+  
+    GuiPaging guiPaging = groupContainer.getGuiPaging();
+    QueryOptions queryOptions = new QueryOptions();
+  
+    GrouperPagingTag2.processRequest(request, guiPaging, queryOptions);
+  
+    UserAuditQuery query = new UserAuditQuery();
+
+    //process dates
+    if (StringUtils.equals(filterTypeString, "on")) {
+
+      query.setOnDate(filterFromDate);
+    } else  if (StringUtils.equals(filterTypeString, "between")) {
+      query.setFromDate(filterFromDate);
+      query.setToDate(filterToDate);
+    } else  if (StringUtils.equals(filterTypeString, "since")) {
+      query.setFromDate(filterFromDate);
+    } else  if (StringUtils.equals(filterTypeString, "before")) {
+      query.setToDate(filterToDate);
+    }
+    
+    query.setQueryOptions(queryOptions);
+
+    queryOptions.sortDesc("lastUpdatedDb");
+    
+    GuiSorting guiSorting = new GuiSorting(queryOptions.getQuerySort());
+    groupContainer.setGuiSorting(guiSorting);
+
+    guiSorting.processRequest(request);
+    
+    query.addAuditTypeFieldValue("groupId", group.getId());
+
+    List<AuditEntry> auditEntries = query.execute();
+
+    groupContainer.setGuiAuditEntries(GuiAuditEntry.convertFromAuditEntries(auditEntries));
+
+    guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+
+    if (GrouperUtil.length(auditEntries) == 0) {
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info,
+          TextContainer.retrieveFromRequest().getText().get("groupAuditLogNoEntriesFound")));
+    }
+    
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupAuditFilterResultsId", 
+        "/WEB-INF/grouperUi2/group/groupViewAuditsContents.jsp"));
+  
   }
 
 }

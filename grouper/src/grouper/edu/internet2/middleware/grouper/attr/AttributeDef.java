@@ -2105,7 +2105,7 @@ public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHa
    */
   @Override
   public String getDisplayName() {
-    return this.name;
+    return this.getParentStem().getDisplayName() + ":" + this.extension; 
   }
 
   /**

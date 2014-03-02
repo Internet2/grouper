@@ -17,7 +17,7 @@
                     ${grouperRequestContainer.subjectContainer.guiSubject.breadcrumbBullets}
                   </c:when>
                   <c:otherwise>
-                    ${grouperRequestContainer.groupContainer.guiGroup.breadcrumbBullets}
+                    ${grouperRequestContainer.attributeDefContainer.guiAttributeDef.breadcrumbBullets}
                   </c:otherwise>
                 </c:choose>
                 <li class="active">${textContainer.text['privilegesTraceBreadcrumb']}</li>
@@ -29,16 +29,16 @@
                       ${grouperRequestContainer.subjectContainer.guiSubject.screenLabelShort2noLink}
                     </c:when>
                     <c:otherwise>
-                      ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}
+                      ${grouper:escapeHtml(grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.displayExtension)}
                     </c:otherwise>
                   </c:choose>
                 <br /><small>
                   <c:choose>
                     <c:when test="${grouperRequestContainer.membershipGuiContainer.traceMembershipFromSubject}">
-                      ${textContainer.text['privilegesTraceSubjectSubHeader']}
+                      ${textContainer.text['privilegesTraceAttributeDefSubjectSubHeader']}
                     </c:when>
                     <c:otherwise>
-                      ${textContainer.text['privilegesTraceSubHeader']}
+                      ${textContainer.text['privilegesTraceAttributeDefSubHeader']}
                     </c:otherwise>
                   </c:choose>
                 </small></h1>
@@ -47,7 +47,7 @@
             </div>
             <div class="row-fluid">
               <div class="span12">
-                <p class="lead">${textContainer.text['privilegesTracePageLead'] }</p>
+                <p class="lead">${textContainer.text['privilegesTraceAttributeDefPageLead'] }</p>
                 
                 <%-- 
                   <p>Danielle Knotts is an <a href="#"><span class="label label-inverse">indirect member</span></a> of</p>
@@ -60,13 +60,14 @@
                 ${grouperRequestContainer.membershipGuiContainer.traceMembershipsString }
 
                 <c:choose>
-                  <c:when test="${grouperRequestContainer.membershipGuiContainer.traceMembershipFromSubject}">
-                    <a href="#" onclick="return guiV2link('operation=UiV2Subject.thisSubjectsGroupPrivileges&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}');"
+                  <%-- we only have subject at this point, take out the || true when we can do attribute def screen --%>
+                  <c:when test="${grouperRequestContainer.membershipGuiContainer.traceMembershipFromSubject || true}">
+                    <a href="#" onclick="return guiV2link('operation=UiV2Subject.thisSubjectsAttributeDefPrivileges&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}');"
                        class="pull-right btn btn-primary btn-cancel">${textContainer.text['membershipTraceBackToSubjectButton']}</a>
                   </c:when>
                   <c:otherwise>
-                    <a href="#" onclick="return guiV2link('operation=UiV2Group.groupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');"
-                       class="pull-right btn btn-primary btn-cancel">${textContainer.text['membershipTraceBackToGroupButton']}</a>
+                    <a href="#" onclick="return guiV2link('operation=UiV2AttributeDef.attributeDefPrivileges&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}');"
+                       class="pull-right btn btn-primary btn-cancel">${textContainer.text['membershipTraceBackToAttributeDefButton']}</a>
                   </c:otherwise>
                 </c:choose>
                 

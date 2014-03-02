@@ -31,17 +31,16 @@
                               >${textContainer.text['groupViewMoveGroupButton'] }</a></li>
                         </c:if>
                         
-
-                        
-                        
-                        
                         <li class="divider"></li>
                         <li><a href="export-group.html">Export members</a></li>
                         <li><a href="bulk-add.html">Import members</a></li>
                         <li><a href="invite-external-users.html">Invite external users</a></li>
                         <li><a href="remove-all-members.html">Remove all members</a></li>
                         <li class="divider"></li>
-                        <li><a href="view-audit-log.html">View audit log</a></li>
+                        <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewAudits&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['groupViewAuditButton'] }</a></li>
+                        </c:if>
                       </ul>
                     </div>
 

@@ -100,7 +100,11 @@
                           <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle">${textContainer.text['thisGroupsPrivilegesActionsButton']} <span class="caret"></span></a>
                             <ul class="dropdown-menu dropdown-menu-right">
                               <li><a href="edit-person-membership.html">${textContainer.text['thisGroupsPrivilegesActionsMenuEditMembershipsAndPrivileges'] }</a></li>
-                              <li><a href="trace-privileges.html">${textContainer.text['thisGroupsPrivilegesActionsMenuTracePrivileges']}</a></li>
+                              
+                              <c:if test="${guiMembershipContainer.membershipContainer.membershipAssignType.nonImmediate}">
+                                <li><a href="#"  onclick="return guiV2link('operation=UiV2Membership.traceAttributeDefPrivileges&attributeDefId=${guiMembershipSubjectContainer.guiAttributeDef.attributeDef.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&backTo=subject'); return false;" class="actions-revoke-membership">${textContainer.text['thisGroupsPrivilegesActionsMenuTracePrivileges'] }</a></li>
+                              </c:if>
+                              
                               <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDef.viewAttributeDef&groupId=${guiMembershipSubjectContainer.guiAttributeDef.attributeDef.id}');">${textContainer.text['thisGroupsPrivilegesActionsMenuViewAttributeDef']}</a></li>
                             </ul>
                           </div>
