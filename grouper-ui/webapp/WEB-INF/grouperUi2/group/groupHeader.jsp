@@ -115,7 +115,7 @@
                           </div>
                           <div class="control-group">
                             <div class="controls">
-                              <button onclick="ajax('../app/UiV2Group.addMemberSubmit?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'add-members-form,groupFilterFormId,groupPagingFormId'}); return false;" 
+                              <button onclick="ajax('../app/UiV2Group.addMemberSubmit?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'add-members-form', formIdsOptional: 'groupRefreshPartFormId, groupFilterFormId,groupPagingFormId,groupPagingPrivilegesFormId,groupFilterPrivilegesFormId,groupPagingAuditForm, groupFilterAuditFormId, groupQuerySortAscendingFormId'}); return false;" 
                                 id="add-members-submit" type="submit" class="btn btn-primary">${textContainer.text['groupViewAddMemberLink']}</button> ${textContainer.text['groupViewTextBetweenAddAndBulk']} <a href="bulk-add.html" class="blue-link">${textContainer.text['groupViewBulkLink'] }</a> ${textContainer.text['groupViewTextPostBulkLink'] }
                             </div>
                           </div>

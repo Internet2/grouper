@@ -693,8 +693,23 @@ public class UiV2Group {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
             TextContainer.retrieveFromRequest().getText().get("groupAddMemberMadeChangesSuccess")));
 
-        filterHelper(request, response, group);
-
+        //what subscreen are we on?
+        String groupRefreshPart = request.getParameter("groupRefreshPart");
+        if (StringUtils.equals(groupRefreshPart, "audits")) {
+          viewAuditsFilter(request, response);
+        } else if (StringUtils.equals(groupRefreshPart, "privileges")) {
+          filterPrivileges(request, response);
+        } else if (StringUtils.equals(groupRefreshPart, "thisGroupsAttributeDefPrivileges")) {
+          //doesnt affect
+        } else if (StringUtils.equals(groupRefreshPart, "thisGroupsGroupPrivileges")) {
+          //doesnt affect
+        } else if (StringUtils.equals(groupRefreshPart, "thisGroupsStemPrivileges")) {
+          //doesnt affect
+        } else if (StringUtils.equals(groupRefreshPart, "thisGroupsMemberships")) {
+          //doesnt affect
+        } else {
+          filterHelper(request, response, group);
+        }
 
       } else {
 

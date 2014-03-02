@@ -1,5 +1,10 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
+                <%-- tell add member to refresh audits --%>
+                <form id="groupRefreshPartFormId">
+                  <input type="hidden" name="groupRefreshPart" value="thisGroupsMemberships" /> 
+                </form> 
+
                 <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update footable">
                   <thead>
                     <tr>

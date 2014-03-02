@@ -542,8 +542,19 @@ function ajax(theUrl, options) {
   }
   
   if (!guiIsEmpty(options.formIds)) {
-    
+
+    var formIdsOptionalArray = guiSplitTrim(options.formIdsOptional, ",");
     var formIdsArray = guiSplitTrim(options.formIds, ",");
+    
+    //add optional forms to send
+    for (var i = 0; i<formIdsOptionalArray.length; i++) {
+      var formId = formIdsOptionalArray[i];
+      var theForm = $("#" + formId);
+      if (theForm && theForm.length > 0) {
+        formIdsArray.push(formId);
+      }
+    }
+    
     for (var i = 0; i<formIdsArray.length; i++) {
       var formId = formIdsArray[i];
       

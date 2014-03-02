@@ -1,5 +1,9 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
+                <%-- tell add member to refresh audits --%>
+                <form id="groupRefreshPartFormId">
+                  <input type="hidden" name="groupRefreshPart" value="audits" /> 
+                </form> 
                 <form id="groupQuerySortAscendingFormId">
                   <input type="hidden" name="querySortAscending" value="${grouperRequestContainer.groupContainer.guiSorting.ascending}" /> 
                 </form> 
