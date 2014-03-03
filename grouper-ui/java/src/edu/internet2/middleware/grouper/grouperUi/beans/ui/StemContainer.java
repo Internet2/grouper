@@ -9,9 +9,9 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubject
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSorting;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Stem.StemSearchType;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
@@ -242,6 +242,21 @@ public class StemContainer {
   private Set<GuiStem> parentStemSearchResults = null;
 
   /**
+   * if extended results on audit display
+   */
+  private boolean auditExtendedResults = false;
+
+  /**
+   * audit entries for group
+   */
+  private Set<GuiAuditEntry> guiAuditEntries;
+
+  /**
+   * sorting, e.g. for the audit screen
+   */
+  private GuiSorting guiSorting;
+
+  /**
    * when searching for parent stems, these are the results
    * @return stems
    */
@@ -333,6 +348,54 @@ public class StemContainer {
     }
     
     return this.favorite;
+  }
+
+  /**
+   * audit entries for group
+   * @return audit entries
+   */
+  public Set<GuiAuditEntry> getGuiAuditEntries() {
+    return this.guiAuditEntries;
+  }
+
+  /**
+   * sorting, e.g. for the audit screen
+   * @return the sorting
+   */
+  public GuiSorting getGuiSorting() {
+    return this.guiSorting;
+  }
+
+  /**
+   * if extended results on audit display
+   * @return if extended results
+   */
+  public boolean isAuditExtendedResults() {
+    return this.auditExtendedResults;
+  }
+
+  /**
+   * if extended results on audit display
+   * @param auditExtendedResults1
+   */
+  public void setAuditExtendedResults(boolean auditExtendedResults1) {
+    this.auditExtendedResults = auditExtendedResults1;
+  }
+
+  /**
+   * audit entries for group
+   * @param guiAuditEntries1
+   */
+  public void setGuiAuditEntries(Set<GuiAuditEntry> guiAuditEntries1) {
+    this.guiAuditEntries = guiAuditEntries1;
+  }
+
+  /**
+   * sorting, e.g. for the audit screen
+   * @param guiSorting1
+   */
+  public void setGuiSorting(GuiSorting guiSorting1) {
+    this.guiSorting = guiSorting1;
   }
 
   

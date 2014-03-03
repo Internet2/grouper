@@ -541,10 +541,12 @@ function ajax(theUrl, options) {
     dojoCopyFilteringSelectDisplays();
   }
   
-  if (!guiIsEmpty(options.formIds)) {
+  if (!guiIsEmpty(options.formIds) || !guiIsEmpty(options.formIdsOptional)) {
 
-    var formIdsOptionalArray = guiSplitTrim(options.formIdsOptional, ",");
-    var formIdsArray = guiSplitTrim(options.formIds, ",");
+    var formIdsOptionalArray = guiIsEmpty(options.formIdsOptional) ?
+        new Array() : guiSplitTrim(options.formIdsOptional, ",");
+    var formIdsArray = guiIsEmpty(options.formIds) ?
+        new Array() : guiSplitTrim(options.formIds, ",");
     
     //add optional forms to send
     for (var i = 0; i<formIdsOptionalArray.length; i++) {

@@ -42,7 +42,7 @@
                         <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges }">
   
                           <li class="divider"></li>
-                        
+
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemCopy&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                               >${textContainer.text['stemViewCopyStemButton'] }</a></li>
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemDelete&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
@@ -54,7 +54,8 @@
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemMove&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                               >${textContainer.text['stemViewMoveStemButton'] }</a></li>
                           <li class="divider"></li>
-                          <li><a href="voew-audit-log.html">View audit log</a></li>
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.viewAudits&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                              >${textContainer.text['stemViewAuditButton'] }</a></li>
                         </c:if>
                       </ul>
                     </div>
