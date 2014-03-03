@@ -175,7 +175,7 @@ public enum GrouperDdl implements DdlVersionable {
       
       int count = 0;
       
-      if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_fields")) {
+      if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_fields", true)) {
         
         count = HibernateSession.bySqlStatic().select(int.class, 
           "select count(*) from grouper_fields where type='attribute' and name='name'");
@@ -255,7 +255,7 @@ public enum GrouperDdl implements DdlVersionable {
       
       //whether or not needs an upgrade, see if we should delete the bak table
       if (dropAttributeBackupTableFromGroupUpgrade) {
-        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, BAK_GROUPER_ATTRIBUTES);
+        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, BAK_GROUPER_ATTRIBUTES, true);
       }
       
     }
@@ -550,7 +550,7 @@ public enum GrouperDdl implements DdlVersionable {
       
       addAttributeFloatValueCol(database);
 
-      if (GrouperDdlUtils.assertTablesThere(false, false, Membership.TABLE_GROUPER_MEMBERSHIPS)) {
+      if (GrouperDdlUtils.assertTablesThere(false, false, Membership.TABLE_GROUPER_MEMBERSHIPS, true)) {
         
         int count = HibernateSession.bySqlStatic().select(int.class, 
             "select count(*) from grouper_memberships ms, grouper_members m " +
@@ -667,22 +667,22 @@ public enum GrouperDdl implements DdlVersionable {
 
       Table table = database.findTable("grouper_flat_memberships");
       if (table != null) {
-        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_flat_memberships");
+        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_flat_memberships", true);
       }
       
       table = database.findTable("grouper_flat_groups");
       if (table != null) {
-        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_flat_groups");
+        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_flat_groups", true);
       }
       
-      table = database.findTable("grouper_flat_stems");
+      table = database.findTable("grouper_flat_stems", true);
       if (table != null) {
-        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_flat_stems");
+        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_flat_stems", true);
       }
       
       table = database.findTable("grouper_flat_attribute_def");
       if (table != null) {
-        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_flat_attribute_def");
+        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_flat_attribute_def", true);
       }
 
       addPITTables(ddlVersionBean, database);
@@ -1982,7 +1982,7 @@ public enum GrouperDdl implements DdlVersionable {
       
 
       // add additional privileges for attribute read and update
-      boolean tableThere = GrouperDdlUtils.assertTablesThere(true, false, "grouper_fields");
+      boolean tableThere = GrouperDdlUtils.assertTablesThere(true, false, "grouper_fields", true);
       if (tableThere) {
         try {
           String typeUuidGroup = HibernateSession.bySqlStatic().select(String.class, "select grouptype_uuid from grouper_fields where name='admins'");
@@ -2067,34 +2067,34 @@ public enum GrouperDdl implements DdlVersionable {
       
       // legacy attributes
       boolean needsLegacyAttributesUpgrade = false;
-      if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_attributes")) {
+      if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_attributes", true)) {
         needsLegacyAttributesUpgrade = true;
         
         // drop legacy table if it happens to exist for some reason
-        if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_attributes_legacy")) {
-          GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_attributes_legacy");
+        if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_attributes_legacy", true)) {
+          GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_attributes_legacy", true);
         }
         
         GrouperDdlUtils.ddlutilsBackupTable(ddlVersionBean, "grouper_attributes", "grouper_attributes_legacy");
       }
       
-      if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_types")) {
+      if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_types", true)) {
         needsLegacyAttributesUpgrade = true;
         
         // drop legacy table if it happens to exist for some reason
-        if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_types_legacy")) {
-          GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_types_legacy");
+        if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_types_legacy", true)) {
+          GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_types_legacy", true);
         }
         
         GrouperDdlUtils.ddlutilsBackupTable(ddlVersionBean, "grouper_types", "grouper_types_legacy");
       }
       
-      if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_groups_types")) {
+      if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_groups_types", true)) {
         needsLegacyAttributesUpgrade = true;
         
         // drop legacy table if it happens to exist for some reason
-        if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_groups_types_legacy")) {
-          GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_groups_types_legacy");
+        if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_groups_types_legacy", true)) {
+          GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_groups_types_legacy", true);
         }
         
         GrouperDdlUtils.ddlutilsBackupTable(ddlVersionBean, "grouper_groups_types", "grouper_groups_types_legacy");
@@ -2102,30 +2102,30 @@ public enum GrouperDdl implements DdlVersionable {
       
       int legacyAttributesCount = 0;
       
-      if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_fields")) {
+      if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_fields", true)) {
         legacyAttributesCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_fields where type = 'attribute'");
-      }
       
-      if (GrouperDdlUtils.ddlutilsFindColumn(database, "grouper_fields", "grouptype_uuid", false) != null || 
-          GrouperDdlUtils.ddlutilsFindColumn(database, "grouper_fields", "is_nullable", false) != null ||
-          legacyAttributesCount > 0) {
-        needsLegacyAttributesUpgrade = true;
-        
-        // drop legacy table if it happens to exist for some reason
-        if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_fields_legacy")) {
-          GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_fields_legacy");
+        if (GrouperDdlUtils.ddlutilsFindColumn(database, "grouper_fields", "grouptype_uuid", false) != null || 
+            GrouperDdlUtils.ddlutilsFindColumn(database, "grouper_fields", "is_nullable", false) != null ||
+            legacyAttributesCount > 0) {
+          needsLegacyAttributesUpgrade = true;
+          
+          // drop legacy table if it happens to exist for some reason
+          if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_fields_legacy", true)) {
+            GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_fields_legacy", true);
+          }
+          
+          GrouperDdlUtils.ddlutilsBackupTable(ddlVersionBean, "grouper_fields", "grouper_fields_legacy");
         }
-        
-        GrouperDdlUtils.ddlutilsBackupTable(ddlVersionBean, "grouper_fields", "grouper_fields_legacy");
       }
       
       // maybe remove backup tables
       if (!needsLegacyAttributesUpgrade && GrouperConfig.retrieveConfig().propertyValueBoolean("ddlutils.dropLegacyAttributes", false)) {
         // ok drop any of the backed up tables
-        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_attributes_legacy");
-        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_types_legacy");
-        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_groups_types_legacy");
-        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_fields_legacy");
+        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_attributes_legacy", true);
+        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_types_legacy", true);
+        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_groups_types_legacy", true);
+        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_fields_legacy", true);
       }
     }
   },
@@ -2147,26 +2147,26 @@ public enum GrouperDdl implements DdlVersionable {
       
       int legacyAttributesCount = 0;
       
-      if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_fields")) {
+      if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_fields", true)) {
         legacyAttributesCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_fields where type = 'attribute'");
-      }
       
-      // remove the old tables/columns
-      if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_attributes") ||
-          GrouperDdlUtils.assertTablesThere(false, false, "grouper_types") ||
-          GrouperDdlUtils.assertTablesThere(false, false, "grouper_groups_types") ||
-          GrouperDdlUtils.ddlutilsFindColumn(database, "grouper_fields", "grouptype_uuid", false) != null || 
-          GrouperDdlUtils.ddlutilsFindColumn(database, "grouper_fields", "is_nullable", false) != null || 
-          legacyAttributesCount > 0) {
+        // remove the old tables/columns
+        if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_attributes", true) ||
+            GrouperDdlUtils.assertTablesThere(false, false, "grouper_types", true) ||
+            GrouperDdlUtils.assertTablesThere(false, false, "grouper_groups_types", true) ||
+            GrouperDdlUtils.ddlutilsFindColumn(database, "grouper_fields", "grouptype_uuid", false) != null || 
+            GrouperDdlUtils.ddlutilsFindColumn(database, "grouper_fields", "is_nullable", false) != null || 
+            legacyAttributesCount > 0) {
 
-        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_attributes");
-        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_types");
-        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_groups_types");
+          GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_attributes", true);
+          GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_types", true);
+          GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_groups_types", true);
 
-        GrouperDdlUtils.ddlutilsDropColumn(database, "grouper_fields", "grouptype_uuid", ddlVersionBean);
-        GrouperDdlUtils.ddlutilsDropColumn(database, "grouper_fields", "is_nullable", ddlVersionBean);
-        
-        ddlVersionBean.appendAdditionalScriptUnique("\ndelete from grouper_fields where type = 'attribute';\ncommit;\n");
+          GrouperDdlUtils.ddlutilsDropColumn(database, "grouper_fields", "grouptype_uuid", ddlVersionBean);
+          GrouperDdlUtils.ddlutilsDropColumn(database, "grouper_fields", "is_nullable", ddlVersionBean);
+          
+          ddlVersionBean.appendAdditionalScriptUnique("\ndelete from grouper_fields where type = 'attribute';\ncommit;\n");
+        }
       }
     }
   
@@ -2573,90 +2573,90 @@ public enum GrouperDdl implements DdlVersionable {
    * @param ddlVersionBean 
    */
   public void dropAllViews(DdlVersionBean ddlVersionBean) {
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attributes_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attributes_v", false);
 
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_ext_subj_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_ext_subj_invite_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_ext_subj_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_ext_subj_invite_v", false);
 
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_group_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_efmship_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_stem_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_member_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_mship_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_attrdef_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_group_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_efmship_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_stem_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_member_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_mship_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_attrdef_v", false);
 
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_group_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_stem_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_member_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_mship_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_efmship_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_attrdef_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_group_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_stem_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_member_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_mship_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_efmship_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_attrdef_v", false);
     
     
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_group_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_efmship_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_stem_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_member_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_mship_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_attrdef_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_group_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_efmship_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_stem_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_member_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_mship_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_attrdef_v", false);
 
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_asn_group_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_asn_stem_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_asn_member_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_asn_mship_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_asn_efmship_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_asn_attrdef_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_asn_group_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_asn_stem_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_asn_member_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_asn_mship_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_asn_efmship_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_aval_asn_asn_attrdef_v", false);
     
     
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_def_name_set_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_assn_action_set_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_def_priv_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_audit_entry_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_change_log_entry_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_composites_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_def_name_set_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_assn_action_set_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_def_priv_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_audit_entry_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_change_log_entry_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_composites_v", false);
 
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_types_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_types_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_v", false);
     
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_perms_all_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_perms_role_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_perms_role_subject_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_perms_assigned_role_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_perms_all_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_perms_role_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_perms_role_subject_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_perms_assigned_role_v", false);
     
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_attr_asn_value_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_perms_all_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_perms_role_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_perms_role_subj_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_attr_asn_value_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_perms_all_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_perms_role_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_perms_role_subj_v", false);
     
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_roles_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_lw_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_mship_attrdef_lw_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_mship_attr_flat_lw_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_mship_group_flat_lw_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_mship_stem_flat_lw_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_mship_stem_lw_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_roles_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_lw_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_mship_attrdef_lw_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_mship_attr_flat_lw_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_mship_group_flat_lw_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_mship_stem_flat_lw_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_mship_stem_lw_v", false);
     
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_all_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_memberships_all_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_all_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_memberships_all_v", false);
     
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_role_set_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_attributes_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_composites_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_group_field_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_groups_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_members_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_roles_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_stems_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_types_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_role_set_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_attributes_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_composites_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_group_field_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_groups_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_members_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_roles_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_stems_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_types_v", false);
     
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rules_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rules_v", false);
     
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_service_role_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_service_role_v", false);
     
     
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_stems_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_stem_set_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_stems_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_stem_set_v", false);
         
   }
 
@@ -12620,7 +12620,7 @@ public enum GrouperDdl implements DdlVersionable {
    * @param ddlVersionBean
    */
   private static void addGroupSetOwnerIdColumn(Database database, DdlVersionBean ddlVersionBean) {
-    boolean tableExists = GrouperDdlUtils.assertTablesThere(false, false, GroupSet.TABLE_GROUPER_GROUP_SET);
+    boolean tableExists = GrouperDdlUtils.assertTablesThere(false, false, GroupSet.TABLE_GROUPER_GROUP_SET, true);
      
     Table grouperGroupSet = GrouperDdlUtils.ddlutilsFindTable(database, GroupSet.TABLE_GROUPER_GROUP_SET, true);
     boolean columnNew = tableExists && grouperGroupSet.findColumn(GroupSet.COLUMN_OWNER_ID) == null;
@@ -13633,7 +13633,7 @@ public enum GrouperDdl implements DdlVersionable {
     }
 
     //see if the table is there
-    boolean tableThere = GrouperDdlUtils.assertTablesThere(true, false, "grouper_fields");
+    boolean tableThere = GrouperDdlUtils.assertTablesThere(true, false, "grouper_fields", true);
     if (tableThere) {
       try {
         //first, see if tables are there

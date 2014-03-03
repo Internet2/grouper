@@ -401,7 +401,7 @@ public enum GrouperOrgDdl implements DdlVersionable {
    */
   public void dropAllViews(DdlVersionBean ddlVersionBean) {
 
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouperorgs_all_members_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouperorgs_all_members_v", false);
 
   }
   
