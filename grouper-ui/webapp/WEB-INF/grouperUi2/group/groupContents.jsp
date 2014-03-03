@@ -11,8 +11,8 @@
                           <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" onchange="$('.membershipCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
                         </label>
                       </th>
-                      <th class="sorted">Entity Name</th>
-                      <th data-hide="phone">Membership</th>
+                      <th class="sorted">${textContainer.text['groupViewDetailsHeaderEntityName']}</th>
+                      <th data-hide="phone">${textContainer.text['groupViewDetailsHeaderMembership']}</th>
                       <th style="width:100px;"></th>
                     </tr>
                   </thead>
@@ -43,12 +43,12 @@
                           <td>
                             <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle">${textContainer.text['groupViewActionsButton'] } <span class="caret"></span></a>
                               <ul class="dropdown-menu dropdown-menu-right">
-                                <li><a href="edit-person-membership.html">${textContainer.text['groupViewEditMembershipsAndPrivilegesButton'] }</a></li>
+                                <li><a href="#" onclick="return guiV2link('operation=UiV2Membership.editMembership&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members');" class="actions-revoke-membership">${textContainer.text['groupViewEditMembershipsAndPrivilegesButton'] }</a></li>
                                 <c:if test="${guiMembershipContainer.membershipContainer.membershipAssignType.immediate}">
                                   <li><a href="#" onclick="ajax('../app/UiV2Group.removeMember?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}', {formIds: 'groupFilterFormId,groupPagingFormId'}); return false;" class="actions-revoke-membership">${textContainer.text['groupViewRevokeMembershipButton'] }</a></li>
                                 </c:if>
                                 <c:if test="${guiMembershipContainer.membershipContainer.membershipAssignType.nonImmediate}">
-                                  <li><a href="#"  onclick="return guiV2link('operation=UiV2Membership.traceMembership&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members'); return false;" class="actions-revoke-membership">${textContainer.text['groupViewTraceMembershipButton'] }</a></li>
+                                  <li><a href="#"  onclick="return guiV2link('operation=UiV2Membership.traceMembership&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members');" class="actions-revoke-membership">${textContainer.text['groupViewTraceMembershipButton'] }</a></li>
                                 </c:if>
                                 <c:if test="${guiMembershipSubjectContainer.guiSubject.group}">
                                   <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${guiMembershipSubjectContainer.guiSubject.subject.id}');">${textContainer.text['groupViewViewGroupButton'] }</a></li>

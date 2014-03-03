@@ -14,6 +14,69 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 public class MembershipGuiContainer {
 
   /**
+   * if has a direct membership
+   */
+  private boolean directMembership;
+  
+  /**
+   * if has a indirect membership
+   */
+  private boolean indirectMembership;
+  
+  /**
+   * if has a direct membership
+   * @return if direct membership
+   */
+  public boolean isDirectMembership() {
+    return this.directMembership;
+  }
+
+  /**
+   * if has a direct membership
+   * @param directMembership1
+   */
+  public void setDirectMembership(boolean directMembership1) {
+    this.directMembership = directMembership1;
+  }
+
+  /**
+   * if has a indirect membership
+   * @return if indirect
+   */
+  public boolean isIndirectMembership() {
+    return this.indirectMembership;
+  }
+
+  /**
+   * if has a direct membership
+   * @param indirectMembership1
+   */
+  public void setIndirectMembership(boolean indirectMembership1) {
+    this.indirectMembership = indirectMembership1;
+  }
+
+  /**
+   * if edit membership should go back to subject
+   */
+  private boolean editMembershipFromSubject;
+  
+  /**
+   * if edit membership should go back to subject
+   * @return subject
+   */
+  public boolean isEditMembershipFromSubject() {
+    return this.editMembershipFromSubject;
+  }
+
+  /**
+   * if edit membership should go back to subject
+   * @param editMembershipFromSubject1
+   */
+  public void setEditMembershipFromSubject(boolean editMembershipFromSubject1) {
+    this.editMembershipFromSubject = editMembershipFromSubject1;
+  }
+
+  /**
    * list of comma separated privileges for this trace of path
    */
   private String privilegeLabelsString;

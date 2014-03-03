@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,6 +15,8 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -26,9 +29,12 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.Gui
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.MembershipGuiContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.membership.MembershipContainer;
 import edu.internet2.middleware.grouper.membership.MembershipPath;
 import edu.internet2.middleware.grouper.membership.MembershipPathGroup;
 import edu.internet2.middleware.grouper.membership.MembershipPathNode;
+import edu.internet2.middleware.grouper.membership.MembershipResult;
+import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
@@ -757,6 +763,101 @@ public class UiV2Membership {
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/membership/traceAttributeDefPrivileges.jsp"));
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+
+  /**
+   * edit membership
+   * @param request
+   * @param response
+   */
+  public void editMembership(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+    Subject subject = null;
+    Field field = null;
+  
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
+  
+      if (group == null) {
+        return;
+      }
+  
+      subject = UiV2Subject.retrieveSubjectHelper(request, true);
+  
+      if (subject == null) {
+        return;
+      }
+      
+      Member member = MemberFinder.findBySubject(grouperSession, subject, false);
+  
+      if (member == null) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("membershipEditNoMembershipFound")));
+        
+        return;
+      }
+      
+      field = UiV2Membership.retrieveFieldHelper(request, true);
+      
+      if (field == null) {
+        return;
+      }      
+      
+      MembershipGuiContainer membershipGuiContainer = grouperRequestContainer.getMembershipGuiContainer();
+      
+      //see where to go back to
+      if (StringUtils.equalsIgnoreCase(request.getParameter("backTo"), "subject")) {
+        membershipGuiContainer.setEditMembershipFromSubject(true);
+      }
+  
+      //this is a subobject
+      grouperRequestContainer.getGroupContainer().getGuiGroup().setShowBreadcrumbLink(true);
+      grouperRequestContainer.getSubjectContainer().getGuiSubject().setShowBreadcrumbLink(true);
+  
+      MembershipResult membershipResult = new MembershipFinder().addField(field).addMemberId(member.getId()).addGroup(group).findMembershipResult();
+      
+      Set<MembershipSubjectContainer> membershipSubjectContainers = membershipResult.getMembershipSubjectContainers();
+      
+      if (GrouperUtil.length(membershipSubjectContainers) > 1) {
+        throw new RuntimeException("Why more than one? " + group + ", " + member + ", " + field);
+      }
+      
+      MembershipSubjectContainer membershipSubjectContainer = GrouperUtil.length(membershipSubjectContainers) == 0 ? null 
+          : membershipSubjectContainers.iterator().next();
+
+      if (membershipSubjectContainer != null) {
+        
+        MembershipContainer membershipContainer = membershipSubjectContainer.getMembershipContainers().get(Group.getDefaultList().getName());
+        
+        if (membershipContainer != null) {
+          
+          Membership immediateMembership = membershipContainer.getImmediateMembership();
+          membershipGuiContainer.setDirectMembership(membershipContainer.getMembershipAssignType().isImmediate());
+          membershipGuiContainer.setIndirectMembership(membershipContainer.getMembershipAssignType().isNonImmediate());
+        }
+        
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/membership/editMembership.jsp"));
   
     } finally {
       GrouperSession.stopQuietly(grouperSession);
