@@ -56,6 +56,14 @@ import edu.internet2.middleware.subject.Subject;
 public class MembershipSubjectContainer {
 
   /**
+   * consider inheritance in one group
+   */
+  public void considerAccessPrivilegeInheritance() {
+    Set<MembershipSubjectContainer> set = GrouperUtil.toSet(this);
+    considerAccessPrivilegeInheritance(set);
+  }
+
+  /**
    * if there is a non immediate in all the fields
    * @return true if has non immediate
    */

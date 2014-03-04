@@ -44,7 +44,7 @@
                           <td>
                             <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle">${textContainer.text['groupViewActionsButton'] } <span class="caret"></span></a>
                               <ul class="dropdown-menu dropdown-menu-right">
-                                <li><a href="edit-person-membership.html">${textContainer.text['groupViewEditMembershipsAndPrivilegesButton'] }</a></li>
+                                <li><a href="#" onclick="return guiV2link('operation=UiV2Membership.editMembership&groupId=${guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner.id}&memberId=${grouperRequestContainer.subjectContainer.guiSubject.memberId}&field=members&backTo=subject');" class="actions-revoke-membership">${textContainer.text['groupViewEditMembershipsAndPrivilegesButton'] }</a></li>
                                 <c:if test="${guiMembershipContainer.membershipContainer.membershipAssignType.immediate && guiMembershipSubjectContainer.guiGroup.hasUpdate }">
                                   <li><a href="#" onclick="ajax('../app/UiV2Subject.removeGroup?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}&groupId=${guiMembershipSubjectContainer.guiGroup.group.uuid}', {formIds: 'groupFilterFormId,groupPagingFormId'}); return false;" class="actions-revoke-membership">${textContainer.text['subjectViewRevokeMembershipButton'] }</a></li>
                                 </c:if>

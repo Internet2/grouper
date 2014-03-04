@@ -8,6 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.membership.MembershipResult;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -19,6 +20,21 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class GuiMembershipSubjectContainer {
 
+  /**
+   * get one result from a finder result, if there are multiple throw an exception, if none, then null
+   * @param membershipResult
+   * @return the container or null
+   */
+  public static GuiMembershipSubjectContainer convertOneFromFinder(MembershipResult membershipResult) {
+
+    Set<MembershipSubjectContainer> membershipSubjectContainers = membershipResult.getMembershipSubjectContainers();
+
+    MembershipSubjectContainer membershipSubjectContainer = GrouperUtil.setPopOne(membershipSubjectContainers);
+    
+    return membershipSubjectContainer == null ? null : new GuiMembershipSubjectContainer(membershipSubjectContainer);
+
+  }
+  
   /**
    * get the gui group
    * @return gui gruop

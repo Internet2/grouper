@@ -38,7 +38,6 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiHideShow;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
-import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
@@ -327,5 +326,25 @@ public class GrouperUiFunctions {
     //probably doesnt need to be escaped, but who knows...
     return GrouperUtil.xmlEscape(StringUtils.defaultString(GrouperUiUtils.dateToString(locale, date)));
 
+  }
+
+  /**
+   * concat for EL
+   * @param a
+   * @param b
+   * @param c
+   * @return the concatenated strings
+   */
+  public static String concat3(Object a, Object b, Object c) {
+    if (a == null) {
+      a = "";
+    }
+    if (b == null) {
+      b = "";
+    }
+    if (c == null) {
+      c = "";
+    }
+    return GrouperUtil.stringValue(a) + GrouperUtil.stringValue(b) + GrouperUtil.stringValue(c);
   }
 }

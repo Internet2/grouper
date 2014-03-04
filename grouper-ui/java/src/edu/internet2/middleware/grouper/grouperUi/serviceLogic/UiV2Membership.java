@@ -1,8 +1,8 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -11,6 +11,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -22,6 +23,8 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembership;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -34,7 +37,6 @@ import edu.internet2.middleware.grouper.membership.MembershipPath;
 import edu.internet2.middleware.grouper.membership.MembershipPathGroup;
 import edu.internet2.middleware.grouper.membership.MembershipPathNode;
 import edu.internet2.middleware.grouper.membership.MembershipResult;
-import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
@@ -173,6 +175,9 @@ public class UiV2Membership {
       //see where to go back to
       if (StringUtils.equalsIgnoreCase(request.getParameter("backTo"), "subject")) {
         membershipGuiContainer.setTraceMembershipFromSubject(true);
+      }
+      if (StringUtils.equalsIgnoreCase(request.getParameter("backTo"), "membership")) {
+        membershipGuiContainer.setTraceMembershipFromMembership(true);
       }
 
       //this is a subobject
@@ -771,6 +776,125 @@ public class UiV2Membership {
   }
 
   /**
+   * save a membership
+   * @param request
+   * @param response
+   */
+  public void saveMembership(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+    Subject subject = null;
+    Field field = null;
+  
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
+  
+      if (group == null) {
+        return;
+      }
+  
+      subject = UiV2Subject.retrieveSubjectHelper(request, true);
+  
+      if (subject == null) {
+        return;
+      }
+      
+      Member member = MemberFinder.findBySubject(grouperSession, subject, false);
+  
+      if (member == null) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("membershipEditNoMembershipFound")));
+        
+        return;
+      }
+      
+      field = UiV2Membership.retrieveFieldHelper(request, true);
+      
+      if (field == null) {
+        return;
+      }      
+      
+      MembershipGuiContainer membershipGuiContainer = grouperRequestContainer.getMembershipGuiContainer();
+
+      membershipGuiContainer.setField(field);
+      
+      
+      String hasMembershipString = request.getParameter("hasMembership[]");
+      boolean hasMembership = GrouperUtil.booleanValue(hasMembershipString, false);
+
+      Date startDate = null;
+      try {
+        String startDateString = request.getParameter("startDate");
+        startDate = GrouperUtil.stringToTimestamp(startDateString);
+      } catch (Exception e) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#member-start-date",
+            TextContainer.retrieveFromRequest().getText().get("membershipEditFromDateInvalid")));
+        return;
+      }
+
+      Date endDate = null;
+      try {
+        String endDateString = request.getParameter("endDate");
+        endDate = GrouperUtil.stringToTimestamp(endDateString);
+      } catch (Exception e) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#member-end-date",
+            TextContainer.retrieveFromRequest().getText().get("membershipEditToDateInvalid")));
+        return;
+      }
+
+      boolean privOptins = GrouperUtil.booleanValue(request.getParameter("privilege_optins[]"), false);
+      boolean privOptouts = GrouperUtil.booleanValue(request.getParameter("privilege_optouts[]"), false);
+      boolean privViewers = GrouperUtil.booleanValue(request.getParameter("privilege_viewers[]"), false);
+      boolean privReaders = GrouperUtil.booleanValue(request.getParameter("privilege_readers[]"), false);
+      boolean privAdmins = GrouperUtil.booleanValue(request.getParameter("privilege_admins[]"), false);
+      boolean privUpdaters = GrouperUtil.booleanValue(request.getParameter("privilege_updaters[]"), false);
+      boolean privGroupAttrReaders = GrouperUtil.booleanValue(request.getParameter("privilege_groupAttrReaders[]"), false);
+      boolean privGroupAttrUpdaters = GrouperUtil.booleanValue(request.getParameter("privilege_groupAttrUpdaters[]"), false);      
+
+      if (!group.addMember(subject, false, hasMembership, privAdmins, privUpdaters, privReaders, privViewers, 
+          privOptins, privOptouts, privGroupAttrReaders, privGroupAttrUpdaters, startDate, endDate)) {
+
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+            TextContainer.retrieveFromRequest().getText().get("membershipEditNoChange")));
+        return;
+      }
+            
+      String backTo = request.getParameter("backTo");
+      if (StringUtils.equals(backTo, "subject")) {
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Subject.viewSubject&memberId=" + member.getId() + "');"));
+              
+      } else if (StringUtils.equals(backTo, "group")) {
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroup&groupId=" + group.getId() + "');"));
+
+      } else {
+        throw new RuntimeException("not expecting backTo: " + backTo);
+      }
+
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("membershipEditSaveSuccess")));
+
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+  
+  /**
    * edit membership
    * @param request
    * @param response
@@ -822,6 +946,8 @@ public class UiV2Membership {
       }      
       
       MembershipGuiContainer membershipGuiContainer = grouperRequestContainer.getMembershipGuiContainer();
+
+      membershipGuiContainer.setField(field);
       
       //see where to go back to
       if (StringUtils.equalsIgnoreCase(request.getParameter("backTo"), "subject")) {
@@ -831,38 +957,49 @@ public class UiV2Membership {
       //this is a subobject
       grouperRequestContainer.getGroupContainer().getGuiGroup().setShowBreadcrumbLink(true);
       grouperRequestContainer.getSubjectContainer().getGuiSubject().setShowBreadcrumbLink(true);
-  
-      MembershipResult membershipResult = new MembershipFinder().addField(field).addMemberId(member.getId()).addGroup(group).findMembershipResult();
-      
-      Set<MembershipSubjectContainer> membershipSubjectContainers = membershipResult.getMembershipSubjectContainers();
-      
-      if (GrouperUtil.length(membershipSubjectContainers) > 1) {
-        throw new RuntimeException("Why more than one? " + group + ", " + member + ", " + field);
-      }
-      
-      MembershipSubjectContainer membershipSubjectContainer = GrouperUtil.length(membershipSubjectContainers) == 0 ? null 
-          : membershipSubjectContainers.iterator().next();
 
-      if (membershipSubjectContainer != null) {
+      // get the privileges for this subject
+      MembershipResult membershipResult = new MembershipFinder().assignFieldType(FieldType.ACCESS)
+          .addMemberId(member.getId()).addGroup(group).findMembershipResult();
+      
+      GuiMembershipSubjectContainer guiMembershipSubjectContainer = GuiMembershipSubjectContainer.convertOneFromFinder(membershipResult);
+      
+      guiMembershipSubjectContainer.getMembershipSubjectContainer().considerAccessPrivilegeInheritance();
+      
+      //reset the gui
+      guiMembershipSubjectContainer = new GuiMembershipSubjectContainer(guiMembershipSubjectContainer.getMembershipSubjectContainer());
+      
+      membershipGuiContainer.setPrivilegeGuiMembershipSubjectContainer(guiMembershipSubjectContainer);
+
+      membershipResult = new MembershipFinder().addField(field).addMemberId(member.getId()).addGroup(group).findMembershipResult();
+      guiMembershipSubjectContainer = GuiMembershipSubjectContainer.convertOneFromFinder(membershipResult);
+      
+      if (guiMembershipSubjectContainer != null) {
+
+        membershipGuiContainer.setGuiMembershipSubjectContainer(guiMembershipSubjectContainer);
         
-        MembershipContainer membershipContainer = membershipSubjectContainer.getMembershipContainers().get(Group.getDefaultList().getName());
+        MembershipContainer membershipContainer = guiMembershipSubjectContainer.getMembershipSubjectContainer()
+            .getMembershipContainers().get(Group.getDefaultList().getName());
         
         if (membershipContainer != null) {
-          
+
           Membership immediateMembership = membershipContainer.getImmediateMembership();
+          if (immediateMembership != null) {  
+            membershipGuiContainer.setDirectGuiMembership(new GuiMembership(immediateMembership));
+          }
           membershipGuiContainer.setDirectMembership(membershipContainer.getMembershipAssignType().isImmediate());
           membershipGuiContainer.setIndirectMembership(membershipContainer.getMembershipAssignType().isNonImmediate());
         }
-        
+
       }
-      
+
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/membership/editMembership.jsp"));
-  
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
-    
+
   }
 
 }

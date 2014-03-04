@@ -8782,6 +8782,9 @@ public class GrouperUtil {
       if ((object1 == null) || (object2 == null)) {
           return false;
       }
+      if (object1 instanceof Date && object2 instanceof Date) {
+        return ((Date)object1).getTime() == ((Date)object2).getTime();
+      }
       return object1.equals(object2);
   }
 

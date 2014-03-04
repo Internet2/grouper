@@ -606,6 +606,18 @@
   </function>
   <function>
     <description>
+      concat three strings
+    </description>
+    <name>concat3</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>String concat3(java.lang.Object, java.lang.Object, java.lang.Object)</function-signature>
+    <example>
+      ${grouper:concat3(30, something.somewhere, 20)}
+    </example>
+  </function>
+  <function>
+    <description>
       Escapes XML ( ampersand, lessthan, greater than, double quote)
     </description>
     <name>escapeHtml</name>

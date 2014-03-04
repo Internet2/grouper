@@ -3,6 +3,8 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembership;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 
 
@@ -12,6 +14,71 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
  *
  */
 public class MembershipGuiContainer {
+
+  /**
+   * gui membership subject container being edited
+   */
+  private GuiMembershipSubjectContainer guiMembershipSubjectContainer;
+  
+  /**
+   * gui membership subject container for the privileges, map of field name to gui membership subject container
+   */
+  private GuiMembershipSubjectContainer privilegeGuiMembershipSubjectContainer;
+  
+  /**
+   * gui membership subject container being edited
+   * @return container
+   */
+  public GuiMembershipSubjectContainer getGuiMembershipSubjectContainer() {
+    return this.guiMembershipSubjectContainer;
+  }
+
+  /**
+   * gui membership subject container being edited
+   * @param guiMembershipSubjectContainer1
+   */
+  public void setGuiMembershipSubjectContainer(
+      GuiMembershipSubjectContainer guiMembershipSubjectContainer1) {
+    this.guiMembershipSubjectContainer = guiMembershipSubjectContainer1;
+  }
+
+  /**
+   * gui membership subject containers for the privileges, map of field name to gui membership subject container
+   * @return mape
+   */
+  public GuiMembershipSubjectContainer getPrivilegeGuiMembershipSubjectContainer() {
+    return this.privilegeGuiMembershipSubjectContainer;
+  }
+
+  /**
+   * gui membership subject containers for the privileges, map of field name to gui membership subject container
+   * @param privilegeGuiMembershipSubjectContainers1
+   */
+  public void setPrivilegeGuiMembershipSubjectContainer(
+      GuiMembershipSubjectContainer privilegeGuiMembershipSubjectContainer1) {
+    this.privilegeGuiMembershipSubjectContainer = privilegeGuiMembershipSubjectContainer1;
+  }
+
+  /**
+   * direct gui membership being edited
+   */
+  private GuiMembership directGuiMembership;
+  
+  /**
+   * direct gui membership being edited
+   * @return direct gui membership
+   */
+  public GuiMembership getDirectGuiMembership() {
+    return this.directGuiMembership;
+  }
+
+  /**
+   * direct gui membership being edited
+   * @param directGuiMembership1
+   */
+  public void setDirectGuiMembership(GuiMembership directGuiMembership1) {
+    this.directGuiMembership = directGuiMembership1;
+  }
 
   /**
    * if has a direct membership
@@ -271,6 +338,27 @@ public class MembershipGuiContainer {
    * field on the screen
    */
   private Field field;
+
+  /**
+   * if should trace memberships from a membership
+   */
+  private boolean traceMembershipFromMembership;
+
+  /**
+   * if should trace memberships from a membership
+   * @return should trace
+   */
+  public boolean isTraceMembershipFromMembership() {
+    return this.traceMembershipFromMembership;
+  }
+
+  /**
+   * if should trace memberships from a membership
+   * @param traceMembershipFromMembership1
+   */
+  public void setTraceMembershipFromMembership(boolean traceMembershipFromMembership1) {
+    this.traceMembershipFromMembership = traceMembershipFromMembership1;
+  }
 
   /**
    * field on the screen

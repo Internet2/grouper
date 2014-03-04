@@ -1055,6 +1055,33 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       final boolean updateChecked, final boolean readChecked, final boolean viewChecked,
       final boolean optinChecked, final boolean optoutChecked, final boolean attrReadChecked,
       final boolean attrUpdateChecked) {
+    return addMember(subject, defaultPrivs, memberChecked, adminChecked, updateChecked, 
+        readChecked, viewChecked, optinChecked, optoutChecked, attrReadChecked, attrUpdateChecked, null, null);
+  }
+
+  /**
+   * add a member to group, take into account if any default privs should be changed
+   * @param subject to add
+   * @param defaultPrivs if true, forget about all the other checked params
+   * @param memberChecked
+   * @param adminChecked
+   * @param updateChecked
+   * @param readChecked
+   * @param viewChecked
+   * @param optinChecked
+   * @param optoutChecked
+   * @param attrReadChecked
+   * @param attrUpdateChecked
+   * @param startDate on membership
+   * @param endDate on membership
+   * @return if something was changed
+   */
+  public boolean addMember(final Subject subject, final boolean defaultPrivs,
+      final boolean memberChecked, 
+      final boolean adminChecked,
+      final boolean updateChecked, final boolean readChecked, final boolean viewChecked,
+      final boolean optinChecked, final boolean optoutChecked, final boolean attrReadChecked,
+      final boolean attrUpdateChecked, final Date startDate, final Date endDate) {
     
     return (Boolean)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
       
@@ -1062,176 +1089,100 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       public Object callback(GrouperTransaction grouperTransaction)
           throws GrouperDAOException {
 
+        boolean addedMember = defaultPrivs || memberChecked || startDate != null || endDate != null;
+        
         boolean hadChange = false;
-        boolean addedMember = true;
-        if (!defaultPrivs) {
-          addedMember = memberChecked;
-        }
         
         if (addedMember) {
           addedMember = Group.this.addMember(subject, false);
           hadChange = hadChange || addedMember;
-        }
-        
-        //if they are doing custom privs, maybe they want member removed???
-        if (!defaultPrivs && !memberChecked) {
-          hadChange = hadChange | Group.this.deleteMember(subject, false);
-        }
-        
-//        boolean adminDefaultChecked = GrouperConfig.retrieveConfig()
-//            .propertyValueBoolean("groups.create.grant.all.admin", false);
-//        
-//        boolean updateDefaultChecked = GrouperConfig.retrieveConfig()
-//            .propertyValueBoolean("groups.create.grant.all.update", false);
-//        
-//        boolean readDefaultChecked = GrouperConfig.retrieveConfig()
-//            .propertyValueBoolean("groups.create.grant.all.read", false);
-//
-//        boolean viewDefaultChecked = GrouperConfig.retrieveConfig()
-//            .propertyValueBoolean("groups.create.grant.all.view", false);
-//
-//        boolean optinDefaultChecked = GrouperConfig.retrieveConfig()
-//            .propertyValueBoolean("groups.create.grant.all.optin", false);
-//
-//        boolean optoutDefaultChecked = GrouperConfig.retrieveConfig()
-//            .propertyValueBoolean("groups.create.grant.all.optout", false);
-//
-//        boolean attrReadDefaultChecked = GrouperConfig.retrieveConfig()
-//            .propertyValueBoolean("groups.create.grant.all.attrRead", false);
-//
-//        boolean attrUpdateDefaultChecked = GrouperConfig.retrieveConfig()
-//            .propertyValueBoolean("groups.create.grant.all.attrUpdate", false);
-
-        boolean adminDefaultChecked = false;
-        
-        boolean updateDefaultChecked = false;
-        
-        boolean readDefaultChecked = false;
-
-        boolean viewDefaultChecked = false;
-
-        boolean optinDefaultChecked = false;
-
-        boolean optoutDefaultChecked = false;
-
-        boolean attrReadDefaultChecked = false;
-
-        boolean attrUpdateDefaultChecked = false;
-
-        
-        if (defaultPrivs) {
           
-          //if we are doing default privs, and we didnt add the member, lets sync up the privs
-          if (!addedMember) {
-            if (adminDefaultChecked) {
-              hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.ADMIN, false);
-            }
-            if (updateDefaultChecked) {
-              hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.UPDATE, false);
-            }
-            if (readDefaultChecked) {
-              hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.READ, false);
-            }
-            if (viewDefaultChecked) {
-              hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.VIEW, false);
-            }
-            if (optinDefaultChecked) {
-              hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.OPTIN, false);
-            }
-            if (optoutDefaultChecked) {
-              hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.OPTOUT, false);
-            }
-            if (attrReadDefaultChecked) {
-              hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.GROUP_ATTR_READ, false);
-            }
-            if (attrUpdateDefaultChecked) {
-              hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.GROUP_ATTR_UPDATE, false);
-            }
+          Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
+          
+          Membership membership = Group.this.getImmediateMembership(Group.getDefaultList(), member, false, true);
+          
+          boolean storeMembership = false;
+          if (!GrouperUtil.equals(startDate, membership.getEnabledTime())) {
+
+            storeMembership = true;
+            hadChange = true;
+            membership.setEnabledTime(startDate == null ? null : new Timestamp(startDate.getTime()));
+          }
+          if (!GrouperUtil.equals(endDate, membership.getDisabledTime())) {
+
+            storeMembership = true;
+            hadChange = true;
+            membership.setDisabledTime(endDate == null ? null : new Timestamp(endDate.getTime()));
+            
+          }
+          if (storeMembership) {
+            GrouperDAOFactory.getFactory().getMembership().update(membership);
           }
           
         } else {
+        
+          //if they are doing custom privs, maybe they want member removed???
+          hadChange = hadChange | Group.this.deleteMember(subject, false);
+        }
+        
+
+        if (!defaultPrivs) {
           
-          {
-            //see if add or remove
-            if (!addedMember && adminChecked) {
-              hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.ADMIN, false);
-            }
-            if (addedMember && !adminChecked && adminDefaultChecked) {
-              hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.ADMIN, false);
-            }
+          //see if add or remove
+          if (adminChecked) {
+            hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.ADMIN, false);
+          } else {
+            hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.ADMIN, false);
           }
-          
-          {
-            //see if add or remove
-            if (!addedMember && updateChecked) {
-              hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.UPDATE, false);
-            }
-            if (addedMember && !updateChecked && updateDefaultChecked) {
-              hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.UPDATE, false);
-            }
+
+          //see if add or remove
+          if (updateChecked) {
+            hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.UPDATE, false);
+          } else  {
+            hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.UPDATE, false);
           }
-          
-          {
-            //see if add or remove
-            if (!addedMember && readChecked) {
-              hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.READ, false);
-            }
-            if (addedMember && !readChecked && readDefaultChecked) {
-              hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.READ, false);
-            }
+
+          //see if add or remove
+          if (readChecked) {
+            hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.READ, false);
+          } else {
+            hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.READ, false);
           }
-          
-          {
-            //see if add or remove
-            if (!addedMember && viewChecked) {
-              hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.VIEW, false);
-            }
-            if (addedMember && !viewChecked && viewDefaultChecked) {
-              hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.VIEW, false);
-            }
+
+          //see if add or remove
+          if (viewChecked) {
+            hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.VIEW, false);
+          } else {
+            hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.VIEW, false);
           }
-          
-          {
-            //see if add or remove
-            if (!addedMember && optinChecked) {
-              hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.OPTIN, false);
-            }
-            if (addedMember && !optinChecked && optinDefaultChecked) {
-              hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.OPTIN, false);
-            }
+
+          //see if add or remove
+          if (optinChecked) {
+            hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.OPTIN, false);
+          } else {
+            hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.OPTIN, false);
           }
-          
-          {
-            //see if add or remove
-            if (!addedMember && optoutChecked) {
-              hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.OPTOUT, false);
-            }
-            if (addedMember && !optoutChecked && optoutDefaultChecked) {
-              hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.OPTOUT, false);
-            }
+
+          //see if add or remove
+          if (optoutChecked) {
+            hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.OPTOUT, false);
+          } else {
+            hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.OPTOUT, false);
           }
-          
-          {
-            //see if add or remove
-            if (!addedMember && attrReadChecked) {
-              hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.GROUP_ATTR_READ, false);
-            }
-            if (addedMember && !attrReadChecked && attrReadDefaultChecked) {
-              hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.GROUP_ATTR_READ, false);
-            }
+
+          //see if add or remove
+          if (attrReadChecked) {
+            hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.GROUP_ATTR_READ, false);
+          } else {
+            hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.GROUP_ATTR_READ, false);
           }
-          
-          {
-            //see if add or remove
-            if (!addedMember && attrUpdateChecked) {
-              hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.GROUP_ATTR_UPDATE, false);
-            }
-            if (addedMember && !attrUpdateChecked && attrUpdateDefaultChecked) {
-              hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.GROUP_ATTR_UPDATE, false);
-            }
+
+          //see if add or remove
+          if (attrUpdateChecked) {
+            hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.GROUP_ATTR_UPDATE, false);
+          } else {
+            hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.GROUP_ATTR_UPDATE, false);
           }
-          
-          
         }
 
         return hadChange;

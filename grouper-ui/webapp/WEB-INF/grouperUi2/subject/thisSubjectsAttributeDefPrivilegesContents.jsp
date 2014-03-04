@@ -99,8 +99,6 @@
                         <td>
                           <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle">${textContainer.text['thisSubjectsPrivilegesActionsButton']} <span class="caret"></span></a>
                             <ul class="dropdown-menu dropdown-menu-right">
-                              <li><a href="edit-person-membership.html">${textContainer.text['thisSubjectsPrivilegesActionsMenuEditMembershipsAndPrivileges'] }</a></li>
-                             
                               <c:if test="${guiMembershipContainer.membershipContainer.membershipAssignType.nonImmediate}">
                                 <li><a href="#"  onclick="return guiV2link('operation=UiV2Membership.traceAttributeDefPrivileges&attributeDefId=${guiMembershipSubjectContainer.guiAttributeDef.attributeDef.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&backTo=subject'); return false;" class="actions-revoke-membership">${textContainer.text['thisSubjectsPrivilegesActionsMenuTracePrivileges'] }</a></li>
                               </c:if>
