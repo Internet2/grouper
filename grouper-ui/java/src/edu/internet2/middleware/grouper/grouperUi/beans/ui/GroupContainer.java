@@ -274,6 +274,58 @@ public class GroupContainer {
    * if the group is a favorite for the logged in user
    */
   private Boolean favorite;
+
+  /**
+   * if the logged in user can optin 
+   */
+  private Boolean canOptin;
+  
+  /**
+   * if the logged in user can optin 
+   * @return is can optin
+   */
+  public boolean isCanOptin() {
+    if (this.canOptin == null) {
+      
+      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+      
+      this.canOptin = (Boolean)GrouperSession.callbackGrouperSession(
+          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+            
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              return GroupContainer.this.getGuiGroup().getGroup().canHavePrivilege(loggedInSubject, AccessPrivilege.OPTIN.getName(), false);
+            }
+          });
+    }
+    return this.canOptin;
+  }
+  
+  /**
+   * if the logged in user can optout
+   */
+  private Boolean canOptout;
+  
+  /**
+   * if the logged in user can optout 
+   * @return is can optout
+   */
+  public boolean isCanOptout() {
+    if (this.canOptout == null) {
+      
+      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+      
+      this.canOptout = (Boolean)GrouperSession.callbackGrouperSession(
+          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+            
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              return GroupContainer.this.getGuiGroup().getGroup().canHavePrivilege(loggedInSubject, AccessPrivilege.OPTOUT.getName(), false);
+            }
+          });
+    }
+    return this.canOptout;
+  }
   
   /**
    * if the logged in user can admin, lazy loaded
@@ -296,6 +348,31 @@ public class GroupContainer {
     }
     
     return this.canAdmin;
+  }
+
+  private Boolean directMember;
+  
+  /**
+   * if the logged in user is a direct member
+   * @return if direct member
+   */
+  public boolean isDirectMember() {
+    
+    if (this.directMember == null) {
+      
+      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+      
+      this.directMember = (Boolean)GrouperSession.callbackGrouperSession(
+          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+            
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              return GroupContainer.this.getGuiGroup().getGroup().hasImmediateMember(loggedInSubject);
+            }
+          });
+    }
+    
+    return this.directMember;
   }
 
   /**

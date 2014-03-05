@@ -799,6 +799,86 @@ public class UiV2Group {
   }
 
   /**
+   * join the current group
+   * @param request
+   * @param response
+   */
+  public void joinGroup(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = retrieveGroupHelper(request, AccessPrivilege.OPTIN).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+
+      group.addMember(loggedInSubject, false);
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("groupJoinSuccess")));
+
+      //redisplay so the button will change, note, this will not change the memberships
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupMoreActionsButtonContentsDivId", 
+          "/WEB-INF/grouperUi2/group/groupMoreActionsButtonContents.jsp"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+  
+  /**
+   * leave the current group
+   * @param request
+   * @param response
+   */
+  public void leaveGroup(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = retrieveGroupHelper(request, AccessPrivilege.OPTOUT).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+
+      group.deleteMember(loggedInSubject, false);
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("groupLeaveSuccess")));
+
+      //redisplay so the button will change, note, this will not change the memberships
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupMoreActionsButtonContentsDivId", 
+          "/WEB-INF/grouperUi2/group/groupMoreActionsButtonContents.jsp"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+  
+  /**
    * 
    * @param request
    * @param response
@@ -1954,6 +2034,20 @@ public class UiV2Group {
           if (!groupContainer.isCanRead()) {
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
                 TextContainer.retrieveFromRequest().getText().get("groupNotAllowedToReadGroup")));
+            addedError = true;
+            privsOk = false;
+          }
+        } else if (requirePrivilege.equals(AccessPrivilege.OPTIN)) {
+          if (!groupContainer.isCanOptin()) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("groupNotAllowedToOptinGroup")));
+            addedError = true;
+            privsOk = false;
+          }
+        } else if (requirePrivilege.equals(AccessPrivilege.OPTOUT)) {
+          if (!groupContainer.isCanOptout()) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("groupNotAllowedToOptoutGroup")));
             addedError = true;
             privsOk = false;
           }
@@ -3336,6 +3430,90 @@ public class UiV2Group {
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupAuditFilterResultsId", 
         "/WEB-INF/grouperUi2/group/groupViewAuditsContents.jsp"));
   
+  }
+
+  /**
+   * remove all members submit
+   * @param request
+   * @param response
+   */
+  public void groupRemoveAllMembersSubmit(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+    
+      if (group == null) {
+        return;
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+  
+      if(group.hasComposite()) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("groupProblemWithComposite")));
+        return;
+      }
+
+      Set<Member> members = group.getImmediateMembers();
+      for (Member member : members) {
+        group.deleteMember(member);
+      }
+      
+      //go to the view group screen
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroup&groupId=" + group.getId() + "')"));
+  
+      //lets show a success message on the new screen
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("groupRemoveMembersSuccess")));
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+  
+  /**
+   * remove all members from a group (show confirm screen)
+   * @param request
+   * @param response
+   */
+  public void groupRemoveAllMembers(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/group/groupRemoveMembers.jsp"));
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
   }
 
 }

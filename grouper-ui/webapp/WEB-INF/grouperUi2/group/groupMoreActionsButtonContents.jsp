@@ -18,7 +18,14 @@
                             >${textContainer.text['groupViewMoreActionsAddToMyFavorites']}</a></li>
                           </c:otherwise>
                         </c:choose>
-                        <li><a href="join-group.html">Join group</a></li>
+
+                        <c:if test="${grouperRequestContainer.groupContainer.directMember && grouperRequestContainer.groupContainer.canOptout }">
+                          <li><a href="#" onclick="ajax('../app/UiV2Group.leaveGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;" >${textContainer.text['groupViewLeaveGroupButton']}</a></li>
+                        </c:if>
+                        <c:if test="${!grouperRequestContainer.groupContainer.directMember && grouperRequestContainer.groupContainer.canOptin }">
+                          <li><a href="#" onclick="ajax('../app/UiV2Group.joinGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">${textContainer.text['groupViewJoinGroupButton']}</a></li>
+                        </c:if>
+
                         <c:if test="${grouperRequestContainer.groupContainer.canAdmin }">
                           <li class="divider"></li>
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupCopy&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
@@ -32,10 +39,15 @@
                         </c:if>
                         
                         <li class="divider"></li>
-                        <li><a href="export-group.html">Export members</a></li>
-                        <li><a href="bulk-add.html">Import members</a></li>
-                        <li><a href="invite-external-users.html">Invite external users</a></li>
-                        <li><a href="remove-all-members.html">Remove all members</a></li>
+                        <c:if test="${grouperRequestContainer.groupContainer.canRead}">
+                          <li><a href="export-group.html">Export members</a></li>
+                        </c:if>
+                        <c:if test="${!grouperRequestContainer.groupContainer.guiGroup.hasComposite && grouperRequestContainer.groupContainer.canUpdate}">
+                          <li><a href="bulk-add.html">Import members</a></li>
+                          <li><a href="invite-external-users.html">Invite external users</a></li>
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupRemoveAllMembers&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['groupViewRemoveAllMembersButton'] }</a></li>
+                        </c:if>
                         <li class="divider"></li>
                         <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewAudits&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"

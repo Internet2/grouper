@@ -48,6 +48,14 @@ import edu.internet2.middleware.subject.Subject;
 public class GuiGroup extends GuiObjectBase implements Serializable {
 
   /**
+   * if the underlying group has a composite
+   * @return true if has composite
+   */
+  public boolean isHasComposite() {
+    return this.group.hasComposite();
+  }
+  
+  /**
    * 
    * @param groups
    * @param configMax
