@@ -56,6 +56,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContain
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.j2ee.GrouperUiRestServlet;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.SaveMode;
@@ -3510,6 +3511,161 @@ public class UiV2Group {
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/groupRemoveMembers.jsp"));
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * export a group
+   * @param request
+   * @param response
+   */
+  public void groupExportSubmit(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      List<String> urlStrings = GrouperUiRestServlet.extractUrlStrings(request);
+      
+      //groupId=721e4e8ae6e54c4087db092f0a6372f7
+      String groupIdString = urlStrings.get(2);
+      
+      String groupId = GrouperUtil.prefixOrSuffix(groupIdString, "=", false);
+      
+      group = GroupFinder.findByUuid(grouperSession, groupId, false);
+
+      if (group == null) {
+        throw new RuntimeException("Cant find group by id: " + groupId);
+      }
+      
+      GroupContainer groupContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer();
+      
+      groupContainer.setGuiGroup(new GuiGroup(group));
+      
+      if (!groupContainer.isCanRead()) {
+        throw new RuntimeException("Cant read group: " + group.getName());
+      }
+      
+      //ids
+      String groupExportOptions = urlStrings.get(3);
+      
+      boolean exportAll = false;
+      if (StringUtils.equals("all", groupExportOptions)) {
+        groupContainer.setExportAll(true);
+        exportAll = true;
+      } else if (StringUtils.equals("ids", groupExportOptions)) {
+        groupContainer.setExportAll(false);
+      } else {
+        throw new RuntimeException("Not expecting group-export-options value: '" + groupExportOptions + "'");
+      }
+
+      
+      //groupExportSubjectIds_removeAllMembers.csv
+      @SuppressWarnings("unused")
+      String fileName = urlStrings.get(4);
+      
+      if (exportAll) {
+        String headersCommaSeparated = GrouperUiConfig.retrieveConfig().propertyValueString(
+            "uiV2.group.exportAllSubjectFields");
+        
+        String exportAllSortField = GrouperUiConfig.retrieveConfig().propertyValueString(
+            "uiV2.group.exportAllSortField");
+  
+        SimpleMembershipUpdateImportExport.exportGroupAllFieldsToBrowser(group, headersCommaSeparated, exportAllSortField);
+      } else {
+        
+        SimpleMembershipUpdateImportExport.exportGroupSubjectIdsCsv(group);
+        
+      }
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+  
+  /**
+   * export group members screen
+   * @param request
+   * @param response
+   */
+  public void groupExport(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/group/groupExport.jsp"));
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+
+  /**
+   * export group members screen change the type of export
+   * @param request
+   * @param response
+   */
+  public void groupExportTypeChange(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+  
+      String groupExportOptions = request.getParameter("group-export-options[]");
+      
+      GroupContainer groupContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer();
+      
+      if (StringUtils.equals("all", groupExportOptions)) {
+        groupContainer.setExportAll(true);
+      } else if (StringUtils.equals("ids", groupExportOptions)) {
+        groupContainer.setExportAll(false);
+      } else {
+        throw new RuntimeException("Not expecting group-export-options value: '" + groupExportOptions + "'");
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#formActionsDivId", 
+          "/WEB-INF/grouperUi2/group/groupExportButtons.jsp"));
   
     } finally {
       GrouperSession.stopQuietly(grouperSession);

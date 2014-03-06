@@ -130,6 +130,7 @@ public class GrouperUiRestServlet extends HttpServlet {
       UiV2Main.class.getSimpleName() + ".index",
       UiV2Main.class.getSimpleName() + ".folderMenu",
       UiV2Group.class.getSimpleName() + ".addMemberFilter",
+      UiV2Group.class.getSimpleName() + ".groupExportSubmit",
       UiV2Stem.class.getSimpleName() + ".stemCopyParentFolderFilter",
       UiV2Stem.class.getSimpleName() + ".createGroupParentFolderFilter",
       UiV2Stem.class.getSimpleName() + ".createStemParentFolderFilter",
@@ -197,6 +198,13 @@ public class GrouperUiRestServlet extends HttpServlet {
       urlStrings = GrouperUtil.toList(urlStrings.get(0), urlStrings.get(1));
     }
     
+    if (GrouperUtil.length(urlStrings) == 5
+        && StringUtils.equals("app", urlStrings.get(0))
+        && StringUtils.equals("UiV2Group.groupExportSubmit", urlStrings.get(1))) {
+      //strip off the filename
+      urlStrings = GrouperUtil.toList(urlStrings.get(0), urlStrings.get(1));
+    }
+
     //see what operation we are doing
     if (GrouperUtil.length(urlStrings) == 2 
         && StringUtils.equals("app", urlStrings.get(0))) {
@@ -357,7 +365,7 @@ public class GrouperUiRestServlet extends HttpServlet {
    * @param request is the request to get the url strings out of
    * @return the list of url strings
    */
-  private static List<String> extractUrlStrings(HttpServletRequest request) {
+  public static List<String> extractUrlStrings(HttpServletRequest request) {
     String requestResourceFull = request.getRequestURI();
     return extractUrlStrings(requestResourceFull);
   }

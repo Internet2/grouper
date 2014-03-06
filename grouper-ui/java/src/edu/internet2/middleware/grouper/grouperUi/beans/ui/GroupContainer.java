@@ -27,6 +27,38 @@ import edu.internet2.middleware.subject.Subject;
 public class GroupContainer {
 
   /**
+   * if export all of just member subject ids
+   */
+  private boolean exportAll = false;
+  
+  /**
+   * if export all of just member subject ids
+   * @return export all
+   */
+  public boolean isExportAll() {
+    return this.exportAll;
+  }
+
+  /**
+   * if export all of just member subject ids
+   * @param exportAll1
+   */
+  public void setExportAll(boolean exportAll1) {
+    this.exportAll = exportAll1;
+  }
+
+  /**
+   * return the filename of the file being exported
+   * @return the filename of the file being exported
+   */
+  public String getExportFileName() {
+    if (this.isExportAll()) {
+      return this.getGuiGroup().getExportAllFileName();
+    }
+    return this.getGuiGroup().getExportSubjectIdsFileName();
+  }
+
+  /**
    * if extended results on audit display
    */
   private boolean auditExtendedResults = false;

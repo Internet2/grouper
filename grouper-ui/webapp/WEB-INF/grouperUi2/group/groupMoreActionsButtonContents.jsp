@@ -3,7 +3,7 @@
                     <!-- start group/groupMoreActionsButtonContents.jsp -->
 
                     <a id="show-add-block" href="#" onclick="$('#add-block-container').toggle('slow'); return false;" class="btn btn-medium btn-primary btn-block"><i class="icon-plus"></i> ${textContainer.text['groupViewMoreActionsAddMembers'] }</a>
-                    <div class="btn-group btn-block"><a data-toggle="dropdown" href="#" class="btn btn-medium btn-block dropdown-toggle">More actions <span class="caret"></span></a>
+                    <div class="btn-group btn-block"><a data-toggle="dropdown" href="#" class="btn btn-medium btn-block dropdown-toggle">${textContainer.text['groupViewMoreActionsButton'] } <span class="caret"></span></a>
                       <ul class="dropdown-menu dropdown-menu-right">
                         <%-- add or remove to/from my favorites, this causes a success message --%>
                         <c:choose>
@@ -40,7 +40,7 @@
                         
                         <li class="divider"></li>
                         <c:if test="${grouperRequestContainer.groupContainer.canRead}">
-                          <li><a href="export-group.html">Export members</a></li>
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupExport&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">${textContainer.text['groupExportMenuButton'] }</a></li>
                         </c:if>
                         <c:if test="${!grouperRequestContainer.groupContainer.guiGroup.hasComposite && grouperRequestContainer.groupContainer.canUpdate}">
                           <li><a href="bulk-add.html">Import members</a></li>
