@@ -7,7 +7,7 @@
               ${grouperRequestContainer.groupContainer.guiGroup.breadcrumbs}
 
               <div class="page-header blue-gradient">
-                <h1> <i class="icon-folder-close"></i> ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}
+                <h1> <i class="fa fa-folder"></i> ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}
                 <br /><small>${textContainer.text['groupEditTitle'] }</small></h1>
               </div>
 
@@ -43,10 +43,10 @@
                   </div>
                   <p class="shownAdvancedProperties"><a href="#" 
                     onclick="$('.hiddenAdvancedProperties').show('slow'); $('.shownAdvancedProperties').hide('slow'); return false;" 
-                    >${textContainer.text['groupCreateAdvanced'] } <i class="icon-angle-down"></i></a></p>
+                    >${textContainer.text['groupCreateAdvanced'] } <i class="fa fa-angle-down"></i></a></p>
                   <p class="hiddenAdvancedProperties" style="display: none"
                     onclick="$('.hiddenAdvancedProperties').hide('slow'); $('.shownAdvancedProperties').show('slow'); return false;" 
-                    ><a href="#" >${textContainer.text['groupCreateHideAdvanced'] } <i class="icon-angle-up"></i></a></p>
+                    ><a href="#" >${textContainer.text['groupCreateHideAdvanced'] } <i class="fa fa-angle-up"></i></a></p>
                   <div class="hiddenAdvancedProperties" style="display: none">
                     <div class="control-group">
                       <label class="control-label">${textContainer.text['groupCreateAssignPrivilegesToEveryone'] }</label>

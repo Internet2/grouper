@@ -6,17 +6,17 @@
 
             <div class="bread-header-container">
               <ul class="breadcrumb">
-                <%-- <li><a href="index.html">Home </a><span class="divider"><i class='icon-angle-right'></i></span></li>
-                <li><a href="#">Root </a><span class="divider"><i class='icon-angle-right'></i></span></li>
-                <li><a href="view-folder.html">Applications </a><span class="divider"><i class='icon-angle-right'></i></span></li>
-                <li><a href="view-folder.html">Wiki </a><span class="divider"><i class='icon-angle-right'></i></span></li>
-                <li><a href="view-group.html">Editors</a><span class="divider"><i class='icon-angle-right'></i></span></li>
+                <%-- <li><a href="index.html">Home </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+                <li><a href="#">Root </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+                <li><a href="view-folder.html">Applications </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+                <li><a href="view-folder.html">Wiki </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+                <li><a href="view-group.html">Editors</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
                 <li class="active">Trace membership</li> --%>
                 ${grouperRequestContainer.groupContainer.guiGroup.breadcrumbBullets}
                 <li class="active">${grouperRequestContainer.subjectContainer.guiSubject.screenLabelShort2noLink}</li>
               </ul>
               <div class="page-header blue-gradient">
-                <h1> <i class="icon-group icon-header"> </i> ${grouperRequestContainer.subjectContainer.guiSubject.screenLabelShort2noLink}
+                <h1> <i class="fa fa-group fa-header"> </i> ${grouperRequestContainer.subjectContainer.guiSubject.screenLabelShort2noLink}
                 <br /><small>${textContainer.text['membershipEditSubHeader']}</small></h1>
               </div>
             </div>

@@ -6,13 +6,13 @@
             <div class="bread-header-container">
               <%--
               <ul class="breadcrumb">
-                <li><a href="index.html">Home </a><span class="divider"><i class='icon-angle-right'></i></span></li>
+                <li><a href="index.html">Home </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
                 <li class="active">Applications</li>
               </ul>
               --%>
               ${grouperRequestContainer.groupContainer.guiGroup.breadcrumbs}
               <div class="page-header blue-gradient">
-                <h1> <i class="icon-folder-close"></i> ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}
+                <h1> <i class="fa fa-folder"></i> ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}
                 <br /><small>${textContainer.text['groupExportTitle'] }</small></h1>
               </div>
             </div>
@@ -34,6 +34,7 @@
                 </div>
               </div>
               <div class="form-actions" id="formActionsDivId">
-                <%@ include file="groupExportButtons.jsp"%>
+                <a href="../app/UiV2Group.groupExportSubmit/groupId%3d${grouperRequestContainer.groupContainer.guiGroup.group.id}/${grouperRequestContainer.groupContainer.exportAll ? 'all' : 'ids'}/${grouperRequestContainer.groupContainer.exportFileName}" class="btn btn-primary">${textContainer.text['groupExportExportButton'] }</a> 
+                <a href="#" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" >${textContainer.text['groupExportReturnToGroupButton'] }</a>
               </div>
             </form>

@@ -2,7 +2,7 @@
 
             <div class="bread-header-container">
               <ul class="breadcrumb">
-                <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">Home </a><span class="divider"><i class='icon-angle-right'></i></span></li>
+                <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">Home </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
                 <li class="active">${textContainer.text['stemNewBreadcrumb'] }</li>
               </ul>
               <div class="page-header blue-gradient">
@@ -37,7 +37,7 @@
                         value="${grouper:escapeHtml(grouperRequestContainer.stemContainer.objectStemId)}"
                         />
                       <span id="parentFolderComboErrorId"></span>
-                      <%-- a href="#folder-search" role="button" data-toggle="modal" class="btn"><i class="icon-search"></i></a --%>
+                      <%-- a href="#folder-search" role="button" data-toggle="modal" class="btn"><i class="fa fa-search"></i></a --%>
                       <span class="help-block">${textContainer.text['stemCreateIntoFolderDescription'] }</span>
                     
                     </div>

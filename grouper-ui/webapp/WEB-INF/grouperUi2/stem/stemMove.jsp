@@ -6,13 +6,13 @@
             <div class="bread-header-container">
               <%--
               <ul class="breadcrumb">
-                <li><a href="index.html">Home </a><span class="divider"><i class='icon-angle-right'></i></span></li>
+                <li><a href="index.html">Home </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
                 <li class="active">Applications</li>
               </ul>
               --%>
               ${grouperRequestContainer.stemContainer.guiStem.breadcrumbs}
               <div class="page-header blue-gradient">
-                <h1> <i class="icon-folder-close"></i> ${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.guiDisplayExtension)}
+                <h1> <i class="fa fa-folder"></i> ${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.guiDisplayExtension)}
                 <br /><small>${textContainer.text['stemMoveTitle'] }</small></h1>
               </div>
             </div>
@@ -43,7 +43,7 @@
                       <grouper:combobox2 idBase="parentFolderCombo" style="width: 30em"
                         filterOperation="../app/UiV2Stem.stemCopyParentFolderFilter?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}"/>
                       
-                      <%-- a href="#folder-search" role="button" data-toggle="modal" class="btn"><i class="icon-search"></i></a --%>
+                      <%-- a href="#folder-search" role="button" data-toggle="modal" class="btn"><i class="fa fa-search"></i></a --%>
                       <span class="help-block">${textContainer.text['stemMoveIntoFolderDescription'] }</span>
                     </div>
                   </div>

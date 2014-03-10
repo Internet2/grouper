@@ -2,7 +2,7 @@
 
             <div class="bread-header-container">
               <ul class="breadcrumb">
-                <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">Home </a><span class="divider"><i class='icon-angle-right'></i></span></li>
+                <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">Home </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
                 <li class="active">${textContainer.text['groupNewBreadcrumb'] }</li>
               </ul>
               <div class="page-header blue-gradient">
@@ -37,7 +37,7 @@
                         value="${grouper:escapeHtml(grouperRequestContainer.stemContainer.objectStemId)}"
                         />
                       <span id="parentFolderComboErrorId"></span>
-                      <%-- a href="#folder-search" role="button" data-toggle="modal" class="btn"><i class="icon-search"></i></a --%>
+                      <%-- a href="#folder-search" role="button" data-toggle="modal" class="btn"><i class="fa fa-search"></i></a --%>
                       <span class="help-block">${textContainer.text['groupCreateIntoFolderDescription'] }</span>
                     
                     </div>
@@ -62,10 +62,10 @@
                   </div>
                   <p class="shownAdvancedProperties"><a href="#" 
                     onclick="$('.hiddenAdvancedProperties').show('slow'); $('.shownAdvancedProperties').hide('slow'); return false;" 
-                    >${textContainer.text['groupCreateAdvanced'] } <i class="icon-angle-down"></i></a></p>
+                    >${textContainer.text['groupCreateAdvanced'] } <i class="fa fa-angle-down"></i></a></p>
                   <p class="hiddenAdvancedProperties" style="display: none"
                     onclick="$('.hiddenAdvancedProperties').hide('slow'); $('.shownAdvancedProperties').show('slow'); return false;" 
-                    ><a href="#" >${textContainer.text['groupCreateHideAdvanced'] } <i class="icon-angle-up"></i></a></p>
+                    ><a href="#" >${textContainer.text['groupCreateHideAdvanced'] } <i class="fa fa-angle-up"></i></a></p>
                   <div class="hiddenAdvancedProperties" style="display: none">
                     <div class="control-group">
                       <label class="control-label">${textContainer.text['groupCreateAssignPrivilegesToEveryone'] }</label>

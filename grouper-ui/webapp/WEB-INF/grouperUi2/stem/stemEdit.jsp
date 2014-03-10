@@ -7,7 +7,7 @@
               ${grouperRequestContainer.stemContainer.guiStem.breadcrumbs}
 
               <div class="page-header blue-gradient">
-                <h1> <i class="icon-folder-close"></i> ${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.stem.displayExtension)}
+                <h1> <i class="fa fa-folder"></i> ${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.stem.displayExtension)}
                 <br /><small>${textContainer.text['stemEditTitle'] }</small></h1>
               </div>
 

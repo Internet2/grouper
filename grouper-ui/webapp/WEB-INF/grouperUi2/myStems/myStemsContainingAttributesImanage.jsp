@@ -3,12 +3,12 @@
             <div class="bread-header-container">
               <%--
               <ul class="breadcrumb">
-                <li><a href="index.html">Home </a><span class="divider"><i class='icon-angle-right'></i></span></li>
+                <li><a href="index.html">Home </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
                 <li class="active">Search Results</li>
               </ul>
               --%>
               <ul class="breadcrumb">
-                <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['myStemsHomeBreadcrumb'] }</a><span class="divider"><i class='icon-angle-right'></i></span></li>
+                <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['myStemsHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
                 <li class="active">${textContainer.text['myStemsBreadcrumb'] }</li>
               </ul>
               <div class="page-header blue-gradient">

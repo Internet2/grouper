@@ -13,7 +13,7 @@
 
                       <%-- <tr>
                         <td>Root : Applications</td>
-                        <td><i class="icon-folder-close"></i> <a href="#">Directories</a>
+                        <td><i class="fa fa-folder"></i> <a href="#">Directories</a>
                         </td>
                       </tr> --%>
 

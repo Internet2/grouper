@@ -11,12 +11,12 @@
 <%--
                     <tr>
                       <td>Root : Applications</td>
-                      <td><i class="icon-folder-close"></i> <a href="view-folder.html">Wiki</a>
+                      <td><i class="fa fa-folder"></i> <a href="view-folder.html">Wiki</a>
                       </td>
                     </tr>
                     <tr>
                       <td>N/A</td>
-                      <td><i class="icon-user"></i> <a href="view-person.html">Wiki Test Account</a>
+                      <td><i class="fa fa-user"></i> <a href="view-person.html">Wiki Test Account</a>
                       </td>
                     </tr>
 --%>

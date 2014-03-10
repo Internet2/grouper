@@ -266,17 +266,17 @@ public abstract class GuiObjectBase {
    */
   public String getBreadcrumbBullets() {
 
-    //  <li><a href="index.html">Home </a><span class="divider"><i class='icon-angle-right'></i></span></li>
-    //  <li><a href="#">Root </a><span class="divider"><i class='icon-angle-right'></i></span></li>
-    //  <li><a href="view-folder-applications.html">Applications </a><span class="divider"><i class='icon-angle-right'></i></span></li>
-    //  <li><a href="view-folder.html">Wiki </a><span class="divider"><i class='icon-angle-right'></i></span></li>
+    //  <li><a href="index.html">Home </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+    //  <li><a href="#">Root </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+    //  <li><a href="view-folder-applications.html">Applications </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+    //  <li><a href="view-folder.html">Wiki </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
     //  <li class="active">Editors</li>
     //GrouperUtil.xmlEscape(this.getPathColonSpaceSeparated(), true));
     
     StringBuilder result = new StringBuilder();
     result.append("<li><a href=\"#\" onclick=\"return guiV2link('operation=UiV2Main.indexMain');\">")
       .append(TextContainer.retrieveFromRequest().getText().get("guiBreadcrumbsHomeLabel"))
-      .append(" </a><span class=\"divider\"><i class='icon-angle-right'></i></span></li>");
+      .append(" </a><span class=\"divider\"><i class='fa fa-angle-right'></i></span></li>");
 
     if (this instanceof GuiSubject) {
       GuiSubject guiSubject = (GuiSubject)this;
@@ -284,7 +284,7 @@ public abstract class GuiObjectBase {
         if (!this.showBreadcrumbLink) {
           result.append("<li class=\"active\">").append(guiSubject.getScreenLabelShort2noLink()).append("</li>");
         } else {
-          result.append("<li>").append(guiSubject.getShortLink()).append("<span class=\"divider\"><i class='icon-angle-right'></i></span></li>");
+          result.append("<li>").append(guiSubject.getShortLink()).append("<span class=\"divider\"><i class='fa fa-angle-right'></i></span></li>");
         }
       }
     } else {
@@ -300,7 +300,7 @@ public abstract class GuiObjectBase {
         StringBuilder stemNameBuilder = new StringBuilder();
         
         for (int i=0;i<theExtenstionsList.size();i++) {
-          //  <li><a href="view-folder-applications.html">Applications </a><span class="divider"><i class='icon-angle-right'></i></span></li>
+          //  <li><a href="view-folder-applications.html">Applications </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
           String stemName = null;
 
           if (i == 0) {
@@ -323,14 +323,14 @@ public abstract class GuiObjectBase {
                 result.append("<li><a href=\"#\" onclick=\"return guiV2link('operation=UiV2Group.viewGroup&groupName=")
                   .append(GrouperUtil.escapeUrlEncode(stemName))
                   .append("');\" >").append(GrouperUtil.xmlEscape(displayExtenstionsList.get(i)))
-                  .append(" </a><span class=\"divider\"><i class='icon-angle-right'></i></span></li>");
+                  .append(" </a><span class=\"divider\"><i class='fa fa-angle-right'></i></span></li>");
 
               } else if (this instanceof GuiStem) {
                 
                 result.append("<li><a href=\"#\" onclick=\"return guiV2link('operation=UiV2Stem.viewStem&stemName=")
                   .append(GrouperUtil.escapeUrlEncode(stemName))
                   .append("');\" >").append(GrouperUtil.xmlEscape(displayExtenstionsList.get(i)))
-                  .append(" </a><span class=\"divider\"><i class='icon-angle-right'></i></span></li>");
+                  .append(" </a><span class=\"divider\"><i class='fa fa-angle-right'></i></span></li>");
 
               } else {
                 throw new RuntimeException("Not expecting object type: " + this.getClass().getName());
@@ -340,7 +340,7 @@ public abstract class GuiObjectBase {
             result.append("<li><a href=\"#\" onclick=\"return guiV2link('operation=UiV2Stem.viewStem&stemName=")
               .append(GrouperUtil.escapeUrlEncode(stemName))
               .append("');\" >").append(GrouperUtil.xmlEscape(displayExtenstionsList.get(i)))
-              .append(" </a><span class=\"divider\"><i class='icon-angle-right'></i></span></li>");
+              .append(" </a><span class=\"divider\"><i class='fa fa-angle-right'></i></span></li>");
           }
         }
       }

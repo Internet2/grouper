@@ -4,7 +4,7 @@
                     <!-- start indexColumnMenu.jsp -->
                     <div class="pull-right">
                       <ul class="nav">
-                        <li class="dropdown"><a data-toggle="dropdown" href="#" class="dropdown-toggle"><i class="icon-cog edit-widget dropdown"></i></a>
+                        <li class="dropdown"><a data-toggle="dropdown" href="#" class="dropdown-toggle"><i class="fa fa-cog edit-widget dropdown"></i></a>
                           <ul class="dropdown-menu dropdown-menu-right">
                             <li class="nav-header">Select a widget to display</li>
                             <li class="divider"></li>

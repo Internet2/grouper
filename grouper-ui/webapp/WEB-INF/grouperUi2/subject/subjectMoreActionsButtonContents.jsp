@@ -3,7 +3,7 @@
                     <!-- start subject/subjectMoreActionsButtonContents.jsp -->
                     <a id="show-add-block" href="#" onclick="$('#add-block-container').toggle('slow'); return false;" class="btn btn-medium btn-block btn-primary"
                         style="white-space: nowrap;">
-                      <i class="icon-plus"></i> ${textContainer.text['subjectViewMoreActionsAddMembers'] }</a> 
+                      <i class="fa fa-plus"></i> ${textContainer.text['subjectViewMoreActionsAddMembers'] }</a> 
 
                       <%-- add or remove to/from my favorites, this causes a success message --%>
                       <c:choose>

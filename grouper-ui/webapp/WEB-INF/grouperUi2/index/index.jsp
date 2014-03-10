@@ -14,7 +14,7 @@
             <div class="pull-right">
               <form id="searchForm" action="#" onsubmit="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery'});" class="navbar-search">
                 <input type="text" name="searchQuery" placeholder="${textContainer.textEscapeXml['searchPlaceholder']}" class="search-query"><a href="#" 
-                  onclick="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery'});"><i class="icon-search"></i></a>
+                  onclick="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery'});"><i class="fa fa-search"></i></a>
               </form>
             </div>
             <div class="navbar-text pull-right">Logged in as <a href="view-person.html" class="navbar-link">${guiSettings.loggedInSubject.screenLabel}</a> &middot; <a href="#" class="navbar-link">Log out</a> &middot; <a href="#" class="navbar-link">Help</a></div>
@@ -35,7 +35,7 @@
           <div class="span3 left-column">
             <div class="btn-group btn-group-create"><a href="#" 
               onclick="return guiV2link('operation=UiV2Group.newGroup', {optionalFormElementNamesToSend: 'objectStemId'});"
-              class="btn btn-bigger btn-create"><i class="icon-plus"></i> ${textContainer.text['groupNewCreateNewGroupMenuButton'] }</a><a data-toggle="dropdown" class="btn btn-bigger btn-create dropdown-toggle"><span class="caret"></span></a>
+              class="btn btn-bigger btn-create"><i class="fa fa-plus"></i> ${textContainer.text['groupNewCreateNewGroupMenuButton'] }</a><a data-toggle="dropdown" class="btn btn-bigger btn-create dropdown-toggle"><span class="caret"></span></a>
               <ul class="dropdown-menu dropdown-menu-right">
                 <li><a href="#" 
                   onclick="return guiV2link('operation=UiV2Stem.newStem', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['stemNewCreateNewStemMenuButton'] }</a></li>
@@ -47,7 +47,7 @@
               </ul>
             </div>
             <div class="leftnav-accordions">
-              <button type="button" data-toggle="collapse" data-target="#demo2" class="btn btn-block btn-grouper first">Quick Links<i class="icon-plus"></i><i class="icon-minus"></i></button>
+              <button type="button" data-toggle="collapse" data-target="#demo2" class="btn btn-block btn-grouper first">Quick Links<i class="fa fa-plus"></i><i class="fa fa-minus"></i></button>
               <div id="demo2" class="collapse in">
                 <div class="accordion-inner">
                   <ul class="nav nav-list">
@@ -116,15 +116,15 @@
                         }
                         if (item.theType == 'group') {
                           //font-awesome icons...
-                          return "icon-group";
+                          return "fa fa-group";
                         }
                         if (item.theType == 'attributeDef') {
                           //font-awesome icons...
-                          return "icon-cog";
+                          return "fa fa-cog";
                         }
                         if (item.theType == 'attributeDefName') {
                           //font-awesome icons...
-                          return "icon-cogs";
+                          return "fa fa-cogs";
                         }
                       },
                       onClick: function(item){

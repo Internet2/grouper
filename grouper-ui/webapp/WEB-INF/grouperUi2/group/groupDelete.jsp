@@ -6,13 +6,13 @@
             <div class="bread-header-container">
               <%--
               <ul class="breadcrumb">
-                <li><a href="index.html">Home </a><span class="divider"><i class='icon-angle-right'></i></span></li>
+                <li><a href="index.html">Home </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
                 <li class="active">Applications</li>
               </ul>
               --%>
               ${grouperRequestContainer.groupContainer.guiGroup.breadcrumbs}
               <div class="page-header blue-gradient">
-                <h1> <i class="icon-folder-close"></i> ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}
+                <h1> <i class="fa fa-folder"></i> ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}
                 <br /><small>${textContainer.text['groupDeleteTitle'] }</small></h1>
               </div>
             </div>
