@@ -21,94 +21,49 @@
 
             <div id="group-search" tabindex="-1" role="dialog" aria-labelledby="group-search-label" aria-hidden="true" class="modal hide fade">
               <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
-                <h3 id="group-search-label">Search for a group</h3>
+                <h3 id="group-search-label">${textContainer.text['groupImportSearchForGroupButton']}</h3>
               </div>
+
               <div class="modal-body">
-                <form class="form form-inline">
-                  <input type="text" placeholder="Search for a group" value=""/> 
-                  <button class="btn">Search</button>
+                <form class="form form-inline" id="addGroupSearchFormId">
+                  <input id="addGroupSearchId" name="addGroupSearch" type="text" placeholder="${textContainer.text['groupImportSearchGroupPlaceholder']}" />
+                  <button class="btn" onclick="ajax('../app/UiV2Group.groupImportGroupSearch', {formIds: 'addGroupSearchFormId'}); return false;" >${textContainer.text['groupImportSearchButton'] }</button>
+                  <br />
+                  <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true"/> ${textContainer.text['subjectSearchExactIdMatch'] }</span>
                 </form>
-                <p>The table below lists groups in which you are allowed to manage memberships.</p>
-                <table class="table table-hover table-bordered table-striped table-condensed data-table">
-                  <thead>
-                    <tr>
-                      <th class="sorted">Folder</th>
-                      <th>Group Name</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Root : Applications : Directories</td>
-                      <td><i class="fa fa-group"></i> <a href="#" data-dismiss="modal">Admins</a></td>
-                    </tr>
-                    <tr>
-                      <td>Root : Applications : Directories</td>
-                      <td><i class="fa fa-group"></i> <a href="#" data-dismiss="modal">Managers</a></td>
-                    </tr>
-                    <tr>
-                      <td>Root : Applications : Wiki</td>
-                      <td><i class="fa fa-group"></i> <a href="#" data-dismiss="modal">Approvers</a></td>
-                    </tr>
-                    <tr>
-                      <td>Root : Applications : Wiki</td>
-                      <td><i class="fa fa-group"></i> <a href="#" data-dismiss="modal">Editors</a></td>
-                    </tr>
-                    <tr>
-                      <td>Root : Applications : Wiki</td>
-                      <td><i class="fa fa-group"></i> <a href="#" data-dismiss="modal">Interns</a></td>
-                    </tr>
-                    <tr>
-                      <td>Root : Applications : Wiki</td>
-                      <td><i class="fa fa-group"></i> <a href="#" data-dismiss="modal">Senior Approvers</a></td>
-                    </tr>
-                    <tr>
-                      <td>Root : Applications : Wiki</td>
-                      <td><i class="fa fa-group"></i> <a href="#" data-dismiss="modal">Senior Editors</a></td>
-                    </tr>
-                    <tr>
-                      <td>Root : Applications : Virtual Private Network</td>
-                      <td><i class="fa fa-group"></i> <a href="#" data-dismiss="modal">Admins</a></td>
-                    </tr>
-                    <tr>
-                      <td>Root : Applications : Virtual Private Network</td>
-                      <td><i class="fa fa-group"></i> <a href="#" data-dismiss="modal">Senior Managers</a></td>
-                    </tr>
-                    <tr>
-                      <td>Root : Applications : Virtual Private Network</td>
-                      <td><i class="fa fa-group"></i> <a href="#" data-dismiss="modal">Support</a></td>
-                    </tr>
-                  </tbody>
-                </table>
-                <div class="data-table-bottom clearfix">
-                  <div class="pull-right">Showing 1-10 of 25 &middot; <a href="#">First</a> | <a href="#">Prev</a> | <a href="#">Next</a> | <a href="#">Last</a></div>    
+                <div id="addGroupResults">
                 </div>
               </div>
               <div class="modal-footer">
-                <button data-dismiss="modal" aria-hidden="true" class="btn">Close</button>
+                <button data-dismiss="modal" aria-hidden="true" class="btn">${textContainer.text['subjectSearchCloseButton']}</button>
               </div>
             </div>
 
 
-            <form class="form-horizontal">
+            <form class="form-horizontal" id="importGroupFormId">
               <div class="bulk-add-group-input-container">
                 <div class="control-group bulk-add-group-block">
                   <label for="add-entities" style="position:absolute" class="control-label">${textContainer.text['groupImportAddMembersToGroupLabel'] }</label>
                   <div class="controls">
                     <grouper:combobox2 idBase="groupImportGroupCombo" style="width: 30em" 
+                       value="${grouperRequestContainer.groupContainer.guiGroup.group.id}"
                        filterOperation="../app/UiV2Group.groupUpdateFilter" />
                     <br />
                     <%-- onclick="$('#groupSearchResults').empty();" --%>
-                    ${textContainer.text['groupImportGroupLabelPreComboLink']} <a href="#group-search"  role="button" data-toggle="modal" style="text-decoration: underline !important;">${textContainer.text['groupImportGroupSearchLink']}</a>
-                    
-                    <div>
-                    a:b:c <i class="fa fa-times"></i><br />
-                    a:b:c
+                    ${textContainer.text['groupImportGroupLabelPreComboLink']} <a href="#group-search" 
+                      onclick="$('#addGroupSearchId').val(''); $('#addGroupResults').empty(); return true;"
+                      role="button" data-toggle="modal" style="text-decoration: underline !important;">${textContainer.text['groupImportGroupSearchLink']}</a>
+
+                    <div id="groupImportExtraGroupsDivId">
+                      <%@ include file="groupImportExtraGroups.jsp"%>
                     </div>
-                    
+
                   </div>
                 </div>
                 <div class="control-group">
-                  <div class="controls"><a href="#" class="btn bulk-add-another-group">Add another group</a></div>
+                  <div class="controls"><a href="#" 
+                    onclick="ajax('../app/UiV2Group.groupImportAddGroup', {formIds: 'importGroupFormId'}); return false;"
+                    class="btn bulk-add-another-group">${textContainer.text['groupImportAddAnotherGroupButton']}</a></div>
                 </div>
               </div>
             </form>

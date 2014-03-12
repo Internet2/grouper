@@ -129,7 +129,7 @@ public class UiV2Subject {
         return;
       }
       
-      Set<GuiGroup> guiGroups = GuiGroup.convertFromGroups(groups, "uiV2.subjectSearchResults", 30);
+      Set<GuiGroup> guiGroups = GuiGroup.convertFromGroups(groups);
       
       subjectContainer.setGuiGroupsAddMember(guiGroups);
   

@@ -54,6 +54,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSorting;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.SubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.j2ee.GrouperUiRestServlet;
@@ -1963,6 +1964,7 @@ public class UiV2Group {
   /** logger */
   protected static final Log LOG = LogFactory.getLog(UiV2Group.class);
 
+
   /**
    * get the group from the request
    * @param request
@@ -1970,6 +1972,19 @@ public class UiV2Group {
    * @return the group finder result
    */
   public static RetrieveGroupHelperResult retrieveGroupHelper(HttpServletRequest request, Privilege requirePrivilege) {
+    
+    return retrieveGroupHelper(request, requirePrivilege, true);
+    
+  }
+
+  /**
+   * get the group from the request
+   * @param request
+   * @param requirePrivilege (view is automatic)
+   * @param errorIfNotFound will put an error on the screen if nothing passed in
+   * @return the group finder result
+   */
+  public static RetrieveGroupHelperResult retrieveGroupHelper(HttpServletRequest request, Privilege requirePrivilege, boolean errorIfNotFound) {
   
     //initialize the bean
     GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
@@ -2006,9 +2021,12 @@ public class UiV2Group {
       if (subject != null && GrouperSourceAdapter.groupSourceId().equals(subject.getSourceId())) {
         group = GroupFinder.findByUuid(grouperSession, subject.getId(), false);
       } else {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("groupCantFindGroupId")));
-        addedError = true;
+        if (errorIfNotFound) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("groupCantFindGroupId")));
+          
+          addedError = true;
+        }
       }
     }
   
@@ -2079,7 +2097,7 @@ public class UiV2Group {
     result.setAddedError(addedError);
   
     //go back to the main screen, cant find group
-    if (addedError) {
+    if (addedError && errorIfNotFound) {
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/index/indexMain.jsp"));
     }
@@ -3673,6 +3691,220 @@ public class UiV2Group {
   }
 
   /**
+   * setup the extra groups (other than combobox), and maybe move the combobox down
+   * @param loggedInSubject
+   * @param request
+   * @param removeGroupId if removing one
+   * @param includeCombobox
+   * @return all groups including combobox one
+   */
+  private Set<Group> groupImportSetupExtraGroups(Subject loggedInSubject, 
+      HttpServletRequest request, GuiResponseJs guiResponseJs, boolean considerRemoveGroupId, boolean includeCombobox) {
+
+    Set<GuiGroup> extraGuiGroups = new LinkedHashSet<GuiGroup>();
+    
+    GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setGroupImportExtraGuiGroups(extraGuiGroups);
+    
+    Set<Group> allGroups = new LinkedHashSet<Group>();
+
+    String removeGroupId = null;
+
+    //if removing a group id
+    if (considerRemoveGroupId) {
+      removeGroupId = request.getParameter("removeGroupId");
+      if (StringUtils.isBlank(removeGroupId)) {
+        throw new RuntimeException("Why would removeGroupId be empty????");
+      }
+    }
+
+    //if moving combobox down to extra list or getting all groups
+    String comboValue = request.getParameter("groupImportGroupComboName");
+    
+    if (StringUtils.isBlank(comboValue)) {
+      //if didnt pick one from results
+      comboValue = request.getParameter("groupImportGroupComboNameDisplay");
+    }
+    
+    Group theGroup = StringUtils.isBlank(comboValue) ? null : new GroupFinder()
+        .assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
+        .assignSubject(loggedInSubject)
+        .assignFindByUuidOrName(true).assignScope(comboValue).findGroup();
+
+    if (theGroup == null) {
+      if (includeCombobox) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("groupImportGroupNotFound")));
+      }
+      
+    } else {
+      if (includeCombobox) {
+        extraGuiGroups.add(new GuiGroup(theGroup));
+      }
+      //always add to all groups
+      allGroups.add(theGroup);
+    }
+
+    //loop through all the hidden fields (max 100)
+    for (int i=0;i<100;i++) {
+      String extraGroupId = request.getParameter("extraGroupId_" + i);
+      
+      //we are at the end
+      if (StringUtils.isBlank(extraGroupId)) {
+        break;
+      }
+      
+      //might be removing this one
+      if (considerRemoveGroupId && StringUtils.equals(removeGroupId, extraGroupId)) {
+        continue;
+      }
+      
+      theGroup = new GroupFinder()
+        .assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
+        .assignSubject(loggedInSubject)
+        .assignFindByUuidOrName(true).assignScope(extraGroupId).findGroup();
+      
+      extraGuiGroups.add(new GuiGroup(theGroup));
+
+      //always add to all groups
+      allGroups.add(theGroup);
+      
+    }
+    return allGroups;
+  }
+  
+  /**
+   * modal search form results for add group to import
+   * @param request
+   * @param response
+   */
+  public void groupImportGroupSearch(HttpServletRequest request, HttpServletResponse response) {
+    
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    
+    GroupContainer groupContainer = grouperRequestContainer.getGroupContainer();
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    GrouperSession grouperSession = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      String searchString = request.getParameter("addGroupSearch");
+      
+      boolean searchOk = GrouperUiUtils.searchStringValid(searchString);
+      if (!searchOk) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#addGroupResults", 
+            TextContainer.retrieveFromRequest().getText().get("groupImportAddToGroupNotEnoughChars")));
+        return;
+      }
+
+      String matchExactIdString = request.getParameter("matchExactId[]");
+      boolean matchExactId = GrouperUtil.booleanValue(matchExactIdString, false);
+
+      GuiPaging guiPaging = groupContainer.getGuiPaging();
+      QueryOptions queryOptions = new QueryOptions();
+
+      GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
+
+      Set<Group> groups = null;
+    
+    
+      GroupFinder groupFinder = new GroupFinder().assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
+        .assignScope(searchString).assignSplitScope(true).assignQueryOptions(queryOptions);
+      
+      if (matchExactId) {
+        groupFinder.assignFindByUuidOrName(true);
+      }
+      
+      groups = groupFinder.findGroups();
+      
+      guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+      
+      if (GrouperUtil.length(groups) == 0) {
+
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#addGroupResults", 
+            TextContainer.retrieveFromRequest().getText().get("groupImportAddGroupNotFound")));
+        return;
+      }
+      
+      Set<GuiGroup> guiGroups = GuiGroup.convertFromGroups(groups);
+      
+      groupContainer.setGuiGroups(guiGroups);
+  
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#addGroupResults", 
+          "/WEB-INF/grouperUi2/group/groupImportAddGroupResults.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+
+  
+  /**
+   * import group members screen remove group from list
+   * @param request
+   * @param response
+   */
+  public void groupImportRemoveGroup(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      groupImportSetupExtraGroups(loggedInSubject, request, guiResponseJs, true, false);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupImportExtraGroupsDivId", 
+          "/WEB-INF/grouperUi2/group/groupImportExtraGroups.jsp"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * import group members screen add group to list
+   * @param request
+   * @param response
+   */
+  public void groupImportAddGroup(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      groupImportSetupExtraGroups(loggedInSubject, request, guiResponseJs, false, true);
+
+      //clear out combobox
+      guiResponseJs.addAction(GuiScreenAction.newScript(
+          "dijit.byId('groupImportGroupComboId').set('displayedValue', ''); " +
+          "dijit.byId('groupImportGroupComboId').set('value', '');"));
+
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupImportExtraGroupsDivId", 
+          "/WEB-INF/grouperUi2/group/groupImportExtraGroups.jsp"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
    * import group members screen
    * @param request
    * @param response
@@ -3683,18 +3915,13 @@ public class UiV2Group {
     
     GrouperSession grouperSession = null;
   
-    Group group = null;
-  
     try {
   
       grouperSession = GrouperSession.start(loggedInSubject);
-  
-      group = retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
       
-      if (group == null) {
-        return;
-      }
-  
+      //this will put the group in the group container so it can populate the combobox
+      retrieveGroupHelper(request, AccessPrivilege.UPDATE, false).getGroup();
+      
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 

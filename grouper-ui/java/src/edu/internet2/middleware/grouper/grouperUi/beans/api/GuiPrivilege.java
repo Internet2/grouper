@@ -20,6 +20,9 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -31,6 +34,32 @@ import edu.internet2.middleware.grouper.privs.Privilege;
  */
 @SuppressWarnings("serial")
 public class GuiPrivilege implements Serializable {
+
+  /**
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof GuiPrivilege)) {
+      return false;
+    }
+    return new EqualsBuilder()
+      .append( this.privilege, ( (GuiPrivilege) other ).privilege )
+      .isEquals();
+  }
+
+  /**
+   * @see java.lang.Object#hashCode()
+   */
+  public int hashCode() {
+    return new HashCodeBuilder()
+      .append( this.privilege )
+      .toHashCode();
+  }
+
 
   /** privilege */
   private Privilege privilege;

@@ -5,6 +5,9 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.text.SimpleDateFormat;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import edu.internet2.middleware.grouper.Membership;
 
 
@@ -14,6 +17,32 @@ import edu.internet2.middleware.grouper.Membership;
  *
  */
 public class GuiMembership {
+
+  /**
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof GuiMembership)) {
+      return false;
+    }
+    return new EqualsBuilder()
+      .append( this.membership, ( (GuiMembership) other ).membership )
+      .isEquals();
+  }
+
+  /**
+   * @see java.lang.Object#hashCode()
+   */
+  public int hashCode() {
+    return new HashCodeBuilder()
+      .append( this.membership )
+      .toHashCode();
+  }
+
 
   /**
    * start label string yyyy/mm/dd

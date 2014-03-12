@@ -26,6 +26,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
@@ -42,6 +44,32 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  */
 @SuppressWarnings("serial")
 public class GuiMember implements Serializable {
+
+  /**
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof GuiMember)) {
+      return false;
+    }
+    return new EqualsBuilder()
+      .append( this.member, ( (GuiMember) other ).member )
+      .isEquals();
+  }
+
+  /**
+   * @see java.lang.Object#hashCode()
+   */
+  public int hashCode() {
+    return new HashCodeBuilder()
+      .append( this.member )
+      .toHashCode();
+  }
+
 
   /**
    * 

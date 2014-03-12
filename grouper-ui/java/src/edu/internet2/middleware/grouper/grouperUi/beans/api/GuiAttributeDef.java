@@ -23,6 +23,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
@@ -39,6 +41,32 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 @SuppressWarnings("serial")
 public class GuiAttributeDef extends GuiObjectBase implements Serializable {
+
+  /**
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof GuiAttributeDef)) {
+      return false;
+    }
+    return new EqualsBuilder()
+      .append( this.attributeDef, ( (GuiAttributeDef) other ).attributeDef )
+      .isEquals();
+  }
+
+  /**
+   * @see java.lang.Object#hashCode()
+   */
+  public int hashCode() {
+    return new HashCodeBuilder()
+      .append( this.attributeDef )
+      .toHashCode();
+  }
+
 
   /**
    * 

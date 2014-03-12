@@ -27,6 +27,27 @@ import edu.internet2.middleware.subject.Subject;
 public class GroupContainer {
 
   /**
+   * gui groups in addition to the one in the combobox
+   */
+  private Set<GuiGroup> groupImportExtraGuiGroups;
+  
+  /**
+   * gui groups in addition to the one in the combobox
+   * @return the set of groups
+   */
+  public Set<GuiGroup> getGroupImportExtraGuiGroups() {
+    return this.groupImportExtraGuiGroups;
+  }
+
+  /**
+   * gui groups in addition to the one in the combobox
+   * @param groupImportExtraGuiGroups1
+   */
+  public void setGroupImportExtraGuiGroups(Set<GuiGroup> groupImportExtraGuiGroups1) {
+    this.groupImportExtraGuiGroups = groupImportExtraGuiGroups1;
+  }
+
+  /**
    * if export all of just member subject ids
    */
   private boolean exportAll = false;
@@ -483,6 +504,11 @@ public class GroupContainer {
    * groups, stems, etc in this stem which are children, only in the current page
    */
   private Set<GuiMembershipSubjectContainer> guiMembershipSubjectContainers;
+
+  /**
+   * search results when looking for a group to add the subject to
+   */
+  private Set<GuiGroup> guiGroups;
   
   /**
    * if the logged in user can update, lazy loaded
@@ -600,6 +626,22 @@ public class GroupContainer {
     }
     
     return this.favorite;
+  }
+
+  /**
+   * search results when looking for a group to add the subject to
+   * @return the gui groups
+   */
+  public Set<GuiGroup> getGuiGroups() {
+    return this.guiGroups;
+  }
+
+  /**
+   * search results when looking for a group to add the subject to
+   * @param guiGroupsAddMember1
+   */
+  public void setGuiGroups(Set<GuiGroup> guiGroupsAddMember1) {
+    this.guiGroups = guiGroupsAddMember1;
   }
 
 

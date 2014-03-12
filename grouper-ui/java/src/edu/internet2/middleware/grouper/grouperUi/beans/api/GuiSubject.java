@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
@@ -49,6 +50,28 @@ import edu.internet2.middleware.subject.Subject;
  */
 @SuppressWarnings("serial")
 public class GuiSubject extends GuiObjectBase implements Serializable {
+
+  /**
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof GuiSubject)) {
+      return false;
+    }
+    return SubjectHelper.eq(this.subject, ((GuiSubject)other).subject);
+  }
+
+  /**
+   * @see java.lang.Object#hashCode()
+   */
+  public int hashCode() {
+    return SubjectHelper.hashcode(this.subject);
+  }
+
 
   /**
    * get the member id of the subject or null if not there
