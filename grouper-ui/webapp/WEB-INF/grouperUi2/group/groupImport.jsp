@@ -40,7 +40,7 @@
             </div>
 
 
-            <form class="form-horizontal" id="importGroupFormId">
+            <form class="form-horizontal" id="importGroupFormId" enctype="multipart/form-data" method="post" >
               <div class="bulk-add-group-input-container">
                 <div class="control-group bulk-add-group-block">
                   <label for="add-entities" style="position:absolute" class="control-label">${textContainer.text['groupImportAddMembersToGroupLabel'] }</label>
@@ -66,6 +66,72 @@
                     class="btn bulk-add-another-group">${textContainer.text['groupImportAddAnotherGroupButton']}</a></div>
                 </div>
               </div>
+              
+              <hr>
+              <div class="control-group">
+                <label class="control-label">${textContainer.text['groupImportHowAdd'] }</label>
+                <div class="controls">
+                  <label class="radio">
+                    <input type="radio" name="bulk-add-options" value="import" checked>${textContainer.text['groupImportImportFile'] }
+                  </label>
+                  <label class="radio">
+                    <input type="radio" name="bulk-add-options" value="input">${textContainer.text['groupImportSearchForMembersToAdd'] }
+                  </label>
+                  <label class="radio">
+                    <input type="radio" name="bulk-add-options" value="list">${textContainer.text['groupImportCopyListOfIds'] }
+                  </label>
+                </div>
+              </div>
+              
+              <div class="bulk-add-import-container">
+                <div class="control-group">
+                  <label class="control-label">${textContainer.text['groupImportSelectFileToImport'] }</label>
+                  <div class="controls">
+                    <input type="file" name="importCsvFile" ><span class="help-block">
+                    
+                    ${textContainer.text['groupImportSelectFileDescription']}
+                    </span>                    
+                    <br><br>
+                      <table class="table table-condensed table-striped table-bordered">
+                        <thead>
+                          <tr>
+                            <th>${textContainer.text['groupImportSourceId'] }</th>
+                            <th>${textContainer.text['groupImportSourceName'] }</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <%-- <tr>
+                            <td>g:gsa</td>
+                            <td>Grouper: Group Source Adapter</td>
+                          </tr> --%>
+                          <c:forEach items="${grouperRequestContainer.commonRequestContainer.sources}" 
+                            var="source" >
+                            <tr>
+                              <td>${grouper:escapeHtml(source.id) }</td>
+                              <td>${grouper:escapeHtml(source.name) }</td>
+                            </tr>
+                          
+                          </c:forEach>
+                          
+                        </tbody>
+                      </table>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="control-group">
+                <div class="controls">
+                  <label class="checkbox">
+                    <input type="checkbox" name="replaceExistingMembers">${textContainer.text['groupImportReplaceExistingMembers'] }
+                  </label>
+                </div>
+              </div>
+              <div class="form-actions"><a href="#" 
+                onclick="return guiSubmitFileForm(event, '#importGroupFormId', '../app/UiV2Group.groupImportSubmit')"
+                class="btn btn-primary">${textContainer.text['groupImportAddMembersButton'] }</a> 
+              <%-- needs to go back to the calling page which is set in a param --%>
+              <a href="#" class="btn btn-cancel">${textContainer.text['groupImportAddMembersButton'] }</a></div>
+              
             </form>
 
 

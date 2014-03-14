@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.Collection;
+
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiEntity;
@@ -8,10 +10,24 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPrivilege;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
-
+/**
+ * common elements used across the UI
+ * @author mchyzer
+ *
+ */
 public class CommonRequestContainer {
 
+  /**
+   * sources
+   * @return set of sources
+   */
+  public Collection<Source> getSources() {
+    return SourceManager.getInstance().getSources();
+  }
+  
   /**
    * subjectId
    */

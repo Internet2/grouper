@@ -618,7 +618,7 @@
   </function>
   <function>
     <description>
-      Escapes XML ( ampersand, lessthan, greater than, double quote)
+      Escapes HTML/XML ( ampersand, lessthan, greater than, double quote)
     </description>
     <name>escapeHtml</name>
     <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions

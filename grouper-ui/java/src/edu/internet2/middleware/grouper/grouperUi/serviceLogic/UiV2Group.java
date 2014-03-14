@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -12,6 +14,8 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,9 +58,9 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSorting;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.SubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.j2ee.GrouperUiRestServlet;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
@@ -3770,6 +3774,41 @@ public class UiV2Group {
       
     }
     return allGroups;
+  }
+  
+  /**
+   * submit a group import
+   * @param request
+   * @param response
+   */
+  public void groupImportSubmit(HttpServletRequest request, HttpServletResponse response) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+            
+      GrouperRequestWrapper grouperRequestWrapper = (GrouperRequestWrapper)request;
+      
+      FileItem importCsvFile = grouperRequestWrapper.getParameterFileItem("importCsvFile");
+
+      Reader reader = null;
+      reader = new InputStreamReader(importCsvFile.getInputStream());
+      
+      String contents = IOUtils.toString(reader);
+      
+      //not sure why this would happen (race condition?)
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+          "in business: " + contents));
+    } catch (Exception e) {
+      throw new RuntimeException("error", e);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
   }
   
   /**

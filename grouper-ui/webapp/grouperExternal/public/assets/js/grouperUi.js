@@ -508,6 +508,19 @@ function dojoUnregisterWidget(id) {
   }
 }
 
+/**
+ * see if two strings are equal without considering case
+ */
+function guiEqualsIgnoreCase(a, b) {
+  if (a==b) {
+    return true;
+  }
+  if (guiIsEmpty(a) || guiIsEmpty(b)) {
+    return false;
+  }
+  return a.toLowerCase() == b.toLowerCase();
+}
+
 /** generic ajax method takes a url, callback function, and params or forms.
  * 
  * To pass in params to send to the server, pass in params like this:
