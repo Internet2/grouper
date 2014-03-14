@@ -27,6 +27,48 @@ import edu.internet2.middleware.subject.Subject;
 public class GroupContainer {
 
   /**
+   * if import from subject
+   */
+  private boolean importFromSubject;
+
+  /**
+   * if import from group
+   */
+  private boolean importFromGroup;
+  
+  /**
+   * if import from subject
+   * @return if from subject
+   */
+  public boolean isImportFromSubject() {
+    return this.importFromSubject;
+  }
+
+  /**
+   * if import from subject
+   * @param importFromSubject1
+   */
+  public void setImportFromSubject(boolean importFromSubject1) {
+    this.importFromSubject = importFromSubject1;
+  }
+
+  /**
+   * if import from group
+   * @return if from group
+   */
+  public boolean isImportFromGroup() {
+    return this.importFromGroup;
+  }
+
+  /**
+   * if import from group
+   * @param importFromGroup1
+   */
+  public void setImportFromGroup(boolean importFromGroup1) {
+    this.importFromGroup = importFromGroup1;
+  }
+
+  /**
    * gui groups in addition to the one in the combobox
    */
   private Set<GuiGroup> groupImportExtraGuiGroups;

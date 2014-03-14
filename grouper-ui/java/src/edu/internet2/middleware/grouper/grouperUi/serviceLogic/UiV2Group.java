@@ -3787,10 +3787,27 @@ public class UiV2Group {
     GrouperSession grouperSession = null;
   
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-  
+
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    GroupContainer groupContainer = grouperRequestContainer.getGroupContainer();
+
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
-            
+      
+      {
+        Group group = retrieveGroupHelper(request, AccessPrivilege.UPDATE, false).getGroup();
+        if (group != null) {
+          groupContainer.setImportFromGroup(true);
+        }
+      }
+      {
+        Subject subject = UiV2Subject.retrieveSubjectHelper(request, false);
+        if (subject != null) {
+          groupContainer.setImportFromSubject(true);
+        }
+      }
+      
+      
       GrouperRequestWrapper grouperRequestWrapper = (GrouperRequestWrapper)request;
       
       FileItem importCsvFile = grouperRequestWrapper.getParameterFileItem("importCsvFile");
@@ -3957,9 +3974,26 @@ public class UiV2Group {
     try {
   
       grouperSession = GrouperSession.start(loggedInSubject);
+
+      GrouperRequestContainer grouperRequestContainer = new GrouperRequestContainer();
+      GroupContainer groupContainer = grouperRequestContainer.getGroupContainer();
       
-      //this will put the group in the group container so it can populate the combobox
-      retrieveGroupHelper(request, AccessPrivilege.UPDATE, false).getGroup();
+      String backTo = request.getParameter("backTo");
+      
+      {
+        //this will also put the group in the group container so it can populate the combobox
+        Group group = retrieveGroupHelper(request, AccessPrivilege.UPDATE, false).getGroup();
+        if (group != null && StringUtils.equals("group", backTo)) {
+          groupContainer.setImportFromGroup(true);
+        }
+      }
+      {
+        Subject subject = UiV2Subject.retrieveSubjectHelper(request, false);
+        if (subject != null && StringUtils.equals("subject", backTo)) {
+          groupContainer.setImportFromSubject(true);
+        }
+      }
+
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       

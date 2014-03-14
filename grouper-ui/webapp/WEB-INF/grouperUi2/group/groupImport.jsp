@@ -72,18 +72,36 @@
                 <label class="control-label">${textContainer.text['groupImportHowAdd'] }</label>
                 <div class="controls">
                   <label class="radio">
-                    <input type="radio" name="bulk-add-options" value="import" checked>${textContainer.text['groupImportImportFile'] }
+                    <input type="radio" name="bulkAddOptions" value="input" checked="checked" 
+                    onchange="$('.bulk-add-import-container').slideUp('fast'); $('.bulk-add-list-container').slideUp('fast'); $('.bulk-add-input-container').slideDown('fast'); return true;"
+                    >${textContainer.text['groupImportSearchForMembersToAdd'] }
                   </label>
                   <label class="radio">
-                    <input type="radio" name="bulk-add-options" value="input">${textContainer.text['groupImportSearchForMembersToAdd'] }
+                    <input type="radio" name="bulkAddOptions" value="import"
+                      onchange="$('.bulk-add-import-container').slideDown('fast'); $('.bulk-add-list-container').slideUp('fast'); $('.bulk-add-input-container').slideUp('fast'); return true;"
+                    >${textContainer.text['groupImportImportFile'] }
                   </label>
                   <label class="radio">
-                    <input type="radio" name="bulk-add-options" value="list">${textContainer.text['groupImportCopyListOfIds'] }
+                    <input type="radio" name="bulkAddOptions" value="list"
+                      onchange="$('.bulk-add-import-container').slideUp('fast'); $('.bulk-add-list-container').slideDown('fast'); $('.bulk-add-input-container').slideUp('fast'); return true;"
+                    >${textContainer.text['groupImportCopyListOfIds'] }
                   </label>
                 </div>
               </div>
+
+              <div class="bulk-add-input-container">
+                <div class="control-group bulk-add-block">
+                  <label for="add-entities" class="control-label">${textContainer.text['groupImportEnterMemberNameOrId'] }</label>
+                  <div class="controls">
+                    <input type="text" placeholder="Enter the name of a person, group, or other entity"> <a href="#member-search" role="button" data-toggle="modal" class="btn"><i class="fa fa-search"></i></a>
+                  </div>
+                </div>
+                <div class="control-group">
+                  <div class="controls"><a href="#" class="btn bulk-add-another">${textContainer.text['groupImportAddAnotherMemberButton'] }</a></div>
+                </div>
+              </div>
               
-              <div class="bulk-add-import-container">
+              <div class="bulk-add-import-container hide">
                 <div class="control-group">
                   <label class="control-label">${textContainer.text['groupImportSelectFileToImport'] }</label>
                   <div class="controls">
@@ -118,6 +136,16 @@
                   </div>
                 </div>
               </div>
+
+              <div class="bulk-add-list-container hide">
+                <div class="control-group">
+                  <label for="add-entities" class="control-label">${textContainer.text['groupImportEnterListOfMemberIds'] }</label>
+                  <div class="controls">
+                    <textarea rows="10"></textarea>
+                  </div>
+                </div>
+              </div>
+
               
               <div class="control-group">
                 <div class="controls">
@@ -126,11 +154,26 @@
                   </label>
                 </div>
               </div>
-              <div class="form-actions"><a href="#" 
-                onclick="return guiSubmitFileForm(event, '#importGroupFormId', '../app/UiV2Group.groupImportSubmit')"
-                class="btn btn-primary">${textContainer.text['groupImportAddMembersButton'] }</a> 
+              <div class="form-actions">
+                <a href="#" 
+                  onclick="return guiSubmitFileForm(event, '#importGroupFormId', '../app/UiV2Group.groupImportSubmit')"
+                  class="btn btn-primary">${textContainer.text['groupImportAddMembersButton'] }</a> 
               <%-- needs to go back to the calling page which is set in a param --%>
-              <a href="#" class="btn btn-cancel">${textContainer.text['groupImportAddMembersButton'] }</a></div>
+              <c:choose>
+                <c:when test="${grouperRequestContainer.groupContainer.importFromSubject}">
+                  <a href="#" onclick="return guiV2link('operation=UiV2Subject.viewSubject&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}');"
+                     class="btn btn-cancel">${textContainer.text['groupImportCancelButton']}</a>
+                </c:when>
+                <c:when test="${grouperRequestContainer.groupContainer.importFromGroup}">
+                  <a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');"
+                     class="btn btn-cancel">${textContainer.text['groupImportCancelButton']}</a>
+                </c:when>
+                <c:otherwise>
+                  <a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');"
+                     class="btn btn-cancel">${textContainer.text['groupImportCancelButton']}</a>
+                </c:otherwise>
+              </c:choose>
+              
               
             </form>
 
