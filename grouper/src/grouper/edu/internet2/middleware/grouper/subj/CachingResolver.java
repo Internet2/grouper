@@ -223,8 +223,8 @@ public class CachingResolver extends SubjectResolverDecorator {
       return null;
     }
     Subject grouperSessionSubject = staticGrouperSession.getSubject();
-    return findAllCache.get( new MultiKey(grouperSessionSubject.getSourceId(), 
-        grouperSessionSubject.getId(), stemName, query, source) );
+    return findAllCache.get( new MultiKey(new Object[]{grouperSessionSubject.getSourceId(), 
+        grouperSessionSubject.getId(), stemName, query, source, GrouperSourceAdapter.searchForGroupsWithReadPrivilege()}) );
   }
 
   /**
@@ -239,7 +239,7 @@ public class CachingResolver extends SubjectResolverDecorator {
     }
     Subject grouperSessionSubject = staticGrouperSession.getSubject();
     return findByIdentifierCache.get( new MultiKey(grouperSessionSubject.getSourceId(), 
-        grouperSessionSubject.getId(), id, source) );
+        grouperSessionSubject.getId(), id, source, GrouperSourceAdapter.searchForGroupsWithReadPrivilege()) );
   }
 
   /**
@@ -254,7 +254,7 @@ public class CachingResolver extends SubjectResolverDecorator {
     }
     Subject grouperSessionSubject = staticGrouperSession.getSubject();
     return findCache.get(new MultiKey(grouperSessionSubject.getSourceId(), 
-        grouperSessionSubject.getId(), id, source));
+        grouperSessionSubject.getId(), id, source, GrouperSourceAdapter.searchForGroupsWithReadPrivilege()));
   }
 
   /**
@@ -286,8 +286,8 @@ public class CachingResolver extends SubjectResolverDecorator {
       return;
     }
     Subject grouperSessionSubject = staticGrouperSession.getSubject();
-    findAllCache.put( new MultiKey(grouperSessionSubject.getSourceId(), 
-        grouperSessionSubject.getId(), stemName, query, source), subjects );
+    findAllCache.put( new MultiKey(new Object[]{grouperSessionSubject.getSourceId(), 
+        grouperSessionSubject.getId(), stemName, query, source, GrouperSourceAdapter.searchForGroupsWithReadPrivilege()}), subjects );
   }
 
   /**
@@ -302,11 +302,11 @@ public class CachingResolver extends SubjectResolverDecorator {
     Subject grouperSessionSubject = staticGrouperSession.getSubject();
     findByIdentifierCache.put( 
       new MultiKey(grouperSessionSubject.getSourceId(), 
-          grouperSessionSubject.getId(), idfr, null), subj  
+          grouperSessionSubject.getId(), idfr, null, GrouperSourceAdapter.searchForGroupsWithReadPrivilege()), subj  
     );
     findByIdentifierCache.put( 
         new MultiKey(grouperSessionSubject.getSourceId(), 
-            grouperSessionSubject.getId(),  idfr, subj.getSource().getId() ), subj
+            grouperSessionSubject.getId(),  idfr, subj.getSource().getId(), GrouperSourceAdapter.searchForGroupsWithReadPrivilege() ), subj
     );
     this.putInFindCache(subj);
   }
@@ -323,11 +323,11 @@ public class CachingResolver extends SubjectResolverDecorator {
     Subject grouperSessionSubject = staticGrouperSession.getSubject();
     findCache.put( 
         new MultiKey(grouperSessionSubject.getSourceId(), 
-            grouperSessionSubject.getId(),  subj.getId(), null), subj  
+            grouperSessionSubject.getId(),  subj.getId(), null, GrouperSourceAdapter.searchForGroupsWithReadPrivilege()), subj  
     );
     findCache.put( 
         new MultiKey(grouperSessionSubject.getSourceId(), 
-            grouperSessionSubject.getId(),  subj.getId(), subj.getSource().getId() ), subj
+            grouperSessionSubject.getId(),  subj.getId(), subj.getSource().getId(), GrouperSourceAdapter.searchForGroupsWithReadPrivilege() ), subj
     );
   }
 
@@ -343,7 +343,7 @@ public class CachingResolver extends SubjectResolverDecorator {
     }
     Subject grouperSessionSubject = staticGrouperSession.getSubject();
     return findByIdOrIdentifierCache.get( new MultiKey(grouperSessionSubject.getSourceId(), 
-        grouperSessionSubject.getId(), identifier, source) );
+        grouperSessionSubject.getId(), identifier, source, GrouperSourceAdapter.searchForGroupsWithReadPrivilege()) );
   }
 
   /**
@@ -358,11 +358,11 @@ public class CachingResolver extends SubjectResolverDecorator {
     Subject grouperSessionSubject = staticGrouperSession.getSubject();
     findByIdOrIdentifierCache.put( 
       new MultiKey(grouperSessionSubject.getSourceId(), 
-          grouperSessionSubject.getId(), idfr, null), subj  
+          grouperSessionSubject.getId(), idfr, null, GrouperSourceAdapter.searchForGroupsWithReadPrivilege()), subj  
     );
     findByIdOrIdentifierCache.put( 
         new MultiKey(grouperSessionSubject.getSourceId(), 
-            grouperSessionSubject.getId(),  idfr, subj.getSource().getId() ), subj
+            grouperSessionSubject.getId(),  idfr, subj.getSource().getId(), GrouperSourceAdapter.searchForGroupsWithReadPrivilege() ), subj
     );
     this.putInFindCache(subj);
   }
@@ -680,8 +680,8 @@ public class CachingResolver extends SubjectResolverDecorator {
     }
     Subject grouperSessionSubject = staticGrouperSession.getSubject();
     if (GrouperUtil.length(sources) == 0) {
-      return new MultiKey(grouperSessionSubject.getSourceId(), 
-          grouperSessionSubject.getId(), stemName, query, null);
+      return new MultiKey(new Object[]{grouperSessionSubject.getSourceId(), 
+          grouperSessionSubject.getId(), stemName, query, null, GrouperSourceAdapter.searchForGroupsWithReadPrivilege()});
     }
     Object[] sourcesArray = sources.toArray();
     //convert to ids
@@ -689,12 +689,13 @@ public class CachingResolver extends SubjectResolverDecorator {
       sourcesArray[i] = ((Source)sourcesArray[i]).getId();
     }
     Arrays.sort(sourcesArray);
-    Object[] fullKey = new Object[sourcesArray.length+4];
+    Object[] fullKey = new Object[sourcesArray.length+5];
     fullKey[0] = grouperSessionSubject.getSourceId();
     fullKey[1] = grouperSessionSubject.getId(); 
     fullKey[2] = stemName;
     fullKey[3] = query;
-    System.arraycopy(sourcesArray, 0, fullKey, 4, sourcesArray.length);
+    fullKey[4] = GrouperSourceAdapter.searchForGroupsWithReadPrivilege();
+    System.arraycopy(sourcesArray, 0, fullKey, 5, sourcesArray.length);
     MultiKey multiKey = new MultiKey(fullKey);
     return multiKey;
   }
@@ -710,8 +711,8 @@ public class CachingResolver extends SubjectResolverDecorator {
       return null;
     }
     Subject grouperSessionSubject = staticGrouperSession.getSubject();
-    MultiKey multiKey = new MultiKey(grouperSessionSubject.getSourceId(), 
-        grouperSessionSubject.getId(), stemName, query, source);
+    MultiKey multiKey = new MultiKey(new Object[]{grouperSessionSubject.getSourceId(), 
+        grouperSessionSubject.getId(), stemName, query, source, GrouperSourceAdapter.searchForGroupsWithReadPrivilege()});
     SearchPageResult searchPageResult = findPageCache.get( multiKey );
     
     if (LOG.isDebugEnabled()) {
@@ -754,8 +755,8 @@ public class CachingResolver extends SubjectResolverDecorator {
       return;
     }
     Subject grouperSessionSubject = staticGrouperSession.getSubject();
-    MultiKey multiKey = new MultiKey(grouperSessionSubject.getSourceId(), 
-        grouperSessionSubject.getId(), stemName, query, source);
+    MultiKey multiKey = new MultiKey(new Object[]{grouperSessionSubject.getSourceId(), 
+        grouperSessionSubject.getId(), stemName, query, source, GrouperSourceAdapter.searchForGroupsWithReadPrivilege()});
     
     if (LOG.isDebugEnabled()) {
       Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;

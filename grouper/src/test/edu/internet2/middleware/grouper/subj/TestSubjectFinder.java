@@ -38,7 +38,6 @@ import java.util.Map;
 import java.util.Set;
 
 import junit.framework.Assert;
-import junit.textui.TestRunner;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -52,6 +51,8 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.entity.Entity;
+import edu.internet2.middleware.grouper.entity.EntitySave;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectTest;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -95,8 +96,9 @@ public class TestSubjectFinder extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(TestSubjectFinder.class);
+    //TestRunner.run(TestSubjectFinder.class);
     //TestRunner.run(new TestSubjectFinder("testFindPageMultipleInSomeSources"));
+    new TestSubjectFinder("").testFindGroupsCanRead();
   }
   
   /**
@@ -121,7 +123,132 @@ public class TestSubjectFinder extends GrouperTest {
     LOG.debug("tearDown");
   }
 
+  /**
+   * 
+   */
+  public void testFindGroupsCanRead() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Group viewGroup = new GroupSave(grouperSession).assignName("test:abc:viewGroup")
+        .assignCreateParentStemsIfNotExist(true).save();
+    
+    viewGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    viewGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    viewGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
+    viewGroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW, false);
+    
+    Group adminGroup = new GroupSave(grouperSession).assignName("test:abc:adminGroup")
+        .assignCreateParentStemsIfNotExist(true).save();
+    
+    adminGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    adminGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    adminGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
+    adminGroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+    
+    Group adminAllGroup = new GroupSave(grouperSession).assignName("test:abc:adminAllGroup")
+        .assignCreateParentStemsIfNotExist(true).save();
+    
+    adminAllGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    adminAllGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    adminAllGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
+    adminAllGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN, false);
+    
+    Group viewAllGroup = new GroupSave(grouperSession).assignName("test:abc:viewAllGroup")
+        .assignCreateParentStemsIfNotExist(true).save();
+    
+    viewAllGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    viewAllGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    viewAllGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
+    
+    Entity viewEntity = new EntitySave(grouperSession).assignName("test:abc:viewEntity")
+        .assignCreateParentStemsIfNotExist(true).save();
+    
+    viewEntity.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    viewEntity.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW, false);
+    
+    Group readGroup = new GroupSave(grouperSession).assignName("test:abc:readGroup")
+        .assignCreateParentStemsIfNotExist(true).save();
+    
+    readGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
+    readGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    readGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    readGroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.READ, false);
 
+    Group updateGroup = new GroupSave(grouperSession).assignName("test:abc:updateGroup")
+        .assignCreateParentStemsIfNotExist(true).save();
+    
+    updateGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
+    updateGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    updateGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    updateGroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.UPDATE, false);
+
+    Group readAllGroup = new GroupSave(grouperSession).assignName("test:abc:readAllGroup")
+        .assignCreateParentStemsIfNotExist(true).save();
+    
+    readAllGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
+    readAllGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    readAllGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+
+    Group noPrivsGroup = new GroupSave(grouperSession).assignName("test:abc:noPrivsGroup")
+        .assignCreateParentStemsIfNotExist(true).save();
+    
+    noPrivsGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    noPrivsGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    noPrivsGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
+
+    Entity noPrivsEntity = new EntitySave(grouperSession).assignName("test:abc:noPrivsEntity")
+        .assignCreateParentStemsIfNotExist(true).save();
+    
+    noPrivsEntity.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    //do a search, get back all the groups with privs
+    List<Subject> subjectList = new ArrayList<Subject>(SubjectFinder.findAll("test:abc"));
+    
+    assertEquals(GrouperUtil.toStringForLog(subjectList), 8, GrouperUtil.length(subjectList));
+    assertEquals(GrouperUtil.toStringForLog(subjectList), adminAllGroup, ((GrouperSubject)(subjectList.get(0))).internal_getGroup());
+    assertEquals(GrouperUtil.toStringForLog(subjectList), adminGroup, ((GrouperSubject)(subjectList.get(1))).internal_getGroup());
+    assertEquals(GrouperUtil.toStringForLog(subjectList), readAllGroup, ((GrouperSubject)(subjectList.get(2))).internal_getGroup());
+    assertEquals(GrouperUtil.toStringForLog(subjectList), readGroup, ((GrouperSubject)(subjectList.get(3))).internal_getGroup());
+    assertEquals(GrouperUtil.toStringForLog(subjectList), updateGroup, ((GrouperSubject)(subjectList.get(4))).internal_getGroup());
+    assertEquals(GrouperUtil.toStringForLog(subjectList), viewAllGroup, ((GrouperSubject)(subjectList.get(5))).internal_getGroup());
+    assertEquals(GrouperUtil.toStringForLog(subjectList), viewGroup, ((GrouperSubject)(subjectList.get(6))).internal_getGroup());
+    assertEquals(GrouperUtil.toStringForLog(subjectList), viewEntity, ((GrouperSubject)(subjectList.get(7))).internal_getGroup());
+
+    assertEquals(viewGroup.toSubject(), SubjectFinder.findById(viewGroup.getId(), false));
+    assertEquals(viewGroup.toSubject(), SubjectFinder.findByIdentifier(viewGroup.getName(), false));
+    assertEquals(viewGroup.toSubject(), SubjectFinder.findByIdOrIdentifier(viewGroup.getId(), false));
+    assertEquals(viewGroup.toSubject(), SubjectFinder.findByIdOrIdentifier(viewGroup.getName(), false));
+    
+    //do a search for groups we can READ
+    try {
+      GrouperSourceAdapter.searchForGroupsWithReadPrivilege(true);
+      
+      subjectList = new ArrayList<Subject>(SubjectFinder.findAll("test:abc"));
+      
+      assertEquals(GrouperUtil.toStringForLog(subjectList), 5, GrouperUtil.length(subjectList));
+      assertEquals(GrouperUtil.toStringForLog(subjectList), adminAllGroup, ((GrouperSubject)(subjectList.get(0))).internal_getGroup());
+      assertEquals(GrouperUtil.toStringForLog(subjectList), adminGroup, ((GrouperSubject)(subjectList.get(1))).internal_getGroup());
+      assertEquals(GrouperUtil.toStringForLog(subjectList), readAllGroup, ((GrouperSubject)(subjectList.get(2))).internal_getGroup());
+      assertEquals(GrouperUtil.toStringForLog(subjectList), readGroup, ((GrouperSubject)(subjectList.get(3))).internal_getGroup());
+      assertEquals(GrouperUtil.toStringForLog(subjectList), viewEntity, ((GrouperSubject)(subjectList.get(4))).internal_getGroup());
+
+      assertNull(SubjectFinder.findById(viewGroup.getId(), false));
+      assertNull(SubjectFinder.findByIdentifier(viewGroup.getName(), false));
+      assertNull(SubjectFinder.findByIdOrIdentifier(viewGroup.getId(), false));
+      assertNull(SubjectFinder.findByIdOrIdentifier(viewGroup.getName(), false));
+
+    } finally {
+      GrouperSourceAdapter.clearSearchForGroupsWithReadPrivilege();
+    }
+    
+    GrouperSession.stopQuietly(grouperSession);
+
+  }
   
   /**
    * 

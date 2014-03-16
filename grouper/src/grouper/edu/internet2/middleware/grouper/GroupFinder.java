@@ -578,6 +578,34 @@ public class GroupFinder {
   }
 
   /**
+   * assign group names to search for
+   * @param theGroupNames
+   * @return this for chaining
+   */
+  public GroupFinder assignGroupNames(Collection<String> theGroupNames) {
+    this.groupNames = theGroupNames;
+    return this;
+  }
+  
+  /**
+   * group names to find
+   */
+  private Collection<String> groupNames;
+
+  /**
+   * add a group name to search for
+   * @param groupName
+   * @return this for chaining
+   */
+  public GroupFinder addGroupName(String groupName) {
+    if (this.groupNames == null) {
+      this.groupNames = new HashSet<String>();
+    }
+    this.groupNames.add(groupName);
+    return this;
+  }
+
+  /**
    * assign group ids to search for
    * @param theGroupIds
    * @return this for chaining
@@ -641,7 +669,7 @@ public class GroupFinder {
         .getAllGroupsSecure(this.scope, grouperSession, privSubject, this.privileges, 
             this.queryOptions, this.typeOfGroups, this.splitScope, this.subject, 
             this.field, this.parentStemId, this.stemScope, this.findByUuidOrName, 
-            this.subjectNotInGroup, this.groupIds);
+            this.subjectNotInGroup, this.groupIds, this.groupNames);
     
   }
 

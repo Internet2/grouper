@@ -79,6 +79,7 @@ import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectUtils;
 
 /**
  * Grouper-specific JUnit assertions.
@@ -88,6 +89,27 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
+
+  /**
+   * Asserts that two subjects are equal. If they are not
+   * an AssertionFailedError is thrown with the given message.
+   */
+  static public void assertEquals(Subject expected, Subject actual) {
+    assertEquals(null, expected, actual);
+  }
+
+  /**
+   * Asserts that two subjects are equal. If they are not
+   * an AssertionFailedError is thrown with the given message.
+   */
+  static public void assertEquals(String message, Subject expected, Subject actual) {
+    if (expected == null && actual == null)
+      return;
+    if (expected != null && SubjectHelper.eq(expected,actual))
+      return;
+    failNotEquals(message, expected, actual);
+  }
+
 
   // PRIVATE CLASS CONSTANTS //
   private static final String G   = "group";

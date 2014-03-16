@@ -807,6 +807,7 @@ public interface GroupDAO extends GrouperDAO {
    * @param findByUuidOrName
    * @param subjectNotInGroup is a subject which does not have a membership in the group
    * @param groupIds are the group ids to search for
+   * @param groupNames are the group names to search for
    * @return set of group
    * @since v2.2
    */
@@ -814,7 +815,8 @@ public interface GroupDAO extends GrouperDAO {
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, 
       Set<TypeOfGroup> typeOfGroup, boolean splitScope, 
       Subject membershipSubject, Field field, String parentStemId, Scope stemScope,
-      boolean findByUuidOrName, Subject subjectNotInGroup, Collection<String> groupIds);  
+      boolean findByUuidOrName, Subject subjectNotInGroup, Collection<String> groupIds,
+      Collection<String> groupNames);  
   
   /**
    * find by uuid secure

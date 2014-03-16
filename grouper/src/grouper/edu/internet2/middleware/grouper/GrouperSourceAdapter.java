@@ -55,6 +55,8 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -107,6 +109,34 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   /** if there is a limit to the number of results */
   private Integer maxResults;
 
+  /**
+   * if privs are here, then filter results in groups for these privileges, otherwise just VIEW
+   */
+  private static InheritableThreadLocal<Boolean> searchForGroupsWithReadPrivilegeThreadLocal = new InheritableThreadLocal<Boolean>();
+  
+  /**
+   * when doing a subject search, search for groups with privileges
+   * @param privileges1
+   */
+  public static void searchForGroupsWithReadPrivilege(boolean searchForRead) {
+    searchForGroupsWithReadPrivilegeThreadLocal.set(searchForRead);
+  }
+  
+  /**
+   * if searching for groups with read privilege
+   * @return if searching
+   */
+  public static boolean searchForGroupsWithReadPrivilege() {
+    return GrouperUtil.booleanValue(searchForGroupsWithReadPrivilegeThreadLocal.get(), false);
+  }
+  
+  /**
+   * put this in a finally block to clear that we are searching for groups with certain privileges
+   */
+  public static void clearSearchForGroupsWithReadPrivilege() {
+    searchForGroupsWithReadPrivilegeThreadLocal.remove();
+  }
+  
   /**
    * Allocates new GrouperSourceAdapter.
    */
@@ -243,7 +273,11 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
 
       public Object callback(GrouperSession grouperSession)
           throws GrouperSessionException {
-        return GrouperDAOFactory.getFactory().getGroup().findByNamesSecure(identifiers, null, GrouperSourceAdapter.this.typeOfGroups());
+        return new GroupFinder().assignGroupNames(identifiers).assignTypeOfGroups(GrouperSourceAdapter.this.typeOfGroups())
+            .assignSubject(grouperSession.getSubject())
+            .assignPrivileges(GrouperSourceAdapter.this.privilegesToLimitTo()).findGroups();
+        
+        
       }
     });
 
@@ -269,7 +303,11 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
 
       public Object callback(GrouperSession grouperSession)
           throws GrouperSessionException {
-        return GrouperDAOFactory.getFactory().getGroup().findByUuidsSecure(ids, null, GrouperSourceAdapter.this.typeOfGroups());
+        
+        return new GroupFinder().assignGroupIds(ids).assignTypeOfGroups(GrouperSourceAdapter.this.typeOfGroups())
+            .assignSubject(grouperSession.getSubject())
+            .assignPrivileges(GrouperSourceAdapter.this.privilegesToLimitTo()).findGroups();
+        
       }
     });
 
@@ -283,6 +321,22 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
     return result;
   }
 
+  /**
+   * see which privileges we are limiting to (VIEW) by default
+   * @return the privileges
+   */
+  private Set<Privilege> privilegesToLimitTo() {
+    
+    boolean readPrivs = searchForGroupsWithReadPrivilege();
+
+    //if looking for entities or not passed anything in, then things that can be viewed
+    if (!readPrivs || this.typeOfGroups().contains(TypeOfGroup.entity)) {
+      return AccessPrivilege.VIEW_PRIVILEGES;
+    }
+
+    return AccessPrivilege.READ_PRIVILEGES;
+  }
+  
   /**
    * Gets a {@link Group} subject by its name.
    * <p/>
@@ -478,9 +532,13 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
             queryOptions.paging(pagesize, 1, false);
           }
           
-          Set<Group> groups = GrouperDAOFactory.getFactory().getGroup()
-            .findAllByApproximateNameSecure(SEARCH_VALUE, null, queryOptions ,GrouperSourceAdapter.this.typeOfGroups());
-          
+          Set<Group> groups = new GroupFinder().assignScope(SEARCH_VALUE)
+              .assignQueryOptions(queryOptions)
+              .assignSplitScope(true)
+              .assignTypeOfGroups(GrouperSourceAdapter.this.typeOfGroups())
+              .assignSubject(grouperSession.getSubject())
+              .assignPrivileges(GrouperSourceAdapter.this.privilegesToLimitTo()).findGroups();
+
           for (Group group : GrouperUtil.nonNull(groups)) {
             //if we are at the end of the page
             if (firstPageOnly && GrouperSourceAdapter.this.maxPage != null 

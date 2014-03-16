@@ -122,6 +122,7 @@ import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -7641,6 +7642,9 @@ public class GrouperUtil {
       return null;
     }
     try {
+      if (subject instanceof GrouperSubject) {
+        return "Subject groupName: " + subject.getName() + ", sourceId: " + subject.getSource().getId();
+      }
       return "Subject id: " + subject.getId() + ", sourceId: " + subject.getSource().getId();
     } catch (RuntimeException e) {
       //might be subject not found if lazy subject
