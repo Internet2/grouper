@@ -223,6 +223,10 @@ public class TestSubjectFinder extends GrouperTest {
     assertEquals(viewGroup.toSubject(), SubjectFinder.findByIdentifier(viewGroup.getName(), false));
     assertEquals(viewGroup.toSubject(), SubjectFinder.findByIdOrIdentifier(viewGroup.getId(), false));
     assertEquals(viewGroup.toSubject(), SubjectFinder.findByIdOrIdentifier(viewGroup.getName(), false));
+    assertEquals(readGroup.toSubject(), SubjectFinder.findById(readGroup.getId(), false));
+    assertEquals(readGroup.toSubject(), SubjectFinder.findByIdentifier(readGroup.getName(), false));
+    assertEquals(readGroup.toSubject(), SubjectFinder.findByIdOrIdentifier(readGroup.getId(), false));
+    assertEquals(readGroup.toSubject(), SubjectFinder.findByIdOrIdentifier(readGroup.getName(), false));
     
     //do a search for groups we can READ
     try {
@@ -241,6 +245,10 @@ public class TestSubjectFinder extends GrouperTest {
       assertNull(SubjectFinder.findByIdentifier(viewGroup.getName(), false));
       assertNull(SubjectFinder.findByIdOrIdentifier(viewGroup.getId(), false));
       assertNull(SubjectFinder.findByIdOrIdentifier(viewGroup.getName(), false));
+      assertEquals(readGroup.toSubject(), SubjectFinder.findById(readGroup.getId(), false));
+      assertEquals(readGroup.toSubject(), SubjectFinder.findByIdentifier(readGroup.getName(), false));
+      assertEquals(readGroup.toSubject(), SubjectFinder.findByIdOrIdentifier(readGroup.getId(), false));
+      assertEquals(readGroup.toSubject(), SubjectFinder.findByIdOrIdentifier(readGroup.getName(), false));
 
     } finally {
       GrouperSourceAdapter.clearSearchForGroupsWithReadPrivilege();
