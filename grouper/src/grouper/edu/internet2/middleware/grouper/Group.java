@@ -5392,6 +5392,36 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   } // public boolean equals(other)
 
   /**
+   * init attributes etc for multiple groups at once
+   * @param groups
+   */
+  public static void initData(Collection<Group> groups) {
+
+    Collection<String> groupIds = new HashSet<String>();
+    
+    for (Group group : GrouperUtil.nonNull(groups)) {
+      if (group.attributes == null) {
+        groupIds.add(group.getId());
+      }
+    }
+    
+    if (GrouperUtil.length(groupIds) == 0) {
+      return;
+    }
+    
+    Map<String, Map<String, AttributeAssignValue>> results = GrouperDAOFactory
+        .getFactory().getAttributeAssignValue().findLegacyAttributesByGroupIds(groupIds);
+
+    for (Group group : GrouperUtil.nonNull(groups)) {
+      if (group.attributes == null) {
+        Map<String, AttributeAssignValue> theAttributes = results.get(group.getId());
+        group.attributes = theAttributes;
+      }
+    }
+    
+  }
+  
+  /**
    * This is a direct access to the attributes (going around security checking etc).
    * You probably shouldnt be calling this if not on the grouper team.
    * @param checkSecurity if we should check if the current user can see each attribute

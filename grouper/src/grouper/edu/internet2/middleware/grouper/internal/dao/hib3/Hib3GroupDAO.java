@@ -2658,6 +2658,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       
     }
 
+    Group.initData(overallResults);
+    
     return overallResults;
   
   }
@@ -2761,6 +2763,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             return groups;
           }
     });
+    
+    Group.initData(resultGroups);
+
     return resultGroups;
   }
 
