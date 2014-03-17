@@ -54,6 +54,7 @@ import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleMembershipU
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimplePermissionUpdateFilter;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimplePermissionUpdateMenu;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Group;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2GroupImport;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Main;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Stem;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Subject;
@@ -130,7 +131,7 @@ public class GrouperUiRestServlet extends HttpServlet {
       UiV2Main.class.getSimpleName() + ".index",
       UiV2Main.class.getSimpleName() + ".folderMenu",
       UiV2Group.class.getSimpleName() + ".addMemberFilter",
-      UiV2Group.class.getSimpleName() + ".groupExportSubmit",
+      UiV2GroupImport.class.getSimpleName() + ".groupExportSubmit",
       UiV2Stem.class.getSimpleName() + ".stemCopyParentFolderFilter",
       UiV2Stem.class.getSimpleName() + ".createGroupParentFolderFilter",
       UiV2Stem.class.getSimpleName() + ".createStemParentFolderFilter",

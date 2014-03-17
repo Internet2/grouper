@@ -40,10 +40,10 @@
                         
                         <li class="divider"></li>
                         <c:if test="${grouperRequestContainer.groupContainer.canRead}">
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupExport&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">${textContainer.text['groupExportMenuButton'] }</a></li>
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2GroupImport.groupExport&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">${textContainer.text['groupExportMenuButton'] }</a></li>
                         </c:if>
                         <c:if test="${!grouperRequestContainer.groupContainer.guiGroup.hasComposite && grouperRequestContainer.groupContainer.canUpdate}">
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupImport&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&backTo=group'); return false;">${textContainer.text['groupImportMenuButton'] }</a></li>
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2GroupImport.groupImport&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&backTo=group'); return false;">${textContainer.text['groupImportMenuButton'] }</a></li>
                           <li><a href="invite-external-users.html">Invite external users</a></li>
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupRemoveAllMembers&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['groupViewRemoveAllMembersButton'] }</a></li>

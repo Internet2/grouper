@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
@@ -51,6 +52,17 @@ import edu.internet2.middleware.subject.Subject;
 @SuppressWarnings("serial")
 public class GuiSubject extends GuiObjectBase implements Serializable {
 
+  /**
+   * return source id two pipes and subject id
+   * @return the source id two pipes and subject id
+   */
+  public String getSourceIdSubjectId() {
+    if (this.subject == null) {
+      return null;
+    }
+    return this.subject.getSourceId() + "||" + this.subject.getId();
+  }
+  
   /**
    * 
    * @see java.lang.Object#equals(java.lang.Object)
@@ -244,7 +256,12 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
         Group group = null;
         
         if (this.isGroup()) {
-          group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.subject.getId(), false);
+          if (this.subject instanceof GrouperSubject) {
+            group = ((GrouperSubject)this.subject).internal_getGroup();
+          }
+          if (group == null) {
+            group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.subject.getId(), false);
+          }
         }
         
         if (group != null) {

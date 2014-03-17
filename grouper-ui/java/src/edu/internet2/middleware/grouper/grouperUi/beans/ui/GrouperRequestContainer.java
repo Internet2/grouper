@@ -12,6 +12,30 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
  */
 public class GrouperRequestContainer {
 
+  /**
+   * data for importing members into groups
+   */
+  private GroupImportContainer groupImportContainer;
+
+  /**
+   * data for importing members into groups
+   * @return group import
+   */
+  public GroupImportContainer getGroupImportContainer() {
+    if (this.groupImportContainer == null) {
+      this.groupImportContainer = new GroupImportContainer();
+    }
+    return this.groupImportContainer;
+  }
+
+  /**
+   * data for importing members into groups
+   * @param groupImportContainer1
+   */
+  public void setGroupImportContainer(GroupImportContainer groupImportContainer1) {
+    this.groupImportContainer = groupImportContainer1;
+  }
+
   /** 
    * attribute def container 
    */

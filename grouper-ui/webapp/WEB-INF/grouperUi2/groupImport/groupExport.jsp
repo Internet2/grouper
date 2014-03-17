@@ -23,18 +23,18 @@
                 <div class="controls">
                   <label class="radio">
                     <input type="radio" name="group-export-options" value="ids" checked="checked"
-                      onchange="ajax('../app/UiV2Group.groupExportTypeChange?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupExportTypeFormId'}); return true;"
+                      onchange="ajax('../app/UiV2GroupImport.groupExportTypeChange?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupExportTypeFormId'}); return true;"
                       >${textContainer.text['groupExportEntityIds'] }
                   </label>
                   <label class="radio">
                     <input type="radio" name="group-export-options" value="all"
-                      onchange="ajax('../app/UiV2Group.groupExportTypeChange?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupExportTypeFormId'}); return true;"
+                      onchange="ajax('../app/UiV2GroupImport.groupExportTypeChange?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupExportTypeFormId'}); return true;"
                       >${textContainer.text['groupExportAllMemberData'] }    
                   </label>
                 </div>
               </div>
               <div class="form-actions" id="formActionsDivId">
-                <a href="../app/UiV2Group.groupExportSubmit/groupId%3d${grouperRequestContainer.groupContainer.guiGroup.group.id}/${grouperRequestContainer.groupContainer.exportAll ? 'all' : 'ids'}/${grouperRequestContainer.groupContainer.exportFileName}" class="btn btn-primary">${textContainer.text['groupExportExportButton'] }</a> 
-                <a href="#" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" >${textContainer.text['groupExportReturnToGroupButton'] }</a>
+                <a href="../app/UiV2GroupImport.groupExportSubmit/groupId%3d${grouperRequestContainer.groupContainer.guiGroup.group.id}/${grouperRequestContainer.groupImportContainer.exportAll ? 'all' : 'ids'}/${grouperRequestContainer.groupImportContainer.exportFileName}" class="btn btn-primary">${textContainer.text['groupExportExportButton'] }</a> 
+                <a href="#" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2GroupImport.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" >${textContainer.text['groupExportReturnToGroupButton'] }</a>
               </div>
             </form>

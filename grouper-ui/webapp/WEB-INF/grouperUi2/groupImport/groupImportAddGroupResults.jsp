@@ -27,5 +27,5 @@
                           <div class="data-table-bottom clearfix">
                             <grouper:paging2 guiPaging="${grouperRequestContainer.groupContainer.guiPaging}" 
                               formName="groupPagingForm" ajaxFormIds="addGroupSearchFormId"
-                              refreshOperation="../app/UiV2Group.groupImportGroupSearch" />
+                              refreshOperation="../app/UiV2GroupImport.groupImportGroupSearch" />
                           </div>
