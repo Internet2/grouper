@@ -28,7 +28,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -457,7 +459,7 @@ public class SimpleMembershipUpdateImportExport {
       //convert the import file to subjects
       List<String> subjectErrors = new ArrayList<String>();
       List<Subject> importedSubjectWrappers = parseCsvImportFile(
-          reader, fileName, subjectErrors);
+          reader, fileName, subjectErrors, new LinkedHashMap<String, Integer>());
 
       final List<String> addErrors = new ArrayList<String>();
 
@@ -636,10 +638,12 @@ public class SimpleMembershipUpdateImportExport {
    * @param originalReader
    * @param fileName
    * @param subjectErrors pass in a list and errors will be put in here
+   * @param errorSubjectIdsOnRow is a map where the key is subjectId and the value if the line number
    * @return the list, never null
    */
   @SuppressWarnings("unchecked")
-  List<Subject> parseCsvImportFile(Reader originalReader, String fileName, List<String> subjectErrors) {
+  public static List<Subject> parseCsvImportFile(Reader originalReader, String fileName, List<String> subjectErrors, 
+      Map<String, Integer> errorSubjectIdsOnRow) {
     
     SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
     
@@ -717,11 +721,11 @@ public class SimpleMembershipUpdateImportExport {
         int row = i+1;
         
         //try catch each one and see where we get
+        String subjectId = null;
+        String subjectIdentifier = null;
+        String subjectIdOrIdentifier = null;
         try {
           String sourceId = null;
-          String subjectId = null;
-          String subjectIdentifier = null;
-          String subjectIdOrIdentifier = null;
     
           sourceId = sourceIdColumn == -1 ? null : csvEntry[sourceIdColumn]; 
           subjectId = subjectIdColumn == -1 ? null : csvEntry[subjectIdColumn]; 
@@ -735,6 +739,11 @@ public class SimpleMembershipUpdateImportExport {
         } catch (Exception e) {
           LOG.info(e);
           subjectErrors.add("Error on " + ImportSubjectWrapper.errorLabelForRowStatic(row, csvEntry) + ": " +    e.getMessage());
+          
+          String errorSubjectId = StringUtils.defaultIfEmpty(subjectId, subjectIdentifier);
+          errorSubjectId = StringUtils.defaultIfEmpty(errorSubjectId, subjectIdOrIdentifier);
+          
+          errorSubjectIdsOnRow.put(errorSubjectId, row);
         }
       
       }

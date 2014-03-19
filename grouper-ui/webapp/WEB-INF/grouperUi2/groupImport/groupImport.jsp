@@ -160,7 +160,7 @@
                 <div class="control-group">
                   <label class="control-label">${textContainer.text['groupImportSelectFileToImport'] }</label>
                   <div class="controls">
-                    <input type="file" name="importCsvFile" ><span class="help-block">
+                    <input type="file" name="importCsvFile" id="importCsvFileId"><span class="help-block">
                     
                     ${textContainer.text['groupImportSelectFileDescription']}
                     </span>                    
@@ -196,11 +196,32 @@
                 <div class="control-group">
                   <label for="add-entities" class="control-label">${textContainer.text['groupImportEnterListOfMemberIds'] }</label>
                   <div class="controls">
-                    <textarea rows="10"></textarea>
+                    <textarea rows="10" name="entityList" id="entityListId"></textarea>
+                    <br /><br />
+                    <a href="#" 
+                      onclick="ajax('../app/UiV2GroupImport.groupImportValidateList', {formIds: 'importGroupFormId'}); return false;"
+                      class="btn bulk-add-another">${textContainer.text['groupImportValidateButton']}</a>
+                  </div>
+                </div>
+                <div class="control-group">
+                  <label for="searchEntitiesSource" class="control-label">${textContainer.text['find.search-source'] }</label>
+                  <div class="controls">
+                    <select name="searchEntitySourceName" id="searchEntitySourceId">
+                      <option value="all">${textContainer.textEscapeXml['find.search-all-sources'] }</option>
+                      <c:forEach items="${grouperRequestContainer.subjectContainer.sources}" var="source" >
+                        <option value="${grouper:escapeHtml(source.id)}">
+                          ${grouper:escapeHtml(source.name) } (
+                            <c:forEach var="subjectType" items="${source.subjectTypes}" varStatus="typeStatus">
+                              <c:if test="${typeStatus.count>1}">, </c:if>
+                              ${grouper:escapeHtml(subjectType)}
+                            </c:forEach>
+                          )
+                        </option>
+                      </c:forEach>
+                    </select>
                   </div>
                 </div>
               </div>
-
               
               <div class="control-group">
                 <div class="controls">
@@ -213,22 +234,22 @@
                 <a href="#" 
                   onclick="return guiSubmitFileForm(event, '#importGroupFormId', '../app/UiV2GroupImport.groupImportSubmit')"
                   class="btn btn-primary">${textContainer.text['groupImportAddMembersButton'] }</a> 
-              <%-- needs to go back to the calling page which is set in a param --%>
-              <c:choose>
-                <c:when test="${grouperRequestContainer.groupImportContainer.importFromSubject}">
-                  <a href="#" onclick="return guiV2link('operation=UiV2Subject.viewSubject&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}');"
-                     class="btn btn-cancel">${textContainer.text['groupImportCancelButton']}</a>
-                </c:when>
-                <c:when test="${grouperRequestContainer.groupImportContainer.importFromGroup}">
-                  <a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');"
-                     class="btn btn-cancel">${textContainer.text['groupImportCancelButton']}</a>
-                </c:when>
-                <c:otherwise>
-                  <a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');"
-                     class="btn btn-cancel">${textContainer.text['groupImportCancelButton']}</a>
-                </c:otherwise>
-              </c:choose>
-              
+                <%-- needs to go back to the calling page which is set in a param --%>
+                <c:choose>
+                  <c:when test="${grouperRequestContainer.groupImportContainer.importFromSubject}">
+                    <a href="#" onclick="return guiV2link('operation=UiV2Subject.viewSubject&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}');"
+                       class="btn btn-cancel">${textContainer.text['groupImportCancelButton']}</a>
+                  </c:when>
+                  <c:when test="${grouperRequestContainer.groupImportContainer.importFromGroup}">
+                    <a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');"
+                       class="btn btn-cancel">${textContainer.text['groupImportCancelButton']}</a>
+                  </c:when>
+                  <c:otherwise>
+                    <a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');"
+                       class="btn btn-cancel">${textContainer.text['groupImportCancelButton']}</a>
+                  </c:otherwise>
+                </c:choose>
+              </div>
               
             </form>
 

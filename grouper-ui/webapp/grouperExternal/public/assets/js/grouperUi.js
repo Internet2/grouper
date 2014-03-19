@@ -916,7 +916,8 @@ function guiFormElementAssignValue(name, values) {
         
         if (theElement.value == value || 
           (guiIsEmpty(theElement.value) && guiIsEmpty(value))) {
-          theElement.checked = true;
+          //instead of setting checked to true, call click, which fires onchange
+          theElement.click();
         }
       } else if (theElement.nodeName.toUpperCase() == "SELECT") {
         var options = theElement.options;

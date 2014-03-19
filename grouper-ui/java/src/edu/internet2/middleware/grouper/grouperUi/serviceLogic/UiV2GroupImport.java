@@ -2,9 +2,13 @@ package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,7 +16,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,6 +57,105 @@ public class UiV2GroupImport {
   /** logger */
   protected static final Log LOG = LogFactory.getLog(UiV2GroupImport.class);
 
+  /**
+   * validate import list
+   * @param request
+   * @param response
+   */
+  public void groupImportValidateList(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      String entityList = StringUtils.defaultString(request.getParameter("entityList"));
+      
+      //split trim by comma, semi, or whitespace
+      entityList = StringUtils.replace(entityList, ",", " ");
+      entityList = StringUtils.replace(entityList, ";", " ");
+      
+      String[] entityIdOrIdentifiers = GrouperUtil.splitTrim(entityList, null, true);
+
+      if (GrouperUtil.length(entityIdOrIdentifiers) == 0) {
+
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#entityListId",
+            TextContainer.retrieveFromRequest().getText().get("groupImportNoEntitiesSpecified")));
+        return;
+
+      }
+      
+      if (GrouperUtil.length(entityIdOrIdentifiers) > 100) {
+
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("groupImportTooManyEntitiesToValidate")));
+        return;
+
+      }
+      
+      //extra source ids and subjects ids
+      Set<GuiSubject> extraGuiSubjects = new LinkedHashSet<GuiSubject>();
+      
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupImportContainer().setGroupImportExtraGuiSubjects(extraGuiSubjects);
+
+      String source = request.getParameter("searchEntitySourceName");
+      
+      List<String> entityIdOrIdentifiersList = new ArrayList<String>(Arrays.asList(GrouperUtil.nonNull(
+          entityIdOrIdentifiers, String.class)));
+      
+      Map<String, Subject> entityIdOrIdentifierMap = null;
+      
+      if (StringUtils.equals("all", source)) {
+
+        entityIdOrIdentifierMap = SubjectFinder.findByIdsOrIdentifiers(entityIdOrIdentifiersList);
+        
+      } else {
+
+        entityIdOrIdentifierMap = SubjectFinder.findByIdsOrIdentifiers(entityIdOrIdentifiersList, source);
+
+      }
+      
+      //lets add all the subjects
+      for (Subject subject : GrouperUtil.nonNull(entityIdOrIdentifierMap).values()) {
+        extraGuiSubjects.add(new GuiSubject(subject));
+      }
+
+      //lets see which are missing
+      entityIdOrIdentifiersList.removeAll(GrouperUtil.nonNull(entityIdOrIdentifierMap).keySet());
+      
+      if (entityIdOrIdentifiersList.size() > 0) {
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupImportContainer().setEntityIdsNotFound(GrouperUtil.join(entityIdOrIdentifiersList.iterator(), ", "));
+        
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("groupImportEntityIdsNotFound")));
+
+      }
+
+      //clear out combobox
+      guiResponseJs.addAction(GuiScreenAction.newScript(
+          "dijit.byId('groupImportGroupComboId').set('displayedValue', ''); " +
+          "dijit.byId('groupImportGroupComboId').set('value', '');"));
+
+      //select the option for enter in list
+      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("bulkAddOptions", "input"));
+
+      //fill in the extra subjects
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupImportExtraMembersDivId", 
+          "/WEB-INF/grouperUi2/groupImport/groupImportExtraSubjects.jsp"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+
+  }
+  
 
   /**
    * export a group
@@ -216,17 +318,17 @@ public class UiV2GroupImport {
    * @param request
    * @param removeGroupId if removing one
    * @param includeCombobox
-   * @return all groups including combobox one
+   * @param allGroups, pass in a blank linked hash set, and all groups will be populated including combobox
+   * @return true if ok, false if not
    */
-  private Set<Group> groupImportSetupExtraGroups(Subject loggedInSubject, 
-      HttpServletRequest request, GuiResponseJs guiResponseJs, boolean considerRemoveGroupId, boolean includeCombobox) {
+  private boolean groupImportSetupExtraGroups(Subject loggedInSubject, 
+      HttpServletRequest request, GuiResponseJs guiResponseJs, boolean considerRemoveGroupId, boolean includeCombobox,
+      Set<Group> allGroups) {
 
     Set<GuiGroup> extraGuiGroups = new LinkedHashSet<GuiGroup>();
     
     GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupImportContainer().setGroupImportExtraGuiGroups(extraGuiGroups);
     
-    Set<Group> allGroups = new LinkedHashSet<Group>();
-
     String removeGroupId = null;
 
     //if removing a group id
@@ -250,11 +352,14 @@ public class UiV2GroupImport {
         .assignSubject(loggedInSubject)
         .assignFindByUuidOrName(true).assignScope(comboValue).findGroup();
 
+    boolean success = true;
+    
     if (theGroup == null) {
-      if (includeCombobox && !StringUtils.isBlank(comboValue)) {
+      if (includeCombobox) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
             "#groupImportGroupComboIdErrorId",
             TextContainer.retrieveFromRequest().getText().get("groupImportGroupNotFound")));
+        success = false;
       }
       
     } else {
@@ -290,7 +395,7 @@ public class UiV2GroupImport {
       allGroups.add(theGroup);
       
     }
-    return allGroups;
+    return success;
   }
   
   /**
@@ -311,26 +416,106 @@ public class UiV2GroupImport {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
 
+      Set<Group> groups = new LinkedHashSet<Group>();
+      boolean success = groupImportSetupExtraGroups(loggedInSubject, request, guiResponseJs, false, true, groups);
       
-      Set<Group> groups = groupImportSetupExtraGroups(loggedInSubject, request, guiResponseJs, false, true);
-      
-      if (GrouperUtil.length(groups) == 0) {
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-            "#groupImportGroupComboIdErrorId", 
-            TextContainer.retrieveFromRequest().getText().get("groupImportGroupNotFound")));
+      if (!success) {
+        //error message already shown
         return;
       }
 
-      Set<Subject> subjects = groupImportSetupExtraSubjects(loggedInSubject, request, guiResponseJs, false, true);
+      // can be import, input, list
+      String bulkAddOption = request.getParameter("bulk-add-options");
+      Map<String, Integer> listInvalidSubjectIdsAndRow = new LinkedHashMap<String, Integer>();
       
-      if (GrouperUtil.length(subjects) == 0) {
-        //already done
-//        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-//            "#groupImportSubjectComboIdErrorId", 
-//            TextContainer.retrieveFromRequest().getText().get("groupImportSubjectNotFound")));
-        return;
-      }
+      Set<Subject> subjects = new LinkedHashSet<Subject>();
+      
+      if (StringUtils.equals(bulkAddOption, "import")) {
 
+        GrouperRequestWrapper grouperRequestWrapper = (GrouperRequestWrapper)request;
+        
+        FileItem importCsvFile = grouperRequestWrapper.getParameterFileItem("importCsvFile");
+
+        if (importCsvFile == null) {
+          
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#importCsvFileId",
+              TextContainer.retrieveFromRequest().getText().get("groupImportUploadFile")));
+          return;
+        }
+        
+        Reader reader = null;
+        reader = new InputStreamReader(importCsvFile.getInputStream());
+        
+        String fileName = StringUtils.defaultString(importCsvFile == null ? "" : importCsvFile.getName());
+
+        SimpleMembershipUpdateImportExport.parseCsvImportFile(reader, fileName, new ArrayList<String>(), 
+            listInvalidSubjectIdsAndRow);
+        
+      } else if (StringUtils.equals(bulkAddOption, "input")) {
+
+        //combobox
+        success = groupImportSetupExtraSubjects(loggedInSubject, request, guiResponseJs, false, true, subjects);
+        
+        if (!success) {
+          //error message already shown
+          return;
+        }
+
+      } else if (StringUtils.equals(bulkAddOption, "list")) {
+
+        String entityList = StringUtils.defaultString(request.getParameter("entityList"));
+        
+        //split trim by comma, semi, or whitespace
+        entityList = StringUtils.replace(entityList, ",", " ");
+        entityList = StringUtils.replace(entityList, ";", " ");
+        
+        String[] entityIdOrIdentifiers = GrouperUtil.splitTrim(entityList, null, true);
+
+        if (GrouperUtil.length(entityIdOrIdentifiers) == 0) {
+
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#entityListId",
+              TextContainer.retrieveFromRequest().getText().get("groupImportNoEntitiesSpecified")));
+          return;
+
+        }
+        
+        String source = request.getParameter("searchEntitySourceName");
+        
+        List<String> entityIdOrIdentifiersList = new ArrayList<String>(Arrays.asList(GrouperUtil.nonNull(
+            entityIdOrIdentifiers, String.class)));
+        
+        Map<String, Subject> entityIdOrIdentifierMap = null;
+        
+        if (StringUtils.equals("all", source)) {
+
+          entityIdOrIdentifierMap = SubjectFinder.findByIdsOrIdentifiers(entityIdOrIdentifiersList);
+          
+        } else {
+
+          entityIdOrIdentifierMap = SubjectFinder.findByIdsOrIdentifiers(entityIdOrIdentifiersList, source);
+
+        }
+        
+        //lets add all the subjects
+        subjects.addAll(GrouperUtil.nonNull(entityIdOrIdentifierMap).values());
+
+        //lets see which are missing
+        List<String> originalIdList = new ArrayList<String>(entityIdOrIdentifiersList);
+
+        //lets see which are missing
+        entityIdOrIdentifiersList.removeAll(GrouperUtil.nonNull(entityIdOrIdentifierMap).keySet());
+
+        //keep trac of the index of the invalid ids
+        for (String invalidId : entityIdOrIdentifiersList) {
+          int index = originalIdList.indexOf(invalidId);
+          listInvalidSubjectIdsAndRow.put(invalidId, index == -1 ? null : index);
+        }
+        
+      } else {
+        throw new RuntimeException("Not expecting bulk add option: " + bulkAddOption);
+      }
       
       {
         Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE, false).getGroup();
@@ -344,16 +529,9 @@ public class UiV2GroupImport {
           groupImportContainer.setImportFromSubject(true);
         }
       }
-      
-      
-      GrouperRequestWrapper grouperRequestWrapper = (GrouperRequestWrapper)request;
-      
-      FileItem importCsvFile = grouperRequestWrapper.getParameterFileItem("importCsvFile");
 
-      Reader reader = null;
-      reader = new InputStreamReader(importCsvFile.getInputStream());
       
-      String contents = IOUtils.toString(reader);
+      
       
     } catch (Exception e) {
       throw new RuntimeException("error", e);
@@ -452,7 +630,7 @@ public class UiV2GroupImport {
 
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-      groupImportSetupExtraGroups(loggedInSubject, request, guiResponseJs, true, false);
+      groupImportSetupExtraGroups(loggedInSubject, request, guiResponseJs, true, false, new LinkedHashSet<Group>());
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupImportExtraGroupsDivId", 
           "/WEB-INF/grouperUi2/groupImport/groupImportExtraGroups.jsp"));
@@ -479,7 +657,7 @@ public class UiV2GroupImport {
 
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-      groupImportSetupExtraSubjects(loggedInSubject, request, guiResponseJs, true, false);
+      groupImportSetupExtraSubjects(loggedInSubject, request, guiResponseJs, true, false, new LinkedHashSet<Subject>());
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupImportExtraMembersDivId", 
           "/WEB-INF/grouperUi2/groupImport/groupImportExtraSubjects.jsp"));
@@ -506,7 +684,7 @@ public class UiV2GroupImport {
 
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-      groupImportSetupExtraGroups(loggedInSubject, request, guiResponseJs, false, true);
+      groupImportSetupExtraGroups(loggedInSubject, request, guiResponseJs, false, true, new LinkedHashSet<Group>());
 
       //clear out combobox
       guiResponseJs.addAction(GuiScreenAction.newScript(
@@ -584,7 +762,7 @@ public class UiV2GroupImport {
   
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
-      groupImportSetupExtraSubjects(loggedInSubject, request, guiResponseJs, false, true);
+      groupImportSetupExtraSubjects(loggedInSubject, request, guiResponseJs, false, true, new LinkedHashSet<Subject>());
   
       //clear out combobox
       guiResponseJs.addAction(GuiScreenAction.newScript(
@@ -606,18 +784,19 @@ public class UiV2GroupImport {
    * @param request
    * @param considerRemoveSubjectSourceAndId if removing one
    * @param includeCombobox
-   * @return all members including combobox one
+   * @param allSubjects is a LinkedHashSet of subjects
+   * @return true if ok, false if not
    */
-  private Set<Subject> groupImportSetupExtraSubjects(Subject loggedInSubject, 
-      HttpServletRequest request, GuiResponseJs guiResponseJs, boolean considerRemoveSubjectSourceAndId, boolean includeCombobox) {
-  
+  private boolean groupImportSetupExtraSubjects(Subject loggedInSubject, 
+      HttpServletRequest request, GuiResponseJs guiResponseJs, boolean considerRemoveSubjectSourceAndId, 
+      boolean includeCombobox, Set<Subject> allSubjects) {
+
     //extra source ids and subjects ids
     Set<MultiKey> extraSubjectSourceAndIds = new HashSet<MultiKey>();
     Set<GuiSubject> extraGuiSubjects = new LinkedHashSet<GuiSubject>();
     
     GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupImportContainer().setGroupImportExtraGuiSubjects(extraGuiSubjects);
     
-    Set<Subject> allSubjects = new LinkedHashSet<Subject>();
     Set<MultiKey> allSubjectsSourceAndIds = new HashSet<MultiKey>();
   
     String removeSubjectSourceAndId = null;
@@ -654,11 +833,12 @@ public class UiV2GroupImport {
         GrouperSourceAdapter.clearSearchForGroupsWithReadPrivilege();
       }
     }
-    
+    boolean success = true;
     if (theSubject == null) {
       if (includeCombobox) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#groupImportSubjectComboIdErrorId", 
             TextContainer.retrieveFromRequest().getText().get("groupImportSubjectNotFound")));
+        success = false;
       }
       
     } else {
@@ -716,7 +896,7 @@ public class UiV2GroupImport {
         }
       }      
     }
-    return allSubjects;
+    return success;
   }
 
 }

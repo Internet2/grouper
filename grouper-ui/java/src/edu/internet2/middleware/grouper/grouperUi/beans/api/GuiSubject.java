@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -83,7 +84,6 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
   public int hashCode() {
     return SubjectHelper.hashcode(this.subject);
   }
-
 
   /**
    * get the member id of the subject or null if not there

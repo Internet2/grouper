@@ -17,6 +17,27 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 public class GroupImportContainer {
 
   /**
+   * comma separated list of entity ids not found
+   */
+  private String entityIdsNotFound;
+  
+  /**
+   * comma separated list of entity ids not found
+   * @return list
+   */
+  public String getEntityIdsNotFound() {
+    return this.entityIdsNotFound;
+  }
+
+  /**
+   * comma separated list of entity ids not found
+   * @param entityIdsNotFound1
+   */
+  public void setEntityIdsNotFound(String entityIdsNotFound1) {
+    this.entityIdsNotFound = entityIdsNotFound1;
+  }
+
+  /**
    * gui groups in addition to the one in the combobox
    */
   private Set<GuiGroup> groupImportExtraGuiGroups;
