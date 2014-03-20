@@ -56,6 +56,19 @@ public class ImportSubjectWrapper implements Subject {
   private Subject wrapped;
   
   /**
+   * whatever was entered, id or identifier
+   */
+  private String subjectIdOrIdentifier;
+  
+  /**
+   * whatever was entered, id or identifier
+   * @return the subjectIdOrIdentifier
+   */
+  public String getSubjectIdOrIdentifier() {
+    return this.subjectIdOrIdentifier;
+  }
+
+  /**
    * 
    * @return lazy loaded wrapped subject
    */
@@ -84,7 +97,7 @@ public class ImportSubjectWrapper implements Subject {
    * @param theSourceId
    * @param theSubjectId
    * @param subjectIdentifier
-   * @param subjectIdOrIdentifier
+   * @param theSubjectIdOrIdentifier
    * @param theRowData 
    * @throws SubjectNotFoundException 
    * @throws SubjectNotUniqueException 
@@ -92,7 +105,7 @@ public class ImportSubjectWrapper implements Subject {
    * @throws Exception 
    */
   public ImportSubjectWrapper(int theRow, String theSourceId, String theSubjectId, 
-      String subjectIdentifier, String subjectIdOrIdentifier, String[] theRowData) 
+      String subjectIdentifier, String theSubjectIdOrIdentifier, String[] theRowData) 
         throws SubjectNotFoundException, SubjectNotUniqueException, SourceUnavailableException,
         Exception {
     
@@ -106,6 +119,7 @@ public class ImportSubjectWrapper implements Subject {
     boolean hasSubjectId = !StringUtils.isBlank(theSubjectId);
     if (hasSubjectId) {
       this.subjectId = theSubjectId;
+      this.subjectIdOrIdentifier = theSubjectId;
     }
 
     //if we have both, we are all good
@@ -122,7 +136,7 @@ public class ImportSubjectWrapper implements Subject {
       
         //ok, we arent done, look at all columns
         boolean hasSubjectIdentifier = !StringUtils.isBlank(subjectIdentifier);
-        boolean hasSubjectIdOrIdentifier = !StringUtils.isBlank(subjectIdOrIdentifier);
+        boolean hasSubjectIdOrIdentifier = !StringUtils.isBlank(theSubjectIdOrIdentifier);
         
         if (!hasSubjectId && !hasSubjectIdentifier && !hasSubjectIdOrIdentifier) {
           throw new RuntimeException(simpleMembershipUpdateContainer.getText().getImportErrorNoId());
@@ -134,13 +148,15 @@ public class ImportSubjectWrapper implements Subject {
           //try by identifier (e.g. loginid)
           if (hasSubjectIdentifier) {
             subject = SourceManager.getInstance().getSource(this.sourceId).getSubjectByIdentifier(subjectIdentifier, true);
+            this.subjectIdOrIdentifier = subjectIdentifier;
           } else if (hasSubjectIdOrIdentifier) {
+            this.subjectIdOrIdentifier = theSubjectIdOrIdentifier;
             //if not, first try by id, e.g. 12345
             try {
-              subject = SourceManager.getInstance().getSource(this.sourceId).getSubject(subjectIdOrIdentifier, true);
+              subject = SourceManager.getInstance().getSource(this.sourceId).getSubject(theSubjectIdOrIdentifier, true);
             } catch (SubjectNotFoundException snfe) {
               //and if not found, then 
-              subject = SourceManager.getInstance().getSource(this.sourceId).getSubjectByIdentifier(subjectIdOrIdentifier, true);
+              subject = SourceManager.getInstance().getSource(this.sourceId).getSubjectByIdentifier(theSubjectIdOrIdentifier, true);
             }
             
           } else {
@@ -154,7 +170,7 @@ public class ImportSubjectWrapper implements Subject {
           } else if (hasSubjectIdentifier) {
             subject = SubjectFinder.findByIdentifier(subjectIdentifier, true);
           } else if (hasSubjectIdOrIdentifier) {
-            subject = SubjectFinder.findByIdOrIdentifier(subjectIdOrIdentifier, true);
+            subject = SubjectFinder.findByIdOrIdentifier(theSubjectIdOrIdentifier, true);
           } else {
             throw new RuntimeException("Should not get here either");
           }

@@ -56,6 +56,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.ImportSubjectWrapper;
 import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.SimpleMembershipUpdateContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
@@ -458,8 +459,10 @@ public class SimpleMembershipUpdateImportExport {
       
       //convert the import file to subjects
       List<String> subjectErrors = new ArrayList<String>();
+      
       List<Subject> importedSubjectWrappers = parseCsvImportFile(
-          reader, fileName, subjectErrors, new LinkedHashMap<String, Integer>());
+          reader, fileName, subjectErrors, new LinkedHashMap<String, Integer>(),
+          membershipLiteImportFileHideShow.isShowing());
 
       final List<String> addErrors = new ArrayList<String>();
 
@@ -634,18 +637,67 @@ public class SimpleMembershipUpdateImportExport {
   }
 
   /**
+   * exception from import
+   */
+  @SuppressWarnings("serial")
+  public static class GrouperImportException extends RuntimeException {
+
+    /**
+     * 
+     */
+    public GrouperImportException() {
+      super();
+    }
+
+    /**
+     * @param message
+     * @param cause
+     * @param enableSuppression
+     * @param writableStackTrace
+     */
+    public GrouperImportException(String message, Throwable cause,
+        boolean enableSuppression, boolean writableStackTrace) {
+      super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    /**
+     * @param message
+     * @param cause
+     */
+    public GrouperImportException(String message, Throwable cause) {
+      super(message, cause);
+    }
+
+    /**
+     * @param message
+     */
+    public GrouperImportException(String message) {
+      super(message);
+    }
+
+    /**
+     * @param cause
+     */
+    public GrouperImportException(Throwable cause) {
+      super(cause);
+    }
+    
+    
+  }
+  
+  /**
    * Note, this will close the reader passed in
    * @param originalReader
    * @param fileName
    * @param subjectErrors pass in a list and errors will be put in here
    * @param errorSubjectIdsOnRow is a map where the key is subjectId and the value if the line number
+   * @param isFileUpload true if file upload, as opposed to a textarea
    * @return the list, never null
+   * @throws GrouperImportException for messages to the screen
    */
   @SuppressWarnings("unchecked")
   public static List<Subject> parseCsvImportFile(Reader originalReader, String fileName, List<String> subjectErrors, 
-      Map<String, Integer> errorSubjectIdsOnRow) {
-    
-    SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
+      Map<String, Integer> errorSubjectIdsOnRow, boolean isFileUpload) throws GrouperImportException {
     
     //convert from CSV to 
     CSVReader reader = null;
@@ -658,7 +710,7 @@ public class SimpleMembershipUpdateImportExport {
         reader = new CSVReader(originalReader);
         csvEntries = reader.readAll();
       } catch (IOException ioe) {
-        throw new RuntimeException("Error processing file: " + fileName, ioe);
+        throw new GrouperImportException("Error processing file: " + fileName, ioe);
       }
       
       List<Subject> uploadedSubjects = new ArrayList<Subject>();
@@ -671,11 +723,10 @@ public class SimpleMembershipUpdateImportExport {
       
       //must have lines
       if (GrouperUtil.length(csvEntries) == 0) {
-        GuiHideShow membershipLiteImportFileHideShow = GuiHideShow.retrieveHideShow("membershipLiteImportFile", true);
-        if (membershipLiteImportFileHideShow.isShowing()) {
-          throw new RuntimeException(GrouperUiUtils.message("simpleMembershipUpdate.importErrorNoWrongFile"));
+        if (isFileUpload) {
+          throw new GrouperImportException(GrouperUiUtils.message("simpleMembershipUpdate.importErrorNoWrongFile"));
         }
-        throw new RuntimeException(GrouperUiUtils.message("simpleMembershipUpdate.importErrorBlankTextarea"));
+        throw new GrouperImportException(GrouperUiUtils.message("simpleMembershipUpdate.importErrorBlankTextarea"));
       }
       
       //lets go through the headers
@@ -711,7 +762,7 @@ public class SimpleMembershipUpdateImportExport {
           subjectIdOrIdentifierColumn = 0;
           startIndex = 0;
         } else {
-          throw new RuntimeException(simpleMembershipUpdateContainer.getText().getImportErrorNoIdCol());
+          throw new GrouperImportException(TextContainer.retrieveFromRequest().getText().get("simpleMembershipUpdate.importErrorNoIdCol"));
         }
       }
       

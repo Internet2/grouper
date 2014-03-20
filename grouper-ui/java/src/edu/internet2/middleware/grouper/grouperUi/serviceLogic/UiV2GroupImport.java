@@ -4,7 +4,9 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -24,22 +26,30 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
+import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.ImportSubjectWrapper;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupImportContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleMembershipUpdateImportExport.GrouperImportException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.j2ee.GrouperUiRestServlet;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
+import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
@@ -425,10 +435,10 @@ public class UiV2GroupImport {
       }
 
       // can be import, input, list
-      String bulkAddOption = request.getParameter("bulk-add-options");
+      String bulkAddOption = request.getParameter("bulkAddOptions");
       Map<String, Integer> listInvalidSubjectIdsAndRow = new LinkedHashMap<String, Integer>();
       
-      Set<Subject> subjects = new LinkedHashSet<Subject>();
+      Set<Subject> subjectSet = new LinkedHashSet<Subject>();
       
       if (StringUtils.equals(bulkAddOption, "import")) {
 
@@ -449,13 +459,22 @@ public class UiV2GroupImport {
         
         String fileName = StringUtils.defaultString(importCsvFile == null ? "" : importCsvFile.getName());
 
-        SimpleMembershipUpdateImportExport.parseCsvImportFile(reader, fileName, new ArrayList<String>(), 
-            listInvalidSubjectIdsAndRow);
+        try {
+          subjectSet.addAll(SimpleMembershipUpdateImportExport.parseCsvImportFile(reader, fileName, new ArrayList<String>(), 
+              listInvalidSubjectIdsAndRow, true));
+        } catch (GrouperImportException gie) {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("error in import", gie);
+          }
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#importCsvFileId", GrouperUtil.xmlEscape(gie.getMessage())));
+          return;
+        }
         
       } else if (StringUtils.equals(bulkAddOption, "input")) {
 
         //combobox
-        success = groupImportSetupExtraSubjects(loggedInSubject, request, guiResponseJs, false, true, subjects);
+        success = groupImportSetupExtraSubjects(loggedInSubject, request, guiResponseJs, false, true, subjectSet);
         
         if (!success) {
           //error message already shown
@@ -499,7 +518,7 @@ public class UiV2GroupImport {
         }
         
         //lets add all the subjects
-        subjects.addAll(GrouperUtil.nonNull(entityIdOrIdentifierMap).values());
+        subjectSet.addAll(GrouperUtil.nonNull(entityIdOrIdentifierMap).values());
 
         //lets see which are missing
         List<String> originalIdList = new ArrayList<String>(entityIdOrIdentifiersList);
@@ -530,15 +549,186 @@ public class UiV2GroupImport {
         }
       }
 
+      Set<GuiGroup> guiGroups = new LinkedHashSet<GuiGroup>();
+      groupImportContainer.setGuiGroups(guiGroups);
       
+      Map<String, String> reportByGroupName = new HashMap<String, String>();
+      groupImportContainer.setReportForGroupNameMap(reportByGroupName);
+
+      Iterator<Group> groupIterator = groups.iterator();
+
+      boolean importReplaceMembers = GrouperUtil.booleanValue(request.getParameter("replaceExistingMembers[]"), false);
+
+      //lets go through the groups that were submitted
+      while (groupIterator.hasNext()) {
+
+        final Group group = groupIterator.next();
+
+        {
+          //remove groups that cannot be viewed
+          boolean canView = (Boolean)GrouperSession.callbackGrouperSession(
+            GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+  
+              @Override
+              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                return group.canHavePrivilege(loggedInSubject, AccessPrivilege.VIEW.getName(), false);
+              }
+            });
+  
+          if (!canView) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,  
+                TextContainer.retrieveFromRequest().getText().get("groupImportGroupCantView")));
+            groupIterator.remove();
+            continue;
+          }
+        }
+
+        StringBuilder report = new StringBuilder();
+
+        {
+          //give error if cant update
+          boolean canUpdate = (Boolean)GrouperSession.callbackGrouperSession(
+            GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+
+              @Override
+              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                return group.canHavePrivilege(loggedInSubject, AccessPrivilege.UPDATE.getName(), false);
+              }
+            });
+
+          if (!canUpdate) {
+            report.append("<ul><li>" +
+              TextContainer.retrieveFromRequest().getText().get("groupImportGroupCantUpdate") + "</li></ul>");
+            continue;
+          }
+        }
+
+        //<ul>
+        //  <li>Before importing, the membership count was 10 and is now 12.</li>
+        //  <li>You successfully added 2 members and deleted 0 members.</li>
+        //  <li>2 members were not imported due to errors, as shown below.</li>
+        //</ul>
+        //<h5>Errors</h5>
+        //<ul>
+        //  <li><span class="label label-important">Error</span>&nbsp;on row 2. Subject not found: "foo-bar-user"</li>
+        //</ul>
+
+        List<Member> existingMembers = new ArrayList<Member>(GrouperUtil.nonNull(group.getImmediateMembers()));
+        List<Subject> subjectList = new ArrayList<Subject>(GrouperUtil.nonNull(subjectSet));
+        int existingCount = GrouperUtil.length(existingMembers);
+        groupImportContainer.setGroupCountOriginal(existingCount);
+        
+        GrouperUiUtils.removeOverlappingSubjects(existingMembers, subjectList);
+
+        //groupImportReportSummary = <li>Before importing, the membership count was ${grouperRequestContainer.groupImportContainer.groupCountOriginal} and is now ${grouperRequestContainer.groupImportContainer.groupCountNew}.</li>
+        //groupImportReportSuccess = <li>You successfully added ${grouperRequestContainer.groupImportContainer.groupCountAdded} members and deleted ${grouperRequestContainer.groupImportContainer.groupCountDeleted} members.</li>
+        //groupImportReportErrorSummary = <li>${grouperRequestContainer.groupImportContainer.groupCountErrors} members were not imported due to errors, as shown below.</li>
+        //groupImportReportErrorsTitle = Errors
+        //groupImportReportErrorLine = <li><span class="label label-important">Error</span>&nbsp;on row ${grouperRequestContainer.groupImportContainer.errorRowNumber}. ${grouperRequestContainer.groupImportContainer.errorText}: "${grouperUtil.xmlEscape(grouperRequestContainer.groupImportContainer.errorSubject)}"</li>
+
+        int addedCount = 0;
+
+        StringBuilder errors = new StringBuilder();
+        
+        //first lets add some members
+        for (int i=0;i<subjectList.size();i++) {
+          
+          Subject subject = subjectList.get(i);
+          
+          if (subject instanceof ImportSubjectWrapper) {
+            try {
+              subject = ((ImportSubjectWrapper)subject).wrappedSubject();
+            } catch (Exception e) {
+              //ignore
+            }
+          }
+          
+          try {
+              
+            group.addMember(subject, false);
+            
+            addedCount++;
+          } catch (Exception e) {
+            
+            String errorLine = errorLine(subject, GrouperUtil.xmlEscape(e.getMessage()));
+            errors.append(errorLine).append("\n");
+            
+            LOG.warn(errorLine, e);
+          }
+    
+        }
+    
+        boolean didntImportDueToSubjects = false;
+        int deletedCount = 0;
+    
+        //remove the ones which are already there
+        if (importReplaceMembers) {
+          
+          if (errors.length() == 0) {
+            
+            for (Member existingMember : existingMembers) {
+              
+              try {
+                group.deleteMember(existingMember, false);
+                deletedCount++;
+              } catch (Exception e) {
+                String error = "Error deleting subject " + SubjectHelper.getPretty(existingMember) + e.getMessage();
+                LOG.warn(error, e);
+                //TODO deleteErrors.add(error);
+              }
+            }
+          } else {
+            didntImportDueToSubjects = true;
+          }
+          
+          
+        }
+        
+        //this might be a little wasteful, but I think it is a good sanity check
+        int newSize = group.getImmediateMembers().size();
+
+        
+        
+        reportByGroupName.put(group.getName(), report.toString());
+        
+      }
       
-      
+          
+    } catch (NoSessionException se) {
+      throw se;
+    } catch (ControllerDone cd) {
+      throw cd;
     } catch (Exception e) {
       throw new RuntimeException("error", e);
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
 
+  }
+
+  /**
+   * get an error line
+   * @param subject
+   * @param errorEscaped
+   * @return the line
+   */
+  private static String errorLine(Subject subject, String errorEscaped) {
+
+    GroupImportContainer groupImportContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupImportContainer();
+    groupImportContainer.setErrorText(errorEscaped);
+    
+    String subjectId = null;
+
+    if (subject instanceof ImportSubjectWrapper) {
+      subjectId = ((ImportSubjectWrapper)subject).getSubjectIdOrIdentifier();
+      groupImportContainer.setErrorSubject(subjectId);
+      groupImportContainer.setErrorRowNumber(((ImportSubjectWrapper)subject).getRow());
+      return TextContainer.retrieveFromRequest().getText().get("groupImportReportErrorLine");
+    }
+    subjectId = subject.getId();
+    groupImportContainer.setErrorSubject(subjectId);
+    return TextContainer.retrieveFromRequest().getText().get("groupImportReportErrorLineNoRow");
+    
   }
   
   /**
