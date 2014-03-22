@@ -4810,12 +4810,14 @@ public class GrouperUtil {
       if (equalsIgnoreCase(string, "true")
           || equalsIgnoreCase(string, "t")
           || equalsIgnoreCase(string, "yes")
+          || equalsIgnoreCase(string, "on")
           || equalsIgnoreCase(string, "y")) {
         return true;
       }
       if (equalsIgnoreCase(string, "false")
           || equalsIgnoreCase(string, "f")
           || equalsIgnoreCase(string, "no")
+          || equalsIgnoreCase(string, "off")
           || equalsIgnoreCase(string, "n")) {
         return false;
       }

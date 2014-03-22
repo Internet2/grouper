@@ -51,6 +51,14 @@ $(document).ready(function(){
 
       var State = History.getState(); // Note: We are using History.getState() instead of event.state
       
+      if (typeof State.data != 'undefined' && State.data != null
+          && typeof State.data.handleStateInitially != undefined && State.data.handleStateInitially == false ) {
+        
+        //null this out for next time
+        State.data.handleStateInitially = null;
+        return;
+      }
+
       // State.hash is /grouper/grouperUi/app/UiV2Main.index?operation=UiV2Main.indexMain
       //alert(State.hash);
       guiProcessUrlForAjax(State.hash);
@@ -105,8 +113,15 @@ function guiV2link(url, options) {
     } 
   } 
 
+  var handleStateChangeInitially = true;
+
+  var stateObj = { };
+
+  if (typeof options.handleStateInitially != 'undefined' && options.handleStateInitially == false ) {
+    stateObj.handleStateInitially = false;
+  }
   
-  History.pushState(null, null, url);
+  History.pushState(stateObj, null, url);
 
   //return false so the browser navigate
   return false;
@@ -2091,8 +2106,12 @@ function guiCalendarInit(formElementId) {
  * @return
  */
 function guiSubmitFileForm(event, formJqueryHandle, operation) {
-  eventCancelBubble(event);
   
+  eventCancelBubble(event);
+
+  //clear the error div... / messaging
+  $('#messaging').hide().empty();
+
   //make sure there is a hidden field for appState
   var appState = allObjects.appState;
   

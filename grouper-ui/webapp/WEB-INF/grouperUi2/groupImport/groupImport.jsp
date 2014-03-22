@@ -226,7 +226,7 @@
               <div class="control-group">
                 <div class="controls">
                   <label class="checkbox">
-                    <input type="checkbox" name="replaceExistingMembers">${textContainer.text['groupImportReplaceExistingMembers'] }
+                    <input type="checkbox" name="replaceExistingMembers" value="true">${textContainer.text['groupImportReplaceExistingMembers'] }
                   </label>
                 </div>
               </div>
@@ -237,7 +237,7 @@
                 <%-- needs to go back to the calling page which is set in a param --%>
                 <c:choose>
                   <c:when test="${grouperRequestContainer.groupImportContainer.importFromSubject}">
-                    <a href="#" onclick="return guiV2link('operation=UiV2Subject.viewSubject&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}');"
+                    <a href="#" onclick="return guiV2link('operation=UiV2Subject.viewSubject&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}');"
                        class="btn btn-cancel">${textContainer.text['groupImportCancelButton']}</a>
                   </c:when>
                   <c:when test="${grouperRequestContainer.groupImportContainer.importFromGroup}">
@@ -251,6 +251,11 @@
                 </c:choose>
               </div>
               
+              <%-- helps with navigation --%>
+              <input type="hidden" name="groupId" value="${grouperRequestContainer.groupContainer.guiGroup.group.id}" />
+              <input type="hidden" name="subjectId" value="${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}" />
+              <input type="hidden" name="sourceId" value="${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}" />
+
             </form>
 
 

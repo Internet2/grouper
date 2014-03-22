@@ -25,6 +25,8 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -109,7 +111,6 @@ public class ImportSubjectWrapper implements Subject {
         throws SubjectNotFoundException, SubjectNotUniqueException, SourceUnavailableException,
         Exception {
     
-    SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
     this.row = theRow;
     this.rowData = theRowData;
     boolean hasSourceId = !StringUtils.isBlank(theSourceId);
@@ -139,7 +140,7 @@ public class ImportSubjectWrapper implements Subject {
         boolean hasSubjectIdOrIdentifier = !StringUtils.isBlank(theSubjectIdOrIdentifier);
         
         if (!hasSubjectId && !hasSubjectIdentifier && !hasSubjectIdOrIdentifier) {
-          throw new RuntimeException(simpleMembershipUpdateContainer.getText().getImportErrorNoId());
+          throw new RuntimeException(TextContainer.retrieveFromRequest().getText().get("simpleMembershipUpdate.importErrorNoId"));
         }
         
         //ok, we have an id
@@ -186,8 +187,8 @@ public class ImportSubjectWrapper implements Subject {
     }
     
     //filter out the require sources
-    String requireSources = simpleMembershipUpdateContainer.configValue(
-        "simpleMembershipUpdate.subjectSearchRequireSources", false);
+    String requireSources = GrouperUiConfig.retrieveConfig().propertyValueString(
+        "simpleMembershipUpdate.subjectSearchRequireSources");
     
     if (!StringUtils.isBlank(requireSources)) {
       Set<String> sourceIds = GrouperUtil.splitTrimToSet(requireSources, ",");

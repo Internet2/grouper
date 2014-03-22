@@ -4960,8 +4960,8 @@ label.control-label {
 [class*=" fa-"] {
   color: #999999;
 }
-a.btn.btn-primary [class^="fa-"],
-a [class*=" fa-"] {
+/* MCH 20140322: why are colors in "a" links white????  */
+a.btn.btn-primary, a.btn-primary [class*=" fa-"] /* [class^="fa-"] , a [class*=" fa-"]*/ {
   color: white;
 }
 .fa-large::before {

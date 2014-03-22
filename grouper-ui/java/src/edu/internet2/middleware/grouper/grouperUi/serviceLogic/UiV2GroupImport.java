@@ -46,7 +46,6 @@ import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.j2ee.GrouperUiRestServlet;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
@@ -149,8 +148,8 @@ public class UiV2GroupImport {
 
       //clear out combobox
       guiResponseJs.addAction(GuiScreenAction.newScript(
-          "dijit.byId('groupImportGroupComboId').set('displayedValue', ''); " +
-          "dijit.byId('groupImportGroupComboId').set('value', '');"));
+          "dijit.byId('groupAddMemberComboId').set('displayedValue', ''); " +
+          "dijit.byId('groupAddMemberComboId').set('value', '');"));
 
       //select the option for enter in list
       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("bulkAddOptions", "input"));
@@ -329,11 +328,12 @@ public class UiV2GroupImport {
    * @param removeGroupId if removing one
    * @param includeCombobox
    * @param allGroups, pass in a blank linked hash set, and all groups will be populated including combobox
+   * @param errorOnNullCombobox true if an error should appear if there is nothing in the combobox
    * @return true if ok, false if not
    */
   private boolean groupImportSetupExtraGroups(Subject loggedInSubject, 
       HttpServletRequest request, GuiResponseJs guiResponseJs, boolean considerRemoveGroupId, boolean includeCombobox,
-      Set<Group> allGroups) {
+      Set<Group> allGroups, boolean errorOnNullCombobox) {
 
     Set<GuiGroup> extraGuiGroups = new LinkedHashSet<GuiGroup>();
     
@@ -365,7 +365,7 @@ public class UiV2GroupImport {
     boolean success = true;
     
     if (theGroup == null) {
-      if (includeCombobox) {
+      if (includeCombobox && errorOnNullCombobox) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
             "#groupImportGroupComboIdErrorId",
             TextContainer.retrieveFromRequest().getText().get("groupImportGroupNotFound")));
@@ -427,13 +427,20 @@ public class UiV2GroupImport {
       grouperSession = GrouperSession.start(loggedInSubject);
 
       Set<Group> groups = new LinkedHashSet<Group>();
-      boolean success = groupImportSetupExtraGroups(loggedInSubject, request, guiResponseJs, false, true, groups);
+      boolean success = groupImportSetupExtraGroups(loggedInSubject, request, guiResponseJs, false, true, groups, false);
       
       if (!success) {
         //error message already shown
         return;
       }
 
+      if (groups.size() == 0) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#groupImportGroupComboIdErrorId",
+            TextContainer.retrieveFromRequest().getText().get("groupImportGroupNotFound")));
+        return;
+      }
+      
       // can be import, input, list
       String bulkAddOption = request.getParameter("bulkAddOptions");
       Map<String, Integer> listInvalidSubjectIdsAndRow = new LinkedHashMap<String, Integer>();
@@ -474,12 +481,20 @@ public class UiV2GroupImport {
       } else if (StringUtils.equals(bulkAddOption, "input")) {
 
         //combobox
-        success = groupImportSetupExtraSubjects(loggedInSubject, request, guiResponseJs, false, true, subjectSet);
+        success = groupImportSetupExtraSubjects(loggedInSubject, request, guiResponseJs, false, true, subjectSet, false);
         
         if (!success) {
           //error message already shown
           return;
         }
+        
+        if (subjectSet.size() == 0) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#groupImportSubjectComboIdErrorId", 
+              TextContainer.retrieveFromRequest().getText().get("groupImportSubjectNotFound")));
+          return;
+        }
+
 
       } else if (StringUtils.equals(bulkAddOption, "list")) {
 
@@ -557,7 +572,7 @@ public class UiV2GroupImport {
 
       Iterator<Group> groupIterator = groups.iterator();
 
-      boolean importReplaceMembers = GrouperUtil.booleanValue(request.getParameter("replaceExistingMembers[]"), false);
+      boolean importReplaceMembers = GrouperUtil.booleanValue(request.getParameter("replaceExistingMembers"), false);
 
       //lets go through the groups that were submitted
       while (groupIterator.hasNext()) {
@@ -583,7 +598,8 @@ public class UiV2GroupImport {
           }
         }
 
-        StringBuilder report = new StringBuilder();
+        guiGroups.add(new GuiGroup(group));
+        StringBuilder report = new StringBuilder("<ul>\n");
 
         {
           //give error if cant update
@@ -597,7 +613,7 @@ public class UiV2GroupImport {
             });
 
           if (!canUpdate) {
-            report.append("<ul><li>" +
+            report.append("<li>" +
               TextContainer.retrieveFromRequest().getText().get("groupImportGroupCantUpdate") + "</li></ul>");
             continue;
           }
@@ -620,15 +636,21 @@ public class UiV2GroupImport {
         
         GrouperUiUtils.removeOverlappingSubjects(existingMembers, subjectList);
 
-        //groupImportReportSummary = <li>Before importing, the membership count was ${grouperRequestContainer.groupImportContainer.groupCountOriginal} and is now ${grouperRequestContainer.groupImportContainer.groupCountNew}.</li>
-        //groupImportReportSuccess = <li>You successfully added ${grouperRequestContainer.groupImportContainer.groupCountAdded} members and deleted ${grouperRequestContainer.groupImportContainer.groupCountDeleted} members.</li>
-        //groupImportReportErrorSummary = <li>${grouperRequestContainer.groupImportContainer.groupCountErrors} members were not imported due to errors, as shown below.</li>
-        //groupImportReportErrorsTitle = Errors
-        //groupImportReportErrorLine = <li><span class="label label-important">Error</span>&nbsp;on row ${grouperRequestContainer.groupImportContainer.errorRowNumber}. ${grouperRequestContainer.groupImportContainer.errorText}: "${grouperUtil.xmlEscape(grouperRequestContainer.groupImportContainer.errorSubject)}"</li>
-
         int addedCount = 0;
+        int errorsCount = 0;
 
         StringBuilder errors = new StringBuilder();
+
+        // figure out subject not founds
+        if (listInvalidSubjectIdsAndRow.size() > 0) {
+          for (String subjectLabel : listInvalidSubjectIdsAndRow.keySet()) {
+            int rowNumber = listInvalidSubjectIdsAndRow.get(subjectLabel);
+            String errorLine = errorLine(subjectLabel, TextContainer.retrieveFromRequest().getText().get(
+                "groupImportProblemFindingSubjectError"), rowNumber);
+            errors.append(errorLine).append("\n");
+            errorsCount++;
+          }
+        }
         
         //first lets add some members
         for (int i=0;i<subjectList.size();i++) {
@@ -652,47 +674,76 @@ public class UiV2GroupImport {
             
             String errorLine = errorLine(subject, GrouperUtil.xmlEscape(e.getMessage()));
             errors.append(errorLine).append("\n");
-            
+            errorsCount++;
             LOG.warn(errorLine, e);
           }
     
         }
     
-        boolean didntImportDueToSubjects = false;
+        boolean didntImportDueToSubjects = errorsCount > 0;
         int deletedCount = 0;
     
         //remove the ones which are already there
-        if (importReplaceMembers) {
+        if (importReplaceMembers && !didntImportDueToSubjects) {
           
-          if (errors.length() == 0) {
+          for (Member existingMember : existingMembers) {
             
-            for (Member existingMember : existingMembers) {
-              
-              try {
-                group.deleteMember(existingMember, false);
-                deletedCount++;
-              } catch (Exception e) {
-                String error = "Error deleting subject " + SubjectHelper.getPretty(existingMember) + e.getMessage();
-                LOG.warn(error, e);
-                //TODO deleteErrors.add(error);
-              }
+            try {
+              group.deleteMember(existingMember, false);
+              deletedCount++;
+            } catch (Exception e) {
+              String errorLine = errorLine(existingMember.getSubject(), GrouperUtil.xmlEscape(e.getMessage()));
+              errors.append(errorLine).append("\n");
+              errorsCount++;
+              LOG.warn(errorLine, e);
+            
             }
-          } else {
-            didntImportDueToSubjects = true;
           }
-          
-          
+        }
+
+        if (importReplaceMembers && didntImportDueToSubjects) {
+          report.append(TextContainer.retrieveFromRequest().getText().get("groupImportReportNoReplaceError")).append("\n");
         }
         
         //this might be a little wasteful, but I think it is a good sanity check
         int newSize = group.getImmediateMembers().size();
 
+        // = Errors
+        //groupImportReportErrorLine = <li><span class="label label-important">Error</span>&nbsp;on row ${grouperRequestContainer.groupImportContainer.errorRowNumber}. ${grouperRequestContainer.groupImportContainer.errorText}: "${grouperUtil.xmlEscape(grouperRequestContainer.groupImportContainer.errorSubject)}"</li>
+
+        //set stuff for text to use
+        groupImportContainer.setGroupCountAdded(addedCount);
+        groupImportContainer.setGroupCountDeleted(deletedCount);
+        groupImportContainer.setGroupCountErrors(errorsCount);
+        groupImportContainer.setGroupCountOriginal(existingCount);
+        groupImportContainer.setGroupCountNew(newSize);
         
+        report.append(TextContainer.retrieveFromRequest().getText().get("groupImportReportSummary")).append("\n");
+        report.append(TextContainer.retrieveFromRequest().getText().get("groupImportReportSuccess")).append("\n");
+        
+        // dont add the error report line if there are no errors 
+        if (errorsCount > 0) {
+          report.append(TextContainer.retrieveFromRequest().getText().get("groupImportReportErrorSummary")).append("\n");
+        }
+        report.append("</ul>\n");
+        
+        //only add the errors section if there are errors
+        if (errorsCount > 0) {
+          report.append("<h5>").append(TextContainer.retrieveFromRequest().getText().get("groupImportReportErrorsTitle")).append("</h5>\n");
+          report.append("<ul>\n");
+          report.append(errors.toString());
+          report.append("</ul>\n");
+        }
         
         reportByGroupName.put(group.getName(), report.toString());
         
       }
       
+      //show the report screen
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/groupImport/groupImportReport.jsp"));
+
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTop()"));
           
     } catch (NoSessionException se) {
       throw se;
@@ -705,7 +756,7 @@ public class UiV2GroupImport {
     }
 
   }
-
+  
   /**
    * get an error line
    * @param subject
@@ -714,19 +765,36 @@ public class UiV2GroupImport {
    */
   private static String errorLine(Subject subject, String errorEscaped) {
 
+    String subjectLabel = null;
+    Integer rowNumber = null;
+    if (subject instanceof ImportSubjectWrapper) {
+      subjectLabel = ((ImportSubjectWrapper)subject).getSubjectIdOrIdentifier();
+      rowNumber = ((ImportSubjectWrapper)subject).getRow();
+    } else {
+      subjectLabel = subject.getId();
+    }
+    return errorLine(subjectLabel, errorEscaped, rowNumber);
+  }
+  
+  /**
+   * get an error line
+   * @param subject
+   * @param errorEscaped
+   * @param rowNumber
+   * @return the line
+   */
+  private static String errorLine(String subjectLabel, String errorEscaped, Integer rowNumber) {
+
     GroupImportContainer groupImportContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupImportContainer();
     groupImportContainer.setErrorText(errorEscaped);
-    
-    String subjectId = null;
 
-    if (subject instanceof ImportSubjectWrapper) {
-      subjectId = ((ImportSubjectWrapper)subject).getSubjectIdOrIdentifier();
-      groupImportContainer.setErrorSubject(subjectId);
-      groupImportContainer.setErrorRowNumber(((ImportSubjectWrapper)subject).getRow());
+    groupImportContainer.setErrorSubject(subjectLabel);
+
+    if (rowNumber != null) {
+      groupImportContainer.setErrorRowNumber(rowNumber);
       return TextContainer.retrieveFromRequest().getText().get("groupImportReportErrorLine");
     }
-    subjectId = subject.getId();
-    groupImportContainer.setErrorSubject(subjectId);
+    
     return TextContainer.retrieveFromRequest().getText().get("groupImportReportErrorLineNoRow");
     
   }
@@ -820,7 +888,7 @@ public class UiV2GroupImport {
 
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-      groupImportSetupExtraGroups(loggedInSubject, request, guiResponseJs, true, false, new LinkedHashSet<Group>());
+      groupImportSetupExtraGroups(loggedInSubject, request, guiResponseJs, true, false, new LinkedHashSet<Group>(), false);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupImportExtraGroupsDivId", 
           "/WEB-INF/grouperUi2/groupImport/groupImportExtraGroups.jsp"));
@@ -847,7 +915,7 @@ public class UiV2GroupImport {
 
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-      groupImportSetupExtraSubjects(loggedInSubject, request, guiResponseJs, true, false, new LinkedHashSet<Subject>());
+      groupImportSetupExtraSubjects(loggedInSubject, request, guiResponseJs, true, false, new LinkedHashSet<Subject>(), false);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupImportExtraMembersDivId", 
           "/WEB-INF/grouperUi2/groupImport/groupImportExtraSubjects.jsp"));
@@ -874,7 +942,7 @@ public class UiV2GroupImport {
 
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-      groupImportSetupExtraGroups(loggedInSubject, request, guiResponseJs, false, true, new LinkedHashSet<Group>());
+      groupImportSetupExtraGroups(loggedInSubject, request, guiResponseJs, false, true, new LinkedHashSet<Group>(), true);
 
       //clear out combobox
       guiResponseJs.addAction(GuiScreenAction.newScript(
@@ -952,7 +1020,7 @@ public class UiV2GroupImport {
   
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
-      groupImportSetupExtraSubjects(loggedInSubject, request, guiResponseJs, false, true, new LinkedHashSet<Subject>());
+      groupImportSetupExtraSubjects(loggedInSubject, request, guiResponseJs, false, true, new LinkedHashSet<Subject>(), true);
   
       //clear out combobox
       guiResponseJs.addAction(GuiScreenAction.newScript(
@@ -975,11 +1043,12 @@ public class UiV2GroupImport {
    * @param considerRemoveSubjectSourceAndId if removing one
    * @param includeCombobox
    * @param allSubjects is a LinkedHashSet of subjects
+   * @param errorOnNullCombobox is true if an error should appear if there is nothing in the combobox
    * @return true if ok, false if not
    */
   private boolean groupImportSetupExtraSubjects(Subject loggedInSubject, 
       HttpServletRequest request, GuiResponseJs guiResponseJs, boolean considerRemoveSubjectSourceAndId, 
-      boolean includeCombobox, Set<Subject> allSubjects) {
+      boolean includeCombobox, Set<Subject> allSubjects, boolean errorOnNullCombobox) {
 
     //extra source ids and subjects ids
     Set<MultiKey> extraSubjectSourceAndIds = new HashSet<MultiKey>();
@@ -1025,8 +1094,9 @@ public class UiV2GroupImport {
     }
     boolean success = true;
     if (theSubject == null) {
-      if (includeCombobox) {
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#groupImportSubjectComboIdErrorId", 
+      if (includeCombobox && errorOnNullCombobox) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#groupImportSubjectComboIdErrorId", 
             TextContainer.retrieveFromRequest().getText().get("groupImportSubjectNotFound")));
         success = false;
       }
