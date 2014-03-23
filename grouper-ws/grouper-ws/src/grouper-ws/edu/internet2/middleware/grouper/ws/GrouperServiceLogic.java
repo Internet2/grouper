@@ -7536,7 +7536,7 @@ public class GrouperServiceLogic {
         Subject subject = wsSubjectLookup == null ? null : wsSubjectLookup.retrieveSubject();
         
         attributeDefNames.addAll(GrouperDAOFactory.getFactory().getAttributeDefName().findAllAttributeNamesSecure(
-            scope, true, session, attributeDefId, subject, AttributeDefPrivilege.VIEW_PRIVILEGES, 
+            scope, true, session, attributeDefId, subject, AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES, 
             queryOptions, attributeAssignType, attributeDefType, serviceRole, false));
       }
       
