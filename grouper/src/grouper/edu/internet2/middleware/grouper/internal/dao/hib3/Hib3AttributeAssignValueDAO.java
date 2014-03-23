@@ -433,7 +433,7 @@ public class Hib3AttributeAssignValueDAO extends Hib3DAO implements AttributeAss
       
       List<String> currentGroupIds = GrouperUtil.batchList(totalGroupIdsList, 100, index);
     
-      StringBuilder sql = new StringBuilder("select value, assignmentOnAssignment, name, def " +
+      StringBuilder sql = new StringBuilder("select value, assignmentOnAssignment, name, def, assignmentOnGroup " +
           "from AttributeAssignValue as value, " +
           "AttributeAssign as assignmentOnAssignment, " +
           "AttributeAssign as assignmentOnGroup, " +
@@ -468,6 +468,7 @@ public class Hib3AttributeAssignValueDAO extends Hib3DAO implements AttributeAss
         AttributeAssign assignment = (AttributeAssign)row[1];
         AttributeDefName name = (AttributeDefName)row[2];
         AttributeDef def = (AttributeDef)row[3];
+        AttributeAssign assignmentOnGroup = (AttributeAssign)row[4];
         
         value.internalSetAttributeAssign(assignment);
         assignment.internalSetAttributeDef(def);
@@ -475,7 +476,7 @@ public class Hib3AttributeAssignValueDAO extends Hib3DAO implements AttributeAss
         name.internalSetAttributeDef(def);
         
         if (name.getName().startsWith(stemName) && name.getExtension().startsWith(attributePrefix)) {
-          Map<String, AttributeAssignValue> theMap = totalResults.get(assignment.getOwnerGroupId());
+          Map<String, AttributeAssignValue> theMap = totalResults.get(assignmentOnGroup.getOwnerGroupId());
           String legacyAttributeName = name.getExtension().substring(attributePrefix.length());
           theMap.put(legacyAttributeName, value);
         }
