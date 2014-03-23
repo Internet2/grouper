@@ -89,6 +89,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
+import edu.internet2.middleware.grouper.j2ee.status.GrouperStatusServlet;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -109,6 +110,10 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  */
 
 public class GrouperUiFilter implements Filter {
+
+  static {
+    GrouperStatusServlet.registerStartup();
+  }
 
   /** keep 100k in memory, why not */
   private static FileItemFactory fileItemFactory = new DiskFileItemFactory(100000, null);

@@ -30,10 +30,10 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.axis2.transport.http.AxisServlet;
 
+import edu.internet2.middleware.grouper.j2ee.status.GrouperStatusServlet;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.ws.security.GrouperWssecAuthentication;
 import edu.internet2.middleware.grouper.ws.security.RampartHandlerServer;
-import edu.internet2.middleware.grouper.ws.status.GrouperStatusServlet;
 
 
 /**

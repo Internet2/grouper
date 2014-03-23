@@ -18,7 +18,7 @@
   	</init-param>
 	 	<init-param>    
   	<param-name>ignore</param-name>    
-  		<param-value>:/populateIndex.do:/callLogin.do:/error.do:/logout.do:</param-value>  
+  		<param-value>:/populateIndex.do:/callLogin.do:/error.do:/logout.do:/status:</param-value>  
   	</init-param>
   	<init-param>    
   		<param-name>grouperRole</param-name>    

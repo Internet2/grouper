@@ -634,13 +634,14 @@
       	<exclude name="jetty/*.jar"/>
         <include name="**/*.jar"/>
       </fileset>
+    	<!-- we need this for at least status servlet -->
+      <pathelement  location="${lib.dir}/jetty/servlet-api.jar"/>
       <!--<fileset dir="dist/lib">
         <include name="**/*.jar"/>
       </fileset>-->
       <fileset dir="${ext.dir.lib}">
         <include name="**/*.jar"/>
       </fileset>
-      <pathelement  location="${build.dir.grouper}"/>
       <pathelement  location="${build.dir.grouper}"/>
       <pathelement  location="${build.dir.test}"/>
       <pathelement  location="${user.home}/.ant/lib/clover.jar"/>
