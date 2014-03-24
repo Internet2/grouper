@@ -166,21 +166,26 @@
                             <td><strong>${textContainer.text['groupLabelTypeLabel']}</strong></td>
                             <td>${textContainer.text[grouper:concat2('groupLabelType_',grouperRequestContainer.groupContainer.guiGroup.group.typeOfGroup)]}</td>
                           </tr>
-                          <tr>
-                            <td><strong>${textContainer.text['groupLabelPrivilegesAssignedToEveryone']}</strong></td>
-                            <td>
-                              ${grouperRequestContainer.groupContainer.guiGroup.privilegeLabelsAllowedByGrouperAll }
-                            
-                            </td>
-                          </tr>
-                          <tr>
-                            <td><strong>${textContainer.text['groupLabelCompositeOwner'] }</strong></td>
-                            <td>${grouperRequestContainer.groupContainer.guiGroup.compositeOwnerText}</td>
-                          </tr>
-                          <tr>
-                            <td><strong>${textContainer.text['groupLabelCompositeFactors'] }</strong></td>
-                            <td>${grouperRequestContainer.groupContainer.guiGroup.compositeFactorOfOtherGroupsText}</td>
-                          </tr>
+                          <c:if test="${grouperRequestContainer.groupContainer.canAdmin }">
+                            <tr>
+                              <td><strong>${textContainer.text['groupLabelPrivilegesAssignedToEveryone']}</strong></td>
+                              <td>
+                                ${grouperRequestContainer.groupContainer.guiGroup.privilegeLabelsAllowedByGrouperAll }
+                              
+                              </td>
+                            </tr>
+                          </c:if>
+                          <c:if test="${grouperRequestContainer.groupContainer.canRead }">
+
+                            <tr>
+                              <td><strong>${textContainer.text['groupLabelCompositeOwner'] }</strong></td>
+                              <td>${grouperRequestContainer.groupContainer.guiGroup.compositeOwnerText}</td>
+                            </tr>
+                            <tr>
+                              <td><strong>${textContainer.text['groupLabelCompositeFactors'] }</strong></td>
+                              <td>${grouperRequestContainer.groupContainer.guiGroup.compositeFactorOfOtherGroupsText}</td>
+                            </tr>
+                          </c:if>
                           <tr>
                             <td><strong>${textContainer.text['groupLabelUuid']}</strong></td>
                             <td>${grouperRequestContainer.groupContainer.guiGroup.group.uuid}</td>

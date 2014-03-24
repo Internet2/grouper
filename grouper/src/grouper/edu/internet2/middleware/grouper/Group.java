@@ -3109,6 +3109,21 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       null, null, null
     );
   }
+
+  /**
+   * more efficient? way to see if there are any members
+   * you need read on the group to call this method
+   * @return true if has members, false if not
+   */
+  public boolean isHasMembers() {
+    
+    //just get one member
+    Set<Member> members = this.getImmediateMembers(Group.getDefaultList(), null, 
+        QueryOptions.create(null, null, 1, 1));
+    
+    return GrouperUtil.length(members) > 0;
+    
+  }
   
   /**
    * Get immediate members of this group.  

@@ -31,12 +31,14 @@ import edu.internet2.middleware.grouper.CompositeFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
@@ -53,6 +55,17 @@ import edu.internet2.middleware.subject.Subject;
 @SuppressWarnings("serial")
 public class GuiGroup extends GuiObjectBase implements Serializable {
 
+  /**
+   * get a composite from the underlying group if there is one there
+   * this is needed since there is a group.isComposite, so it conflicts
+   * with the javabean group.getComposite()
+   * @return the composite
+   */
+  public Composite getComposite() {
+    Composite composite = this.group.getComposite(false);
+    return composite;
+  }
+  
   /**
    * get lines that show if this group is a composite factor of other groups
    * @return the text
@@ -99,13 +112,17 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
     if (this.group.hasComposite()) {
       
       boolean allowed = true;
+
+      final Subject subject = GrouperSession.staticGrouperSession().getSubject();
       
+      allowed = allowed && this.group.canHavePrivilege(subject, AccessPrivilege.READ.getName(), false);      
+
       Composite composite = this.group.getComposite(false);
       
       Group leftGroup = null;
       Group rightGroup = null;
       
-      if (composite == null) {
+      if (composite == null || !allowed) {
         //cannot view
         allowed = false;
       } else {

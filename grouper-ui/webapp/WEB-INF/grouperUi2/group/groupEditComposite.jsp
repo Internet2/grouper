@@ -71,13 +71,23 @@
                       ${grouperRequestContainer.groupContainer.guiGroup.group.hasComposite ? '' : 'style="display:none"' }  >
                     <label for="groupCompositeLeftFactorComboId" class="control-label">${textContainer.text['groupCompositeOperationLabel'] }</label>
                     <div class="controls">
-
-                      <select>
-                        <option>UNION</option>
-                        <option>INTERSECT</option>
-                        <option>MINUS</option>
+                      <c:set var="compositeType" 
+                        value="${grouperRequestContainer.groupContainer.guiGroup.group.hasComposite ? grouperRequestContainer.groupContainer.guiGroup.composite.type.name : null}" />
+                      <select name="compositeOperation">
+                        <option value="">${textContainer.text['groupCompositeOperationDefault'] }</option>
+                        <option value="intersection"  
+                           ${compositeType == 'INTERSECTION' ? 'selected="selected"' : '' }
+                        >${textContainer.text['intersection']}</option>
+                        <option value="complement"
+                           ${compositeType == 'COMPLEMENT' ? 'selected="selected"' : '' }
+                        >${textContainer.text['complement']}</option>
+                        <c:if test="${compositeType == 'UNION'}">
+                          <option value="union" 
+                            ${compositeType == 'UNION' ? 'selected="selected"' : '' }
+                          >${textContainer.text['union']}</option>
+                        </c:if>
                       </select>
-                      <span class="help-block">Composite operation</span>
+                      <span class="help-block">${textContainer.text['groupCompositeOperationHelp']}</span>
                       <br />
                       <input type="text" id="rightFactorId" name="rightFactor"
                         value="some:folder:anotherGroup"

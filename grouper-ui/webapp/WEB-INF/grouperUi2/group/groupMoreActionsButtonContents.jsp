@@ -37,7 +37,7 @@
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupEdit&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                             >${textContainer.text['groupViewEditGroupButton'] }</a></li>
                         </c:if>
-                        <c:if test="${grouperRequestContainer.groupContainer.canUpdate }">
+                        <c:if test="${grouperRequestContainer.groupContainer.canUpdate && grouperRequestContainer.groupContainer.canRead }">
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupEditComposite&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                             >${textContainer.text['groupViewEditGroupCompositeButton'] }</a></li>
                         </c:if>

@@ -16,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
@@ -3647,7 +3648,9 @@ public class UiV2Group {
     Group group = null;
   
     try {
-  
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
       grouperSession = GrouperSession.start(loggedInSubject);
   
       group = retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
@@ -3656,10 +3659,32 @@ public class UiV2Group {
         return;
       }
 
-      GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().setShowBreadcrumbLink(true);
-      GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().setShowBreadcrumbLinkSeparator(false);
+      if (!group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("groupNotAllowedToReadGroup")));
+        return;
+      }
 
-      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      if (group.isHasMembers()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("groupCompositeErrorCannotHaveMembers")));
+        return;
+      }
+
+      GroupContainer groupContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer();
+      groupContainer.getGuiGroup().setShowBreadcrumbLink(true);
+      groupContainer.getGuiGroup().setShowBreadcrumbLinkSeparator(false);
+      
+      groupContainer.setCompositeOwnerGuiGroup(groupContainer.getGuiGroup());
+
+      Composite composite = group.getComposite(false);
+      
+      if (composite != null) {
+        
+        groupContainer.setCompositeLeftFactorGuiGroup(new GuiGroup(composite.getLeftGroup()));
+        groupContainer.setCompositeRightFactorGuiGroup(new GuiGroup(composite.getRightGroup()));
+        
+      }
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/groupEditComposite.jsp"));
