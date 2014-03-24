@@ -1561,6 +1561,9 @@ public class UiV2Group {
         return;
       }
   
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().setShowBreadcrumbLink(true);
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().setShowBreadcrumbLinkSeparator(false);
+      
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
@@ -3548,6 +3551,190 @@ public class UiV2Group {
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
+  }
+
+  /**
+   * modal search form results for left group factor
+   * @param request
+   * @param response
+   */
+  public void leftGroupFactorSearch(HttpServletRequest request, HttpServletResponse response) {
+    
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    GrouperSession grouperSession = null;
+  
+    GroupContainer groupContainer = grouperRequestContainer.getGroupContainer();
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      String searchString = request.getParameter("leftFactorSearchName");
+      
+      boolean searchOk = GrouperUiUtils.searchStringValid(searchString);
+      if (!searchOk) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#leftFactorGroupResults", 
+            TextContainer.retrieveFromRequest().getText().get("groupCompositeNotEnoughChars")));
+        return;
+      }
+
+      String matchExactIdString = request.getParameter("matchExactId[]");
+      boolean matchExactId = GrouperUtil.booleanValue(matchExactIdString, false);
+
+      GuiPaging guiPaging = groupContainer.getGuiPaging();
+      QueryOptions queryOptions = new QueryOptions();
+
+      GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
+
+      Set<Group> groups = null;
+    
+    
+      GroupFinder groupFinder = new GroupFinder().assignPrivileges(AccessPrivilege.READ_PRIVILEGES)
+        .assignScope(searchString).assignSplitScope(true).assignQueryOptions(queryOptions);
+      
+      if (matchExactId) {
+        groupFinder.assignFindByUuidOrName(true);
+      }
+      
+      groups = groupFinder.findGroups();
+      
+      guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+      
+      if (GrouperUtil.length(groups) == 0) {
+
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#leftFactorGroupResults", 
+            TextContainer.retrieveFromRequest().getText().get("groupCompositeSearchNoGroupsFound")));
+        return;
+      }
+      
+      Set<GuiGroup> guiGroups = GuiGroup.convertFromGroups(groups);
+      
+      groupContainer.setGuiGroups(guiGroups);
+  
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#leftFactorGroupResults", 
+          "/WEB-INF/grouperUi2/group/groupCompositeLeftFactorSearchResults.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+
+  /**
+   * combobox results for add composite factor filter search
+   * @param request
+   * @param response
+   */
+  public void groupCompositeFactorFilter(HttpServletRequest request, HttpServletResponse response) {
+    this.groupReadFilter(request, response);
+  }
+  
+  /**
+   * edit a group composite, show the edit composite screen
+   * @param request
+   * @param response
+   */
+  public void groupEditComposite(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().setShowBreadcrumbLink(true);
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().setShowBreadcrumbLinkSeparator(false);
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/group/groupEditComposite.jsp"));
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * combo filter read group folder
+   * @param request
+   * @param response
+   */
+  public void groupReadFilter(final HttpServletRequest request, HttpServletResponse response) {
+  
+    //run the combo logic
+    DojoComboLogic.logic(request, response, new DojoComboQueryLogicBase<Group>() {
+  
+      /**
+       * 
+       */
+      @Override
+      public Group lookup(HttpServletRequest request, GrouperSession grouperSession, String query) {
+        Subject loggedInSubject = grouperSession.getSubject();
+        Group theGroup = new GroupFinder().assignPrivileges(AccessPrivilege.READ_PRIVILEGES)
+            .assignSubject(loggedInSubject)
+            .assignFindByUuidOrName(true).assignScope(query).findGroup();
+        return theGroup;
+      }
+  
+      /**
+       * 
+       */
+      @Override
+      public Collection<Group> search(HttpServletRequest request, GrouperSession grouperSession, String query) {
+        Subject loggedInSubject = grouperSession.getSubject();
+        int groupComboSize = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.groupComboboxResultSize", 200);
+        QueryOptions queryOptions = QueryOptions.create(null, null, 1, groupComboSize);
+        return new GroupFinder().assignPrivileges(AccessPrivilege.READ_PRIVILEGES)
+            .assignScope(query).assignSubject(loggedInSubject)
+            .assignSplitScope(true).assignQueryOptions(queryOptions).findGroups();
+      }
+  
+      /**
+       * 
+       * @param t
+       * @return
+       */
+      @Override
+      public String retrieveId(GrouperSession grouperSession, Group t) {
+        return t.getId();
+      }
+      
+      /**
+       * 
+       */
+      @Override
+      public String retrieveLabel(GrouperSession grouperSession, Group t) {
+        return t.getDisplayName();
+      }
+  
+      /**
+       * 
+       */
+      @Override
+      public String retrieveHtmlLabel(GrouperSession grouperSession, Group t) {
+        //description could be null?
+        String label = GrouperUiUtils.escapeHtml(t.getDisplayName(), true);
+        String htmlLabel = "<img src=\"../../grouperExternal/public/assets/images/group.gif\" /> " + label;
+        return htmlLabel;
+      }
+  
+    });
+    
   }
 
 }

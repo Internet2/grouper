@@ -233,6 +233,27 @@ public abstract class GuiObjectBase {
   private boolean showBreadcrumbLink;
 
   /**
+   * if true, then this is a subpage, show a link for the last time so we can drill down one item lower, though dont show separator
+   */
+  private boolean showBreadcrumbLinkSeparator = true;
+  
+  /**
+   * if true, then this is a subpage, show a link for the last time so we can drill down one item lower, though dont show separator
+   * @return the showBreadcrumbLinkSeparator
+   */
+  public boolean isShowBreadcrumbLinkSeparator() {
+    return this.showBreadcrumbLinkSeparator;
+  }
+  
+  /**
+   * if true, then this is a subpage, show a link for the last time so we can drill down one item lower, though dont show separator
+   * @param showBreadcrumbLinkSeparator1 the showBreadcrumbLinkSeparator to set
+   */
+  public void setShowBreadcrumbLinkSeparator(boolean showBreadcrumbLinkSeparator1) {
+    this.showBreadcrumbLinkSeparator = showBreadcrumbLinkSeparator1;
+  }
+
+  /**
    * if true, then this is a subpage, show a link for the last time so we can drill down one item lower
    * @return if show breadcrumb link
    */
@@ -284,7 +305,11 @@ public abstract class GuiObjectBase {
         if (!this.showBreadcrumbLink) {
           result.append("<li class=\"active\">").append(guiSubject.getScreenLabelShort2noLink()).append("</li>");
         } else {
-          result.append("<li>").append(guiSubject.getShortLink()).append("<span class=\"divider\"><i class='fa fa-angle-right'></i></span></li>");
+          result.append("<li>").append(guiSubject.getShortLink());
+          if (this.showBreadcrumbLinkSeparator) {
+            result.append("<span class=\"divider\"><i class='fa fa-angle-right'></i></span>");
+          }
+          result.append("</li>");
         }
       }
     } else {
@@ -322,15 +347,22 @@ public abstract class GuiObjectBase {
                 
                 result.append("<li><a href=\"#\" onclick=\"return guiV2link('operation=UiV2Group.viewGroup&groupName=")
                   .append(GrouperUtil.escapeUrlEncode(stemName))
-                  .append("');\" >").append(GrouperUtil.xmlEscape(displayExtenstionsList.get(i)))
-                  .append(" </a><span class=\"divider\"><i class='fa fa-angle-right'></i></span></li>");
+                  .append("');\" >").append(GrouperUtil.xmlEscape(displayExtenstionsList.get(i))).append(" </a>");
+                if (this.showBreadcrumbLinkSeparator) {
+                  result.append("<span class=\"divider\"><i class='fa fa-angle-right'></i></span>");
+                }
+                result.append("</li>");
 
               } else if (this instanceof GuiStem) {
                 
                 result.append("<li><a href=\"#\" onclick=\"return guiV2link('operation=UiV2Stem.viewStem&stemName=")
                   .append(GrouperUtil.escapeUrlEncode(stemName))
                   .append("');\" >").append(GrouperUtil.xmlEscape(displayExtenstionsList.get(i)))
-                  .append(" </a><span class=\"divider\"><i class='fa fa-angle-right'></i></span></li>");
+                  .append(" </a>");
+                if (this.showBreadcrumbLinkSeparator) {
+                  result.append("<span class=\"divider\"><i class='fa fa-angle-right'></i></span>");
+                }
+                result.append("</li>");
 
               } else {
                 throw new RuntimeException("Not expecting object type: " + this.getClass().getName());

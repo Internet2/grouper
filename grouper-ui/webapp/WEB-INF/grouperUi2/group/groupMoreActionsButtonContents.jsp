@@ -26,14 +26,22 @@
                           <li><a href="#" onclick="ajax('../app/UiV2Group.joinGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">${textContainer.text['groupViewJoinGroupButton']}</a></li>
                         </c:if>
 
-                        <c:if test="${grouperRequestContainer.groupContainer.canAdmin }">
+                        <c:if test="${grouperRequestContainer.groupContainer.canUpdate }">
                           <li class="divider"></li>
+                        </c:if>
+                        <c:if test="${grouperRequestContainer.groupContainer.canAdmin }">
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupCopy&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['groupViewCopyGroupButton'] }</a></li>
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupDelete&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                             >${textContainer.text['groupViewDeleteGroupButton'] }</a></li>
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupEdit&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                             >${textContainer.text['groupViewEditGroupButton'] }</a></li>
+                        </c:if>
+                        <c:if test="${grouperRequestContainer.groupContainer.canUpdate }">
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupEditComposite&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                            >${textContainer.text['groupViewEditGroupCompositeButton'] }</a></li>
+                        </c:if>
+                        <c:if test="${grouperRequestContainer.groupContainer.canAdmin }">
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupMove&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['groupViewMoveGroupButton'] }</a></li>
                         </c:if>

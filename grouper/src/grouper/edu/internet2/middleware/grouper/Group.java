@@ -4058,8 +4058,17 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  Boolean true if group has a composite membership.
    */
   public boolean hasComposite() {
-    return null !=  GrouperDAOFactory.getFactory().getComposite().findAsOwner( this , false);
+    return null != GrouperDAOFactory.getFactory().getComposite().findAsOwner( this , false);
   } // public boolean hasComposite()
+
+  /**
+   * Does this {@link Group} have a {@link Composite} membership.
+   * @see  Group#hasComposite()
+   * @return  Boolean true if group has a composite membership.
+   */
+  public boolean isHasComposite() {
+    return this.hasComposite();
+  }
 
   /**
    * Check whether the subject is an effective member of this group.
@@ -5220,7 +5229,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                 .getDefaultList().getReadPriv());
             PrivilegeHelper.dispatch(session, right, session.getSubject(), Group
                 .getDefaultList().getReadPriv());
-      
+
             Composite c = new Composite();
             c.setCreateTime(new Date().getTime());
             c.setCreatorUuid(session.getMember().getUuid());
