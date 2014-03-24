@@ -163,13 +163,29 @@
                             <td>${grouperRequestContainer.groupContainer.guiGroup.lastUpdatedByGuiSubject.shortLinkWithIcon}</td>
                           </tr>
                           <tr>
-                            <td><strong>${textContainer.text['groupLabelEntityType']}</strong></td>
-                            <td>${textContainer.text[grouper:concat2('simpleGroupUpdate.type.', grouperRequestContainer.groupContainer.guiGroup.group.typeOfGroup)]}</td>
+                            <td><strong>${textContainer.text['groupLabelTypeLabel']}</strong></td>
+                            <td>${textContainer.text[grouper:concat2('groupLabelType_',grouperRequestContainer.groupContainer.guiGroup.group.typeOfGroup)]}</td>
+                          </tr>
+                          <tr>
+                            <td><strong>${textContainer.text['groupLabelPrivilegesAssignedToEveryone']}</strong></td>
+                            <td>
+                              ${grouperRequestContainer.groupContainer.guiGroup.privilegeLabelsAllowedByGrouperAll }
+                            
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><strong>${textContainer.text['groupLabelCompositeOwner'] }</strong></td>
+                            <td>${grouperRequestContainer.groupContainer.guiGroup.compositeOwnerText}</td>
+                          </tr>
+                          <tr>
+                            <td><strong>${textContainer.text['groupLabelCompositeFactors'] }</strong></td>
+                            <td>${grouperRequestContainer.groupContainer.guiGroup.compositeFactorOfOtherGroupsText}</td>
                           </tr>
                           <tr>
                             <td><strong>${textContainer.text['groupLabelUuid']}</strong></td>
                             <td>${grouperRequestContainer.groupContainer.guiGroup.group.uuid}</td>
                           </tr>
+
                         </tbody>
                       </table>
                     </div>

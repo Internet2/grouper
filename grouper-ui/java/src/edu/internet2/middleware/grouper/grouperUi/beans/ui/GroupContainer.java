@@ -27,6 +27,69 @@ import edu.internet2.middleware.subject.Subject;
 public class GroupContainer {
 
   /**
+   * if displaying composite, this is the owner
+   */
+  private GuiGroup compositeOwnerGuiGroup;
+
+  /**
+   * if displaying a composite, this is the left factor
+   */
+  private GuiGroup compositeLeftFactorGuiGroup;
+  
+  /**
+   * if displaying a composite, this is the right factor
+   */
+  private GuiGroup compositeRightFactorGuiGroup;
+  
+  /**
+   * if displaying composite, this is the owner
+   * @return the compositeOwnerGuiGroup
+   */
+  public GuiGroup getCompositeOwnerGuiGroup() {
+    return this.compositeOwnerGuiGroup;
+  }
+  
+  /**
+   * if displaying composite, this is the owner
+   * @param compositeOwnerGuiGroup1 the compositeOwnerGuiGroup to set
+   */
+  public void setCompositeOwnerGuiGroup(GuiGroup compositeOwnerGuiGroup1) {
+    this.compositeOwnerGuiGroup = compositeOwnerGuiGroup1;
+  }
+  
+  /**
+   * if displaying a composite, this is the left factor
+   * @return the compositeLeftFactorGuiGroup
+   */
+  public GuiGroup getCompositeLeftFactorGuiGroup() {
+    return this.compositeLeftFactorGuiGroup;
+  }
+  
+  /**
+   * if displaying a composite, this is the left factor
+   * @param compositeLeftFactorGuiGroup1 the compositeLeftFactorGuiGroup to set
+   */
+  public void setCompositeLeftFactorGuiGroup(GuiGroup compositeLeftFactorGuiGroup1) {
+    this.compositeLeftFactorGuiGroup = compositeLeftFactorGuiGroup1;
+  }
+
+  
+  /**
+   * if displaying a composite, this is the right factor
+   * @return the compositeRightFactorGuiGroup
+   */
+  public GuiGroup getCompositeRightFactorGuiGroup() {
+    return this.compositeRightFactorGuiGroup;
+  }
+
+  /**
+   * @param compositeRightFactorGuiGroup1 the compositeRightFactorGuiGroup to set
+   */
+  public void setCompositeRightFactorGuiGroup(GuiGroup compositeRightFactorGuiGroup1) {
+    this.compositeRightFactorGuiGroup = compositeRightFactorGuiGroup1;
+  }
+
+  /**
    * if export all of just member subject ids
    */
   private boolean exportAll = false;

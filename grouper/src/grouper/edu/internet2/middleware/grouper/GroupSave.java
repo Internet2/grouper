@@ -389,18 +389,20 @@ public class GroupSave {
     
     //validate
     //get the stem name
-    if (!StringUtils.contains(name, ":")) {
-      throw new RuntimeException("Group name must exist and must contain at least one stem name (separated by colons): '" + name + "'" );
+    if (!StringUtils.contains(GroupSave.this.name, ":")) {
+      throw new RuntimeException("Group name must exist and must contain at least one stem name (separated by colons): '" + GroupSave.this.name + "'" );
     }
 
     //default to insert or update
-    saveMode = (SaveMode)ObjectUtils.defaultIfNull(saveMode, SaveMode.INSERT_OR_UPDATE);
-    final SaveMode SAVE_MODE = saveMode;
+    GroupSave.this.saveMode = (SaveMode)ObjectUtils.defaultIfNull(GroupSave.this.saveMode, SaveMode.INSERT_OR_UPDATE);
+    final SaveMode SAVE_MODE = GroupSave.this.saveMode;
 
     try {
       //do this in a transaction
       Group group = (Group)GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
   
+        @SuppressWarnings("cast")
+        @Override
         public Object callback(GrouperTransaction grouperTransaction)
             throws GrouperDAOException {
           
@@ -408,10 +410,11 @@ public class GroupSave {
           
           return (Group)GrouperSession.callbackGrouperSession(GroupSave.this.grouperSession, new GrouperSessionHandler() {
 
-              public Object callback(GrouperSession grouperSession)
+              @Override
+              public Object callback(GrouperSession theGrouperSession)
                   throws GrouperSessionException {
                 
-                String groupNameForError = GrouperUtil.defaultIfBlank(groupNameToEdit, GroupSave.this.name);
+                String groupNameForError = GrouperUtil.defaultIfBlank(GroupSave.this.groupNameToEdit, GroupSave.this.name);
                 
                 int lastColonIndex = GroupSave.this.name.lastIndexOf(':');
                 boolean topLevelGroup = lastColonIndex < 0;
@@ -420,7 +423,7 @@ public class GroupSave {
                 String parentStemNameNew = GrouperUtil.parentStemNameFromName(GroupSave.this.name);
                 
                 //note, this might be blank
-                String parentStemDisplayNameNew = GrouperUtil.parentStemNameFromName(displayName);
+                String parentStemDisplayNameNew = GrouperUtil.parentStemNameFromName(GroupSave.this.displayName);
                 String extensionNew = GrouperUtil.extensionFromName(GroupSave.this.name);
                 
                 String displayExtensionFromDisplayNameNew = GrouperUtil.extensionFromName(GroupSave.this.displayName);
@@ -452,8 +455,8 @@ public class GroupSave {
                 Stem parentStem = null;
                 
                 try {
-                  parentStem = topLevelGroup ? StemFinder.findRootStem(grouperSession) 
-                      : StemFinder.findByName(grouperSession, parentStemNameNew, true);
+                  parentStem = topLevelGroup ? StemFinder.findRootStem(theGrouperSession) 
+                      : StemFinder.findByName(theGrouperSession, parentStemNameNew, true);
                 } catch (StemNotFoundException snfe) {
                   
                   //see if we should fix this problem
@@ -462,14 +465,14 @@ public class GroupSave {
                     //at this point the stem should be there (and is equal to currentStem), 
                     //just to be sure, query again
                     if (GrouperLoader.isDryRun()) {
-                      parentStem = StemFinder.findByName(grouperSession, parentStemNameNew, false);
+                      parentStem = StemFinder.findByName(theGrouperSession, parentStemNameNew, false);
                       if (parentStem == null) {
                         parentStem = new Stem();
                         parentStem.setNameDb(parentStemNameNew);
                         parentStem.setExtensionDb(GrouperUtil.extensionFromName(parentStemNameNew));
                       }
                     } else {
-                      parentStem = Stem._createStemAndParentStemsIfNotExist(grouperSession, parentStemNameNew, parentStemDisplayNameNew);
+                      parentStem = Stem._createStemAndParentStemsIfNotExist(theGrouperSession, parentStemNameNew, parentStemDisplayNameNew);
                     }
                   } else {
                     throw new GrouperSessionException(new StemNotFoundException("Cant find stem: '" + parentStemNameNew 
@@ -488,7 +491,7 @@ public class GroupSave {
                         + parentStemNameLookup + "', new stem: '" + parentStemNameNew + "'"));
                 }    
                 try {
-                    theGroup = GroupFinder.findByName(grouperSession, GroupSave.this.groupNameToEdit, true);
+                    theGroup = GroupFinder.findByName(theGrouperSession, GroupSave.this.groupNameToEdit, true);
                     
                     //while we are here, make sure uuid's match if passed in
                     if (!StringUtils.isBlank(GroupSave.this.uuid) && !StringUtils.equals(GroupSave.this.uuid, theGroup.getUuid())) {
@@ -509,15 +512,15 @@ public class GroupSave {
                 boolean needsSave = false;
                 //if inserting
                 if (!isUpdate) {
-                  saveResultType = SaveResultType.INSERT;
-                  if (typeOfGroup == null || typeOfGroup == TypeOfGroup.group) {
+                  GroupSave.this.saveResultType = SaveResultType.INSERT;
+                  if (GroupSave.this.typeOfGroup == null || GroupSave.this.typeOfGroup == TypeOfGroup.group) {
                     theGroup = parentStem.internal_addChildGroup(extensionNew, theDisplayExtension, GroupSave.this.uuid);
-                  } else if (typeOfGroup == TypeOfGroup.role) {
+                  } else if (GroupSave.this.typeOfGroup == TypeOfGroup.role) {
                     theGroup = (Group)parentStem.internal_addChildRole(extensionNew, theDisplayExtension, GroupSave.this.uuid);
-                  } else if (typeOfGroup == TypeOfGroup.entity) {
+                  } else if (GroupSave.this.typeOfGroup == TypeOfGroup.entity) {
                     theGroup = (Group)parentStem.internal_addChildEntity(extensionNew, theDisplayExtension, GroupSave.this.uuid);
                   } else {
-                    throw new RuntimeException("Not expecting type of group: " + typeOfGroup);
+                    throw new RuntimeException("Not expecting type of group: " + GroupSave.this.typeOfGroup);
                   }
                   
                 } else {
@@ -527,7 +530,7 @@ public class GroupSave {
                       //lets just confirm that one doesnt exist
                       String newName = GrouperUtil.parentStemNameFromName(theGroup.getName()) + ":" + extensionNew;
                       
-                      Group existingGroup = GroupFinder.findByName(grouperSession.internal_getRootSession(), newName, false);
+                      Group existingGroup = GroupFinder.findByName(theGrouperSession.internal_getRootSession(), newName, false);
                       
                       if (existingGroup != null && !StringUtils.equals(theGroup.getUuid(), existingGroup.getUuid())) {
                         throw new GroupModifyAlreadyExistsException("Group already exists: " + newName);
@@ -584,29 +587,21 @@ public class GroupSave {
 
                 boolean changedPrivs = false;
                 
-                boolean adminDefaultChecked = GrouperConfig.retrieveConfig()
-                    .propertyValueBoolean("groups.create.grant.all.admin", false);
+                boolean adminDefaultChecked = theGroup.hasAdmin(SubjectFinder.findAllSubject());
                 
-                boolean updateDefaultChecked = GrouperConfig.retrieveConfig()
-                    .propertyValueBoolean("groups.create.grant.all.update", false);
+                boolean updateDefaultChecked = theGroup.hasUpdate(SubjectFinder.findAllSubject());
                 
-                boolean readDefaultChecked = GrouperConfig.retrieveConfig()
-                    .propertyValueBoolean("groups.create.grant.all.read", false);
+                boolean readDefaultChecked = theGroup.hasRead(SubjectFinder.findAllSubject());
       
-                boolean viewDefaultChecked = GrouperConfig.retrieveConfig()
-                    .propertyValueBoolean("groups.create.grant.all.view", false);
+                boolean viewDefaultChecked = theGroup.hasView(SubjectFinder.findAllSubject());
       
-                boolean optinDefaultChecked = GrouperConfig.retrieveConfig()
-                    .propertyValueBoolean("groups.create.grant.all.optin", false);
+                boolean optinDefaultChecked = theGroup.hasOptin(SubjectFinder.findAllSubject());
       
-                boolean optoutDefaultChecked = GrouperConfig.retrieveConfig()
-                    .propertyValueBoolean("groups.create.grant.all.optout", false);
+                boolean optoutDefaultChecked = theGroup.hasOptout(SubjectFinder.findAllSubject());
       
-                boolean attrReadDefaultChecked = GrouperConfig.retrieveConfig()
-                    .propertyValueBoolean("groups.create.grant.all.attrRead", false);
+                boolean attrReadDefaultChecked = theGroup.hasGroupAttrRead(SubjectFinder.findAllSubject());
       
-                boolean attrUpdateDefaultChecked = GrouperConfig.retrieveConfig()
-                    .propertyValueBoolean("groups.create.grant.all.attrUpdate", false);
+                boolean attrUpdateDefaultChecked = theGroup.hasGroupAttrUpdate(SubjectFinder.findAllSubject());
       
                 if (GroupSave.this.privAllAdmin != null && GroupSave.this.privAllAdmin != adminDefaultChecked) {
                   if (GroupSave.this.privAllAdmin) {

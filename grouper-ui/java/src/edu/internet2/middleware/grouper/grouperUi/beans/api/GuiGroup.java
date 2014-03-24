@@ -26,10 +26,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import edu.internet2.middleware.grouper.Composite;
+import edu.internet2.middleware.grouper.CompositeFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
@@ -49,6 +53,165 @@ import edu.internet2.middleware.subject.Subject;
 @SuppressWarnings("serial")
 public class GuiGroup extends GuiObjectBase implements Serializable {
 
+  /**
+   * get lines that show if this group is a composite factor of other groups
+   * @return the text
+   */
+  public String getCompositeFactorOfOtherGroupsText() {
+    
+    //get the composites
+    Set<Composite> composites = CompositeFinder.findAsFactor(this.group);
+    
+    if (GrouperUtil.length(composites) == 0) {
+      return TextContainer.retrieveFromRequest().getText().get("groupLabelThisGroupNotCompositeFactor");
+    }
+
+    StringBuilder result = new StringBuilder();
+    boolean firstLine = true;
+    for (Composite composite : composites) {
+      
+      try {
+        if (!firstLine) {
+          result.append("<br />\n");
+        }
+        
+        Group group = composite.getOwnerGroup();
+
+        GuiGroup guiGroup = new GuiGroup(group);
+        result.append(guiGroup.getCompositeOwnerText());
+        
+      } catch (GroupNotFoundException gnfe) {
+        return TextContainer.retrieveFromRequest().getText().get("groupLabelNotAllowedToViewAllGroups");
+      }
+      
+      firstLine = false;
+      
+    }
+    return result.toString();
+  }
+  
+  /**
+   * text about this group being a composite owner
+   * @return text about this group being a composite owner
+   */
+  public String getCompositeOwnerText() {
+    
+    if (this.group.hasComposite()) {
+      
+      boolean allowed = true;
+      
+      Composite composite = this.group.getComposite(false);
+      
+      Group leftGroup = null;
+      Group rightGroup = null;
+      
+      if (composite == null) {
+        //cannot view
+        allowed = false;
+      } else {
+      
+        try {
+          leftGroup = composite.getLeftGroup();
+          
+          rightGroup = composite.getRightGroup();
+        } catch (GroupNotFoundException gnfe) {
+          allowed = false;
+        }
+        
+      }
+      
+      if (!allowed) {
+        return TextContainer.retrieveFromRequest().getText().get("groupLabelNotAllowedToViewAllGroups");
+      }
+      
+      //setup object model for text
+      GroupContainer groupContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer();
+      groupContainer.setCompositeOwnerGuiGroup(this);
+      groupContainer.setCompositeLeftFactorGuiGroup(new GuiGroup(leftGroup));
+      groupContainer.setCompositeRightFactorGuiGroup(new GuiGroup(rightGroup));
+
+      switch(composite.getType()) {
+        case COMPLEMENT:
+          return TextContainer.retrieveFromRequest().getText().get("groupLabelCompositeMinus");
+        case INTERSECTION:
+          return TextContainer.retrieveFromRequest().getText().get("groupLabelCompositeIntersection");
+        case UNION:
+          return TextContainer.retrieveFromRequest().getText().get("groupLabelCompositeUnion");
+          
+      }
+      
+    } 
+    return TextContainer.retrieveFromRequest().getText().get("groupLabelThisGroupNotComposite");
+    
+  }
+  
+  /**
+   * comma separated privilege labels allowed by grouper all
+   * @return the labels
+   */
+  public String getPrivilegeLabelsAllowedByGrouperAll() {
+    StringBuilder results = new StringBuilder();
+    boolean foundOne = false;
+    
+    if (this.isGrantAllAdmin()) {
+      if (foundOne) {
+        results.append(", ");
+      }
+      foundOne = true;
+      results.append(TextContainer.retrieveFromRequest().getText().get("priv.adminUpper"));
+    }
+    if (this.isGrantAllUpdate()) {
+      if (foundOne) {
+        results.append(", ");
+      }
+      foundOne = true;
+      results.append(TextContainer.retrieveFromRequest().getText().get("priv.updateUpper"));
+    }
+    if (this.isGrantAllRead()) {
+      if (foundOne) {
+        results.append(", ");
+      }
+      foundOne = true;
+      results.append(TextContainer.retrieveFromRequest().getText().get("priv.readUpper"));
+    }
+    if (this.isGrantAllView()) {
+      if (foundOne) {
+        results.append(", ");
+      }
+      foundOne = true;
+      results.append(TextContainer.retrieveFromRequest().getText().get("priv.viewUpper"));
+    }
+    if (this.isGrantAllOptin()) {
+      if (foundOne) {
+        results.append(", ");
+      }
+      foundOne = true;
+      results.append(TextContainer.retrieveFromRequest().getText().get("priv.optinUpper"));
+    }
+    if (this.isGrantAllOptout()) {
+      if (foundOne) {
+        results.append(", ");
+      }
+      foundOne = true;
+      results.append(TextContainer.retrieveFromRequest().getText().get("priv.optoutUpper"));
+    }
+    if (this.isGrantAllAttrUpdate()) {
+      if (foundOne) {
+        results.append(", ");
+      }
+      foundOne = true;
+      results.append(TextContainer.retrieveFromRequest().getText().get("priv.groupAttrUpdateUpper"));
+    }
+    if (this.isGrantAllAttrRead()) {
+      if (foundOne) {
+        results.append(", ");
+      }
+      foundOne = true;
+      results.append(TextContainer.retrieveFromRequest().getText().get("priv.groupAttrReadUpper"));
+    }
+    return results.toString();
+  }
+  
   /**
    * 
    * @see java.lang.Object#equals(java.lang.Object)
