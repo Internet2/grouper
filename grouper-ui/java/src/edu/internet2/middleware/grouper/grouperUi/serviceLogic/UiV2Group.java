@@ -59,6 +59,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -3760,6 +3761,217 @@ public class UiV2Group {
   
     });
     
+  }
+
+  /**
+   * modal search form results for right group factor
+   * @param request
+   * @param response
+   */
+  public void rightGroupFactorSearch(HttpServletRequest request, HttpServletResponse response) {
+    
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    GrouperSession grouperSession = null;
+  
+    GroupContainer groupContainer = grouperRequestContainer.getGroupContainer();
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      String searchString = request.getParameter("rightFactorSearchName");
+      
+      boolean searchOk = GrouperUiUtils.searchStringValid(searchString);
+      if (!searchOk) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#rightFactorGroupResults", 
+            TextContainer.retrieveFromRequest().getText().get("groupCompositeNotEnoughChars")));
+        return;
+      }
+  
+      String matchExactIdString = request.getParameter("matchExactId[]");
+      boolean matchExactId = GrouperUtil.booleanValue(matchExactIdString, false);
+  
+      GuiPaging guiPaging = groupContainer.getGuiPaging();
+      QueryOptions queryOptions = new QueryOptions();
+  
+      GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
+  
+      Set<Group> groups = null;
+    
+    
+      GroupFinder groupFinder = new GroupFinder().assignPrivileges(AccessPrivilege.READ_PRIVILEGES)
+        .assignScope(searchString).assignSplitScope(true).assignQueryOptions(queryOptions);
+      
+      if (matchExactId) {
+        groupFinder.assignFindByUuidOrName(true);
+      }
+      
+      groups = groupFinder.findGroups();
+      
+      guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+      
+      if (GrouperUtil.length(groups) == 0) {
+  
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#rightFactorGroupResults", 
+            TextContainer.retrieveFromRequest().getText().get("groupCompositeSearchNoGroupsFound")));
+        return;
+      }
+      
+      Set<GuiGroup> guiGroups = GuiGroup.convertFromGroups(groups);
+      
+      groupContainer.setGuiGroups(guiGroups);
+  
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#rightFactorGroupResults", 
+          "/WEB-INF/grouperUi2/group/groupCompositeRightFactorSearchResults.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+
+  /**
+   * edit group composite submit
+   * @param request
+   * @param response
+   */
+  public void groupEditCompositeSubmit(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+      
+      if (group == null) {
+        return;
+      }
+  
+      //see if composite, should submit true or false
+      boolean userSelectedComposite = GrouperUtil.booleanValue(request.getParameter("groupComposite[]"));
+      
+      if (!userSelectedComposite) {
+        
+        if (!group.isHasComposite()) {
+
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+              TextContainer.retrieveFromRequest().getText().get("groupCompositeNoteNoChangesMade")));
+          return;
+          
+        }
+        
+        //we need to remove the composite
+        group.deleteCompositeMember();
+
+        //go back to view group
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroup&groupId=" + group.getId() + "');"));
+
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+            TextContainer.retrieveFromRequest().getText().get("groupCompositeSuccessRemovedComposite")));
+
+
+        return;
+      }
+
+      //this should never happen unless race condition
+      if (group.isHasMembers()) {
+        //go back to view group
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroup&groupId=" + group.getId() + "');"));
+
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("groupCompositeErrorCannotHaveMembers")));
+        
+      }
+      
+      Composite composite = group.getComposite(false);
+
+      // Get left group and validate
+      String leftFactorGroupId = request.getParameter("groupCompositeLeftFactorComboName");
+      
+      Group leftFactorGroup = StringUtils.isBlank(leftFactorGroupId) ? null : new GroupFinder()
+          .assignScope(leftFactorGroupId).assignPrivileges(AccessPrivilege.READ_PRIVILEGES)
+          .assignFindByUuidOrName(true).assignSubject(loggedInSubject).findGroup();
+      
+      if (leftFactorGroup == null) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+          "#leftFactorGroupSpanId",
+          TextContainer.retrieveFromRequest().getText().get("groupCompositeErrorLeftGroupProblem")));
+        return;
+        
+        
+      }
+      
+      // get operation and validate
+      String compositeTypeString = request.getParameter("compositeOperation");
+      CompositeType compositeType = StringUtils.isBlank(compositeTypeString) ? null : CompositeType.valueOfIgnoreCase(compositeTypeString);
+
+      //we dont allow new groups to have union, or switch to union.  shouldnt be possible unles someone is hacking...
+      if (compositeType != null && compositeType == CompositeType.UNION) {
+        if (composite == null || composite.getType() != CompositeType.UNION) {
+          compositeType = null;
+        }
+      }
+      
+      if (compositeType == null) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#compositeOperationId",
+            TextContainer.retrieveFromRequest().getText().get("groupCompositeErrorOperationRequired")));
+          return;
+      }
+
+      // get right group and validate
+      String rightFactorGroupId = request.getParameter("groupCompositeRightFactorComboName");
+      
+      Group rightFactorGroup = StringUtils.isBlank(rightFactorGroupId) ? null : new GroupFinder()
+          .assignScope(rightFactorGroupId).assignPrivileges(AccessPrivilege.READ_PRIVILEGES)
+          .assignFindByUuidOrName(true).assignSubject(loggedInSubject).findGroup();
+      
+      if (rightFactorGroup == null) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+          "#rightFactorGroupSpanId",
+          TextContainer.retrieveFromRequest().getText().get("groupCompositeErrorRightGroupProblem")));
+        return;
+      }
+
+      //lets see if no changes
+      if (composite != null && StringUtils.equals(composite.getLeftFactorUuid(), leftFactorGroup.getId())
+          && composite.getType() == compositeType && StringUtils.equals(composite.getRightFactorUuid(), rightFactorGroup.getId())) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+            TextContainer.retrieveFromRequest().getText().get("groupCompositeNoteNoChangesMade")));
+        return;
+        
+      }
+
+      //to edit a composite, delete and add
+      if (composite != null) {
+        group.deleteCompositeMember();
+      }
+      //create composite
+      group.addCompositeMember(compositeType, leftFactorGroup, rightFactorGroup);
+
+      
+      //go back to view group
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroup&groupId=" + group.getId() + "');"));
+
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("groupCompositeSuccess")));
+
+    
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
   }
 
 }
