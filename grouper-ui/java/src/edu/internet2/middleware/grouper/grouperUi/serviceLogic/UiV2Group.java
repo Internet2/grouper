@@ -3236,7 +3236,8 @@ public class UiV2Group {
   }
 
   /**
-   * combo filter create group folder
+   * combo filter create group folder.  Note, this cannot be composite (since you cant
+   * add members to a composite)
    * @param request
    * @param response
    */
@@ -3252,7 +3253,7 @@ public class UiV2Group {
       public Group lookup(HttpServletRequest request, GrouperSession grouperSession, String query) {
         Subject loggedInSubject = grouperSession.getSubject();
         Group theGroup = new GroupFinder().assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
-            .assignSubject(loggedInSubject)
+            .assignSubject(loggedInSubject).assignCompositeOwner(false)
             .assignFindByUuidOrName(true).assignScope(query).findGroup();
         return theGroup;
       }
@@ -3266,7 +3267,7 @@ public class UiV2Group {
         int groupComboSize = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.groupComboboxResultSize", 200);
         QueryOptions queryOptions = QueryOptions.create(null, null, 1, groupComboSize);
         return new GroupFinder().assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
-            .assignScope(query).assignSubject(loggedInSubject)
+            .assignScope(query).assignSubject(loggedInSubject).assignCompositeOwner(false)
             .assignSplitScope(true).assignQueryOptions(queryOptions).findGroups();
       }
   

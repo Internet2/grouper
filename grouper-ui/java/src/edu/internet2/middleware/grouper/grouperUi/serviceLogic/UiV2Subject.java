@@ -112,7 +112,8 @@ public class UiV2Subject {
     
     
       GroupFinder groupFinder = new GroupFinder().assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
-        .assignScope(searchString).assignSplitScope(true).assignQueryOptions(queryOptions);
+        .assignScope(searchString).assignCompositeOwner(false)
+        .assignSplitScope(true).assignQueryOptions(queryOptions);
       
       if (matchExactId) {
         groupFinder.assignFindByUuidOrName(true);

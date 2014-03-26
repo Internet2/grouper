@@ -13,6 +13,30 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 public class GrouperRequestContainer {
 
   /**
+   * container for inviting external users
+   */
+  private InviteExternalContainer inviteExternalContainer;
+  
+  /**
+   * container for inviting external users
+   * @return the inviteExternalContainer
+   */
+  public InviteExternalContainer getInviteExternalContainer() {
+    if (this.inviteExternalContainer == null) {
+      this.inviteExternalContainer = new InviteExternalContainer();
+    }
+    return this.inviteExternalContainer;
+  }
+
+  /**
+   * container for inviting external users
+   * @param inviteExternalContainer1 the inviteExternalContainer to set
+   */
+  public void setInviteExternalContainer(InviteExternalContainer inviteExternalContainer1) {
+    this.inviteExternalContainer = inviteExternalContainer1;
+  }
+
+  /**
    * data for importing members into groups
    */
   private GroupImportContainer groupImportContainer;

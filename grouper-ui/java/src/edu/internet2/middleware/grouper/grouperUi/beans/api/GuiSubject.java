@@ -588,7 +588,7 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
    */
   @Override
   public String getPathColonSpaceSeparated() {
-    return "This is a " + this.getClass().getSimpleName() + " and is not a real GrouperObject";
+    return "";
   }
 
   /**
@@ -596,7 +596,7 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
    */
   @Override
   public String getNameColonSpaceSeparated() {
-    return "This is a " + this.getClass().getSimpleName() + " and is not a real GrouperObject";
+    return this.getScreenLabelShort2noLink();
   }
 
   /**
@@ -604,7 +604,7 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
    */
   @Override
   public String getTitle() {
-    return "This is a " + this.getClass().getSimpleName() + " and is not a real GrouperObject";
+    return "";
   }
   
 }

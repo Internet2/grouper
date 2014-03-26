@@ -50,77 +50,85 @@
                       </div>
                     </div>
                     <div id="add-block-container" class="well hide">
-                      <div id="add-members">
-                        <form id="add-members-form" target="#" class="form-horizontal form-highlight">
-                          <div class="control-group">
-                            <label for="add-block-input" class="control-label">${textContainer.text['groupSearchMemberOrId'] }</label>
-                            <div class="controls">
-                              <div id="add-members-container">
-
-                                <%-- placeholder: Enter the name of a person, group, or other entity --%>
-                                <grouper:combobox2 idBase="groupAddMemberCombo" style="width: 30em"
-                                  filterOperation="../app/UiV2Group.addMemberFilter?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}"/>
-                                <%--a href="#member-search" onclick="$('#addMemberResults').empty();" role="button" data-toggle="modal" class="btn"><i class="fa fa-search"></i></a --%>
-                                <br />
-                                ${textContainer.text['groupSearchLabelPreComboLink']} <a href="#member-search" onclick="$('#addMemberResults').empty();" role="button" data-toggle="modal" style="text-decoration: underline !important;">${textContainer.text['groupSearchForEntityLink']}</a>
-                                
+                      <c:choose>
+                        <c:when test="${grouperRequestContainer.groupContainer.guiGroup.group.hasComposite}">
+                          ${textContainer.text['groupCompositeCantAddMembersToComposite']}
+                        </c:when>
+                        <c:otherwise>
+                          <div id="add-members">
+                            <form id="add-members-form" target="#" class="form-horizontal form-highlight">
+                              <div class="control-group">
+                                <label for="add-block-input" class="control-label">${textContainer.text['groupSearchMemberOrId'] }</label>
+                                <div class="controls">
+                                  <div id="add-members-container">
+    
+                                    <%-- placeholder: Enter the name of a person, group, or other entity --%>
+                                    <grouper:combobox2 idBase="groupAddMemberCombo" style="width: 30em"
+                                      filterOperation="../app/UiV2Group.addMemberFilter?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}"/>
+                                    <%--a href="#member-search" onclick="$('#addMemberResults').empty();" role="button" data-toggle="modal" class="btn"><i class="fa fa-search"></i></a --%>
+                                    <br />
+                                    ${textContainer.text['groupSearchLabelPreComboLink']} <a href="#member-search" onclick="$('#addMemberResults').empty();" role="button" data-toggle="modal" style="text-decoration: underline !important;">${textContainer.text['groupSearchForEntityLink']}</a>
+                                    
+                                  </div>
+                                </div>
                               </div>
-                            </div>
+                              <div id="add-members-privileges-select" class="control-group">
+                                <label class="control-label">${textContainer.text['groupViewAssignThesePrivileges']}</label>
+                                <div class="controls">
+                                  <label class="radio inline">
+                                    <input type="radio" id="priv1" value="default" name="privilege-options" checked="checked" onclick="this.blur();" value="true" onchange="$('#add-members-privileges').hide('slow');"/>${textContainer.text['groupViewDefaultPrivileges'] }
+                                  </label>
+                                  <label class="radio inline">
+                                    <input type="radio" id="priv2" value="custom" name="privilege-options" onclick="this.blur();" value="true" onchange="$('#add-members-privileges').show('slow');"/>${textContainer.text['groupViewCustomPrivileges'] }
+                                  </label>
+                                </div>
+                              </div>
+                              <div id="add-members-privileges" class="control-group hide">
+                                <div class="controls">
+                                  <label class="checkbox inline">
+                                    <input type="checkbox" name="privileges_members" value="true" checked="checked"/>${textContainer.text['priv.memberUpper']}
+                                  </label>
+                                  <label class="checkbox inline">
+                                    <%--
+                                    <input type="checkbox" name="privileges_admins" value="true" 
+                                      ${grouperRequestContainer.groupContainer.configDefaultGroupsCreateGrantAllAdmin ? 'checked="checked"' : '' } />ADMIN
+                                    --%>
+                                    <input type="checkbox" name="privileges_admins" value="true" />${textContainer.text['priv.adminUpper'] }
+                                  </label>
+                                  <label class="checkbox inline">
+                                    <input type="checkbox" name="privileges_updaters" value="true" />${textContainer.text['priv.updateUpper'] }
+                                  </label>
+                                  <label class="checkbox inline">
+                                    <input type="checkbox" name="privileges_readers" value="true" />${textContainer.text['priv.readUpper'] }
+                                  </label>
+                                  <label class="checkbox inline">
+                                    <input type="checkbox" name="privileges_viewers" value="true" />${textContainer.text['priv.viewUpper'] }
+                                  </label>
+                                  <label class="checkbox inline">
+                                    <input type="checkbox" name="privileges_optins" value="true" />${textContainer.text['priv.optinUpper'] }
+                                  </label>
+                                  <label class="checkbox inline">
+                                    <input type="checkbox" name="privileges_optouts" value="true" />${textContainer.text['priv.optoutUpper'] }
+                                  </label>
+                                  <label class="checkbox inline">
+                                    <input type="checkbox" name="privileges_groupAttrReaders" value="true" />${textContainer.text['priv.groupAttrReadUpper'] }
+                                  </label>
+                                  <label class="checkbox inline">
+                                    <input type="checkbox" name="privileges_groupAttrUpdaters" value="true" />${textContainer.text['priv.groupAttrUpdateUpper'] }
+                                  </label>
+                                </div>
+                              </div>
+                              <div class="control-group">
+                                <div class="controls">
+                                  <button onclick="ajax('../app/UiV2Group.addMemberSubmit?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'add-members-form', formIdsOptional: 'groupRefreshPartFormId, groupFilterFormId,groupPagingFormId,groupPagingPrivilegesFormId,groupFilterPrivilegesFormId,groupPagingAuditForm, groupFilterAuditFormId, groupQuerySortAscendingFormId'}); return false;" 
+                                    id="add-members-submit" type="submit" class="btn btn-primary">${textContainer.text['groupViewAddMemberLink']}</button> ${textContainer.text['groupViewTextBetweenAddAndBulk']} <a href="#" onclick="return guiV2link('operation=UiV2GroupImport.groupImport&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&backTo=group'); return false;" class="blue-link">${textContainer.text['groupViewBulkLink'] }</a> ${textContainer.text['groupViewTextPostBulkLink'] }
+                                </div>
+                              </div>
+                            </form>
                           </div>
-                          <div id="add-members-privileges-select" class="control-group">
-                            <label class="control-label">${textContainer.text['groupViewAssignThesePrivileges']}</label>
-                            <div class="controls">
-                              <label class="radio inline">
-                                <input type="radio" id="priv1" value="default" name="privilege-options" checked="checked" onclick="this.blur();" value="true" onchange="$('#add-members-privileges').hide('slow');"/>${textContainer.text['groupViewDefaultPrivileges'] }
-                              </label>
-                              <label class="radio inline">
-                                <input type="radio" id="priv2" value="custom" name="privilege-options" onclick="this.blur();" value="true" onchange="$('#add-members-privileges').show('slow');"/>${textContainer.text['groupViewCustomPrivileges'] }
-                              </label>
-                            </div>
-                          </div>
-                          <div id="add-members-privileges" class="control-group hide">
-                            <div class="controls">
-                              <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_members" value="true" checked="checked"/>${textContainer.text['priv.memberUpper']}
-                              </label>
-                              <label class="checkbox inline">
-                                <%--
-                                <input type="checkbox" name="privileges_admins" value="true" 
-                                  ${grouperRequestContainer.groupContainer.configDefaultGroupsCreateGrantAllAdmin ? 'checked="checked"' : '' } />ADMIN
-                                --%>
-                                <input type="checkbox" name="privileges_admins" value="true" />${textContainer.text['priv.adminUpper'] }
-                              </label>
-                              <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_updaters" value="true" />${textContainer.text['priv.updateUpper'] }
-                              </label>
-                              <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_readers" value="true" />${textContainer.text['priv.readUpper'] }
-                              </label>
-                              <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_viewers" value="true" />${textContainer.text['priv.viewUpper'] }
-                              </label>
-                              <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_optins" value="true" />${textContainer.text['priv.optinUpper'] }
-                              </label>
-                              <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_optouts" value="true" />${textContainer.text['priv.optoutUpper'] }
-                              </label>
-                              <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_groupAttrReaders" value="true" />${textContainer.text['priv.groupAttrReadUpper'] }
-                              </label>
-                              <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_groupAttrUpdaters" value="true" />${textContainer.text['priv.groupAttrUpdateUpper'] }
-                              </label>
-                            </div>
-                          </div>
-                          <div class="control-group">
-                            <div class="controls">
-                              <button onclick="ajax('../app/UiV2Group.addMemberSubmit?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'add-members-form', formIdsOptional: 'groupRefreshPartFormId, groupFilterFormId,groupPagingFormId,groupPagingPrivilegesFormId,groupFilterPrivilegesFormId,groupPagingAuditForm, groupFilterAuditFormId, groupQuerySortAscendingFormId'}); return false;" 
-                                id="add-members-submit" type="submit" class="btn btn-primary">${textContainer.text['groupViewAddMemberLink']}</button> ${textContainer.text['groupViewTextBetweenAddAndBulk']} <a href="#" onclick="return guiV2link('operation=UiV2GroupImport.groupImport&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&backTo=group'); return false;" class="blue-link">${textContainer.text['groupViewBulkLink'] }</a> ${textContainer.text['groupViewTextPostBulkLink'] }
-                            </div>
-                          </div>
-                        </form>
-                      </div>
+                        </c:otherwise>
+                      </c:choose>
+                      
                     </div>
                     <p>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.description)}</p>
                     <div id="groupDetailsId" style="display: none;">
@@ -194,7 +202,7 @@
                         </tbody>
                       </table>
                     </div>
-                    <p id="groupDetailsMoreId"><a href="#" onclick="$('#groupDetailsId').show('slow'); $('#groupDetailsMoreId').hide(); $('#groupDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i class="fa fa-angle-down"></i></a></p>
+                    <p id="groupDetailsMoreId"><a href="#" id="moreButtonId" onclick="$('#groupDetailsId').show('slow'); $('#groupDetailsMoreId').hide(); $('#groupDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i class="fa fa-angle-down"></i></a></p>
                     <p id="groupDetailsLessId" style="display: none"><a href="#" onclick="$('#groupDetailsId').hide('slow'); $('#groupDetailsLessId').hide(); $('#groupDetailsMoreId').show(); return false" >${textContainer.text['guiLess']} <i class="fa fa-angle-up"></i></a></p>
                   </div>
                   <div class="span2" id="groupMoreActionsButtonContentsDivId">

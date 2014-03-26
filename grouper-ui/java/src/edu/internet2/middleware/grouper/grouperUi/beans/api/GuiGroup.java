@@ -40,6 +40,8 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver;
+import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -55,6 +57,31 @@ import edu.internet2.middleware.subject.Subject;
 @SuppressWarnings("serial")
 public class GuiGroup extends GuiObjectBase implements Serializable {
 
+  /**
+   * if the logged in user can invite external users to this group
+   * @return true if the logged in user can invite external users for this group
+   */
+  public boolean isCanInviteExternalUsers() {
+
+    boolean canInviteOthers = false;
+
+    UIGroupPrivilegeResolver resolver = 
+      UIGroupPrivilegeResolverFactory.getInstance(GrouperSession.staticGrouperSession(), 
+          GrouperUiFilter.retrieveSessionMediaResourceBundle(), 
+          this.group, GrouperSession.staticGrouperSession().getSubject());
+    canInviteOthers = resolver.canInviteExternalPeople();
+    
+    //see if we can invite
+    if (canInviteOthers && GrouperUiConfig.retrieveConfig().propertyValueBoolean(
+        "inviteExternalPeople.link-from-lite-ui", false)) {
+
+      return true;
+    
+    }
+
+    return false;
+  }
+  
   /**
    * get a composite from the underlying group if there is one there
    * this is needed since there is a group.isComposite, so it conflicts

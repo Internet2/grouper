@@ -2363,7 +2363,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       QueryOptions queryOptions, TypeOfGroup typeOfGroup) {
     Set<TypeOfGroup> typeOfGroups = typeOfGroup == null ? null : GrouperUtil.toSet(typeOfGroup);
     return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, 
-        queryOptions, true, typeOfGroups, null, null, null, null, false, null, null, null);
+        queryOptions, true, typeOfGroups, null, null, null, null, false, null, null, null, null);
   }
 
   /**
@@ -2374,7 +2374,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) {
     return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, 
-        queryOptions, true, typeOfGroups, null, null, null, null, false, null, null, null);
+        queryOptions, true, typeOfGroups, null, null, null, null, false, null, null, null, null);
   }
 
   /**
@@ -2393,6 +2393,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * @param subjectNotInGroup
    * @param totalGroupIds
    * @param totalGroupNames
+   * @param compositeOwner
    * @return groups
    * 
    */
@@ -2400,7 +2401,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions, boolean splitScope, Set<TypeOfGroup> typeOfGroups, Subject membershipSubject, 
       Field field, String parentStemId, Scope stemScope, boolean findByUuidOrName, Subject subjectNotInGroup,
-      Collection<String> totalGroupIds, Collection<String> totalGroupNames) {
+      Collection<String> totalGroupIds, Collection<String> totalGroupNames, Boolean compositeOwner) {
 
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
@@ -2472,6 +2473,22 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
           
         }
 
+        //if seeing if the group is a composite owner or not a composite owner
+        if (compositeOwner != null) {
+          if (whereClause.length() > 0) {
+            
+            whereClause.append(" and ");
+            
+          }
+          if (!compositeOwner) {
+            whereClause.append(" not ");
+          }
+          
+          whereClause.append(" exists ( select 1 from Composite as theComposite where theComposite.factorOwnerUuid = theGroup.uuid ) ");
+          
+          
+        }
+        
         //groupnames or alternate names
         if (GrouperUtil.length(groupNames) > 0) {
           
@@ -3009,7 +3026,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions,
       Set<TypeOfGroup> typeOfGroups, boolean splitScope, Subject membershipSubject, Field field) {
     return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, splitScope, 
-        typeOfGroups, membershipSubject, field, null, null, false, null, null, null);
+        typeOfGroups, membershipSubject, field, null, null, false, null, null, null, null);
   }
 
   /**
@@ -3020,10 +3037,11 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions,
       Set<TypeOfGroup> typeOfGroups, boolean splitScope, Subject membershipSubject,
       Field field, String parentStemId, Scope stemScope,  
-      boolean findByUuidOrName, Subject subjectNotInGroup, Collection<String> groupIds, Collection<String> groupNames) {
+      boolean findByUuidOrName, Subject subjectNotInGroup, Collection<String> groupIds, Collection<String> groupNames, 
+      Boolean compositeOwner) {
     return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, 
         splitScope, typeOfGroups, membershipSubject, field, parentStemId, stemScope,
-        findByUuidOrName, subjectNotInGroup, groupIds, groupNames);
+        findByUuidOrName, subjectNotInGroup, groupIds, groupNames, compositeOwner);
   }
 } 
 

@@ -52,7 +52,10 @@
                         </c:if>
                         <c:if test="${!grouperRequestContainer.groupContainer.guiGroup.hasComposite && grouperRequestContainer.groupContainer.canUpdate}">
                           <li><a href="#" onclick="return guiV2link('operation=UiV2GroupImport.groupImport&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&backTo=group'); return false;">${textContainer.text['groupImportMenuButton'] }</a></li>
-                          <li><a href="invite-external-users.html">Invite external users</a></li>
+                          <c:if test="${grouperRequestContainer.groupContainer.guiGroup.canInviteExternalUsers}">
+                            <li><a href="#" onclick="return guiV2link('operation=UiV2ExternalEntities.inviteExternal&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['inviteExternalMenuLink']}</a></li>
+                          </c:if>
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupRemoveAllMembers&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['groupViewRemoveAllMembersButton'] }</a></li>
                         </c:if>

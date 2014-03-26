@@ -60,6 +60,21 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class GroupFinder {
 
+  /**
+   * if we are filtering for groups which are composite owners or not
+   */
+  private Boolean compositeOwner = null;
+
+  /**
+   * if we are filtering for groups which are composite owners or not
+   * @param theCompositeOwner
+   * @return this for chaining
+   */
+  public GroupFinder assignCompositeOwner(Boolean theCompositeOwner) {
+    this.compositeOwner = theCompositeOwner;
+    return this;
+  }
+  
   // PRIVATE CLASS CONSTANTS //
   /** error for finding by attribute */
   @SuppressWarnings("unused")
@@ -669,7 +684,7 @@ public class GroupFinder {
         .getAllGroupsSecure(this.scope, grouperSession, privSubject, this.privileges, 
             this.queryOptions, this.typeOfGroups, this.splitScope, this.subject, 
             this.field, this.parentStemId, this.stemScope, this.findByUuidOrName, 
-            this.subjectNotInGroup, this.groupIds, this.groupNames);
+            this.subjectNotInGroup, this.groupIds, this.groupNames, this.compositeOwner);
     
   }
 

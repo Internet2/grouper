@@ -106,12 +106,12 @@ public class DefaultUIGroupPrivilegeResolver implements
 		}
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver#canManageMembers()
 	 */
 	public boolean canManageMembers() {
 		try {
-			return group.canWriteField(FieldFinder.find("members", true));
+			return group.canWriteField(FieldFinder.find("members", true)) && !this.group.isHasComposite();
 		}catch(Exception e) {
 			throw new RuntimeException(e);
 		}
