@@ -142,6 +142,16 @@ public class GrouperUtil {
 
   /**
    * take email addresses from a textarea and turn them into semi separated
+   * @param emailAddresses
+   * @return string of email addresses
+   */
+  public static String splitTrimEmailAddresses(String emailAddresses) {
+    //this is renamed since the normalize method is difficult to find
+    return normalizeEmailAddresses(emailAddresses);
+  }
+  
+  /**
+   * take email addresses from a textarea and turn them into semi separated
    * @param emailAddresses can be whitespace, comma, or semi separated
    * @return the email addresses semi separated
    */

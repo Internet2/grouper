@@ -89,16 +89,19 @@
                       onclick="$('#addGroupSearchId').val(''); $('#addGroupResults').empty(); return true;"
                       role="button" data-toggle="modal" style="text-decoration: underline !important;"
                       >${textContainer.text['groupImportGroupSearchLink']}</a>
+                  </div>
+                  <br />
+                  <div class="control-group" style="margin-bottom: 5px">
+                    <div class="controls"><a href="#" 
+                      onclick="ajax('../app/UiV2GroupImport.groupImportAddGroup', {formIds: 'importGroupFormId'}); return false;"
+                      class="btn bulk-add-another-group">${textContainer.text['groupImportAddAnotherGroupButton']}</a></div>
+                  </div>
 
+                  <div class="controls">
                     <div id="groupImportExtraGroupsDivId">
                       <%@ include file="groupImportExtraGroups.jsp"%>
                     </div>
                   </div>
-                </div>
-                <div class="control-group">
-                  <div class="controls"><a href="#" 
-                    onclick="ajax('../app/UiV2GroupImport.groupImportAddGroup', {formIds: 'importGroupFormId'}); return false;"
-                    class="btn bulk-add-another-group">${textContainer.text['groupImportAddAnotherGroupButton']}</a></div>
                 </div>
               </div>
               
@@ -140,19 +143,21 @@
                       onclick="$('#addMemberSearchId').val(''); $('#addMemberResults').empty(); return true;"
                       role="button" data-toggle="modal" style="text-decoration: underline !important;"
                       >${textContainer.text['groupImportSubjectSearchLink']}</a>
-                    
+                  </div>
+                  <br />
+                  <div class="control-group" style="margin-bottom: 5px">
+                    <div class="controls">
+                      <a href="#" 
+                        onclick="ajax('../app/UiV2GroupImport.groupImportAddMember', {formIds: 'importGroupFormId'}); return false;"
+                        class="btn bulk-add-another">${textContainer.text['groupImportAddAnotherMemberButton']}</a></div>
+                  </div>
+                  <div class="controls">
+                  
                     <div id="groupImportExtraMembersDivId">
                       <%@ include file="groupImportExtraSubjects.jsp"%>
                     </div>
                     
-                    
                   </div>
-                </div>
-                <div class="control-group">
-                  <div class="controls">
-                    <a href="#" 
-                      onclick="ajax('../app/UiV2GroupImport.groupImportAddMember', {formIds: 'importGroupFormId'}); return false;"
-                      class="btn bulk-add-another">${textContainer.text['groupImportAddAnotherMemberButton']}</a></div>
                 </div>
               </div>
               

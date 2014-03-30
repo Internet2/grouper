@@ -1,6 +1,6 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
-            <!-- start group/viewGroup.jsp -->
+            <!-- start subject/subjectHeader.jsp -->
             <div class="bread-header-container">
               <%--
               <ul class="breadcrumb">

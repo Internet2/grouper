@@ -21,6 +21,48 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 public class CommonRequestContainer {
 
   /**
+   * error for screen (unescaped)
+   */
+  private String error;
+  
+  /**
+   * error for screen (unescaped)
+   * @return the error
+   */
+  public String getError() {
+    return this.error;
+  }
+  
+  /**
+   * error for screen (unescaped)
+   * @param error1 the error to set
+   */
+  public void setError(String error1) {
+    this.error = error1;
+  }
+
+  /** 
+   * email address in error messages 
+   */
+  private String emailAddress;
+  
+  /**
+   * email address in error messages 
+   * @return the emailAddress
+   */
+  public String getEmailAddress() {
+    return this.emailAddress;
+  }
+  
+  /**
+   * email address in error messages 
+   * @param emailAddress1 the emailAddress to set
+   */
+  public void setEmailAddress(String emailAddress1) {
+    this.emailAddress = emailAddress1;
+  }
+
+  /**
    * sources
    * @return set of sources
    */

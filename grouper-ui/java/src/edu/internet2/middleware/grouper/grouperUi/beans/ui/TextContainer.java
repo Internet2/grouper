@@ -274,7 +274,7 @@ public class TextContainer {
   };
   
   /**
-   * text map
+   * text map escape XML including double quotes
    */
   @SuppressWarnings("serial")
   private Map<String, String> textEscapeXmlMap = new HashMap<String, String>() {
@@ -347,7 +347,7 @@ public class TextContainer {
   
   
   /**
-   * text map, escape xml
+   * text map, escape xml including double quotes
    * @return the text object
    */
   public Map<String, String> getTextEscapeXml() {
