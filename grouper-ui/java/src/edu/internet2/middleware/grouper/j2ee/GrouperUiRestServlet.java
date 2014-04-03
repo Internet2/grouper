@@ -41,7 +41,9 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.AppState;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSettings;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.InviteExternalSubjects;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.MiscMenu;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleAttributeNameUpdateFilter;
@@ -204,7 +206,7 @@ public class GrouperUiRestServlet extends HttpServlet {
     
     if (GrouperUtil.length(urlStrings) == 5
         && StringUtils.equals("app", urlStrings.get(0))
-        && StringUtils.equals("UiV2Group.groupExportSubmit", urlStrings.get(1))) {
+        && StringUtils.equals(UiV2GroupImport.class.getSimpleName() + ".groupExportSubmit", urlStrings.get(1))) {
       //strip off the filename
       urlStrings = GrouperUtil.toList(urlStrings.get(0), urlStrings.get(1));
     }
@@ -236,6 +238,9 @@ public class GrouperUiRestServlet extends HttpServlet {
       String className = GrouperUtil.prefixOrSuffix(classAndMethodName, ".", true);
       String methodName = GrouperUtil.prefixOrSuffix(classAndMethodName, ".", false);
       
+      //not very scientific, oh well
+      boolean uiv2 = className.toLowerCase().startsWith("uiv2");
+      
       //now lets call some simple reflection, must be public static void and take a request and response
       className = "edu.internet2.middleware.grouper.grouperUi.serviceLogic." + className;
       
@@ -251,23 +256,28 @@ public class GrouperUiRestServlet extends HttpServlet {
 
       } catch (NoSessionException nse) {
 
-        boolean addTextArea = guiResponseJs.isAddTextAreaTag();
-        
-        //print out error message for user, a new one
-        guiResponseJs = new GuiResponseJs();
-        guiResponseJs.addAction(GuiScreenAction.newCloseModal());
-        guiResponseJs.setAddTextAreaTag(addTextArea);
-        
-        UiSection uiSection = GrouperUiFilter.uiSectionForRequest();
-        
-        String startOverKey = "simpleMembershipUpdate.startOver";
-        
-        if (uiSection == UiSection.EXTERNAL) {
-          startOverKey = "externalSubjectSelfRegister.startOver";
-        }
-          
-        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message(startOverKey)));
+        if (uiv2) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("guiMiscNoSessionError")));
+        } else {
 
+          boolean addTextArea = guiResponseJs.isAddTextAreaTag();
+          
+          //print out error message for user, a new one
+          guiResponseJs = new GuiResponseJs();
+          guiResponseJs.addAction(GuiScreenAction.newCloseModal());
+          guiResponseJs.setAddTextAreaTag(addTextArea);
+          
+          UiSection uiSection = GrouperUiFilter.uiSectionForRequest();
+          
+          String startOverKey = "simpleMembershipUpdate.startOver";
+          
+          if (uiSection == UiSection.EXTERNAL) {
+            startOverKey = "externalSubjectSelfRegister.startOver";
+          }
+            
+          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message(startOverKey)));
+        }
       } catch (ControllerDone cd) {
         printToScreen = cd.isPrintGuiReponseJs();
         //do nothing, this is ok
@@ -276,15 +286,20 @@ public class GrouperUiRestServlet extends HttpServlet {
         LOG.error(error);
         GrouperUiUtils.appendErrorToRequest(error);
         
-        //if adding text area for form file submits, make sure to do that in errors too
-        boolean addTextArea = guiResponseJs.isAddTextAreaTag();
-        
-        //print out error message for user, a new one
-        guiResponseJs = new GuiResponseJs();
-        guiResponseJs.addAction(GuiScreenAction.newCloseModal());
-        guiResponseJs.setAddTextAreaTag(addTextArea);
-        guiResponseJs.addAction(GuiScreenAction.newAlert("Error: " + GrouperUiUtils.escapeHtml(re.getMessage(), true)));
-        
+        if (uiv2) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("guiMiscErrorPrefix")
+              + " " + GrouperUiUtils.escapeHtml(re.getMessage(), true)));
+        } else {
+          //if adding text area for form file submits, make sure to do that in errors too
+          boolean addTextArea = guiResponseJs.isAddTextAreaTag();
+          
+          //print out error message for user, a new one
+          guiResponseJs = new GuiResponseJs();
+          guiResponseJs.addAction(GuiScreenAction.newCloseModal());
+          guiResponseJs.setAddTextAreaTag(addTextArea);
+          guiResponseJs.addAction(GuiScreenAction.newAlert("Error: " + GrouperUiUtils.escapeHtml(re.getMessage(), true)));
+        }        
       }
     } else {
       //print out error message for user, a new one

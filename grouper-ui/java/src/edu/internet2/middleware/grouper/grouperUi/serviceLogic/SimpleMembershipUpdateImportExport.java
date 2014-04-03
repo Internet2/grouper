@@ -109,7 +109,7 @@ public class SimpleMembershipUpdateImportExport {
       String exportAllSortField = simpleMembershipUpdateContainer.configValue(
           "simpleMembershipUpdate.exportAllSortField");
 
-      exportGroupAllFieldsToBrowser(group, headersCommaSeparated, exportAllSortField);
+      exportGroupAllFieldsToBrowser(group, headersCommaSeparated, exportAllSortField, true);
     } catch (ControllerDone cd) {
       throw cd;
     } finally {
@@ -124,12 +124,13 @@ public class SimpleMembershipUpdateImportExport {
    * @param headersCommaSeparated
    * @param exportAllSortField
    * @param simpleMembershipUpdateContainer
+   * @param immediateOnly
    * @throws IOException
    */
-  public static void exportGroupAllFieldsToBrowser(Group group, String headersCommaSeparated, String exportAllSortField) {
+  public static void exportGroupAllFieldsToBrowser(Group group, String headersCommaSeparated, String exportAllSortField, boolean immediateOnly) {
     
     try {
-      Set<Member> members = group.getImmediateMembers();
+      Set<Member> members = immediateOnly ? group.getImmediateMembers() : group.getMembers();
       
       Member.resolveSubjects(members, true);
       
@@ -275,12 +276,13 @@ public class SimpleMembershipUpdateImportExport {
   /**
    * export group subject ids
    * @param group
+   * @param immediateOnly
    */
-  public static void exportGroupSubjectIdsCsv(Group group) {
+  public static void exportGroupSubjectIdsCsv(Group group, boolean immediateOnly) {
     
     try {
   
-      Set<Member> members = group.getImmediateMembers();
+      Set<Member> members = immediateOnly ? group.getImmediateMembers() : group.getMembers();
       
       HttpServletResponse response = GrouperUiFilter.retrieveHttpServletResponse(); 
       
@@ -367,7 +369,7 @@ public class SimpleMembershipUpdateImportExport {
   
       group = new SimpleMembershipUpdate().retrieveGroup(grouperSession);
       
-      exportGroupSubjectIdsCsv(group);
+      exportGroupSubjectIdsCsv(group, true);
       
     } finally {
       GrouperSession.stopQuietly(grouperSession); 

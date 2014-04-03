@@ -197,6 +197,7 @@ public class UiV2GroupImport {
       }
       
       GroupContainer groupContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer();
+      GroupImportContainer groupImportContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupImportContainer();
       
       groupContainer.setGuiGroup(new GuiGroup(group));
       
@@ -209,10 +210,10 @@ public class UiV2GroupImport {
       
       boolean exportAll = false;
       if (StringUtils.equals("all", groupExportOptions)) {
-        groupContainer.setExportAll(true);
+        groupImportContainer.setExportAll(true);
         exportAll = true;
       } else if (StringUtils.equals("ids", groupExportOptions)) {
-        groupContainer.setExportAll(false);
+        groupImportContainer.setExportAll(false);
       } else {
         throw new RuntimeException("Not expecting group-export-options value: '" + groupExportOptions + "'");
       }
@@ -229,10 +230,10 @@ public class UiV2GroupImport {
         String exportAllSortField = GrouperUiConfig.retrieveConfig().propertyValueString(
             "uiV2.group.exportAllSortField");
   
-        SimpleMembershipUpdateImportExport.exportGroupAllFieldsToBrowser(group, headersCommaSeparated, exportAllSortField);
+        SimpleMembershipUpdateImportExport.exportGroupAllFieldsToBrowser(group, headersCommaSeparated, exportAllSortField, false);
       } else {
         
-        SimpleMembershipUpdateImportExport.exportGroupSubjectIdsCsv(group);
+        SimpleMembershipUpdateImportExport.exportGroupSubjectIdsCsv(group, false);
         
       }
       
@@ -301,12 +302,12 @@ public class UiV2GroupImport {
   
       String groupExportOptions = request.getParameter("group-export-options[]");
       
-      GroupContainer groupContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer();
+      GroupImportContainer groupImportContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupImportContainer();
       
       if (StringUtils.equals("all", groupExportOptions)) {
-        groupContainer.setExportAll(true);
+        groupImportContainer.setExportAll(true);
       } else if (StringUtils.equals("ids", groupExportOptions)) {
-        groupContainer.setExportAll(false);
+        groupImportContainer.setExportAll(false);
       } else {
         throw new RuntimeException("Not expecting group-export-options value: '" + groupExportOptions + "'");
       }

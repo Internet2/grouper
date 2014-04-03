@@ -294,6 +294,11 @@ public class GroupImportContainer {
   private boolean importFromSubject;
 
   /**
+   * if export all of just member subject ids
+   */
+  private boolean exportAll = false;
+
+  /**
    * gui groups in addition to the one in the combobox
    * @return the set of groups
    */
@@ -354,6 +359,37 @@ public class GroupImportContainer {
    */
   public void setImportFromSubject(boolean importFromSubject1) {
     this.importFromSubject = importFromSubject1;
+  }
+
+
+  /**
+   * if export all of just member subject ids
+   * @return export all
+   */
+  public boolean isExportAll() {
+    return this.exportAll;
+  }
+
+
+  /**
+   * if export all of just member subject ids
+   * @param exportAll1
+   */
+  public void setExportAll(boolean exportAll1) {
+    this.exportAll = exportAll1;
+  }
+
+
+  /**
+   * return the filename of the file being exported
+   * @return the filename of the file being exported
+   */
+  public String getExportFileName() {
+    GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
+    if (this.isExportAll()) {
+      return guiGroup.getExportAllFileName();
+    }
+    return guiGroup.getExportSubjectIdsFileName();
   }
 
 }
