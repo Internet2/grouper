@@ -12,6 +12,50 @@
                 <div class="row-fluid">
                   <div class="span10">
                     <h1><i class="fa fa-folder"></i> ${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.guiDisplayExtension)}</h1>
+                    <div id="add-block-container" class="well hide">
+                      <div id="add-members">
+                        <form id="add-members-form" target="#" class="form-horizontal form-highlight">
+                          <div class="control-group">
+                            <label for="add-block-input" class="control-label">${textContainer.text['stemSearchMemberOrId'] }</label>
+                            <div class="controls">
+                              <div id="add-members-container">
+
+                                <%-- placeholder: Enter the name of a person, group, or other entity --%>
+                                <grouper:combobox2 idBase="stemAddMemberCombo" style="width: 30em"
+                                  filterOperation="../app/UiV2Stem.addMemberFilter?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}"/>
+                                <br />
+                                ${textContainer.text['stemSearchLabelPreComboLink']} <a href="#member-search" onclick="$('#addMemberResults').empty();" role="button" data-toggle="modal" style="text-decoration: underline !important;">${textContainer.text['stemSearchForEntityLink']}</a>
+                                
+                              </div>
+                            </div>
+                          </div>
+                          <div id="add-members-privileges-select" class="control-group">
+                            <label class="control-label">${textContainer.text['stemViewAssignThesePrivileges']}</label>
+                            <div class="controls">
+                              <label class="checkbox inline">
+                                <input type="checkbox" name="privileges_stemmers" value="true" />${textContainer.text['priv.stemmersUpper']}
+                              </label>
+                              <label class="checkbox inline">
+                                <input type="checkbox" name="privileges_creators" value="true" />${textContainer.text['priv.creatorsUpper']}
+                              </label>
+                              <label class="checkbox inline">
+                                <input type="checkbox" name="privileges_stemAttrReaders" value="true" />${textContainer.text['priv.stemAttrReadersUpper']}
+                              </label>
+                              <label class="checkbox inline">
+                                <input type="checkbox" name="privileges_stemAttrUpdaters" value="true" />${textContainer.text['priv.stemAttrUpdatersUpper']}
+                              </label>
+                            </div>
+                          </div>
+                          <div class="control-group">
+                            <div class="controls">
+                              <button onclick="ajax('../app/UiV2Stem.addMemberSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'add-members-form', formIdsOptional: 'stemPagingPrivilegesFormId,stemFilterPrivilegesFormId'}); return false;" 
+                                id="add-members-submit" type="submit" class="btn btn-primary">${textContainer.text['groupViewAddMemberLink']}</button>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                    
                     <p>${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.stem.description)}</p>
                     <div id="stemDetailsId" style="display: none;">
                       <table class="table table-condensed table-striped">

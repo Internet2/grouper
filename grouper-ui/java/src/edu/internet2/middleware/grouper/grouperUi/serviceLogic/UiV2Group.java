@@ -482,7 +482,13 @@ public class UiV2Group {
       public Collection<Subject> search(HttpServletRequest request, GrouperSession grouperSession, String query) {
         
         Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE, false).getGroup();
-        String stemName = group == null ? null : group.getParentStemName();
+        String stemName = null;
+        if (group == null) {
+          Stem stem = UiV2Stem.retrieveStemHelper(request, true, false, false).getStem();
+          stemName = stem == null ? null : stem.getName();
+        } else {
+          stemName = group.getParentStemName();
+        }
         try {
           GrouperSourceAdapter.searchForGroupsWithReadPrivilege(true);
           Collection<Subject> results = StringUtils.isBlank(stemName) ? 

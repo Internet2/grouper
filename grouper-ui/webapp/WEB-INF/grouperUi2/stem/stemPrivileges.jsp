@@ -2,7 +2,8 @@
 
             <%-- for the new group or new stem button --%>
             <input type="hidden" name="objectStemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
-
+            <%-- show the add member button for privileges --%>
+            <c:set target="${grouperRequestContainer.stemContainer}" property="showAddMember" value="true" />
             <%@ include file="stemHeader.jsp" %>
 
             <div class="row-fluid">

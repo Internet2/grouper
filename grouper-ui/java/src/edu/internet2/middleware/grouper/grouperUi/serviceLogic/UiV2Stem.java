@@ -76,6 +76,16 @@ public class UiV2Stem {
   /** logger */
   protected static final Log LOG = LogFactory.getLog(UiV2Stem.class);
 
+  
+  /**
+   * submit button on parent folder search model dialog
+   * @param request
+   * @param response
+   */
+  public void addMemberFilter(final HttpServletRequest request, HttpServletResponse response) {
+    new UiV2Group().addMemberFilter(request, response);
+  }
+  
   /**
    * submit button on parent folder search model dialog
    * @param request

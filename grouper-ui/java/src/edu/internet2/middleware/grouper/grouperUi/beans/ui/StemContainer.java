@@ -27,6 +27,29 @@ import edu.internet2.middleware.subject.Subject;
 public class StemContainer {
 
   /**
+   * if show add member on the folder privileges screen
+   */
+  private boolean showAddMember = false;
+  
+  
+  /**
+   * if show add member on the folder privileges screen
+   * @return the showAddMember
+   */
+  public boolean isShowAddMember() {
+    return this.showAddMember;
+  }
+
+  
+  /**
+   * if show add member on the folder privileges screen
+   * @param showAddMember1 the showAddMember to set
+   */
+  public void setShowAddMember(boolean showAddMember1) {
+    this.showAddMember = showAddMember1;
+  }
+
+  /**
    * if we have a stem id to use for e.g. create group
    */
   private String objectStemId;
