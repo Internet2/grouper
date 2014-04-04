@@ -657,7 +657,7 @@ public class UiV2Subject {
       
       boolean madeChanges = group.addMember(subject, defaultPrivs, memberChecked, adminChecked, 
           updateChecked, readChecked, viewChecked, optinChecked, optoutChecked, attrReadChecked, 
-          attrUpdateChecked);
+          attrUpdateChecked, null, null, false);
       
       if (madeChanges) {
   

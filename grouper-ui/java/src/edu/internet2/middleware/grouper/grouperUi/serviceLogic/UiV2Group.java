@@ -554,7 +554,7 @@ public class UiV2Group {
    * @param request
    * @param response
    */
-  public static void addMemberSearch(HttpServletRequest request, HttpServletResponse response) {
+  public void addMemberSearch(HttpServletRequest request, HttpServletResponse response) {
 
     GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
     
@@ -572,6 +572,13 @@ public class UiV2Group {
       String searchString = request.getParameter("addMemberSubjectSearch");
       
       Group group = retrieveGroupHelper(request, AccessPrivilege.UPDATE, false).getGroup();
+      String stemName = null;
+      if (group != null) {
+        stemName = group.getParentStemName();
+      } else {
+        Stem stem = UiV2Stem.retrieveStemHelper(request, true, false, false).getStem();
+        stemName = stem == null ? null : stem.getName();
+      }
       
       boolean searchOk = GrouperUiUtils.searchStringValid(searchString);
       if (!searchOk) {
@@ -611,14 +618,14 @@ public class UiV2Group {
       } else {
         if (StringUtils.equals("all", sourceId)) {
           if (group != null) {
-            subjects = SubjectFinder.findPageInStem(group.getParentStemName(), searchString).getResults();
+            subjects = SubjectFinder.findPageInStem(stemName, searchString).getResults();
           } else {
             subjects = SubjectFinder.findPage(searchString).getResults();
           }
         } else {
           Set<Source> sources = GrouperUtil.toSet(SourceManager.getInstance().getSource(sourceId));
           if (group != null) {
-            subjects = SubjectFinder.findPageInStem(group.getParentStemName(), searchString, sources).getResults();
+            subjects = SubjectFinder.findPageInStem(stemName, searchString, sources).getResults();
           } else {
             subjects = SubjectFinder.findPage(searchString, sources).getResults();
           }
@@ -711,7 +718,7 @@ public class UiV2Group {
       
       boolean madeChanges = group.addMember(subject, defaultPrivs, memberChecked, adminChecked, 
           updateChecked, readChecked, viewChecked, optinChecked, optoutChecked, attrReadChecked, 
-          attrUpdateChecked);
+          attrUpdateChecked, null, null, false);
       
       if (madeChanges) {
 

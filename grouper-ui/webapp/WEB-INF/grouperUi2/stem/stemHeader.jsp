@@ -12,6 +12,39 @@
                 <div class="row-fluid">
                   <div class="span10">
                     <h1><i class="fa fa-folder"></i> ${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.guiDisplayExtension)}</h1>
+                    <div id="member-search" tabindex="-1" role="dialog" aria-labelledby="member-search-label" aria-hidden="true" class="modal hide fade">
+                      <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
+                        <h3 id="member-search-label">${textContainer.text['stemSearchForEntityButton'] }</h3>
+                      </div>
+                      <div class="modal-body">
+                        <form class="form form-inline" id="addMemberSearchFormId">
+                          <input name="addMemberSubjectSearch" type="text" placeholder=""/>
+                          <button class="btn" onclick="ajax('../app/UiV2Stem.addMemberSearch?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'addMemberSearchFormId'}); return false;" >${textContainer.text['groupSearchButton'] }</button>
+                          <br />
+                          <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true"/> ${textContainer.text['stemLabelExactIdMatch'] }</span>
+                          <br />
+                          <span style="white-space: nowrap;">${textContainer.text['find.search-source'] } 
+                          <select name="sourceId">
+                            <option value="all">${textContainer.textEscapeXml['find.search-all-sources'] }</option>
+                            <c:forEach items="${grouperRequestContainer.subjectContainer.sources}" var="source" >
+                              <option value="${grouper:escapeHtml(source.id)}">
+                                ${grouper:escapeHtml(source.name) } (
+                                  <c:forEach var="subjectType" items="${source.subjectTypes}" varStatus="typeStatus">
+                                    <c:if test="${typeStatus.count>1}">, </c:if>
+                                    ${grouper:escapeHtml(subjectType)}
+                                  </c:forEach>
+                                )                               
+                              </option>
+                            </c:forEach>
+                          </select></span>
+                        </form>
+                        <div id="addMemberResults">
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button data-dismiss="modal" aria-hidden="true" class="btn">${textContainer.text['groupSearchCloseButton']}</button>
+                      </div>
+                    </div>
                     <div id="add-block-container" class="well hide">
                       <div id="add-members">
                         <form id="add-members-form" target="#" class="form-horizontal form-highlight">
@@ -21,7 +54,7 @@
                               <div id="add-members-container">
 
                                 <%-- placeholder: Enter the name of a person, group, or other entity --%>
-                                <grouper:combobox2 idBase="stemAddMemberCombo" style="width: 30em"
+                                <grouper:combobox2 idBase="groupAddMemberCombo" style="width: 30em"
                                   filterOperation="../app/UiV2Stem.addMemberFilter?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}"/>
                                 <br />
                                 ${textContainer.text['stemSearchLabelPreComboLink']} <a href="#member-search" onclick="$('#addMemberResults').empty();" role="button" data-toggle="modal" style="text-decoration: underline !important;">${textContainer.text['stemSearchForEntityLink']}</a>

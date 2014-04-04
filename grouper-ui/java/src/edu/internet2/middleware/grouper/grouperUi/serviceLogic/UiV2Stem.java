@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.StemCopy;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemMove;
 import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.UserAuditQuery;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -75,7 +76,6 @@ public class UiV2Stem {
 
   /** logger */
   protected static final Log LOG = LogFactory.getLog(UiV2Stem.class);
-
   
   /**
    * submit button on parent folder search model dialog
@@ -86,6 +86,15 @@ public class UiV2Stem {
     new UiV2Group().addMemberFilter(request, response);
   }
   
+  /**
+   * search for a subject to add to the group
+   * @param request
+   * @param response
+   */
+  public void addMemberSearch(HttpServletRequest request, HttpServletResponse response) {
+    new UiV2Group().addMemberSearch(request, response);
+  }
+    
   /**
    * submit button on parent folder search model dialog
    * @param request
@@ -1967,6 +1976,79 @@ public class UiV2Stem {
     stemContainer.setAuditExtendedResults(extendedResults);
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#stemAuditFilterResultsId", 
         "/WEB-INF/grouperUi2/stem/stemViewAuditsContents.jsp"));
+  
+  }
+
+  /**
+   * submit button on add member form pressed
+   * @param request
+   * @param response
+   */
+  public void addMemberSubmit(final HttpServletRequest request, final HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      final Stem stem = retrieveStemHelper(request, true, false, true).getStem();
+  
+      if (stem == null) {
+        return;
+      }
+    
+      String subjectString = request.getParameter("groupAddMemberComboName");
+  
+      Subject subject = null;
+      
+      if (subjectString != null && subjectString.contains("||")) {
+        String sourceId = GrouperUtil.prefixOrSuffix(subjectString, "||", true);
+        String subjectId = GrouperUtil.prefixOrSuffix(subjectString, "||", false);
+        subject =  SubjectFinder.findByIdOrIdentifierAndSource(subjectId, sourceId, false);
+  
+      } else {
+        subject = SubjectFinder.findByIdOrIdentifier(subjectString, false);
+      }
+  
+      if (subject == null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("stemAddMemberCantFindSubject")));
+        return;
+      }      
+
+      boolean stemmersChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemmers[]"), false);
+      boolean creatorsChecked = GrouperUtil.booleanValue(request.getParameter("privileges_creators[]"), false);
+      boolean stemAttrReadersChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemAttrReaders[]"), false);
+      boolean stemAttrUpdatersChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemAttrUpdaters[]"), false);
+
+      boolean madeChanges = stem.grantPrivs(subject, stemmersChecked, creatorsChecked, stemAttrReadersChecked, stemAttrUpdatersChecked, false);
+
+      if (madeChanges) {
+
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+            TextContainer.retrieveFromRequest().getText().get("stemAddMemberMadeChangesSuccess")));
+
+        filterPrivileges(request, response);
+
+      } else {
+
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+            TextContainer.retrieveFromRequest().getText().get("stemAddMemberNoChangesSuccess")));
+
+      }
+
+      //clear out the combo
+      guiResponseJs.addAction(GuiScreenAction.newScript(
+          "dijit.byId('groupAddMemberComboId').set('displayedValue', ''); " +
+          "dijit.byId('groupAddMemberComboId').set('value', '');"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
   
   }
 

@@ -38,8 +38,8 @@
                         </label>
                       </th>
                       <th class="sorted">Name</th>
-                      <th data-hide="phone" style="white-space: nowrap; text-align: center;">Create<br />group</th>
                       <th data-hide="phone" style="white-space: nowrap; text-align: center;">Create<br />folder</th>
+                      <th data-hide="phone" style="white-space: nowrap; text-align: center;">Create<br />group</th>
                       <th data-hide="phone" style="white-space: nowrap; text-align: center;">Attribute<br />read</th>
                       <th data-hide="phone" style="white-space: nowrap; text-align: center;">Attribute<br />update</th>
                       <th></th>
@@ -59,7 +59,7 @@
                         <td class="expand foo-clicker">${guiMembershipSubjectContainer.guiSubject.shortLinkWithIcon}
                         </td>
                         <%-- loop through the fields for stems --%>
-                        <c:forEach items="creators,stemmers,stemAttrReaders,stemAttrUpdaters" var="fieldName">
+                        <c:forEach items="stemmers,creators,stemAttrReaders,stemAttrUpdaters" var="fieldName">
                           <td data-hide="phone,medium" class="direct-actions privilege" >
                             <c:set value="${guiMembershipSubjectContainer.guiMembershipContainers[fieldName]}" var="guiMembershipContainer" />
                             <%-- if there is a container, then there is an assignment of some sort... --%>

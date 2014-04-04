@@ -88,6 +88,8 @@ import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
@@ -4435,6 +4437,72 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     }
     throw new RuntimeException("Cant find privilege: '" + privilegeOrListName + "'");
   
+  }
+
+  /**
+   * grant privs to stem
+   * @param subject to add
+   * @param createChecked
+   * @param stemChecked
+   * @param attrReadChecked
+   * @param attrUpdateChecked
+   * @param revokeIfUnchecked
+   * @return if something was changed
+   */
+  public boolean grantPrivs(final Subject subject,
+      final boolean stemChecked,
+      final boolean createChecked, final boolean attrReadChecked,
+      final boolean attrUpdateChecked, final boolean revokeIfUnchecked) {
+    
+    return (Boolean)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
+      
+      @Override
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+  
+        boolean hadChange = false;
+        
+        //see if add or remove
+        if (stemChecked) {
+          hadChange = hadChange | Stem.this.grantPriv(subject, NamingPrivilege.STEM, false);
+        } else {
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | Stem.this.revokePriv(subject, NamingPrivilege.STEM, false);
+          }
+        }
+
+        //see if add or remove
+        if (createChecked) {
+          hadChange = hadChange | Stem.this.grantPriv(subject, NamingPrivilege.CREATE, false);
+        } else {
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | Stem.this.revokePriv(subject, NamingPrivilege.CREATE, false);
+          }
+        }
+
+        //see if add or remove
+        if (attrReadChecked) {
+          hadChange = hadChange | Stem.this.grantPriv(subject, NamingPrivilege.STEM_ATTR_READ, false);
+        } else {
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | Stem.this.revokePriv(subject, NamingPrivilege.STEM_ATTR_READ, false);
+          }
+        }
+
+        //see if add or remove
+        if (attrUpdateChecked) {
+          hadChange = hadChange | Stem.this.grantPriv(subject, NamingPrivilege.STEM_ATTR_UPDATE, false);
+        } else {
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | Stem.this.revokePriv(subject, NamingPrivilege.STEM_ATTR_UPDATE, false);
+          }
+        }
+
+        return hadChange;
+      }
+    });
+  
+    
   }
 
 }

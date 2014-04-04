@@ -863,7 +863,7 @@ public class UiV2Membership {
       boolean privGroupAttrUpdaters = GrouperUtil.booleanValue(request.getParameter("privilege_groupAttrUpdaters[]"), false);      
 
       if (!group.addMember(subject, false, hasMembership, privAdmins, privUpdaters, privReaders, privViewers, 
-          privOptins, privOptouts, privGroupAttrReaders, privGroupAttrUpdaters, startDate, endDate)) {
+          privOptins, privOptouts, privGroupAttrReaders, privGroupAttrUpdaters, startDate, endDate, true)) {
 
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
             TextContainer.retrieveFromRequest().getText().get("membershipEditNoChange")));

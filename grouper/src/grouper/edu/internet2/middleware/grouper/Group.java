@@ -1047,33 +1047,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @param optoutChecked
    * @param attrReadChecked
    * @param attrUpdateChecked
-   * @return if something was changed
-   */
-  public boolean addMember(final Subject subject, final boolean defaultPrivs,
-      final boolean memberChecked, 
-      final boolean adminChecked,
-      final boolean updateChecked, final boolean readChecked, final boolean viewChecked,
-      final boolean optinChecked, final boolean optoutChecked, final boolean attrReadChecked,
-      final boolean attrUpdateChecked) {
-    return addMember(subject, defaultPrivs, memberChecked, adminChecked, updateChecked, 
-        readChecked, viewChecked, optinChecked, optoutChecked, attrReadChecked, attrUpdateChecked, null, null);
-  }
-
-  /**
-   * add a member to group, take into account if any default privs should be changed
-   * @param subject to add
-   * @param defaultPrivs if true, forget about all the other checked params
-   * @param memberChecked
-   * @param adminChecked
-   * @param updateChecked
-   * @param readChecked
-   * @param viewChecked
-   * @param optinChecked
-   * @param optoutChecked
-   * @param attrReadChecked
-   * @param attrUpdateChecked
    * @param startDate on membership
    * @param endDate on membership
+   * @param revokeIfUnchecked
    * @return if something was changed
    */
   public boolean addMember(final Subject subject, final boolean defaultPrivs,
@@ -1081,7 +1057,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       final boolean adminChecked,
       final boolean updateChecked, final boolean readChecked, final boolean viewChecked,
       final boolean optinChecked, final boolean optoutChecked, final boolean attrReadChecked,
-      final boolean attrUpdateChecked, final Date startDate, final Date endDate) {
+      final boolean attrUpdateChecked, final Date startDate, final Date endDate, final boolean revokeIfUnchecked) {
     
     return (Boolean)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
       
@@ -1122,7 +1098,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
         } else {
         
           //if they are doing custom privs, maybe they want member removed???
-          hadChange = hadChange | Group.this.deleteMember(subject, false);
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | Group.this.deleteMember(subject, false);
+          }
         }
         
 
@@ -1132,56 +1110,72 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
           if (adminChecked) {
             hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.ADMIN, false);
           } else {
-            hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.ADMIN, false);
+            if (revokeIfUnchecked) {
+              hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.ADMIN, false);
+            }
           }
 
           //see if add or remove
           if (updateChecked) {
             hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.UPDATE, false);
           } else  {
-            hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.UPDATE, false);
+            if (revokeIfUnchecked) {
+              hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.UPDATE, false);
+            }
           }
 
           //see if add or remove
           if (readChecked) {
             hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.READ, false);
           } else {
-            hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.READ, false);
+            if (revokeIfUnchecked) {
+              hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.READ, false);
+            }
           }
 
           //see if add or remove
           if (viewChecked) {
             hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.VIEW, false);
           } else {
-            hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.VIEW, false);
+            if (revokeIfUnchecked) {
+              hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.VIEW, false);
+            }
           }
 
           //see if add or remove
           if (optinChecked) {
             hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.OPTIN, false);
           } else {
-            hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.OPTIN, false);
+            if (revokeIfUnchecked) {
+              hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.OPTIN, false);
+            }
           }
 
           //see if add or remove
           if (optoutChecked) {
             hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.OPTOUT, false);
           } else {
-            hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.OPTOUT, false);
+            if (revokeIfUnchecked) {
+              hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.OPTOUT, false);
+            }
           }
 
           //see if add or remove
           if (attrReadChecked) {
             hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.GROUP_ATTR_READ, false);
           } else {
-            hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.GROUP_ATTR_READ, false);
+            if (revokeIfUnchecked) {
+              hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.GROUP_ATTR_READ, false);
+            }
           }
 
           //see if add or remove
           if (attrUpdateChecked) {
             hadChange = hadChange | Group.this.grantPriv(subject, AccessPrivilege.GROUP_ATTR_UPDATE, false);
           } else {
-            hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.GROUP_ATTR_UPDATE, false);
+            if (revokeIfUnchecked) {
+              hadChange = hadChange | Group.this.revokePriv(subject, AccessPrivilege.GROUP_ATTR_UPDATE, false);
+            }
           }
         }
 

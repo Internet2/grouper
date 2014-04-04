@@ -284,8 +284,8 @@ public class GrouperObjectFinder {
    * @param queryOptions
    * @param firstIndexOnPage
    * @param lastIndexOnPage
-   * @param firstStemIndex
-   * @param lastStemIndex
+   * @param firstSetIndex
+   * @param lastSetIndex
    * @return true if should run query, false if not
    */
   private static boolean decoratePaging(QueryOptions queryOptions, 
@@ -762,13 +762,13 @@ public class GrouperObjectFinder {
         //sory by name (case insensitive)?  I guess
         Map<String, Subject> resultMap = new TreeMap<String, Subject>();
         
-        for (Subject subject : GrouperUtil.nonNull(subjects)) {
+        for (Subject theSubject : GrouperUtil.nonNull(subjects)) {
           //concate source id and subject id since there could be multiple with same name
-          resultMap.put(StringUtils.defaultString(subject.getName() + subject.getSourceId() + subject.getId()).toLowerCase(), subject);
+          resultMap.put(StringUtils.defaultString(theSubject.getName() + theSubject.getSourceId() + theSubject.getId()).toLowerCase(), theSubject);
         }
         
         int pageStartIndex = subjectQueryOptions == null || subjectQueryOptions.getQueryPaging() == null ? 
-            1 : subjectQueryOptions.getQueryPaging().getPageStartIndex();
+            0: subjectQueryOptions.getQueryPaging().getPageStartIndex();
         int pageSize = subjectQueryOptions == null || subjectQueryOptions.getQueryPaging() == null ? 
             GrouperUtil.length(subjects) : subjectQueryOptions.getQueryPaging().getPageSize();
         
