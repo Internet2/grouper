@@ -94,7 +94,7 @@ public class UiV2Stem {
   public void addMemberSearch(HttpServletRequest request, HttpServletResponse response) {
     new UiV2Group().addMemberSearch(request, response);
   }
-    
+
   /**
    * submit button on parent folder search model dialog
    * @param request
@@ -107,7 +107,6 @@ public class UiV2Stem {
     
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
-  
   
       stemSearchFormSubmitHelper(request, response, StemSearchType.createFolder);
       

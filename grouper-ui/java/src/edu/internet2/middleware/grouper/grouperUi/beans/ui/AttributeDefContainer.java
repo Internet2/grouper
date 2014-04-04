@@ -37,6 +37,10 @@ public class AttributeDefContainer {
    * if the logged in user can view group, lazy loaded
    */
   private Boolean canView;
+  /**
+   * if show add member on the folder privileges screen
+   */
+  private boolean showAddMember = false;
 
   /**
    * gui attribute def from url
@@ -144,6 +148,22 @@ public class AttributeDefContainer {
     }
     
     return this.canView;
+  }
+
+  /**
+   * if show add member on the folder privileges screen
+   * @return the showAddMember
+   */
+  public boolean isShowAddMember() {
+    return this.showAddMember;
+  }
+
+  /**
+   * if show add member on the folder privileges screen
+   * @param showAddMember1 the showAddMember to set
+   */
+  public void setShowAddMember(boolean showAddMember1) {
+    this.showAddMember = showAddMember1;
   }
   
   

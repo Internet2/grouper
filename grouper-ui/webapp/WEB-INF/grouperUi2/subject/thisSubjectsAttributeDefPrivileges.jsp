@@ -1,5 +1,8 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
+            <%-- show the add member button for privileges --%>
+            <c:set target="${grouperRequestContainer.attributeDefContainer}" property="showAddMember" value="true" />
+
             <%@ include file="subjectHeader.jsp" %>
 
             <div class="row-fluid">

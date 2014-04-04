@@ -66,6 +66,24 @@ public class UiV2Subject {
   protected static final Log LOG = LogFactory.getLog(UiV2Subject.class);
 
   /**
+   * search results for add this subject to a stem
+   * @param request
+   * @param response
+   */
+  public void addStemSearch(HttpServletRequest request, HttpServletResponse response) {
+    new UiV2Stem().stemSearchFormSubmit(request, response);
+  }
+
+  /**
+   * combobox results for add this subject to a stem
+   * @param request
+   * @param response
+   */
+  public void addToStemFilter(HttpServletRequest request, HttpServletResponse response) {
+    new UiV2Stem().stemCopyParentFolderFilter(request, response);
+  }
+
+  /**
    * modal search form results for add this subject to a group
    * @param request
    * @param response
@@ -586,6 +604,92 @@ public class UiV2Subject {
       GrouperSession.stopQuietly(grouperSession);
     }
   }
+  
+  /**
+   * submit button on add stem form pressed
+   * @param request
+   * @param response
+   */
+  public void addStemSubmit(final HttpServletRequest request, final HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      Subject subject = retrieveSubjectHelper(request);
+  
+      if (subject == null) {
+        return;
+      }
+    
+      String tempStemString = request.getParameter("parentFolderComboName");
+  
+      //just get what they typed in
+      if (StringUtils.isBlank(tempStemString)) {
+        tempStemString = request.getParameter("parentFolderComboNameDisplay");
+      }
+      
+      final String stemString = tempStemString;
+
+      Stem stem = (Stem)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          Stem theStem = null;
+          
+          if (!StringUtils.isBlank(stemString)) {
+            theStem = new StemFinder().assignScope(stemString).assignFindByUuidOrName(true)
+                .assignSubject(loggedInSubject)
+                .assignPrivileges(NamingPrivilege.STEM_PRIVILEGES).findStem();
+          }
+          return theStem;
+        }
+      });
+        
+      if (stem == null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("subjectAddMemberCantFindStem")));
+        return;
+      }      
+  
+      boolean stemChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemmers[]"), false);
+      boolean createChecked = GrouperUtil.booleanValue(request.getParameter("privileges_creators[]"), false);
+      boolean attrReadChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemAttrReaders[]"), false);
+      boolean attrUpdateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemAttrUpdaters[]"), false);
+      
+      boolean madeChanges = stem.grantPrivs(subject, stemChecked, createChecked, attrReadChecked, 
+          attrUpdateChecked, false);
+      
+      if (madeChanges) {
+  
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+            TextContainer.retrieveFromRequest().getText().get("stemAddMemberMadeChangesSuccess")));
+  
+        filterThisSubjectsStemPrivilegesHelper(request, response, subject);
+  
+  
+      } else {
+  
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+            TextContainer.retrieveFromRequest().getText().get("stemAddMemberNoChangesSuccess")));
+  
+      }
+  
+      //clear out the combo
+      guiResponseJs.addAction(GuiScreenAction.newScript(
+          "dijit.byId('parentFolderComboId').set('displayedValue', ''); " +
+          "dijit.byId('parentFolderComboId').set('value', '');"));
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  
+  }
 
   /**
    * submit button on add group form pressed
@@ -609,8 +713,14 @@ public class UiV2Subject {
         return;
       }
     
-      final String groupString = request.getParameter("groupAddMemberComboName");
+      String tempGroupString = request.getParameter("groupAddMemberComboName");
   
+      //just get what they typed in
+      if (StringUtils.isBlank(tempGroupString)) {
+        tempGroupString = request.getParameter("groupAddMemberComboNameDisplay");
+      }
+      final String groupString = tempGroupString;
+      
       Group group = (Group)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
         
         @Override
@@ -673,7 +783,7 @@ public class UiV2Subject {
             TextContainer.retrieveFromRequest().getText().get("groupAddMemberNoChangesSuccess")));
   
       }
-  
+
       //clear out the combo
       guiResponseJs.addAction(GuiScreenAction.newScript(
           "dijit.byId('groupAddMemberComboId').set('displayedValue', ''); " +
