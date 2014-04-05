@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -28,13 +29,17 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
+import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
+import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogicBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.AttributeDefContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.SubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
@@ -49,6 +54,7 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
@@ -83,6 +89,79 @@ public class UiV2Subject {
     new UiV2Stem().stemCopyParentFolderFilter(request, response);
   }
 
+  /**
+   * modal search form results for add this subject to a attributeDef
+   * @param request
+   * @param response
+   */
+  public void addAttributeDefSearch(HttpServletRequest request, HttpServletResponse response) {
+    
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    GrouperSession grouperSession = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      Subject subject = retrieveSubjectHelper(request);
+  
+      if (subject == null) {
+        return;
+      }
+  
+      String searchString = request.getParameter("addAttributeDefSubjectSearch");
+      
+      boolean searchOk = GrouperUiUtils.searchStringValid(searchString);
+      if (!searchOk) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#addAttributeDefResults", 
+            TextContainer.retrieveFromRequest().getText().get("subjectViewAddToAttributeDefNotEnoughChars")));
+        return;
+      }
+
+      AttributeDefContainer attributeDefContainer = grouperRequestContainer.getAttributeDefContainer();
+      
+      GuiPaging guiPaging = attributeDefContainer.getGuiPaging();
+      QueryOptions queryOptions = new QueryOptions();
+
+      GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
+
+      Set<AttributeDef> attributeDefs = null;
+    
+    
+      AttributeDefFinder attributeDefFinder = new AttributeDefFinder()
+        .assignSubject(loggedInSubject)
+        .assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
+        .assignScope(searchString)
+        .assignSplitScope(true).assignQueryOptions(queryOptions);
+      
+      attributeDefs = attributeDefFinder.findAttributes();
+      
+      guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+      
+      if (GrouperUtil.length(attributeDefs) == 0) {
+
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#addAttributeDefResults", 
+            TextContainer.retrieveFromRequest().getText().get("subjectViewAddMemberNoSubjectsFound")));
+        return;
+      }
+      
+      Set<GuiAttributeDef> guiAttributeDefs = GuiAttributeDef.convertFromAttributeDefs(attributeDefs);
+      
+      attributeDefContainer.setGuiAttributeDefSearchResults(guiAttributeDefs);
+  
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#addAttributeDefResults", 
+          "/WEB-INF/grouperUi2/subject/addAttributeDefResults.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
   /**
    * modal search form results for add this subject to a group
    * @param request
@@ -159,6 +238,77 @@ public class UiV2Subject {
       GrouperSession.stopQuietly(grouperSession);
     }
     
+  }
+  
+  /**
+   * combobox results for add this subject to a stem
+   * @param request
+   * @param response
+   */
+  public void addToAttributeDefFilter(HttpServletRequest request, HttpServletResponse response) {
+
+    //run the combo logic
+    DojoComboLogic.logic(request, response, new DojoComboQueryLogicBase<AttributeDef>() {
+
+      /**
+       * 
+       */
+      @Override
+      public AttributeDef lookup(HttpServletRequest request, GrouperSession grouperSession, String query) {
+        Subject loggedInSubject = grouperSession.getSubject();
+        
+        AttributeDef theAttributeDef = new AttributeDefFinder()
+          .assignPrivileges(AttributeDefPrivilege.ATTR_ADMIN_PRIVILEGES).assignSubject(loggedInSubject)
+            .assignFindByUuidOrName(true).assignScope(query).findAttribute();
+        return theAttributeDef;
+      }
+
+      /**
+       * 
+       */
+      @Override
+      public Collection<AttributeDef> search(HttpServletRequest request, GrouperSession grouperSession, String query) {
+
+        Subject loggedInSubject = grouperSession.getSubject();
+        int attributeDefComboSize = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.attributeDefComboboxResultSize", 200);
+        QueryOptions queryOptions = QueryOptions.create(null, null, 1, attributeDefComboSize);
+        AttributeDefFinder attributeDefFinder = new AttributeDefFinder();
+
+        return attributeDefFinder.addPrivilege(NamingPrivilege.STEM).assignScope(query).assignSubject(loggedInSubject)
+            .assignSplitScope(true).assignQueryOptions(queryOptions).findAttributes();
+      }
+
+      /**
+       * 
+       * @param t
+       * @return
+       */
+      @Override
+      public String retrieveId(GrouperSession grouperSession, AttributeDef t) {
+        return t.getId();
+      }
+      
+      /**
+       * 
+       */
+      @Override
+      public String retrieveLabel(GrouperSession grouperSession, AttributeDef t) {
+        return t.getDisplayName();
+      }
+
+      /**
+       * 
+       */
+      @Override
+      public String retrieveHtmlLabel(GrouperSession grouperSession, AttributeDef t) {
+        //description could be null?
+        String displayName = t.getDisplayName();
+        String label = GrouperUiUtils.escapeHtml(displayName, true);
+        String htmlLabel = "<img src=\"../../grouperExternal/public/assets/images/cog.png\" /> " + label;
+        return htmlLabel;
+      }
+    });
+
   }
   
   /**
@@ -652,7 +802,7 @@ public class UiV2Subject {
       });
         
       if (stem == null) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#parentFolderComboErrorId", 
             TextContainer.retrieveFromRequest().getText().get("subjectAddMemberCantFindStem")));
         return;
       }      
@@ -661,6 +811,12 @@ public class UiV2Subject {
       boolean createChecked = GrouperUtil.booleanValue(request.getParameter("privileges_creators[]"), false);
       boolean attrReadChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemAttrReaders[]"), false);
       boolean attrUpdateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemAttrUpdaters[]"), false);
+
+      if (!stemChecked && !createChecked && !attrReadChecked && !attrUpdateChecked) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#stemPrivsErrorId", 
+            TextContainer.retrieveFromRequest().getText().get("subjectAddMemberStemPrivRequired")));
+        return;
+      }
       
       boolean madeChanges = stem.grantPrivs(subject, stemChecked, createChecked, attrReadChecked, 
           attrUpdateChecked, false);
@@ -677,18 +833,18 @@ public class UiV2Subject {
   
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
             TextContainer.retrieveFromRequest().getText().get("stemAddMemberNoChangesSuccess")));
-  
+
       }
-  
+
       //clear out the combo
       guiResponseJs.addAction(GuiScreenAction.newScript(
           "dijit.byId('parentFolderComboId').set('displayedValue', ''); " +
           "dijit.byId('parentFolderComboId').set('value', '');"));
-  
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
-  
+
   }
 
   /**
@@ -736,7 +892,8 @@ public class UiV2Subject {
       });
         
       if (group == null) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#groupAddMemberComboErrorId",
             TextContainer.retrieveFromRequest().getText().get("subjectAddMemberCantFindGroup")));
         return;
       }      
@@ -764,6 +921,15 @@ public class UiV2Subject {
       boolean optoutChecked = GrouperUtil.booleanValue(request.getParameter("privileges_optouts[]"), false);
       boolean attrReadChecked = GrouperUtil.booleanValue(request.getParameter("privileges_groupAttrReaders[]"), false);
       boolean attrUpdateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_groupAttrUpdaters[]"), false);
+
+      if (!defaultPrivs && !memberChecked && !adminChecked && !updateChecked && !readChecked
+          && !viewChecked && !optinChecked && !optoutChecked && !attrReadChecked && !attrUpdateChecked) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#groupPrivsErrorId",
+            TextContainer.retrieveFromRequest().getText().get("subjectAddMemberPrivRequired")));
+        return;
+        
+      }
       
       boolean madeChanges = group.addMember(subject, defaultPrivs, memberChecked, adminChecked, 
           updateChecked, readChecked, viewChecked, optinChecked, optoutChecked, attrReadChecked, 
@@ -1776,6 +1942,106 @@ public class UiV2Subject {
   
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#thisSubjectsStemPrivilegesFilterResultsId", 
         "/WEB-INF/grouperUi2/subject/thisSubjectsStemPrivilegesContents.jsp"));
+  
+  }
+
+  /**
+   * submit button on add attributeDef form pressed
+   * @param request
+   * @param response
+   */
+  public void addAttributeDefSubmit(final HttpServletRequest request, final HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      Subject subject = retrieveSubjectHelper(request);
+  
+      if (subject == null) {
+        return;
+      }
+    
+      String tempAttributeDefString = request.getParameter("attributeDefAddMemberComboName");
+  
+      //just get what they typed in
+      if (StringUtils.isBlank(tempAttributeDefString)) {
+        tempAttributeDefString = request.getParameter("attributeDefAddMemberComboNameDisplay");
+      }
+      
+      final String attributeDefString = tempAttributeDefString;
+  
+      AttributeDef attributeDef = (AttributeDef)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          AttributeDef theAttributeDef = null;
+          
+          if (!StringUtils.isBlank(attributeDefString)) {
+            theAttributeDef = new AttributeDefFinder().assignScope(attributeDefString).assignFindByUuidOrName(true)
+                .assignSubject(loggedInSubject)
+                .assignPrivileges(AttributeDefPrivilege.ATTR_ADMIN_PRIVILEGES).findAttribute();
+          }
+          return theAttributeDef;
+        }
+      });
+        
+      if (attributeDef == null) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#attributeDefAddMemberComboId", 
+            TextContainer.retrieveFromRequest().getText().get("subjectAddMemberCantFindAttributeDef")));
+        return;
+      }      
+        
+      boolean adminChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrAdmins[]"), false);
+      boolean updateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrUpdaters[]"), false);
+      boolean readChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrReaders[]"), false);
+      boolean viewChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrViewers[]"), false);
+      boolean optinChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrOptins[]"), false);
+      boolean optoutChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrOptouts[]"), false);
+      boolean attrReadChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrDefAttrReaders[]"), false);
+      boolean attrUpdateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrDefAttrUpdaters[]"), false);
+
+      if (!adminChecked && !updateChecked && !readChecked
+          && !viewChecked && !optinChecked && !optoutChecked && !attrReadChecked && !attrUpdateChecked) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#attributeDefPrivsErrorId",
+            TextContainer.retrieveFromRequest().getText().get("subjectAddMemberAttributeDefPrivRequired")));
+        return;
+      }
+      
+      boolean madeChanges = attributeDef.getPrivilegeDelegate().grantPrivs(
+          subject, adminChecked, 
+          updateChecked, readChecked, viewChecked, optinChecked, optoutChecked, attrReadChecked, 
+          attrUpdateChecked, false);
+      
+      if (madeChanges) {
+  
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+            TextContainer.retrieveFromRequest().getText().get("attributeDefAddMemberMadeChangesSuccess")));
+  
+        filterThisSubjectsAttributeDefPrivilegesHelper(request, response, subject);
+  
+  
+      } else {
+  
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+            TextContainer.retrieveFromRequest().getText().get("attributeDefAddMemberNoChangesSuccess")));
+  
+      }
+  
+      //clear out the combo
+      guiResponseJs.addAction(GuiScreenAction.newScript(
+          "dijit.byId('attributeDefAddMemberComboId').set('displayedValue', ''); " +
+          "dijit.byId('attributeDefAddMemberComboId').set('value', '');"));
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
   
   }
 }

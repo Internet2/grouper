@@ -9,6 +9,7 @@
               </ul>
               --%>
               ${grouperRequestContainer.subjectContainer.guiSubject.breadcrumbs}
+              
               <div class="page-header blue-gradient">
                 <div class="row-fluid">
                   <div class="span9">
@@ -45,7 +46,6 @@
                                 <grouper:combobox2 idBase="groupAddMemberCombo" style="width: 30em"
                                   filterOperation="../app/UiV2Subject.addToGroupFilter?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}"/>
                                 <%--a href="#member-search" onclick="$('#addMemberResults').empty();" role="button" data-toggle="modal" class="btn"><i class="fa fa-search"></i></a --%>
-                                <br />
                                 ${textContainer.text['subjectSearchLabelPreComboLink']} <a href="#group-search" onclick="$('#addGroupResults').empty(); $('#addGroupSubjectSearchId').val('');" role="button" data-toggle="modal" style="text-decoration: underline !important;">${textContainer.text['subjectSearchForGroupLink']}</a>
                                 
                               </div>
@@ -92,7 +92,7 @@
                               <label class="checkbox inline">
                                 <input type="checkbox" name="privileges_groupAttrReaders" value="true" />${textContainer.text['priv.groupAttrReadUpper'] }
                               </label>
-                              <label class="checkbox inline">
+                              <label class="checkbox inline" id="groupPrivsErrorId">
                                 <input type="checkbox" name="privileges_groupAttrUpdaters" value="true" />${textContainer.text['priv.groupAttrUpdateUpper'] }
                               </label>
                             </div>
@@ -114,9 +114,9 @@
                       </div>
 
                       <div class="modal-body">
-                        <form class="form form-inline" id="addStemSearchFormId">
+                        <form class="form form-inline" id="stemSearchFormId">
                           <input id="addStemSubjectSearchId" name="stemSearch" type="text" placeholder="${textContainer.text['subjectSearchStemPlaceholder']}" />
-                          <button class="btn" onclick="ajax('../app/UiV2Subject.addStemSearch?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'addStemSearchFormId'}); return false;" >${textContainer.text['subjectSearchButton'] }</button>
+                          <button class="btn" onclick="ajax('../app/UiV2Subject.addStemSearch?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'stemSearchFormId'}); return false;" >${textContainer.text['subjectSearchButton'] }</button>
                         </form>
                         <div id="folderSearchResultsId">
                         </div>
@@ -132,18 +132,17 @@
                           <div class="control-group">
                             <label for="add-block-stem-input" class="control-label">${textContainer.text['subjectSearchStemName'] }</label>
                             <div class="controls">
-                              <div id="add-members-container">
+                              <div id="add-stems-container">
 
                                 <%-- placeholder: Enter the name of a group --%>
                                 <grouper:combobox2 idBase="parentFolderCombo" style="width: 30em"
                                   filterOperation="../app/UiV2Subject.addToStemFilter?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}"/>
-                                <br />
                                 ${textContainer.text['subjectSearchStemLabelPreComboLink']} <a href="#stem-search" onclick="$('#addStemResults').empty(); $('#addStemSubjectSearchId').val('');" role="button" data-toggle="modal" style="text-decoration: underline !important;">${textContainer.text['subjectSearchForStemLink']}</a>
                                 
                               </div>
                             </div>
                           </div>
-                          <div id="add-members-privileges-select" class="control-group">
+                          <div id="add-members-stem-privileges-select" class="control-group">
                             <label class="control-label">${textContainer.text['subjectViewAssignThesePrivileges']}</label>
                             <div class="controls">
                               <label class="checkbox inline">
@@ -155,7 +154,7 @@
                               <label class="checkbox inline">
                                 <input type="checkbox" name="privileges_stemAttrReaders" value="true" />${textContainer.text['priv.stemAttrReadersUpper']}
                               </label>
-                              <label class="checkbox inline">
+                              <label class="checkbox inline"  id="stemPrivsErrorId">
                                 <input type="checkbox" name="privileges_stemAttrUpdaters" value="true" />${textContainer.text['priv.stemAttrUpdatersUpper']}
                               </label>
                             </div>
@@ -163,7 +162,7 @@
                           <div class="control-group">
                             <div class="controls">
                               <button onclick="ajax('../app/UiV2Subject.addStemSubmit?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'add-stems-form,groupPrivilegeFormId,groupFilterPrivilegesFormId,groupPagingPrivilegesFormId'}); return false;" 
-                                id="add-members-submit" type="submit" class="btn btn-primary">${textContainer.text['subjectViewAddStemLink']}</button>
+                                id="add-stem-members-submit" type="submit" class="btn btn-primary">${textContainer.text['subjectViewAddStemLink']}</button>
                             </div>
                           </div>
                         </form>
@@ -172,17 +171,15 @@
 
                     <div id="attributeDef-search" tabindex="-1" role="dialog" aria-labelledby="group-search-label" aria-hidden="true" class="modal hide fade">
                       <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
-                        <h3 id="group-search-label">${textContainer.text['subjectSearchForGroupButton']}</h3>
+                        <h3 id="attributeDef-search-label">${textContainer.text['subjectSearchForAttributeDefButton']}</h3>
                       </div>
 
                       <div class="modal-body">
-                        <form class="form form-inline" id="addGroupSearchFormId">
-                          <input id="addGroupSubjectSearchId" name="addGroupSubjectSearch" type="text" placeholder="${textContainer.text['subjectSearchGroupPlaceholder']}" />
-                          <button class="btn" onclick="ajax('../app/UiV2Subject.addGroupSearch?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'addGroupSearchFormId'}); return false;" >${textContainer.text['subjectSearchButton'] }</button>
-                          <br />
-                          <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true"/> ${textContainer.text['subjectSearchExactIdMatch'] }</span>
+                        <form class="form form-inline" id="addAttributeDefSearchFormId">
+                          <input id="addAttributeDefSubjectSearchId" name="addAttributeDefSubjectSearch" type="text" placeholder="${textContainer.text['subjectSearchAttributeDefPlaceholder']}" />
+                          <button class="btn" onclick="ajax('../app/UiV2Subject.addAttributeDefSearch?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'addAttributeDefSearchFormId'}); return false;" >${textContainer.text['subjectSearchButton'] }</button>
                         </form>
-                        <div id="addGroupResults">
+                        <div id="addAttributeDefResults">
                         </div>
                       </div>
                       <div class="modal-footer">
@@ -191,73 +188,55 @@
                     </div>
 
                     <div id="add-block-attributeDef-container" class="well gradient-background hide">
-                      <div id="add-groups">
-                        <form id="add-groups-form" target="#" class="form-horizontal form-highlight">
+                      <div id="add-attributeDefs">
+                        <form id="add-attributeDefs-form" target="#" class="form-horizontal form-highlight">
                           <div class="control-group">
-                            <label for="add-block-input" class="control-label">${textContainer.text['subjectSearchGroupName'] }</label>
+                            <label for="add-block-input" class="control-label">${textContainer.text['subjectSearchAttributeDefName'] }</label>
                             <div class="controls">
-                              <div id="add-members-container">
+                              <div id="add-attributeDefs-container">
 
-                                <%-- placeholder: Enter the name of a group --%>
-                                <grouper:combobox2 idBase="groupAddMemberCombo" style="width: 30em"
-                                  filterOperation="../app/UiV2Subject.addToGroupFilter?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}"/>
-                                <%--a href="#member-search" onclick="$('#addMemberResults').empty();" role="button" data-toggle="modal" class="btn"><i class="fa fa-search"></i></a --%>
-                                <br />
-                                ${textContainer.text['subjectSearchLabelPreComboLink']} <a href="#group-search" onclick="$('#addGroupResults').empty(); $('#addGroupSubjectSearchId').val('');" role="button" data-toggle="modal" style="text-decoration: underline !important;">${textContainer.text['subjectSearchForGroupLink']}</a>
+                                <%-- placeholder: Enter the name of a attributeDef --%>
+                                <grouper:combobox2 idBase="attributeDefAddMemberCombo" style="width: 30em"
+                                  filterOperation="../app/UiV2Subject.addToAttributeDefFilter?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}"/>
+                                ${textContainer.text['subjectSearchAttributeDefLabelPreComboLink']} <a href="#attributeDef-search" onclick="$('#addAttributeDefResults').empty(); $('#addAttributeDefSubjectSearchId').val('');" role="button" data-toggle="modal" style="text-decoration: underline !important;">${textContainer.text['subjectSearchForAttributeDefLink']}</a>
                                 
                               </div>
                             </div>
                           </div>
-                          <div id="add-members-privileges-select" class="control-group">
+                          
+                          <div id="add-members-attributeDef-privileges-select" class="control-group">
                             <label class="control-label">${textContainer.text['subjectViewAssignThesePrivileges']}</label>
                             <div class="controls">
-                              <label class="radio inline">
-                                <input type="radio" id="priv1" value="default" name="privilege-options" checked="checked" onclick="this.blur();" value="true" onchange="$('#add-members-privileges').hide('slow');"/>${textContainer.text['subjectViewDefaultPrivileges'] }
-                              </label>
-                              <label class="radio inline">
-                                <input type="radio" id="priv2" value="custom" name="privilege-options" onclick="this.blur();" value="true" onchange="$('#add-members-privileges').show('slow');"/>${textContainer.text['subjectViewCustomPrivileges'] }
-                              </label>
-                            </div>
-                          </div>
-                          <div id="add-members-privileges" class="control-group hide">
-                            <div class="controls">
                               <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_members" value="true" checked="checked"/>${textContainer.text['priv.memberUpper']}
+                                <input type="checkbox" name="privileges_attrAdmins" value="true" />${textContainer.text['priv.attrAdminUpper'] }
                               </label>
                               <label class="checkbox inline">
-                                <%--
-                                <input type="checkbox" name="privileges_admins" value="true" 
-                                  ${grouperRequestContainer.groupContainer.configDefaultGroupsCreateGrantAllAdmin ? 'checked="checked"' : '' } />ADMIN
-                                --%>
-                                <input type="checkbox" name="privileges_admins" value="true" />${textContainer.text['priv.adminUpper'] }
+                                <input type="checkbox" name="privileges_attrUpdaters" value="true" />${textContainer.text['priv.attrUpdateUpper'] }
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_updaters" value="true" />${textContainer.text['priv.updateUpper'] }
+                                <input type="checkbox" name="privileges_attrReaders" value="true" />${textContainer.text['priv.attrReadUpper'] }
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_readers" value="true" />${textContainer.text['priv.readUpper'] }
+                                <input type="checkbox" name="privileges_attrViewers" value="true" />${textContainer.text['priv.attrViewUpper'] }
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_viewers" value="true" />${textContainer.text['priv.viewUpper'] }
+                                <input type="checkbox" name="privileges_attrOptins" value="true" />${textContainer.text['priv.attrOptinUpper'] }
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_optins" value="true" />${textContainer.text['priv.optinUpper'] }
+                                <input type="checkbox" name="privileges_attrOptouts" value="true" />${textContainer.text['priv.attrOptoutUpper'] }
                               </label>
                               <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_optouts" value="true" />${textContainer.text['priv.optoutUpper'] }
+                                <input type="checkbox" name="privileges_attrDefAttrReaders" value="true" />${textContainer.text['priv.attrDefAttrReadUpper'] }
                               </label>
-                              <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_groupAttrReaders" value="true" />${textContainer.text['priv.groupAttrReadUpper'] }
-                              </label>
-                              <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_groupAttrUpdaters" value="true" />${textContainer.text['priv.groupAttrUpdateUpper'] }
+                              <label class="checkbox inline"  id="attributeDefPrivsErrorId">
+                                <input type="checkbox" name="privileges_attrDefAttrUpdaters" value="true" />${textContainer.text['priv.attrDefAttrUpdateUpper'] }
                               </label>
                             </div>
                           </div>
                           <div class="control-group">
                             <div class="controls">
-                              <button onclick="ajax('../app/UiV2Subject.addGroupSubmit?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'add-groups-form,groupFilterFormId,groupPagingFormId'}); return false;" 
-                                id="add-members-submit" type="submit" class="btn btn-primary">${textContainer.text['subjectViewAddGroupLink']}</button> ${textContainer.text['subjectViewTextBetweenAddAndBulk']} <a href="#" onclick="return guiV2link('operation=UiV2GroupImport.groupImport&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}&backTo=subject'); return false;" class="blue-link">${textContainer.text['subjectViewBulkLink'] }</a> ${textContainer.text['subjectViewTextPostBulkLink'] }
+                              <button onclick="ajax('../app/UiV2Subject.addAttributeDefSubmit?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'add-attributeDefs-form,groupFilterPrivilegesFormId,groupPagingPrivilegesFormId'}); return false;" 
+                                id="add-attributeDef-members-submit" type="submit" class="btn btn-primary">${textContainer.text['subjectViewAddAttributeDefLink']}</button>
                             </div>
                           </div>
                         </form>

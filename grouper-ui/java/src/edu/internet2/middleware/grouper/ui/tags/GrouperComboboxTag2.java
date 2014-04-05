@@ -14,7 +14,12 @@ import org.apache.commons.lang.StringUtils;
 
 
 /**
- *
+ * <pre>
+ * Note, the idBase + "Id" is the dojo id of the control
+ * The idBase + "Name" is what is submitted to the server
+ * The idBase + "NameDisplay" is what is submitted to the server if something is typed in but not selected
+ * The idBase + "ErrorId" is the span for where validation errors can go
+ * </pre>
  */
 public class GrouperComboboxTag2 extends SimpleTagSupport {
 
@@ -188,6 +193,9 @@ public class GrouperComboboxTag2 extends SimpleTagSupport {
     result.append("      dojoUnregisterWidget('" + this.idBase + "StoreId');");
     result.append("    </script>\n");
     
+    //put a table around it so the validation image can be to the right
+    result.append("<table style=\"padding: 0; border-spacing: 0\" ><tr><td>\n");
+    
     //store
     result.append("    <div style=\"display: inline; white-space: nowrap; \"><div data-dojo-type=\"dojox.data.QueryReadStore\" id=\"" + this.idBase + "StoreId\" ");
     if (!StringUtils.isBlank(this.additionalFormElementNames)) {
@@ -257,6 +265,10 @@ public class GrouperComboboxTag2 extends SimpleTagSupport {
 //              "<li>", store.getValue(item, "title"), "</li>",
     result.append("      });\n");
     result.append("    </script></div>\n");
+
+    //put a table around it so the error message can be to the right
+    result.append("</td><td><span id=\"" + this.idBase + "ErrorId" + "\"></span></td></tr></table>");
+
     
     //System.out.println(result);
     

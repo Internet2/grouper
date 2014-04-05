@@ -85,11 +85,9 @@
                     <div class="controls">
                     
                       <%-- placeholder: Enter the name of a group --%>
-                      <span id="leftFactorGroupSpanId" style="white-space: nowrap;">
-                        <grouper:combobox2 idBase="groupCompositeLeftFactorCombo" style="width: 30em"
-                          value="${grouperRequestContainer.groupContainer.compositeLeftFactorGuiGroup.group.uuid}"
-                          filterOperation="../app/UiV2Group.groupCompositeFactorFilter"/>
-                      </span>
+                      <grouper:combobox2 idBase="groupCompositeLeftFactorCombo" style="width: 30em"
+                        value="${grouperRequestContainer.groupContainer.compositeLeftFactorGuiGroup.group.uuid}"
+                        filterOperation="../app/UiV2Group.groupCompositeFactorFilter"/>
                       <span class="help-block">${textContainer.text['groupCompositeLeftFactorComboLabel']}</span>
                     </div>
                   </div>
@@ -122,11 +120,9 @@
                     <div class="controls">
 
                       <%-- placeholder: Enter the name of a group --%>
-                      <span id="rightFactorGroupSpanId" style="white-space: nowrap;">
-                        <grouper:combobox2 idBase="groupCompositeRightFactorCombo" style="width: 30em"
-                          value="${grouperRequestContainer.groupContainer.compositeRightFactorGuiGroup.group.uuid}"
-                          filterOperation="../app/UiV2Group.groupCompositeFactorFilter"/>
-                      </span>
+                      <grouper:combobox2 idBase="groupCompositeRightFactorCombo" style="width: 30em"
+                        value="${grouperRequestContainer.groupContainer.compositeRightFactorGuiGroup.group.uuid}"
+                        filterOperation="../app/UiV2Group.groupCompositeFactorFilter"/>
                       <span class="help-block">${textContainer.text['groupCompositeRightFactorComboLabel']}</span>
                     </div>
                   </div>

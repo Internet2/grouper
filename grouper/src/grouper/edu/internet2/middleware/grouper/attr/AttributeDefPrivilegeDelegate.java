@@ -32,6 +32,8 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
@@ -292,6 +294,116 @@ public class AttributeDefPrivilegeDelegate {
             SchemaException {
     return internal_grantPriv(subj, priv, exceptionIfAlreadyMember, null);
   }
+  
+  /**
+   * grant privs to attributedef
+   * @param subject to add
+   * @param updateChecked
+   * @param adminChecked
+   * @param readChecked
+   * @param viewChecked
+   * @param optinChecked
+   * @param optoutChecked
+   * @param attrReadChecked
+   * @param attrUpdateChecked
+   * @param revokeIfUnchecked
+   * @return if something was changed
+   */
+  public boolean grantPrivs(final Subject subject,
+      final boolean adminChecked,
+      final boolean updateChecked, 
+      final boolean readChecked,
+      final boolean viewChecked,
+      final boolean optinChecked,
+      final boolean optoutChecked,
+      final boolean attrReadChecked,
+      final boolean attrUpdateChecked, final boolean revokeIfUnchecked) {
+    
+    return (Boolean)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
+      
+      @Override
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+  
+        boolean hadChange = false;
+        
+        //see if add or remove
+        if (adminChecked) {
+          hadChange = hadChange | AttributeDefPrivilegeDelegate.this.grantPriv(subject, AttributeDefPrivilege.ATTR_ADMIN, false);
+        } else {
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | AttributeDefPrivilegeDelegate.this.revokePriv(subject, AttributeDefPrivilege.ATTR_ADMIN, false);
+          }
+        }
+
+        //see if add or remove
+        if (updateChecked) {
+          hadChange = hadChange | AttributeDefPrivilegeDelegate.this.grantPriv(subject, AttributeDefPrivilege.ATTR_UPDATE, false);
+        } else {
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | AttributeDefPrivilegeDelegate.this.revokePriv(subject, AttributeDefPrivilege.ATTR_UPDATE, false);
+          }
+        }
+
+        //see if add or remove
+        if (readChecked) {
+          hadChange = hadChange | AttributeDefPrivilegeDelegate.this.grantPriv(subject, AttributeDefPrivilege.ATTR_READ, false);
+        } else {
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | AttributeDefPrivilegeDelegate.this.revokePriv(subject, AttributeDefPrivilege.ATTR_READ, false);
+          }
+        }
+
+        //see if add or remove
+        if (viewChecked) {
+          hadChange = hadChange | AttributeDefPrivilegeDelegate.this.grantPriv(subject, AttributeDefPrivilege.ATTR_VIEW, false);
+        } else {
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | AttributeDefPrivilegeDelegate.this.revokePriv(subject, AttributeDefPrivilege.ATTR_VIEW, false);
+          }
+        }
+
+        //see if add or remove
+        if (optinChecked) {
+          hadChange = hadChange | AttributeDefPrivilegeDelegate.this.grantPriv(subject, AttributeDefPrivilege.ATTR_OPTIN, false);
+        } else {
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | AttributeDefPrivilegeDelegate.this.revokePriv(subject, AttributeDefPrivilege.ATTR_OPTIN, false);
+          }
+        }
+
+        //see if add or remove
+        if (optoutChecked) {
+          hadChange = hadChange | AttributeDefPrivilegeDelegate.this.grantPriv(subject, AttributeDefPrivilege.ATTR_OPTOUT, false);
+        } else {
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | AttributeDefPrivilegeDelegate.this.revokePriv(subject, AttributeDefPrivilege.ATTR_OPTOUT, false);
+          }
+        }
+
+        //see if add or remove
+        if (attrReadChecked) {
+          hadChange = hadChange | AttributeDefPrivilegeDelegate.this.grantPriv(subject, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, false);
+        } else {
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | AttributeDefPrivilegeDelegate.this.revokePriv(subject, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, false);
+          }
+        }
+
+        //see if add or remove
+        if (attrUpdateChecked) {
+          hadChange = hadChange | AttributeDefPrivilegeDelegate.this.grantPriv(subject, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, false);
+        } else {
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | AttributeDefPrivilegeDelegate.this.revokePriv(subject, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, false);
+          }
+        }
+
+        return hadChange;
+      }
+    });
+  }
+
 
   /**
    * Grant privilege to a subject on this attributeDef.

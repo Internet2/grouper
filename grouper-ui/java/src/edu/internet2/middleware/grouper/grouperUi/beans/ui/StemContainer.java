@@ -131,9 +131,12 @@ public class StemContainer {
     return this.guiPaging;
   }
 
-  
-  public void setGuiPaging(GuiPaging guiPaging) {
-    this.guiPaging = guiPaging;
+  /**
+   * gui paging
+   * @param guiPaging1
+   */
+  public void setGuiPaging(GuiPaging guiPaging1) {
+    this.guiPaging = guiPaging1;
   }
 
   /**

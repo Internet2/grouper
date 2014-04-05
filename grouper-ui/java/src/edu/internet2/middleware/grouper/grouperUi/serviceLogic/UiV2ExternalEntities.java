@@ -700,7 +700,7 @@ public class UiV2ExternalEntities {
     if (theGroup == null) {
       if (includeCombobox && errorOnNullCombobox) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-            "#inviteExternalGroupComboIdErrorId",
+            "#inviteAddGroupComboErrorId",
             TextContainer.retrieveFromRequest().getText().get("groupImportGroupNotFound")));
         success = false;
       }
@@ -713,7 +713,7 @@ public class UiV2ExternalEntities {
       if (!guiGroup.isCanInviteExternalUsers()) {
 
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-            "#groupImportGroupComboIdErrorId",
+            "#groupImportGroupComboErrorId",
             TextContainer.retrieveFromRequest().getText().get("inviteExternalErrorGroupCannotHaveExternalUsers")));
         success = false;
         

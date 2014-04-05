@@ -368,7 +368,7 @@ public class UiV2GroupImport {
     if (theGroup == null) {
       if (includeCombobox && errorOnNullCombobox) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-            "#groupImportGroupComboIdErrorId",
+            "#groupImportGroupComboErrorId",
             TextContainer.retrieveFromRequest().getText().get("groupImportGroupNotFound")));
         success = false;
       }
@@ -437,7 +437,7 @@ public class UiV2GroupImport {
 
       if (groups.size() == 0) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-            "#groupImportGroupComboIdErrorId",
+            "#groupImportGroupComboErrorId",
             TextContainer.retrieveFromRequest().getText().get("groupImportGroupNotFound")));
         return;
       }
@@ -491,7 +491,7 @@ public class UiV2GroupImport {
         
         if (subjectSet.size() == 0) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-              "#groupImportSubjectComboIdErrorId", 
+              "#groupAddMemberComboErrorId", 
               TextContainer.retrieveFromRequest().getText().get("groupImportSubjectNotFound")));
           return;
         }
@@ -1097,7 +1097,7 @@ public class UiV2GroupImport {
     if (theSubject == null) {
       if (includeCombobox && errorOnNullCombobox) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-            "#groupImportSubjectComboIdErrorId", 
+            "#groupAddMemberComboErrorId", 
             TextContainer.retrieveFromRequest().getText().get("groupImportSubjectNotFound")));
         success = false;
       }

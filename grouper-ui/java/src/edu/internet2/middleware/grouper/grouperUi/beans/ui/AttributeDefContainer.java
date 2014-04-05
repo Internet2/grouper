@@ -1,10 +1,12 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.Set;
+
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.subject.Subject;
@@ -13,14 +15,36 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * attribute definition container in new ui
  * @author mchyzer
- *
  */
 public class AttributeDefContainer {
+
+  /**
+   * search gui attribute def results
+   */
+  private Set<GuiAttributeDef> guiAttributeDefSearchResults;
+
+  /**
+   * search gui attribute def results
+   * @return the guiAttributeDefSearchResults
+   */
+  public Set<GuiAttributeDef> getGuiAttributeDefSearchResults() {
+    return this.guiAttributeDefSearchResults;
+  }
+  
+  /**
+   * search gui attribute def results
+   * @param guiAttributeDefSearchResults1 the guiAttributeDefSearchResults to set
+   */
+  public void setGuiAttributeDefSearchResults(
+      Set<GuiAttributeDef> guiAttributeDefSearchResults1) {
+    this.guiAttributeDefSearchResults = guiAttributeDefSearchResults1;
+  }
 
   /**
    * gui attribute def from url
    */
   private GuiAttributeDef guiAttributeDef;
+  
   /**
    * if the logged in user can admin group, lazy loaded
    */
@@ -41,6 +65,11 @@ public class AttributeDefContainer {
    * if show add member on the folder privileges screen
    */
   private boolean showAddMember = false;
+
+  /**
+   * keep track of the paging on the stem screen
+   */
+  private GuiPaging guiPaging = null;
 
   /**
    * gui attribute def from url
@@ -164,6 +193,25 @@ public class AttributeDefContainer {
    */
   public void setShowAddMember(boolean showAddMember1) {
     this.showAddMember = showAddMember1;
+  }
+
+  /**
+   * keep track of the paging on the stem screen
+   * @return the paging object, init if not there...
+   */
+  public GuiPaging getGuiPaging() {
+    if (this.guiPaging == null) {
+      this.guiPaging = new GuiPaging();
+    }
+    return this.guiPaging;
+  }
+
+  /**
+   * gui paging
+   * @param guiPaging1
+   */
+  public void setGuiPaging(GuiPaging guiPaging1) {
+    this.guiPaging = guiPaging1;
   }
   
   

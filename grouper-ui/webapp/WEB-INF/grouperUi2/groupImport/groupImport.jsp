@@ -81,10 +81,7 @@
                   <div class="controls">
                     <grouper:combobox2 idBase="groupImportGroupCombo" style="width: 30em" 
                        value="${grouperRequestContainer.groupContainer.guiGroup.group.id}"
-                       filterOperation="../app/UiV2Group.groupUpdateFilter" />
-                    <span id="groupImportGroupComboIdErrorId"></span>
-                    
-                    <br />
+                       filterOperation="../app/UiV2Group.groupUpdateFilter" />                    
                     ${textContainer.text['groupImportGroupLabelPreComboLink']} <a href="#group-search" 
                       onclick="$('#addGroupSearchId').val(''); $('#addGroupResults').empty(); return true;"
                       role="button" data-toggle="modal" style="text-decoration: underline !important;"
@@ -134,11 +131,7 @@
                     <grouper:combobox2 idBase="groupAddMemberCombo" style="width: 30em" 
                        value="${grouperRequestContainer.groupImportContainer.importDefaultSubject}"
                        filterOperation="../app/UiV2Group.addMemberFilter" />
-                       
-                    <span id="groupImportSubjectComboIdErrorId"></span>
-                       
-                    <br />
-                    
+                                           
                     ${textContainer.text['groupImportSubjectLabelPreComboLink']} <a href="#member-search" 
                       onclick="$('#addMemberSearchId').val(''); $('#addMemberResults').empty(); return true;"
                       role="button" data-toggle="modal" style="text-decoration: underline !important;"

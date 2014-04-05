@@ -106,10 +106,7 @@
                       <div class="controls">
                         <grouper:combobox2 idBase="inviteAddGroupCombo" style="width: 30em"
                            value="${grouperRequestContainer.groupContainer.guiGroup.group.id}"
-                          filterOperation="../app/UiV2ExternalEntities.addGroupFilter"/>
-                        <span id="inviteExternalGroupComboIdErrorId"></span>
-                        
-                        <br />
+                          filterOperation="../app/UiV2ExternalEntities.addGroupFilter"/> 
                         <span class="help-block">${textContainer.text['inviteExternalComboHelpText'] }</span>
 
                       </div>

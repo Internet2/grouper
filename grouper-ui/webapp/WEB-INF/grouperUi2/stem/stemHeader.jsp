@@ -56,7 +56,6 @@
                                 <%-- placeholder: Enter the name of a person, group, or other entity --%>
                                 <grouper:combobox2 idBase="groupAddMemberCombo" style="width: 30em"
                                   filterOperation="../app/UiV2Stem.addMemberFilter?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}"/>
-                                <br />
                                 ${textContainer.text['stemSearchLabelPreComboLink']} <a href="#member-search" onclick="$('#addMemberResults').empty();" role="button" data-toggle="modal" style="text-decoration: underline !important;">${textContainer.text['stemSearchForEntityLink']}</a>
                                 
                               </div>

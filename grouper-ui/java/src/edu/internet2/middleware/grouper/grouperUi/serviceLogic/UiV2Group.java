@@ -3920,7 +3920,7 @@ public class UiV2Group {
       
       if (leftFactorGroup == null) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-          "#leftFactorGroupSpanId",
+          "#groupCompositeLeftFactorComboErrorId",
           TextContainer.retrieveFromRequest().getText().get("groupCompositeErrorLeftGroupProblem")));
         return;
         
@@ -3954,7 +3954,7 @@ public class UiV2Group {
       
       if (rightFactorGroup == null) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-          "#rightFactorGroupSpanId",
+          "#groupCompositeRightFactorComboErrorId",
           TextContainer.retrieveFromRequest().getText().get("groupCompositeErrorRightGroupProblem")));
         return;
       }

@@ -36,8 +36,6 @@
                         filterOperation="../app/UiV2Stem.createGroupParentFolderFilter"
                         value="${grouper:escapeHtml(grouperRequestContainer.stemContainer.objectStemId)}"
                         />
-                      <span id="parentFolderComboErrorId"></span>
-                      <%-- a href="#folder-search" role="button" data-toggle="modal" class="btn"><i class="fa fa-search"></i></a --%>
                       <span class="help-block">${textContainer.text['groupCreateIntoFolderDescription'] }</span>
                     
                     </div>
