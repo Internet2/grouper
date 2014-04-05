@@ -65,84 +65,87 @@ public class UiV2MyStems {
   }
 
   /**
-     * the filter button was pressed on the my folders page, or paging or sorting, or something
-     * @param request
-     * @param response
-     */
-    private void myStemsHelper(HttpServletRequest request, HttpServletResponse response) {
-  
-      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-  
-      String myStemsFilter = StringUtils.trimToEmpty(request.getParameter("myStemsFilter"));
-      
-      MyStemsContainer myStemsContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getMyStemsContainer();
-  
-      //too short of a query
-      if (myStemsFilter.length() == 1) {
+   * the filter button was pressed on the my folders page, or paging or sorting, or something
+   * @param request
+   * @param response
+   */
+  private void myStemsHelper(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    String myStemsFilter = StringUtils.trimToEmpty(request.getParameter("myStemsFilter"));
     
-        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#myStemsFilterId",
-            TextContainer.retrieveFromRequest().getText().get("myStemsErrorNotEnoughChars")));
-        
-        //clear out the results
-        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#myStemsResultsId", ""));
+    MyStemsContainer myStemsContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getMyStemsContainer();
+
+    //too short of a query
+    if (myStemsFilter.length() == 1) {
+  
+      guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#myStemsFilterId",
+          TextContainer.retrieveFromRequest().getText().get("myStemsErrorNotEnoughChars")));
+      
+      //clear out the results
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#myStemsResultsId", ""));
+  
+      return;
+    }
     
-        return;
-      }
+    GuiPaging guiPaging = myStemsContainer.getMyStemsGuiPaging();
+
+    QueryOptions queryOptions = QueryOptions.create("displayName", true, null, null);
+    
+    GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
+    
+    StemFinder stemFinder = new StemFinder()
+      .assignPrivileges(NamingPrivilege.ALL_PRIVILEGES)
+      .assignSubject(loggedInSubject)
+      .assignSubject(GrouperSession.staticGrouperSession().getSubject())
+      .assignQueryOptions(queryOptions);
+
+    if (!StringUtils.isBlank(myStemsFilter)) {
+      stemFinder.assignSplitScope(true);
+      stemFinder.assignScope(myStemsFilter);
+    }
+
+    String stemFilterType = request.getParameter("stemFilterType");
+    
+    if (StringUtils.equals("createGroups", stemFilterType)) {
+      stemFinder.assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES);
       
-      GuiPaging guiPaging = myStemsContainer.getMyStemsGuiPaging();
-  
-      QueryOptions queryOptions = QueryOptions.create("displayName", true, null, null);
+    } else if (StringUtils.equals("createStems", stemFilterType)) {
       
-      GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
+      stemFinder.addPrivilege(NamingPrivilege.STEM);
+    } else if (StringUtils.equals("attributeRead", stemFilterType)) {
       
-      StemFinder stemFinder = new StemFinder()
-        .assignSubject(GrouperSession.staticGrouperSession().getSubject())
-        .assignQueryOptions(queryOptions);
-  
-      if (!StringUtils.isBlank(myStemsFilter)) {
-        stemFinder.assignSplitScope(true);
-        stemFinder.assignScope(myStemsFilter);
-      }
-  
-      String stemFilterType = request.getParameter("stemFilterType");
+      stemFinder.assignPrivileges(NamingPrivilege.ATTRIBUTE_READ_PRIVILEGES);
+    } else if (StringUtils.equals("attributeUpdate", stemFilterType)) {
       
-      if (StringUtils.equals("createGroups", stemFilterType)) {
-        stemFinder.assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES);
-        
-      } else if (StringUtils.equals("createStems", stemFilterType)) {
-        
-        stemFinder.addPrivilege(NamingPrivilege.STEM);
-      } else if (StringUtils.equals("attributeRead", stemFilterType)) {
-        
-        stemFinder.assignPrivileges(NamingPrivilege.ATTRIBUTE_READ_PRIVILEGES);
-      } else if (StringUtils.equals("attributeUpdate", stemFilterType)) {
-        
-        stemFinder.assignPrivileges(NamingPrivilege.ATTRIBUTE_UPDATE_PRIVILEGES);
-      } else if (StringUtils.equals("all", stemFilterType)) {
-        stemFinder.assignPrivileges(NamingPrivilege.ALL_ADMIN_PRIVILEGES);
-      } else if (!StringUtils.isBlank(stemFilterType)) {
-        throw new RuntimeException("Invalid value for stemFilterType: '" + stemFilterType + "'" );
-      }
-      
-      
-      Set<Stem> results = stemFinder.findStems();
-      
-      //this shouldnt be null, but make sure
-      if (results == null) {
-        results = new HashSet<Stem>();
-      }
-      
-      if (GrouperUtil.length(results) == 0) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("myStemsNoResultsFound")));
-      }
-      
-      myStemsContainer.setGuiStemsUserManages(GuiStem.convertFromStems(results));
-      
-      guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
-      
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#myStemsResultsId", 
-          "/WEB-INF/grouperUi2/myStems/myStemsContents.jsp"));
+      stemFinder.assignPrivileges(NamingPrivilege.ATTRIBUTE_UPDATE_PRIVILEGES);
+    } else if (StringUtils.equals("all", stemFilterType)) {
+      stemFinder.assignPrivileges(NamingPrivilege.ALL_ADMIN_PRIVILEGES);
+    } else if (!StringUtils.isBlank(stemFilterType)) {
+      throw new RuntimeException("Invalid value for stemFilterType: '" + stemFilterType + "'" );
+    }
+    
+    
+    Set<Stem> results = stemFinder.findStems();
+    
+    //this shouldnt be null, but make sure
+    if (results == null) {
+      results = new HashSet<Stem>();
+    }
+    
+    if (GrouperUtil.length(results) == 0) {
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+          TextContainer.retrieveFromRequest().getText().get("myStemsNoResultsFound")));
+    }
+    
+    myStemsContainer.setGuiStemsUserManages(GuiStem.convertFromStems(results));
+    
+    guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+    
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#myStemsResultsId", 
+        "/WEB-INF/grouperUi2/myStems/myStemsContents.jsp"));
   }
 
   /**
