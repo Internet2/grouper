@@ -47,7 +47,7 @@
               </ul>
             </div>
             <div class="leftnav-accordions">
-              <button type="button" data-toggle="collapse" data-target="#demo2" class="btn btn-block btn-grouper first">Quick Links<i class="fa fa-plus"></i><i class="fa fa-minus"></i></button>
+              <button type="button" data-toggle="collapse" data-target="#demo2" class="btn btn-block btn-grouper first">${textContainer.text['indexQuickLinksLabel']}<i class="fa fa-plus"></i><i class="fa fa-minus"></i></button>
               <div id="demo2" class="collapse in">
                 <div class="accordion-inner">
                   <ul class="nav nav-list">
@@ -59,6 +59,8 @@
                   onclick="return guiV2link('operation=UiV2Main.myFavorites');">${textContainer.text['indexMyFavoritesButton'] }</a></li>
                     <li><a href="#" 
                   onclick="return guiV2link('operation=UiV2Main.myServices');">${textContainer.text['indexMyServicesButton'] }</a></li>
+                    <li><a href="../../populateAllGroups.do">${textContainer.text['ui-lite.fromInvite-admin-link'] }</a></li>
+                    <li><a href="../../grouperUi/appHtml/grouper.html?operation=Misc.index">${textContainer.text['ui-lite.fromInvite-link'] }</a></li>
                   </ul>
                 </div>
               </div>
@@ -145,9 +147,6 @@
                 
                 </script>
               
-              </div>
-              
-              <div class="accordion-inner">
                 <div id="folderTree"></div>
               </div>
             </div>

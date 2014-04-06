@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSorting;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -26,6 +27,14 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class GroupContainer {
 
+  /**
+   * if should show link to admin ui in group menu
+   * @return should show
+   */
+  public boolean isShowMenuLinkToAdminUi() {
+    return GrouperUiConfig.retrieveConfig().propertyValueBoolean("ui-new.link-from-admin-ui", true);
+  }
+  
   /**
    * if displaying composite, this is the owner
    */

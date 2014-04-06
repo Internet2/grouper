@@ -64,6 +64,11 @@
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewAudits&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['groupViewAuditButton'] }</a></li>
                         </c:if>
+                        <li class="divider"></li>
+                        <c:if test="${grouperRequestContainer.groupContainer.showMenuLinkToAdminUi}">
+                          <li><a href="../../populateGroupSummary.do?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}"
+                              >${textContainer.text['groupViewAdminUiButton'] }</a></li>
+                        </c:if>
                       </ul>
                     </div>
 

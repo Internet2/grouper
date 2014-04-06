@@ -10,6 +10,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPrivilege;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
@@ -20,6 +21,14 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  */
 public class CommonRequestContainer {
 
+  /**
+   * if we should have the root ui be the new ui
+   * @return true if root ui should be the new ui
+   */
+  public boolean isRootUiNewUi() {
+    return GrouperUiConfig.retrieveConfig().propertyValueBoolean("ui-root-is-new-ui", true);
+  }
+  
   /**
    * error for screen (unescaped)
    */

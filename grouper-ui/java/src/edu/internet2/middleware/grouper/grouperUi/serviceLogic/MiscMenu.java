@@ -61,6 +61,9 @@ public class MiscMenu {
     } else if (StringUtils.equals(menuItemId, "admin")) {
       guiResponseJs.addAction(GuiScreenAction.newScript(
         "window.location = '../../populateAllGroups.do'"));
+    } else if (StringUtils.equals(menuItemId, "new")) {
+      guiResponseJs.addAction(GuiScreenAction.newScript(
+        "window.location = '../../grouperUi/app/UiV2Main.index?operation=UiV2Main.indexMain'"));
     } else if (StringUtils.equals(menuItemId, "groupsAndRoles")) {
       guiResponseJs.addAction(GuiScreenAction.newScript(
         "window.location = 'grouper.html?operation=SimpleGroupUpdate.createEdit'"));
@@ -110,6 +113,14 @@ public class MiscMenu {
       adminMenuItem.setId("admin");
       adminMenuItem.setText(TagUtils.navResourceString("miscMenu.admin"));
       adminMenuItem.setTooltip(TagUtils.navResourceString("miscMenu.adminTooltip"));
+      dhtmlxMenu.addDhtmlxItem(adminMenuItem);
+    }    
+    
+    {
+      DhtmlxMenuItem adminMenuItem = new DhtmlxMenuItem();
+      adminMenuItem.setId("new");
+      adminMenuItem.setText(TagUtils.navResourceString("miscMenu.new"));
+      adminMenuItem.setTooltip(TagUtils.navResourceString("miscMenu.newTooltip"));
       dhtmlxMenu.addDhtmlxItem(adminMenuItem);
     }    
     
