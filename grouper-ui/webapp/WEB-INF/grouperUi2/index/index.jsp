@@ -17,7 +17,12 @@
                   onclick="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery'});"><i class="fa fa-search"></i></a>
               </form>
             </div>
-            <div class="navbar-text pull-right">Logged in as <a href="view-person.html" class="navbar-link">${guiSettings.loggedInSubject.screenLabel}</a> &middot; <a href="#" class="navbar-link">Log out</a> &middot; <a href="#" class="navbar-link">Help</a></div>
+            <div class="navbar-text pull-right">${textContainer.text['indexLoggedInAs'] } 
+              ${guiSettings.loggedInSubject.shortLink} &middot; 
+              <a href="../../logout.do" class="navbar-link">${textContainer.text['indexLogoutLink']}</a> 
+              <%-- MCH 20140406: not sure what to do with help... 
+              &middot; <a href="#" class="navbar-link">Help</a> --%>
+             </div>
           </div>
         </div>
       </div>
@@ -41,9 +46,9 @@
                   onclick="return guiV2link('operation=UiV2Stem.newStem', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['stemNewCreateNewStemMenuButton'] }</a></li>
                 <li><a href="#" 
                   onclick="return guiV2link('operation=UiV2Group.newGroup', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['groupNewCreateNewGroupMenuButton'] }</a></li>
-                <li><a href="invite-external-users.html">Invite external users</a></li>
                 <li class="divider"></li>
-                <li><a href="bulk-add.html">Add members to a group</a></li>
+                <li><a href="#" 
+                  onclick="return guiV2link('operation=UiV2GroupImport.groupImport', {optionalFormElementNamesToSend: 'groupId'});">${textContainer.text['groupImportAddMembersToGroupMenuLink'] }</a></li>
               </ul>
             </div>
             <div class="leftnav-accordions">
@@ -154,7 +159,7 @@
         </div>
         <hr>
         <footer>
-          <p>&copy; Institute of Higher Education</p>
+          <p>&copy; ${textContainer.text['institutionName'] }</p>
         </footer>
       </div>
     </div>

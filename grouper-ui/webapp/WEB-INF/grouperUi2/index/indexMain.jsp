@@ -3,11 +3,11 @@
               <!-- indexMain.jsp -->
               <div class="bread-header-container">
                 <ul class="breadcrumb">
-                  <li class="active">Home </li>
+                  <li class="active">${textContainer.text['myGroupsHomeBreadcrumb'] } </li>
                 </ul>
                 <div class="page-header blue-gradient">
-                  <h1>Grouper<br /><small>Institute of Higher Education</small></h1>
-                  <p>This website allows you to manage groups associated with your organization and the members of those groups. For a list of answers to frequently asked questions, refer to the <a href="#">support documentation</a>.</p>
+                  <h1>${textContainer.text['grouperAppName']}<br /><small>${textContainer.text['institutionName'] }</small></h1>
+                  <p>${textContainer.text['indexGrouperDescription']}</p>
                 </div>
               </div>
               <div class="row-fluid">

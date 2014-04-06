@@ -48,6 +48,14 @@ import edu.internet2.middleware.subject.Subject;
 public class IndexContainer {
 
   /**
+   * link to support docs
+   * @return link to support docs
+   */
+  public String getSupportDocsLink() {
+    return GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.supportDocLink", "https://spaces.internet2.edu/display/Grouper/Grouper+Wiki+Home");
+  }
+  
+  /**
    * search results
    */
   private Set<GuiObjectBase> searchGuiObjectsResults = null;
