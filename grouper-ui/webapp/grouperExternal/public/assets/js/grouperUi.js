@@ -2280,3 +2280,31 @@ function dojoCopyFilteringSelectDisplays() {
     }
   }  
 }
+
+/** this does three things.  When typing in name field, syncs to id field if checkbox checked
+ * when clicking checkbox, either sync and disable, or enable the id field
+ * or when clicking the id field, if disabled, give a helpful message
+*/
+function syncNameAndId(nameElementId, idElementId, nameDifferentThanIdElementId, isElementClick, elementMessage) {
+
+  var nameDifferentThanIdChecked = $('#' + nameDifferentThanIdElementId).is(':checked');
+  
+  //if someone clicks on the disabled textfield, then tell them they need to check the checkbox
+  if (isElementClick) {
+    if (!nameDifferentThanIdChecked) {
+      alert(elementMessage);
+    }
+    return;
+  } 
+
+  //if its checked, then sync up the id with the name
+  if (!nameDifferentThanIdChecked) {
+    $('#' + idElementId).attr('disabled', 'disabled');
+    var nameValue = $('#' + nameElementId).val();
+    //set this in the id
+    $('#' + idElementId).val(nameValue);
+  } else {
+    $('#' + idElementId).attr('disabled', null);
+  }
+  
+}

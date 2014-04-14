@@ -1394,8 +1394,10 @@ public class UiV2Group {
   
       grouperSession = GrouperSession.start(loggedInSubject);
       
-      final String extension = request.getParameter("extension");
+
+      final boolean editIdChecked = GrouperUtil.booleanValue(request.getParameter("nameDifferentThanId[]"), false);
       final String displayExtension = request.getParameter("displayExtension");
+      final String extension = editIdChecked ? request.getParameter("extension") : displayExtension;
       final String description = request.getParameter("description");
       final boolean adminChecked = GrouperUtil.booleanValue(request.getParameter("privileges_admins[]"), false);
       final boolean updateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_updaters[]"), false);
