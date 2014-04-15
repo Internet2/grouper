@@ -125,7 +125,7 @@
   <cache name="net.sf.hibernate.cache.UpdateTimestampsCache"
     maxElementsInMemory="5000"
     eternal="true"
-    overflowToDisk="false"
+    overflowToDisk="true"
     statistics="false"
   />
 
@@ -141,7 +141,7 @@
   <cache name="org.hibernate.cache.UpdateTimestampsCache"
     maxElementsInMemory="5000"
     eternal="true"
-    overflowToDisk="false"
+    overflowToDisk="true"
     statistics="false"
   />
 
