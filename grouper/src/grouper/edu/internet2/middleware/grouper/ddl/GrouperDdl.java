@@ -9946,7 +9946,8 @@ public enum GrouperDdl implements DdlVersionable {
               + " gaasv.enabled AS assignment_enabled, "
               + " gaasv.attribute_assign_id "
               + " FROM grouper_attr_asn_stem_v gaasv "
-              + " WHERE gaasv.attribute_def_name_name = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInvite'"      
+              + " WHERE gaasv.attribute_def_name_name = '" + attributeRootStem + ":attrExternalSubjectInvite:externalSubjectInvite' " 
+              + " AND gaasv.enabled = 'T' "      
       );
 
       //SELECT main_gaa.attribute_assign_type AS assigned_to_type,
