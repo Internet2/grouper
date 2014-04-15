@@ -35,6 +35,7 @@ import java.io.StringWriter;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -87,6 +88,32 @@ import edu.internet2.middleware.grouper.xml.export.XmlImportable;
  * @version $Id: Field.java,v 1.48 2009-09-24 18:07:16 shilen Exp $    
  */
 public class Field extends GrouperAPI implements Comparable<Field>, GrouperHasContext, Hib3GrouperVersioned, XmlImportable<Field> {
+
+  /**
+   * get the fields that this field implies by inheritance
+   * @return the fields, note, dont change the list after you get it
+   */
+  public Collection<Field> getImpliedFields() {
+
+    if (this.isPrivilege()) {
+      Privilege privilege = Privilege.listToPriv(this.name, true);
+      return Privilege.convertPrivilegesToFields(privilege.getImpliedPrivileges());
+    }
+    
+    throw new RuntimeException("Not expecting field: " + this.name);
+  }
+
+  /**
+   * 
+   * @return if this field is a privilege
+   */
+  public boolean isPrivilege() {
+    
+    if (this.isAttributeDefListField() || this.isGroupAccessField() || this.isStemListField()) {
+      return true;
+    }
+    return false;
+  }
 
   /**
    * return the uuid

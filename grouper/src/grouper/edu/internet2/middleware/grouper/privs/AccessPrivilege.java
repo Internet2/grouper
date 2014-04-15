@@ -113,10 +113,10 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable<AccessPrivi
    */
   public static Set<Privilege> OPT_OR_READ_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(OPTIN, OPTOUT, READ, UPDATE, ADMIN));
-  
+
   /** */
   public static final Privilege VIEW    = Privilege.getInstance("view");
-  
+
   /** */
   public static final Privilege GROUP_ATTR_READ    = Privilege.getInstance("groupAttrRead");
 
@@ -124,7 +124,6 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable<AccessPrivi
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> GROUP_ATTR_READ_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(GROUP_ATTR_READ, ADMIN));
-  
 
   /** */
   public static final Privilege GROUP_ATTR_UPDATE    = Privilege.getInstance("groupAttrUpdate");
@@ -134,11 +133,12 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable<AccessPrivi
   public static Set<Privilege> GROUP_ATTR_UPDATE_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(GROUP_ATTR_UPDATE, ADMIN));
 
+
   /** any of these constitutes VIEW on a group
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> VIEW_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(VIEW, READ, ADMIN, UPDATE, GROUP_ATTR_READ, GROUP_ATTR_UPDATE, OPTIN, OPTOUT));
-  
+
   /** these are all the group access privileges
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> ALL_PRIVILEGES = Collections.unmodifiableSet(
@@ -222,6 +222,42 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable<AccessPrivi
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> ADMIN_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(ADMIN));
+  
+  /** these privileges are implied by ADMIN  */
+  public static Set<Privilege> ADMIN_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ADMIN, UPDATE, READ, OPTIN, OPTOUT, GROUP_ATTR_UPDATE, GROUP_ATTR_READ, VIEW));
+  
+  /** these privileges are implied by UPDATE  */
+  public static Set<Privilege> UPDATE_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(UPDATE, OPTIN, OPTOUT, VIEW));
+
+  /** these privileges are implied by READ  */
+  public static Set<Privilege> READ_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(READ, VIEW));
+  
+  /** these privileges are implied by OPTIN  */
+  public static Set<Privilege> OPTIN_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(OPTIN, VIEW));
+  
+  /** these privileges are implied by OPTOUT  */
+  public static Set<Privilege> OPTOUT_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(OPTOUT, VIEW));
+  
+
+  /** these privileges are implied by VIEW  */
+  public static Set<Privilege> VIEW_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(VIEW));
+
+  /** these privileges are implied by GROUP_ATTR_UPDATE  */
+  public static Set<Privilege> GROUP_ATTR_UPDATE_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(GROUP_ATTR_UPDATE, VIEW));
+
+  /** these privileges are implied by GROUP_ATTR_READ  */
+  public static Set<Privilege> GROUP_ATTR_READ_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(GROUP_ATTR_READ, VIEW));
+
+
+
   
   /** any of these constitutes MANAGE on a group
    * note, keep most common/likely privs toward the front  */

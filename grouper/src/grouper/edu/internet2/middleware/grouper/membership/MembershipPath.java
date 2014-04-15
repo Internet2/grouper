@@ -26,6 +26,32 @@ public class MembershipPath implements Comparable<MembershipPath> {
   private Set<Field> fields;
   
   /**
+   * fields assigned, and the fields those fields imply
+   */
+  private Set<Field> fieldsIncludingImplied;
+  
+  
+  /**
+   * fields assigned, and the fields those fields imply
+   * @return the fieldsIncludingImplied
+   */
+  public Set<Field> getFieldsIncludingImplied() {
+    if (this.fieldsIncludingImplied == null) {
+      this.fieldsIncludingImplied = new TreeSet<Field>();
+    }
+    return this.fieldsIncludingImplied;
+  }
+
+  
+  /**
+   * fields assigned, and the fields those fields imply
+   * @param fieldsIncludingImplied the fieldsIncludingImplied to set
+   */
+  public void setFieldsIncludingImplied(Set<Field> fieldsIncludingImplied) {
+    this.fieldsIncludingImplied = fieldsIncludingImplied;
+  }
+
+  /**
    * field for this path, generally one for list, or multiple for privileges
    * @return the fields
    */
@@ -230,7 +256,7 @@ public class MembershipPath implements Comparable<MembershipPath> {
   }
 
   /**
-   * path allowed
+   * if path allowed to be seen by user
    * @return path allowed
    */
   public boolean isPathAllowed() {
@@ -238,7 +264,7 @@ public class MembershipPath implements Comparable<MembershipPath> {
   }
 
   /**
-   * if path allowed
+   * if path allowed to be seen by user
    * @param thePathAllowed1
    */
   public void setPathAllowed(boolean thePathAllowed1) {

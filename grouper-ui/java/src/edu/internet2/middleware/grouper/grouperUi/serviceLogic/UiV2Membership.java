@@ -445,6 +445,27 @@ public class UiV2Membership {
       {
         StringBuilder privilegeNames = new StringBuilder();
         boolean first = true;
+        for (Field field : GrouperUtil.nonNull(membershipPath.getFieldsIncludingImplied())) {
+          if (!first) {
+            privilegeNames.append(", ");
+          }
+          
+          String textKey = "priv." + field.getName() + "Upper";
+
+          String privilegeLabel = TextContainer.retrieveFromRequest().getText().get(textKey);
+          
+          privilegeNames.append(privilegeLabel);
+          
+          first = false;
+        }
+        
+        membershipGuiContainer.setPrivilegeIncludingImpliedLabelsString(privilegeNames.toString());
+      }
+
+      //get privs like ADMIN, READ
+      {
+        StringBuilder privilegeNames = new StringBuilder();
+        boolean first = true;
         for (Field field : GrouperUtil.nonNull(membershipPath.getFields())) {
           if (!first) {
             privilegeNames.append(", ");
@@ -462,6 +483,7 @@ public class UiV2Membership {
         membershipGuiContainer.setPrivilegeLabelsString(privilegeNames.toString());
       }
 
+      
       result.append(TextContainer.retrieveFromRequest().getText().get("privilegesTracePrivilegesLine")).append("\n");
       if (membershipPath.getMembershipType() == MembershipType.IMMEDIATE) {
         if (SubjectHelper.eq(everyEntitySubject, membershipPath.getMember().getSubject())) {
@@ -480,7 +502,7 @@ public class UiV2Membership {
       membershipGuiContainer.setLineNumber(pathLineNumber);
       
       boolean firstNode = true;
- 
+      
       //loop through each node in the path
       for (int i = 0; i < GrouperUtil.length(membershipPath.getMembershipPathNodes()); i++) {
         

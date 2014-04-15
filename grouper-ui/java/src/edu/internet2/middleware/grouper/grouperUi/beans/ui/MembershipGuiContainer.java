@@ -144,6 +144,28 @@ public class MembershipGuiContainer {
   }
 
   /**
+   * list of comma separated privileges for this trace of path including implied privilege
+   */
+  private String privilegeIncludingImpliedLabelsString;
+
+  /**
+   * list of comma separated privileges for this trace of path including implied privilege
+   * @return the privilegeIncludingImpliedLabelsString
+   */
+  public String getPrivilegeIncludingImpliedLabelsString() {
+    return this.privilegeIncludingImpliedLabelsString;
+  }
+
+  /**
+   * list of comma separated privileges for this trace of path including implied privilege
+   * @param privilegeIncludingImpliedLabelsString1 the privilegeIncludingImpliedLabelsString to set
+   */
+  public void setPrivilegeIncludingImpliedLabelsString(
+      String privilegeIncludingImpliedLabelsString1) {
+    this.privilegeIncludingImpliedLabelsString = privilegeIncludingImpliedLabelsString1;
+  }
+
+  /**
    * list of comma separated privileges for this trace of path
    */
   private String privilegeLabelsString;

@@ -75,9 +75,25 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable<NamingPrivi
   public static Set<Privilege> STEM_ATTR_READ_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(STEM_ATTR_READ, STEM));
   
-
   /** can update attributes on this stem */
   public static final Privilege STEM_ATTR_UPDATE    = Privilege.getInstance("stemAttrUpdate");
+
+  /** these privileges are implied by STEM  */
+  public static Set<Privilege> STEM_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(STEM, CREATE, STEM_ATTR_READ, STEM_ATTR_UPDATE));
+  
+  /** these privileges are implied by CREATE  */
+  public static Set<Privilege> CREATE_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(CREATE));
+  
+  /** these privileges are implied by STEM_ATTR_READ  */
+  public static Set<Privilege> STEM_ATTR_READ_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(STEM_ATTR_READ));
+  
+  /** these privileges are implied by STEM_ATTR_UPDATE  */
+  public static Set<Privilege> STEM_ATTR_UPDATE_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(STEM_ATTR_UPDATE));
+  
 
   /** any of these constitutes STEM_ATTR_UPDATE on a stem
    * note, keep most common/likely privs toward the front  */

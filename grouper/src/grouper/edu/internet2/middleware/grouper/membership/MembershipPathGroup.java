@@ -59,7 +59,7 @@ public class MembershipPathGroup {
     Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
     return analyzePrivileges(group, member);
   }
-  
+
   /**
    * analyze group privileges for a group and a member
    * @param group
@@ -708,10 +708,20 @@ public class MembershipPathGroup {
     for (Privilege privilege : AccessPrivilege.ALL_PRIVILEGES) {
       
       Field field = privilege.getField();
-      MembershipPathGroup fieldMembershipPathGroup = MembershipPathGroup.analyze(group, theMember, field, callingSubject, DEFAULT_TIME_TO_LIVE);
+      MembershipPathGroup fieldMembershipPathGroup = MembershipPathGroup.analyze(group, 
+          theMember, field, callingSubject, DEFAULT_TIME_TO_LIVE);
       
       //merge this field in with the overall
       this.mergeFieldMembershipPathGroup(fieldMembershipPathGroup);
+      
+    }
+    
+    //add in indirect privs
+    for (MembershipPath membershipPath : GrouperUtil.nonNull(this.membershipPaths)) {
+      
+      for (Field field : new HashSet<Field>(membershipPath.getFields())) {
+        membershipPath.getFieldsIncludingImplied().addAll(field.getImpliedFields());
+      }
       
     }
     
@@ -774,6 +784,15 @@ public class MembershipPathGroup {
       
     }
     
+    //add in indirect privs
+    for (MembershipPath membershipPath : GrouperUtil.nonNull(this.membershipPaths)) {
+      
+      for (Field field : new HashSet<Field>(membershipPath.getFields())) {
+        membershipPath.getFieldsIncludingImplied().addAll(field.getImpliedFields());
+      }
+      
+    }
+    
   }
 
   /**
@@ -797,7 +816,16 @@ public class MembershipPathGroup {
       this.mergeFieldMembershipPathGroup(fieldMembershipPathGroup);
       
     }
+    //add in indirect privs
+    for (MembershipPath membershipPath : GrouperUtil.nonNull(this.membershipPaths)) {
+      
+      for (Field field : new HashSet<Field>(membershipPath.getFields())) {
+        membershipPath.getFieldsIncludingImplied().addAll(field.getImpliedFields());
+      }
+      
+    }
     
+   
   }
 
   /**

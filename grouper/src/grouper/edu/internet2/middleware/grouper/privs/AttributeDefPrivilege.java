@@ -199,6 +199,41 @@ public class AttributeDefPrivilege implements GrouperPrivilege, Comparable {
   public static Set<Privilege> ATTR_ADMIN_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(ATTR_ADMIN));
 
+  /** these privileges are implied by ATTR_ADMIN  */
+  public static Set<Privilege> ATTR_ADMIN_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ATTR_ADMIN, ATTR_UPDATE, ATTR_READ, ATTR_OPTIN, ATTR_OPTOUT, ATTR_DEF_ATTR_UPDATE, ATTR_DEF_ATTR_READ, ATTR_VIEW));
+  
+  /** these privileges are implied by ATTR_UPDATE  */
+  public static Set<Privilege> ATTR_UPDATE_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ATTR_UPDATE, ATTR_OPTIN, ATTR_OPTOUT, ATTR_VIEW));
+
+  /** these privileges are implied by ATTR_READ  */
+  public static Set<Privilege> ATTR_READ_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ATTR_READ, ATTR_VIEW));
+  
+  /** these privileges are implied by ATTR_OPTIN  */
+  public static Set<Privilege> ATTR_OPTIN_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ATTR_OPTIN, ATTR_VIEW));
+  
+  /** these privileges are implied by ATTR_OPTOUT  */
+  public static Set<Privilege> ATTR_OPTOUT_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ATTR_OPTOUT, ATTR_VIEW));
+  
+
+  /** these privileges are implied by ATTR_VIEW  */
+  public static Set<Privilege> ATTR_VIEW_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ATTR_VIEW));
+
+  /** these privileges are implied by ATTR_DEF_ATTR_UPDATE  */
+  public static Set<Privilege> ATTR_DEF_ATTR_UPDATE_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ATTR_DEF_ATTR_UPDATE, ATTR_VIEW));
+
+  /** these privileges are implied by ATTR_DEF_ATTR_READ  */
+  public static Set<Privilege> ATTR_DEF_ATTR_READ_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ATTR_DEF_ATTR_READ, ATTR_VIEW));
+
+
+
 
   /** */
   private AttributeDef attributeDef;

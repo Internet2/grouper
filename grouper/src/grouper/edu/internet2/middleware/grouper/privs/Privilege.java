@@ -321,7 +321,99 @@ public class Privilege implements Serializable {
     throw new RuntimeException("Cant find privilege: " + this.getName());
     
   }
-  
+
+  /**
+   * get the privilege that this privilege implied (including this privilege
+   * for instance if the privilege is UPDATE, then return UPDATE and ADMIN
+   * @return the inherited privileges
+   *
+   */
+  public Collection<Privilege> getImpliedPrivileges() {
+    
+    if (this.equals(ADMIN)) {
+      return AccessPrivilege.ADMIN_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(VIEW)) {
+      return AccessPrivilege.VIEW_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(READ)) {
+      return AccessPrivilege.READ_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(UPDATE)) {
+      return AccessPrivilege.UPDATE_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(OPTIN)) {
+      return AccessPrivilege.OPTIN_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(OPTOUT)) {
+      return AccessPrivilege.OPTOUT_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(GROUP_ATTR_READ)) {
+      return AccessPrivilege.GROUP_ATTR_READ_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(GROUP_ATTR_UPDATE)) {
+      return AccessPrivilege.GROUP_ATTR_UPDATE_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(STEM)) {
+      return NamingPrivilege.STEM_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(CREATE)) {
+      return NamingPrivilege.CREATE_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(STEM_ATTR_READ)) {
+      return NamingPrivilege.STEM_ATTR_READ_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(STEM_ATTR_UPDATE)) {
+      return NamingPrivilege.STEM_ATTR_UPDATE_IMPLIED_PRIVILEGES;
+    }
+
+    if (this.equals(ATTR_ADMIN)) {
+      return AttributeDefPrivilege.ATTR_ADMIN_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_DEF_ATTR_READ)) {
+      return AttributeDefPrivilege.ATTR_DEF_ATTR_READ_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_DEF_ATTR_UPDATE)) {
+      return AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_OPTIN)) {
+      return AttributeDefPrivilege.ATTR_OPTIN_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_OPTOUT)) {
+      return AttributeDefPrivilege.ATTR_OPTOUT_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_READ)) {
+      return AttributeDefPrivilege.ATTR_READ_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_UPDATE)) {
+      return AttributeDefPrivilege.ATTR_UPDATE_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_VIEW)) {
+      return AttributeDefPrivilege.ATTR_VIEW_IMPLIED_PRIVILEGES;
+    }
+
+    throw new RuntimeException("Cant find privilege: " + this.getName());
+    
+  }
+
 
 
   // STATIC //
