@@ -1,5 +1,13 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
+
+            <script>
+            $( document ).ready(function() {
+              $('#priv2').click();
+            });
+            </script>
+            <c:set var="defaultMemberUnchecked" value="${true}" />
+
             <%-- for the new group or new stem button --%>
             <input type="hidden" name="objectStemId" value="${grouperRequestContainer.groupContainer.guiGroup.group.parentUuid}" />
 

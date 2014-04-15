@@ -58,7 +58,7 @@
                       <span style="white-space: nowrap;">
                         <input type="checkbox" name="nameDifferentThanId" id="nameDifferentThanIdId" value="true"
                           onchange="syncNameAndId('groupName', 'groupId', 'nameDifferentThanIdId', false, null); return true;"
-                        /> ${textContainer.text['stemNewEditTheId'] }
+                        /> ${textContainer.text['groupNewEditTheId'] }
                       </span>
                       <span class="help-block">${textContainer.text['groupCreateIdDescription'] }</span>
                     </div>

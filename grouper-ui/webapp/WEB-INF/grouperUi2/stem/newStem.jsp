@@ -43,13 +43,25 @@
                   <div class="control-group">
                     <label for="stemName" class="control-label">${textContainer.text['stemCreateNameLabel'] }</label>
                     <div class="controls">
-                      <input type="text" id="stemName" name="displayExtension" /><span class="help-block">${textContainer.text['stemCreateNameDescription'] }</span>
+                      <input type="text" id="stemName" name="displayExtension" 
+                        onkeyup="syncNameAndId('stemName', 'stemId', 'nameDifferentThanIdId', false, null); return true;"
+                      /><span class="help-block">${textContainer.text['stemCreateNameDescription'] }</span>
                     </div>
                   </div>
                   <div class="control-group">
                     <label for="stemId" class="control-label">${textContainer.text['stemCreateIdLabel'] }</label>
                     <div class="controls">
-                      <input type="text" id="stemId" name="extension" /><span class="help-block">${textContainer.text['stemCreateIdDescription'] }</span>
+
+                      <span onclick="syncNameAndId('stemName', 'stemId', 'nameDifferentThanIdId', true, '${textContainer.textEscapeXml['stemNewAlertWhenClickingOnDisabledId']}'); return true;">
+                        <input type="text" id="stemId" name="extension" disabled="disabled"  /> 
+                      </span>
+                      <span style="white-space: nowrap;">
+                        <input type="checkbox" name="nameDifferentThanId" id="nameDifferentThanIdId" value="true"
+                          onchange="syncNameAndId('stemName', 'stemId', 'nameDifferentThanIdId', false, null); return true;"
+                        />
+                        ${textContainer.text['stemNewEditTheId'] }
+                      </span>
+                      <span class="help-block">${textContainer.text['stemCreateIdDescription'] }</span>
                     </div>
                   </div>
                   <div class="control-group">

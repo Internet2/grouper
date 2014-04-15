@@ -94,7 +94,7 @@
                         <tbody>
                           <tr>
                             <td><strong>${textContainer.text['stemLabelPath'] }</strong></td>
-                            <td>${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.pathColonSpaceSeparated)}</td>
+                            <td>${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.stem.displayName)}</td>
                           </tr>
                           <tr>
                             <td><strong>${textContainer.text['stemLabelIdPath'] }</strong></td>

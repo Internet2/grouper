@@ -70,10 +70,10 @@
                                   </div>
                                 </div>
                               </div>
-                              <div id="add-members-privileges-select" class="control-group">
+                              <div id="add-members-privileges-select" class="control-group"  ${defaultMemberUnchecked ? 'style="display:none"' : '' } >
                                 <label class="control-label">${textContainer.text['groupViewAssignThesePrivileges']}</label>
-                                <div class="controls">
-                                  <label class="radio inline">
+                                <div class="controls" >
+                                  <label class="radio inline" >
                                     <input type="radio" id="priv1" value="default" name="privilege-options" checked="checked" onclick="this.blur();" value="true" onchange="$('#add-members-privileges').hide('slow');"/>${textContainer.text['groupViewDefaultPrivileges'] }
                                   </label>
                                   <label class="radio inline">
@@ -82,9 +82,10 @@
                                 </div>
                               </div>
                               <div id="add-members-privileges" class="control-group hide">
+                                <label class="control-label" ${defaultMemberUnchecked ? '' : 'style="display:none"' } >${textContainer.text['groupViewAssignThesePrivileges']}</label>
                                 <div class="controls">
                                   <label class="checkbox inline">
-                                    <input type="checkbox" name="privileges_members" value="true" checked="checked"/>${textContainer.text['priv.memberUpper']}
+                                    <input type="checkbox" name="privileges_members" value="true" ${defaultMemberUnchecked ? '' : 'checked="checked" '} />${textContainer.text['priv.memberUpper']}
                                   </label>
                                   <label class="checkbox inline">
                                     <%--
