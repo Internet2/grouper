@@ -73,7 +73,7 @@
                               <label class="checkbox inline">
                                 <input type="checkbox" name="privileges_stemAttrReaders" value="true" />${textContainer.text['priv.stemAttrReadersUpper']}
                               </label>
-                              <label class="checkbox inline">
+                              <label class="checkbox inline" id="stemPrivsErrorId">
                                 <input type="checkbox" name="privileges_stemAttrUpdaters" value="true" />${textContainer.text['priv.stemAttrUpdatersUpper']}
                               </label>
                             </div>

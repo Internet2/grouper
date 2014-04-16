@@ -2025,6 +2025,15 @@ public class UiV2Stem {
       boolean stemAttrReadersChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemAttrReaders[]"), false);
       boolean stemAttrUpdatersChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemAttrUpdaters[]"), false);
 
+      if (!stemmersChecked && !creatorsChecked && !stemAttrReadersChecked && !stemAttrUpdatersChecked) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#stemPrivsErrorId",
+            TextContainer.retrieveFromRequest().getText().get("stemAddMemberPrivRequired")));
+        return;
+        
+      }
+
+      
       boolean madeChanges = stem.grantPrivs(subject, stemmersChecked, creatorsChecked, stemAttrReadersChecked, stemAttrUpdatersChecked, false);
 
       if (madeChanges) {

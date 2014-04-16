@@ -716,6 +716,16 @@ public class UiV2Group {
       boolean attrReadChecked = GrouperUtil.booleanValue(request.getParameter("privileges_groupAttrReaders[]"), false);
       boolean attrUpdateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_groupAttrUpdaters[]"), false);
       
+      if (!defaultPrivs && !memberChecked && !adminChecked && !updateChecked
+          && !readChecked && !viewChecked && !optinChecked && !optoutChecked
+          && !attrReadChecked && !attrUpdateChecked) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#groupPrivsErrorId",
+            TextContainer.retrieveFromRequest().getText().get("groupAddMemberPrivRequired")));
+        return;
+        
+      }
+
       boolean madeChanges = group.addMember(subject, defaultPrivs, memberChecked, adminChecked, 
           updateChecked, readChecked, viewChecked, optinChecked, optoutChecked, attrReadChecked, 
           attrUpdateChecked, null, null, false);

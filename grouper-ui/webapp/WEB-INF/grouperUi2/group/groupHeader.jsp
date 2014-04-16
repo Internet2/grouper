@@ -112,7 +112,7 @@
                                   <label class="checkbox inline">
                                     <input type="checkbox" name="privileges_groupAttrReaders" value="true" />${textContainer.text['priv.groupAttrReadUpper'] }
                                   </label>
-                                  <label class="checkbox inline">
+                                  <label class="checkbox inline" id="groupPrivsErrorId">
                                     <input type="checkbox" name="privileges_groupAttrUpdaters" value="true" />${textContainer.text['priv.groupAttrUpdateUpper'] }
                                   </label>
                                 </div>
