@@ -75,6 +75,9 @@
             </div>
 
             <form class="form-horizontal" id="importGroupFormId" enctype="multipart/form-data" method="post" >
+              <%-- note this wont work for token per page --%>
+              <input type="hidden" name="<csrf:token-name/>" value="<csrf:token-value />"/>
+              
               <div class="bulk-add-group-input-container">
                 <div class="control-group bulk-add-group-block">
                   <label for="add-entities" style="position:absolute" class="control-label">${textContainer.text['groupImportAddMembersToGroupLabel'] }</label>

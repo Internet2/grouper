@@ -1040,7 +1040,7 @@ public class GrouperUiFilter implements Filter {
     try {
       HttpServletRequest httpServletRequest = retrieveHttpServletRequest();
 
-      String error = (String)httpServletRequest.getAttribute("error");
+      String error = httpServletRequest == null ? null : (String)httpServletRequest.getAttribute("error");
       if (!StringUtils.isBlank(error)) {
         
         String errorMailAddresses = GrouperUiConfig.retrieveConfig().propertyValueString("errorMailAddresses");

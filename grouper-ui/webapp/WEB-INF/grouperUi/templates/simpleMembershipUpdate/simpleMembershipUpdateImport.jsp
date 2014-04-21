@@ -8,7 +8,7 @@
     <grouper:subtitle infodotValue="${simpleMembershipUpdateContainer.text.importSubtitleInfodot}" label="${simpleMembershipUpdateContainer.text.importSubtitle}" />
   
     <div class="sectionBody">
-      <form action="whatever" id="simpleMembershipUploadForm" 
+      <form id="simpleMembershipUploadForm" 
           name="simpleMembershipUploadForm" method="post" enctype="multipart/form-data">
         <div class="combohint"><grouper:message value="${simpleMembershipUpdateContainer.text.importLabel}" /></div><br />
         
