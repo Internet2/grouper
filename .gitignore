@@ -1,0 +1,12 @@
+/grouper-parent/target/
+/grouper-misc/morphString/target/
+/grouper-misc/grouperClient/target/
+/subject/target/
+/grouper/target/
+/ldappcng/grouper-shib/target/
+/grouper/conf/
+/grouper/bin/*
+/grouper/logs/
+/ldappcng/ldappcng/target/
+/grouper/build.properties
+/grouper/build.log
