@@ -17,6 +17,7 @@
         <module>../subject</module>
         <module>../grouper</module>
         <module>../ldappcng/grouper-shib</module>
+        <module>../grouper-misc/grouperScim</module>
     </modules>
 
     <properties>
