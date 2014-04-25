@@ -1177,7 +1177,7 @@ public class GrouperCheckConfig {
     checkJar("ezmorph.jar", 86542, "net.sf.ezmorph.array.AbstractArrayMorpher", "1.0.6");
     checkJar("grouperClient.jar", 2955670, "edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.InitializationException", "2.1.5");
     checkJar("hibernate-jpa-2.0-api.jar", 102661, "javax.persistence.Access", "1.0.1.Final");
-    checkJar("hibernate.jar", 7018087, "org.hibernate.action.AfterTransactionCompletionProcess", "3.6.7.Final");
+    checkJar("hibernate.jar", 6985365, "org.hibernate.action.AfterTransactionCompletionProcess", "3.6.7.Final-Grouper-patch-20140425");
     checkJar("invoker.jar", 27767, "com.dawidweiss.invoker.Invoker", "1.0");
     checkJar("jakarta-oro.jar", 65261, "org.apache.oro.io.AwkFilenameFilter", "2.0.8 2003-12-28 11:00:13");
     checkJar("jamon.jar", 280580, "com.jamonapi.aop.JAMonEJBInterceptor", "JAMon 2.7");
