@@ -135,6 +135,19 @@ public class SubjectUtils {
   private static Map<String, Properties> resourcePropertiesCache = new HashMap<String, Properties>();
 
   /**
+   * create one jexlEngine instance so we can cache expressions
+   */
+  private static final JexlEngine jexlEngine = new JexlEngine();
+  
+  /**
+   * settings for jexlEngine
+   */
+  static {
+    jexlEngine.setCache(512);
+    jexlEngine.setSilent(false);
+  }
+
+  /**
    * do a case-insensitive matching
    * @param theEnumClass class of the enum
    * @param <E> generic type
@@ -1958,9 +1971,6 @@ public class SubjectUtils {
       
       StringBuilder result = new StringBuilder();
   
-      JexlEngine jexlEngine = new JexlEngine();
-      jexlEngine.setSilent(false);
-
       
       //loop through and find each script
       while(matcher.find()) {
