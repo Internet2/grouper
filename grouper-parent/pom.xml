@@ -308,10 +308,12 @@
                 <version>1.0-RC2</version>
             </dependency>
             <dependency>
+				<!-- we are now shipping our own version of hibernate -->
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-core</artifactId>
                 <version>3.6.7.Final</version>
-            </dependency>
+				<scope>provided</scope>
+			</dependency>
             <dependency>
                 <groupId>org.hibernate.javax.persistence</groupId>
                 <artifactId>hibernate-jpa-2.0-api</artifactId>
