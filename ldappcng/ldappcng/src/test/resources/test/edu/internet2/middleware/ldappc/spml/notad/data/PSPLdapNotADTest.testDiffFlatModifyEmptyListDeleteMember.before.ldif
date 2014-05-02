@@ -1,8 +1,0 @@
-dn: cn=groupB,ou=testgroups,${base}
-objectclass: top
-objectclass: ${groupObjectClass}
-objectclass: eduMember
-cn: groupB
-member: cn=test.subject.1,ou=testpeople,${base}
-description: descriptionB
-hasMember: test.subject.1

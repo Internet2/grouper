@@ -1,6 +1,0 @@
-dn: cn=groupB,ou=edu,ou=testgroups,${base}
-changetype: modify
-add: member
-member: CN=test.subject.0,ou=testpeople,${base}
-member: cn=groupA,ou=edu,ou=testgroups,${base}
--
