@@ -41,10 +41,8 @@
             </exclusions>
         </dependency>
         <dependency>
-	    <!-- we provide our own hibernate which fixes a few bugs -->
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-	    <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>ant</groupId>
