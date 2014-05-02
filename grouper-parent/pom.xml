@@ -16,7 +16,7 @@
 		<module>../grouper-misc/grouperClient</module>
         <module>../subject</module>
         <module>../grouper</module>
-        <module>../ldappcng/grouper-shib</module>
+        <module>../grouper-misc/grouper-shib</module>
         <module>../grouper-misc/grouperScim</module>
     </modules>
 
