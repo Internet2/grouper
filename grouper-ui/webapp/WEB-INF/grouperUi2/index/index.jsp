@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
   <!-- start index.jsp -->
-  <head><title>Grouper UI v2.2</title>
+  <head><title>${textContainer.text['guiTitle']}</title>
   <%@ include file="../assetsJsp/commonHead.jsp"%>
   </head>
   <body class="full claro">

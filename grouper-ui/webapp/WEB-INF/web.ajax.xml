@@ -17,9 +17,13 @@
     <filter-name>GrouperUi</filter-name>
     <url-pattern>/grouperExternal/app/*</url-pattern>
   </filter-mapping>
-    <filter-mapping>
+  <filter-mapping>
     <filter-name>GrouperUi</filter-name>
     <url-pattern>/grouperExternal/appHtml/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>GrouperUi</filter-name>
+    <url-pattern>/grouperExternal/public/UiV2Public.index</url-pattern>
   </filter-mapping>
 
   <servlet>
@@ -48,6 +52,10 @@
   <servlet-mapping>
     <servlet-name>UiServlet</servlet-name>
     <url-pattern>/grouperExternal/app/*</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>UiServlet</servlet-name>
+    <url-pattern>/grouperExternal/public/UiV2Public.index</url-pattern>
   </servlet-mapping>
 
 

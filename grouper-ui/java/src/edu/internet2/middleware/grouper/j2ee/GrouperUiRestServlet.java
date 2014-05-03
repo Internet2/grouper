@@ -40,8 +40,8 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.AppState;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
-import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSettings;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSettings;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.InviteExternalSubjects;
@@ -59,11 +59,13 @@ import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2ExternalEntit
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Group;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2GroupImport;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Main;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Public;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Stem;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Subject;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter.UiSection;
+import edu.internet2.middleware.grouper.ui.NoUserAuthenticatedException;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
@@ -144,7 +146,9 @@ public class GrouperUiRestServlet extends HttpServlet {
       UiV2Stem.class.getSimpleName() + ".addMemberFilter",
       UiV2ExternalEntities.class.getSimpleName() + ".addGroupFilter",
       UiV2Subject.class.getSimpleName() + ".addToStemFilter",
-      UiV2Subject.class.getSimpleName() + ".addToAttributeDefFilter"
+      UiV2Subject.class.getSimpleName() + ".addToAttributeDefFilter",
+      UiV2Public.class.getSimpleName() + ".error",
+      UiV2Public.class.getSimpleName() + ".index"
   );
 
   /**
@@ -191,6 +195,14 @@ public class GrouperUiRestServlet extends HttpServlet {
     
     try {
       initGui();
+    } catch (NoUserAuthenticatedException nuae) {
+      //redirect to the error screen if no loginid could be found
+      response.sendRedirect(GrouperUiFilter.retrieveServletContext() + "/grouperExternal/public/UiV2Public.index?operation=UiV2Public.index&function=UiV2Public.error&code=noUserAuthenticated");
+      return;
+    } catch (SubjectNotFoundException nuae) {
+      //redirect to the error screen if loginid did not resolve to a subject
+      response.sendRedirect(GrouperUiFilter.retrieveServletContext() + "/grouperExternal/public/UiV2Public.index?operation=UiV2Public.index&function=UiV2Public.error&code=authenticatedSubjectNotFound");
+      return;
     } catch (ControllerDone cd) {
       guiResponseJs.printToScreen();
       return;
@@ -206,17 +218,27 @@ public class GrouperUiRestServlet extends HttpServlet {
       //strip off the filename
       urlStrings = GrouperUtil.toList(urlStrings.get(0), urlStrings.get(1));
     }
-    
+
     if (GrouperUtil.length(urlStrings) == 5
         && StringUtils.equals("app", urlStrings.get(0))
         && StringUtils.equals(UiV2GroupImport.class.getSimpleName() + ".groupExportSubmit", urlStrings.get(1))) {
+
       //strip off the filename
       urlStrings = GrouperUtil.toList(urlStrings.get(0), urlStrings.get(1));
     }
 
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn(true);
+    if (loggedInSubject == null && !StringUtils.equals(UiV2Public.class.getSimpleName() + ".index", urlStrings.get(1))) {
+
+      response.sendRedirect(GrouperUiFilter.retrieveServletContext() + "/grouperExternal/public/UiV2Public.index?operation=UiV2Public.index&function=UiV2Public.error&code=anonymousSessionNotAllowed");
+      return;
+
+    }
+    
     //see what operation we are doing
     if (GrouperUtil.length(urlStrings) == 2 
-        && StringUtils.equals("app", urlStrings.get(0))) {
+        && (StringUtils.equals("public", urlStrings.get(0))
+            || StringUtils.equals("app", urlStrings.get(0)))) {
 
       String classAndMethodName = urlStrings.get(1);
 
@@ -254,8 +276,6 @@ public class GrouperUiRestServlet extends HttpServlet {
         GrouperUtil.callMethod(instance.getClass(), instance, methodName, 
             new Class<?>[]{HttpServletRequest.class, HttpServletResponse.class}, 
             new Object[]{request, response}, true, false);
-
-        
 
       } catch (NoSessionException nse) {
 
@@ -328,20 +348,7 @@ public class GrouperUiRestServlet extends HttpServlet {
     guiSettings.storeToRequest();
     
     guiSettings.setAuthnKey(GrouperUuid.getUuid());
-    
-    Subject loggedInSubject = null;
-    
-    try {
-      loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-      guiSettings.setLoggedInSubject(new GuiSubject(loggedInSubject));
-    } catch (SubjectNotFoundException snfe) {
-      UiSection uiSection = GrouperUiFilter.uiSectionForRequest();
-      //if its anonymous, then there might not be a subject logged in
-      if (!uiSection.isAnonymous()) {
-        throw snfe;
-      }
-    }
-    
+
     // lets see where the templates are: assume grouperUiText.properties is in WEB-INF/classes,
     // and templates are WEB-INF/templates
     AppState appState = AppState.retrieveFromRequest();
@@ -351,6 +358,13 @@ public class GrouperUiRestServlet extends HttpServlet {
       guiResponseJs.addAction(GuiScreenAction.newAssign("allObjects.guiSettings", guiSettings));  
       
       guiResponseJs.addAction(GuiScreenAction.newAssign("allObjects.appState.initted", true));
+    }
+
+    Subject loggedInSubject = null;
+    
+    loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn(true);
+    if (loggedInSubject != null) {
+      guiSettings.setLoggedInSubject(new GuiSubject(loggedInSubject));
     }
     
   }

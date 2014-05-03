@@ -94,7 +94,6 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
-import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
@@ -281,14 +280,35 @@ public class GrouperUiFilter implements Filter {
   public static Subject retrieveSubjectLoggedIn() {
     return retrieveSubjectLoggedIn(false);
   }
-    
 
   /**
    * retrieve the subject logged in
    * @param allowNoUserLoggedIn true if allowed to have no user, false if expecting a user
    * @return the subject
    */
-  private static Subject retrieveSubjectLoggedIn(boolean allowNoUserLoggedIn) {
+  public static Subject retrieveSubjectLoggedIn(boolean allowNoUserLoggedIn) {
+    Subject subject = retrieveSubjectLoggedInHelper(allowNoUserLoggedIn);
+
+    UiSection uiSectionForRequest = uiSectionForRequest();
+
+    ensureUserAllowedInSection(uiSectionForRequest, subject);
+
+    if (subject != null) {
+      SessionContainer sessionContainer = SessionContainer.retrieveFromSession();
+      
+      sessionContainer.setSubjectLoggedIn(subject);
+    }
+    
+    return subject;
+  }
+
+
+  /**
+   * retrieve the subject logged in
+   * @param allowNoUserLoggedIn true if allowed to have no user, false if expecting a user
+   * @return the subject
+   */
+  private static Subject retrieveSubjectLoggedInHelper(boolean allowNoUserLoggedIn) {
     
     GrouperSession grouperSession = SessionInitialiser.getGrouperSession(retrieveHttpServletRequest().getSession());
     if (grouperSession != null && grouperSession.getSubject() != null) {
@@ -301,32 +321,25 @@ public class GrouperUiFilter implements Filter {
     
     HttpServletRequest request = retrieveHttpServletRequest();
 
-    UiSection uiSectionForRequest = uiSectionForRequest();
-
     if (subjectLoggedIn != null) {
       return subjectLoggedIn;
     }
   
-  
     //currently assumes user is in getUserPrincipal
     String userIdLoggedIn = remoteUser(request);
-
-    if (StringUtils.isBlank(userIdLoggedIn) && uiSectionForRequest.isAnonymous()) {
-      return null;
-    }
 
     if (StringUtils.isBlank(userIdLoggedIn)) {
       if (allowNoUserLoggedIn) {
         return null;
       }
-      throw new RuntimeException("Cant find logged in user");
+      throw new NoUserAuthenticatedException("Cant find logged in user");
     }
     
     GrouperSession rootSession = GrouperSession.startRootSession();
     try {
       subjectLoggedIn = SubjectFinder.findByIdOrIdentifier(userIdLoggedIn, true);
     } catch (RuntimeException re) {
-      if (re instanceof SubjectNotFoundException && uiSectionForRequest.isAnonymous()) {
+      if (re instanceof SubjectNotFoundException && allowNoUserLoggedIn) {
         return null;
       }
       //this is probably a system error...  not a user error
@@ -335,11 +348,7 @@ public class GrouperUiFilter implements Filter {
     } finally {
       GrouperSession.stopQuietly(rootSession);
     }
-    
-    ensureUserAllowedInSection(uiSectionForRequest, subjectLoggedIn);
-    
-    sessionContainer.setSubjectLoggedIn(subjectLoggedIn);
-    
+        
     return subjectLoggedIn;
 
   }
@@ -350,6 +359,10 @@ public class GrouperUiFilter implements Filter {
    * @param subjectLoggedIn
    */
   private static void ensureUserAllowedInSection(UiSection uiSection, Subject subjectLoggedIn) {
+
+    if (subjectLoggedIn == null && uiSection.isAnonymous()) {
+      return;
+    }
 
     //if the user is allowed in the admin ui, we are all good
     Set<UiSection> uiSectionsThatAllowThisSection = GrouperUtil.nonNull(uiSection.getUiSectionsThatAllowThisSection());
@@ -596,6 +609,23 @@ public class GrouperUiFilter implements Filter {
     }
   }
   
+  /**
+   * servlet context will be /grouper or whatever or empty string if no context
+   * @return context
+   */
+  public static String retrieveServletContext() {
+    HttpServletRequest request = retrieveHttpServletRequest();
+    if (request == null) {
+      throw new NullPointerException("No request");
+    }
+    String servletContext = request.getContextPath();
+
+    //since this is just a prefix of a path, then if there is no servlet context, it is the empty string
+    if (servletContext == null || "/".equals(servletContext)) {
+      servletContext = "";
+    }
+    return servletContext;
+  }
   
   /**
    * get the ui section we are in
@@ -643,6 +673,12 @@ public class GrouperUiFilter implements Filter {
       return UiSection.ANONYMOUS;
     }
     if (uri.matches("^/[^/]+/grouperExternal[/]?.*/index.html$")) {
+      return UiSection.ANONYMOUS;
+    }
+    if (uri.matches("^/[^/]+/grouperExternal/public/UiV2Public\\.index$")) {
+      return UiSection.ANONYMOUS;
+    }
+    if (uri.matches("^/[^/]+/grouperUi/app/UiV2Public\\.index$")) {
       return UiSection.ANONYMOUS;
     }
     
@@ -716,6 +752,7 @@ public class GrouperUiFilter implements Filter {
   /**
    * 
    */
+  @SuppressWarnings("unused")
   private static final long serialVersionUID = 1L;
 
   /**
@@ -794,7 +831,13 @@ public class GrouperUiFilter implements Filter {
             //this is not really ok, but cant do much about it
             String error = "Cant find login subject: " + remoteUser + ", " + uiSection;
             LOG.error(error, e);
-            throw new RuntimeException(error);
+            //redirect to the error screen if loginid did not resolve to a subject
+            try {
+              ((HttpServletResponse)response).sendRedirect(GrouperUiFilter.retrieveServletContext() + "/grouperExternal/public/UiV2Public.index?operation=UiV2Public.index&function=UiV2Public.error&code=authenticatedSubjectNotFound");
+            } catch (IOException ioe) {
+              throw new RuntimeException("Cant redirect", ioe);
+            }
+            throw new ControllerDone();
           }
         } finally {
           GrouperSession.stopQuietly(rootSession);

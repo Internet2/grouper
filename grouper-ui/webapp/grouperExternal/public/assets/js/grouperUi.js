@@ -164,6 +164,12 @@ function guiProcessUrlForAjax(url) {
         ajaxUrl += '?';
       }
       foundOperation = true;
+      
+      //if this is a public operation, then replace the part of the path to make it public
+      if (guiStartsWith(ajaxUrl, '../app/UiV2Public.')) {
+        ajaxUrl = guiReplaceString(ajaxUrl, '../app/UiV2Public.', '../public/UiV2Public.');
+      }
+      
     } else {
       ajaxUrl += key + '=' + value;
       if (i < args.length-1) {
@@ -549,7 +555,7 @@ function ajax(theUrl, options) {
   //hide messaging
   $('#messaging').hide().empty();
 
-  if (!guiStartsWith(theUrl, "../app/" )) {
+  if (!guiStartsWith(theUrl, "../app/" ) && !guiStartsWith(theUrl, "../public/")) {
     theUrl = "../app/" + theUrl; 
   }
   
@@ -646,18 +652,19 @@ function ajax(theUrl, options) {
     timeout: 180000,
     async: true,
     //TODO handle errors success better.  probably non modal disappearing reusable window
-    error: function(error){
+    error: function(jqXHR, textStatus, errorThrown) {
+        
       $.unblockUI();
-      //note, this is probably a session problem.
-      //note, this might endlessly redirect...  hmmm
-      //maybe we should check for a 302
-      var shouldRedirect = confirm(guiAjaxSessionProblem);
-      if (shouldRedirect) {
-
-        //this should redirect
-        location.href = location.href;
+      
+      var grouperPath = jqXHR.getResponseHeader("X-Grouper-path");
+      if (!guiIsEmpty(grouperPath)) {
+        grouperPath = decodeURIComponent(grouperPath);
+        location.href=grouperPath;
+        return;
       }
-      //alert('error' + error);
+
+      location.href = "../../grouperExternal/public/UiV2Public.index?operation=UiV2Public.index&function=UiV2Public.error&code=ajaxError";
+      
     },
     //TODO process the response object
     success: function(json){
@@ -1760,307 +1767,8 @@ function guiValidateDateHelper(month, day, year, args) {
   return null;
 
 }
-function guiValidateDate(x) {
-  return formatValid_datevalid("dateValid", null, x) == null;
-}
-/** validate that the date is valid */
-function formatValid_datevalid(functionName, args, x) {
-  //if x is blank, thats ok.
-  if (fastIsEmpty(x)) {
-    return null;
-  }
-  var re = new RegExp("^(\\d{4})(\\d{2})(\\d{2})$");
-  var matches = x.match(re);
-  if (!matches) {
-    //this is a formatting problem
-    return guiBuildErrorArgs(functionName, args);
-  }
-    
-  //check for valid days, get the month number (int)
-  var month = fastParseInt(matches[2]);
-  var day = fastParseInt(matches[3]);
-  var year = fastParseInt(matches[1]);
-  
-  return guiValidateDateHelper(month, day, year, args);
-}
 
 
-/** convert a string to a ccyymmdd or mm/dd/ccyy HH:MM:ss.SSS */
-function guiConvertStringToDateOrTimestampHelper(input, isDate) {
-  //empty ok
-  if (guiIsEmpty(input)) {
-    return input;
-  }
-  //if the date is valid, we are done
-  if (isDate) {
-    //if timestamp, convert to date
-    input = guiConvertDateFromTimestamp(input);
-  
-    //if we are already valid we are all set
-    if (guiValidateDate(input)) {
-      return input;
-    }
-  }
-  
-  //if the timestamp is valid, we are done
-  if (!isDate) {
-
-    //if we are already valid we are all set
-    if (fastValidateTimestamp(input)) {
-      return input;
-    }
-  }
-   
-  //if its not ccyymmdd, then it has delimiters
-  var origInput = input;
-  input = fastTrim(input);
-  
-  //if today, we know the answer
-  if (fastStrEqIgCase(input,"d")) {
-    var now = fastNewDate();
-    if (isDate) {
-      return fastConvertStringToDateOrTimestamp(
-        (1+now.getMonth()) + "/" + now.getDate() + "/" + now.getFullYear(), isDate);
-    } 
-    return fastConvertStringToDateOrTimestamp(
-       (now.getMonth()+1) + "/" + now.getDate() + "/" + now.getFullYear()  
-      + " " + now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds()
-      + "." + now.getMilliseconds(), isDate);
-  }
-  
-  var monthString=null; //2 padded month
-  var yearString=null; //4 padded year
-  var dayString=null; //2 padded day
-  var re;
-  var m;
-  var theTime="";
-  var foundMatch=false;
-  var hourString=null;
-  var minuteString=null;
-  var secondString=null;
-  var millisString=null;
-  
-  //allow a 8 digit date yyyymmdd
-  re = new RegExp("^([0-9]{4})([0-9]{2})([0-9]{2})(.*)$");
-  m = input.match(re);
-  if (m) {
-    yearString = m[1];
-    monthString = m[2];
-    dayString = m[3];
-    theTime = m[4];
-    foundMatch = true;
-  }
-  if (!foundMatch) {
-    //allow a 6 digit date mmddyy
-    re = new RegExp("^([0-9]{2})([0-9]{2})([0-9]{2})(.*)$");
-    m = input.match(re);
-    if (m) {
-      monthString = m[1];
-      dayString = m[2];
-      yearString = m[3];
-      theTime = m[4];
-      foundMatch = true;
-    }
-  }
-  //see if there is the month by text
-  if (!foundMatch) {
-    //try with 2 or 4 digit year
-    //see if there is the date by text Jan 1 2004 or february 4, 2005
-    re = new RegExp("^([a-zA-Z]+)\\D*([0-9]{1,2})\\D+([0-9]{1,4})(.*)$");
-    m = input.match(re);
-    if (m) {
-      monthString = m[1].toLowerCase();
-      monthString = fastMonthsNumber[monthString];
-      if (monthString == null) {
-        return origInput;
-      }
-      dayString = m[2];
-      yearString = m[3];
-      theTime = m[4];
-      foundMatch = true;
-    }
-  }
-  //see if there is the month by text
-  if (!foundMatch) {
-    //try with 2 or 4 digit year
-    //see if there is the date by text 1 Jan 2004 or 4 february, 2005
-    re = new RegExp("^([0-9]{1,2})\\W+([a-zA-Z]+)\\W*([0-9]{1,4})(.*)$");
-    m = input.match(re);
-    if (m) {
-      dayString = m[1];
-      monthString = m[2].toLowerCase();
-      monthString = fastMonthsNumber[monthString];
-      if (monthString == null) {
-        return origInput;
-      }
-      yearString = m[3];
-      theTime = m[4];
-      foundMatch = true;
-    }
-  }
-  //see if there is the year first, 4 digit only
-  if (!foundMatch) {
-    //try with 2 or 4 digit year
-    re = new RegExp("^([0-9]{4})\\D+([0-9]{1,2})\\D+([0-9]{1,2})(.*)$");
-    m = input.match(re);
-    if (m) {
-      yearString = m[1];
-      monthString = m[2];
-      dayString = m[3];
-      theTime = m[4];
-      foundMatch = true;
-    }
-  }
-  //see if there is the month first, any digit year
-  if (!foundMatch) {
-    re = new RegExp("^([0-9]{1,2})\\D+([0-9]{1,2})\\D+([0-9]{1,4})(.*)$");
-    m = input.match(re);
-    if (m) {
-      monthString = m[1];
-      dayString = m[2];
-      yearString = m[3];
-      theTime = m[4];
-      foundMatch = true;
-    }
-  }
-  //see if there is the month first, any digit year
-  if (!foundMatch) {
-    re = new RegExp("^([0-9]{1,2})\\D+([0-9]{1,4})(.*)$");
-    m = input.match(re);
-    if (m) {
-      monthString = m[1];
-      dayString = "01";
-      yearString = m[2];
-      theTime = m[3];
-      foundMatch = true;
-    }
-  }
-  //see if we havent found the date yet
-  if (!foundMatch) {
-    return origInput;
-  }
-  //make sure no neglected numbers
-  if (isDate) {
-    if (fastHasDigits(theTime)) {
-      return origInput;
-    }
-  } 
-  monthString = fastPadIntString(monthString, 2);
-  dayString = fastPadIntString(dayString, 2);
-
-  if (yearString.length < 4) {
-  
-    var year = fastParseInt(yearString);
-    yearString = fastPadIntString(yearString, 2);
-    if (year == 99) {
-      yearString = "9999";
-    } else if (year < 40) {
-      yearString = "20" + yearString;
-    } else {
-      yearString = "19" + yearString;
-    }
-  }
-  //mainframe conversion
-  if (fastStrEq(yearString, "9999") && fastStrEq(monthString, "99") && fastStrEq(dayString, "99")) {
-    yearString = "2099";
-    monthString = "12";
-    dayString = "31";
-  }
-  var ret;
-  if (isDate) {
-    ret = yearString + monthString + dayString;
-    return ret;
-  }
-
-  foundMatch = false;
-  var theRest = "";
-  if (fastIsEmpty(theTime)) {
-    hourString = "00";
-    minuteString = "00";
-    secondString = "00";
-    millisString = "000";
-    foundMatch = true;
-  }
-  if (!foundMatch) {
-    //timestamp, try millis, 1 to 3 of them
-    re = new RegExp("^\\D*([0-9]{1,2})\\D+([0-9]{1,2})\\D+([0-9]{1,2})\\D+([0-9]{1,3})(.*)$");
-    m = theTime.match(re);
-    if (m) {
-      hourString = m[1];
-      minuteString = m[2];
-      secondString = m[3];
-      millisString = m[4];
-      theRest = m[5];
-      foundMatch = true;
-    }
-  }
-  if (!foundMatch) {
-    //timestamp, no millis
-    re = new RegExp("^\\D*([0-9]{1,2})\\D+([0-9]{1,2})\\D+([0-9]{1,2})(.*)$");
-    m = theTime.match(re);
-    if (m) {
-      hourString = m[1];
-      minuteString = m[2];
-      secondString = m[3];
-      theRest = m[4];
-      millisString = "000";
-      foundMatch = true;
-    }
-  }
-  if (!foundMatch) {
-    //timestamp, no seconds or millis
-    re = new RegExp("^\\D*([0-9]{1,2})\\D+([0-9]{1,2})(.*)$");
-    m = theTime.match(re);
-    if (m) {
-      hourString = m[1];
-      minuteString = m[2];
-      secondString = "00";
-      theRest = m[3];
-      millisString = "000";
-      foundMatch = true;
-    }
-  }
-  if (!foundMatch || fastHasDigits(theRest)) {
-    return origInput;
-  }
-  //see if there is an AM or PM in the timeString
-  re = new RegExp("([aApP][mM])");
-  theTime = fastDefaultString(theTime);
-  m = theTime.match(re);
-  var amPm = null;
-  var hasAmPm = false;
-  var isAm = true;
-  if (m) {
-    amPm = m[1].toLowerCase();
-    hasAmPm = true;
-    if (fastStrEq(amPm,"am")) {
-      isAm = true;
-    } else if (fastStrEq(amPm,"pm")) {
-      isAm = false;
-    } else {
-      fastAlert("Illegal AM/PM: " + amPm, false, 5);
-      return origInput;
-    }
-  } 
-  if (hasAmPm) {
-    var hour = fastParseInt(hourString);
-    if (hour <= 12 && hour > 0) {
-      hour = hour == 12 ? 0 : hour;
-      if (!isAm) {
-        hour+=12;
-      }
-      hourString = "" + hour;
-    }
-  }
-  hourString = fastPadIntString(hourString, 2);
-  minuteString = fastPadIntString(minuteString, 2);
-  secondString = fastPadIntString(secondString, 2);
-  millisString = fastPadIntString(millisString, 3);    
-  
-  ret = yearString + "/" + monthString + "/" + dayString + " " + hourString
-    + ":" + minuteString + ":" + secondString + "." + millisString;
-  return ret;
-}
 
 function guiCalendarInit(formElementId) {
 
