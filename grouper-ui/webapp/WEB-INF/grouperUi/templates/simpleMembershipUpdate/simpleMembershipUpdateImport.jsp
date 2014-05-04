@@ -8,8 +8,12 @@
     <grouper:subtitle infodotValue="${simpleMembershipUpdateContainer.text.importSubtitleInfodot}" label="${simpleMembershipUpdateContainer.text.importSubtitle}" />
   
     <div class="sectionBody">
-      <form id="simpleMembershipUploadForm" 
+      <form id="simpleMembershipUploadForm" action="../app/SimpleMembershipUpdateImportExport.importCsv"
           name="simpleMembershipUploadForm" method="post" enctype="multipart/form-data">
+          
+        <%-- note this wont work for token per page --%>
+        <input type="hidden" name="<csrf:token-name/>" value="<csrf:token-value />"/>
+          
         <div class="combohint"><grouper:message value="${simpleMembershipUpdateContainer.text.importLabel}" /></div><br />
         
         <%-- make sure too many browsers arent open at once --%>
