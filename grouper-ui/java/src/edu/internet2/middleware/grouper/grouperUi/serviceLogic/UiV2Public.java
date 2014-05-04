@@ -1,7 +1,5 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
-import java.net.URLEncoder;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -28,6 +26,30 @@ public class UiV2Public extends UiServiceLogicBase {
   private static final Log LOG = LogFactory.getLog(UiV2Public.class);
 
   /**
+   * index page of application, or public operation used for posts.  since we only have one
+   * request path that is a servlet in the public space, then this will be
+   * the gatekeeper for all public operations either the index or ajax operations
+   * @param request
+   * @param response
+   */
+  public void postIndex(HttpServletRequest request, HttpServletResponse response) {
+
+    //since this is the only public servlet, tunnel the operation through
+    String function = request.getParameter("function");
+    
+    //dont use reflection here for security reasons
+    if (StringUtils.equals(function, UiV2Public.class.getSimpleName() + ".error")) {
+
+      error(request, response);
+
+    } else {
+      throw new RuntimeException("Invalid function: " + function);
+    }
+
+
+  }
+
+  /**
    * index page of application, or public operation.  since we only have one
    * request path that is a servlet in the public space, then this will be
    * the gatekeeper for all public operations either the index or ajax operations
@@ -42,22 +64,7 @@ public class UiV2Public extends UiServiceLogicBase {
     //if there is an operation, then we need the main page
     String operation = request.getParameter("operation");
     
-    //since this is the only public servlet, tunnel the operation through
-    String function = request.getParameter("function");
-    
-    if (StringUtils.isBlank(operation)) {
-
-      //dont use reflection here for security reasons
-      if (StringUtils.equals(function, "UiV2Public.error")) {
-
-        error(request, response);
-
-      } else {
-        throw new RuntimeException("Invalid function: " + function);
-      }
-
-    } else {
-
+    if (!StringUtils.isBlank(operation)) {
       //if this is an error, it could be ajax, so ajax will need to redirect to right place.
       String url = request.getRequestURL().toString() + "?" + request.getQueryString();
       
@@ -70,14 +77,12 @@ public class UiV2Public extends UiServiceLogicBase {
       url = "../../" + url;
       
       response.addHeader("X-Grouper-path", GrouperUtil.escapeUrlEncode(url));
-
+  
       //just show a jsp
       showJsp("/WEB-INF/grouperUi2/public/index.jsp");
-
+  
       throw new ControllerDone();
-
-    }
-
+    }  
   }
 
   /**

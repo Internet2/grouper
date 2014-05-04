@@ -147,7 +147,6 @@ public class GrouperUiRestServlet extends HttpServlet {
       UiV2ExternalEntities.class.getSimpleName() + ".addGroupFilter",
       UiV2Subject.class.getSimpleName() + ".addToStemFilter",
       UiV2Subject.class.getSimpleName() + ".addToAttributeDefFilter",
-      UiV2Public.class.getSimpleName() + ".error",
       UiV2Public.class.getSimpleName() + ".index"
   );
 
@@ -197,11 +196,11 @@ public class GrouperUiRestServlet extends HttpServlet {
       initGui();
     } catch (NoUserAuthenticatedException nuae) {
       //redirect to the error screen if no loginid could be found
-      response.sendRedirect(GrouperUiFilter.retrieveServletContext() + "/grouperExternal/public/UiV2Public.index?operation=UiV2Public.index&function=UiV2Public.error&code=noUserAuthenticated");
+      response.sendRedirect(GrouperUiFilter.retrieveServletContext() + "/grouperExternal/public/UiV2Public.index?operation=UiV2Public.postIndex&function=UiV2Public.error&code=noUserAuthenticated");
       return;
     } catch (SubjectNotFoundException nuae) {
       //redirect to the error screen if loginid did not resolve to a subject
-      response.sendRedirect(GrouperUiFilter.retrieveServletContext() + "/grouperExternal/public/UiV2Public.index?operation=UiV2Public.index&function=UiV2Public.error&code=authenticatedSubjectNotFound");
+      response.sendRedirect(GrouperUiFilter.retrieveServletContext() + "/grouperExternal/public/UiV2Public.index?operation=UiV2Public.postIndex&function=UiV2Public.error&code=authenticatedSubjectNotFound");
       return;
     } catch (ControllerDone cd) {
       guiResponseJs.printToScreen();
@@ -228,9 +227,10 @@ public class GrouperUiRestServlet extends HttpServlet {
     }
 
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn(true);
-    if (loggedInSubject == null && !StringUtils.equals(UiV2Public.class.getSimpleName() + ".index", urlStrings.get(1))) {
+    if (loggedInSubject == null && !StringUtils.equals(UiV2Public.class.getSimpleName() + ".index", urlStrings.get(1))
+        && !StringUtils.equals(UiV2Public.class.getSimpleName() + ".postIndex", urlStrings.get(1))) {
 
-      response.sendRedirect(GrouperUiFilter.retrieveServletContext() + "/grouperExternal/public/UiV2Public.index?operation=UiV2Public.index&function=UiV2Public.error&code=anonymousSessionNotAllowed");
+      response.sendRedirect(GrouperUiFilter.retrieveServletContext() + "/grouperExternal/public/UiV2Public.index?operation=UiV2Public.postIndex&function=UiV2Public.error&code=anonymousSessionNotAllowed");
       return;
 
     }

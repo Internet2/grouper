@@ -681,6 +681,12 @@ public class GrouperUiFilter implements Filter {
     if (uri.matches("^/[^/]+/grouperUi/app/UiV2Public\\.index$")) {
       return UiSection.ANONYMOUS;
     }
+    if (uri.matches("^/[^/]+/grouperExternal/public/UiV2Public\\.postIndex$")) {
+      return UiSection.ANONYMOUS;
+    }
+    if (uri.matches("^/[^/]+/grouperUi/app/UiV2Public\\.postIndex$")) {
+      return UiSection.ANONYMOUS;
+    }
     
     boolean externalServlet = uri.matches("^/[^/]+/grouperExternal/appHtml/grouper\\.html$")
         || uri.matches("^/[^/]+/grouperExternal/app/[^/]+$");
@@ -833,7 +839,7 @@ public class GrouperUiFilter implements Filter {
             LOG.error(error, e);
             //redirect to the error screen if loginid did not resolve to a subject
             try {
-              ((HttpServletResponse)response).sendRedirect(GrouperUiFilter.retrieveServletContext() + "/grouperExternal/public/UiV2Public.index?operation=UiV2Public.index&function=UiV2Public.error&code=authenticatedSubjectNotFound");
+              ((HttpServletResponse)response).sendRedirect(GrouperUiFilter.retrieveServletContext() + "/grouperExternal/public/UiV2Public.index?operation=UiV2Public.postIndex&function=UiV2Public.error&code=authenticatedSubjectNotFound");
             } catch (IOException ioe) {
               throw new RuntimeException("Cant redirect", ioe);
             }

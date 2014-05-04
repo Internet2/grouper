@@ -436,6 +436,12 @@ public class UiV2Main extends UiServiceLogicBase {
     GrouperSession grouperSession = null;
 
     try {
+      
+      //see the error page for ajax errors
+      if (GrouperUtil.booleanValue(request.getParameter("throwErrorForTesting"), false)) {
+        throw new RuntimeException("Testing ajax exceptions...");
+      }
+      
       grouperSession = GrouperSession.start(loggedInSubject);
 
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();

@@ -25,6 +25,10 @@
     <filter-name>GrouperUi</filter-name>
     <url-pattern>/grouperExternal/public/UiV2Public.index</url-pattern>
   </filter-mapping>
+  <filter-mapping>
+    <filter-name>GrouperUi</filter-name>
+    <url-pattern>/grouperExternal/public/UiV2Public.postIndex</url-pattern>
+  </filter-mapping>
 
   <servlet>
     <servlet-name>StatusServlet</servlet-name>
@@ -56,6 +60,10 @@
   <servlet-mapping>
     <servlet-name>UiServlet</servlet-name>
     <url-pattern>/grouperExternal/public/UiV2Public.index</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>UiServlet</servlet-name>
+    <url-pattern>/grouperExternal/public/UiV2Public.postIndex</url-pattern>
   </servlet-mapping>
 
 

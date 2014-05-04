@@ -663,7 +663,7 @@ function ajax(theUrl, options) {
         return;
       }
 
-      location.href = "../../grouperExternal/public/UiV2Public.index?operation=UiV2Public.index&function=UiV2Public.error&code=ajaxError";
+      location.href = "../../grouperExternal/public/UiV2Public.index?operation=UiV2Public.postIndex&function=UiV2Public.error&code=ajaxError";
       
     },
     //TODO process the response object
