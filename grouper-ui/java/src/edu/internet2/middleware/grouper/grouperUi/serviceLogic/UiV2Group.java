@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.UserAuditQuery;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupDeleteException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
@@ -60,6 +61,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -1479,11 +1481,28 @@ public class UiV2Group {
         return;
         
       }
+
+      final String groupName = parentFolder.getName() + ":" + extension;
+      
+      //search as an admin to see if the group exists
+      group = (Group)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          return GroupFinder.findByName(theGrouperSession, groupName, false);
+        }
+      });
+
+      if (group != null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("groupCreateCantCreateAlreadyExists")));
+        return;
+      }
       
       try {
 
         //create the group
-        group = new GroupSave(grouperSession).assignName(parentFolder.getName() + ":" + extension)
+        group = new GroupSave(grouperSession).assignName(groupName).assignSaveMode(SaveMode.INSERT)
             .assignDisplayExtension(displayExtension).assignDescription(description).assignTypeOfGroup(typeOfGroup)
             .assignPrivAllAdmin(adminChecked).assignPrivAllAttrRead(attrReadChecked)
             .assignPrivAllAttrUpdate(attrUpdateChecked).assignPrivAllOptin(optinChecked)

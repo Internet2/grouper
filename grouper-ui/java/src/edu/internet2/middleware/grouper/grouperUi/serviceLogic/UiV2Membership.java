@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.membership.MembershipPath;
 import edu.internet2.middleware.grouper.membership.MembershipPathGroup;
 import edu.internet2.middleware.grouper.membership.MembershipPathNode;
 import edu.internet2.middleware.grouper.membership.MembershipResult;
+import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
@@ -983,13 +984,16 @@ public class UiV2Membership {
       
       GuiMembershipSubjectContainer guiMembershipSubjectContainer = GuiMembershipSubjectContainer.convertOneFromFinder(membershipResult);
       
-      guiMembershipSubjectContainer.getMembershipSubjectContainer().considerAccessPrivilegeInheritance();
-      
-      //reset the gui
-      guiMembershipSubjectContainer = new GuiMembershipSubjectContainer(guiMembershipSubjectContainer.getMembershipSubjectContainer());
-      
-      membershipGuiContainer.setPrivilegeGuiMembershipSubjectContainer(guiMembershipSubjectContainer);
+      if (guiMembershipSubjectContainer != null) {
+        MembershipSubjectContainer privilegeMembershipSubjectContainer = guiMembershipSubjectContainer.getMembershipSubjectContainer();
+        privilegeMembershipSubjectContainer.considerAccessPrivilegeInheritance();
+        //reset the gui
+        guiMembershipSubjectContainer = new GuiMembershipSubjectContainer(privilegeMembershipSubjectContainer);
+        
+        membershipGuiContainer.setPrivilegeGuiMembershipSubjectContainer(guiMembershipSubjectContainer);
 
+      }
+      
       membershipResult = new MembershipFinder().addField(field).addMemberId(member.getId()).addGroup(group).findMembershipResult();
       guiMembershipSubjectContainer = GuiMembershipSubjectContainer.convertOneFromFinder(membershipResult);
       
