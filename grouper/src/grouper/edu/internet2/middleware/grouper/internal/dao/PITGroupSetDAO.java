@@ -23,6 +23,7 @@ import java.sql.Timestamp;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.group.GroupSet;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.pit.PITField;
 import edu.internet2.middleware.grouper.pit.PITGroupSet;
 
@@ -42,6 +43,12 @@ public interface PITGroupSetDAO extends GrouperDAO {
    * @param pitGroupSets
    */
   public void saveOrUpdate(Set<PITGroupSet> pitGroupSets);
+
+  /**
+   * insert a batch of pit group set objects
+   * @param pitGroupSets
+   */
+  public void saveBatch(Set<PITGroupSet> pitGroupSets);
   
   /**
    * delete
@@ -179,9 +186,10 @@ public interface PITGroupSetDAO extends GrouperDAO {
   public void deleteSelfByPITOwnerId(String id);
   
   /**
+   * @param options
    * @return active group sets that are missing in point in time
    */
-  public Set<GroupSet> findMissingActivePITGroupSets();
+  public Set<GroupSet> findMissingActivePITGroupSets(QueryOptions options);
   
   /**
    * @return active group sets that are missing in point in time (this time looking for effective issues)
