@@ -552,7 +552,7 @@ public class SimpleAttributeUpdate {
         
         if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
           LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
-          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
+          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDefPriv", false)));
           return;
         }
   

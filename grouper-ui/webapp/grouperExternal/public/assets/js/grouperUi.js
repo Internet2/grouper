@@ -512,6 +512,10 @@ function guiDecorateUrl(theUrl) {
     theUrl += theUrl.indexOf("?") == -1 ? "?" : "&";
     theUrl += "attributeDefId=" +  urlArgObjectMap.attributeDefId;
   }
+  if (typeof urlArgObjectMap.attributeDefNameId != 'undefined' && theUrl.indexOf('attributeDefNameId=') == -1) {
+    theUrl += theUrl.indexOf("?") == -1 ? "?" : "&";
+    theUrl += "attributeDefNameId=" +  urlArgObjectMap.attributeDefNameId;
+  }
   return theUrl;
 }
 

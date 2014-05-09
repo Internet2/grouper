@@ -144,6 +144,8 @@ public class SimpleAttributeNameUpdate {
 
     GrouperSession grouperSession = null;
 
+    AttributeDefName attributeDefName = null;
+    
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
                 
@@ -157,6 +159,31 @@ public class SimpleAttributeNameUpdate {
         
         attributeNameUpdateRequestContainer.setAttributeDefForFilter(attributeDef);
       }
+
+      String attributeDefNameId = request.getParameter("attributeDefNameId");
+      
+      if (!StringUtils.isBlank(attributeDefNameId)) {
+        
+        //if editing, then this must be there, or it has been tampered with
+        try {
+          attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
+        } catch (Exception e) {
+          LOG.info("Error searching for attribute def name: " + attributeDefNameId, e);
+          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDefName", false)));
+          return;
+          
+        }
+        
+        if (!attributeDefName.getAttributeDef().getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
+          LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition name: " + attributeDefName.getName());
+          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDefNamePriv", false)));
+          return;
+        }
+  
+        
+        attributeNameUpdateRequestContainer.setAttributeDefNameToEdit(attributeDefName);
+      }
+      
       
       guiResponseJs.addAction(GuiScreenAction.newScript("document.title = '" 
           + GrouperUiUtils.message("simpleAttributeNameUpdate.addEditTitle", false) + "'"));
@@ -171,6 +198,10 @@ public class SimpleAttributeNameUpdate {
       GrouperSession.stopQuietly(grouperSession); 
     }
     
+    if (attributeDefName != null) {
+      new SimpleAttributeNameUpdateFilter().editAttributeDefNamesHelper(request, response, attributeDefName, true);
+    }
+
   }
 
   /**
