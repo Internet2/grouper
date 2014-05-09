@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
@@ -258,7 +259,7 @@ public class IndexContainer {
       
       GrouperSession grouperSession = GrouperSession.staticGrouperSession();
       Set<Stem> stems = new StemFinder().assignSubject(grouperSession.getSubject())
-          .assignPrivileges(AccessPrivilege.MANAGE_PRIVILEGES)
+          .assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES)
           .assignQueryOptions(new QueryOptions().paging(
               GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10),
               1, false)).findStems();
