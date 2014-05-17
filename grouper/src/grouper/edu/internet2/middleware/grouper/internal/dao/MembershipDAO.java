@@ -49,6 +49,7 @@ import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.member.SearchStringEnum;
 import edu.internet2.middleware.grouper.member.SortStringEnum;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.service.ServiceRole;
 import edu.internet2.middleware.subject.Source;
 
@@ -531,6 +532,7 @@ TODO update for 1.5
    * @param membershipIds to limit memberships to
    * @param membershipType Immediate, NonImmediate, etc
    * @param fields if finding one field, list here, otherwise all list fields will be returned
+   * @param privilegesTheUserHas check to make sure the user has these privileges on the records
    * @param sources if limiting memberships of members in certain sources, list here
    * @param scope sql like string which will have a % appended to it
    * @param stem if looking in a certain stem
@@ -538,18 +540,25 @@ TODO update for 1.5
    * @param enabled null for all, true for enabled only, false for disabled only
    * @param shouldCheckSecurity if we should check security, default to true
    * @param fieldType field type of of memberships
+   * @param serviceId 
+   * @param serviceRole 
    * @param queryOptionsForMember query options for member.  must include paging.  if sorting then sort by member
    * @param filterForMember if paging for member, then also filter for member 
    * @param splitScopeForMember if the scope for member has spaces in it, then split by whitespace, and find results that contain all of the scope strings
    * @param hasFieldForMember return memberships where the member has this field, note, it will return all the memberships for those members
    * @param hasMembershipTypeForMember return memberships where the member has this field, note, it will return all the memberships for those members
+   * @param queryOptionsForGroup 
+   * @param scopeForGroup 
+   * @param splitScopeForGroup 
+   * @param hasFieldForGroup 
+   * @param hasMembershipTypeForGroup 
    * @param memberHasMembershipForGroup makes sure this member has a membership in the group before returning any results
    * @return a set of membership, group, and member objects
    * @since v2.2
    */
   public Set<Object[]> findAllByGroupOwnerOptions(Collection<String> groupIds, Collection<String> memberIds,
       Collection<String> membershipIds, MembershipType membershipType,
-      Collection<Field> fields,  
+      Collection<Field> fields,  Collection<Privilege> privilegesTheUserHas,
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean shouldCheckSecurity, 
       FieldType fieldType,
       String serviceId, ServiceRole serviceRole, QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, 

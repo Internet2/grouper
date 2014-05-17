@@ -10,6 +10,8 @@
 <link href="../../grouperExternal/public/assets/css/font-awesome.css" rel="stylesheet">
 <link href="../../grouperExternal/public/assets/css/grouperUi2.css" rel="stylesheet">
 
+<script src="../../grouperExternal/public/OwaspJavaScriptServlet"></script>
+
 <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
 <!--[if lt IE 9]>
   <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>

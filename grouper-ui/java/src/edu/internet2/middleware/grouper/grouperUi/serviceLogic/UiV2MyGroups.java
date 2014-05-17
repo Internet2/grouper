@@ -490,10 +490,10 @@ public class UiV2MyGroups {
           .assignSubjectHasMembershipForGroup(loggedInSubject)
           .addSubject(loggedInSubject)
           .assignCheckSecurity(true)
-          .assignPrivileges(AccessPrivilege.OPT_OR_READ_PRIVILEGES)
+          .assignPrivilegesTheUserHas(AccessPrivilege.OPT_OR_READ_PRIVILEGES)
           .assignEnabled(true)
-          .assignQueryOptionsForGroup(queryOptions)
-          .assignSplitScopeForGroup(true);
+          .assignQueryOptionsForGroup(queryOptions);
+        
     
         if (!StringUtils.isBlank(myGroupsFilter)) {
           membershipFinder.assignSplitScopeForGroup(true);

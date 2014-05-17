@@ -1,6 +1,6 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
                     <!-- start indexRecentlyUsed.jsp -->
-                    <h4>Recently used</h4>
+                    <h4>${textContainer.text['indexRecentlyUsedRecentlyUsed'] }</h4>
                     
                     <ul class="unstyled list-widget">
                       <c:forEach items="${grouperRequestContainer.indexContainer.guiGroupsRecentlyUsedAbbreviated}" var="guiGroup">
@@ -34,6 +34,6 @@
                       </c:forEach>
 
                     </ul>
-                    <p><strong><a href="my-favorites.html">View all recently used</a></strong></p>
+<%-- TODO add in view all recently used --%>
                     <!-- start indexRecentlyUsed.jsp -->
                     

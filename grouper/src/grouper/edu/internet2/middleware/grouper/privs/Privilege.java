@@ -116,6 +116,48 @@ public class Privilege implements Serializable {
   }
 
   /**
+   * convert a list to a privilege for any type of privilege
+   * @param fields
+   * @return the privilege
+   */
+  public static Set<Privilege> convertFieldsToPrivileges(Collection<Field> fields) {
+    
+    if (fields == null) {
+      return null;
+    }
+    
+    Set<Privilege> privileges = new LinkedHashSet<Privilege>();
+    
+    for (Field field : fields) {
+      Privilege privilege = listToPriv(field.getName(), true);
+      privileges.add(privilege);
+    }
+    return privileges;
+    
+  }
+
+  /**
+   * convert a list of privilege names or field names to a privilege for any type of privilege
+   * @param privilegeNames
+   * @return the privilege
+   */
+  public static Set<Privilege> convertNamesToPrivileges(Collection<String> privilegeNames) {
+    
+    if (privilegeNames == null) {
+      return null;
+    }
+    
+    Set<Privilege> privileges = new LinkedHashSet<Privilege>();
+    
+    for (String privilegeName : privilegeNames) {
+      Privilege privilege = getInstance(privilegeName, true);
+      privileges.add(privilege);
+    }
+    return privileges;
+    
+  }
+
+  /**
    * convert a collection of privileges to a collection of fields
    * @param privileges
    * @return the fields
@@ -544,19 +586,38 @@ public class Privilege implements Serializable {
     }
     return result.toString();
   }
-  
+
   /**
    * 
    * @param name
    * @return priv
    */
   public static Privilege getInstance(String name) {
+    return getInstance(name, false);
+  }
+  /**
+   * 
+   * @param name
+   * @param exceptionIfNotFound
+   * @return priv
+   */
+  public static Privilege getInstance(String name, boolean exceptionIfNotFound) {
     
     //all are upper case
     if (name != null) {
       name = name.toLowerCase();
     }
-    return (Privilege) PRIVS.get(name);
+    Privilege privilege = PRIVS.get(name);
+    
+    //try list to make things more user friendly?
+    if (privilege == null) {
+      privilege = listToPriv(name, false);
+    }
+    
+    if (privilege == null && exceptionIfNotFound) {
+      throw new RuntimeException("Cant find privilege: " + name);
+    }
+    return privilege;
   } // public static Privilege getInstance(name)
 
   /**

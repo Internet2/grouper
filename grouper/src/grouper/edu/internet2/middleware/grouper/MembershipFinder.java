@@ -149,6 +149,13 @@ public class MembershipFinder {
   /** fields to look for */
   private Collection<Field> fields = new HashSet<Field>();
 
+  /**
+   * for group membership queries, pass in the privileges the user has
+   */
+  private Collection<Privilege> privilegesTheUserHas = new HashSet<Privilege>();
+
+  
+  
   /** sql like string to limit the results of the owner */
   private String scope;
   
@@ -519,6 +526,28 @@ public class MembershipFinder {
     this.fields.add(field);
     return this;
   }
+
+  /**
+   * add a privilege the user has for group query
+   * @param name
+   * @return this for chaining
+   */
+  public MembershipFinder addPrivilegeTheUserHas(String name) {
+    Privilege privilege = Privilege.getInstance(name);
+    this.addPrivilegeTheUserHas(privilege);
+    return this;
+  }
+  
+  /**
+   * add a privilege the user has for group query
+   * @param field
+   * @return this for chaining
+   */
+  public MembershipFinder addPrivilegeTheUserHas(Privilege field) {
+    this.privilegesTheUserHas.add(field);
+    return this;
+  }
+
   
   /** if we should look for all, or enabled only.  default is all */
   private Boolean enabled;
@@ -698,12 +727,12 @@ public class MembershipFinder {
       memberHasMembershipForGroup = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), 
           this.subjectHasMembershipForGroup, false);
       if (memberHasMembershipForGroup == null) {
-        new HashSet<Object[]>();
+        return new HashSet<Object[]>();
       }
     }
     
     return GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(this.groupIds, this.memberIds,
-        this.membershipIds, this.membershipType, inheritedFields, this.sources, this.scope, this.stem, this.stemScope, 
+        this.membershipIds, this.membershipType, inheritedFields, this.privilegesTheUserHas, this.sources, this.scope, this.stem, this.stemScope, 
         this.enabled, this.checkSecurity, this.fieldType, this.serviceId, this.serviceRole,
         this.queryOptionsForMember, this.scopeForMember, this.splitScopeForMember, 
         this.hasFieldForMember, this.hasMembershipTypeForMember, this.queryOptionsForGroup, 
@@ -1164,7 +1193,7 @@ public class MembershipFinder {
       FieldType fieldType, String serviceId, ServiceRole serviceRole) {    
     
     return GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(groupIds, memberIds,
-        membershipIds, membershipType, GrouperUtil.toSet(field), sources, scope, stem, stemScope, enabled, shouldCheckSecurity, 
+        membershipIds, membershipType, GrouperUtil.toSet(field), null, sources, scope, stem, stemScope, enabled, shouldCheckSecurity, 
         fieldType, serviceId, serviceRole, null, null, false, false, false, null, null, false, false, false, null);  
   }
   
@@ -2005,6 +2034,28 @@ public class MembershipFinder {
     return this;
   }
   
+  /**
+   * assign a collection of fields to look for the user has for groups
+   * @param thePrivilegesTheUserHas
+   * @return this for chaining
+   */
+  public MembershipFinder assignPrivilegesTheUserHas(Collection<Privilege> thePrivilegesTheUserHas) {
+    this.privilegesTheUserHas = thePrivilegesTheUserHas;
+    return this;
+  }
+
+  /**
+   * assign a collection of fields to look for the user has for groups
+   * @param thePrivilegeNamesOfPrivilegesTheUserHas
+   * @return this for chaining
+   */
+  public MembershipFinder assignPrivilegesTheUserHasByName(Collection<String> thePrivilegeNamesOfPrivilegesTheUserHas) {
+    
+    this.privilegesTheUserHas = GrouperUtil.nonNull(Privilege.convertNamesToPrivileges(thePrivilegeNamesOfPrivilegesTheUserHas));
+      
+    return this;
+  }
+
   /**
    * 
    * @param s

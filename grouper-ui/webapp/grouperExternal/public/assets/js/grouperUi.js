@@ -625,6 +625,17 @@ function ajax(theUrl, options) {
       }
     }
   }
+
+  //add owasp token
+  
+  
+  var owaspCsrfTokenName = 'OWASP_CSRFTOKEN';
+  var owaspCsrfTokenHeader = {};
+  if (document.getElementsByName(owaspCsrfTokenName) != null
+      && document.getElementsByName(owaspCsrfTokenName).length > 0
+      && document.getElementsByName(owaspCsrfTokenName)[0] != null) {
+    owaspCsrfTokenHeader = {OWASP_CSRFTOKEN: document.getElementsByName(owaspCsrfTokenName)[0].value};
+  }
   
   //make sure combos have the right state
   //for(var combo in allComboboxes) {
@@ -649,6 +660,7 @@ function ajax(theUrl, options) {
   $.blockUI();  
   $.ajax({
     url: theUrl,
+    headers: owaspCsrfTokenHeader,
     type: 'POST',
     cache: false,
     dataType: 'json',

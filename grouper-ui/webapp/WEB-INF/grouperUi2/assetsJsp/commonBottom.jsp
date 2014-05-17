@@ -1,4 +1,8 @@
 
+<%-- note this wont work for token per page --%>
+<input type="hidden" name="<csrf:token-name/>" value="<csrf:token-value />"/>
+
+
 <%-- note: dojo and jquery script are included in commonHead so we can call dojo things in the screen --%>
 
 <script src="../../grouperExternal/public/assets/js/bootstrap.js"></script>
@@ -14,7 +18,6 @@
 <script src="../../grouperExternal/public/assets/js/jquery.blockUI.js"></script>
 <script src="../../grouperExternal/public/assets/js/jquery.simplemodal.js"></script>
 <script src="../../grouperExternal/public/assets/nifty/niftycube.js"></script>
-<script src="../../grouperExternal/public/OwaspJavaScriptServlet"></script>
 
 <script type="text/javascript">
   $().ajaxStop($.unblockUI); 

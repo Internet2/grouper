@@ -1,23 +1,23 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
-                <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update footable">
-                  <thead>
-                    <tr>
-                      <td colspan="4" class="table-toolbar gradient-background"><a href="#" onclick="ajax('../app/UiV2Group.removeMembers?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterFormId,groupPagingFormId,membersToDeleteFormId'}); return false;" class="btn">${textContainer.text['groupRemoveSelectedMembersButton'] }</a></td>
-                    </tr>
-                    <tr>
-                      <th>
-                        <label class="checkbox checkbox-no-padding">
-                          <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" onchange="$('.membershipCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
-                        </label>
-                      </th>
-                      <th class="sorted">${textContainer.text['groupViewDetailsHeaderEntityName']}</th>
-                      <th data-hide="phone">${textContainer.text['groupViewDetailsHeaderMembership']}</th>
-                      <th style="width:100px;"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <form id="membersToDeleteFormId">
+                <form id="membersToDeleteFormId">
+                  <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update footable">
+                    <thead>
+                      <tr>
+                        <td colspan="4" class="table-toolbar gradient-background"><a href="#" onclick="ajax('../app/UiV2Group.removeMembers?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterFormId,groupPagingFormId,membersToDeleteFormId'}); return false;" class="btn">${textContainer.text['groupRemoveSelectedMembersButton'] }</a></td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <label class="checkbox checkbox-no-padding">
+                            <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" onchange="$('.membershipCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
+                          </label>
+                        </th>
+                        <th class="sorted">${textContainer.text['groupViewDetailsHeaderEntityName']}</th>
+                        <th data-hide="phone">${textContainer.text['groupViewDetailsHeaderMembership']}</th>
+                        <th style="width:100px;"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
                       <c:set var="i" value="0" />
                       <c:forEach items="${grouperRequestContainer.groupContainer.guiMembershipSubjectContainers}" 
                         var="guiMembershipSubjectContainer" >
@@ -59,9 +59,9 @@
                         </tr>
                         <c:set var="i" value="${i+1}" />
                       </c:forEach>
-                    </form>
-                  </tbody>
-                </table>
+                    </tbody>
+                  </table>
+                </form>
                 <div class="data-table-bottom gradient-background">
                   <grouper:paging2 guiPaging="${grouperRequestContainer.groupContainer.guiPaging}" formName="groupPagingForm" ajaxFormIds="groupFilterFormId"
                     refreshOperation="../app/UiV2Group.filter?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" />

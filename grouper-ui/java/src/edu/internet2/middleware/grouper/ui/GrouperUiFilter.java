@@ -917,7 +917,16 @@ public class GrouperUiFilter implements Filter {
       servletRequest.setCharacterEncoding("UTF-8");
       
       httpServletRequest = new GrouperRequestWrapper((HttpServletRequest) servletRequest);
-      
+
+      // Set standard HTTP/1.1 no-cache headers.
+      ((HttpServletResponse)response).setHeader("Cache-Control", "private, no-store, no-cache, must-revalidate");
+
+      // Set standard HTTP/1.0 no-cache header.
+      ((HttpServletResponse)response).setHeader("Pragma", "no-cache");
+
+      // belt and suspenders
+      ((HttpServletResponse)response).setHeader("Expires", "0");
+
       httpServletRequest = initRequest(httpServletRequest, response);
   
       try {

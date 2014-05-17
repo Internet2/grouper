@@ -108,14 +108,6 @@
                               <c:if test="${guiMembershipSubjectContainer.membershipSubjectContainer.hasNonImmediate}">
                                 <li><a href="#"  onclick="return guiV2link('operation=UiV2Membership.traceGroupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}'); return false;" class="actions-revoke-membership">${textContainer.text['groupViewTracePrivilegeButton'] }</a></li>
                               </c:if>
-                              <c:choose>
-                                <c:when test="${guiMembershipSubjectContainer.guiSubject.group}">
-                                  <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${guiMembershipSubjectContainer.guiSubject.subject.id}');">View group</a></li>
-                                </c:when>
-                                <c:otherwise>
-                                  <li><a href="view-profile.html">View Profile</a></li>
-                                </c:otherwise>
-                              </c:choose>
                               </li>
                             </ul>
                           </div>

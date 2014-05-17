@@ -85,14 +85,6 @@
                                 <li><a href="#"  onclick="return guiV2link('operation=UiV2Membership.traceStemPrivileges&stemId=${guiMembershipSubjectContainer.guiStem.stem.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}'); return false;" class="actions-revoke-membership">${textContainer.text['thisSubjectsPrivilegesActionsMenuTracePrivileges'] }</a></li>
                               </c:if>
                               
-                              <c:choose>
-                                <c:when test="${guiMembershipSubjectContainer.guiSubject.group}">
-                                  <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${guiMembershipSubjectContainer.guiSubject.subject.id}');">View group</a></li>
-                                </c:when>
-                                <c:otherwise>
-                                  <li><a href="view-profile.html">View Profile</a></li>
-                                </c:otherwise>
-                              </c:choose>
                             </ul>
                           </div>
                         </td>
