@@ -532,7 +532,7 @@ public class Privilege implements Serializable {
   public Field getField() throws SchemaException {
     String listName = this.getListName();
     if (!StringUtils.isBlank(listName)) {
-      return FieldFinder.find(listName, true);
+      return FieldFinder.find(listName, true, false);
     }
     throw new SchemaException("invalid privilege: " + this);
   }

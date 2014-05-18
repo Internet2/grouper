@@ -201,7 +201,22 @@ public class FieldFinder {
    * @return field
    * @throws  SchemaException
    */
-  public static Field find(String name, boolean exceptionIfNotFound) 
+  public static Field find(String name, boolean exceptionIfNotFound) {
+    return find(name, exceptionIfNotFound, true);
+  }
+
+  /**
+   * Get the specified field.
+   * <pre class="eg">
+   * Field f = FieldFinder.find(field);
+   * </pre>
+   * @param   name  Name of {@link Field} to return.
+   * @param exceptionIfNotFound true if exception if not found, otherwise null
+   * @param includePrivilegeSearch if should also use name as privilege
+   * @return field
+   * @throws  SchemaException
+   */
+  public static Field find(String name, boolean exceptionIfNotFound, boolean includePrivilegeSearch) 
     throws  SchemaException {
     Map<String, Field> theFieldCache = fieldCache();
     if ( theFieldCache.containsKey(name) ) {
@@ -209,18 +224,20 @@ public class FieldFinder {
     }
     
     //try by privilege name
-    try {
-      Privilege privilege = Privilege.getInstance(name);
-      if (privilege != null ) {
-        Field field = privilege.getField();
-        if (field != null) {
-          return field;
+    if (includePrivilegeSearch) {
+      try {
+        Privilege privilege = Privilege.getInstance(name);
+        if (privilege != null ) {
+          Field field = privilege.getField();
+          if (field != null) {
+            return field;
+          }
         }
-      }
-    } catch (Exception e) {
-      //this is generally ok
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Problem finding privilege: " + name, e);
+      } catch (Exception e) {
+        //this is generally ok
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Problem finding privilege: " + name, e);
+        }
       }
     }
     if (exceptionIfNotFound) {
