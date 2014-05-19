@@ -377,15 +377,8 @@ public class GrouperStartup {
    * init the loader types and attributes if configured to
    */
   public static void initLoaderType() {
-    String autoadd = GrouperConfig.retrieveConfig().propertiesOverrideMap().get("loader.autoadd.typesAttributes");
-    if (StringUtils.isBlank(autoadd)) {
-      try {
-        autoadd = GrouperLoaderConfig.retrieveConfig().propertyValueString("loader.autoadd.typesAttributes");
-      } catch (Exception e) {
-        //dont worry if cant get this property
-      }
-    }
-    boolean autoaddBoolean = GrouperUtil.booleanValue(autoadd, false);
+    boolean autoaddBoolean = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.autoadd.typesAttributes", true);
+
     if (!autoaddBoolean) {
       return;
     }

@@ -607,20 +607,10 @@ public class GrouperLoaderTest extends GrouperTest {
       GrouperDdlUtils.internal_printDdlUpdateMessage = false;
       this.grouperSession = GrouperSession.startRootSession();
       
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
-
-      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.rootStem", "my:attrRoot");
-      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.loader.autoconfigure", "true");
-
-      
       ensureTestgrouperLoaderTables();
   
       HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoader").executeUpdate();
       HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoaderGroups").executeUpdate();
-      
-      //override whatever is in the config
-      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("loader.autoadd.typesAttributes", "true");
       
       GrouperStartup.initLoaderType();
       
@@ -634,6 +624,25 @@ public class GrouperLoaderTest extends GrouperTest {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  
+  
+  /**
+   * @see edu.internet2.middleware.grouper.helper.GrouperTest#setupConfigs()
+   */
+  @Override
+  protected void setupConfigs() {
+    super.setupConfigs();
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.rootStem", "my:attrRoot");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.attribute.loader.autoconfigure", "true");
+
+    
+    //override whatever is in the config
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("loader.autoadd.typesAttributes", "true");
   }
 
   /**
