@@ -12753,7 +12753,7 @@ public enum GrouperDdl implements DdlVersionable {
                     : "select id from grouper_groups where id_index is null order by id" , null);
             
             for (int i=0;i<GrouperUtil.length(groupIds); i++) {
-              ddlVersionBean.appendAdditionalScriptUnique(
+              ddlVersionBean.getAdditionalScripts().append(
                 "\nupdate grouper_groups set id_index = " + nextIndex++ + " where id = '" + groupIds.get(i) + "';\n");
               if (i+1 % 50 == 0) {
                 ddlVersionBean.getAdditionalScripts().append("\ncommit;\n");
@@ -12851,7 +12851,7 @@ public enum GrouperDdl implements DdlVersionable {
                     : "select id from grouper_stems where id_index is null order by id" , null);
 
             for (int i=0;i<GrouperUtil.length(stemIds); i++) {
-              ddlVersionBean.appendAdditionalScriptUnique(
+              ddlVersionBean.getAdditionalScripts().append(
                 "\nupdate grouper_stems set id_index = " + nextIndex++ + " where id = '" + stemIds.get(i) + "';\n");
               if (i+1 % 50 == 0) {
                 ddlVersionBean.getAdditionalScripts().append("\ncommit;\n");
@@ -12949,7 +12949,7 @@ public enum GrouperDdl implements DdlVersionable {
                     : "select id from grouper_attribute_def where id_index is null order by id" , null);
             
             for (int i=0;i<GrouperUtil.length(attributeDefIds); i++) {
-              ddlVersionBean.appendAdditionalScriptUnique(
+              ddlVersionBean.getAdditionalScripts().append(
                 "\nupdate grouper_attribute_def set id_index = " + nextIndex++ + " where id = '" + attributeDefIds.get(i) + "';\n");
               if (i+1 % 50 == 0) {
                 ddlVersionBean.getAdditionalScripts().append("\ncommit;\n");
@@ -13046,7 +13046,7 @@ public enum GrouperDdl implements DdlVersionable {
                     : "select id from grouper_attribute_def_name where id_index is null order by id" , null);
             
             for (int i=0;i<GrouperUtil.length(attributeDefNameIds); i++) {
-              ddlVersionBean.appendAdditionalScriptUnique(
+              ddlVersionBean.getAdditionalScripts().append(
                 "\nupdate grouper_attribute_def_name set id_index = " + nextIndex++ + " where id = '" + attributeDefNameIds.get(i) + "';\n");
               if (i+1 % 50 == 0) {
                 ddlVersionBean.getAdditionalScripts().append("\ncommit;\n");
