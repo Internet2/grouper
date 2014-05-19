@@ -55,7 +55,7 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperLoaderSecurityTest("testGroupAutoCreate"));
+    TestRunner.run(new GrouperLoaderSecurityTest("testSecurityUserEditTypeWheelFail"));
   }
   
   /**
@@ -101,8 +101,6 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
       
       String wheelGroupName = "etc:wheelGroup";
 
-      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "true");
-      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.group", wheelGroupName);
 
       this.wheelGroup = Group.saveGroup(this.grouperSession, wheelGroupName, 
           null, wheelGroupName, null, null, null, true);
@@ -113,6 +111,20 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
 
   }
   
+  /**
+   * @see edu.internet2.middleware.grouper.helper.GrouperTest#setupConfigs()
+   */
+  @Override
+  protected void setupConfigs() {
+    super.setupConfigs();
+    
+    String wheelGroupName = "etc:wheelGroup";
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.group", wheelGroupName);
+
+  }
+
   /** group to add a type to */
   private Group group;
 
