@@ -292,7 +292,7 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
   }
 
   /**
-   * 
+   * used when calling getLeftGroup(), getRightGroup(), or getOwnerGroup()
    * @param uuid
    * @return group
    * @throws GroupNotFoundException

@@ -71,6 +71,7 @@ import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsExc
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -3792,8 +3793,16 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
               // we'll create the composite using the old factors...
               // maybe the way this works should be configurable? 
               if (newCompositeLeftGroup == null || newCompositeRightGroup == null) {
-                newCompositeLeftGroup = oldComposite.getLeftGroup();
-                newCompositeRightGroup = oldComposite.getRightGroup();
+                try {
+                  newCompositeLeftGroup = oldComposite.getLeftGroup();
+                  newCompositeRightGroup = oldComposite.getRightGroup();
+                } catch (GroupNotFoundException gnfe) {
+                  if (LOG.isDebugEnabled()) {
+                    LOG.debug("Not allowed to see composite factor of owner in stem copy: " + newCompositeOwnerGroup.getName() );
+                  }
+                  //not allowed to view left or right?  skip it
+                  continue;
+                }
               }
 
               newCompositeOwnerGroup.internal_addCompositeMember(GrouperSession
