@@ -733,9 +733,6 @@ public class TestStemApi extends GrouperTest {
       assertTrue("threw expected exception", true);
     }
   }
-  public void test_getChildStems_PrivilegeArrayAndScope_emptyArray() {
-    assertEquals( 0, this.root.getChildStems( new Privilege[0], Stem.Scope.SUB ).size() );
-  }
   public void test_getChildStems_PrivilegeArrayAndScope_createPrivAndOneScope() {
     Privilege[] privs = { NamingPrivilege.CREATE };
     assertEquals( this.originalRootCreateOne + 1, this.root.getChildStems( privs, Stem.Scope.ONE ).size() );
