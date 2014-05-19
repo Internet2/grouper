@@ -108,7 +108,7 @@ public class TestStemApi extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStemApi("test_copy_insufficient_privilege_groupAsPrivilege_naming"));
+    TestRunner.run(new TestStemApi("test_getChildGroups_PrivilegeArrayAndScope_emptyArray"));
   }
 
   /** size before getting started */
@@ -611,9 +611,6 @@ public class TestStemApi extends GrouperTest {
     catch (IllegalArgumentException eExpected) {
       assertTrue("threw expected exception", true);
     }
-  }
-  public void test_getChildGroups_PrivilegeArrayAndScope_emptyArray() {
-    assertEquals( 0, this.top.getChildGroups( new Privilege[0], Stem.Scope.SUB ).size() );
   }
   public void test_getChildGroups_PrivilegeArrayAndScope_createPrivAndOneScope() {
     Privilege[] privs = { NamingPrivilege.CREATE };
