@@ -61,14 +61,6 @@ public class Test_api_GrouperConfig extends GrouperTest {
   }
 
 
-  public void test_getHibernateProperty_nullProperty() {
-    try {
-      GrouperConfig.getHibernateProperty(null);
-    }
-    catch (IllegalArgumentException eExpected) {
-      assertTrue("threw expected exception", true);
-    }
-  }
 
   public void test_getHibernateProperty_nonExistentProperty() {
     assertEquals( GrouperConfig.EMPTY_STRING, GrouperConfig.getHibernateProperty(this.prop_invalid) );
@@ -78,14 +70,6 @@ public class Test_api_GrouperConfig extends GrouperTest {
     assertNotNull( GrouperConfig.getHibernateProperty(this.prop_valid_hib) );
   }
 
-  public void test_getProperty_nullProperty() {
-    try {
-      GrouperConfig.getProperty(null);
-    }
-    catch (IllegalArgumentException eExpected) {
-      assertTrue("threw expected exception", true);
-    }
-  }
 
   public void test_getProperty_nonExistentProperty() {
     assertEquals( GrouperConfig.EMPTY_STRING, GrouperConfig.getProperty(this.prop_invalid) );

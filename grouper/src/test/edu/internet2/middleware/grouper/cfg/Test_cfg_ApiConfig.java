@@ -31,6 +31,7 @@
 */
 
 package edu.internet2.middleware.grouper.cfg;
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 
 /**
@@ -43,6 +44,29 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 public class Test_cfg_ApiConfig extends GrouperTest {
 
 
+  /**
+   * 
+   */
+  public Test_cfg_ApiConfig() {
+    super();
+    
+  }
+  /**
+   * @param name
+   */
+  public Test_cfg_ApiConfig(String name) {
+    super(name);
+    
+  }
+  
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new Test_cfg_ApiConfig("test_getProperty_nullProperty"));
+  }
+  
   String        prop_invalid  = "this.property.should.not.exist";
   String        prop_valid    = "dao.factory";
 
@@ -57,14 +81,6 @@ public class Test_cfg_ApiConfig extends GrouperTest {
 
 
 
-  public void test_getProperty_nullProperty() {
-    try {
-      GrouperConfig.retrieveConfig().propertyValueString(null);
-    }
-    catch (IllegalArgumentException eExpected) {
-      assertTrue("threw expected exception", true);
-    }
-  }
 
   public void test_getProperty_nonExistentProperty() {
     assertNull( GrouperConfig.retrieveConfig().propertyValueString(this.prop_invalid) );
