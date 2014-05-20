@@ -670,11 +670,11 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             return false;
           }
           for (Privilege privilegeTheUserHas : privilegesTheUserHasFinal) {
-             if (!theGroup.canHavePrivilege(grouperSessionSubject, privilegeTheUserHas.getName(), false)) {
-               return false;
+             if (theGroup.canHavePrivilege(grouperSessionSubject, privilegeTheUserHas.getName(), false)) {
+               return true;
              }
           }
-          return true;
+          return false;
              
         }
       });

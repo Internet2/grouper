@@ -4,13 +4,19 @@
                   <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update footable">
                     <thead>
                       <tr>
-                        <td colspan="4" class="table-toolbar gradient-background"><a href="#" onclick="ajax('../app/UiV2Group.removeMembers?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterFormId,groupPagingFormId,membersToDeleteFormId'}); return false;" class="btn">${textContainer.text['groupRemoveSelectedMembersButton'] }</a></td>
+                        <td colspan="4" class="table-toolbar gradient-background">
+                          <c:if test="${grouperRequestContainer.groupContainer.canUpdate}">
+                            <a href="#" onclick="ajax('../app/UiV2Group.removeMembers?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterFormId,groupPagingFormId,membersToDeleteFormId'}); return false;" class="btn">${textContainer.text['groupRemoveSelectedMembersButton'] }</a>
+                          </c:if>
+                        </td>
                       </tr>
                       <tr>
                         <th>
-                          <label class="checkbox checkbox-no-padding">
-                            <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" onchange="$('.membershipCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
-                          </label>
+                          <c:if test="${grouperRequestContainer.groupContainer.canUpdate}">
+                            <label class="checkbox checkbox-no-padding">
+                              <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" onchange="$('.membershipCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
+                            </label>
+                          </c:if>
                         </th>
                         <th class="sorted">${textContainer.text['groupViewDetailsHeaderEntityName']}</th>
                         <th data-hide="phone">${textContainer.text['groupViewDetailsHeaderMembership']}</th>
@@ -24,16 +30,18 @@
                         <c:set var="guiMembershipContainer" value="${guiMembershipSubjectContainer.guiMembershipContainers['members']}" />
                         <tr>
                           <td>
-                            <label class="checkbox checkbox-no-padding">
-                              <c:choose>
-                                <c:when test="${guiMembershipContainer.membershipContainer.membershipAssignType.immediate}">
-                                  <input type="checkbox" name="membershipRow_${i}" value="${guiMembershipContainer.membershipContainer.immediateMembership.uuid}" class="membershipCheckbox" />
-                                </c:when>
-                                <c:otherwise>
-                                  <input type="checkbox" disabled="disabled"/>
-                                </c:otherwise>
-                              </c:choose>
-                            </label>
+                            <c:if test="${grouperRequestContainer.groupContainer.canUpdate}">
+                              <label class="checkbox checkbox-no-padding">
+                                <c:choose>
+                                  <c:when test="${guiMembershipContainer.membershipContainer.membershipAssignType.immediate}">
+                                    <input type="checkbox" name="membershipRow_${i}" value="${guiMembershipContainer.membershipContainer.immediateMembership.uuid}" class="membershipCheckbox" />
+                                  </c:when>
+                                  <c:otherwise>
+                                    <input type="checkbox" disabled="disabled"/>
+                                  </c:otherwise>
+                                </c:choose>
+                              </label>
+                            </c:if>
                           </td>
                           <td class="expand foo-clicker">${guiMembershipSubjectContainer.guiSubject.shortLinkWithIcon} <br/>
                           </td>

@@ -887,9 +887,9 @@ public class UiV2Stem {
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/stem/viewStem.jsp"));
       
-      if (GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanAdminPrivileges()) {
+      //if (GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanAdminPrivileges()) {
         filterHelper(request, response, stem);
-      }
+      //}
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
