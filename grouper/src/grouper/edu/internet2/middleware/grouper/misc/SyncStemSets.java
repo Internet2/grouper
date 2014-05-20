@@ -28,6 +28,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3StemDAO;
 import edu.internet2.middleware.grouper.stem.StemSet;
@@ -103,6 +104,20 @@ public class SyncStemSets {
   public long fullSync() {
         
     long stemSetCount = HibernateSession.byHqlStatic().createQuery("select count(*) from StemSet").uniqueResult(Long.class);
+    long stemCount = HibernateSession.byHqlStatic().createQuery("select count(*) from Stem").uniqueResult(Long.class);
+    
+    // if we have a lot of stems and a few stem sets, let's clear out the stem sets so we don't spend time in the second phase.
+    if (stemCount > 100 && stemSetCount < 100) {
+
+      if (GrouperDdlUtils.isMysql() || GrouperDdlUtils.isHsql()) {
+        //do this since mysql cant handle self-referential foreign keys
+        // restrict this only to mysql since in oracle this might cause unique constraint violations
+        HibernateSession.byHqlStatic().createQuery("update StemSet set parentStemSetId = null").executeUpdate();
+      }
+      
+      HibernateSession.byHqlStatic().createQuery("delete from StemSet").executeUpdate();
+      stemSetCount = 0;
+    }
     
     long count = addMissingSelfStemSets();
     
