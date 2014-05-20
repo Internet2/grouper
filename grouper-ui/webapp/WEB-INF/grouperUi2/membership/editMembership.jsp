@@ -103,34 +103,36 @@
                         value="${grouperRequestContainer.membershipGuiContainer.directGuiMembership.endDateLabel }" id="member-end-date"><span class="help-block">${textContainer.text['membershipEditLabelEndDateSubtext'] }</span>
                     </div>
                   </div>
-                  <div class="control-group">
-                    <label class="control-label">${textContainer.text['membershipEditLabelDirectPrivileges'] }</label>
-                    <div class="controls">
-                      <c:forEach items="admins,readers,updaters,optins,optouts,groupAttrReaders,groupAttrUpdaters,viewers" var="fieldName">
-                        <c:set value="${grouperRequestContainer.membershipGuiContainer.privilegeGuiMembershipSubjectContainer.guiMembershipContainers[fieldName]}" 
-                          var="guiMembershipContainer" />
-                        <label class="checkbox inline">
-                          <input type="checkbox" id="inlineCheckbox1" 
-                            ${guiMembershipContainer.membershipContainer.membershipAssignType.immediate ? 'checked="checked"' : ''}
-                            name="privilege_${fieldName}" value="true">${textContainer.text[grouper:concat3('priv.', fieldName, 'Upper')]}
-                        </label>
-                      </c:forEach>
+                  <c:if test="grouperRequestContainer.groupContainer.canAdmin">
+                    <div class="control-group">
+                      <label class="control-label">${textContainer.text['membershipEditLabelDirectPrivileges'] }</label>
+                      <div class="controls">
+                        <c:forEach items="admins,readers,updaters,optins,optouts,groupAttrReaders,groupAttrUpdaters,viewers" var="fieldName">
+                          <c:set value="${grouperRequestContainer.membershipGuiContainer.privilegeGuiMembershipSubjectContainer.guiMembershipContainers[fieldName]}" 
+                            var="guiMembershipContainer" />
+                          <label class="checkbox inline">
+                            <input type="checkbox" id="inlineCheckbox1" 
+                              ${guiMembershipContainer.membershipContainer.membershipAssignType.immediate ? 'checked="checked"' : ''}
+                              name="privilege_${fieldName}" value="true">${textContainer.text[grouper:concat3('priv.', fieldName, 'Upper')]}
+                          </label>
+                        </c:forEach>
+                      </div>
                     </div>
-                  </div>
-                  <div class="control-group">
-                    <label class="control-label">${textContainer.text['membershipEditLabelIndirectPrivileges'] }</label>
-                    <div class="controls">
-                      <c:forEach items="admins,readers,updaters,optins,optouts,groupAttrReaders,groupAttrUpdaters,viewers" var="fieldName">
-                        <c:set value="${grouperRequestContainer.membershipGuiContainer.privilegeGuiMembershipSubjectContainer.guiMembershipContainers[fieldName]}" 
-                          var="guiMembershipContainer" />
-                        <label class="checkbox inline">
-                          <input type="checkbox" id="inlineCheckbox1" disabled="disabled"
-                            ${guiMembershipContainer.membershipContainer.membershipAssignType.nonImmediate ? 'checked="checked"' : ''}
-                            name="privilegeReadonly_${fieldName}" value="true">${textContainer.text[grouper:concat3('priv.', fieldName, 'Upper')]}
-                        </label>
-                      </c:forEach>
+                    <div class="control-group">
+                      <label class="control-label">${textContainer.text['membershipEditLabelIndirectPrivileges'] }</label>
+                      <div class="controls">
+                        <c:forEach items="admins,readers,updaters,optins,optouts,groupAttrReaders,groupAttrUpdaters,viewers" var="fieldName">
+                          <c:set value="${grouperRequestContainer.membershipGuiContainer.privilegeGuiMembershipSubjectContainer.guiMembershipContainers[fieldName]}" 
+                            var="guiMembershipContainer" />
+                          <label class="checkbox inline">
+                            <input type="checkbox" id="inlineCheckbox1" disabled="disabled"
+                              ${guiMembershipContainer.membershipContainer.membershipAssignType.nonImmediate ? 'checked="checked"' : ''}
+                              name="privilegeReadonly_${fieldName}" value="true">${textContainer.text[grouper:concat3('priv.', fieldName, 'Upper')]}
+                          </label>
+                        </c:forEach>
+                      </div>
                     </div>
-                  </div>
+                  </c:if>
                   <input type="hidden" name="backTo" value="${grouperRequestContainer.membershipGuiContainer.editMembershipFromSubject ? 'subject' : 'group' }" />
                   <div class="form-actions"><a href="#" onclick="ajax('../app/UiV2Membership.saveMembership', {formIds: 'editMembershipFormId'}); return false;" class="btn btn-primary">${textContainer.text['membershipEditSaveButton'] }</a> 
                     <c:choose>

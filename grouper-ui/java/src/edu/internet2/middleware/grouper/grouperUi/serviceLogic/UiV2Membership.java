@@ -854,6 +854,7 @@ public class UiV2Membership {
       String hasMembershipString = request.getParameter("hasMembership[]");
       boolean hasMembership = GrouperUtil.booleanValue(hasMembershipString, false);
 
+
       Date startDate = null;
       try {
         String startDateString = request.getParameter("startDate");
@@ -875,24 +876,33 @@ public class UiV2Membership {
             TextContainer.retrieveFromRequest().getText().get("membershipEditToDateInvalid")));
         return;
       }
-
-      boolean privOptins = GrouperUtil.booleanValue(request.getParameter("privilege_optins[]"), false);
-      boolean privOptouts = GrouperUtil.booleanValue(request.getParameter("privilege_optouts[]"), false);
-      boolean privViewers = GrouperUtil.booleanValue(request.getParameter("privilege_viewers[]"), false);
-      boolean privReaders = GrouperUtil.booleanValue(request.getParameter("privilege_readers[]"), false);
-      boolean privAdmins = GrouperUtil.booleanValue(request.getParameter("privilege_admins[]"), false);
-      boolean privUpdaters = GrouperUtil.booleanValue(request.getParameter("privilege_updaters[]"), false);
-      boolean privGroupAttrReaders = GrouperUtil.booleanValue(request.getParameter("privilege_groupAttrReaders[]"), false);
-      boolean privGroupAttrUpdaters = GrouperUtil.booleanValue(request.getParameter("privilege_groupAttrUpdaters[]"), false);      
-
-      if (!group.addMember(subject, false, hasMembership, privAdmins, privUpdaters, privReaders, privViewers, 
-          privOptins, privOptouts, privGroupAttrReaders, privGroupAttrUpdaters, startDate, endDate, true)) {
-
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
-            TextContainer.retrieveFromRequest().getText().get("membershipEditNoChange")));
-        return;
+      
+      if (grouperRequestContainer.getGroupContainer().isCanAdmin()) { 
+        boolean privOptins = GrouperUtil.booleanValue(request.getParameter("privilege_optins[]"), false);
+        boolean privOptouts = GrouperUtil.booleanValue(request.getParameter("privilege_optouts[]"), false);
+        boolean privViewers = GrouperUtil.booleanValue(request.getParameter("privilege_viewers[]"), false);
+        boolean privReaders = GrouperUtil.booleanValue(request.getParameter("privilege_readers[]"), false);
+        boolean privAdmins = GrouperUtil.booleanValue(request.getParameter("privilege_admins[]"), false);
+        boolean privUpdaters = GrouperUtil.booleanValue(request.getParameter("privilege_updaters[]"), false);
+        boolean privGroupAttrReaders = GrouperUtil.booleanValue(request.getParameter("privilege_groupAttrReaders[]"), false);
+        boolean privGroupAttrUpdaters = GrouperUtil.booleanValue(request.getParameter("privilege_groupAttrUpdaters[]"), false);      
+    
+        if (!group.addMember(subject, false, hasMembership, privAdmins, privUpdaters, privReaders, privViewers, 
+            privOptins, privOptouts, privGroupAttrReaders, privGroupAttrUpdaters, startDate, endDate, true)) {
+    
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+              TextContainer.retrieveFromRequest().getText().get("membershipEditNoChange")));
+          return;
+        }
+      } else {
+        if (!group.addMember(subject, false, hasMembership, startDate, endDate, true)) {
+    
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+              TextContainer.retrieveFromRequest().getText().get("membershipEditNoChange")));
+          return;
+        }
       }
-            
+
       String backTo = request.getParameter("backTo");
       if (StringUtils.equals(backTo, "subject")) {
         guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Subject.viewSubject&memberId=" + member.getId() + "');"));

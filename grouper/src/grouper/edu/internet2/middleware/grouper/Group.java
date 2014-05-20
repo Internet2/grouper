@@ -1065,45 +1065,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       public Object callback(GrouperTransaction grouperTransaction)
           throws GrouperDAOException {
 
-        boolean addedMember = defaultPrivs || memberChecked || startDate != null || endDate != null;
+        boolean hadChange = Group.this.addMember(subject, defaultPrivs, memberChecked, startDate, endDate, revokeIfUnchecked);
         
-        boolean hadChange = false;
-        
-        if (addedMember) {
-          addedMember = Group.this.addMember(subject, false);
-          hadChange = hadChange || addedMember;
-          
-          Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
-          
-          Membership membership = Group.this.getImmediateMembership(Group.getDefaultList(), member, false, true);
-          
-          boolean storeMembership = false;
-          if (!GrouperUtil.equals(startDate, membership.getEnabledTime())) {
-
-            storeMembership = true;
-            hadChange = true;
-            membership.setEnabledTime(startDate == null ? null : new Timestamp(startDate.getTime()));
-          }
-          if (!GrouperUtil.equals(endDate, membership.getDisabledTime())) {
-
-            storeMembership = true;
-            hadChange = true;
-            membership.setDisabledTime(endDate == null ? null : new Timestamp(endDate.getTime()));
-            
-          }
-          if (storeMembership) {
-            GrouperDAOFactory.getFactory().getMembership().update(membership);
-          }
-          
-        } else {
-        
-          //if they are doing custom privs, maybe they want member removed???
-          if (revokeIfUnchecked) {
-            hadChange = hadChange | Group.this.deleteMember(subject, false);
-          }
-        }
-        
-
         if (!defaultPrivs) {
           
           //see if add or remove
@@ -1179,6 +1142,70 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
           }
         }
 
+        return hadChange;
+      }
+    });
+
+    
+  }
+  
+  /**
+   * add a member to group, take into account if any default privs should be changed
+   * @param subject to add
+   * @param defaultPrivs if true, forget about all the other checked params
+   * @param memberChecked
+   * @param startDate on membership
+   * @param endDate on membership
+   * @param revokeIfUnchecked
+   * @return if something was changed
+   */
+  public boolean addMember(final Subject subject, final boolean defaultPrivs,
+      final boolean memberChecked, final Date startDate, final Date endDate, final boolean revokeIfUnchecked) {
+    
+    return (Boolean)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
+      
+      @Override
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+
+        boolean addedMember = defaultPrivs || memberChecked || startDate != null || endDate != null;
+        
+        boolean hadChange = false;
+        
+        if (addedMember) {
+          addedMember = Group.this.addMember(subject, false);
+          hadChange = hadChange || addedMember;
+          
+          Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
+          
+          Membership membership = Group.this.getImmediateMembership(Group.getDefaultList(), member, false, true);
+          
+          boolean storeMembership = false;
+          if (!GrouperUtil.equals(startDate, membership.getEnabledTime())) {
+
+            storeMembership = true;
+            hadChange = true;
+            membership.setEnabledTime(startDate == null ? null : new Timestamp(startDate.getTime()));
+          }
+          if (!GrouperUtil.equals(endDate, membership.getDisabledTime())) {
+
+            storeMembership = true;
+            hadChange = true;
+            membership.setDisabledTime(endDate == null ? null : new Timestamp(endDate.getTime()));
+            
+          }
+          if (storeMembership) {
+            GrouperDAOFactory.getFactory().getMembership().update(membership);
+          }
+          
+        } else {
+        
+          //if they are doing custom privs, maybe they want member removed???
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | Group.this.deleteMember(subject, false);
+          }
+        }
+        
         return hadChange;
       }
     });
