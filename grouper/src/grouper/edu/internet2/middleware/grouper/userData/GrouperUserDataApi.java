@@ -418,7 +418,7 @@ public class GrouperUserDataApi {
         }
         
         //check security
-        if (!group.hasView(subjectToAddTo)) {
+        if (!group.canHavePrivilege(subjectToAddTo, AccessPrivilege.VIEW.getName(), false)) {
           throw new InsufficientPrivilegeException("Subject: " + GrouperUtil.subjectToString(subjectToAddTo) 
               + " does not have view on group " + group.getName());
         }
@@ -853,7 +853,7 @@ public class GrouperUserDataApi {
         }
         
         //check security
-        if (!group.hasView(subjectToAddTo)) {
+        if (!group.canHavePrivilege(subjectToAddTo, AccessPrivilege.VIEW.getName(), false)) {
           throw new InsufficientPrivilegeException("Subject: " + GrouperUtil.subjectToString(subjectToAddTo) 
               + " does not have view on group " + group.getName());
         }
