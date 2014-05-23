@@ -1,4 +1,5 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
+              <form id="membersToDeleteFormId">
                 <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update footable">
                   <thead>
                     <tr>
@@ -17,7 +18,6 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <form id="membersToDeleteFormId">
                       <c:set var="i" value="0" />
                       <c:forEach items="${grouperRequestContainer.subjectContainer.guiMembershipSubjectContainers}" 
                         var="guiMembershipSubjectContainer" >
@@ -60,9 +60,9 @@
                         </tr>
                         <c:set var="i" value="${i+1}" />
                       </c:forEach>
-                    </form>
                   </tbody>
                 </table>
+                </form>
                 <div class="data-table-bottom gradient-background">
                   <grouper:paging2 guiPaging="${grouperRequestContainer.subjectContainer.guiPaging}" formName="groupPagingForm" ajaxFormIds="groupFilterFormId"
                     refreshOperation="../app/UiV2Subject.filter?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}" />

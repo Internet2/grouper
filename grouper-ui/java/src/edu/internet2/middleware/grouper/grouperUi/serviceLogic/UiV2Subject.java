@@ -940,7 +940,16 @@ public class UiV2Subject {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
             TextContainer.retrieveFromRequest().getText().get("groupAddMemberMadeChangesSuccess")));
   
-        filterHelper(request, response, subject);
+        
+        //what subscreen are we on?
+        String groupRefreshPart = request.getParameter("subjectRefreshPart");
+        if (StringUtils.equals(groupRefreshPart, "thisSubjectsGroupPrivileges")) {
+          filterThisSubjectsGroupPrivilegesHelper(request, response, subject);
+        } else {
+          filterHelper(request, response, subject);
+        }
+
+        
   
   
       } else {

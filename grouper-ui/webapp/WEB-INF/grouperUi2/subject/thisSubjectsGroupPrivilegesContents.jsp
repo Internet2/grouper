@@ -1,5 +1,10 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
+              <%-- tell add group to refresh privs --%>
+              <form id="subjectRefreshPartFormId">
+                <input type="hidden" name="subjectRefreshPart" value="thisSubjectsGroupPrivileges" /> 
+              </form> 
+
               <form class="form-inline form-small" name="groupPrivilegeFormName" id="groupPrivilegeFormId">
                 <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update table-privileges footable">
                   <thead>

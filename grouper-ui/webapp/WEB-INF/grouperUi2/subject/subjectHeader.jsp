@@ -99,7 +99,7 @@
                           </div>
                           <div class="control-group">
                             <div class="controls">
-                              <button onclick="ajax('../app/UiV2Subject.addGroupSubmit?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'add-groups-form,groupFilterFormId,groupPagingFormId'}); return false;" 
+                              <button onclick="ajax('../app/UiV2Subject.addGroupSubmit?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'add-groups-form', formIdsOptional: 'groupFilterFormId,groupPagingFormId,groupPrivilegeFormId,groupPagingPrivilegesFormId,subjectRefreshPartFormId'}); return false;" 
                                 id="add-members-submit" type="submit" class="btn btn-primary">${textContainer.text['subjectViewAddGroupLink']}</button> ${textContainer.text['subjectViewTextBetweenAddAndBulk']} <a href="#" onclick="return guiV2link('operation=UiV2GroupImport.groupImport&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}&backTo=subject'); return false;" class="blue-link">${textContainer.text['subjectViewBulkLink'] }</a> ${textContainer.text['subjectViewTextPostBulkLink'] }
                             </div>
                           </div>
