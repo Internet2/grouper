@@ -811,7 +811,9 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             sql.append(HibUtils.convertToInClause(fieldStrings, byHqlStatic));
             sql.append(" ) ");
           }
-          if (GrouperUtil.length(fields) == 0 && (fieldType == null || fieldType == FieldType.LIST)) {
+          //service role will deal with its own fields
+          if (serviceRole == null && GrouperUtil.length(fields) == 0 && (fieldType == null || fieldType == FieldType.LIST)) {
+            
             //add on the column
             sql.append(" and f.typeString = 'list' ");
           }

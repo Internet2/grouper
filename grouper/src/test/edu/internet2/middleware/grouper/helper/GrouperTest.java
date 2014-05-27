@@ -652,6 +652,11 @@ public class GrouperTest extends TestCase {
     
   }
   
+  /**
+   * if prompted user to see if db ok to make changes
+   */
+  private static boolean promptedUserToSeeIfOk = false;
+  
   // @since   1.2.0
   protected void setUp () {
     LOG.debug("setUp");
@@ -661,6 +666,10 @@ public class GrouperTest extends TestCase {
     
     //set this and leave it...
     GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.JUNIT, false, true);
+    
+    if (!promptedUserToSeeIfOk) {
+      GrouperUtil.promptUserAboutDbChanges("delete all data in the database to run junit test(s)", true);
+    }
     
     //remove any settings in testconfig
     GrouperConfig.retrieveConfig().propertiesOverrideMap().clear();

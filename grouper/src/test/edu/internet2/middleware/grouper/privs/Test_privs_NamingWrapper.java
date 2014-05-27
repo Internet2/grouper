@@ -32,6 +32,7 @@
 
 
 package edu.internet2.middleware.grouper.privs;
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GrouperException;
@@ -47,6 +48,25 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
  */
 public class Test_privs_NamingWrapper extends GrouperTest {
 
+  /**
+   * 
+   */
+  public Test_privs_NamingWrapper() {
+    super();
+    
+  }
+
+  /**
+   * @param name
+   */
+  public Test_privs_NamingWrapper(String name) {
+    super(name);
+    
+  }
+
+  public static void main(String[] args) {
+    TestRunner.run(new Test_privs_NamingWrapper("test_constructor_nullAdapter"));
+  }
 
   private GrouperSession s;
 
@@ -76,7 +96,7 @@ public class Test_privs_NamingWrapper extends GrouperTest {
       new NamingWrapper(null, null);
       fail("failed to throw IllegalArgumentException");
     }
-    catch (IllegalArgumentException eExpected) {
+    catch (Exception eExpected) {
       assertTrue("threw expected exception", true);
     }
   }
@@ -88,7 +108,7 @@ public class Test_privs_NamingWrapper extends GrouperTest {
       new NamingWrapper(this.s, null);
       fail("failed to throw IllegalArgumentException");
     }
-    catch (IllegalArgumentException eExpected) {
+    catch (Exception eExpected) {
       assertTrue("threw expected exception", true);
     }
   }

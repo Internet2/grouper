@@ -2502,7 +2502,35 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
           whereClause.append(HibUtils.convertToInClause(groupNames, byHqlStatic));
           whereClause.append(") or theGroup.alternateNameDb in ( ");
           whereClause.append(HibUtils.convertToInClause(groupNames, byHqlStatic));
-          whereClause.append(" ) ) ");
+          whereClause.append(" ) ");
+          
+          //if entities, then also allow entity identifier
+          if (typeOfGroups != null && typeOfGroups.contains(TypeOfGroup.entity)) {
+            
+            whereClause.append(" or exists ( select theAttributeAssignValue from AttributeAssign theAttributeAssign, " +
+                " AttributeAssignValue theAttributeAssignValue, AttributeDefName theAttributeDefName ");
+  
+            whereClause.append(" where theGroup.typeOfGroupDb = 'entity' and theGroup.uuid = theAttributeAssign.ownerGroupId ");
+            whereClause.append(" and theAttributeAssign.attributeDefNameId = theAttributeDefName.id ");
+  
+            whereClause.append(" and theAttributeDefName.nameDb = :entitySubjectIdDefName ");
+            byHqlStatic.setString("entitySubjectIdDefName", EntityUtils.entitySubjectIdentifierName());
+  
+            whereClause.append(" and theAttributeAssignValue.attributeAssignId = theAttributeAssign.id ");
+  
+            whereClause.append(" and theAttributeAssignValue.valueString in ( ");
+
+            whereClause.append(HibUtils.convertToInClause(groupNames, byHqlStatic));
+            
+            whereClause.append(" )");
+
+            
+            whereClause.append(" ) ");
+            
+          }
+
+          
+          whereClause.append(" ) ");
           
         }
         
@@ -2564,8 +2592,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             throw new RuntimeException("If you are looking by uuid or name, then you can only pass in one scope: " + scope);
           }
     
-          //TODO if entities are here, then search for the entity id too...
-          
           if (whereClause.length() > 0) {
             whereClause.append(" and ");
           }
@@ -2602,7 +2628,40 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             
             index++;
           }
-          whereClause.append(" ) ) ");
+          whereClause.append(" ) ");
+          
+          //if entities, then also allow entity identifier
+          if (typeOfGroups != null && typeOfGroups.contains(TypeOfGroup.entity)) {
+            
+            whereClause.append(" or exists ( select theAttributeAssignValue from AttributeAssign theAttributeAssign, " +
+                " AttributeAssignValue theAttributeAssignValue, AttributeDefName theAttributeDefName ");
+  
+            whereClause.append(" where theGroup.typeOfGroupDb = 'entity' and theGroup.uuid = theAttributeAssign.ownerGroupId ");
+            whereClause.append(" and theAttributeAssign.attributeDefNameId = theAttributeDefName.id ");
+  
+            whereClause.append(" and theAttributeDefName.nameDb = :entitySubjectIdDefName ");
+            byHqlStatic.setString("entitySubjectIdDefName", EntityUtils.entitySubjectIdentifierName());
+  
+            whereClause.append(" and theAttributeAssignValue.attributeAssignId = theAttributeAssign.id ");
+            
+            index = 0;
+            for (@SuppressWarnings("unused") String theScope : scopes) {
+              
+              if (findByUuidOrName) {
+                whereClause.append(" and theAttributeAssignValue.valueString = :scope" + index + " ");
+              } else {
+                whereClause.append(" and lower(theAttributeAssignValue.valueString) like :scope" + index);      
+              }        
+              
+              index++;
+            }
+            
+           whereClause.append(" ) ");
+            
+          }
+
+          
+          whereClause.append(" ) ");
         }
         
         if (!StringUtils.isBlank(parentStemId) || stemScope != null) {

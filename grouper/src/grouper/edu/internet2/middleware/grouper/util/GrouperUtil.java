@@ -11526,4 +11526,65 @@ public class GrouperUtil {
     return a+b+c+d+e;
   }
 
+  /**
+   * get a couple of lines of stack
+   * @return the couple of lines of stack
+   */
+  public static String stack() {
+    Exception exception = new Exception();
+    //get the stack
+    String stack = getFullStackTrace(exception);
+    //split into an array of strings (on newline)
+    String[] stackLines = splitTrim(stack, "\n");
+    
+    StringBuffer result = new StringBuffer();
+    
+    for (int i=0;i<stackLines.length;i++) {
+      String current = stackLines[i];
+      if (current.startsWith("at edu.internet2") && !current.startsWith("at edu.internet2.middleware.grouper.util.GrouperUtil.stack(")) {
+        if (result.length() > 0) {
+          result.append(", ");
+        }
+        result.append(extractFileLine(current));
+      }
+    }
+    return result.toString();
+  }
+  
+  
+  /**
+   * pattern to get the file, method, and line number:
+   * ^.*    beginning
+   * \\.    dot
+   * (.+) method
+   * \\(    open paren
+   * (.+)   file name
+   * :      colon
+   * (\\d+) line number
+   * \\)    close paren
+   * .*$      end
+   */
+  private static Pattern extractFileLinePattern = Pattern.compile("^.*\\.(.+)\\((.+):(\\d+)\\).*$"); 
+  
+  /**
+   * get the good part out of the full line (or just return it if the parsing doesnt work)
+   * @param fullLine
+   * @return the file, method, line
+   */
+  private static String extractFileLine(String fullLine) {
+    Matcher matchResult = extractFileLinePattern.matcher(fullLine);
+
+    if (matchResult.find()) {
+      String method = matchResult.group(1);
+      String file = matchResult.group(2);
+      if (file.endsWith(".java")) {
+        file = file.substring(0, file.length() - ".java".length());
+      }
+      String line = matchResult.group(3);
+      return file + "." + method + "() line " + line;
+    }
+    return fullLine;
+  }
+
+  
 }
