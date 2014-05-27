@@ -630,6 +630,10 @@ public class GrouperServiceJ2ee implements Filter {
       FilterChain filterChain) throws IOException, ServletException {
 
     try {
+      
+      request.setCharacterEncoding("UTF-8");
+      response.setCharacterEncoding("UTF-8");
+      
       //make sure nulls are not returned for params for Axis bug where
       //empty strings work, but nulls make things off a bit
       request = new WsHttpServletRequest((HttpServletRequest) request);

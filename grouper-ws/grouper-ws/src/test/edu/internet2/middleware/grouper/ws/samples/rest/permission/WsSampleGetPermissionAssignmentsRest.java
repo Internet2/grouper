@@ -75,6 +75,7 @@ public class WsSampleGetPermissionAssignmentsRest implements WsSampleRest {
       WsRestGetPermissionAssignmentsRequest getPermissionAssignments = new WsRestGetPermissionAssignmentsRequest();
 
       
+      getPermissionAssignments.setIncludeLimits("T");
       
       WsAttributeDefLookup wsAttributeDefLookup = new WsAttributeDefLookup();
       wsAttributeDefLookup.setUuid("");
