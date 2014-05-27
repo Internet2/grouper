@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 
 import junit.framework.Assert;
+import junit.textui.TestRunner;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -96,9 +97,9 @@ public class TestSubjectFinder extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(TestSubjectFinder.class);
-    //TestRunner.run(new TestSubjectFinder("testFindPageMultipleInSomeSources"));
-    new TestSubjectFinder("").testFindGroupsCanRead();
+    TestRunner.run(TestSubjectFinder.class);
+    //TestRunner.run(new TestSubjectFinder("testFindAllMultipleInAllSources"));
+    //new TestSubjectFinder("").testFindGroupsCanRead();
   }
   
   /**
@@ -1269,7 +1270,7 @@ public class TestSubjectFinder extends GrouperTest {
     assertEquals(GrouperUtil.subjectToString(subject), SubjectTestHelper.SUBJ1_ID, subject.getId());
 
     //############# test find a lot
-    subjects = SubjectFinder.findAll("Test, somethingElse" );
+    subjects = SubjectFinder.findAll("Test.sub, somethingElseZ" );
 
     assertTrue("" + GrouperUtil.length(subjects) + StringUtils.trimToEmpty(postgresError), GrouperUtil.length(subjects) >= 10);
     
@@ -1313,7 +1314,7 @@ public class TestSubjectFinder extends GrouperTest {
     assertEquals(GrouperUtil.subjectToString(subject), SubjectTestHelper.SUBJ1_ID, subject.getId());
 
     //############# test find a lot
-    subjects = SubjectFinder.findPage("Test, somethingElse" ).getResults();
+    subjects = SubjectFinder.findPage("Test., somethingElseA" ).getResults();
 
     assertTrue("" + GrouperUtil.length(subjects) + StringUtils.trimToEmpty(postgresError), GrouperUtil.length(subjects) >= 10);
     
@@ -1840,7 +1841,7 @@ public class TestSubjectFinder extends GrouperTest {
     assertEquals(GrouperUtil.subjectToString(subject), SubjectTestHelper.SUBJ1_ID, subject.getId());
   
     //############# test find a lot
-    subjects = SubjectFinder.findAll("Test, somethingElse", GrouperUtil.convertSources("g:isa") );
+    subjects = SubjectFinder.findAll("Test.s, somethingElseX", GrouperUtil.convertSources("g:isa") );
   
     assertTrue("" + GrouperUtil.length(subjects) + StringUtils.trimToEmpty(postgresError), GrouperUtil.length(subjects) == 00);
     
@@ -1882,7 +1883,7 @@ public class TestSubjectFinder extends GrouperTest {
     assertEquals(GrouperUtil.subjectToString(subject), SubjectTestHelper.SUBJ1_ID, subject.getId());
   
     //############# test find a lot
-    subjects = SubjectFinder.findPage("Test, somethingElse", GrouperUtil.convertSources("g:isa") ).getResults();
+    subjects = SubjectFinder.findPage("Test.su, somethingElseY", GrouperUtil.convertSources("g:isa") ).getResults();
   
     assertTrue("" + GrouperUtil.length(subjects) + StringUtils.trimToEmpty(postgresError), GrouperUtil.length(subjects) == 0);
     
