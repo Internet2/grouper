@@ -1576,15 +1576,7 @@ public class GrouperCheckConfig {
         startedGrouperSession = true;
       }
       
-      {
-        String legacyAttributesStemName =  GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
-        Stem legacyAttributesStem = StemFinder.findByName(grouperSession, legacyAttributesStemName, false);
-        if (legacyAttributesStem == null) {
-          legacyAttributesStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-            .assignDescription("Folder for legacy attributes.  Do not delete.")
-            .assignName(legacyAttributesStemName).save();
-        }
-      }
+      legacyAttributeBaseStem(grouperSession);
       
       {
         String externalSubjectStemName = ExternalSubjectAttrFramework.attributeExternalSubjectInviteStemName();
@@ -2239,6 +2231,22 @@ public class GrouperCheckConfig {
       }
     }
     
+  }
+
+  /**
+   * get or create the legacy attribute base stem
+   * @param grouperSession
+   * @return the stem
+   */
+  public static Stem legacyAttributeBaseStem(GrouperSession grouperSession) {
+    String legacyAttributesStemName =  GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+    Stem legacyAttributesStem = StemFinder.findByName(grouperSession, legacyAttributesStemName, false);
+    if (legacyAttributesStem == null) {
+      legacyAttributesStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+        .assignDescription("Folder for legacy attributes.  Do not delete.")
+        .assignName(legacyAttributesStemName).save();
+    }
+    return legacyAttributesStem;
   }
   
 }

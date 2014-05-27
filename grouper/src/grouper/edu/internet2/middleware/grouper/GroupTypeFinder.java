@@ -45,6 +45,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 
@@ -228,7 +229,8 @@ public class GroupTypeFinder {
           String groupTypePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupType.prefix");
           String attributePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attribute.prefix");
   
-          Stem stem = GrouperDAOFactory.getFactory().getStem().findByName(stemName, true);
+          Stem stem = GrouperCheckConfig.legacyAttributeBaseStem(grouperSession);
+          
           Set<AttributeDefName> attributes = GrouperDAOFactory.getFactory().getAttributeDefName().findByStem(stem.getUuid());
           for (AttributeDefName attribute : attributes) {
             if (attribute.getExtension().startsWith(groupTypePrefix)) {
