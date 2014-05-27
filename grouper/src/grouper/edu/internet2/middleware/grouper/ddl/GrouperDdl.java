@@ -12640,11 +12640,12 @@ public enum GrouperDdl implements DdlVersionable {
   }
 
   /** dont do this twice */
-  private static boolean alreadyAddedTableIndices = false;
+  static boolean alreadyAddedTableIndices = false;
   
   /**
-   * add table indices in v2 or when needed
+   * add table indices in DDL v2 or when needed
    * @param ddlVersionBean
+   * @param groupTableNew
    * @param stemTableNew
    * @param attributeDefTableNew
    * @param attributeDefNameTableNew

@@ -557,6 +557,8 @@ public class GrouperDdlUtils {
               result.append(script).append("\n");
               //result.append("\n-- end drop all tables \n\n");
             }
+
+            GrouperDdl.alreadyAddedTableIndices = false;
             
           }
           
