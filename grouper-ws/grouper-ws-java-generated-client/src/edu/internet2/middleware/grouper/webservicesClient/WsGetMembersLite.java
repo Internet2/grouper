@@ -27,9 +27,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedUtils;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.GetMembersLite;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGetMembersLiteResult;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsSubject;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.GetMembersLite;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGetMembersLiteResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsSubject;
 
 /**
  *
