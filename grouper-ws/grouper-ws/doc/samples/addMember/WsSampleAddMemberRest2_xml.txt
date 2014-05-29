@@ -1,4 +1,4 @@
-Grouper web service sample of service: addMember, WsSampleAddMemberRest2, manually written lite/rest, format: xml, for version: 2.1.1
+Grouper web service sample of service: addMember, WsSampleAddMemberRest2, manually written lite/rest, format: xml, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: addMember, WsSampleAddMemberRest2, manual
 #########################################
 
 
-PUT /grouper-ws/servicesRest/v2_1_001/groups HTTP/1.1
+PUT /grouper-ws/servicesRest/v2_2_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 261
 Content-Type: text/xml; charset=UTF-8
@@ -48,9 +48,11 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 16:47:25 GMT
+Transfer-Encoding: chunked
+Date: Wed, 28 May 2014 22:25:41 GMT
 Connection: close
 
+3ff
 <WsAddMemberResults>
   <results>
     <WsAddMemberResult>
@@ -73,23 +75,27 @@ Connection: close
     <displayExtension>testGroup</displayExtension>
     <displayName>test:testGroup</displayName>
     <name>test:testGroup</name>
-    <uuid>edc4a826686e4477b7ce0044dcfc7e7b</uuid>
+    <uuid>f6b03c0ff963488a8dc86b6599fd49fe</uuid>
+    <idIndex>10000</idIndex>
   </wsGroupAssigned>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.1.1, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=test:testGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+    <resultMessage>Success for: clientVersion: 2.2.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=test:testGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
-, replaceAllExisting: false, actAsSubject: null, fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+, replaceAllExisting: false, actAsSubject: null, fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttribu
+10c
+teNames: null
 , params: null
 , disabledDate: null, enabledDate: null</resultMessage>
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>130</millis>
-    <serverVersion>2.1.1</serverVersion>
+    <millis>140</millis>
+    <serverVersion>2.2.0</serverVersion>
   </responseMetadata>
 </WsAddMemberResults>
+0
 
 
 #########################################
@@ -271,7 +277,7 @@ public class WsSampleAddMemberRest2 implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=test:testGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=test:testGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
 , replaceAllExisting: false, actAsSubject: null, fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 , params: null

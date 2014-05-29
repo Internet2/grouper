@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesListRestLite, manually written lite/rest, type: _list, format: xml, for version: 2.1.1
+Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesListRestLite, manually written lite/rest, type: _list, format: xml, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperP
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/grouperPrivileges HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/grouperPrivileges HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 234
 Content-Type: text/xml; charset=UTF-8
@@ -40,9 +40,11 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 16:09:50 GMT
+Transfer-Encoding: chunked
+Date: Wed, 28 May 2014 23:34:09 GMT
 Connection: close
 
+3fe
 <WsGetGrouperPrivilegesLiteResult>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
@@ -68,7 +70,8 @@ Connection: close
         <description>a group description</description>
         <displayName>a stem:a group</displayName>
         <name>aStem:aGroup</name>
-        <uuid>9b3ac7543061425497b64ebf00181373</uuid>
+        <uuid>c21e726b47d54e7796cdeb12eea2fb2a</uuid>
+        <idIndex>10001</idIndex>
       </wsGroup>
       <wsSubject>
         <resultCode>SUCCESS</resultCode>
@@ -81,10 +84,14 @@ Connection: close
   </privilegeResults>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>35</millis>
-    <serverVersion>2.1.1</serverVersion>
+    <millis>
+    </
+61
+millis>
+    <serverVersion>2.2.0</serverVersion>
   </responseMetadata>
 </WsGetGrouperPrivilegesLiteResult>
+0
 
 
 #########################################
@@ -290,11 +297,11 @@ public class WsSampleGetGrouperPrivilegesListRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: null
+Server version: 2.2.0, result code: SUCCESS, result message: null
 WsGetGrouperPrivilegesLiteResult[
   resultMetadata=WsResultMeta[resultCode=SUCCESS,success=T,httpStatusCode=0],
   privilegeResults={WsGrouperPrivilegeResult[allowed=T,
   ownerSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.9,name=my name is test.subject.9,sourceId=jdbc],privilegeName=admin,privilegeType=access,revokable=T,
-  wsGroup=WsGroup[extension=aGroup,typeOfGroup=group,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=9b3ac7543061425497b64ebf00181373],
+  wsGroup=WsGroup[extension=aGroup,typeOfGroup=group,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=c21e726b47d54e7796cdeb12eea2fb2a,idIndex=10001],
   wsSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.9,name=my name is test.subject.9,sourceId=jdbc]]},
-  responseMetadata=WsResponseMeta[resultWarnings=,millis=35,millisStart=0,serverVersion=2.1.1]]
+  responseMetadata=WsResponseMeta[resultWarnings=,millis=45,millisStart=0,serverVersion=2.2.0]]

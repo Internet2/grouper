@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesRestLite, manually written lite/rest, format: xhtml, for version: 2.1.1
+Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesRestLite, manually written lite/rest, format: xhtml, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperP
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/grouperPrivileges HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/grouperPrivileges HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 974
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -25,26 +25,26 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestGetGrouperPrivilegesLiteRequest">
-      <p class="subjectSourceId" />
-      <p class="subjectId">test.subject.0</p>
-      <p class="groupUuid" />
-      <p class="groupName">aStem:aGroup</p>
-      <p class="subjectIdentifier" />
+      <p class="actAsSubjectId">GrouperSystem</p>
+      <p class="actAsSubjectIdentifier" />
+      <p class="actAsSubjectSourceId" />
       <p class="clientVersion" />
+      <p class="groupName">aStem:aGroup</p>
+      <p class="groupUuid" />
+      <p class="includeGroupDetail" />
+      <p class="includeSubjectDetail" />
+      <p class="paramName0" />
+      <p class="paramName1" />
+      <p class="paramValue0" />
+      <p class="paramValue1" />
+      <p class="privilegeName">admin</p>
+      <p class="privilegeType">access</p>
       <p class="stemName" />
       <p class="stemUuid" />
-      <p class="privilegeType">access</p>
-      <p class="privilegeName">admin</p>
-      <p class="actAsSubjectId">GrouperSystem</p>
-      <p class="actAsSubjectSourceId" />
-      <p class="actAsSubjectIdentifier" />
-      <p class="includeSubjectDetail" />
       <p class="subjectAttributeNames" />
-      <p class="includeGroupDetail" />
-      <p class="paramName0" />
-      <p class="paramValue0" />
-      <p class="paramName1" />
-      <p class="paramValue1" />
+      <p class="subjectId">test.subject.0</p>
+      <p class="subjectIdentifier" />
+      <p class="subjectSourceId" />
     </div>
   </body>
 </html>
@@ -65,9 +65,11 @@ X-Grouper-resultCode: SUCCESS_NOT_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 15:57:57 GMT
+Transfer-Encoding: chunked
+Date: Wed, 28 May 2014 23:31:00 GMT
 Connection: close
 
+2a2
 <?xml version='1.0' encoding='iso-8859-1'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -76,20 +78,21 @@ Connection: close
   </head>
   <body>
     <div title="WsGetGrouperPrivilegesLiteResult">
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="millis">79</p>
+        <p class="resultWarnings" />
+        <p class="serverVersion">2.2.0</p>
+      </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS_NOT_ALLOWED</p>
         <p class="resultCode2" />
         <p class="resultMessage" />
         <p class="success">T</p>
       </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">39</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">2.1.1</p>
-      </div>
     </div>
   </body>
 </html>
+0
 
 
 #########################################
@@ -264,4 +267,4 @@ public class WsSampleGetGrouperPrivilegesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS_NOT_ALLOWED, result message: null
+Server version: 2.2.0, result code: SUCCESS_NOT_ALLOWED, result message: null

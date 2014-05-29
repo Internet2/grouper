@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefNameDelete, WsSampleAttributeDefNameDeleteRestLite, manually written lite/rest, format: json, for version: 2.1.1
+Grouper web service sample of service: attributeDefNameDelete, WsSampleAttributeDefNameDeleteRestLite, manually written lite/rest, format: json, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: attributeDefNameDelete, WsSampleAttribute
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 124
 Content-Type: text/x-json; charset=UTF-8
@@ -40,18 +40,18 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
 Content-Length: 798
-Date: Sun, 01 Jul 2012 13:28:58 GMT
+Date: Wed, 28 May 2014 23:03:12 GMT
 Connection: close
 
 {
   "WsAttributeDefNameDeleteLiteResult":{
     "responseMetadata":{
-      "millis":"25",
-      "serverVersion":"2.1.1"
+      "millis":"65",
+      "serverVersion":"2.2.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS_ATTRIBUTE_DEF_NAME_NOT_FOUND",
-      "resultMessage":"Success for: clientVersion: 2.1.1, wsGroupLookups: Array size: 1: [0]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDelete1RestLite_json]\n\n, actAsSubject: null, txType: NONE, paramNames: \n, params: nullCant find attributeDefName: 'WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDelete1RestLite_json,\n  attributeDefNameFindResult=ATTRIBUTE_DEF_NAME_NOT_FOUND]'.",
+      "resultMessage":"Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 1: [0]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDelete1RestLite_json]\n\n, actAsSubject: null, txType: NONE, paramNames: \n, params: nullCant find attributeDefName: 'WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDelete1RestLite_json,\n  attributeDefNameFindResult=ATTRIBUTE_DEF_NAME_NOT_FOUND]'.",
       "success":"T"
     },
     "wsAttributeDefName":{
@@ -228,7 +228,7 @@ public class WsSampleAttributeDefNameDeleteRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS_ATTRIBUTE_DEF_NAME_NOT_FOUND, result message: Success for: clientVersion: 2.1.1, wsGroupLookups: Array size: 1: [0]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDelete1RestLite_json]
+Server version: 2.2.0, result code: SUCCESS_ATTRIBUTE_DEF_NAME_NOT_FOUND, result message: Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 1: [0]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDelete1RestLite_json]
 
 , actAsSubject: null, txType: NONE, paramNames: 
 , params: nullCant find attributeDefName: 'WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDelete1RestLite_json,

@@ -1,4 +1,4 @@
-Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRest, manually written lite/rest, format: xhtml, for version: 2.1.1
+Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRest, manually written lite/rest, format: xhtml, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRest, man
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/subjects HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/subjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 1006
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -25,31 +25,31 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestGetSubjectsRequest">
-      <p class="clientVersion" />
-      <div class="wsGroupLookup" title="WsGroupLookup" />
       <div class="actAsSubjectLookup" title="WsSubjectLookup" />
+      <p class="clientVersion" />
+      <p class="fieldName" />
       <p class="includeGroupDetail" />
       <p class="includeSubjectDetail" />
+      <p class="memberFilter" />
+      <p class="searchString" />
       <ul class="subjectAttributeNames">
         <li>description</li>
         <li>loginid</li>
         <li>name</li>
       </ul>
-      <p class="memberFilter" />
+      <div class="wsGroupLookup" title="WsGroupLookup" />
       <ul class="wsSubjectLookups">
         <li title="WsSubjectLookup">
-          <p class="subjectSourceId" />
           <p class="subjectId">test.subject.0</p>
           <p class="subjectIdentifier" />
+          <p class="subjectSourceId" />
         </li>
         <li title="WsSubjectLookup">
-          <p class="subjectSourceId">jdbc</p>
           <p class="subjectId">test.subject.1</p>
           <p class="subjectIdentifier" />
+          <p class="subjectSourceId">jdbc</p>
         </li>
       </ul>
-      <p class="searchString" />
-      <p class="fieldName" />
     </div>
   </body>
 </html>
@@ -70,9 +70,11 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 14:03:47 GMT
+Transfer-Encoding: chunked
+Date: Thu, 29 May 2014 00:01:00 GMT
 Connection: close
 
+5e3
 <?xml version='1.0' encoding='iso-8859-1'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -81,16 +83,16 @@ Connection: close
   </head>
   <body>
     <div title="WsGetSubjectsResults">
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="millis">80</p>
+        <p class="resultWarnings" />
+        <p class="serverVersion">2.2.0</p>
+      </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
         <p class="resultMessage">Queried 2 subjects</p>
         <p class="success">T</p>
-      </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">223</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">2.1.1</p>
       </div>
       <ul class="subjectAttributeNames">
         <li>description</li>
@@ -100,35 +102,36 @@ Connection: close
       <div class="wsGroup" title="WsGroup" />
       <ul class="wsSubjects">
         <li title="WsSubject">
-          <p class="name">my name is test.subject.0</p>
-          <p class="id">test.subject.0</p>
-          <p class="sourceId">jdbc</p>
           <ul class="attributeValues">
             <li>description.test.subject.0</li>
             <li>id.test.subject.0</li>
             <li>my name is test.subject.0</li>
           </ul>
-          <p class="resultCode">SUCCESS</p>
-          <p class="success">T</p>
+          <p class="id">test.subject.0</p>
           <p class="identifierLookup" />
+          <p class="name">my name is test.subject.0</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="sourceId">jdbc</p>
+          <p class="success">T</p>
         </li>
         <li title="WsSubject">
-          <p class="name">my name is test.subject.1</p>
-          <p class="id">test.subject.1</p>
-          <p class="sourceId">jdbc</p>
           <ul class="attributeValues">
             <li>description.test.subject.1</li>
             <li>id.test.subject.1</li>
             <li>my name is test.subject.1</li>
           </ul>
-          <p class="resultCode">SUCCESS</p>
-          <p class="success">T</p>
+          <p class="id">test.subject.1</p>
           <p class="identifierLookup" />
+          <p class="name">my name is test.subject.1</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="sourceId">jdbc</p>
+          <p class="success">T</p>
         </li>
       </ul>
     </div>
   </body>
 </html>
+0
 
 
 #########################################
@@ -308,4 +311,4 @@ public class WsSampleGetSubjectsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Queried 2 subjects
+Server version: 2.2.0, result code: SUCCESS, result message: Queried 2 subjects

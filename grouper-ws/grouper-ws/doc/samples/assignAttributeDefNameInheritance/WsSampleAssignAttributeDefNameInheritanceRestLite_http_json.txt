@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributeDefNameInheritance, WsSampleAssignAttributeDefNameInheritanceRestLite, manually written lite/rest, format: http_json, for version: 2.1.1
+Grouper web service sample of service: assignAttributeDefNameInheritance, WsSampleAssignAttributeDefNameInheritanceRestLite, manually written lite/rest, format: http_json, for version: 2.2.0
 
 
 #########################################
@@ -9,14 +9,14 @@ Grouper web service sample of service: assignAttributeDefNameInheritance, WsSamp
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
-Content-Length: 178
+Content-Length: 174
 
-wsLiteObjectType=WsRestAssignAttributeDefNameInheritanceLiteRequest&attributeDefNameName=aStem%3ApermissionDefName&assign=T&relatedAttributeDefNameName=aStem%3ApermissionDefName3
+wsLiteObjectType=WsRestAssignAttributeDefNameInheritanceLiteRequest&assign=T&attributeDefNameName=aStem:permissionDefName&relatedAttributeDefNameName=aStem:permissionDefName3
 
 
 #########################################
@@ -34,15 +34,15 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 290
-Date: Sun, 01 Jul 2012 13:16:56 GMT
+Content-Length: 289
+Date: Wed, 28 May 2014 22:42:32 GMT
 Connection: close
 
 {
   "WsAssignAttributeDefNameInheritanceResults":{
     "responseMetadata":{
-      "millis":"103",
-      "serverVersion":"2.1.1"
+      "millis":"57",
+      "serverVersion":"2.2.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
@@ -227,4 +227,4 @@ public class WsSampleAssignAttributeDefNameInheritanceRestLite implements WsSamp
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Had 1 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.
+Server version: 2.2.0, result code: SUCCESS, result message: Had 1 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.

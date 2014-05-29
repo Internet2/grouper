@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesRestLite, manually written lite/rest, format: http_json, for version: 2.1.1
+Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesRestLite, manually written lite/rest, format: http_json, for version: 2.2.0
 
 
 #########################################
@@ -9,14 +9,14 @@ Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperP
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/grouperPrivileges HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/grouperPrivileges HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
-Content-Length: 174
+Content-Length: 172
 
-wsLiteObjectType=WsRestGetGrouperPrivilegesLiteRequest&subjectId=test.subject.0&groupName=aStem%3AaGroup&privilegeType=access&privilegeName=admin&actAsSubjectId=GrouperSystem
+wsLiteObjectType=WsRestGetGrouperPrivilegesLiteRequest&actAsSubjectId=GrouperSystem&groupName=aStem:aGroup&privilegeName=admin&privilegeType=access&subjectId=test.subject.0
 
 
 #########################################
@@ -35,14 +35,14 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
 Content-Length: 165
-Date: Sun, 01 Jul 2012 15:58:28 GMT
+Date: Wed, 28 May 2014 23:31:54 GMT
 Connection: close
 
 {
   "WsGetGrouperPrivilegesLiteResult":{
     "responseMetadata":{
-      "millis":"53",
-      "serverVersion":"2.1.1"
+      "millis":"60",
+      "serverVersion":"2.2.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS_NOT_ALLOWED",
@@ -224,4 +224,4 @@ public class WsSampleGetGrouperPrivilegesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS_NOT_ALLOWED, result message: null
+Server version: 2.2.0, result code: SUCCESS_NOT_ALLOWED, result message: null

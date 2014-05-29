@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributesWithValue, WsSampleAssignAttributesWithValueRestLite, manually written lite/rest, format: http_json, for version: 2.1.1
+Grouper web service sample of service: assignAttributesWithValue, WsSampleAssignAttributesWithValueRestLite, manually written lite/rest, format: http_json, for version: 2.2.0
 
 
 #########################################
@@ -9,14 +9,14 @@ Grouper web service sample of service: assignAttributesWithValue, WsSampleAssign
 #########################################
 
 
-POST /grouper-ws/servicesRest/json/v2_1_001/attributeAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/json/v2_2_000/attributeAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
-Content-Length: 298
+Content-Length: 294
 
-wsLiteObjectType=WsRestAssignAttributesLiteRequest&attributeAssignType=group&attributeAssignOperation=assign_attr&attributeAssignValueOperation=add_value&valueSystem=54&actAsSubjectId=GrouperSystem&wsAttributeDefNameName=test%3AtestAttributeAssignDefName&wsOwnerGroupName=test%3AgroupTestAttrAssign
+wsLiteObjectType=WsRestAssignAttributesLiteRequest&actAsSubjectId=GrouperSystem&attributeAssignOperation=assign_attr&attributeAssignType=group&attributeAssignValueOperation=add_value&valueSystem=54&wsAttributeDefNameName=test:testAttributeAssignDefName&wsOwnerGroupName=test:groupTestAttrAssign
 
 
 #########################################
@@ -34,15 +34,15 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 2223
-Date: Sun, 01 Jul 2012 16:22:44 GMT
+Content-Length: 2277
+Date: Wed, 28 May 2014 22:52:07 GMT
 Connection: close
 
 {
   "WsAssignAttributesLiteResults":{
     "responseMetadata":{
-      "millis":"220",
-      "serverVersion":"2.1.1"
+      "millis":"135",
+      "serverVersion":"2.2.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
@@ -58,7 +58,7 @@ Connection: close
           "changed":"T",
           "deleted":"F",
           "wsAttributeAssignValue":{
-            "id":"ae353875b2eb4fe4ba0f036880947ccb",
+            "id":"e4a9da692e0b4f7ba0dc01fbecb3fc45",
             "valueSystem":"54"
           }
         }
@@ -66,37 +66,37 @@ Connection: close
       ,
       "wsAttributeAssigns":[
         {
-          "attributeAssignActionId":"47926e1d15fe47ab960b7a0d22a321ee",
+          "attributeAssignActionId":"cc66c3d56260455bab3721414a7319c6",
           "attributeAssignActionName":"assign",
           "attributeAssignActionType":"immediate",
           "attributeAssignDelegatable":"FALSE",
           "attributeAssignType":"group",
-          "attributeDefId":"74f0519f56064e5cb499a906a8370b94",
+          "attributeDefId":"17cf005531ea4733be048284eeb44934",
           "attributeDefName":"test:testAttributeAssignDefNameDef",
-          "attributeDefNameId":"ce2e6d730ee04a82a831937c4bded93f",
+          "attributeDefNameId":"acf92cd1d81346d79b1eee1b60cff373",
           "attributeDefNameName":"test:testAttributeAssignDefName",
-          "createdOn":"2012/07/01 12:22:42.775",
+          "createdOn":"2014/05/28 18:52:05.777",
           "disallowed":"F",
           "enabled":"T",
-          "id":"b29a5c67e9bb42379a462253d050806e",
-          "lastUpdated":"2012/07/01 12:22:42.775",
-          "ownerGroupId":"356ac1ee6b534a358b681467027c2fd7",
+          "id":"a9b31153908044d9bbd8dc69fe17a17c",
+          "lastUpdated":"2014/05/28 18:52:05.777",
+          "ownerGroupId":"da5cee70d5f64a46941c87967f8ebf59",
           "ownerGroupName":"test:groupTestAttrAssign",
           "wsAttributeAssignValues":[
             {
-              "id":"1b1119634b114b36a8c4e013b7d21897",
+              "id":"61752252a2dc4b4990918aaef896f71e",
               "valueSystem":"15"
             },
             {
-              "id":"5bcd16123eba47ce81d9ecf0603c557c",
+              "id":"6f686cb6aa85440aaf11dffe87cfb826",
               "valueSystem":"5"
             },
             {
-              "id":"cf2fd6ceb174423ba07482a456b3854e",
+              "id":"8789ff755caa49c099840f73df14c195",
               "valueSystem":"5"
             },
             {
-              "id":"ae353875b2eb4fe4ba0f036880947ccb",
+              "id":"e4a9da692e0b4f7ba0dc01fbecb3fc45",
               "valueSystem":"54"
             }
           ]
@@ -105,22 +105,24 @@ Connection: close
       
     },
     "wsAttributeDefName":{
-      "attributeDefId":"74f0519f56064e5cb499a906a8370b94",
+      "attributeDefId":"17cf005531ea4733be048284eeb44934",
       "attributeDefName":"test:testAttributeAssignDefNameDef",
       "displayExtension":"testAttributeAssignDefName",
       "displayName":"test:testAttributeAssignDefName",
       "extension":"testAttributeAssignDefName",
+      "idIndex":"10115",
       "name":"test:testAttributeAssignDefName",
-      "uuid":"ce2e6d730ee04a82a831937c4bded93f"
+      "uuid":"acf92cd1d81346d79b1eee1b60cff373"
     },
     "wsAttributeDefs":[
       {
         "attributeDefType":"attr",
         "extension":"testAttributeAssignDefNameDef",
+        "idIndex":"10031",
         "multiAssignable":"F",
         "multiValued":"T",
         "name":"test:testAttributeAssignDefNameDef",
-        "uuid":"74f0519f56064e5cb499a906a8370b94",
+        "uuid":"17cf005531ea4733be048284eeb44934",
         "valueType":"integer"
       }
     ]
@@ -130,9 +132,10 @@ Connection: close
       "displayExtension":"groupTestAttrAssign",
       "displayName":"test:groupTestAttrAssign",
       "extension":"groupTestAttrAssign",
+      "idIndex":"10006",
       "name":"test:groupTestAttrAssign",
       "typeOfGroup":"group",
-      "uuid":"356ac1ee6b534a358b681467027c2fd7"
+      "uuid":"da5cee70d5f64a46941c87967f8ebf59"
     }
   }
 }
@@ -309,4 +312,4 @@ public class WsSampleAssignAttributesWithValueRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: , Found 1 results.
+Server version: 2.2.0, result code: SUCCESS, result message: , Found 1 results.

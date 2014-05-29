@@ -201,11 +201,11 @@ public class SampleCapture {
    */
   public static void main(String[] args) {
 
-    //setupData();
+//    setupData();
 
 //    captureAssignAttributesWithValue();
 
-    captureAssignAttributesBatch();
+//    captureAssignAttributesBatch();
 
 
 //  captureRampart();
@@ -214,32 +214,32 @@ public class SampleCapture {
 
     
     captureAddMember();
-//    captureAssignAttributeDefNameInheritance();
-//    captureAssignAttributes();
+    captureAssignAttributeDefNameInheritance();
+    captureAssignAttributes();
 //    captureAssignAttributesBatch();
-//    captureAssignAttributesWithValue();
-//    captureAssignGrouperPrivileges();
-//    captureAssignPermissions();
-//    captureAttributeDefNameDelete();
-//    captureAttributeDefNameSave();
-//    captureDeleteMember();
-//    captureFindAttributeDefNames();
-//    captureFindGroups();
-//    captureFindStems();
-//    captureGetAttributeAssignments();
-//    captureGetGrouperPrivileges();
-//    captureGetGroups();
-//    captureGetMembers();
-//    captureGetMemberships();
-//    captureGetPermissionAssignments();
-//    captureGetSubjects();
-//    captureGroupDelete();
-//    captureGroupSave();
-//    captureHasMember();
-//    captureMemberChangeSubject();
-////    captureRampart();
-//    captureStemDelete();
-//    captureStemSave();
+    captureAssignAttributesWithValue();
+    captureAssignGrouperPrivileges();
+    captureAssignPermissions();
+    captureAttributeDefNameDelete();
+    captureAttributeDefNameSave();
+    captureDeleteMember();
+    captureFindAttributeDefNames();
+    captureFindGroups();
+    captureFindStems();
+    captureGetAttributeAssignments();
+    captureGetGrouperPrivileges();
+    captureGetGroups();
+    captureGetMembers();
+    captureGetMemberships();
+    captureGetPermissionAssignments();
+    captureGetSubjects();
+    captureGroupDelete();
+    captureGroupSave();
+    captureHasMember();
+    captureMemberChangeSubject();
+//    captureRampart();
+    captureStemDelete();
+    captureStemSave();
     
 
   }
@@ -321,17 +321,17 @@ public class SampleCapture {
       aGroup2.addMember(subject1, false);
       aGroup2.addMember(subject2, false);
        
-      String userGroupName = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_CLIENT_USER_GROUP_NAME);
+      String userGroupName = GrouperWsConfig.retrieveConfig().propertyValueStringRequired(GrouperWsConfig.WS_CLIENT_USER_GROUP_NAME);
       Group wsUserGroup = Group.saveGroup(grouperSession, userGroupName, null, userGroupName, null, null, null, true);
       Subject userSubject = SubjectFinder.findByIdentifier(RestClientSettings.USER, true);
       wsUserGroup.addMember(userSubject, false);
 
-      String actAsGroupName = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_ACT_AS_GROUP);
+      String actAsGroupName = GrouperWsConfig.retrieveConfig().propertyValueStringRequired(GrouperWsConfig.WS_ACT_AS_GROUP);
       Group actAsGroup = Group.saveGroup(grouperSession, actAsGroupName, null, actAsGroupName, null, null, null, true);
       actAsGroup.addMember(userSubject, false);
       actAsGroup.addMember(subject2, false);
       
-      String wheelGroupName = GrouperConfig.getProperty(GrouperConfig.PROP_WHEEL_GROUP);
+      String wheelGroupName = GrouperConfig.retrieveConfig().propertyValueStringRequired(GrouperConfig.PROP_WHEEL_GROUP);
       Group wheelGroup = Group.saveGroup(grouperSession, wheelGroupName, null, wheelGroupName, null, null, null, true);
       wheelGroup.addMember(userSubject, false);
       wheelGroup.addMember(subject2, false);

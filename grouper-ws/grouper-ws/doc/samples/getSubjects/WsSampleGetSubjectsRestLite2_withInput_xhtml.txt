@@ -1,4 +1,4 @@
-Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite2, manually written lite/rest, type: _withInput, format: xhtml, for version: 2.1.1
+Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite2, manually written lite/rest, type: _withInput, format: xhtml, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite2
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/subjects HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/subjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 937
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -25,27 +25,27 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestGetSubjectsLiteRequest">
-      <p class="subjectSourceId" />
-      <p class="subjectId" />
-      <p class="groupUuid" />
-      <p class="groupName" />
-      <p class="subjectIdentifier" />
+      <p class="actAsSubjectId" />
+      <p class="actAsSubjectIdentifier" />
+      <p class="actAsSubjectSourceId" />
       <p class="clientVersion" />
+      <p class="fieldName" />
+      <p class="groupName" />
+      <p class="groupUuid" />
       <p class="includeGroupDetail" />
       <p class="includeSubjectDetail" />
-      <p class="subjectAttributeNames" />
-      <p class="actAsSubjectId" />
-      <p class="actAsSubjectSourceId" />
-      <p class="actAsSubjectIdentifier" />
-      <p class="paramName0" />
-      <p class="paramValue0" />
-      <p class="paramName1" />
-      <p class="paramValue1" />
       <p class="memberFilter" />
-      <p class="sourceIds" />
-      <p class="searchString">test</p>
+      <p class="paramName0" />
+      <p class="paramName1" />
+      <p class="paramValue0" />
+      <p class="paramValue1" />
       <p class="retrieveSubjectDetail" />
-      <p class="fieldName" />
+      <p class="searchString">test</p>
+      <p class="sourceIds" />
+      <p class="subjectAttributeNames" />
+      <p class="subjectId" />
+      <p class="subjectIdentifier" />
+      <p class="subjectSourceId" />
     </div>
   </body>
 </html>
@@ -66,9 +66,11 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 14:05:34 GMT
+Transfer-Encoding: chunked
+Date: Thu, 29 May 2014 00:03:55 GMT
 Connection: close
 
+e22
 <?xml version='1.0' encoding='iso-8859-1'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -77,119 +79,128 @@ Connection: close
   </head>
   <body>
     <div title="WsGetSubjectsResults">
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="millis">64</p>
+        <p class="resultWarnings" />
+        <p class="serverVersion">2.2.0</p>
+      </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Queried 12 subjects</p>
+        <p class="resultMessage">Queried 13 subjects</p>
         <p class="success">T</p>
-      </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">348</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">2.1.1</p>
       </div>
       <div class="wsGroup" title="WsGroup" />
       <ul class="wsSubjects">
         <li title="WsSubject">
+          <p class="id">2b6a255d6f6e4f2a812b23097bfee7c9</p>
+          <p class="identifierLookup" />
           <p class="name">test:groupTestAttrAssign2</p>
-          <p class="id">ca00d47455a24d11a7c55f3d2adf00c3</p>
-          <p class="sourceId">g:gsa</p>
           <p class="resultCode">SUCCESS</p>
+          <p class="sourceId">g:gsa</p>
           <p class="success">T</p>
-          <p class="identifierLookup" />
         </li>
         <li title="WsSubject">
+          <p class="id">346c6455351c4adeb819e76c6bae759f</p>
+          <p class="identifierLookup" />
           <p class="name">test:groupTestAttrAssign</p>
-          <p class="id">f2617e65d2f6445789e3d8f8ebb20b42</p>
+          <p class="resultCode">SUCCESS</p>
           <p class="sourceId">g:gsa</p>
-          <p class="resultCode">SUCCESS</p>
           <p class="success">T</p>
-          <p class="identifierLookup" />
         </li>
         <li title="WsSubject">
-          <p class="name">my name is test.subject.0</p>
+          <p class="id">eccb89bb21b84bd1b4c2389400cdfb4d</p>
+          <p class="identifierLookup" />
+          <p class="name">test:testGroup</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="sourceId">g:gsa</p>
+          <p class="success">T</p>
+        </li>
+        <li title="WsSubject">
           <p class="id">test.subject.0</p>
-          <p class="sourceId">jdbc</p>
-          <p class="resultCode">SUCCESS</p>
-          <p class="success">T</p>
           <p class="identifierLookup" />
+          <p class="name">my name is test.subject.0</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="sourceId">jdbc</p>
+          <p class="success">T</p>
         </li>
         <li title="WsSubject">
-          <p class="name">my name is test.subject.1</p>
           <p class="id">test.subject.1</p>
-          <p class="sourceId">jdbc</p>
-          <p class="resultCode">SUCCESS</p>
-          <p class="success">T</p>
           <p class="identifierLookup" />
+          <p class="name">my name is test.subject.1</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="sourceId">jdbc</p>
+          <p class="success">T</p>
         </li>
         <li title="WsSubject">
-          <p class="name">my name is test.subject.2</p>
           <p class="id">test.subject.2</p>
-          <p class="sourceId">jdbc</p>
-          <p class="resultCode">SUCCESS</p>
-          <p class="success">T</p>
           <p class="identifierLookup" />
+          <p class="name">my name is test.subject.2</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="sourceId">jdbc</p>
+          <p class="success">T</p>
         </li>
         <li title="WsSubject">
-          <p class="name">my name is test.subject.3</p>
           <p class="id">test.subject.3</p>
-          <p class="sourceId">jdbc</p>
-          <p class="resultCode">SUCCESS</p>
-          <p class="success">T</p>
           <p class="identifierLookup" />
+          <p class="name">my name is test.subject.3</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="sourceId">jdbc</p>
+          <p class="success">T</p>
         </li>
         <li title="WsSubject">
-          <p class="name">my name is test.subject.4</p>
           <p class="id">test.subject.4</p>
-          <p class="sourceId">jdbc</p>
-          <p class="resultCode">SUCCESS</p>
-          <p class="success">T</p>
           <p class="identifierLookup" />
+          <p class="name">my name is test.subject.4</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="sourceId">jdbc</p>
+          <p class="success">T</p>
         </li>
         <li title="WsSubject">
-          <p class="name">my name is test.subject.5</p>
           <p class="id">test.subject.5</p>
-          <p class="sourceId">jdbc</p>
-          <p class="resultCode">SUCCESS</p>
-          <p class="success">T</p>
           <p class="identifierLookup" />
+          <p class="name">my name is test.subject.5</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="sourceId">jdbc</p>
+          <p class="success">T</p>
         </li>
         <li title="WsSubject">
-          <p class="name">my name is test.subject.6</p>
           <p class="id">test.subject.6</p>
-          <p class="sourceId">jdbc</p>
-          <p class="resultCode">SUCCESS</p>
-          <p class="success">T</p>
           <p class="identifierLookup" />
+          <p class="name">my name is test.subject.6</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="sourceId">jdbc</p>
+          <p class="success">T</p>
         </li>
         <li title="WsSubject">
-          <p class="name">my name is test.subject.7</p>
           <p class="id">test.subject.7</p>
-          <p class="sourceId">jdbc</p>
-          <p class="resultCode">SUCCESS</p>
-          <p class="success">T</p>
           <p class="identifierLookup" />
+          <p class="name">my name is test.subject.7</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="sourceId">jdbc</p>
+          <p class="success">T</p>
         </li>
         <li title="WsSubject">
-          <p class="name">my name is test.subject.8</p>
           <p class="id">test.subject.8</p>
-          <p class="sourceId">jdbc</p>
-          <p class="resultCode">SUCCESS</p>
-          <p class="success">T</p>
           <p class="identifierLookup" />
+          <p class="name">my name is test.subject.8</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="sourceId">jdbc</p>
+          <p class="success">T</p>
         </li>
         <li title="WsSubject">
-          <p class="name">my name is test.subject.9</p>
           <p class="id">test.subject.9</p>
-          <p class="sourceId">jdbc</p>
-          <p class="resultCode">SUCCESS</p>
-          <p class="success">T</p>
           <p class="identifierLookup" />
+          <p class="name">my name is test.subject.9</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="sourceId">jdbc</p>
+          <p class="success">T</p>
         </li>
       </ul>
     </div>
   </body>
 </html>
+0
 
 
 #########################################
@@ -355,4 +366,4 @@ public class WsSampleGetSubjectsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Queried 12 subjects
+Server version: 2.2.0, result code: SUCCESS, result message: Queried 13 subjects

@@ -1,4 +1,4 @@
-Grouper web service sample of service: memberChangeSubject, WsSampleMemberChangeSubjectRest, manually written lite/rest, format: xml, for version: 2.1.1
+Grouper web service sample of service: memberChangeSubject, WsSampleMemberChangeSubjectRest, manually written lite/rest, format: xml, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: memberChangeSubject, WsSampleMemberChange
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/members HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/members HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 659
 Content-Type: text/xml; charset=UTF-8
@@ -58,9 +58,11 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 14:18:36 GMT
+Transfer-Encoding: chunked
+Date: Thu, 29 May 2014 00:26:17 GMT
 Connection: close
 
+3e7
 <WsMemberChangeSubjectResults>
   <results>
     <WsMemberChangeSubjectResult>
@@ -102,11 +104,13 @@ Connection: close
         <id>test.subject.2</id>
         <sourceId>jdbc</sourceId>
       </wsSubjectOld>
-    </WsMemberChangeSubjectResult>
+    </
+32e
+WsMemberChangeSubjectResult>
   </results>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.1.1, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
+    <resultMessage>Success for: clientVersion: 2.2.0, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
 oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],
 newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
 [1]: WsMemberChangeSubject[
@@ -119,10 +123,11 @@ newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>385</millis>
-    <serverVersion>2.1.1</serverVersion>
+    <millis>352</millis>
+    <serverVersion>2.2.0</serverVersion>
   </responseMetadata>
 </WsMemberChangeSubjectResults>
+0
 
 
 #########################################
@@ -336,7 +341,7 @@ public class WsSampleMemberChangeSubjectRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
+Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
   oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],
   newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
 [1]: WsMemberChangeSubject[
