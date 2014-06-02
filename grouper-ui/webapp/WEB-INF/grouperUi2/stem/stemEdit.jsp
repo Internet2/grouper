@@ -35,9 +35,9 @@
                     </div>
                   </div>
                   <div class="control-group">
-                    <label for="stem-description" class="control-label">${textContainer.text['stemCreateDescriptionLabel'] }</label>
+                    <label for="stemDescription" class="control-label">${textContainer.text['stemCreateDescriptionLabel'] }</label>
                     <div class="controls">
-                      <textarea id="stem-description" name=description rows="3" cols="40" class="input-block-level">${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.stem.description)}</textarea><span 
+                      <textarea id="stemDescription" name=description rows="3" cols="40" class="input-block-level">${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.stem.description)}</textarea><span 
                         class="help-block">${textContainer.text['stemCreateDescriptionDescription'] }</span>
                     </div>
                   </div>

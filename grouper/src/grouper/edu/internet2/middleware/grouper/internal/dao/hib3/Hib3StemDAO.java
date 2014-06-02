@@ -121,6 +121,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
               HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               ByObject byObject = hibernateSession.byObject();
               
+              _group.validate();
+              
               byObject.save(_group);
               
               // take care of group sets
@@ -162,6 +164,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
                 throws GrouperDAOException {
               HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               ByObject byObject = hibernateSession.byObject();
+              
+              attributeDef.validate();
               
               byObject.save(attributeDef);
               
@@ -207,6 +211,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   public void createChildStem(final Stem _child)
     throws  GrouperDAOException {
 
+    _child.validate();
+    
     HibernateSession.byObjectStatic().save(_child);
     
     createGroupSetsForStem(_child);
@@ -1580,6 +1586,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
               HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               ByObject byObject = hibernateSession.byObject();
               
+              attributeDefName.validate();
               byObject.save(attributeDefName);
               
               AttributeDefNameSet attributeDefNameSet = new AttributeDefNameSet();

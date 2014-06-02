@@ -76,6 +76,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.entity.Entity;
 import edu.internet2.middleware.grouper.entity.EntityUtils;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
@@ -90,6 +91,7 @@ import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
@@ -190,6 +192,31 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner, 
     Hib3GrouperVersioned, Comparable, XmlImportable<Group>, AttributeAssignable, Entity, GrouperObject {
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_GROUP_DESCRIPTION_TOO_LONG_KEY = "groupDescriptionTooLong";
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_GROUP_DISPLAY_EXTENSION_TOO_LONG_KEY = "groupDisplayExtensionTooLong";
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_GROUP_EXTENSION_TOO_LONG_KEY = "groupExtensionTooLong";
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_GROUP_DISPLAY_NAME_TOO_LONG_KEY = "groupDisplayNameTooLong";
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_GROUP_NAME_TOO_LONG_KEY = "groupNameTooLong";
 
   /** name of the groups table in the db */
   public static final String TABLE_GROUPER_GROUPS = "grouper_groups";
@@ -380,15 +407,14 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   /** default to group type, as opposed to role */
   private TypeOfGroup typeOfGroup = TypeOfGroup.group;
   
-  /** */
+  /** caching legacy group types with the group object like they were cached < 2.2
+   * keys are the legacy group type names (i.e. without prefix or path) */
   @GrouperIgnoreDbVersion 
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
-  // caching legacy group types with the group object like they were cached < 2.2
-  // keys are the legacy group type names (i.e. without prefix or path)
   private Map<String, AttributeDefName> types;
   
-  // cache type assignments as well for the same reason
+  /** cache type assignments as well for the same reason */
   private Map<String, AttributeAssign> typeAssignments;
   
   /** */
@@ -4804,6 +4830,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * store this object to the DB.
    */
   public void store() {    
+
+    validate();
     
     if (GrouperLoader.isDryRun()) {
       return;
@@ -4923,6 +4951,52 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             }
           });
       
+  }
+
+  /**
+   * 
+   */
+  public void validate() {
+    //lets validate
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "name", 
+    //        Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, false);
+
+    boolean sqlServer = GrouperDdlUtils.isSQLServer();
+    int maxNameLength = sqlServer ? 900 : 1024;
+
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "extension", 
+    //        Types.VARCHAR, "255", false, false);
+    if (GrouperUtil.lengthAscii(this.getExtension()) > 255 ) {
+      throw new GrouperValidationException("Group extension too long: " + GrouperUtil.lengthAscii(this.getExtension()), 
+          VALIDATION_GROUP_EXTENSION_TOO_LONG_KEY, 255, GrouperUtil.lengthAscii(this.getExtension()));
+    }
+
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "display_extension", 
+    //        Types.VARCHAR, "255", false, false);
+    if (GrouperUtil.lengthAscii(this.getDisplayExtension()) > 255 ) {
+      throw new GrouperValidationException("Group display extension too long: " + GrouperUtil.lengthAscii(this.getDisplayExtension()), 
+          VALIDATION_GROUP_DISPLAY_EXTENSION_TOO_LONG_KEY, 255, GrouperUtil.lengthAscii(this.getDisplayExtension()));
+    }
+
+    
+    if (GrouperUtil.lengthAscii(this.getName()) > maxNameLength) {
+      throw new GrouperValidationException("Group name too long: " + GrouperUtil.lengthAscii(this.getName()), 
+          VALIDATION_GROUP_NAME_TOO_LONG_KEY, maxNameLength, GrouperUtil.lengthAscii(this.getName()));
+    }
+
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "display_name", 
+    //        Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, false);
+    if (GrouperUtil.lengthAscii(this.getDisplayName()) > maxNameLength) {
+      throw new GrouperValidationException("Group display name too long: " + GrouperUtil.lengthAscii(this.getDisplayName()), 
+          VALIDATION_GROUP_DISPLAY_NAME_TOO_LONG_KEY, maxNameLength, GrouperUtil.lengthAscii(this.getDisplayName()));
+    }
+
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "description", 
+    //        Types.VARCHAR, "1024", false, false);
+    if (GrouperUtil.lengthAscii(this.getDescription()) > 1024 ) {
+      throw new GrouperValidationException("Group description too long: " + GrouperUtil.lengthAscii(this.getDescription()), 
+          VALIDATION_GROUP_DESCRIPTION_TOO_LONG_KEY, 1024, GrouperUtil.lengthAscii(this.getDescription()));
+    }
   }
 
   /**

@@ -49,6 +49,8 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -86,6 +88,31 @@ import edu.internet2.middleware.subject.Subject;
 public class AttributeDefName extends GrouperAPI 
     implements GrouperHasContext, Hib3GrouperVersioned, GrouperSetElement, 
     XmlImportable<AttributeDefName>, Comparable<AttributeDefName>, GrouperObject {
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_NAME_OF_ATTRIBUTE_DEF_NAME_TOO_LONG_KEY = "nameOfAttributeDefNameTooLong";
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_DISPLAY_NAME_OF_ATTRIBUTE_DEF_NAME_TOO_LONG_KEY = "displayNameOfAttributeDefNameTooLong";
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_DECRIPTION_OF_ATTRIBUTE_DEF_NAME_TOO_LONG_KEY = "decriptionOfAttributeDefNameTooLong";
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_EXTENSION_OF_ATTRIBUTE_DEF_NAME_TOO_LONG_KEY = "extensionOfAttributeDefNameTooLong";
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_DISPLAY_EXTENSION_OF_ATTRIBUTE_DEF_NAME_TOO_LONG_KEY = "displayExtensionOfAttributeDefNameTooLong";
 
   /** name of the groups attribute def name table in the db */
   public static final String TABLE_GROUPER_ATTRIBUTE_DEF_NAME = "grouper_attribute_def_name";
@@ -916,6 +943,10 @@ public class AttributeDefName extends GrouperAPI
    * store this group (update) to database
    */
   public void store() {
+    
+    validate();
+
+    
     HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
         new HibernateHandler() {
@@ -954,6 +985,52 @@ public class AttributeDefName extends GrouperAPI
             return null;
           }
         });
+  }
+
+
+
+  /**
+   * 
+   */
+  public void validate() {
+    //lets validate
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
+    //        AttributeDefName.COLUMN_NAME, Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
+    boolean sqlServer = GrouperDdlUtils.isSQLServer();
+    int maxNameLength = sqlServer ? 900 : 1024;
+
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
+    //        AttributeDefName.COLUMN_EXTENSION, Types.VARCHAR, "255", false, true);
+    if (GrouperUtil.lengthAscii(this.getExtension()) > 255) {
+      throw new GrouperValidationException("Extension of attributeDefName too long: " + GrouperUtil.lengthAscii(this.getExtension()), 
+          VALIDATION_EXTENSION_OF_ATTRIBUTE_DEF_NAME_TOO_LONG_KEY, 255, GrouperUtil.lengthAscii(this.getExtension()));
+    }
+
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
+    //        AttributeDefName.COLUMN_DISPLAY_EXTENSION, Types.VARCHAR, "128", false, true);
+    if (GrouperUtil.lengthAscii(this.getDisplayExtension()) > 128) {
+      throw new GrouperValidationException("Display extension of attributeDefName too long: " + GrouperUtil.lengthAscii(this.getDisplayExtension()), 
+          VALIDATION_DISPLAY_EXTENSION_OF_ATTRIBUTE_DEF_NAME_TOO_LONG_KEY, 128, GrouperUtil.lengthAscii(this.getDisplayExtension()));
+    }
+    
+    if (GrouperUtil.lengthAscii(this.getName()) > maxNameLength) {
+      throw new GrouperValidationException("Name of attributeDefName too long: " + GrouperUtil.lengthAscii(this.getName()), 
+          VALIDATION_NAME_OF_ATTRIBUTE_DEF_NAME_TOO_LONG_KEY, maxNameLength, GrouperUtil.lengthAscii(this.getName()));
+    }
+
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
+    //        AttributeDefName.COLUMN_DISPLAY_NAME, Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
+    if (GrouperUtil.lengthAscii(this.getDisplayName()) > maxNameLength) {
+      throw new GrouperValidationException("Display name of attributeDefName too long: " + GrouperUtil.lengthAscii(this.getDisplayName()), 
+          VALIDATION_DISPLAY_NAME_OF_ATTRIBUTE_DEF_NAME_TOO_LONG_KEY, maxNameLength, GrouperUtil.lengthAscii(this.getDisplayName()));
+    }
+
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
+    //        AttributeDefName.COLUMN_DESCRIPTION, Types.VARCHAR, "1024", false, false);
+    if (GrouperUtil.lengthAscii(this.getDescription()) > 1024) {
+      throw new GrouperValidationException("Description of attributeDefName too long: " + GrouperUtil.lengthAscii(this.getDescription()), 
+          VALIDATION_DECRIPTION_OF_ATTRIBUTE_DEF_NAME_TOO_LONG_KEY, 1024, GrouperUtil.lengthAscii(this.getDescription()));
+    }
   }
 
   /**

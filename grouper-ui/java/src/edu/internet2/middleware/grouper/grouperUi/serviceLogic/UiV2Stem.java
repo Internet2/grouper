@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.UserAuditQuery;
+import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemDeleteException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
@@ -1606,7 +1607,11 @@ public class UiV2Stem {
         //create the folder
         stem = new StemSave(grouperSession).assignName(parentFolder.isRootStem() ? extension : (parentFolder.getName() + ":" + extension))
             .assignDisplayExtension(displayExtension).assignDescription(description).save();
-  
+
+      } catch (GrouperValidationException gve) {
+        handleGrouperValidationException(guiResponseJs, gve);
+        return;
+
       } catch (InsufficientPrivilegeException ipe) {
         
         LOG.warn("Insufficient privilege exception for stem create: " + SubjectHelper.getPretty(loggedInSubject), ipe);
@@ -1749,6 +1754,10 @@ public class UiV2Stem {
         }
 
 
+      } catch (GrouperValidationException gve) {
+        handleGrouperValidationException(guiResponseJs, gve);
+        return;
+        
       } catch (InsufficientPrivilegeException ipe) {
         
         LOG.warn("Insufficient privilege exception for stem edit: " + SubjectHelper.getPretty(loggedInSubject), ipe);
@@ -1773,6 +1782,49 @@ public class UiV2Stem {
     
     } finally {
       GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * @param guiResponseJs
+   * @param gve
+   */
+  private void handleGrouperValidationException(GuiResponseJs guiResponseJs,
+      GrouperValidationException gve) {
+    //  # stem validations fields too long
+    //  stemValidation_stemDescriptionTooLong = Error, folder description is too long
+    //  stemValidation_stemDisplayExtensionTooLong = Error, folder name is too long
+    //  stemValidation_stemExtensionTooLong = Error, folder ID is too long
+    //  stemValidation_stemDisplayNameTooLong = Error, the folder name causes the path to be too long, please shorten it
+    //  stemValidation_stemNameTooLong = Error, the folder ID causes the ID path to be too long, please shorten it
+    
+    if (StringUtils.equals(Stem.VALIDATION_STEM_DESCRIPTION_TOO_LONG_KEY, gve.getGrouperValidationKey())) {
+      
+      guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+          "#stemDescription",
+          TextContainer.retrieveFromRequest().getText().get("stemValidation_" + gve.getGrouperValidationKey())));
+      return;
+      
+    } else if (StringUtils.equals(Stem.VALIDATION_STEM_EXTENSION_TOO_LONG_KEY, gve.getGrouperValidationKey())
+        || StringUtils.equals(Stem.VALIDATION_STEM_NAME_TOO_LONG_KEY, gve.getGrouperValidationKey())) {
+
+      guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+          "#stemId",
+          TextContainer.retrieveFromRequest().getText().get("stemValidation_" + gve.getGrouperValidationKey())));
+      return;
+      
+    } else if (StringUtils.equals(Stem.VALIDATION_STEM_DISPLAY_EXTENSION_TOO_LONG_KEY, gve.getGrouperValidationKey())
+        || StringUtils.equals(Stem.VALIDATION_STEM_DISPLAY_NAME_TOO_LONG_KEY, gve.getGrouperValidationKey())) {
+
+      guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+          "#stemName",
+          TextContainer.retrieveFromRequest().getText().get("stemValidation_" + gve.getGrouperValidationKey())));
+      return;
+      
+    } else {
+      LOG.error("Non-fatal error, not expecting GrouperValidationException: " + gve.getGrouperValidationKey(), gve);
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, gve.getMessage()));
+      return;
     }
   }
 

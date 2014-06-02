@@ -36,6 +36,7 @@ import java.util.Set;
 import junit.framework.Assert;
 import junit.textui.TestRunner;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
@@ -58,6 +59,7 @@ import edu.internet2.middleware.grouper.entity.EntitySave;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
+import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.helper.GroupHelper;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.PrivHelper;
@@ -96,8 +98,9 @@ public class TestGroup extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(new TestGroup("testNoLocking"));
     //TestRunner.run(TestGroup.class);
-    TestRunner.run(new TestGroup("testGetTypesSecurity"));
+    //TestRunner.run(new TestGroup("testGetTypesSecurity"));
     //TestRunner.run(TestGroup.class);
+    new TestGroup("testSetInvalidDescription").testSetInvalidDescription();
   }
   
   // Private Class Constants
@@ -770,6 +773,37 @@ public class TestGroup extends GrouperTest {
     catch (Exception e) {
       Assert.fail(e.getMessage());
     }
+  } // public void testSetDescription()
+
+  /**
+   * 
+   */
+  public void testSetInvalidDescription() {
+    LOG.info("testSetInvalidDescription");
+    s     = SessionHelper.getRootSession();
+    i2 =  new GroupSave(s).assignGroupNameToEdit("edu:i2").assignCreateParentStemsIfNotExist(true).save();
+    String          set   = "this is a group"; 
+    set = StringUtils.repeat(set, 100);
+    i2.setDescription(set);
+    try {
+      i2.store();
+    } catch (GrouperValidationException gve) {
+      assertEquals(Group.VALIDATION_GROUP_DESCRIPTION_TOO_LONG_KEY, gve.getGrouperValidationKey());
+      assertEquals(1024, gve.getMaxLength().intValue());
+      assertEquals(1500, gve.getCurrentLength().intValue());
+    }
+
+    //try with group save
+    try {
+      new GroupSave(s).assignGroupNameToEdit(i2.getName()).assignDescription(set).save();
+    } catch (GrouperValidationException gve) {
+      assertEquals(Group.VALIDATION_GROUP_DESCRIPTION_TOO_LONG_KEY, gve.getGrouperValidationKey());
+      assertEquals(1024, gve.getMaxLength().intValue());
+      assertEquals(1500, gve.getCurrentLength().intValue());
+    }
+    
+    
+    s.stop();
   } // public void testSetDescription()
 
   // Tests

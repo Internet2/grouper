@@ -49,8 +49,10 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -90,6 +92,21 @@ import edu.internet2.middleware.subject.Subject;
 @SuppressWarnings("serial")
 public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHasContext, 
     Hib3GrouperVersioned, Owner, XmlImportable<AttributeDef>, AttributeAssignable, Comparable<AttributeDef> {
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_NAME_OF_ATTRIBUTE_DEF_TOO_LONG_KEY = "nameOfAttributeDefTooLong";
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_EXTENSION_OF_ATTRIBUTE_DEF_TOO_LONG_KEY = "extensionOfAttributeDefTooLong";
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_DESCRIPTION_OF_ATTRIBUTE_DEF_TOO_LONG_KEY = "descriptionOfAttributeDefTooLong";
 
   /**
    * attribute defs dont have display extensions or name, so change them to extension and name
@@ -438,7 +455,7 @@ public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHa
    */
   public void store() {
     
-    //validate the attribute definition
+    validate();
     
     //if a permission, can only be assigned to group or membership (not immediate)
     if (this.attributeDefType == AttributeDefType.perm &&
@@ -521,6 +538,39 @@ public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHa
             return null;
           }
         });
+  }
+
+  /**
+   * 
+   */
+  public void validate() {
+    //validate the attribute definition
+
+    //lets validate
+
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+    //        AttributeDef.COLUMN_EXTENSION, Types.VARCHAR, "255", false, true);
+    if (GrouperUtil.lengthAscii(this.getExtension()) > 255) {
+      throw new GrouperValidationException("Extension of attributeDef too long: " + GrouperUtil.lengthAscii(this.getExtension()), 
+          VALIDATION_EXTENSION_OF_ATTRIBUTE_DEF_TOO_LONG_KEY, 255, GrouperUtil.lengthAscii(this.getExtension()));
+    }
+
+    
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+    //        AttributeDef.COLUMN_NAME, Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
+    boolean sqlServer = GrouperDdlUtils.isSQLServer();
+    int maxNameLength = sqlServer ? 900 : 1024;
+    if (GrouperUtil.lengthAscii(this.getName()) > maxNameLength) {
+      throw new GrouperValidationException("Name of attributeDef too long: " + GrouperUtil.lengthAscii(this.getName()), 
+          VALIDATION_NAME_OF_ATTRIBUTE_DEF_TOO_LONG_KEY, maxNameLength, GrouperUtil.lengthAscii(this.getName()));
+    }
+
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+    //        AttributeDef.COLUMN_DESCRIPTION, Types.VARCHAR, "1024", false, false);
+    if (GrouperUtil.lengthAscii(this.getDescription()) > 1024) {
+      throw new GrouperValidationException("Description of attributeDef too long: " + GrouperUtil.lengthAscii(this.getDescription()), 
+          VALIDATION_DESCRIPTION_OF_ATTRIBUTE_DEF_TOO_LONG_KEY, 1024, GrouperUtil.lengthAscii(this.getDescription()));
+    }
   }
   
   /** delegate privilege calls to another class to separate logic */

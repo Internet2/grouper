@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperReadonlyException;
 import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
+import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -542,6 +543,9 @@ public class HibernateSession {
     }
     if (e instanceof HookVeto) {
       throw (HookVeto)e;
+    }
+    if (e instanceof GrouperValidationException) {
+      throw (GrouperValidationException)e;
     }
     // if runtime, then rethrow
     if (e instanceof RuntimeException) {

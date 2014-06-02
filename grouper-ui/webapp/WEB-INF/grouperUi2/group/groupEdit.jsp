@@ -35,9 +35,9 @@
                     </div>
                   </div>
                   <div class="control-group">
-                    <label for="group-description" class="control-label">${textContainer.text['groupCreateDescriptionLabel'] }</label>
+                    <label for="groupDescription" class="control-label">${textContainer.text['groupCreateDescriptionLabel'] }</label>
                     <div class="controls">
-                      <textarea id="group-description" name=description rows="3" cols="40" class="input-block-level">${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.description)}</textarea><span 
+                      <textarea id="groupDescription" name=description rows="3" cols="40" class="input-block-level">${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.description)}</textarea><span 
                         class="help-block">${textContainer.text['groupCreateDescriptionDescription'] }</span>
                     </div>
                   </div>

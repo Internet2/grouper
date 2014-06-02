@@ -74,6 +74,7 @@ import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeAlreadyRevokedException;
@@ -165,6 +166,31 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, 
     Hib3GrouperVersioned, Comparable<Stem>, XmlImportable<Stem>, AttributeAssignable, GrouperSetElement,
     GrouperObject {
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_STEM_NAME_TOO_LONG_KEY = "stemNameTooLong";
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_STEM_DISPLAY_NAME_TOO_LONG_KEY = "stemDisplayNameTooLong";
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_STEM_EXTENSION_TOO_LONG_KEY = "stemExtensionTooLong";
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_STEM_DISPLAY_EXTENSION_TOO_LONG_KEY = "stemDisplayExtensionTooLong";
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_STEM_DESCRIPTION_TOO_LONG_KEY = "stemDescriptionTooLong";
 
   /**
    * get the name of the parent stem
@@ -1731,7 +1757,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * will be implemented soon
    */
   public void store() {
-    
+
+    validate();
+
     HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
         new HibernateHandler() {
@@ -1767,6 +1795,48 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
           
 
     
+  }
+
+  /**
+   * 
+   */
+  public void validate() {
+    //lets validate
+
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "extension", 
+    //        Types.VARCHAR, "255", false, true);
+    if (GrouperUtil.lengthAscii(this.getExtension()) > 255 ) {
+      throw new GrouperValidationException("Stem extension too long: " + GrouperUtil.lengthAscii(this.getExtension()), 
+          VALIDATION_STEM_EXTENSION_TOO_LONG_KEY, 255, GrouperUtil.lengthAscii(this.getExtension()));
+    }
+
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "display_extension", 
+    //        Types.VARCHAR, "255", false, true);
+    if (GrouperUtil.lengthAscii(this.getDisplayExtension()) > 255 ) {
+      throw new GrouperValidationException("Stem display extension too long: " + GrouperUtil.lengthAscii(this.getDisplayExtension()), 
+          VALIDATION_STEM_DISPLAY_EXTENSION_TOO_LONG_KEY, 255, GrouperUtil.lengthAscii(this.getDisplayName()));
+    }
+
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "name", 
+    //        Types.VARCHAR, "255", false, true);
+    if (GrouperUtil.lengthAscii(this.getName()) > 255) {
+      throw new GrouperValidationException("Stem name too long: " + GrouperUtil.lengthAscii(this.getName()), 
+          VALIDATION_STEM_NAME_TOO_LONG_KEY, 255, GrouperUtil.lengthAscii(this.getName()));
+    }
+
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "display_name", 
+    //        Types.VARCHAR, "255", false, true);
+    if (GrouperUtil.lengthAscii(this.getDisplayName()) > 255) {
+      throw new GrouperValidationException("Stem display name too long: " + GrouperUtil.lengthAscii(this.getDisplayName()), 
+          VALIDATION_STEM_DISPLAY_NAME_TOO_LONG_KEY, 255, GrouperUtil.lengthAscii(this.getDisplayName()));
+    }
+
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "description", 
+    //        Types.VARCHAR, "1024", false, false);
+    if (GrouperUtil.lengthAscii(this.getDescription()) > 1024 ) {
+      throw new GrouperValidationException("Stem description too long: " + GrouperUtil.lengthAscii(this.getDescription()), 
+          VALIDATION_STEM_DESCRIPTION_TOO_LONG_KEY, 1024, GrouperUtil.lengthAscii(this.getDescription()));
+    }
   }
   
   /**
@@ -2851,6 +2921,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * Rename attributeDef and attributeDefName due to a name and/or displayName change
    * @param nameChange
    * @param displayNameChange
+   * @return the children
    */
   private Set<GrouperAPI> _renameAttr(boolean nameChange, boolean displayNameChange) {
     Set<GrouperAPI> children  = new LinkedHashSet();

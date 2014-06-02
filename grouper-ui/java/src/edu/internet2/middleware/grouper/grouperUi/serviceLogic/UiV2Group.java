@@ -41,6 +41,7 @@ import edu.internet2.middleware.grouper.audit.UserAuditQuery;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupDeleteException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
@@ -1510,6 +1511,11 @@ public class UiV2Group {
             .assignPrivAllUpdate(updateChecked).assignPrivAllView(viewChecked)
             .save();
   
+      } catch (GrouperValidationException gve) {
+        handleGrouperValidationException(guiResponseJs, gve);
+        return;
+
+        
       } catch (InsufficientPrivilegeException ipe) {
         
         LOG.warn("Insufficient privilege exception for group create: " + SubjectHelper.getPretty(loggedInSubject), ipe);
@@ -1542,6 +1548,48 @@ public class UiV2Group {
   
     } finally {
       GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * @param guiResponseJs
+   * @param gve
+   */
+  private void handleGrouperValidationException(GuiResponseJs guiResponseJs,
+      GrouperValidationException gve) {
+    //  groupValidation_groupDescriptionTooLong = Error, group description is too long
+    //  groupValidation_groupDisplayExtensionTooLong = Error, group name is too long
+    //  groupValidation_groupExtensionTooLong = Error, group ID is too long
+    //  groupValidation_groupDisplayNameTooLong = Error, the group name causes the path to be too long, please shorten it
+    //  groupValidation_groupNameTooLong = Error, the group ID causes the ID path to be too long, please shorten it
+    
+    if (StringUtils.equals(Group.VALIDATION_GROUP_DESCRIPTION_TOO_LONG_KEY, gve.getGrouperValidationKey())) {
+      
+      guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+          "#groupDescription",
+          TextContainer.retrieveFromRequest().getText().get("groupValidation_" + gve.getGrouperValidationKey())));
+      return;
+      
+    } else if (StringUtils.equals(Group.VALIDATION_GROUP_EXTENSION_TOO_LONG_KEY, gve.getGrouperValidationKey())
+        || StringUtils.equals(Group.VALIDATION_GROUP_NAME_TOO_LONG_KEY, gve.getGrouperValidationKey())) {
+
+      guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+          "#groupId",
+          TextContainer.retrieveFromRequest().getText().get("groupValidation_" + gve.getGrouperValidationKey())));
+      return;
+      
+    } else if (StringUtils.equals(Group.VALIDATION_GROUP_DISPLAY_EXTENSION_TOO_LONG_KEY, gve.getGrouperValidationKey())
+        || StringUtils.equals(Group.VALIDATION_GROUP_DISPLAY_NAME_TOO_LONG_KEY, gve.getGrouperValidationKey())) {
+
+      guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+          "#groupName",
+          TextContainer.retrieveFromRequest().getText().get("groupValidation_" + gve.getGrouperValidationKey())));
+      return;
+      
+    } else {
+      LOG.error("Non-fatal error, not expecting GrouperValidationException: " + gve.getGrouperValidationKey(), gve);
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, gve.getMessage()));
+      return;
     }
   }
 
@@ -1713,6 +1761,10 @@ public class UiV2Group {
         }
       
   
+      } catch (GrouperValidationException gve) {
+        handleGrouperValidationException(guiResponseJs, gve);
+        return;
+
       } catch (InsufficientPrivilegeException ipe) {
         
         LOG.warn("Insufficient privilege exception for group edit: " + SubjectHelper.getPretty(loggedInSubject), ipe);

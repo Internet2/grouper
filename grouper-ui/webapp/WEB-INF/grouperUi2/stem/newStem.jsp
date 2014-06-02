@@ -65,9 +65,9 @@
                     </div>
                   </div>
                   <div class="control-group">
-                    <label for="stem-description" class="control-label">${textContainer.text['stemCreateDescriptionLabel'] }</label>
+                    <label for="stemDescription" class="control-label">${textContainer.text['stemCreateDescriptionLabel'] }</label>
                     <div class="controls">
-                      <textarea id="stem-description" name=description rows="3" cols="40" class="input-block-level"></textarea><span class="help-block">${textContainer.text['stemCreateDescriptionDescription'] }</span>
+                      <textarea id="stemDescription" name=description rows="3" cols="40" class="input-block-level"></textarea><span class="help-block">${textContainer.text['stemCreateDescriptionDescription'] }</span>
                     </div>
                   </div>
                   <div class="form-actions"><a href="#" class="btn btn-primary" onclick="ajax('../app/UiV2Stem.newStemSubmit', {formIds: 'addStemForm'}); return false;">${textContainer.text['stemCreateSaveButton'] }</a> 
