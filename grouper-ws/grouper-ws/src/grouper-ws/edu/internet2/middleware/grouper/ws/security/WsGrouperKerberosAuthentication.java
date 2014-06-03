@@ -173,8 +173,18 @@ public class WsGrouperKerberosAuthentication implements WsCustomAuthentication {
       throw new RuntimeException("Cant find jaas.conf!");
     }
 
-    System.setProperty("java.security.krb5.realm", GrouperWsConfig.retrieveConfig().propertyValueString("kerberos.realm"));
-    System.setProperty("java.security.krb5.kdc", GrouperWsConfig.retrieveConfig().propertyValueString("kerberos.kdc.address"));
+    File krb5confFile = GrouperUtil.fileFromResourceName("krb5.conf"); 
+    
+    if (krb5confFile == null) { 
+      LOG.info("Cant find krb5.conf from classpath"); 
+      System.setProperty("java.security.krb5.realm", GrouperWsConfig.retrieveConfig().propertyValueStringRequired("kerberos.realm"));
+      System.setProperty("java.security.krb5.kdc", GrouperWsConfig.retrieveConfig().propertyValueStringRequired("kerberos.kdc.address"));
+    } else {
+      
+      System.setProperty("java.security.krb5.conf", krb5confFile.getAbsolutePath()); 
+    }
+ 
+    
     System.setProperty("java.security.auth.login.config", jaasConf.getAbsolutePath());
     //System.setProperty("sun.security.krb5.debug", "true");
     
