@@ -31,6 +31,7 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.mortbay.jetty.HttpException;
 
@@ -69,12 +70,26 @@ public class EsbHttpPublisher extends EsbListenerBase {
     post.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
         new DefaultHttpMethodRetryHandler(retries, false));
     post.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, new Integer(timeout));
-    post.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    //post.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    post.setRequestHeader("Content-Type", GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer."
+        + consumerName + ".publisher.contentTypeHeader", "application/x-www-form-urlencoded"));
     RequestEntity requestEntity;
     try {
-      requestEntity = new StringRequestEntity(eventJsonString, "application/json",
-          "utf-8");
-
+      //requestEntity = new StringRequestEntity(eventJsonString, "application/json", "utf-8");
+      
+      String stringRequestEntityPrefix = "";
+      
+      if (GrouperLoaderConfig.retrieveConfig().containsKey("changeLog.consumer."
+          + consumerName + ".publisher.stringRequestEntityPrefix")) {
+        stringRequestEntityPrefix = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer."
+            + consumerName + ".publisher.stringRequestEntityPrefix");
+        
+      }
+      
+      requestEntity = new StringRequestEntity(StringUtils.defaultString(stringRequestEntityPrefix) + eventJsonString, 
+          GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer."
+              + consumerName + ".publisher.stringRequestEntityContentType", "application/x-www-form-urlencoded"), "utf-8"); 
+      
       post.setRequestEntity(requestEntity);
       HttpClient httpClient = new HttpClient();
       if (!(username.equals(""))) {
