@@ -76,8 +76,8 @@ import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.permissions.PermissionAssignOperation;
-import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.limits.impl.PermissionLimitElLogic;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -86,17 +86,12 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.service.ServiceRole;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult.WsAddMemberResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults.WsAddMemberResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchEntry;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult.WsAssignAttributeBatchResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults.WsAssignAttributeDefNameInheritanceResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesBatchResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesBatchResults.WsAssignAttributesBatchResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssign;
@@ -109,16 +104,12 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameToSave;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults.WsFindAttributeDefNamesResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults.WsGetAttributeAssignmentsResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResults.WsGetGroupsResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResults.WsGetMembersResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetPermissionAssignmentsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroup;
@@ -128,9 +119,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupToSave;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGrouperPrivilegeResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResult.WsHasMemberResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults.WsHasMemberResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMembership;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipAnyLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipLookup;
@@ -140,6 +129,17 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsStem;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubject;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult.WsAddMemberResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults.WsAddMemberResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult.WsAssignAttributeBatchResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults.WsAssignAttributeDefNameInheritanceResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesBatchResults.WsAssignAttributesBatchResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults.WsFindAttributeDefNamesResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults.WsGetAttributeAssignmentsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResults.WsGetGroupsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResults.WsGetMembersResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResult.WsHasMemberResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults.WsHasMemberResultsCode;
 import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
 import edu.internet2.middleware.grouper.ws.query.StemScope;
 import edu.internet2.middleware.grouper.ws.query.WsQueryFilterType;
@@ -176,7 +176,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testAssignAttributes"));
+    TestRunner.run(new GrouperServiceLogicTest("testGetPermissionAssignments"));
   }
 
   /**
@@ -1899,6 +1899,48 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertEquals("FALSE", wsPermissionAssign.getDetail().getPermissionDelegatable());
     assertEquals("If not a role assignment, this is not used, -1", "-1", wsPermissionAssign.getDetail().getRoleSetDepth());
     assertEquals(0, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsAttributeDefNames()));
+
+    //#################################################
+    //valid query for everything
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignments(
+        GROUPER_VERSION, null, null, null, new WsSubjectLookup[]{new WsSubjectLookup(SubjectTestHelper.SUBJ1_ID, null, null)}, 
+        null, false, true, false, false, null, false, null, false, null, null, null, null, 
+        false, null, null, null, true);
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+
+    assertEquals("This is ok: " + wsGetPermissionAssignmentsResults.getResultMetadata().getResultMessage(), 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsGetPermissionAssignmentsResults.getResultMetadata().getResultCode());
+
+    assertEquals(1, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsPermissionAssigns()));
+    
+    wsPermissionAssign = wsGetPermissionAssignmentsResults.getWsPermissionAssigns()[0];
+    
+    assertEquals("action2", wsPermissionAssign.getAction());
+    assertEquals(attributeDef.getId(), wsPermissionAssign.getAttributeDefId());
+    assertEquals(attributeDef.getName(), wsPermissionAssign.getAttributeDefName());
+    assertEquals(attrDefName2.getId(), wsPermissionAssign.getAttributeDefNameId());
+    assertEquals(attrDefName2.getName(), wsPermissionAssign.getAttributeDefNameName());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getAttributeAssignId()));
+    assertEquals("T", wsPermissionAssign.getEnabled());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getMembershipId()));
+    assertEquals("role_subject", wsPermissionAssign.getPermissionType());
+    assertEquals(role2.getId(), wsPermissionAssign.getRoleId());
+    assertEquals(role2.getName(), wsPermissionAssign.getRoleName());
+    assertEquals("jdbc", wsPermissionAssign.getSourceId());
+    assertEquals(SubjectTestHelper.SUBJ1_ID, wsPermissionAssign.getSubjectId());
+    assertNull(wsPermissionAssign.getDetail());
+
+    assertEquals(2, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsAttributeDefNames()));
+//    assertEquals(attrDefName2.getId(), wsGetPermissionAssignmentsResults.getWsAttributeDefNames()[0].getUuid());
+//    assertEquals(attrDefName2.getName(), wsGetPermissionAssignmentsResults.getWsAttributeDefNames()[0].getName());
+//
+//    assertEquals(0, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsAttributeAssigns()));
+    
+
     
     //#################################################
     //valid query for attrdef and action and attr def names

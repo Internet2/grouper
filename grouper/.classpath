@@ -39,7 +39,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/subject.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jdbcSamples/hsqldb.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jdbcSamples/mysql-connector-java-bin.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jdbcSamples/ojdbc14.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jdbcSamples/postgresql.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/test/junit.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/ant/ant-contrib.jar"/>
@@ -66,5 +65,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/hibernate-jpa-2.0-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/slf4j-log4j12.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/vt-ldap.jar"/>
+	<classpathentry kind="lib" path="lib/jdbcSamples/ojdbc6_g.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

@@ -8,7 +8,7 @@
 --%><%--
   @author Gary Brown.
   @version $Id: template.jsp,v 1.9 2008-05-01 09:44:22 isgwb Exp $
---%><?xml version="1.0" encoding="iso-8859-1"?>
+--%><?xml version="1.0" encoding="utf-8"?>
 
 <!DOCTYPE html PUBLIC 
 "-//W3C//DTD XHTML 1.0 Transitional//EN" 

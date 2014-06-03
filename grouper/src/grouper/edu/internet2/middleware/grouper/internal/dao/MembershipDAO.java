@@ -1096,6 +1096,12 @@ TODO update for 1.5
    * @return set of immediate memberships that are bad
    */
   public Set<Membership> findBadCompositeMembershipsOnNonCompositeGroup();
+  
+  /**
+   * Find cases where a membership exists where the member is a deleted group.
+   * @return set of immediate memberships that are bad
+   */
+  public Set<Membership> findBadMembershipsDeletedGroupAsMember();
 
   /**
    * find memberships by stem owner and other options.  

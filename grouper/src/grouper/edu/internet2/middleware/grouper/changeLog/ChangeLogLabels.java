@@ -492,7 +492,10 @@ public class ChangeLogLabels {
     memberId,
     
     /** field id */
-    fieldId;
+    fieldId,
+    
+    /** subjectName */
+    subjectName;
   };
   
   /**

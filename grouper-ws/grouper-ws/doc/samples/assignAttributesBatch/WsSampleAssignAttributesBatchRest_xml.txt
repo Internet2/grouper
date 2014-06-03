@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributesBatch, WsSampleAssignAttributesBatchRest, manually written lite/rest, format: xml, for version: 2.1.2
+Grouper web service sample of service: assignAttributesBatch, WsSampleAssignAttributesBatchRest, manually written lite/rest, format: xml, for version: 2.2.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: assignAttributesBatch, WsSampleAssignAttr
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_002/attributeAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/attributeAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
@@ -58,24 +58,18 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Wed, 08 Aug 2012 00:51:23 GMT
+Transfer-Encoding: chunked
+Date: Wed, 28 May 2014 22:21:09 GMT
 Connection: close
 
+3ff
 <WsAssignAttributesBatchResults>
   <wsAttributeDefs>
     <WsAttributeDef>
-      <extension>testAttributeAssignAssignNameDef</extension>
-      <name>test:testAttributeAssignAssignNameDef</name>
-      <uuid>7a8ff7d7b300443282db505b3a0059b0</uuid>
-      <attributeDefType>attr</attributeDefType>
-      <multiAssignable>F</multiAssignable>
-      <multiValued>F</multiValued>
-      <valueType>marker</valueType>
-    </WsAttributeDef>
-    <WsAttributeDef>
+      <idIndex>10031</idIndex>
       <extension>testAttributeAssignDefNameDef</extension>
       <name>test:testAttributeAssignDefNameDef</name>
-      <uuid>6dff21e34ea745a98879b4b9ecabaeb7</uuid>
+      <uuid>0c34c376120a4a07872f330bad75de87</uuid>
       <attributeDefType>attr</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>T</multiValued>
@@ -84,21 +78,13 @@ Connection: close
   </wsAttributeDefs>
   <wsAttributeDefNames>
     <WsAttributeDefName>
-      <extension>testAttributeAssignAssignName</extension>
-      <displayExtension>testAttributeAssignAssignName</displayExtension>
-      <displayName>test:testAttributeAssignAssignName</displayName>
-      <name>test:testAttributeAssignAssignName</name>
-      <uuid>6e87e45784ac4e88af5aad210e0d1821</uuid>
-      <attributeDefId>7a8ff7d7b300443282db505b3a0059b0</attributeDefId>
-      <attributeDefName>test:testAttributeAssignAssignNameDef</attributeDefName>
-    </WsAttributeDefName>
-    <WsAttributeDefName>
+      <idIndex>10115</idIndex>
       <extension>testAttributeAssignDefName</extension>
       <displayExtension>testAttributeAssignDefName</displayExtension>
       <displayName>test:testAttributeAssignDefName</displayName>
       <name>test:testAttributeAssignDefName</name>
-      <uuid>fdadbfb3e0b146ab947e2fa4efaaabb4</uuid>
-      <attributeDefId>6dff21e34ea745a98879b4b9ecabaeb7</attributeDefId>
+      <uuid>cc5c7ec9024549569cc5994a1a97b111</uuid>
+      <attributeDefId>0c34c376120a4a07872f330bad75de87</attributeDefId>
       <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
     </WsAttributeDefName>
   </wsAttributeDefNames>
@@ -117,32 +103,34 @@ Connection: close
           <disallowed>F</disallowed>
           <attributeAssignActionType>immediate</attributeAssignActionType>
           <attributeAssignDelegatable>FALSE</attributeAssignDelegatable>
-          <attributeAssignActionId>0c7ca09385e8465db6a06828b9a58205</attributeAssignActionId>
+          <attributeAssignActionId>a7da55f0c2f34e7996f5dab2312c508a</attributeAssignActionId>
           <attributeAssignActionName>assign</attributeAssignActionName>
           <attributeAssignType>group</attributeAssignType>
-          <attributeDefNameId>fdadbfb3e0b146ab947e2fa4efaaabb4</attributeDefNameId>
+          <attributeDefNameId>cc5c7ec9024549569cc5994a1a97b111</attributeDefNameId>
           <attributeDefNameName>test:testAttributeAssignDefName</attributeDefNameName>
-          <attributeDefId>6dff21e34ea745a98879b4b9ecabaeb7</attributeDefId>
+          <attributeDefId>0c34c376120a4a07872f330bad75de87</attributeDefId>
           <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
           <wsAttributeAssignValues>
             <WsAttributeAssignValue>
-              <id>3983e0a1bdc145eb8edcc952ac005302</id>
+              <id>12a70921d167436d91ee2cc79f9855dd</id>
               <valueSystem>15</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>c3915952167c4ce3a47bf20c4819ddc8</id>
+              <id>41bb0c02b28c4ba4847cb2b7bb0
+3ff
+3e858</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
             <WsAttributeAssignValue>
-              <id>cca8637d55124eb187dee2de84a465aa</id>
+              <id>799280eb00be41179886c918409a1dd4</id>
               <valueSystem>5</valueSystem>
             </WsAttributeAssignValue>
           </wsAttributeAssignValues>
-          <createdOn>2012/08/07 20:51:20.920</createdOn>
+          <createdOn>2014/05/28 18:21:06.981</createdOn>
           <enabled>T</enabled>
-          <id>b7b1e2c98ef74ce39a709adb4a292842</id>
-          <lastUpdated>2012/08/07 20:51:20.920</lastUpdated>
-          <ownerGroupId>0143f7ff055d440fb5e840b15ac042c2</ownerGroupId>
+          <id>f8c1df0eb5ac4583b3bd4af684c3abcb</id>
+          <lastUpdated>2014/05/28 18:21:06.981</lastUpdated>
+          <ownerGroupId>d8496149e17840029e994d242460665b</ownerGroupId>
           <ownerGroupName>test:groupTestAttrAssign</ownerGroupName>
         </WsAttributeAssign>
       </wsAttributeAssigns>
@@ -161,35 +149,39 @@ Connection: close
           <disallowed>F</disallowed>
           <attributeAssignActionType>immediate</attributeAssignActionType>
           <attributeAssignDelegatable>FALSE</attributeAssignDelegatable>
-          <attributeAssignActionId>d93e414b753d462c82a81a9f261c5461</attributeAssignActionId>
+          <attributeAssignActionId>652959b0edee4cc
+3ff
+e8bfd8938e5d8d209</attributeAssignActionId>
           <attributeAssignActionName>assign</attributeAssignActionName>
           <attributeAssignType>group_asgn</attributeAssignType>
-          <attributeDefNameId>6e87e45784ac4e88af5aad210e0d1821</attributeDefNameId>
+          <attributeDefNameId>0f7d32a8493c427190b5eb5cf8922667</attributeDefNameId>
           <attributeDefNameName>test:testAttributeAssignAssignName</attributeDefNameName>
-          <attributeDefId>7a8ff7d7b300443282db505b3a0059b0</attributeDefId>
+          <attributeDefId>66713ddc7ef248baa880faeeae049889</attributeDefId>
           <attributeDefName>test:testAttributeAssignAssignNameDef</attributeDefName>
-          <createdOn>2012/08/07 20:51:20.940</createdOn>
+          <createdOn>2014/05/28 18:21:07.027</createdOn>
           <enabled>T</enabled>
-          <id>d4700d70426e409b8031c38bce63442a</id>
-          <lastUpdated>2012/08/07 20:51:20.940</lastUpdated>
-          <ownerAttributeAssignId>b7b1e2c98ef74ce39a709adb4a292842</ownerAttributeAssignId>
+          <id>eb282b04632a42c29a2d753dd602c0cb</id>
+          <lastUpdated>2014/05/28 18:21:07.027</lastUpdated>
+          <ownerAttributeAssignId>f8c1df0eb5ac4583b3bd4af684c3abcb</ownerAttributeAssignId>
         </WsAttributeAssign>
       </wsAttributeAssigns>
     </WsAssignAttributeBatchResult>
   </wsAssignAttributeBatchResultArray>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.1.2, includeSubjectDetail: false, actAsSubject: null, subjectAttributeNames: null
+    <resultMessage>Success for: clientVersion: 2.2.0, includeSubjectDetail: false, actAsSubject: null, subjectAttributeNames: null
 , paramNames:
 , params: null
-, wsAssignAttributeBatchEntries: 0. wsAssignAttributeBatchEntry: attributeAssignOperation: assign_attr, attributeAssignType: group, wsAttributeDefNameLookup: WsAttributeDefNameLookup[name=test:testAttributeAssignDefName], wsOwnerGroupLookup: WsGroupLookup[groupName=test:groupTestAttrAssign],
+, wsAssignAttributeBatch
+34f
+Entries: 0. wsAssignAttributeBatchEntry: attributeAssignOperation: assign_attr, attributeAssignType: group, wsAttributeDefNameLookup: WsAttributeDefNameLookup[name=test:testAttributeAssignDefName], wsOwnerGroupLookup: WsGroupLookup[groupName=test:groupTestAttrAssign],
 </resultMessage>
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>799</millis>
-    <serverVersion>2.1.2</serverVersion>
+    <millis>113</millis>
+    <serverVersion>2.2.0</serverVersion>
   </responseMetadata>
   <wsGroups>
     <WsGroup>
@@ -199,10 +191,12 @@ Connection: close
       <description>description</description>
       <displayName>test:groupTestAttrAssign</displayName>
       <name>test:groupTestAttrAssign</name>
-      <uuid>0143f7ff055d440fb5e840b15ac042c2</uuid>
+      <uuid>d8496149e17840029e994d242460665b</uuid>
+      <idIndex>10006</idIndex>
     </WsGroup>
   </wsGroups>
 </WsAssignAttributesBatchResults>
+0
 
 
 #########################################
@@ -440,24 +434,24 @@ public class WsSampleAssignAttributesBatchRest implements WsSampleRest {
 
 
 WsAssignAttributesBatchResults[
-  wsAttributeDefs={WsAttributeDef[extension=testAttributeAssignAssignNameDef,name=test:testAttributeAssignAssignNameDef,uuid=7a8ff7d7b300443282db505b3a0059b0,attributeDefType=attr,multiAssignable=F,multiValued=F,valueType=marker],WsAttributeDef[extension=testAttributeAssignDefNameDef,name=test:testAttributeAssignDefNameDef,uuid=6dff21e34ea745a98879b4b9ecabaeb7,attributeDefType=attr,multiAssignable=F,multiValued=T,valueType=integer]},
-  wsAttributeDefNames={WsAttributeDefName[extension=testAttributeAssignAssignName,displayExtension=testAttributeAssignAssignName,displayName=test:testAttributeAssignAssignName,name=test:testAttributeAssignAssignName,uuid=6e87e45784ac4e88af5aad210e0d1821,attributeDefId=7a8ff7d7b300443282db505b3a0059b0,attributeDefName=test:testAttributeAssignAssignNameDef],WsAttributeDefName[extension=testAttributeAssignDefName,displayExtension=testAttributeAssignDefName,displayName=test:testAttributeAssignDefName,name=test:testAttributeAssignDefName,uuid=fdadbfb3e0b146ab947e2fa4efaaabb4,attributeDefId=6dff21e34ea745a98879b4b9ecabaeb7,attributeDefName=test:testAttributeAssignDefNameDef]},
-  wsAssignAttributeBatchResultArray={edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult@d611d,edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult@62cb76},
-  resultMetadata=WsResultMeta[resultCode=SUCCESS,resultMessage=Success for: clientVersion: 2.1.2, includeSubjectDetail: false, actAsSubject: null, subjectAttributeNames: null
+  wsAttributeDefs={WsAttributeDef[idIndex=10031,extension=testAttributeAssignDefNameDef,name=test:testAttributeAssignDefNameDef,uuid=0c34c376120a4a07872f330bad75de87,attributeDefType=attr,multiAssignable=F,multiValued=T,valueType=integer]},
+  wsAttributeDefNames={WsAttributeDefName[idIndex=10115,extension=testAttributeAssignDefName,displayExtension=testAttributeAssignDefName,displayName=test:testAttributeAssignDefName,name=test:testAttributeAssignDefName,uuid=cc5c7ec9024549569cc5994a1a97b111,attributeDefId=0c34c376120a4a07872f330bad75de87,attributeDefName=test:testAttributeAssignDefNameDef]},
+  wsAssignAttributeBatchResultArray={edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult@4b8697cd,edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult@71583a77},
+  resultMetadata=WsResultMeta[resultCode=SUCCESS,resultMessage=Success for: clientVersion: 2.2.0, includeSubjectDetail: false, actAsSubject: null, subjectAttributeNames: null
 , paramNames: 
 , params: null
 , wsAssignAttributeBatchEntries: 0. wsAssignAttributeBatchEntry: attributeAssignOperation: assign_attr, attributeAssignType: group, wsAttributeDefNameLookup: WsAttributeDefNameLookup[name=test:testAttributeAssignDefName], wsOwnerGroupLookup: WsGroupLookup[groupName=test:groupTestAttrAssign], 
 ,success=T,httpStatusCode=0],
-  responseMetadata=WsResponseMeta[resultWarnings=,millis=799,millisStart=0,serverVersion=2.1.2],
-  wsGroups={WsGroup[extension=groupTestAttrAssign,typeOfGroup=group,displayExtension=groupTestAttrAssign,description=description,displayName=test:groupTestAttrAssign,name=test:groupTestAttrAssign,uuid=0143f7ff055d440fb5e840b15ac042c2]}]
+  responseMetadata=WsResponseMeta[resultWarnings=,millis=113,millisStart=0,serverVersion=2.2.0],
+  wsGroups={WsGroup[extension=groupTestAttrAssign,typeOfGroup=group,displayExtension=groupTestAttrAssign,description=description,displayName=test:groupTestAttrAssign,name=test:groupTestAttrAssign,uuid=d8496149e17840029e994d242460665b,idIndex=10006]}]
 WsAssignAttributeBatchResult[changed=F,valuesChanged=F,deleted=F,
   resultMetadata=WsResultMeta[resultCode=SUCCESS,resultMessage=, Found 1 results.  ,success=T,httpStatusCode=0],
-  wsAttributeAssigns={edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssign@751271}]
+  wsAttributeAssigns={edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssign@27a0b500}]
 WsAssignAttributeBatchResult[changed=F,valuesChanged=F,deleted=F,
   resultMetadata=WsResultMeta[resultCode=SUCCESS,resultMessage=, Found 1 results.  ,success=T,httpStatusCode=0],
-  wsAttributeAssigns={edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssign@14614db}]
-WsGroup[extension=groupTestAttrAssign,typeOfGroup=group,displayExtension=groupTestAttrAssign,description=description,displayName=test:groupTestAttrAssign,name=test:groupTestAttrAssign,uuid=0143f7ff055d440fb5e840b15ac042c2]
-Server version: 2.1.2, result code: SUCCESS, result message: Success for: clientVersion: 2.1.2, includeSubjectDetail: false, actAsSubject: null, subjectAttributeNames: null
+  wsAttributeAssigns={edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssign@14069108}]
+WsGroup[extension=groupTestAttrAssign,typeOfGroup=group,displayExtension=groupTestAttrAssign,description=description,displayName=test:groupTestAttrAssign,name=test:groupTestAttrAssign,uuid=d8496149e17840029e994d242460665b,idIndex=10006]
+Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, includeSubjectDetail: false, actAsSubject: null, subjectAttributeNames: null
 , paramNames: 
 , params: null
 , wsAssignAttributeBatchEntries: 0. wsAssignAttributeBatchEntry: attributeAssignOperation: assign_attr, attributeAssignType: group, wsAttributeDefNameLookup: WsAttributeDefNameLookup[name=test:testAttributeAssignDefName], wsOwnerGroupLookup: WsGroupLookup[groupName=test:groupTestAttrAssign],
