@@ -71,8 +71,9 @@ public class EsbHttpPublisher extends EsbListenerBase {
         new DefaultHttpMethodRetryHandler(retries, false));
     post.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, new Integer(timeout));
     //post.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    //activemq might require: application/x-www-form-urlencoded
     post.setRequestHeader("Content-Type", GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer."
-        + consumerName + ".publisher.contentTypeHeader", "application/x-www-form-urlencoded"));
+        + consumerName + ".publisher.contentTypeHeader", "application/json; charset=utf-8"));
     RequestEntity requestEntity;
     try {
       //requestEntity = new StringRequestEntity(eventJsonString, "application/json", "utf-8");
@@ -86,9 +87,10 @@ public class EsbHttpPublisher extends EsbListenerBase {
         
       }
       
+      //activemq might require: application/x-www-form-urlencoded
       requestEntity = new StringRequestEntity(StringUtils.defaultString(stringRequestEntityPrefix) + eventJsonString, 
           GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer."
-              + consumerName + ".publisher.stringRequestEntityContentType", "application/x-www-form-urlencoded"), "utf-8"); 
+              + consumerName + ".publisher.stringRequestEntityContentType", "application/json"), "utf-8"); 
       
       post.setRequestEntity(requestEntity);
       HttpClient httpClient = new HttpClient();
