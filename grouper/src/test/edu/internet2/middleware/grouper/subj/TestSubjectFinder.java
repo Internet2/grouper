@@ -1270,7 +1270,7 @@ public class TestSubjectFinder extends GrouperTest {
     assertEquals(GrouperUtil.subjectToString(subject), SubjectTestHelper.SUBJ1_ID, subject.getId());
 
     //############# test find a lot
-    subjects = SubjectFinder.findAll("Test.sub, somethingElseZ" );
+    subjects = SubjectFinder.findAll("test.sub, somethingElseZ" );
 
     assertTrue("" + GrouperUtil.length(subjects) + StringUtils.trimToEmpty(postgresError), GrouperUtil.length(subjects) >= 10);
     
@@ -1314,7 +1314,7 @@ public class TestSubjectFinder extends GrouperTest {
     assertEquals(GrouperUtil.subjectToString(subject), SubjectTestHelper.SUBJ1_ID, subject.getId());
 
     //############# test find a lot
-    subjects = SubjectFinder.findPage("Test., somethingElseA" ).getResults();
+    subjects = SubjectFinder.findPage("test., somethingElseA" ).getResults();
 
     assertTrue("" + GrouperUtil.length(subjects) + StringUtils.trimToEmpty(postgresError), GrouperUtil.length(subjects) >= 10);
     
