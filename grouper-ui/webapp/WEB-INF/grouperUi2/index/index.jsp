@@ -7,6 +7,9 @@
   <%@ include file="../assetsJsp/commonHead.jsp"%>
   </head>
   <body class="full claro">
+    <noscript>
+      <h3 style="color: #990000">${textContainer.text['indexNoJavascript'] }</h3>    
+    </noscript>
     <div class="top-container">
       <div class="navbar navbar-static-top">
         <div class="navbar-inner">
