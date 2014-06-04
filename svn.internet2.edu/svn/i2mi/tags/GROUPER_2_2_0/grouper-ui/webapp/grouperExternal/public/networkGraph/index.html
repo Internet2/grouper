@@ -1,0 +1,71 @@
+<html>
+  <head>
+  <title>JUNG2 Demo: TreeNodeCollapse Demo</title>
+  <link rel="stylesheet" href="../default.css" type="text/css" media="screen" />
+  </head>
+  <body>
+<p><center>
+    <applet code="edu.uci.ics.jung.samples.TreeCollapseDemo.class"
+            archive="jar/jung-samples-2.0.1.jar,jar/collections-generic-4.01.jar,jar/jung-api-2.0.1.jar,jar/jung-algorithms-2.0.1.jar,jar/jung-visualization-2.0.1.jar,jar/jung-graph-impl-2.0.1.jar"
+            width="600" height="500">
+    </applet>
+   </center>
+   <p>
+
+Here is one with params
+<p>
+    <applet code="edu.internet2.middleware.networkGraph.TreeCollapse.class"
+            archive="jar/networkGraph.jar,jar/collections-generic-4.01.jar,jar/jung-api-2.0.1.jar,jar/jung-algorithms-2.0.1.jar,jar/jung-visualization-2.0.1.jar,jar/jung-graph-impl-2.0.1.jar"
+            width="1000" height="600">
+      <param name="width" value="1000"/>
+      <param name="height" value="600"/>
+      <param name="text_radial" value="Radial layout toggle"/>
+      <param name="text_collapse" value="Collapse selected node"/>
+      <param name="text_expand" value="Expand selected node"/>
+      <param name="text_zoom" value="Zoom"/>
+      <param name="text_picking" value="Switch to selecting mode"/>
+      <param name="text_transforming" value="Switch to transforming mode"/>
+      
+      <param name="vertex_0" value="Arts and Sciences"/>
+      <param name="edgeFrom_0" value="Arts and Sciences"/>
+      <param name="edgeTo_0" value="Math"/>
+      <param name="edgeFrom_1" value="Arts and Sciences"/>
+      <param name="edgeTo_1" value="English"/>
+    </applet>
+   <p>
+
+
+   <h2>HowTo</h2>
+   <p>
+    Select a single tree node (in picking mode), then press the Collapse button to
+    hide the children of that node. Select again and press Expand to restore the children.
+	<p>
+	    <h2>Mouse listeners:</h2>
+    <p>
+    <h3>Picking Mode:</h3>
+	<ul>
+
+	<li> MouseButtonOne press on a Vertex or Edge to select it
+	<li> MouseButtonOne+Shift press on a Vertex or Edge to add or toggle selection
+	<li> MouseButtonOne+drag on a Vertex to move all selected vertices
+	<li> MouseButtonOne+drag to select Vertices in a rectangle
+	<li> MouseButtonOne+Shift+drag to add to selection with Vertices in a rectangle
+	</ul>
+	<p>
+	<h3>TransformingMode:</h3>
+
+	<ul>
+	<li> MouseButtonOne+drag to translate the display
+	<li> MouseButtonOne+Shift+drag to rotate the display
+	<li> MouseButtonOne+ctrl(or Command)+drag to shear the display
+	</ul>
+	<p>
+	<h3>Both Modes:</h3>
+	<ul>
+
+	<li> MouseWheel to scale. When scale &lt; 1, view is scaled. When scale &gt; 1, layout is scaled.
+	</ul>
+	</p>
+
+	  </body>
+</html>

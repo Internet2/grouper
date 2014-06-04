@@ -1,0 +1,378 @@
+Grouper web service sample of service: assignPermissions, WsSampleAssignPermissions, code generated classes, format: soap, for version: 2.2.0
+
+
+#########################################
+##
+## HTTP request sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+POST /grouper-ws/services/GrouperService_v2_2 HTTP/1.1
+Content-Type: application/soap+xml; charset=UTF-8; action="urn:assignPermissions"
+User-Agent: Axis2
+Authorization: Basic xxxxxxxxxxxxxxxxx==
+Host: localhost:8092
+Transfer-Encoding: chunked
+
+5cc
+<?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Body>
+    <ns1:assignPermissions xmlns:ns1="http://soap_v2_2.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_2_000</ns1:clientVersion>
+      <ns1:permissionType>role</ns1:permissionType>
+      <ns1:permissionDefNameLookups>
+        <ns1:name>aStem:permissionDefName</ns1:name>
+        <ns1:uuid></ns1:uuid>
+      </ns1:permissionDefNameLookups>
+      <ns1:permissionAssignOperation>assign_permission</ns1:permissionAssignOperation>
+      <ns1:assignmentNotes></ns1:assignmentNotes>
+      <ns1:assignmentEnabledTime></ns1:assignmentEnabledTime>
+      <ns1:assignmentDisabledTime></ns1:assignmentDisabledTime>
+      <ns1:delegatable></ns1:delegatable>
+      <ns1:wsAttributeAssignLookups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="1" />
+      <ns1:roleLookups>
+        <ns1:groupName>aStem:role</ns1:groupName>
+        <ns1:uuid></ns1:uuid>
+      </ns1:roleLookups>
+      <ns1:subjectRoleLookups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="1" />
+      <ns1:actions>read</ns1:actions>
+      <ns1:actions>write</ns1:actions>
+      <ns1:actAsSubjectLookup>
+        <ns1:subjectId>GrouperSystem</ns1:subjectId>
+      </ns1:actAsSubjectLookup>
+      <ns1:includeSubjectDetail></ns1:includeSubjectDetail>
+      <ns1:subjectAttributeNames xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="1" />
+      <ns1:includeGroupDetail></ns1:includeGroupDetail>
+      <ns1:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="1" />
+    </ns1:assignPermissions>
+  </soapenv:Body>
+</soapenv:Envelope>
+0
+
+
+#########################################
+##
+## HTTP response sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+HTTP/1.1 200 OK
+Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+X-Grouper-resultCode: SUCCESS
+X-Grouper-success: T
+X-Grouper-resultCode2: NONE
+Content-Type: application/soap+xml; action="urn:assignPermissionsResponse";charset=UTF-8
+Transfer-Encoding: chunked
+Date: Wed, 28 May 2014 22:56:29 GMT
+
+15c4
+<?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Body>
+    <ns:assignPermissionsResponse xmlns:ns="http://soap_v2_2.ws.grouper.middleware.internet2.edu/xsd">
+      <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsAssignPermissionsResults">
+        <ns:responseMetadata xsi:type="ns:WsResponseMeta">
+          <ns:millis xsi:nil="true" />
+          <ns:resultWarnings xsi:nil="true" />
+          <ns:serverVersion>2.2.0</ns:serverVersion>
+        </ns:responseMetadata>
+        <ns:resultMetadata xsi:type="ns:WsResultMeta">
+          <ns:params xsi:nil="true" />
+          <ns:resultCode>SUCCESS</ns:resultCode>
+          <ns:resultCode2 xsi:nil="true" />
+          <ns:resultMessage>, Found 2 results.</ns:resultMessage>
+          <ns:success>T</ns:success>
+        </ns:resultMetadata>
+        <ns:wsAssignPermissionResults xsi:type="ns:WsAssignPermissionResult">
+          <ns:changed>F</ns:changed>
+          <ns:deleted>F</ns:deleted>
+          <ns:wsAttributeAssigns xsi:type="ns:WsAttributeAssign">
+            <ns:attributeAssignActionId>7f38f9cc0e124141b00b454c7f1cffee</ns:attributeAssignActionId>
+            <ns:attributeAssignActionName>read</ns:attributeAssignActionName>
+            <ns:attributeAssignActionType>immediate</ns:attributeAssignActionType>
+            <ns:attributeAssignDelegatable>FALSE</ns:attributeAssignDelegatable>
+            <ns:attributeAssignType>group</ns:attributeAssignType>
+            <ns:attributeDefId>ccb572ac53c247d69f97b36ccaf1e522</ns:attributeDefId>
+            <ns:attributeDefName>aStem:permissionDef</ns:attributeDefName>
+            <ns:attributeDefNameId>34be5c0cc14c4d688359de400034378c</ns:attributeDefNameId>
+            <ns:attributeDefNameName>aStem:permissionDefName</ns:attributeDefNameName>
+            <ns:createdOn>2014/05/28 18:56:27.715</ns:createdOn>
+            <ns:disabledTime xsi:nil="true" />
+            <ns:disallowed>F</ns:disallowed>
+            <ns:enabled>T</ns:enabled>
+            <ns:enabledTime xsi:nil="true" />
+            <ns:id>cfb7816363e04c0bb53b4963bc679aba</ns:id>
+            <ns:lastUpdated>2014/05/28 18:56:27.715</ns:lastUpdated>
+            <ns:notes xsi:nil="true" />
+            <ns:ownerAttributeAssignId xsi:nil="true" />
+            <ns:ownerAttributeDefId xsi:nil="true" />
+            <ns:ownerAttributeDefName xsi:nil="true" />
+            <ns:ownerGroupId>13a29099c3f94c7da182b3abe79f4327</ns:ownerGroupId>
+            <ns:ownerGroupName>aStem:role</ns:ownerGroupName>
+            <ns:ownerMemberId xsi:nil="true" />
+            <ns:ownerMemberSourceId xsi:nil="true" />
+            <ns:ownerMemberSubjectId xsi:nil="true" />
+            <ns:ownerMembershipId xsi:nil="true" />
+            <ns:ownerStemId xsi:nil="true" />
+            <ns:ownerStemName xsi:nil="true" />
+            <ns:wsAttributeAssignValues xsi:nil="true" />
+          </ns:wsAttributeAssigns>
+        </ns:wsAssignPermissionResults>
+        <ns:wsAssignPermissionResults xsi:type="ns:WsAssignPermissionResult">
+          <ns:changed>T</ns:changed>
+          <ns:deleted>F</ns:deleted>
+          <ns:wsAttributeAssigns xsi:type="ns:WsAttributeAssign">
+            <ns:attributeAssignActionId>441355bf46144f1a86d30e2f38d3dcba</ns:attributeAssignActionId>
+            <ns:attributeAssignActionName>write</ns:attributeAssignActionName>
+            <ns:attributeAssignActionType>immediate</ns:attributeAssignActionType>
+            <ns:attributeAssignDelegatable>FALSE</ns:attributeAssignDelegatable>
+            <ns:attributeAssignType>group</ns:attributeAssignType>
+            <ns:attributeDefId>ccb572ac53c247d69f97b36ccaf1e522</ns:attributeDefId>
+            <ns:attributeDefName>aStem:permissionDef</ns:attributeDefName>
+            <ns:attributeDefNameId>34be5c0cc14c4d688359de400034378c</ns:attributeDefNameId>
+            <ns:attributeDefNameName>aStem:permissionDefName</ns:attributeDefNameName>
+            <ns:createdOn>2014/05/28 18:56:29.050</ns:createdOn>
+            <ns:disabledTime xsi:nil="true" />
+            <ns:disallowed>F</ns:disallowed>
+            <ns:enabled>T</ns:enabled>
+            <ns:enabledTime xsi:nil="true" />
+            <ns:id>8d78b6b52e264810a7fb2b68323d000f</ns:id>
+            <ns:lastUpdated>2014/05/28 18:56:29.050</ns:lastUpdated>
+            <ns:notes xsi:nil="true" />
+            <ns:ownerAttributeAssignId xsi:nil="true" />
+            <ns:ownerAttributeDefId xsi:nil="true" />
+            <ns:ownerAttributeDefName xsi:nil="true" />
+            <ns:ownerGroupId>13a29099c3f94c7da182b3abe79f4327</ns:ownerGroupId>
+            <ns:ownerGroupName>aStem:role</ns:ownerGroupName>
+            <ns:ownerMemberId xsi:nil="true" />
+            <ns:ownerMemberSourceId xsi:nil="true" />
+            <ns:ownerMemberSubjectId xsi:nil="true" />
+            <ns:ownerMembershipId xsi:nil="true" />
+            <ns:ownerStemId xsi:nil="true" />
+            <ns:ownerStemName xsi:nil="true" />
+            <ns:wsAttributeAssignValues xsi:nil="true" />
+          </ns:wsAttributeAssigns>
+        </ns:wsAssignPermissionResults>
+        <ns:wsAttributeDefNames xsi:type="ns:WsAttributeDefName">
+          <ns:attributeDefId>ccb572ac53c247d69f97b36ccaf1e522</ns:attributeDefId>
+          <ns:attributeDefName>aStem:permissionDef</ns:attributeDefName>
+          <ns:description xsi:nil="true" />
+          <ns:displayExtension>permissionDefName</ns:displayExtension>
+          <ns:displayName>a stem:permissionDefName</ns:displayName>
+          <ns:extension>permissionDefName</ns:extension>
+          <ns:idIndex>10117</ns:idIndex>
+          <ns:name>aStem:permissionDefName</ns:name>
+          <ns:uuid>34be5c0cc14c4d688359de400034378c</ns:uuid>
+        </ns:wsAttributeDefNames>
+        <ns:wsAttributeDefs xsi:type="ns:WsAttributeDef">
+          <ns:assignableTos xsi:nil="true" />
+          <ns:attributeDefType>perm</ns:attributeDefType>
+          <ns:description xsi:nil="true" />
+          <ns:extension>permissionDef</ns:extension>
+          <ns:idIndex>10033</ns:idIndex>
+          <ns:multiAssignable>F</ns:multiAssignable>
+          <ns:multiValued>F</ns:multiValued>
+          <ns:name>aStem:permissionDef</ns:name>
+          <ns:uuid>ccb572ac53c247d69f97b36ccaf1e522</ns:uuid>
+          <ns:valueType>marker</ns:valueType>
+        </ns:wsAttributeDefs>
+        <ns:wsGroups xsi:type="ns:WsGroup">
+          <ns:description xsi:nil="true" />
+          <ns:detail xsi:nil="true" />
+          <ns:displayExtension>role</ns:displayExtension>
+          <ns:displayName>a stem:role</ns:displayName>
+          <ns:extension>role</ns:extension>
+          <ns:idIndex>10008</ns:idIndex>
+          <ns:name>aStem:role</ns:name>
+          <ns:typeOfGroup>role</ns:typeOfGroup>
+          <ns:uuid>13a29099c3f94c7da182b3abe79f4327</ns:uuid>
+        </ns:wsGroups>
+      </ns:return>
+    </ns:assignPermissionsResponse>
+  </soapenv:Body>
+</soapenv:Envelope>
+0
+
+
+#########################################
+##
+## Java source code (note, any programming language / objects
+## can use used to generate the above request/response.  Nothing
+## is Java specific.  Also, if you are using Java, the client libraries
+## are available
+##
+#########################################
+
+
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+/**
+ *
+ */
+package edu.internet2.middleware.grouper.webservicesClient;
+
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.AssignPermissions;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAssignPermissionResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAssignPermissionsResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeAssignLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefNameLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroup;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsMembershipAnyLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsParam;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsSubjectLookup;
+
+/**
+ *
+ * @author mchyzer
+ *
+ */
+public class WsSampleAssignPermissions implements WsSampleGenerated {
+
+  /**
+   * @param args
+   */
+  public static void main(String[] args) {
+    assignPermissions(WsSampleGeneratedType.soap);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType)
+   */
+  public void executeSample(WsSampleGeneratedType wsSampleGeneratedType) {
+    assignPermissions(wsSampleGeneratedType);
+  }
+
+  /**
+   * @param wsSampleGeneratedType can run as soap or xml/http
+   */
+  public static void assignPermissions(
+      WsSampleGeneratedType wsSampleGeneratedType) {
+    try {
+      //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
+      GrouperServiceStub stub = new GrouperServiceStub(GeneratedClientSettings.URL);
+      Options options = stub._getServiceClient().getOptions();
+      HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
+      auth.setUsername(GeneratedClientSettings.USER);
+      auth.setPassword(GeneratedClientSettings.PASS);
+      auth.setPreemptiveAuthentication(true);
+
+      options.setProperty(HTTPConstants.AUTHENTICATE, auth);
+      options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
+      options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
+          new Integer(3600000));
+
+      AssignPermissions assignPermissions = AssignPermissions.class.newInstance();
+
+      // set the act as id
+      WsSubjectLookup actAsSubject = WsSubjectLookup.class.newInstance();
+      actAsSubject.setSubjectId("GrouperSystem");
+      
+      assignPermissions.setActAsSubjectLookup(actAsSubject);
+      assignPermissions.setActions(new String[]{"read", "write"});
+      assignPermissions.setAssignmentDisabledTime("");
+      assignPermissions.setAssignmentEnabledTime("");
+      assignPermissions.setAssignmentNotes("");
+      
+      //version, e.g. v1_6_000
+      assignPermissions.setClientVersion(GeneratedClientSettings.VERSION);
+      
+      assignPermissions.setDelegatable("");
+      
+      assignPermissions.setIncludeGroupDetail("");
+      assignPermissions.setIncludeSubjectDetail("");
+      
+      assignPermissions.setParams(new WsParam[]{null});
+      assignPermissions.setPermissionAssignOperation("assign_permission");
+      assignPermissions.setPermissionType("role");
+      
+      assignPermissions.setSubjectAttributeNames(new String[]{null});
+      
+      assignPermissions.setWsAttributeAssignLookups(new WsAttributeAssignLookup[]{null});
+      
+      WsAttributeDefNameLookup permissionDefNameLookup = WsAttributeDefNameLookup.class.newInstance();
+      permissionDefNameLookup.setUuid("");
+      permissionDefNameLookup.setName("aStem:permissionDefName");
+      assignPermissions.setPermissionDefNameLookups(new WsAttributeDefNameLookup[]{permissionDefNameLookup});
+
+      WsGroupLookup roleLookup = new WsGroupLookup();
+      roleLookup.setGroupName("aStem:role");
+      roleLookup.setUuid("");
+      assignPermissions.setRoleLookups(new WsGroupLookup[]{roleLookup});
+      
+      assignPermissions.setSubjectRoleLookups(new WsMembershipAnyLookup[]{null});
+      
+      
+      WsAssignPermissionsResults wsAssignPermissionsResults = stub.assignPermissions(assignPermissions)
+          .get_return();
+
+      System.out.println(ToStringBuilder.reflectionToString(
+          wsAssignPermissionsResults));
+
+      WsAssignPermissionResult[] wsAssignPermissionResultArray = wsAssignPermissionsResults.getWsAssignPermissionResults();
+
+      for (WsAssignPermissionResult wsAssignPermissionResult : wsAssignPermissionResultArray) {
+        System.out.println(ToStringBuilder.reflectionToString(
+            wsAssignPermissionResult));
+      }
+      
+      WsGroup[] wsGroupsResultArray = wsAssignPermissionsResults.getWsGroups();
+
+      for (WsGroup wsGroup : wsGroupsResultArray) {
+        System.out.println(ToStringBuilder.reflectionToString(
+            wsGroup));
+      }
+      
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+}
+
+
+#########################################
+##
+## Stdout
+##
+#########################################
+
+
+WsAssignPermissionsResults[
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResponseMeta@4a137e40,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResultMeta@45c5c1be,localResultMetadataTracker=true,localSubjectAttributeNamesTracker=false,
+  localWsAssignPermissionResults={edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAssignPermissionResult@5b11eed6,edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAssignPermissionResult@7657524f},localWsAssignPermissionResultsTracker=true,
+  localWsAttributeDefNames={edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefName@7e755d24},localWsAttributeDefNamesTracker=true,
+  localWsAttributeDefs={edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDef@505128fb},localWsAttributeDefsTracker=true,
+  localWsGroups={edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroup@7c130416},localWsGroupsTracker=true,localWsSubjectsTracker=false]
+WsAssignPermissionResult[localChanged=F,localChangedTracker=true,localDeleted=F,localDeletedTracker=true,
+  localWsAttributeAssigns={edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeAssign@7c578c72},localWsAttributeAssignsTracker=true]
+WsAssignPermissionResult[localChanged=T,localChangedTracker=true,localDeleted=F,localDeletedTracker=true,
+  localWsAttributeAssigns={edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeAssign@7be41880},localWsAttributeAssignsTracker=true]
+WsGroup[localDescriptionTracker=false,localDetailTracker=true,localDisplayExtension=role,localDisplayExtensionTracker=true,localDisplayName=a stem:role,localDisplayNameTracker=true,localExtension=role,localExtensionTracker=true,localIdIndex=10008,localIdIndexTracker=true,localName=aStem:role,localNameTracker=true,localTypeOfGroup=role,localTypeOfGroupTracker=true,localUuid=13a29099c3f94c7da182b3abe79f4327,localUuidTracker=true]

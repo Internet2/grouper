@@ -1,0 +1,99 @@
+
+<project name="Tomcat tasks" basedir="." default="list">
+    <description>
+        TOMCAT TASKS
+    </description>
+
+  <taskdef name="deploy"      classname="org.apache.catalina.ant.DeployTask"/>
+  <taskdef name="undeploy" classname="org.apache.catalina.ant.UndeployTask"/> 
+  <taskdef name="install"     	classname="org.apache.catalina.ant.InstallTask"/>
+  <taskdef name="stop"        	classname="org.apache.catalina.ant.StopTask"/>
+  <taskdef name="start"       	classname="org.apache.catalina.ant.StartTask"/>
+  <taskdef name="list"      		classname="org.apache.catalina.ant.ListTask"/>  
+  <taskdef name="remove"    classname="org.apache.catalina.ant.RemoveTask"/>
+
+
+  <target name="start" >
+          <start url="${deploy.manager.url}"
+        username="${deploy.manager.username}"
+        password="${deploy.manager.password}"
+        path="${deploy.context.path}"
+        />
+		</target>
+		
+		<target name="restart" >
+		 <stop url="${deploy.manager.url}"
+        username="${deploy.manager.username}"
+        password="${deploy.manager.password}"
+        path="${deploy.context.path}"/>
+          <start url="${deploy.manager.url}"
+        username="${deploy.manager.username}"
+        password="${deploy.manager.password}"
+        path="${deploy.context.path}"
+        />
+	</target>
+  
+  
+  
+  <target name="stop" >
+          <stop url="${deploy.manager.url}"
+        username="${deploy.manager.username}"
+        password="${deploy.manager.password}"
+        path="${deploy.context.path}"
+        />
+  
+  </target>
+  <target name="list">
+          <list url="${deploy.manager.url}"
+        username="${deploy.manager.username}"
+        password="${deploy.manager.password}"
+        />
+  </target>
+  
+  <target name="execWithCheckExist" depends="-ant.exec">
+        <exec executable="${ant.exec}" dir="." outputproperty="listOutput" resultproperty="listRes">
+             <arg line="-buildfile tomcat-tasks.xml -Ddeploy.context.path=${deploy.context.path} -Ddeploy.manager.url=${deploy.manager.url} -Ddeploy.manager.username=${deploy.manager.username} -Ddeploy.manager.password=${deploy.manager.password} list"/>
+         </exec>
+     <condition property="installed">
+        <and>
+                <equals arg1="0" arg2="${listRes}" />
+                <contains string="${listOutput}" substring="${deploy.context.path}:" />
+        </and>
+     </condition>
+     <echo message="${deploy.context.path} is installed=${installed}"/>
+     <antcall target="${tomcat.action}"/>
+     
+
+     
+  </target>
+  
+  <target name="execStop" if="installed" depends="-ant.exec">
+          <exec executable="${ant.exec}" outputproperty="stopOutput" resultproperty="stopRes">
+             <arg line="-buildfile tomcat-tasks.xml -Ddeploy.context.path=${deploy.context.path} -Ddeploy.manager.url=${deploy.manager.url} -Ddeploy.manager.username=${deploy.manager.username} -Ddeploy.manager.password=${deploy.manager.password} stop"/>
+    </exec>
+    <echo message="${stopOutput}"/>        
+  </target>
+  
+  <target name="execStart" if="installed" depends="-ant.exec">
+        <exec executable="${ant.exec}" outputproperty="startOutput" resultproperty="startRes">
+             <arg line="-buildfile tomcat-tasks.xml -Ddeploy.context.path=${deploy.context.path} -Ddeploy.manager.url=${deploy.manager.url} -Ddeploy.manager.username=${deploy.manager.username} -Ddeploy.manager.password=${deploy.manager.password} start"/>
+        </exec>
+     <echo message="${startOutput}"/>        
+  </target> 
+  
+  <target name="-ant.exec" unless="ant.exec">
+          <condition property="ant.exec" value="ant.bat">
+                  <contains string="${os.name}" substring="windows" casesensitive="false" /> 
+          </condition>
+
+        <condition property="ant.exec" value="ant">
+                <not>
+                        <contains string="${os.name}" substring="windows" casesensitive="false" />
+                </not>
+        </condition>
+          <echo message="ant for ${os.name} = ${ant.exec}"/>
+  </target>
+</project>
+
+  
+  

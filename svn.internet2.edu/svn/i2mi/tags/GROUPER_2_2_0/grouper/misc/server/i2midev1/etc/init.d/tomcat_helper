@@ -1,0 +1,91 @@
+#!/bin/sh
+#
+# Helper startup script for the Tomcat Server
+
+
+export PATH="$PATH:$JAVA_HOME/bin"
+
+
+
+echo
+
+cd $CATALINA_BASE
+
+case "$1" in
+  start)
+    echo -n "Starting $TOMCAT_NAME Tomcat services: "
+    echo
+
+    if [ "$UID" -ne "0" ]; then
+      $TOMCAT_HOME/bin/startup.sh
+    else
+      su -c "$TOMCAT_HOME/bin/startup.sh" $TOMCAT_USER
+    fi
+    echo
+    ;;
+  stop)
+    echo -n "Shutting down $TOMCAT_NAME Tomcat services: "
+    echo
+    if [ "$UID" -ne "0" ]; then
+      $TOMCAT_HOME/bin/shutdown.sh
+    else
+      su -c "$TOMCAT_HOME/bin/shutdown.sh" $TOMCAT_USER
+    fi
+
+    #loop until the program is dead
+    waitingForExit=true
+    iterator=1
+
+    while [ "$waitingForExit" == "true" ]; do
+      processId=`ps -ef | grep "$JAVA_HOME/bin/java" | grep -v "grep" | cut -c10-15`
+      if [ -n "$processId" ]; then
+        echo Waiting for exit...
+      else
+        waitingForExit=false
+      fi
+
+      if [ "$iterator" -gt "10" ]; then
+        waitingForExit=false
+      fi
+
+      let "iterator += 1"
+      sleep 1
+    done
+
+
+    #doesnt work since it kills are javas
+    #killall -e $JAVA_HOME/bin/java
+    killAgain=true
+    while [ "$killAgain" == "true" ]; do
+      processId=`ps -ef | grep "$JAVA_HOME/bin/java" | grep -v "grep" | cut -c10-15`
+      if [ -n "$processId" ]; then
+        echo "Killing the tomcat abruptly"
+
+        if [ "$UID" -ne "0" ]; then
+          kill -9 $processId
+        else
+          su -c "kill -9 $processId" $TOMCAT_USER
+        fi
+
+        sleep 1
+      else
+        killAgain=false
+      fi
+    done
+
+    echo
+    ;;
+  status)
+    echo | ps -ef | grep $JAVA_HOME | grep -v "grep" | grep $TOMCAT_USER
+    ;;
+  restart)
+    echo -n "Restarting Tomcat $TOMCAT_NAME services: "
+    $0 stop
+    sleep 5
+    $0 start
+    echo "done."
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart|status}"
+    exit 1
+esac

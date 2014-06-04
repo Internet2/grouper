@@ -1,0 +1,391 @@
+Grouper web service sample of service: memberChangeSubject, WsSampleMemberChangeSubjectRest, manually written lite/rest, format: xhtml, for version: 2.2.0
+
+
+#########################################
+##
+## HTTP request sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+POST /grouper-ws/servicesRest/v2_2_000/members HTTP/1.1
+Connection: close
+Authorization: Basic xxxxxxxxxxxxxxxxx==
+User-Agent: Jakarta Commons-HttpClient/3.0
+Host: localhost:8092
+Content-Length: 1415
+Content-Type: application/xhtml+xml; charset=UTF-8
+
+<?xml version='1.0' encoding='iso-8859-1'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>WsRestMemberChangeSubjectRequest</title>
+  </head>
+  <body>
+    <div title="WsRestMemberChangeSubjectRequest">
+      <div class="actAsSubjectLookup" title="WsSubjectLookup">
+        <p class="subjectId">GrouperSystem</p>
+        <p class="subjectIdentifier" />
+        <p class="subjectSourceId" />
+      </div>
+      <p class="clientVersion" />
+      <p class="includeSubjectDetail" />
+      <p class="txType" />
+      <ul class="wsMemberChangeSubjects">
+        <li title="WsMemberChangeSubject">
+          <p class="deleteOldMember" />
+          <div class="newSubjectLookup" title="WsSubjectLookup">
+            <p class="subjectId">test.subject.1</p>
+            <p class="subjectIdentifier" />
+            <p class="subjectSourceId" />
+          </div>
+          <div class="oldSubjectLookup" title="WsSubjectLookup">
+            <p class="subjectId" />
+            <p class="subjectIdentifier">id.test.subject.0</p>
+            <p class="subjectSourceId" />
+          </div>
+        </li>
+        <li title="WsMemberChangeSubject">
+          <p class="deleteOldMember">F</p>
+          <div class="newSubjectLookup" title="WsSubjectLookup">
+            <p class="subjectId">test.subject.3</p>
+            <p class="subjectIdentifier" />
+            <p class="subjectSourceId" />
+          </div>
+          <div class="oldSubjectLookup" title="WsSubjectLookup">
+            <p class="subjectId" />
+            <p class="subjectIdentifier">id.test.subject.2</p>
+            <p class="subjectSourceId" />
+          </div>
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>
+
+
+#########################################
+##
+## HTTP response sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+HTTP/1.1 200 OK
+Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+X-Grouper-resultCode: SUCCESS
+X-Grouper-success: T
+X-Grouper-resultCode2: NONE
+Content-Type: application/xhtml+xml;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Thu, 29 May 2014 00:25:14 GMT
+Connection: close
+
+9fb
+<?xml version='1.0' encoding='iso-8859-1'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>WsMemberChangeSubjectResults</title>
+  </head>
+  <body>
+    <div title="WsMemberChangeSubjectResults">
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="millis">267</p>
+        <p class="resultWarnings" />
+        <p class="serverVersion">2.2.0</p>
+      </div>
+      <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode">SUCCESS</p>
+        <p class="resultCode2" />
+        <p class="resultMessage">Success for: clientVersion: 2.2.0, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
+oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],
+newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
+[1]: WsMemberChangeSubject[
+oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],
+newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
+
+, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE
+, params: null</p>
+        <p class="success">T</p>
+      </div>
+      <ul class="results">
+        <li title="WsMemberChangeSubjectResult">
+          <div class="resultMetadata" title="WsResultMeta">
+            <p class="resultCode">SUCCESS</p>
+            <p class="resultCode2" />
+            <p class="resultMessage" />
+            <p class="success">T</p>
+          </div>
+          <div class="wsSubjectNew" title="WsSubject">
+            <p class="id">test.subject.1</p>
+            <p class="identifierLookup" />
+            <p class="name">my name is test.subject.1</p>
+            <p class="resultCode">SUCCESS</p>
+            <p class="sourceId">jdbc</p>
+            <p class="success">T</p>
+          </div>
+          <div class="wsSubjectOld" title="WsSubject">
+            <p class="id">test.subject.0</p>
+            <p class="identifierLookup">id.test.subject.0</p>
+            <p class="name" />
+            <p class="resultCode">SUCCESS</p>
+            <p class="sourceId">jdbc</p>
+            <p class="success">T</p>
+          </div>
+        </li>
+        <li title="WsMemberChangeSubjectResult">
+          <div class="resultMetadata" title="WsResultMeta">
+            <p class="resultCode">SUCCESS</p>
+            <p class="resultCode2" />
+            <p class="resultMessage" />
+            <p class="success">T</p>
+          </div>
+          <div class="wsSubjectNew" title="WsSubject">
+            <p class="id">test.subject.3</p>
+            <p class="identifierLookup" />
+            <p class="name">my name is test.subject.3</p>
+            <p class="resultCode">SUCCESS</p>
+            <p class="sourceId">jdbc</p>
+            <p class="success">T</p>
+          </div>
+          <div class="wsSubjectOld" title="WsSubject">
+            <p class="id">test.subject.2</p>
+            <p class="identifierLookup">id.test.subject.2</p>
+            <p class="name" />
+            <p class="resultCode">SUCCESS</p>
+            <p class="sourceId">jdbc</p>
+            <p class="success">T</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>
+0
+
+
+#########################################
+##
+## Java source code (note, any programming language / objects
+## can use used to generate the above request/response.  Nothing
+## is Java specific.  Also, if you are using Java, the client libraries
+## are available
+##
+#########################################
+
+
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+package edu.internet2.middleware.grouper.ws.samples.rest.member;
+
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubject;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectRequest;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
+import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
+
+/**
+ * @author mchyzer
+ */
+public class WsSampleMemberChangeSubjectRest implements WsSampleRest {
+
+  /**
+   * member change subject web service with REST
+   * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
+   */
+  @SuppressWarnings("deprecation")
+  public static void memberChangeSubject(WsSampleRestType wsSampleRestType) {
+
+    try {
+      
+      HttpClient httpClient = new HttpClient();
+      
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+      
+      //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
+      //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
+      PostMethod method = new PostMethod(
+          RestClientSettings.URL + "/" + RestClientSettings.VERSION  
+            + "/members");
+
+      httpClient.getParams().setAuthenticationPreemptive(true);
+      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
+          RestClientSettings.PASS);
+      
+      //no keep alive so response if easier to indent for tests
+      method.setRequestHeader("Connection", "close");
+      
+      //e.g. localhost and 8093
+      httpClient.getState()
+          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
+
+      //Make the body of the request, in this case with beans and marshaling, but you can make
+      //your request document in whatever language or way you want
+      WsRestMemberChangeSubjectRequest memberChangeSubject = new WsRestMemberChangeSubjectRequest();
+
+      WsMemberChangeSubject[] wsMemberChangeSubjects = new WsMemberChangeSubject[2];
+      
+      memberChangeSubject.setWsMemberChangeSubjects(wsMemberChangeSubjects);
+
+      // set the act as id
+      wsMemberChangeSubjects[0] = new WsMemberChangeSubject();
+      wsMemberChangeSubjects[0].setOldSubjectLookup(new WsSubjectLookup(null, null, "id.test.subject.0"));
+      wsMemberChangeSubjects[0].setNewSubjectLookup(new WsSubjectLookup("test.subject.1", null, null));
+      wsMemberChangeSubjects[1] = new WsMemberChangeSubject();
+      wsMemberChangeSubjects[1].setOldSubjectLookup(new WsSubjectLookup(null, null, "id.test.subject.2"));
+      wsMemberChangeSubjects[1].setNewSubjectLookup(new WsSubjectLookup("test.subject.3", null, null));
+      wsMemberChangeSubjects[1].setDeleteOldMember("F");
+
+      memberChangeSubject.setActAsSubjectLookup(new WsSubjectLookup("GrouperSystem", null, null));
+
+      //get the xml / json / xhtml / paramString
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(memberChangeSubject);
+      
+      //make sure right content type is in request (e.g. application/xhtml+xml
+      String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
+      
+      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
+
+      httpClient.executeMethod(method);
+
+      //make sure a request came back
+      Header successHeader = method.getResponseHeader("X-Grouper-success");
+      String successString = successHeader == null ? null : successHeader.getValue();
+      if (StringUtils.isBlank(successString)) {
+        throw new RuntimeException("Web service did not even respond!");
+      }
+      boolean success = "T".equals(successString);
+      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+      
+      String response = RestClientSettings.responseBodyAsString(method);
+
+      //convert to object (from xhtml, xml, json, etc)
+      WsMemberChangeSubjectResults wsMemberChangeSubjectResults = (WsMemberChangeSubjectResults)wsSampleRestType
+        .getWsLiteResponseContentType().parseString(response);
+      
+      String resultMessage = wsMemberChangeSubjectResults.getResultMetadata().getResultMessage();
+
+      // see if request worked or not
+      if (!success) {
+        throw new RuntimeException("Bad response from web service: resultCode: " + resultCode
+            + ", " + resultMessage);
+      }
+      
+      System.out.println("Server version: " + wsMemberChangeSubjectResults.getResponseMetadata().getServerVersion()
+          + ", result code: " + resultCode
+          + ", result message: " + resultMessage );
+      
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+      boolean startedSession = false;
+      if (grouperSession == null) {
+        grouperSession = GrouperSession.startRootSession();
+        startedSession = true;
+      }
+      try {
+        //lets make sure the old member was deleted
+        try {
+          GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectFinder.findById("test.subject.0"));
+          throw new RuntimeException("Should not find renamed member: test.subject.0!");
+        } catch (MemberNotFoundException mnfe) {
+          //good
+        }
+        
+        //make sure old member was not deleted
+        try {
+          GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectFinder.findById("test.subject.2"));
+        } catch (MemberNotFoundException mnfe) {
+          throw new RuntimeException("Should find renamed member: test.subject.2!");
+        }
+      } finally {
+        if (startedSession) {
+          GrouperSession.stopQuietly(grouperSession);
+        }
+      }
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  /**
+   * @param args
+   */
+  @SuppressWarnings("unchecked")
+  public static void main(String[] args) {
+
+    RestClientSettings.resetData();
+    
+    memberChangeSubject(WsSampleRestType.xhtml);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  public void executeSample(WsSampleRestType wsSampleRestType) {
+    memberChangeSubject(wsSampleRestType);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#validType(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  public boolean validType(WsSampleRestType wsSampleRestType) {
+    //dont allow http params
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
+  }
+}
+
+
+#########################################
+##
+## Stdout
+##
+#########################################
+
+
+Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
+  oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],
+  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
+[1]: WsMemberChangeSubject[
+  oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],
+  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
+
+, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE
+, params: null

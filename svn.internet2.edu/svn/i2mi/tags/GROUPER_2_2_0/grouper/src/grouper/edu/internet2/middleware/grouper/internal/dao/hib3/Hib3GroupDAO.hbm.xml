@@ -1,0 +1,124 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<!--
+  Copyright (C) 2004-2007 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2004-2007 The University Of Chicago
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0 
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!-- $Id: Hib3GroupDAO.hbm.xml,v 1.16 2009-06-24 06:22:24 mchyzer Exp $ -->
+
+<hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
+
+  <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
+    based on the grouper.properties, so dont remove that attribute  -->
+  <class name="Group" table="grouper_groups" optimistic-lock="version">
+
+    <meta attribute="implement-equals">true</meta>
+    <meta attribute="session-method">Hib3DAO.getSession();</meta>
+
+    <cache usage="read-write"/>
+
+    <!-- id -->
+    <id name="uuid" unsaved-value="none"
+        column="id"
+        type="string" 
+        length="128"
+    >
+      <generator class="assigned" />
+    </id>
+    <!-- id -->
+    
+    <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
+    <version name="hibernateVersionNumber" column="hibernate_version_number" type="long"/>
+
+    <property name="lastMembershipChangeDb" column="last_membership_change" update="false"/>
+    <property name="lastImmediateMembershipChangeDb" column="last_imm_membership_change" update="false"/>
+
+    <!-- parentUuid -->
+    <!-- [@since 1.2.0] Refers to parent stem's UUID, not ID -->
+    <property name="parentUuid"
+              type="string"
+              update="true"
+    >
+      <column name="parent_stem"
+              not-null="true"
+              length="128"
+              index="group_parent_idx"
+      />
+    </property>
+    <!-- parentUuid -->
+
+    <!-- creatorUuid -->
+    <!-- [@since 1.2.0] Refers to creator's UUID, not ID -->
+    <property name="creatorUuid"
+              type="string"
+              update="true"
+    >
+      <column name="creator_id"
+              not-null="true"
+              length="128"
+              index="group_creator_idx"
+      />
+    </property>
+    <!-- creatorUuid -->
+
+    <!-- createTime -->
+    <property name="createTimeLong"
+              type="long"
+              update="true" 
+    >
+      <column name="create_time"
+              not-null="true"
+              index="group_createtime_idx" 
+      />
+    </property>
+    <!-- createTime -->
+
+    <!-- modifierUuid -->
+    <!-- [@since 1.2.0] Refers to creator's UUID, not ID -->
+    <property name="modifierUuid"
+              type="string"
+    >
+      <column name="modifier_id"
+              length="128"
+              index="group_modifier_idx"
+      />
+    </property>
+    <!-- modifierUuid -->
+
+    <!-- modifyTime -->
+    <property name="modifyTimeLong"
+              type="long"
+    >
+      <column name="modify_time"
+              index="group_modifytime_idx" 
+      />
+    </property>
+    <!-- modifyTime -->
+
+    <property name="nameDb" column="name"/>
+    <property name="displayNameDb" column="display_name"/>
+    <property name="extensionDb" column="extension"/>
+    <property name="displayExtensionDb" column="display_extension"/>
+    <property name="descriptionDb" column="description"/>
+    <property name="contextId" column="context_id"/>
+    <property name="alternateNameDb" column="alternate_name"/>
+    <property name="typeOfGroupDb" column="type_of_group"/>
+    <property name="idIndex" column="id_index"/>
+  </class>
+</hibernate-mapping>

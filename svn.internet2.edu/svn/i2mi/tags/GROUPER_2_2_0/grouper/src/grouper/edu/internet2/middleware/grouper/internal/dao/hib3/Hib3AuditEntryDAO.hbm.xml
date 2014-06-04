@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<!--
+  Copyright (C) 2004-2007 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2004-2007 The University Of Chicago
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0 
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!-- $Id: Hib3AuditEntryDAO.hbm.xml,v 1.9 2009-03-24 17:12:08 mchyzer Exp $ -->
+
+<hibernate-mapping package="edu.internet2.middleware.grouper.audit">
+
+  <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
+    based on the grouper.properties, so dont remove that attribute  -->
+  <class name="AuditEntry" table="grouper_audit_entry" optimistic-lock="version">
+
+    <!-- id -->
+    <id name="id" unsaved-value="none" column="id" type="string" length="128">
+      <generator class="assigned" />
+    </id>
+    <!-- id -->
+
+    <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
+    <version name="hibernateVersionNumber" column="hibernate_version_number" type="long"/>
+
+    <property name="actAsMemberId" column="act_as_member_id"/>
+    <property name="auditTypeId" column="audit_type_id"/>
+    <property name="contextId" column="context_id"/>
+    <property name="createdOnDb" column="created_on"/>
+    <property name="description" column="description"/>
+    <property name="envName" column="env_name"/>
+    <property name="grouperEngine" column="grouper_engine"/>
+    <property name="grouperVersion" column="grouper_version"/>
+    <property name="int01" column="int01"/>
+    <property name="int02" column="int02"/>
+    <property name="int03" column="int03"/>
+    <property name="int04" column="int04"/>
+    <property name="int05" column="int05"/>
+    <property name="lastUpdatedDb" column="last_updated"/>
+    <property name="loggedInMemberId" column="logged_in_member_id"/>
+    <property name="serverHost" column="server_host"/>
+    <property name="string01" column="string01"/>
+    <property name="string02" column="string02"/>
+    <property name="string03" column="string03"/>
+    <property name="string04" column="string04"/>
+    <property name="string05" column="string05"/>
+    <property name="string06" column="string06"/>
+    <property name="string07" column="string07"/>
+    <property name="string08" column="string08"/>
+    <property name="durationMicroseconds" column="duration_microseconds"/>
+    <property name="queryCount" column="query_count"/>
+    <property name="userIpAddress" column="user_ip_address"/>
+    <property name="serverUserName" column="server_user_name"/>
+  </class>
+</hibernate-mapping>
+

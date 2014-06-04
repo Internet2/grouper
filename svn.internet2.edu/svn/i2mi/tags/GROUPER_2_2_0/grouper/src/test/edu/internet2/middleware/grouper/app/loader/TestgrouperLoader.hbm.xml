@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<!--
+  Copyright (C) 2004-2007 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2004-2007 The University Of Chicago
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0 
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!-- $Id: TestgrouperLoader.hbm.xml,v 1.1 2008-11-08 08:15:34 mchyzer Exp $ -->
+
+<hibernate-mapping package="edu.internet2.middleware.grouper.app.loader" default-lazy="false">
+  <class name="TestgrouperLoader" table="testgrouper_loader">
+
+    <meta attribute="implement-equals">true</meta>
+    <meta attribute="session-method">Hib3DAO.getSession();</meta>
+
+    <!-- id -->
+    <id name="id" unsaved-value="none"
+        column="id"
+        type="string" 
+        length="128"
+    >
+      <generator class="assigned" />
+    </id>
+    <!-- id -->
+
+    <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
+    <property name="hibernateVersionNumber" column="hibernate_version_number"
+              not-null="true"
+      />
+
+    <property name="col1" type="string" column="col1" />
+
+    <property name="col2" type="string" column="col2" />
+
+    <property name="col3" type="string" column="col3" />
+
+  </class>
+</hibernate-mapping>
+

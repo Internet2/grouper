@@ -1,0 +1,51 @@
+
+# Subject 0.3.0-rc1
+
+Released: ????????
+
+## Changes
+* UPDATE: Added code to JNDISourceAdapter to escape LDAP filter characters,
+          thus preventing LDAP injection in query arguments.
+* UPDATE: Changed syntax of SQL queries for JDBCSourceAdapter to use the
+          syntax for prepared statements in a basic manner. This prevents
+          SQL injection in query arguments and also speeds up the queries
+          significantly.
+    * Updated JDBCSourceAdapter to use prepared statements
+    * Added InvalidQueryException to throw when old-style SQL queries are
+      detected.
+    * Updated sources.xml to reflect new SQL syntax.
+
+# Subject 0.2.2-cvs
+
+Released: ????????
+
+## Changes
+* UPDATE:   Removed `lib/log4j-1.2.8.jar`
+* UPDATE:   Updated to `lib/i2mi-common-0.1.0.jar`.  This replaces:
+    * `lib/commons-beanutils-1.6.jar`
+    * `lib/commons-collections-3.1.jar`
+    * `lib/commons-digester-1.6.jar`
+* UPDATE:   Removed `lib/commons-dbcp-1.2.1.jar`
+* UPDATE:   Removed `lib/jconn2.jar`
+* UPDATE:   Removed `lib/hibernate2.jar`
+* UPDATE:   Added `lib/i2mi-common-0.0.1.jar`.  This replaces:
+    * `lib/commons-logging-1.0.4.jar`
+    * `lib/commons-pool-1.2.jar`
+    * `lib/junit-3.8.1.jar`
+* BUGFIX:   Removed tests that relied upon code that had been removed from the API.
+
+---
+
+# Subject 0.2.1
+
+Released: 20060627
+
+## Changes
+* BUGFIX:   Restored 1.4.2 compatability (again) to *JNDISourceAdapter*.
+
+---
+
+$Id: NEWS.txt,v 1.9 2007-03-10 13:33:21 khuxtable Exp $
+
+
+

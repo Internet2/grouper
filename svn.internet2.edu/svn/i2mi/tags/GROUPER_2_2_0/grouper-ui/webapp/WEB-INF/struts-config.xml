@@ -1,0 +1,1033 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+
+<!DOCTYPE struts-config PUBLIC 
+          "-//Apache Software Foundation//DTD Struts Configuration 1.1//EN"
+          "http://jakarta.apache.org/struts/dtds/struts-config_1_1.dtd">
+
+<struts-config>
+  <form-beans>
+   <form-bean dynamic="true" name="UploadTestFormBean"
+               type="org.apache.struts.action.DynaActionForm">
+      <form-property name="testData" type="org.apache.struts.upload.FormFile"/>
+    </form-bean>
+     <form-bean dynamic="true" name="CompositeFormBean"
+               type="org.apache.struts.action.DynaActionForm">
+      <form-property name="groupId" type="java.lang.String"/>
+      <form-property name="leftGroup" type="java.lang.String"/>
+      <form-property name="rightGroup" type="java.lang.String"/>
+      <form-property name="compositeType" type="java.lang.String"/>
+    </form-bean>
+  <form-bean dynamic="true" name="DebugPrefsFormBean"
+               type="org.apache.struts.action.DynaActionForm">
+      <form-property name="isActive" type="java.lang.Boolean"/>
+      <form-property name="i2miDir" type="java.lang.String"/>
+      <form-property name="siteDir" type="java.lang.String"/>
+      <form-property name="doShowResources" type="java.lang.Boolean"/>
+      <form-property name="doShowResourcesInSitu" type="java.lang.Boolean"/>
+       <form-property name="doShowTilesHistory" type="java.lang.Boolean"/>
+	   <form-property name="doHideStyles" type="java.lang.Boolean"/>
+	   <form-property name="doSaveOutput" type="java.lang.Boolean"/>
+	   <form-property name="outputDir" type="java.lang.String"/>
+        <form-property name="JSPEditor" type="java.lang.String"/>
+        <form-property name="callerPageId" type="java.lang.String"/>
+    </form-bean>
+
+	<form-bean dynamic="true" name="AuditQueryFormBean"
+               type="org.apache.struts.action.DynaActionForm">
+	  <form-property name="schemaChangesOnly" type="java.lang.Boolean"/>
+	  <form-property name="groupTypeId" type="java.lang.String"/>
+      <form-property name="groupId" type="java.lang.String"/>
+	  <form-property name="stemId" type="java.lang.String"/>
+      <form-property name="memberId" type="java.lang.String"/>
+	  <form-property name="subjectId" type="java.lang.String"/>
+	   <form-property name="subjectType" type="java.lang.String"/>
+	  <form-property name="sourceId" type="java.lang.String"/>
+      <form-property name="filterType" type="java.lang.String"/>
+	  <form-property name="sort" type="java.lang.String"/>
+      <form-property name="dateQualifier" type="java.lang.String"/>
+      <form-property name="date1" type="java.lang.String"/>
+      <form-property name="date2" type="java.lang.String"/>
+      <form-property name="callerPageId" type="java.lang.String"/>
+	  <form-property name="origCallerPageId" type="java.lang.String"/>
+	  <form-property name="pageSize" type="java.lang.String"/>
+	  <form-property name="extendedResults" type="java.lang.Boolean"/>
+	  <form-property name="viaForm" type="java.lang.Boolean"/>
+	  
+    </form-bean> 
+	
+    <form-bean dynamic="true" name="BrowseFormBean"
+               type="org.apache.struts.action.DynaActionForm">
+      <form-property name="groupId" type="java.lang.String"/>
+      <form-property name="stemId" type="java.lang.String"/>
+      <form-property name="start" type="java.lang.String"/>
+      <form-property name="currentNode" type="java.lang.String"/>
+	   <form-property name="expandListField" type="java.lang.String"/>
+      <form-property name="resetBrowse" type="java.lang.String"/>
+      <form-property name="hideQuickLinks" type="java.lang.String"/>
+       <form-property name="flat" type="java.lang.String"/>
+       <form-property name="pageSize" type="java.lang.String"/>
+       <form-property name="callerPageId" type="java.lang.String"/>
+    </form-bean>  
+  
+	  <form-bean dynamic="true" name="GroupFormBean"
+               type="org.apache.struts.action.DynaActionForm">
+      <form-property name="groupName" type="java.lang.String"/>
+      <form-property name="groupType" type="java.lang.String"/>
+      <form-property name="groupDescription" type="java.lang.String"/>
+      <form-property name="groupDisplayName" type="java.lang.String"/>
+      <form-property name="groupAlternateName" type="java.lang.String"/>
+      <form-property name="groupId" type="java.lang.String"/>
+      <form-property name="membershipListScope" type="java.lang.String"/>
+      <form-property name="lastMembershipListScope" type="java.lang.String"/>
+      <form-property name="privilege" type="java.lang.String"/>
+	  <form-property name="listField" type="java.lang.String"/>
+      <form-property name="pageSize" type="java.lang.String"/>
+      <form-property name="memberSortIndex" type="java.lang.Integer"/>
+      <form-property name="memberSearchValue" type="java.lang.String"/>
+      <form-property name="asMemberOf" type="java.lang.String"/>
+      <form-property name="contextGroup" type="java.lang.String"/>
+      <form-property name="contextSubject" type="java.lang.String"/>
+       <form-property name="contextSourceId" type="java.lang.String"/>
+	  <form-property name="contextSubjectId" type="java.lang.String"/>
+	  <form-property name="contextSubjectType" type="java.lang.String"/>
+	  <form-property name="callerPageId" type="java.lang.String"/>
+	  <form-property name="importData" type="org.apache.struts.upload.FormFile"/>
+	  <form-property name="importString" type="java.lang.String"/>
+	  <form-property name="exportFormat" type="java.lang.String"/>
+	  <form-property name="importFormat" type="java.lang.String"/>
+	  <form-property name="submit.export" type="java.lang.String"/>
+	  <form-property name="submit.import" type="java.lang.String"/>
+	  	   <form-property name="selectedSource" type="java.lang.String"/>
+	  
+    </form-bean>
+    
+	  <form-bean dynamic="true" name="SubjectFormBean"
+               type="org.apache.struts.action.DynaActionForm">
+      <form-property name="subjectId" type="java.lang.String"/>
+      <form-property name="subjectType" type="java.lang.String"/>
+      <form-property name="subjectDescription" type="java.lang.String"/>
+       <form-property name="subjectsource" type="java.lang.String"/>
+	   <form-property name="sourceId" type="java.lang.String"/>
+       <form-property name="accessPriv" type="java.lang.String"/>
+       <form-property name="namingPriv" type="java.lang.String"/>
+	   <form-property name="listField" type="java.lang.String"/>
+       <form-property name="returnTo" type="java.lang.String"/>
+	   <form-property name="returnToLinkKey" type="java.lang.String"/>
+       <form-property name="membershipListScope" type="java.lang.String"/>
+       <form-property name="start" type="java.lang.String"/>
+       <form-property name="pageSize" type="java.lang.String"/>
+       <form-property name="contextSubject" type="java.lang.String"/>
+        <form-property name="callerPageId" type="java.lang.String"/>
+    </form-bean>
+    
+    <form-bean dynamic="true" name="StemFormBean"
+               type="org.apache.struts.action.DynaActionForm">
+      <form-property name="stemName" type="java.lang.String"/>
+      <form-property name="stemDescription" type="java.lang.String"/>
+      <form-property name="stemAlternateName" type="java.lang.String"/>
+      <form-property name="stemDisplayName" type="java.lang.String"/>
+	  <form-property name="listField" type="java.lang.String"/>
+      <form-property name="stemId" type="java.lang.String"/>
+      <form-property name="privilege" type="java.lang.String"/>
+      <form-property name="pageSize" type="java.lang.String"/>
+      <form-property name="callerPageId" type="java.lang.String"/>
+    </form-bean>
+    
+    <form-bean dynamic="true" name="GroupOrStemMemberFormBean"
+               type="org.apache.struts.action.DynaActionForm">
+	   <form-property name="subjectId" type="java.lang.String"/>
+	   <form-property name="subjectType" type="java.lang.String"/>
+	    <form-property name="sourceId" type="java.lang.String"/>
+	   <form-property name="privilege" type="java.lang.String"/>
+       <form-property name="privileges" type="java.lang.String[]"/>
+       <form-property name="asMemberOf" type="java.lang.String"/>
+       <form-property name="pageSize" type="java.lang.String"/>
+	    <form-property name="listField" type="java.lang.String"/>
+       <form-property name="groupId" type="java.lang.String"/>
+	   <form-property name="stemId" type="java.lang.String"/>
+	   <form-property name="contextGroup" type="java.lang.String"/>
+	   <form-property name="contextSubject" type="java.lang.String"/>
+	   <form-property name="contextSubjectId" type="java.lang.String"/>
+	   <form-property name="contextSubjectType" type="java.lang.String"/>
+	   <form-property name="contextSourceId" type="java.lang.String"/>
+	   <form-property name="callerPageId" type="java.lang.String"/>
+	   <form-property name="selectedSource" type="java.lang.String"/>
+    </form-bean>
+    
+    <form-bean dynamic="true" name="SearchFormBean"
+               type="org.apache.struts.action.DynaActionForm">
+            <form-property name="searchTerm" type="java.lang.String"/>
+	        <form-property name="searchFrom" type="java.lang.String"/>
+	        <form-property name="searchFor" type="java.lang.String"/>
+	        <form-property name="start" type="java.lang.String"/>
+	        <form-property name="newSearch" type="java.lang.String"/>
+	        <form-property name="groupId" type="java.lang.String"/>
+	        <form-property name="stemId" type="java.lang.String"/>
+	        <form-property name="stems" type="java.lang.String"/>
+	        <form-property name="subjectSource" type="java.lang.String"/>
+	        <form-property name="searchInDisplayNameOrExtension" type="java.lang.String"/>
+	        <form-property name="searchInNameOrExtension" type="java.lang.String"/>
+		   <form-property name="searchIn" type="java.lang.String"/>
+	        <form-property name="pageSize" type="java.lang.String"/>
+	        <form-property name="callerPageId" type="java.lang.String"/>
+			<form-property name="groupSearchResultField" type="java.lang.String"/>
+			<form-property name="stemSearchResultField" type="java.lang.String"/>
+			<form-property name="advSearch" type="java.lang.String"/>
+			<form-property name="maxFields" type="java.lang.String"/>
+    </form-bean>
+
+    <form-bean dynamic="true" name="DummyFormBean"
+               type="org.apache.struts.action.DynaActionForm">
+			   <form-property name="advSearch" type="java.lang.String"/>
+      <form-property name="searchTerm" type="java.lang.String"/>
+	  <form-property name="searchFrom" type="java.lang.String"/>
+      <form-property name="groupName" type="java.lang.String"/>
+      <form-property name="groupType" type="java.lang.String"/>
+      <form-property name="groupDescription" type="java.lang.String"/>
+      <form-property name="groupAttrFacultyCode" type="java.lang.String"/>
+      <form-property name="groupAttrUnitCode" type="java.lang.String"/>
+      <form-property name="stemName" type="java.lang.String"/>
+      <form-property name="stemDescription" type="java.lang.String"/>
+      <form-property name="password" type="java.lang.String"/>
+      <form-property name="username" type="java.lang.String"/>
+      <form-property name="groupDisplayName" type="java.lang.String"/>
+      <form-property name="stemDisplayName" type="java.lang.String"/>
+      <form-property name="stemId" type="java.lang.String"/>
+      <form-property name="groupId" type="java.lang.String"/>
+	  <form-property name="membershipListScope" type="java.lang.String"/>
+      <form-property name="memberId" type="java.lang.String"/>
+	  <form-property name="subjectId" type="java.lang.String"/>
+	  <form-property name="subjectType" type="java.lang.String"/>
+	   <form-property name="sourceId" type="java.lang.String"/>
+      <form-property name="privileges" type="java.lang.String[]"/>
+	  <form-property name="privilege" type="java.lang.String"/>
+      <form-property name="groups" type="java.lang.String[]"/>
+      <form-property name="people" type="java.lang.String[]"/>
+      <form-property name="asMemberOf" type="java.lang.String"/>
+      <form-property name="pageSize" type="java.lang.String"/>
+      <form-property name="callerPageId" type="java.lang.String"/>
+	  	  <form-property name="importString" type="java.lang.String"/>
+    </form-bean>
+    
+     <form-bean dynamic="true" name="AssignMembersFormBean"
+               type="org.apache.struts.action.DynaActionForm">
+      <form-property name="stemId" type="java.lang.String"/>
+      <form-property name="groupId" type="java.lang.String"/>
+      <form-property name="stems" type="java.lang.String"/>
+	  	  <form-property name="listField" type="java.lang.String"/>
+      <form-property name="privileges" type="java.lang.String[]"/>
+      <form-property name="members" type="java.lang.String[]"/>
+      <form-property name="callerPageId" type="java.lang.String"/>
+
+    </form-bean>
+  </form-beans>
+  <global-forwards>
+    <forward name="CreateGroups" path="/populateCreateGroups.do"
+             redirect="false"/>
+    <forward name="Home" path="/home.do" redirect="false"/>
+    <forward name="JoinGroups" path="/populateJoinGroups.do" redirect="false"/>
+    <forward name="ManageGroups" path="/populateManageGroups.do"
+             redirect="false"/>
+             <forward name="AllGroups" path="/populateAllGroups.do"
+             redirect="false"/>
+    <forward name="MyGroups" path="/populateMyGroups.do" redirect="false"/>
+    <forward name="Groups" path="/populateMyGroups.do" redirect="false"/>
+	<forward name="Index" path="/populateIndex.do" redirect="true"/>
+	
+	<forward name="Login" path="/login.do" redirect="true"/>
+	<forward name="ErrorPage" path="ErrorPageDef" redirect="false"/>
+	<forward name="FilterError" path="/filterError.do" redirect="false"/>
+  </global-forwards>
+  <action-mappings>
+  <action  path="/editJSP"
+            scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.EditJSPAction"
+            unknown="false" validate="false">
+      <forward name="Editor" path="EditorDef" redirect="false"/>
+      <forward name="NotAllowed" path="DebugNotAllowedDef" redirect="false"/>
+    </action>  
+  
+  <!--<action  path="/exportXml"
+            scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.ExportXmlAction"
+            unknown="false" validate="false">
+			<forward name="ExportXmlForm" path="/WEB-INF/jsp/ExportXml.jsp" redirect="false"/>
+    </action>-->
+	
+  <action  path="/help"
+            scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateHelpAction"
+            unknown="false" validate="false">
+      <forward name="Help" path="HelpDef" redirect="false"/>
+    </action>
+	<action  path="/userAudit" name="AuditQueryFormBean"
+            scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.DoUserAuditReportAction"
+            unknown="false" validate="false">
+      <forward name="AuditQuery" path="AuditQueryDef" redirect="false"/>
+    </action>
+	<action  path="/populateGroupTypes" name=""
+            scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateGroupTypesAction"
+            unknown="false" validate="false">
+      <forward name="GroupTypes" path="GroupTypesDef" redirect="false"/>
+    </action>
+    
+        <action path="/populateDebugPrefs"  scope="request" name="DebugPrefsFormBean"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateDebugPrefsAction"
+            unknown="false" validate="false">
+      <forward name="DebugPrefs" path="DebugPrefsDef" redirect="false"/>
+      <forward name="NotAllowed" path="DebugNotAllowedDef" redirect="false"/>
+    </action>
+    
+       <!-- <action path="/populateChain"  name="GroupFormBean" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateChainAction"
+            unknown="false" validate="false">
+      <forward name="Chain" path="ChainDef" redirect="false"/>
+    </action>-->
+    
+            <action path="/populateChains"  name="GroupFormBean" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateChainsAction"
+            unknown="false" validate="false">
+      <forward name="Chain" path="ChainDef" redirect="false"/>
+    </action>
+    
+            <action path="/saveDebugPrefs"  scope="request" name="DebugPrefsFormBean"
+            type="edu.internet2.middleware.grouper.ui.actions.SaveDebugPrefsAction"
+            unknown="false" validate="false">
+      <forward name="DebugPrefs" path="DebugPrefsDef" redirect="false"/>
+      <forward name="NotAllowed" path="DebugNotAllowedDef" redirect="false"/>
+    </action>
+    
+
+   <!--  <action path="/processUploadTest"  scope="request" name="UploadTestFormBean"
+            type="edu.internet2.middleware.grouper.ui.actions.ProcessUploadTestAction"
+            unknown="false" validate="false">
+		   <forward name="frameset" path="TestUploadFramesetDef" redirect="false"/>
+
+    </action>
+    
+     <action path="/populateUploadTestSlideController"  scope="request" name="UploadTestFormBean"
+            type="edu.internet2.middleware.grouper.ui.actions.ProcessUploadTestAction" parameter="slides"
+            unknown="false" validate="false">
+		   <forward name="framesetControl" path="TestUploadFramesetControlsDef" redirect="false"/>
+    </action>-->
+  
+    <action name="BrowseFormBean" parameter="MyGroups" path="/browseStems"
+            scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.BrowseStemsAction"
+            unknown="false" validate="false">
+      <forward name="MyGroups" path="MyGroupsDef" redirect="false"/>
+    </action>
+    
+    <action parameter="CreateGroups" name="BrowseFormBean" path="/browseStemsCreate" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.BrowseStemsAction"
+            unknown="false" validate="false">
+      <forward name="CreateGroups" path="CreateGroupsDef" redirect="false"/>
+    </action>
+      
+    <action parameter="AllGroups" name="BrowseFormBean" path="/browseStemsAll" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.BrowseStemsAction"
+            unknown="false" validate="false">
+      <forward name="AllGroups" path="AllGroupsDef" redirect="false"/>
+    </action>
+	<!----><action parameter="AllGroups" name="BrowseFormBean" path="/browseStemsSubjectSearch" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.BrowseStemsAction"
+            unknown="false" validate="false">
+      <forward name="AllGroups" path="AllGroupsDef" redirect="false"/>
+    </action><!---->
+  
+    <action name="BrowseFormBean" parameter="FindNewMembers"
+            path="/browseStemsFind" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.BrowseStemsAction"
+            unknown="false" validate="false">
+      <forward name="FindNewMembers" path="/populateFindNewMembers.do"
+               redirect="false"/>
+      <forward name="FindNewMembersForStems"
+               path="/populateFindNewMembersForStems.do" redirect="false"/>
+    </action>
+    
+ 
+    <action parameter="JoinGroups" path="/browseStemsJoin" name="BrowseFormBean" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.BrowseStemsAction"
+            unknown="false" validate="false">
+      <forward name="JoinGroups" path="JoinGroupsDef" redirect="false"/>
+    </action>
+  
+    <action name="BrowseFormBean" parameter="ManageGroups"
+            path="/browseStemsManage" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.BrowseStemsAction"
+            unknown="false" validate="false">
+      <forward name="ManageGroups" path="ManageGroupsDef" redirect="false"/>
+    </action>
+   
+    <action path="/callLogin" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.CallLoginAction"
+            unknown="false" validate="false">
+  
+      <forward name="callLogin" path="/login.do" redirect="true"/>
+    </action>
+  
+    <action name="GroupFormBean" path="/deleteGroup" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.DeleteGroupAction"
+            unknown="false" validate="false">
+      <forward name="CreateGroups" path="/populateCreateGroups.do"
+               redirect="false"/>
+      <forward name="ManageGroups" path="/populateManageGroups.do"
+               redirect="false"/>
+    	<forward name="GroupSummary" path="/populateGroupSummary.do"
+               redirect="false"/>
+    </action>
+   
+   
+    <action path="/deleteStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.DeleteStemAction"
+            unknown="false" validate="false">
+      <forward name="CreateGroups" path="/populateCreateGroups.do"
+               redirect="false"/>
+      <forward name="ManageGroups" path="/populateManageGroups.do"
+               redirect="false"/>
+    </action>
+    
+
+    <action name="AssignMembersFormBean" path="/doAssignNewMembers" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.DoAssignNewMembersAction"
+            unknown="false" validate="false">
+      <forward name="FindNewMembers" path="/populateFindNewMembers.do"
+               redirect="false"/>
+      <forward name="GroupMembers" path="/populateGroupMembers.do"
+               redirect="false"/>
+                     <forward name="GroupPrivilegees" path="/populateGroupPriviligees.do"
+               redirect="false"/>
+      <forward name="GroupSummary" path="/populateGroupSummary.do"
+               redirect="false"/>
+      <forward name="StemPrivilegees" path="/populateStemPriviligees.do"
+               redirect="false"/>
+    </action>
+   
+    <action path="/home" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.HomeAction"
+            unknown="false" validate="false">
+			<!-- Please note that from v1.6.1 onwards this setting will be overridden by default.browse.path in media.properties - if set -->
+                  <forward name="home" path="/populateMyGroups.do"
+               redirect="false"/>
+    </action>
+   
+   <!-- <action path="/initSession" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.InitSessionAction"
+            unknown="false" validate="false">
+      <forward name="InitSession" path="/WEB-INF/jsp/InitSession.jsp"
+               redirect="false"/>
+    </action>-->
+    
+    <action path="/joinGroup" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.JoinGroupAction"
+            unknown="false" validate="false">
+     
+      <forward name="JoinGroups" path="/populateGroupSummary.do"
+               redirect="false"/>
+    </action>
+    
+    <action path="/leaveGroup" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.LeaveGroupAction"
+            unknown="false" validate="false">
+     
+      <forward name="JoinGroups" path="/populateGroupSummary.do"
+               redirect="false"/>
+    </action>
+    
+    <action  path="/login" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.LoginAction"
+            unknown="false" validate="false">
+      <forward name="default" path="/home.do" redirect="true"/>
+	  <forward name="stop" path="emptyDef" redirect="false"/>
+    </action>
+  
+    <action path="/logout" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.LogoutAction"
+            unknown="false" validate="false">
+      <forward name="Index" path="/populateIndex.do" redirect="false"/>
+    </action>
+    
+    <action  name="SearchFormBean" path="/populateAssignNewMembers"
+            scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateAssignNewMembersAction"
+            unknown="false" validate="false">
+      <forward name="AssignNewMembers" path="AssignNewMembersDef"
+               redirect="false"/>
+    </action>
+    
+    <action path="/populateCreateGroup" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateCreateGroupAction"
+            unknown="false" validate="false">
+      <forward name="CreateGroup" path="EditGroupDef" redirect="false"/>
+    </action>
+   
+    <action name="BrowseFormBean" path="/populateCreateGroups" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateCreateGroupsAction"
+            unknown="false" validate="false">
+      <forward name="CreateGroups" path="CreateGroupsDef" redirect="false"/>
+    </action>
+    
+    <action name="StemFormBean" path="/populateCreateStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateCreateStemAction"
+            unknown="false" validate="false">
+      <forward name="CreateStem" path="EditStemDef" redirect="false"/>
+    </action>
+    
+    <action name="GroupFormBean" path="/populateEditGroup" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateEditGroupAction"
+            unknown="false" validate="false">
+      <forward name="EditGroup" path="EditGroupDef" redirect="false"/>
+    </action>
+
+    <action name="GroupFormBean" path="/populateCopyGroup" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateCopyGroupAction"
+            unknown="false" validate="false">
+      <forward name="CopyGroup" path="CopyGroupDef" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/populateCopyStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateCopyStemAction"
+            unknown="false" validate="false">
+      <forward name="CopyStem" path="CopyStemDef" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/populateMoveStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateMoveStemAction"
+            unknown="false" validate="false">
+      <forward name="MoveStem" path="MoveStemDef" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/populateCopyOtherStemToStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateCopyOtherStemToStemAction"
+            unknown="false" validate="false">
+      <forward name="CopyOtherStemToStem" path="CopyOtherStemToStemDef" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/populateMoveOtherStemToStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateMoveOtherStemToStemAction"
+            unknown="false" validate="false">
+      <forward name="MoveOtherStemToStem" path="MoveOtherStemToStemDef" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/populateCopyGroupToStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateCopyGroupToStemAction"
+            unknown="false" validate="false">
+      <forward name="CopyGroupToStem" path="CopyGroupToStemDef" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/populateMoveGroupToStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateMoveGroupToStemAction"
+            unknown="false" validate="false">
+      <forward name="MoveGroupToStem" path="MoveGroupToStemDef" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/populateMovesCopiesLinks" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateMovesCopiesLinksAction"
+            unknown="false" validate="false">
+      <forward name="MovesCopiesLinks" path="MovesCopiesLinksDef" redirect="false"/>
+    </action>
+
+    <action name="GroupFormBean" path="/populateMoveGroup" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateMoveGroupAction"
+            unknown="false" validate="false">
+      <forward name="MoveGroup" path="MoveGroupDef" redirect="false"/>
+    </action>
+
+    <action name="GroupFormBean" path="/populateEditGroupAttributes"
+            scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateEditGroupAttributesAction"
+            unknown="false" validate="false">
+      <forward name="EditGroupAttributes" path="EditGroupAttributesDef"
+               redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/populateEditStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateEditStemAction"
+            unknown="false" validate="false">
+      <forward name="EditStem" path="EditStemDef" redirect="false"/>
+    </action>
+  
+    <action name="GroupFormBean" path="/populateFindNewMembers" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateFindNewMembersAction"
+            unknown="false" validate="false">
+      <forward name="FindNewMembers" path="FindNewMembersDef" redirect="false"/>
+    </action>
+    
+        <action  path="/cancelFindNewMembers" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.CancelFindNewMembersAction"
+            unknown="false" validate="false">
+      <forward name="GroupSummary" path="/populateGroupSummary.do" redirect="false"/>
+      <forward name="BrowseStems" path="/browseStems.do" redirect="false"/>
+      <forward name="BrowseStemsCreate" path="/browseStemsCreate.do" redirect="false"/>
+      <forward name="BrowseStemsManage" path="/browseStemsManage.do" redirect="false"/>
+      <forward name="BrowseStemsJoin" path="/browseStemsJoin.do" redirect="false"/>
+      <forward name="BrowseStemsAll" path="/browseStemsAll.do" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" parameter="stems"
+            path="/populateFindNewMembersForStems" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateFindNewMembersAction"
+            unknown="false" validate="false">
+      <forward name="FindNewMembers" path="FindNewMembersDef" redirect="false"/>
+    </action>
+
+    <action name="GroupOrStemMemberFormBean" path="/populateGroupMember" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateGroupMemberAction"
+            unknown="false" validate="false">
+      <forward name="GroupMember" path="GroupMemberDef" redirect="false"/>
+      <forward name="StemMember" path="StemMemberDef" redirect="false"/>
+    </action>
+	
+
+    
+    <action name="GroupFormBean" path="/populateGroupPriviligees" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateGroupPriviligeesAction"
+            unknown="false" validate="false">
+      <forward name="GroupPriviligees" path="GroupPriviligeesDef" redirect="false"/>
+    </action>
+	<action name="StemFormBean" path="/populateStemPriviligees" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateStemPriviligeesAction"
+            unknown="false" validate="false">
+      <forward name="StemPriviligees" path="StemPriviligeesDef" redirect="false"/>
+    </action>
+    
+    <action name="SubjectFormBean" path="/populateListSavedGroups" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateListSavedSubjectsAction"
+            unknown="false" validate="false" parameter="groupsOnly">
+            <forward name="SavedSubjects" path="SavedGroupsDef" redirect="false"/>
+     		   </action>
+	
+	<action name="SubjectFormBean" path="/populateListSavedSubjects" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateListSavedSubjectsAction"
+            unknown="false" validate="false" >
+            <forward name="SavedSubjects" path="SavedSubjectsDef" redirect="false"/>
+     		   </action>
+     
+     <action name="StemFormBean" path="/populateListSavedStems" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateListSavedStemsAction"
+            unknown="false" validate="false" >
+            <forward name="SavedStems" path="SavedStemsDef" redirect="false"/>
+     </action>
+			   
+	<action name="SubjectFormBean" path="/removeSavedGroups" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.RemoveSavedSubjectsAction"
+            unknown="false" validate="false" parameter="groupsOnly">
+            <forward name="SavedSubjects" path="/populateListSavedGroups.do" redirect="false"/>
+     		   </action>
+			   
+	<action name="SubjectFormBean" path="/removeSavedSubjects" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.RemoveSavedSubjectsAction"
+            unknown="false" validate="false" >
+            <forward name="SavedSubjects" path="/populateListSavedSubjects.do" redirect="false"/>
+     		   </action>
+     
+     <action name="StemFormBean" path="/removeSavedStems" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.RemoveSavedStemsAction"
+            unknown="false" validate="false" >
+            <forward name="SavedStems" path="/populateListSavedStems.do" redirect="false"/>
+     		   </action>
+			   
+			   <action path="/assignSavedSubjects" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.AssignSavedSubjectsAction"
+            unknown="false" validate="false" >
+            <forward name="AssignSubjects" path="/populateAssignNewMembers.do" redirect="false"/>
+     		   </action>
+    
+    <action name="GroupFormBean" path="/populateGroupMembers" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateGroupMembersAction"
+            unknown="false" validate="false">
+     
+      <forward name="GroupMembers" path="GroupMembersDef" redirect="false"/>
+	  <forward name="AddGroupMembers" path="/populateFindNewMembers.do" redirect="false"/>
+	   <forward name="ExportMembers" path="/exportMembers.do" redirect="false"/>
+	    <forward name="ImportMembers" path="/importMembers.do" redirect="false"/>
+    </action>
+	
+	    <action name="GroupFormBean" path="/exportMembers" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.ExportMembersAction"
+            unknown="false" validate="false">
+     
+      <forward name="GroupMembers" path="GroupMembersDef" redirect="false"/>
+	   <forward name="ExportMembers" path="ExportMembersDef" redirect="false"/>
+    </action>
+	
+		 <action name="GroupFormBean" path="/importMembers" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.ImportMembersAction"
+            unknown="false" validate="false">
+
+	   <forward name="ImportMembers" path="ImportMembersDef" redirect="false"/>
+    </action>
+	
+	    <action name="GroupFormBean" path="/removeGroupMembers" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.RemoveGroupMembersAction"
+            unknown="false" validate="false">
+     
+
+	  <forward name="GroupSummary" path="/populateGroupSummary.do" redirect="false"/>
+	  <forward name="GroupMembers" path="/populateGroupMembers.do" redirect="false"/>
+    </action>
+  
+    <action name="GroupFormBean" path="/populateGroupSummary" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateGroupSummaryAction"
+            unknown="false" validate="false">
+                  <forward name="GroupSummary" path="GroupSummaryDef" redirect="false"/>
+    </action>
+    
+    <action name="GroupFormBean" path="/populateGroupAsFactor" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateGroupAsFactorAction"
+            unknown="false" validate="false">
+                  <forward name="GroupAsFactor" path="GroupAsFactorDef" redirect="false"/>
+    </action>
+        <action name="SubjectFormBean" path="/addSavedSubject" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.AddSavedSubjectAction"
+            unknown="false" validate="false">
+                  
+    </action>
+    <action name="StemFormBean" path="/addSavedStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.AddSavedStemAction"
+            unknown="false" validate="false">
+                  
+    </action>
+  
+      <action  name="SubjectFormBean" path="/populateSubjectSummary" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateSubjectSummaryAction"
+            unknown="false" validate="false">
+                  <forward name="SubjectSummary" path="SubjectSummaryDef" redirect="false"/>
+				  <forward name="GroupSearch" path="/populateAllGroups.do" redirect="false"/>
+    </action>
+	
+
+    <action path="/401" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.Populate401Action"
+            unknown="false" validate="false">                                            
+      <forward name="Index" path="IndexDef" redirect="false"/>
+	  <forward name="Logout" path="/logout.do" redirect="false"/>
+	  <forward name="Login" path="/login.do" redirect="false"/>
+	  <forward name="stop" path="401Def" redirect="false"/>
+    </action>
+	
+	
+    <action path="/error" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateErrorAction"
+            unknown="false" validate="false">                                            
+       <forward name="error" path="ErrorNoAuthPageDef" redirect="false"/>
+      <forward name="authError" path="ErrorPageDef" redirect="false"/>
+	
+    </action>
+    
+    <action path="/filterError" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateFilterErrorAction"
+            unknown="false" validate="false">                                            
+      <forward name="error" path="ErrorNoAuthPageDef" redirect="false"/>
+      <forward name="authError" path="ErrorPageDef" redirect="false"/>
+	
+    </action>
+    
+    
+	
+	
+
+    <action path="/populateIndex" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateIndexAction"
+            unknown="false" validate="false">
+      <!-- User already logged in                                            -->
+      <forward name="Home" path="/home.do" redirect="false"/>
+      <!-- User not logged in                                                -->
+      <forward name="Index" path="IndexDef" redirect="false"/>
+    </action>
+    <!-- Do any setup required before joining groups                         -->
+    <action name="BrowseFormBean" path="/populateJoinGroups" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateJoinGroupsAction"
+            unknown="false" validate="false">
+      <forward name="JoinGroups" path="JoinGroupsDef" redirect="false"/>
+    </action>
+    <!-- Does any setup required to Manage Groups                            -->
+    <action name="BrowseFormBean" path="/populateManageGroups" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateManageGroupsAction"
+            unknown="false" validate="false">
+      <forward name="ManageGroups" path="ManageGroupsDef" redirect="false"/>
+    </action>
+    
+        <!-- Does any necessary setup for initial display of AllGroups.           -->
+    <action name="BrowseFormBean" path="/populateAllGroups" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateAllGroupsAction"
+            unknown="false" validate="false">
+      <forward name="AllGroups" path="AllGroupsDef" redirect="false"/>
+    </action>
+    <!-- Does any necessary setup for initial display of MyGroups.           -->
+    <action name="GroupOrStemMemberFormBean" path="/populateMyGroups" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateMyGroupsAction"
+            unknown="false" validate="false">
+      <forward name="MyGroups" path="MyGroupsDef" redirect="false"/>
+    </action>
+
+    <action name="GroupOrStemMemberFormBean" parameter="stems" path="/populateStemMember"
+            scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateGroupMemberAction"
+            unknown="false" validate="false">
+      <forward name="StemMember" path="StemMemberDef" redirect="false"/>
+    </action>
+  
+    <!--<action name="StemFormBean" parameter="stems" path="/populateStemMembers"
+            scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateGroupMembersAction"
+            unknown="false" validate="false">
+      <forward name="StemMembers" path="StemMembersDef" redirect="false"/>
+    </action>-->
+  
+    <action path="/prepareStems" scope="request" name="BrowseFormBean"
+            type="edu.internet2.middleware.grouper.ui.actions.PrepareRepositoryBrowserStemsAction"
+            unknown="false" validate="false"/>
+            
+    <action path="/prepareFlatten" scope="request" 
+            type="edu.internet2.middleware.grouper.ui.actions.PrepareFlattenAction"
+            unknown="false" validate="false"/>
+			
+	<action path="/prepareBrowsePath" scope="request" name="BrowseFormBean"
+            type="edu.internet2.middleware.grouper.ui.actions.PrepareBrowsePathAction"
+            unknown="false" validate="false"/>
+			
+	<action path="/prepareMenu" 
+            type="edu.internet2.middleware.grouper.ui.actions.PrepareMenuAction"
+            unknown="false" validate="false"/>
+            
+      <action path="/prepareGroupOrStemSearch" scope="request" name="SearchFormBean"
+            type="edu.internet2.middleware.grouper.ui.actions.PrepareGroupSearchFormAction"
+            unknown="false" validate="false"/>
+            
+       <action path="/prepareSubjectSearch" scope="request" name="SearchFormBean"
+            type="edu.internet2.middleware.grouper.ui.actions.PrepareSubjectSearchFormAction"
+            unknown="false" validate="false"/>
+            
+       <action path="/prepareSavedSubjects" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PrepareSavedSubjectsAction"
+            unknown="false" validate="false"/>
+       
+       <action path="/prepareSavedStems" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PrepareSavedStemsAction"
+            unknown="false" validate="false"/>
+            
+       <action path="/prepareSavedGroups" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PrepareSavedSubjectsAction"
+            unknown="false" validate="false" parameter="groupsOnly"/>
+			
+			<action path="/getDynamicTileName" scope="request" name="DummyFormBean"
+            type="edu.internet2.middleware.grouper.ui.actions.GetDynamicTileAction"
+            unknown="false" validate="false"/>
+			
+			<action path="/propogateTilesAttributes" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PropogateTilesAttributesAction"
+            unknown="false" validate="false"/>
+    
+    <action name="GroupFormBean" path="/saveGroup" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.SaveGroupAction"
+            unknown="false" validate="false">
+      <forward name="CreateAgain" path="/populateCreateGroup.do"
+               redirect="false"/>
+      <forward name="EditAgain" path="/populateEditGroup.do" redirect="false"/>
+      <forward name="EditGroupAttributes" path="/populateEditGroupAttributes.do"
+               redirect="false"/>
+      <forward name="GroupSummary" path="/populateGroupSummary.do"
+               redirect="false"/>
+	  <forward name="GroupMembers" path="/populateGroupMembers.do"
+               redirect="false"/>
+      <forward name="AddComposite" path="/populateAddComposite.do"
+               redirect="false"/>
+	  <forward name="FindMembers" path="/populateFindNewMembers.do"
+               redirect="false"/>
+    </action>
+
+    <action name="GroupFormBean" path="/moveGroup" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.MoveGroupAction"
+            unknown="false" validate="false">
+      <forward name="GroupSummary" path="/populateGroupSummary.do" redirect="false"/>
+      <forward name="MoveGroup" path="/populateMoveGroup.do" redirect="false"/>
+    </action>
+
+    <action name="GroupFormBean" path="/copyGroup" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.CopyGroupAction"
+            unknown="false" validate="false">
+      <forward name="GroupSummary" path="/populateGroupSummary.do" redirect="false"/>
+      <forward name="CopyGroup" path="/populateCopyGroup.do" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/copyStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.CopyStemAction"
+            unknown="false" validate="false">
+      <forward name="CopyStem" path="/populateCopyStem.do" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/moveStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.MoveStemAction"
+            unknown="false" validate="false">
+      <forward name="MoveStem" path="/populateMoveStem.do" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/copyOtherStemToStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.CopyOtherStemToStemAction"
+            unknown="false" validate="false">
+      <forward name="CopyOtherStemToStem" path="/populateCopyOtherStemToStem.do" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/moveOtherStemToStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.MoveOtherStemToStemAction"
+            unknown="false" validate="false">
+      <forward name="MoveOtherStemToStem" path="/populateMoveOtherStemToStem.do" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/copyGroupToStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.CopyGroupToStemAction"
+            unknown="false" validate="false">
+      <forward name="CopyGroupToStem" path="/populateCopyGroupToStem.do" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/moveGroupToStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.MoveGroupToStemAction"
+            unknown="false" validate="false">
+      <forward name="MoveGroupToStem" path="/populateMoveGroupToStem.do" redirect="false"/>
+    </action>
+
+
+    <!--
+      Store changes in database (and unlock). Forwards appropriately
+      depending on submit button clicked by user<p/>
+                  
+      <STRONG>TODO:</STRONG> everything
+    -->
+    <action name="GroupFormBean" path="/saveGroupAttributes" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.SaveGroupAttributesAction"
+            unknown="false" validate="false">
+      <forward name="FindNewMembers" path="/populateFindNewMembers.do"
+               redirect="false"/>
+      <forward name="GroupMembers" path="/populateGroupMembers.do"
+               redirect="false"/>
+      <forward name="GroupSummary" path="/populateGroupSummary.do"
+               redirect="false"/> 
+      <forward name="EditAttributes" path="/populateEditGroupAttributes.do"
+               redirect="false"/>
+    </action>
+    
+    <action name="GroupOrStemMemberFormBean" path="/saveGroupMember" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.SaveGroupMemberAction"
+            unknown="false" validate="false">
+      <forward name="GroupMembers" path="/populateGroupMembers.do"
+               redirect="false"/>
+       <forward name="GroupPrivilegees" path="/populateGroupPriviligees.do"
+               redirect="false"/>
+        <forward name="GroupMember" path="/populateGroupMember.do"
+               redirect="false"/>
+                <forward name="SubjectSummary" path="/populateSubjectSummary.do"
+               redirect="false"/>
+    </action>
+    
+    <action name="GroupOrStemMemberFormBean" path="/saveStemMember" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.SaveStemMemberAction"
+            unknown="false" validate="false">
+      <forward name="StemPriviligees" path="/populateStemPriviligees.do"
+               redirect="false"/>
+               <forward name="SubjectSummary" path="/populateSubjectSummary.do"
+               redirect="false"/>
+    </action>
+   
+    <action name="StemFormBean" path="/saveStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.SaveStemAction"
+            unknown="false" validate="false">
+      <forward name="CreateAgain" path="/populateCreateStem.do" redirect="false"/>
+   
+      <forward name="CreateGroups" path="/populateCreateGroups.do"
+               redirect="false"/>
+      <forward name="EditAgain" path="/populateEditStem.do" redirect="false"/>
+      
+      <forward name="FindNewMembers" path="/populateFindNewMembersForStems.do"
+               redirect="false"/>
+      <forward name="StemMembers" path="/populateStemMembers.do"
+               redirect="false"/>
+    </action>
+   
+     <action name="GroupFormBean" path="/removeComposite" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.RemoveCompositeAction"
+            unknown="false" validate="false">
+    </action>
+    
+    <action name="GroupFormBean" path="/populateAddComposite" scope="request" 
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateAddCompositeAction"
+            unknown="false" validate="false">
+      <forward name="addComposite" path="AddCompositeDef" redirect="false"/>
+    </action>
+    
+     <action name="CompositeFormBean" path="/saveComposite" scope="request" 
+            type="edu.internet2.middleware.grouper.ui.actions.SaveCompositeAction"
+            unknown="false" validate="false">
+      <forward name="GroupMembers" path="/populateGroupMembers.do" redirect="false"/>
+      <forward name="self" path="/populateAddComposite.do" redirect="false"/>
+    </action>
+    
+    <action name="SearchFormBean" path="/doSearchSubjects" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.DoSearchSubjectsAction"
+            unknown="false" validate="false">
+      <forward name="SearchResults" path="SubjectSearchResultsDef" redirect="false"/>
+    </action>  
+    
+<action name="SearchFormBean" path="/populateSearchSubjects" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateSearchSubjectsAction"
+            unknown="false" validate="false">
+      <forward name="SearchForm" path="SimpleSubjectSearchDef" redirect="false"/>
+    </action>    
+    
+    
+    <action name="SearchFormBean" path="/searchGroups" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.SearchGroupsAction"
+            unknown="false" validate="false">
+      <forward name="Results" path="SearchGroupResultsDef" redirect="false"/>
+    </action>
+    
+    <action name="SearchFormBean" path="/searchGroupsJoin" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.SearchGroupsAction"
+            unknown="false" validate="false">
+      <forward name="Results" path="SearchGroupResultsDef" redirect="false"/>
+    </action>
+    
+    <action name="SearchFormBean" path="/searchGroupsAll" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.SearchGroupsAction"
+            unknown="false" validate="false">
+      <forward name="Results" path="SearchGroupResultsDef" redirect="false"/>
+    </action>
+	
+	   <action name="SearchFormBean" parameter="forSubject" path="/searchGroupsSubjectSearch" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.SearchGroupsAction"
+            unknown="false" validate="false">
+      <forward name="Results" path="SearchGroupResultsDef" redirect="false"/>
+    </action>
+    
+
+    <action name="SearchFormBean" path="/searchGroupsManage" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.SearchGroupsAction"
+            unknown="false" validate="false">
+      <forward name="Results" path="SearchGroupResultsDef" redirect="false"/>
+    </action>
+    
+    <action name="SearchFormBean" path="/searchNewMembers" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.SearchNewMembersAction"
+            unknown="false" validate="false">
+      <forward name="AssignNewMembers" path="/populateAssignNewMembers.do"
+               redirect="false"/>
+    </action>
+    
+    <action name="SearchFormBean" path="/searchStems" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.SearchStemsAction"
+            unknown="false" validate="false">
+      <forward name="Results" path="SearchStemResultsDef" redirect="false"/>
+    </action>
+  </action-mappings>
+  <controller maxFileSize="1M" memFileSize="256K"/>
+  <plug-in className="org.apache.struts.tiles.TilesPlugin">
+    <set-property property="moduleAware" value="true"/>
+    <set-property property="definitions-debug" value="0"/>
+    <set-property property="definitions-parser-details" value="0"/>
+    <set-property property="definitions-parser-validate" value="false"/>
+    <set-property property="definitions-config" value="/WEB-INF/tiles-def.xml"/>
+  </plug-in>
+</struts-config>

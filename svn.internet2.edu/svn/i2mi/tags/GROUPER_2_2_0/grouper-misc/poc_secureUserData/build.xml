@@ -1,0 +1,137 @@
+
+<project name="poc_secureUserData" default="build" basedir=".">
+  
+  <!-- ant contrib allows conditionals in the ant scripts -->
+  <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+    <classpath>
+      <pathelement location="${basedir}/libAnt/ant-contrib.jar" />
+    </classpath>
+  </taskdef>
+
+  <!-- copy build.properties if not there already -->
+  <if><not><available file="build.properties" /></not>
+    <then><copy file="build.example.properties" tofile="build.properties" /></then>
+  </if> 
+
+  <!-- Grouper Global Build Properties -->
+  <property file="${basedir}/build.properties"/>
+
+  <target name="build" description="full build" depends="init,clean,compile,jarPrepare,jar">
+  </target>
+
+  <target name="init">
+    <tstamp />
+
+    <property name="main.sourceDir" value="src" />
+    <property name="main.sourceChangeLogDir" value="src_changeLogConsumer" />
+
+    <property name="main.lib" value="lib" />
+
+    <property name="main.libChangeLog" value="libChangeLog" />
+
+    <property name="main.binDir" value="dist/bin" />
+    <property name="main.binChangeLogDir" value="dist/binChangeLog" />
+    <property name="main.outputDir" value="dist" />
+
+    <property name="main.appName" value="secureUserData" />
+    <property name="main.lib" value="lib" />
+    <property name="main.jarFile" value="${main.outputDir}/${main.appName}.jar" />
+    <property name="main.jarFileChangeLog" value="${main.outputDir}/${main.appName}ChangeLog.jar" />
+
+    <path id="main.classpath">
+      <fileset dir="${main.lib}">
+        <include name="**/*.jar" />
+      </fileset>
+    </path>
+
+    <path id="main.changeLogClasspath">
+      <fileset dir="${main.lib}">
+        <include name="**/*.jar" />
+      </fileset>
+      <fileset dir="${main.libChangeLog}">
+        <include name="**/*.jar" />
+      </fileset>
+      <fileset file="${grouper.jar.location}" />
+    </path>
+
+  </target>
+
+  <target name="clean" depends="init">
+    <mkdir dir="${main.binDir}" />
+    <delete dir="${main.binDir}" />
+    <mkdir dir="${main.binDir}" />
+
+    <mkdir dir="${main.binChangeLogDir}" />
+    <delete dir="${main.binChangeLogDir}" />
+    <mkdir dir="${main.binChangeLogDir}" />
+
+  </target> 
+  
+  <target name="compile">
+    <mkdir dir="${main.outputDir}" />
+    <mkdir dir="${main.binDir}" />
+    <mkdir dir="${main.binChangeLogDir}" />
+
+    <javac  target="1.5" source="1.5" 
+      srcdir="${main.sourceDir}" destdir="${main.binDir}" debug="true" >
+      <classpath refid="main.classpath" />    
+    </javac>
+
+    <javac  target="1.5" verbose="true" source="1.5" 
+      srcdir="${main.sourceChangeLogDir}" destdir="${main.binChangeLogDir}" debug="true" >
+      <classpath refid="main.changeLogClasspath" />    
+    </javac>
+  
+  </target>
+
+  <target name="jarPrepare">
+    <mkdir dir="${main.binDir}" />
+    <mkdir dir="${main.binChangeLogDir}" />
+
+    <copy todir="${main.binDir}">
+      <fileset dir="${main.sourceDir}">
+        <include name="**/*.java"/>      <!-- source -->
+      </fileset>
+    </copy>
+    
+    <copy todir="${main.binChangeLogDir}">
+      <fileset dir="${main.sourceChangeLogDir}">
+        <include name="**/*.java"/>      <!-- source -->
+      </fileset>
+    </copy>
+    
+    <mkdir dir="${main.binDir}/secureUserDataBuild" />
+    
+    <copy todir="${main.binDir}/secureUserDataBuild" file="build.xml" />
+    
+  </target>
+
+  <target name="jar">
+    <tstamp>
+        <format property="the.timestamp" pattern="yyyy/MM/dd HH:mm:ss" />
+    </tstamp>
+    <jar jarfile="${main.jarFile}" duplicate="fail">
+      <fileset dir="${main.binDir}" />
+      <manifest>
+        <attribute name="Main-Class" value="edu.internet2.middleware.poc_secureUserData.SudFullSync"/>
+        <attribute name="Built-By"                value="${user.name}"/>
+        <attribute name="Implementation-Vendor"   value="Internet2"/>
+        <attribute name="Implementation-Title"    value="secureUserData"/>
+        <attribute name="Build-Timestamp"         value="${the.timestamp}"/>
+      </manifest>
+     </jar>
+    <echo message="Output is: dist/secureUserData.jar" />
+    <jar jarfile="${main.jarFileChangeLog}" duplicate="fail">
+      <fileset dir="${main.binChangeLogDir}" />
+      <manifest>
+        <attribute name="Built-By"                value="${user.name}"/>
+        <attribute name="Implementation-Vendor"   value="Internet2"/>
+        <attribute name="Implementation-Title"    value="secureUserData"/>
+        <attribute name="Build-Timestamp"         value="${the.timestamp}"/>
+      </manifest>
+     </jar>
+     <echo message="Output is: dist/secureUserDataChangeLog.jar" />
+   </target>
+  
+  
+</project>

@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<!--
+  Copyright (C) 2004-2007 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2004-2007 The University Of Chicago
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0 
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!-- $Id$ -->
+
+<hibernate-mapping package="edu.internet2.middleware.grouper.pit" default-lazy="false">
+
+  <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
+    based on the grouper.properties, so dont remove that attribute  -->
+  <class name="PITPermissionAllView" table="grouper_pit_perms_all_v" optimistic-lock="version">
+
+    <cache usage="read-write"/>
+
+    <composite-id >
+      <key-property name="actionId" column="action_id"/>
+      <key-property name="roleId" column="role_id"/>
+      <key-property name="memberId" column="member_id"/>
+      <key-property name="attributeDefNameId" column="attribute_def_name_id"/>
+      <key-property name="membershipId" column="membership_id"/>
+      <key-property name="groupSetId" column="group_set_id"/>
+      <key-property name="attributeAssignId" column="attribute_assign_id"/>
+      <key-property name="actionSetId" column="action_set_id"/>
+      <key-property name="roleSetId" column="role_set_id"/>
+      <key-property name="attributeDefNameSetId" column="attribute_def_name_set_id"/>
+    </composite-id>
+    <property name="action" column="action"/>
+    <property name="subjectSourceId" column="subject_source_id"/>
+    <property name="subjectId" column="subject_id"/>
+    <property name="roleName" column="role_name" />
+    <property name="attributeDefNameName" column="attribute_def_name_name"/>
+    <property name="attributeDefId" column="attribute_def_id"/>
+    <property name="membershipDepth" column="membership_depth"/>
+    <property name="roleSetDepth" column="role_set_depth"/>
+    <property name="attributeDefNameSetDepth" column="attr_def_name_set_depth"/>
+    <property name="attributeAssignActionSetDepth" column="attr_assign_action_set_depth"/>
+    <property name="permissionTypeDb" column="permission_type"/>
+
+    <property name="groupSetActiveDb" column="group_set_active" />
+    <property name="groupSetStartTimeDb" column="group_set_start_time" />
+    <property name="groupSetEndTimeDb" column="group_set_end_time" />
+    
+    <property name="membershipActiveDb" column="membership_active" />
+    <property name="membershipStartTimeDb" column="membership_start_time" />
+    <property name="membershipEndTimeDb" column="membership_end_time" />
+    
+    <property name="roleSetActiveDb" column="role_set_active" />
+    <property name="roleSetStartTimeDb" column="role_set_start_time" />
+    <property name="roleSetEndTimeDb" column="role_set_end_time" />
+    
+    <property name="actionSetActiveDb" column="action_set_active" />
+    <property name="actionSetStartTimeDb" column="action_set_start_time" />
+    <property name="actionSetEndTimeDb" column="action_set_end_time" />    
+    
+    <property name="attributeDefNameSetActiveDb" column="attr_def_name_set_active" />
+    <property name="attributeDefNameSetStartTimeDb" column="attr_def_name_set_start_time" />
+    <property name="attributeDefNameSetEndTimeDb" column="attr_def_name_set_end_time" />  
+    
+    <property name="attributeAssignActiveDb" column="attribute_assign_active" />
+    <property name="attributeAssignStartTimeDb" column="attribute_assign_start_time" />
+    <property name="attributeAssignEndTimeDb" column="attribute_assign_end_time" />     
+
+    <property name="disallowedDb" column="disallowed"/>
+    
+    <property name="actionSourceId" column="action_source_id" />
+    <property name="roleSourceId" column="role_source_id" />
+    <property name="attributeDefNameSourceId" column="attribute_def_name_source_id" />
+    <property name="attributeDefSourceId" column="attribute_def_source_id" />
+    <property name="memberSourceId" column="member_source_id" />
+    <property name="membershipSourceId" column="membership_source_id" />
+    <property name="attributeAssignSourceId" column="attribute_assign_source_id" />
+  </class>
+</hibernate-mapping>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="conf"/>
+	<classpathentry kind="src" path="src/java"/>
+	<classpathentry kind="src" path="src/ext"/>
+	<classpathentry kind="src" path="src/custom"/>
+	<classpathentry kind="src" path="src/extCustom"/>
+	<classpathentry kind="src" path="src/extMore"/>
+	<classpathentry kind="src" path="src/testConf"/>
+	<classpathentry kind="src" path="src/testSource"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/xstream/jdom-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/xstream/jettison-1.0-RC2.jar"/>
+	<classpathentry kind="lib" path="lib/xstream/jmock-1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/xstream/joda-time-1.5.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xstream/junit-3.8.1.jar"/>
+	<classpathentry kind="lib" path="lib/xstream/stax-1.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/xstream/stax-api-1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/xstream/wstx-asl-3.2.3.jar"/>
+	<classpathentry kind="lib" path="lib/xstream/xml-writer-0.2.jar"/>
+	<classpathentry kind="lib" path="lib/xstream/xom-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/xstream/xpp3_min-1.1.4c.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging/log4j.jar"/>
+	<classpathentry kind="lib" path="lib/xstream/cglib.jar"/>
+	<classpathentry kind="lib" path="lib/xstream/dom4j.jar"/>
+	<classpathentry kind="lib" path="lib/xstream/jakarta-oro.jar"/>
+	<classpathentry kind="lib" path="lib/requiresJarIfUse/mailapi.jar"/>
+	<classpathentry kind="lib" path="lib/xmpp/quartz.jar"/>
+	<classpathentry kind="lib" path="lib/xmpp/smack.jar"/>
+	<classpathentry kind="lib" path="lib/xmpp/commons-beanutils.jar"/>
+	<classpathentry kind="lib" path="lib/xmpp/commons-collections.jar"/>
+	<classpathentry kind="lib" path="lib/xmpp/commons-logging.jar"/>
+	<classpathentry kind="lib" path="lib/xmpp/ezmorph.jar"/>
+	<classpathentry kind="lib" path="lib/xmpp/json-lib.jar"/>
+	<classpathentry kind="lib" path="lib/xmpp/jta.jar"/>
+	<classpathentry kind="output" path="build/eclipseBin"/>
+</classpath>

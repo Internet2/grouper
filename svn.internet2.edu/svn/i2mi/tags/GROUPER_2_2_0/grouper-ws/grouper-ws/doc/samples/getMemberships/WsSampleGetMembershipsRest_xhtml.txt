@@ -1,0 +1,399 @@
+Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRest, manually written lite/rest, format: xhtml, for version: 2.2.0
+
+
+#########################################
+##
+## HTTP request sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+POST /grouper-ws/servicesRest/v2_2_000/memberships HTTP/1.1
+Connection: close
+Authorization: Basic xxxxxxxxxxxxxxxxx==
+User-Agent: Jakarta Commons-HttpClient/3.0
+Host: localhost:8092
+Content-Length: 987
+Content-Type: application/xhtml+xml; charset=UTF-8
+
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>WsRestGetMembershipsRequest</title>
+  </head>
+  <body>
+    <div title="WsRestGetMembershipsRequest">
+      <div class="actAsSubjectLookup" title="WsSubjectLookup" />
+      <p class="clientVersion" />
+      <p class="enabled" />
+      <p class="fieldName" />
+      <p class="fieldType" />
+      <p class="includeGroupDetail" />
+      <p class="includeSubjectDetail" />
+      <p class="memberFilter" />
+      <p class="scope" />
+      <div class="serviceLookup" title="WsAttributeDefNameLookup" />
+      <p class="serviceRole" />
+      <p class="stemScope" />
+      <ul class="subjectAttributeNames">
+        <li>description</li>
+        <li>loginid</li>
+        <li>name</li>
+      </ul>
+      <ul class="wsGroupLookups">
+        <li title="WsGroupLookup">
+          <p class="groupName">aStem:aGroup</p>
+          <p class="idIndex" />
+          <p class="uuid" />
+        </li>
+      </ul>
+      <div class="wsStemLookup" title="WsStemLookup" />
+    </div>
+  </body>
+</html>
+
+
+#########################################
+##
+## HTTP response sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+HTTP/1.1 200 OK
+Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+X-Grouper-resultCode: SUCCESS
+X-Grouper-success: T
+X-Grouper-resultCode2: NONE
+Content-Type: application/xhtml+xml;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Tue, 03 Jun 2014 22:18:13 GMT
+Connection: close
+
+10d8
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>WsGetMembershipsResults</title>
+  </head>
+  <body>
+    <div title="WsGetMembershipsResults">
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="millis">17482</p>
+        <p class="resultWarnings" />
+        <p class="serverVersion">2.2.0</p>
+      </div>
+      <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode">SUCCESS</p>
+        <p class="resultCode2" />
+        <p class="resultMessage">Found 3 results involving 1 groups and 3 subjects</p>
+        <p class="success">T</p>
+      </div>
+      <ul class="subjectAttributeNames">
+        <li>description</li>
+        <li>loginid</li>
+        <li>name</li>
+      </ul>
+      <ul class="wsGroups">
+        <li title="WsGroup">
+          <p class="description">a group description</p>
+          <div class="detail" title="WsGroupDetail" />
+          <p class="displayExtension">a group</p>
+          <p class="displayName">a stem:a group</p>
+          <p class="extension">aGroup</p>
+          <p class="idIndex">10001</p>
+          <p class="name">aStem:aGroup</p>
+          <p class="typeOfGroup">group</p>
+          <p class="uuid">8cff5b39affb4289a5ee18cbd3b06212</p>
+        </li>
+      </ul>
+      <ul class="wsMemberships">
+        <li title="WsMembership">
+          <p class="createTime">2014/06/03 18:17:50.502</p>
+          <p class="disabledTime" />
+          <p class="enabled">T</p>
+          <p class="enabledTime" />
+          <p class="groupId">8cff5b39affb4289a5ee18cbd3b06212</p>
+          <p class="groupName">aStem:aGroup</p>
+          <p class="immediateMembershipId">adfc2ee8b6084dd1b4cd4be3111ca913</p>
+          <p class="listName">members</p>
+          <p class="listType">list</p>
+          <p class="memberId">c3de53d022b94d55934bef9a59f118c8</p>
+          <p class="membershipId">adfc2ee8b6084dd1b4cd4be3111ca913:bb3855fda34a41aaa5f53763a4c19a80</p>
+          <p class="membershipType">immediate</p>
+          <p class="ownerIdOfAttributeDef" />
+          <p class="ownerNameOfAttributeDef" />
+          <p class="ownerStemId" />
+          <p class="ownerStemName" />
+          <p class="subjectId">GrouperSystem</p>
+          <p class="subjectSourceId">g:isa</p>
+        </li>
+        <li title="WsMembership">
+          <p class="createTime">2014/06/03 18:17:50.646</p>
+          <p class="disabledTime" />
+          <p class="enabled">T</p>
+          <p class="enabledTime" />
+          <p class="groupId">8cff5b39affb4289a5ee18cbd3b06212</p>
+          <p class="groupName">aStem:aGroup</p>
+          <p class="immediateMembershipId">ad4a38ed6919430696a21f31d517776b</p>
+          <p class="listName">members</p>
+          <p class="listType">list</p>
+          <p class="memberId">2301ee34849647c1afece7dd7aac47c4</p>
+          <p class="membershipId">ad4a38ed6919430696a21f31d517776b:bb3855fda34a41aaa5f53763a4c19a80</p>
+          <p class="membershipType">immediate</p>
+          <p class="ownerIdOfAttributeDef" />
+          <p class="ownerNameOfAttributeDef" />
+          <p class="ownerStemId" />
+          <p class="ownerStemName" />
+          <p class="subjectId">10021368</p>
+          <p class="subjectSourceId">jdbc</p>
+        </li>
+        <li title="WsMembership">
+          <p class="createTime">2014/06/03 18:17:50.592</p>
+          <p class="disabledTime" />
+          <p class="enabled">T</p>
+          <p class="enabledTime" />
+          <p class="groupId">8cff5b39affb4289a5ee18cbd3b06212</p>
+          <p class="groupName">aStem:aGroup</p>
+          <p class="immediateMembershipId">ed5e0e5afd974e3f9b80dae8f2f5de2a</p>
+          <p class="listName">members</p>
+          <p class="listType">list</p>
+          <p class="memberId">a5f4959eff8a424d9ec60394f2ae6fa3</p>
+          <p class="membershipId">ed5e0e5afd974e3f9b80dae8f2f5de2a:bb3855fda34a41aaa5f53763a4c19a80</p>
+          <p class="membershipType">immediate</p>
+          <p class="ownerIdOfAttributeDef" />
+          <p class="ownerNameOfAttributeDef" />
+          <p class="ownerStemId" />
+          <p class="ownerStemName" />
+          <p class="subjectId">10039438</p>
+          <p class="subjectSourceId">jdbc</p>
+        </li>
+      </ul>
+      <ul class="wsSubjects">
+        <li title="WsSubject">
+          <ul class="attributeValues">
+            <li>GrouperSysAdmin</li>
+            <li />
+            <li>EveryEntity</li>
+          </ul>
+          <p class="id">GrouperSystem</p>
+          <p class="identifierLookup" />
+          <p class="name">GrouperSysAdmin</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="sourceId">g:isa</p>
+          <p class="success">T</p>
+        </li>
+        <li title="WsSubject">
+          <ul class="attributeValues">
+            <li />
+            <li />
+            <li>10021368</li>
+          </ul>
+          <p class="id">10021368</p>
+          <p class="identifierLookup" />
+          <p class="name">10021368</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="sourceId">jdbc</p>
+          <p class="success">T</p>
+        </li>
+        <li title="WsSubject">
+          <ul class="attributeValues">
+            <li />
+            <li />
+            <li>10039438</li>
+          </ul>
+          <p class="id">10039438</p>
+          <p class="identifierLookup" />
+          <p class="name">10039438</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="sourceId">jdbc</p>
+          <p class="success">T</p>
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>
+0
+
+
+#########################################
+##
+## Java source code (note, any programming language / objects
+## can use used to generate the above request/response.  Nothing
+## is Java specific.  Also, if you are using Java, the client libraries
+## are available
+##
+#########################################
+
+
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+package edu.internet2.middleware.grouper.ws.samples.rest.membership;
+
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
+import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsRequest;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
+import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
+
+/**
+ * @author mchyzer
+ */
+public class WsSampleGetMembershipsRest implements WsSampleRest {
+
+  /**
+   * get member lite web service with REST
+   * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
+   */
+  public static void getMembershipsLite(WsSampleRestType wsSampleRestType) {
+
+    try {
+      HttpClient httpClient = new HttpClient();
+      
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
+      //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
+      //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
+      String url = RestClientSettings.URL + "/" + RestClientSettings.VERSION  
+        + "/memberships";
+      PostMethod method = new PostMethod(
+          url);
+
+      httpClient.getParams().setAuthenticationPreemptive(true);
+      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
+          RestClientSettings.PASS);
+
+      //no keep alive so response if easier to indent for tests
+      method.setRequestHeader("Connection", "close");
+      
+      //e.g. localhost and 8093
+      httpClient.getState()
+          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
+
+      //Make the body of the request, in this case with beans and marshaling, but you can make
+      //your request document in whatever language or way you want
+      WsRestGetMembershipsRequest getMemberships = new WsRestGetMembershipsRequest();
+
+      // seeif two subjects are in the group
+      WsGroupLookup[] groupLookups = new WsGroupLookup[1];
+      groupLookups[0] = new WsGroupLookup("aStem:aGroup", null);
+
+      getMemberships.setWsGroupLookups(groupLookups);
+
+      getMemberships.setSubjectAttributeNames(new String[]{"description", "loginid", "name"});
+      
+      //get the xml / json / xhtml / paramString
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(getMemberships);
+      
+      //make sure right content type is in request (e.g. application/xhtml+xml
+      String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
+      
+      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
+      
+      httpClient.executeMethod(method);
+
+      //make sure a request came back
+      Header successHeader = method.getResponseHeader("X-Grouper-success");
+      String successString = successHeader == null ? null : successHeader.getValue();
+      if (StringUtils.isBlank(successString)) {
+        throw new RuntimeException("Web service did not even respond!");
+      }
+      boolean success = "T".equals(successString);
+      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+      
+      String response = RestClientSettings.responseBodyAsString(method);
+
+      Object result = wsSampleRestType
+        .getWsLiteResponseContentType().parseString(response);
+      
+      //see if problem
+      if (result instanceof WsRestResultProblem) {
+        throw new RuntimeException(((WsRestResultProblem)result).getResultMetadata().getResultMessage());
+      }
+      
+      //convert to object (from xhtml, xml, json, etc)
+      WsGetMembershipsResults wsGetMembershipsResults = (WsGetMembershipsResults)result;
+      
+      String resultMessage = wsGetMembershipsResults.getResultMetadata().getResultMessage();
+
+      // see if request worked or not
+      if (!success) {
+        throw new RuntimeException("Bad response from web service: successString: " + successString + ", resultCode: " + resultCode
+            + ", " + resultMessage);
+      }
+      
+      System.out.println("Server version: " + wsGetMembershipsResults.getResponseMetadata().getServerVersion()
+          + ", result code: " + resultCode
+          + ", result message: " + resultMessage );
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  /**
+   * @param args
+   */
+  public static void main(String[] args) {
+    getMembershipsLite(WsSampleRestType.xml);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  public void executeSample(WsSampleRestType wsSampleRestType) {
+    getMembershipsLite(wsSampleRestType);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#validType(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  public boolean validType(WsSampleRestType wsSampleRestType) {
+    //dont allow http params
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
+  }
+}
+
+
+#########################################
+##
+## Stdout
+##
+#########################################
+
+
+Server version: 2.2.0, result code: SUCCESS, result message: Found 3 results involving 1 groups and 3 subjects

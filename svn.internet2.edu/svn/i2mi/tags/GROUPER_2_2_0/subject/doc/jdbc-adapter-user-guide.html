@@ -1,0 +1,366 @@
+<html>
+  <head>
+    <title>JDBCSourceAdapter Documentation</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <style>
+      	body{
+			font-family:Arial, Helvetica, sans-serif;
+			color:#000000;
+			text-align:left;
+			background-color:#FFFFFF;		
+		}
+    	h5 { font-style: italic; }
+    	.code {
+			margin-left: 3em;
+			margin-right: 3em;
+			padding: 0.3em;
+			border: 1px dotted #888888;
+			background-color: #eeeeee;
+    	}
+    </style>
+  </head>
+
+  <body bgcolor="#FFFFFF">
+
+    <h3>JDBCSourceAdapter User Documentation</h3>
+
+    <p>
+      The JDBCSourceAdapter is a reference implementation of the edu.internet2.middleware.subject.Source 
+      interface in the Subject API. This implementation is designed to retrieve and 
+      search for subjects in a JDBC data source.
+    </p>
+    
+    <p>
+      The configuration includes connection properties for the data source, attribute mappings to create
+      the Subject, and named searches to define the queries.
+    </p>
+
+    <h4><a name="searching"></a>Searching for Subjects</h4>
+
+    <p>
+      The search() method may be used to find subjects. This method uses the 
+      named search <em>search</em> to find matching subjects.
+    </p>
+
+    <h4>Retrieving Individual Subjects</h4>
+
+    <p>
+      The JDBCSourceAdapter contains two methods to retrieve subjects: getSubject() 
+      and getSubjectByIdentifier(). These must return a unique result or no result.
+    </p>
+
+    <ul>
+      <li>
+        getSubject() - this method uses the named search <em>searchSubject</em> to find a match.
+      </li>
+      <li>
+        getSubjectByIdentifier() - this method uses the named search <em>searchSubjectByIdentifier</em>
+        to find a match.
+      </li>
+    </ul>
+
+    <h4><a name="config"></a>Configuring the JDBCSourceAdapter</h4>
+
+    <p>
+      Configuration of the JDBCSourceAdapter is specified in the sources.xml configuration 
+      file.
+    </p>
+
+	<h5>Basic Elements</h5>
+	
+	<p>The following XML element/attributes must be defined.</p>
+
+    <blockquote></blockquote><table width="75%" border="1" cellpadding="4" cellspacing="0">
+      <tr bgcolor="#CCCCCC" valign="top"> 
+        <td width="25%"><i><strong>Element</strong></i></td>
+        <td width="8%"><i><strong>Required</strong></i></td>
+        <td width="67%"><i><strong>Description</strong></i></td>
+      </tr>
+      <tr valign="top"> 
+        <td width="25%">&lt;source adapterClass&gt;</td>
+        <td width="8%">Y</td>
+        <td width="67%">set to&quot;edu.internet2.middleware.subject.provider.JDBCSourceAdapter&quot;</td>
+      </tr>
+      <tr valign="top"> 
+        <td width="25%">&lt;id&gt;</td>
+        <td width="8%">Y</td>
+        <td width="67%">user specified source ID</td>
+      </tr>
+      <tr valign="top"> 
+        <td width="25%">&lt;name&gt;</td>
+        <td width="8%">Y</td>
+        <td width="67%">user specified source name</td>
+      </tr>
+      <tr valign="top"> 
+        <td width="25%">&lt;type&gt;</td>
+        <td width="8%">Y</td>
+        <td width="67%">subject types that are contained in the Subject table</td>
+      </tr>
+    </table></blockquote>
+    
+    <h5>XML &lt;init-param&gt; Parameters</h5>
+
+    <p>These parameters must be of the form</p>
+    
+    <pre class="code">
+&lt;init-param&gt;
+  &lt;param-name&gt;<em>name</em>&lt;/param-name&gt;
+  &lt;param-value&gt;<em>value</em>&lt;/param-value&gt;
+&lt;/init-param&gt;
+</pre>
+
+	<blockquote><table width="75%" border="1" cellpadding="4" cellspacing="0">
+      <tr bgcolor="#CCCCCC" valign="top"> 
+        <td width="26%"><i><strong>Parameter Name</strong></i></td>
+        <td width="6%"><i><b>Required</b></i></td>
+        <td width="68%"><i><strong>Description</strong></i></td>
+      </tr>
+      <tr valign="top"> 
+        <td width="26%">dbDriver</td>
+        <td width="6%">Y</td>
+        <td width="68%">fully qualified database driver class name</td>
+      </tr>
+      <tr valign="top"> 
+        <td width="26%">dbUrl</td>
+        <td width="6%">Y</td>
+        <td width="68%">URL of the database</td>
+      </tr>
+      <tr valign="top"> 
+        <td width="26%">dbUser</td>
+        <td width="6%">Y</td>
+        <td width="68%">database user name</td>
+      </tr>
+      <tr valign="top"> 
+        <td width="26%">maxActive</td>
+        <td width="6%">Y</td>
+        <td width="68%">max number of database connections</td>
+      </tr>
+      <tr valign="top"> 
+        <td width="26%">maxIdle</td>
+        <td width="6%">Y</td>
+        <td width="68%">number of idle database connections</td>
+      </tr>
+      <tr valign="top"> 
+        <td width="26%">maxWait</td>
+        <td width="6%">Y</td>
+        <td width="68%">number of seconds to wait for a connection to open</td>
+      </tr>
+      <tr valign="top"> 
+        <td width="26%">readOnly</td>
+        <td width="6%">N</td>
+        <td width="68%">
+          boolean indicating whether the connection is read only or 
+          not (default is &quot;true&quot;). Note that Oracle databases may require 
+          this parameter be set to &quot;false&quot;.</td>
+      </tr>
+      <tr valign="top">
+        <td width="26%">SubjectID_AttributeType</td>
+        <td width="6%">Y</td>
+        <td width="68%">
+          attribute returned by the named search that will be mapped
+          to the subjectId property of the Subject.
+        </td>
+      </tr>
+      <tr valign="top">
+        <td width="26%">Name_AttributeType</td>
+        <td width="6%">Y</td>
+        <td width="68%">
+          attribute returned by the named search that will be mapped
+          to the name property of the Subject.
+        </td>
+      </tr>
+      <tr valign="top">
+        <td width="26%">Description_AttributeType</td>
+        <td width="6%">Y</td>
+        <td width="68%">
+          attribute returned by the named search that will be mapped
+          to the description property of the Subject.
+        </td>
+      </tr>
+    </table></blockquote>
+    
+    <h5>Named Searches</h5>
+
+    <p>These must be of the form</p>
+    
+    <pre class="code">
+&lt;search&gt;
+  &lt;searchType&gt;<em>nameOfSearch</em>&lt;/searchType&gt;
+  &lt;param&gt;
+    &lt;param-name&gt;numParameters&lt;/param-name&gt;
+    &lt;param-value&gt;<em>numberOfParametersToSubstitute</em>&lt;/param-value&gt;
+  &lt;/param&gt;
+  &lt;param&gt;
+    &lt;param-name&gt;sql&lt;/param-name&gt;
+    &lt;param-value&gt;
+      <em>some sql statement with question mark ("?")
+      where the parameter should be substituted</em>
+    &lt;/param-value&gt;
+  &lt;/param&gt;
+&lt;/search&gt;
+</pre>
+
+    <blockquote><table width="75%" border="1" cellpadding="4" cellspacing="0">
+      <tr bgcolor="#CCCCCC" valign="top"> 
+        <td width="26%"><i><strong>Search Name</strong></i></td>
+        <td width="6%"><i><b>Required</b></i></td>
+        <td width="68%"><i><strong>Description</strong></i></td>
+      </tr>
+      <tr valign="top"> 
+        <td width="26%">search</td>
+        <td width="6%">Y</td>
+        <td width="68%">
+          search for subject by several attributes,
+        possibly returning multiple results.</td>
+      </tr>
+      <tr valign="top"> 
+        <td width="26%">searchSubject</td>
+        <td width="6%">Y</td>
+        <td width="68%">
+          search for subject by identifier, generally a login ID,
+          returning a single result.
+        </td>
+      </tr>
+      <tr valign="top"> 
+        <td width="26%">searchSubjectByIdentifier</td>
+        <td width="6%">Y</td>
+        <td width="68%">
+          search for subject by subject ID,
+          returning a single result.
+        </td>
+      </tr>
+    </table></blockquote>
+
+    <h5>Sample JDBCSourceAdapter configuration:</h5>
+
+    <pre class="code">
+&lt;sources&gt;
+  &lt;source adapterClass=&quot;edu.internet2.middleware.subject.provider.JDBCSourceAdapter&quot;&gt;
+    &lt;id&gt;sample&lt;/id&gt;
+    &lt;name&gt;My Source&lt;/name&gt;
+    &lt;type&gt;person&lt;/type&gt;
+    &lt;init-param&gt;
+      &lt;param-name&gt;dbDriver&lt;/param-name&gt;
+      &lt;param-value&gt;org.hsqldb.jdbcDriver&lt;/param-value&gt;
+    &lt;/init-param&gt;
+    &lt;init-param&gt;
+      &lt;param-name&gt;dbUrl&lt;/param-name&gt;
+      &lt;param-value&gt;jdbc:hsqldb:data/mydb&lt;/param-value&gt;
+    &lt;/init-param&gt;
+    &lt;init-param&gt;
+      &lt;param-name&gt;dbUser&lt;/param-name&gt;
+      &lt;param-value&gt;user&lt;/param-value&gt;
+    &lt;/init-param&gt;
+    &lt;init-param&gt;
+      &lt;param-name&gt;dbPwd&lt;/param-name&gt;
+      &lt;param-value&gt;password&lt;/param-value&gt;
+    &lt;/init-param&gt;
+    &lt;init-param&gt;
+      &lt;param-name&gt;maxActive&lt;/param-name&gt;
+      &lt;param-value&gt;4&lt;/param-value&gt;
+    &lt;/init-param&gt;
+    &lt;init-param&gt;
+      &lt;param-name&gt;maxIdle&lt;/param-name&gt;
+      &lt;param-value&gt;2&lt;/param-value&gt;
+    &lt;/init-param&gt;
+    &lt;init-param&gt;
+      &lt;param-name&gt;maxWait&lt;/param-name&gt;
+      &lt;param-value&gt;5&lt;/param-value&gt;
+    &lt;/init-param&gt;
+    
+    &lt;init-param&gt;
+      &lt;param-name&gt;SubjectID_AttributeType&lt;/param-name&gt;
+      &lt;param-value&gt;id&lt;/param-value&gt;
+    &lt;/init-param&gt;
+    &lt;init-param&gt;
+      &lt;param-name&gt;Name_AttributeType&lt;/param-name&gt;
+      &lt;param-value&gt;name&lt;/param-value&gt;
+    &lt;/init-param&gt;
+    &lt;init-param&gt;
+      &lt;param-name&gt;Description_AttributeType&lt;/param-name&gt;
+      &lt;param-value&gt;name&lt;/param-value&gt;
+    &lt;/init-param&gt;
+    
+    &lt;search&gt;
+      &lt;searchType&gt;searchSubject&lt;/searchType&gt;
+      &lt;param&gt;
+        &lt;param-name&gt;numParameters&lt;/param-name&gt;
+        &lt;param-value&gt;1&lt;/param-value&gt;
+      &lt;/param&gt;
+      &lt;param&gt;
+        &lt;param-name&gt;sql&lt;/param-name&gt;
+        &lt;param-value&gt;
+          select id, 
+            concat(firstname, concat(' ', lastname)) as name, 
+            concat(lastname, concat(', ', firstname)) as lfname,
+            lastname, firstname, middlename,
+            account.name as loginid,
+            department, curriculum, appointment
+          from individual 
+            left join account on (account.individualid = id)
+            left join faculty on (faculty.individualid = id)
+            left join staff on (staff.individualid = id)
+            left join student on (student.individualid = id)
+          where (id=?)
+        &lt;/param-value&gt;
+      &lt;/param&gt;
+    &lt;/search&gt;
+    &lt;search&gt;
+      &lt;searchType&gt;searchSubjectByIdentifier&lt;/searchType&gt;
+      &lt;param&gt;
+        &lt;param-name&gt;numParameters&lt;/param-name&gt;
+        &lt;param-value&gt;1&lt;/param-value&gt;
+      &lt;/param&gt;
+      &lt;param&gt;
+        &lt;param-name&gt;sql&lt;/param-name&gt;
+        &lt;param-value&gt;
+          select id, 
+            concat(firstname, concat(' ', lastname)) as name, 
+            concat(lastname, concat(', ', firstname)) as lfname,
+            lastname, firstname, middlename,
+            account.name as loginid,
+            department, curriculum, appointment
+          from individual 
+            left join account on (account.individualid = id)
+            left join faculty on (faculty.individualid = id)
+            left join staff on (staff.individualid = id)
+            left join student on (student.individualid = id)
+          where (account.name=?)
+        &lt;/param-value&gt;
+      &lt;/param&gt;
+    &lt;/search&gt;
+    &lt;search&gt;
+       &lt;searchType&gt;search&lt;/searchType&gt;
+       &lt;param&gt;
+         &lt;param-name&gt;numParameters&lt;/param-name&gt;
+         &lt;param-value&gt;4&lt;/param-value&gt;
+       &lt;/param&gt;
+       &lt;param&gt;
+         &lt;param-name&gt;sql&lt;/param-name&gt;
+         &lt;param-value&gt;
+          select id, 
+            concat(firstname, concat(' ', lastname)) as name, 
+            concat(lastname, concat(', ', firstname)) as lfname,
+            lastname, firstname, middlename,
+            account.name as loginid,
+            department, curriculum, appointment
+          from individual 
+            left join account on (account.individualid = id)
+            left join faculty on (faculty.individualid = id)
+            left join staff on (staff.individualid = id)
+            left join student on (student.individualid = id)
+          where (firstname like concat('%', concat(?, '%')))
+            or (lastname like concat('%', concat(?, '%'))) 
+            or (department like concat('%', concat(?, '%'))) 
+            or (account.name like concat('%', concat(?, '%')))
+        &lt;/param-value&gt;
+      &lt;/param&gt;
+    &lt;/search&gt;
+  &lt;source&gt;
+&lt;sources&gt;
+</pre>
+
+    <p>&nbsp;</p>
+
+  </body>
+</html>

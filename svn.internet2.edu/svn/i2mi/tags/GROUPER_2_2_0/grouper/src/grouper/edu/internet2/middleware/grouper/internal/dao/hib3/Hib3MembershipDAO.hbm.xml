@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<!--
+  Copyright (C) 2004-2007 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2004-2007 The University Of Chicago
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0 
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!-- $Id: Hib3MembershipDAO.hbm.xml,v 1.19 2009-10-03 13:47:13 shilen Exp $ -->
+
+<hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
+
+  <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
+    based on the grouper.properties, so dont remove that attribute  -->
+  <!-- TODO 20070124 revisit the batch-size setting now that i've completely altered this mapping -->
+  <class name="Membership" table="grouper_memberships_all_v" batch-size="5" optimistic-lock="version" entity-name="MembershipEntry">
+
+    <meta attribute="implement-equals">true</meta>
+    <meta attribute="session-method">Hib3DAO.getSession();</meta>
+
+    <cache usage="read-write"/>
+    
+    <composite-id>
+      <key-property name="uuid" type="string" column="membership_id" />
+      <key-property name="immediateMembershipId" type="string" column="immediate_membership_id" />
+      <key-property name="groupSetId" type="string" column="group_set_id" />    
+    </composite-id>
+    
+    <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
+    <version name="hibernateVersionNumber" type="long" column="hibernate_version_number" />
+    
+    <property name="ownerId" type="string" column="owner_id" />
+    <property name="ownerAttrDefId" type="string" column="owner_attr_def_id" />
+    <property name="ownerGroupId" type="string" column="owner_group_id" />
+    <property name="ownerStemId" type="string" column="owner_stem_id" />
+    <property name="memberUuid" type="string" column="member_id" />
+    <property name="fieldId" type="string" column="field_id" />
+    <property name="immediateFieldId" type="string" column="immediate_field_id" />
+    <property name="viaCompositeId" type="string" column="via_composite_id" />
+    <property name="creatorUuid" type="string" column="membership_creator_id" />
+    <property name="createTimeLong" type="long" column="membership_create_time" />
+    <property name="groupSetCreatorUuid" type="string" column="group_set_creator_id" />
+    <property name="groupSetCreateTimeLong" type="long" column="group_set_create_time" />
+    <property name="contextId" column="context_id" />
+    <property name="groupSetParentId" column="group_set_parent_id" />
+    <property name="viaGroupId" type="string" column="via_group_id" />
+    <property name="depth" type="integer" column="depth" />
+    <property name="type" type="string" column="mship_type" />
+    
+    <property name="enabledDb" type="string" column="immediate_mship_enabled" />
+    <property name="enabledTimeDb" type="long" column="immediate_mship_enabled_time" />
+    <property name="disabledTimeDb" type="long" column="immediate_mship_disabled_time" />
+  </class>
+</hibernate-mapping>
+

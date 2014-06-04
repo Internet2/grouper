@@ -1,0 +1,93 @@
+
+# Grouper API Summary
+
+This file contains summary examples of some of the more useful methods
+available within the Grouper API.  More examples will be added in the future.
+See the full JavaDoc for more complete documentation.
+
+
+## Contents
+
+1.  Find A Subject
+2.  Start-And-Stop A Session
+3.  Find The Root Stem
+4.  Create Top-Level Stem
+5.  Create Child Group
+6.  Add Member To Group If Not Already A Member
+
+
+## Find A Subject
+
+    try {
+      Subject subj = SubjectFinder.findById("subject id");
+    }
+    catch (SubjectNotFoundException eSNF) {
+      // could not find subject
+    }
+    catch (SubjectNotUniqueException eSNU) {
+      // could not uniquely resolve "subject id"
+    }
+
+
+## Start-And-Stop A Session
+
+    try {
+      GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
+      try {
+        s.stop();
+      }
+      catch (SessionException eS) {
+        // unable to stop this session
+      }
+    }
+    catch (SessionException eS) {
+      // unable to start session
+    }
+ 
+
+## Find The Root Stem 
+
+    Stem root = StemFinder.findRootStem();
+
+
+## Create Top-Level Stem
+
+    try {
+      Stem etc = root.addChildStem("etc", "Grouper Administration");
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      // not privileged to add this stem
+    }
+    catch (StemAddException eNSA) {
+      // error adding this stem
+    }
+
+
+## Create Child Group
+
+    try {
+      Group wheel = etc.addChildGroup("wheel", "Wheel Group");
+    }
+    catch (GroupAddException eGA) {
+      // error adding this group
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      // not privileged to add this group
+    }
+
+
+## Add Member To Group If Not Already A Member
+
+    Subject all = SubjectFinder.findAllSubject();
+    if ( !wheel.hasMember(all) ) {
+      try {
+        wheel.addMember(all);
+      }
+      catch (InsufficientPrivilegeException eIP) {
+        // not privileged to add this member
+      }
+      catch (MemberAddException eMA) {
+        // error adding this member
+      }
+    }
+

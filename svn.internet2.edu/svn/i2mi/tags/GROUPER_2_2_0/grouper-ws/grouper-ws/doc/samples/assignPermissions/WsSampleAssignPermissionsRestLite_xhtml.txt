@@ -1,0 +1,313 @@
+Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRestLite, manually written lite/rest, format: xhtml, for version: 2.2.0
+
+
+#########################################
+##
+## HTTP request sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+POST /grouper-ws/servicesRest/xhtml/v2_2_000/permissionAssignments HTTP/1.1
+Connection: close
+Authorization: Basic xxxxxxxxxxxxxxxxx==
+User-Agent: Jakarta Commons-HttpClient/3.0
+Host: localhost:8092
+Content-Length: 1337
+Content-Type: application/xhtml+xml; charset=UTF-8
+
+<?xml version='1.0' encoding='iso-8859-1'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>WsRestAssignPermissionsLiteRequest</title>
+  </head>
+  <body>
+    <div title="WsRestAssignPermissionsLiteRequest">
+      <p class="actAsSubjectId">GrouperSystem</p>
+      <p class="actAsSubjectIdentifier" />
+      <p class="actAsSubjectSourceId" />
+      <p class="action">read</p>
+      <p class="assignmentDisabledTime" />
+      <p class="assignmentEnabledTime" />
+      <p class="assignmentNotes" />
+      <p class="attributeAssignId" />
+      <p class="clientVersion" />
+      <p class="delegatable" />
+      <p class="disallowed" />
+      <p class="includeGroupDetail" />
+      <p class="includeSubjectDetail" />
+      <p class="paramName0" />
+      <p class="paramName1" />
+      <p class="paramValue0" />
+      <p class="paramValue1" />
+      <p class="permissionAssignOperation">remove_permission</p>
+      <p class="permissionDefNameId" />
+      <p class="permissionDefNameName">aStem:permissionDefName</p>
+      <p class="permissionType">role_subject</p>
+      <p class="roleId" />
+      <p class="roleName" />
+      <p class="subjectAttributeNames" />
+      <p class="subjectRoleId" />
+      <p class="subjectRoleName">aStem:role</p>
+      <p class="subjectRoleSubjectId">test.subject.4</p>
+      <p class="subjectRoleSubjectIdentifier" />
+      <p class="subjectRoleSubjectSourceId" />
+    </div>
+  </body>
+</html>
+
+
+#########################################
+##
+## HTTP response sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+HTTP/1.1 200 OK
+Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+X-Grouper-resultCode: SUCCESS
+X-Grouper-success: T
+X-Grouper-resultCode2: NONE
+Content-Type: application/xhtml+xml;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Wed, 28 May 2014 22:58:42 GMT
+Connection: close
+
+783
+<?xml version='1.0' encoding='iso-8859-1'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>WsAssignPermissionsLiteResults</title>
+  </head>
+  <body>
+    <div title="WsAssignPermissionsLiteResults">
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="millis">83</p>
+        <p class="resultWarnings" />
+        <p class="serverVersion">2.2.0</p>
+      </div>
+      <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode">SUCCESS</p>
+        <p class="resultCode2" />
+        <p class="resultMessage">, Found 1 results.</p>
+        <p class="success">T</p>
+      </div>
+      <div class="wsAttributeDefName" title="WsAttributeDefName">
+        <p class="attributeDefId">803ae60e56a84cfdbd457a81cad459b5</p>
+        <p class="attributeDefName">aStem:permissionDef</p>
+        <p class="description" />
+        <p class="displayExtension">permissionDefName</p>
+        <p class="displayName">a stem:permissionDefName</p>
+        <p class="extension">permissionDefName</p>
+        <p class="idIndex">10117</p>
+        <p class="name">aStem:permissionDefName</p>
+        <p class="uuid">a6fdfa2d453a47dfa937a2cc09093101</p>
+      </div>
+      <ul class="wsAttributeDefs">
+        <li title="WsAttributeDef">
+          <p class="attributeDefType">perm</p>
+          <p class="description" />
+          <p class="extension">permissionDef</p>
+          <p class="idIndex">10033</p>
+          <p class="multiAssignable">F</p>
+          <p class="multiValued">F</p>
+          <p class="name">aStem:permissionDef</p>
+          <p class="uuid">803ae60e56a84cfdbd457a81cad459b5</p>
+          <p class="valueType">marker</p>
+        </li>
+      </ul>
+      <div class="wsGroup" title="WsGroup" />
+      <div class="wsPermissionAssignResult" title="WsAssignPermissionResult">
+        <p class="changed">F</p>
+        <p class="deleted">T</p>
+      </div>
+      <div class="wsSubject" title="WsSubject">
+        <p class="id">test.subject.4</p>
+        <p class="identifierLookup" />
+        <p class="name">my name is test.subject.4</p>
+        <p class="resultCode">SUCCESS</p>
+        <p class="sourceId">jdbc</p>
+        <p class="success">T</p>
+      </div>
+    </div>
+  </body>
+</html>
+0
+
+
+#########################################
+##
+## Java source code (note, any programming language / objects
+## can use used to generate the above request/response.  Nothing
+## is Java specific.  Also, if you are using Java, the client libraries
+## are available
+##
+#########################################
+
+
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+package edu.internet2.middleware.grouper.ws.samples.rest.permission;
+
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsLiteResults;
+import edu.internet2.middleware.grouper.ws.rest.permission.WsRestAssignPermissionsLiteRequest;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
+import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
+
+/**
+ * @author mchyzer
+ */
+public class WsSampleAssignPermissionsRestLite implements WsSampleRest {
+
+  /**
+   * assign permissions lite web service with REST
+   * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
+   */
+  @SuppressWarnings("deprecation")
+  public static void assignPermissionsLite(WsSampleRestType wsSampleRestType) {
+
+    try {
+      HttpClient httpClient = new HttpClient();
+      
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
+      //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
+      //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
+      PostMethod method = new PostMethod(
+          RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
+            + "/" + RestClientSettings.VERSION  
+            + "/permissionAssignments");
+
+      httpClient.getParams().setAuthenticationPreemptive(true);
+      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
+          RestClientSettings.PASS);
+      
+      //no keep alive so response if easier to indent for tests
+      method.setRequestHeader("Connection", "close");
+      
+      //e.g. localhost and 8093
+      httpClient.getState()
+          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
+
+      //Make the body of the request, in this case with beans and marshaling, but you can make
+      //your request document in whatever language or way you want
+      WsRestAssignPermissionsLiteRequest wsRestAssignPermissionsLiteRequest 
+        = new WsRestAssignPermissionsLiteRequest();
+
+      // set the act as id
+      wsRestAssignPermissionsLiteRequest.setActAsSubjectId("GrouperSystem");
+      wsRestAssignPermissionsLiteRequest.setPermissionType("role_subject");
+      wsRestAssignPermissionsLiteRequest.setAction("read");
+      wsRestAssignPermissionsLiteRequest.setPermissionDefNameName("aStem:permissionDefName");
+      wsRestAssignPermissionsLiteRequest.setSubjectRoleName("aStem:role");
+      wsRestAssignPermissionsLiteRequest.setSubjectRoleSubjectId("test.subject.4");
+      wsRestAssignPermissionsLiteRequest.setPermissionAssignOperation("remove_permission");
+      
+      //get the xml / json / xhtml / paramString
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(wsRestAssignPermissionsLiteRequest);
+      
+      //make sure right content type is in request (e.g. application/xhtml+xml
+      String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
+      
+      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
+
+      httpClient.executeMethod(method);
+
+      //make sure a request came back
+      Header successHeader = method.getResponseHeader("X-Grouper-success");
+      String successString = successHeader == null ? null : successHeader.getValue();
+      if (StringUtils.isBlank(successString)) {
+        throw new RuntimeException("Web service did not even respond!");
+      }
+      boolean success = "T".equals(successString);
+      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+      
+      String response = RestClientSettings.responseBodyAsString(method);
+
+      //convert to object (from xhtml, xml, json, etc)
+      WsAssignPermissionsLiteResults wsAssignPermissionsLiteResults = (WsAssignPermissionsLiteResults)wsSampleRestType
+        .getWsLiteResponseContentType().parseString(response);
+      
+      String resultMessage = wsAssignPermissionsLiteResults.getResultMetadata().getResultMessage();
+
+      // see if request worked or not
+      if (!success) {
+        throw new RuntimeException("Bad response from web service: resultCode: " + resultCode
+            + ", " + resultMessage);
+      }
+      
+      System.out.println("Server version: " + wsAssignPermissionsLiteResults.getResponseMetadata().getServerVersion()
+          + ", result code: " + resultCode
+          + ", result message: " + resultMessage );
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  /**
+   * @param args
+   */
+  @SuppressWarnings("unchecked")
+  public static void main(String[] args) {
+    assignPermissionsLite(WsSampleRestType.xml);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  public void executeSample(WsSampleRestType wsSampleRestType) {
+    assignPermissionsLite(wsSampleRestType);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#validType(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  public boolean validType(WsSampleRestType wsSampleRestType) {
+    return true;
+  }
+}
+
+
+#########################################
+##
+## Stdout
+##
+#########################################
+
+
+Server version: 2.2.0, result code: SUCCESS, result message: , Found 1 results.

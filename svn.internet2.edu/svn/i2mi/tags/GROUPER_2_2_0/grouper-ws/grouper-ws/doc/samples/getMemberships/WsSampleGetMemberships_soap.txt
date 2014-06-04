@@ -1,0 +1,326 @@
+Grouper web service sample of service: getMemberships, WsSampleGetMemberships, code generated classes, format: soap, for version: 2.2.0
+
+
+#########################################
+##
+## HTTP request sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+POST /grouper-ws/services/GrouperService_v2_2 HTTP/1.1
+Content-Type: application/soap+xml; charset=UTF-8; action="urn:getMemberships"
+User-Agent: Axis2
+Authorization: Basic xxxxxxxxxxxxxxxxx==
+Host: localhost:8092
+Transfer-Encoding: chunked
+
+4bf
+<?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Body>
+    <ns1:getMemberships xmlns:ns1="http://soap_v2_2.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_2_000</ns1:clientVersion>
+      <ns1:wsGroupLookups>
+        <ns1:groupName>aStem:aGroup</ns1:groupName>
+      </ns1:wsGroupLookups>
+      <ns1:wsSubjectLookups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="1" />
+      <ns1:wsMemberFilter>Immediate</ns1:wsMemberFilter>
+      <ns1:actAsSubjectLookup>
+        <ns1:subjectId>GrouperSystem</ns1:subjectId>
+      </ns1:actAsSubjectLookup>
+      <ns1:fieldName></ns1:fieldName>
+      <ns1:includeSubjectDetail>T</ns1:includeSubjectDetail>
+      <ns1:subjectAttributeNames xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="1" />
+      <ns1:includeGroupDetail></ns1:includeGroupDetail>
+      <ns1:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="1" />
+      <ns1:sourceIds xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="1" />
+      <ns1:scope></ns1:scope>
+      <ns1:wsStemLookup />
+      <ns1:stemScope></ns1:stemScope>
+      <ns1:enabled>T</ns1:enabled>
+      <ns1:membershipIds xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="1" />
+    </ns1:getMemberships>
+  </soapenv:Body>
+</soapenv:Envelope>
+0
+
+
+#########################################
+##
+## HTTP response sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+HTTP/1.1 200 OK
+Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+X-Grouper-resultCode: EXCEPTION
+X-Grouper-success: F
+X-Grouper-resultCode2: NONE
+Content-Type: application/soap+xml; action="urn:getMembershipsResponse";charset=UTF-8
+Transfer-Encoding: chunked
+Date: Wed, 28 May 2014 23:49:26 GMT
+
+15cc
+<?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Body>
+    <ns:getMembershipsResponse xmlns:ns="http://soap_v2_2.ws.grouper.middleware.internet2.edu/xsd">
+      <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsGetMembershipsResults">
+        <ns:responseMetadata xsi:type="ns:WsResponseMeta">
+          <ns:millis xsi:nil="true" />
+          <ns:resultWarnings xsi:nil="true" />
+          <ns:serverVersion>2.2.0</ns:serverVersion>
+        </ns:responseMetadata>
+        <ns:resultMetadata xsi:type="ns:WsResultMeta">
+          <ns:params xsi:nil="true" />
+          <ns:resultCode>EXCEPTION</ns:resultCode>
+          <ns:resultCode2 xsi:nil="true" />
+          <ns:resultMessage>clientVersion: 2.2.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
+, wsMemberFilter: Immediate, includeSubjectDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, fieldType: null, subjectAttributeNames: Empty array
+, paramNames:
+, params: Empty array
+, wsSubjectLookups: Empty array
+, sourceIds: Empty array
+, scope: , wsStemLookup: null, stemScope: null, enabled: T
+, serviceRole: null, serviceLookup: null
+, membershipIds: Empty array
+, wsStemLookups: Empty array
+, wsAttributeDefLookups: Empty array, java.lang.NullPointerException&#xd;
+at edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MembershipDAO.findAllByGroupOwnerOptionsHelper(Hib3MembershipDAO.java:652)&#xd;
+at edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MembershipDAO.findAllByGroupOwnerOptions(Hib3MembershipDAO.java:575)&#xd;
+at edu.internet2.middleware.grouper.MembershipFinder.findMembershipsGroupsMembers(MembershipFinder.java:734)&#xd;
+at edu.internet2.middleware.grouper.MembershipFinder.findMembershipsMembers(MembershipFinder.java:687)&#xd;
+at edu.internet2.middleware.grouper.ws.GrouperServiceLogic.getMemberships(GrouperServiceLogic.java:1766)&#xd;
+at edu.internet2.middleware.grouper.ws.coresoap.GrouperService.getMemberships(GrouperService.java:2433)&#xd;
+at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)&#xd;
+at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)&#xd;
+at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)&#xd;
+at java.lang.reflect.Method.invoke(Method.java:597)&#xd;
+at edu.internet2.middleware.grouper.util.GrouperUtil.callMethodWithMoreParams(GrouperUtil.java:11248)&#xd;
+at edu.internet2.middleware.grouper.ws.soap_v2_2.GrouperService.getMemberships(GrouperService.java:1567)&#xd;
+at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)&#xd;
+at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)&#xd;
+at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)&#xd;
+at java.lang.reflect.Method.invoke(Method.java:597)&#xd;
+at org.apache.axis2.rpc.receivers.RPCUtil.invokeServiceClass(RPCUtil.java:212)&#xd;
+at org.apache.axis2.rpc.receivers.RPCMessageReceiver.invokeBusinessLogic(RPCMessageReceiver.java:117)&#xd;
+at org.apache.axis2.receivers.AbstractInOutMessageReceiver.invokeBusinessLogic(AbstractInOutMessageReceiver.java:40)&#xd;
+at org.apache.axis2.receivers.AbstractMessageReceiver.receive(AbstractMessageReceiver.java:110)&#xd;
+at org.apache.axis2.engine.AxisEngine.receive(AxisEngine.java:181)&#xd;
+at org.apache.axis2.transport.http.HTTPTransportUtils.processHTTPPostRequest(HTTPTransportUtils.java:172)&#xd;
+at org.apache.axis2.transport.http.AxisServlet.doPost(AxisServlet.java:146)&#xd;
+at javax.servlet.http.HttpServlet.service(HttpServlet.java:643)&#xd;
+at javax.servlet.http.HttpServlet.service(HttpServlet.java:723)&#xd;
+at edu.internet2.middleware.grouper.ws.GrouperServiceAxisServlet.service(GrouperServiceAxisServlet.java:75)&#xd;
+at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:290)&#xd;
+at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:206)&#xd;
+at edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee.doFilter(GrouperServiceJ2ee.java:657)&#xd;
+at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:235)&#xd;
+at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:206)&#xd;
+at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:233)&#xd;
+at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:191)&#xd;
+at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:563)&#xd;
+at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:127)&#xd;
+at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:103)&#xd;
+at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:109)&#xd;
+at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:293)&#xd;
+at org.apache.coyote.http11.Http11Processor.process(Http11Processor.java:861)&#xd;
+at org.apache.coyote.http11.Http11Protocol$Http11ConnectionHandler.process(Http11Protocol.java:606)&#xd;
+at org.apache.tomcat.util.net.JIoEndpoint$Worker.run(JIoEndpoint.java:489)&#xd;
+at java.lang.Thread.run(Thread.java:662)</ns:resultMessage>
+          <ns:success>F</ns:success>
+        </ns:resultMetadata>
+        <ns:subjectAttributeNames xsi:nil="true" />
+        <ns:wsAttributeDefs xsi:nil="true" />
+        <ns:wsGroups xsi:nil="true" />
+        <ns:wsMemberships xsi:nil="true" />
+        <ns:wsStems xsi:nil="true" />
+        <ns:wsSubjects xsi:nil="true" />
+      </ns:return>
+    </ns:getMembershipsResponse>
+  </soapenv:Body>
+</soapenv:Envelope>
+0
+
+
+#########################################
+##
+## Java source code (note, any programming language / objects
+## can use used to generate the above request/response.  Nothing
+## is Java specific.  Also, if you are using Java, the client libraries
+## are available
+##
+#########################################
+
+
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+/**
+ *
+ */
+package edu.internet2.middleware.grouper.webservicesClient;
+
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.GetMemberships;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGetMembershipsResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroup;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsMembership;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsParam;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsStemLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsSubject;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsSubjectLookup;
+
+/**
+ *
+ * @author mchyzer
+ *
+ */
+public class WsSampleGetMemberships implements WsSampleGenerated {
+
+  /**
+   * @param args
+   */
+  public static void main(String[] args) {
+    getMemberships(WsSampleGeneratedType.soap);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType)
+   */
+  public void executeSample(WsSampleGeneratedType wsSampleGeneratedType) {
+    getMemberships(wsSampleGeneratedType);
+  }
+
+  /**
+   * @param wsSampleGeneratedType can run as soap or xml/http
+   */
+  public static void getMemberships(
+      WsSampleGeneratedType wsSampleGeneratedType) {
+    try {
+      //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
+      GrouperServiceStub stub = new GrouperServiceStub(GeneratedClientSettings.URL);
+      Options options = stub._getServiceClient().getOptions();
+      HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
+      auth.setUsername(GeneratedClientSettings.USER);
+      auth.setPassword(GeneratedClientSettings.PASS);
+      auth.setPreemptiveAuthentication(true);
+
+      options.setProperty(HTTPConstants.AUTHENTICATE, auth);
+      options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
+      options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
+          new Integer(3600000));
+
+      GetMemberships getMemberships = GetMemberships.class.newInstance();
+
+      // set the act as id
+      WsSubjectLookup actAsSubject = WsSubjectLookup.class.newInstance();
+      actAsSubject.setSubjectId("GrouperSystem");
+      getMemberships.setActAsSubjectLookup(actAsSubject);
+
+      //version, e.g. v1_3_000
+      getMemberships.setClientVersion(GeneratedClientSettings.VERSION);
+      
+      getMemberships.setEnabled("T");
+
+      getMemberships.setFieldName("");
+      getMemberships.setIncludeGroupDetail("");
+      getMemberships.setIncludeSubjectDetail("T");
+      
+      getMemberships.setMembershipIds(new String[]{null});
+      
+      getMemberships.setParams(new WsParam[]{null});
+      
+      getMemberships.setScope("");
+      getMemberships.setSourceIds(new String[]{null});
+      getMemberships.setStemScope("");
+      
+      getMemberships.setSubjectAttributeNames(new String[]{null});
+
+      WsGroupLookup wsGroupLookup = WsGroupLookup.class.newInstance();
+      wsGroupLookup.setGroupName("aStem:aGroup");
+      getMemberships.setWsGroupLookups(new WsGroupLookup[]{wsGroupLookup});
+
+      getMemberships.setWsMemberFilter("Immediate");
+      
+      getMemberships.setWsSubjectLookups(new WsSubjectLookup[]{null});
+      getMemberships.setWsStemLookup(new WsStemLookup());
+      WsGetMembershipsResults wsGetMembershipsResults = stub.getMemberships(getMemberships)
+          .get_return();
+
+      System.out.println(ToStringBuilder.reflectionToString(
+          wsGetMembershipsResults));
+
+      WsMembership[] wsMembershipsResultArray = wsGetMembershipsResults.getWsMemberships();
+
+      for (WsMembership wsMembership : wsMembershipsResultArray) {
+        System.out.println(ToStringBuilder.reflectionToString(
+            wsMembership));
+      }
+      
+      WsGroup[] wsGroupsResultArray = wsGetMembershipsResults.getWsGroups();
+
+      for (WsGroup wsGroup : wsGroupsResultArray) {
+        System.out.println(ToStringBuilder.reflectionToString(
+            wsGroup));
+      }
+
+      WsSubject[] wsSubjectsResultArray = wsGetMembershipsResults.getWsSubjects();
+
+      for (WsSubject wsSubject : wsSubjectsResultArray) {
+        System.out.println(ToStringBuilder.reflectionToString(
+            wsSubject));
+      }
+
+      
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+}
+
+
+#########################################
+##
+## Stdout
+##
+#########################################
+
+
+WsGetMembershipsResults[
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResponseMeta@7e610457,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResultMeta@13642c93,localResultMetadataTracker=true,
+  localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,
+  localWsAttributeDefs={<null>},localWsAttributeDefsTracker=true,
+  localWsGroups={<null>},localWsGroupsTracker=true,
+  localWsMemberships={<null>},localWsMembershipsTracker=true,
+  localWsStems={<null>},localWsStemsTracker=true,
+  localWsSubjects={<null>},localWsSubjectsTracker=true]
+<null>
+<null>
+<null>

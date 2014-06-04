@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<!-- $Id: Event2.hbm.xml,v 1.1 2009-06-01 03:23:25 mchyzer Exp $ -->
+
+<hibernate-mapping package="edu.internet2.middleware.grouper.poc.entityName">
+  <class name="Event" table="event2" entity-name="Event2">
+        <id name="id" column="id">
+            <generator class="native"/>
+        </id>
+      <property name="title"/>
+  
+  </class>
+</hibernate-mapping>

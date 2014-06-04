@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<menu-items>
+  <!--  NOTE, if functionalArea changes, look at MenuMetaBean for changes -->
+	<item 	functionalArea="MyGroups"
+				action="/populateMyGroups.do"
+				titleKey="groups.my.link.title"
+				linkKey="groups.my"
+				forAdmin="false"
+	/>
+	
+	<item 	functionalArea="ManageGroups"
+				action="/populateManageGroups.do"
+				titleKey="groups.manage.link.title"
+				linkKey="groups.manage"
+				forAdmin="false"
+	/>
+	
+  <item   functionalArea="CreateGroups"
+        action="/populateCreateGroups.do"
+        titleKey="groups.create.link.title"
+        linkKey="groups.create"
+        forAdmin="false"
+  />
+  
+	<item 	functionalArea="JoinGroups"
+				action="/populateJoinGroups.do"
+				titleKey="groups.join.link.title"
+				linkKey="groups.join"
+				forAdmin="false"
+	/>
+	
+	<item 	functionalArea="AllGroups"
+				action="/populateAllGroups.do"
+				titleKey="groups.all.link.title"
+				linkKey="groups.all"
+	/>
+	
+	<item 	functionalArea="SearchSubjects"
+				action="/populateSearchSubjects.do"
+				titleKey="search.subjects.link.title"
+				linkKey="search.subjects"
+	/>
+	
+	<item 	functionalArea="SavedStems"
+				action="/populateListSavedStems.do"
+				titleKey="saved-stems.link.title"
+				linkKey="saved.stems"
+	/>
+	
+	<item 	functionalArea="SavedGroups"
+				action="/populateListSavedGroups.do"
+				titleKey="saved-subjects.groups.link.title"
+				linkKey="saved.groups"
+	/>
+	<item 	functionalArea="SavedSubjects"
+				action="/populateListSavedSubjects.do"
+				titleKey="saved-subjects.link.title"	
+				linkKey="saved.subjects"
+	/>
+	<item 	functionalArea="GroupTypes"
+				action="/populateGroupTypes.do"
+				titleKey="grouptypes.link.title"
+				linkKey="grouptypes.list"
+			forAdmin="true"
+	/>
+<item 	functionalArea="LiteUi"
+				action="/grouperUi/appHtml/grouper.html?operation=Misc.index"
+				titleKey="liteUi.link.title"
+				linkKey="liteUi.list"
+				mediaKeyMustBeTrue="ui-lite.link-from-admin-ui"
+	/>	
+<item   functionalArea="NewUi"
+        action="/grouperUi/app/UiV2Main.index?operation=UiV2Main.indexMain"
+        titleKey="newUi.link.title"
+        linkKey="simpleGroupUpdate.topIndexNewUi"
+        mediaKeyMustBeTrue="ui-new.link-from-admin-ui"
+  />  
+	<item 	functionalArea="Help"
+				action="/help.do"
+				titleKey="groups.help.link.title"
+				linkKey="groups.help"
+	/>
+	
+</menu-items>

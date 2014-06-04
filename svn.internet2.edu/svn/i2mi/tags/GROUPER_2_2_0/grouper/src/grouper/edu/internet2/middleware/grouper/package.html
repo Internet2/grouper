@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!--
+
+  Copyright (C) 2004-2007 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2004-2007 The University Of Chicago
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+-->
+</head>
+<body bgcolor="white">
+<p>The I2MI Grouper project is an open source toolkit for managing groups.</p>
+<p>
+@see      <a href="https://wiki.internet2.edu/confluence/display/GrouperWG/Home">Grouper Wiki</a> 
+@version  1.1.0
+</p>
+<h3>Grouper API Overview</h3>
+<p>
+While there are many public classes within the Grouper API the majority of its
+functionality can be found in a small subset of its classes.  The most important
+classes to familiarize yourself with are:
+</p>
+<ul>
+  <li>
+    <p><a href="./Group.html">Group</a></p>
+    <p>As evident by its name, Grouper is all about managing groups.
+    Groups are objects that may have attributes, memberships and
+    privileges assigned to them.</p></li>
+  <li>
+    <p><a href="./Stem.html">Stem</a></p>
+    <p>Stems are namespaces within which groups are located.  They
+    make it possible to delegate authority within the Groups
+    Registry.</p></li>
+  <li>
+    <p><a href="https://wiki.internet2.edu/confluence/display/GrouperWG/Subject+API">Subject</a></p>
+    <p>This class is actually external to Grouper and is being
+    developed by both the Grouper and Signet projects.  It provides
+    an IdM abstraction that allows an application to refer to
+    entities of any type (people, groups, applications, etc.) without
+    needing to be aware of how those entities are accessed or stored.
+    See the
+    <a href="https://wiki.internet2.edu/confluence/display/GrouperWG/Subject+API">Subject API</a> 
+    page at the Grouper wiki for more information on the Subject API.</p></li>
+  <li>
+    <p><a href="./SubjectFinder.html">SubjectFinder</a></p>
+    <p>This is a class that abstracts finding subjects.  With it
+    you can query one-or-more subject repositories in order to
+    retrieve subjects for use within other Grouper API operations.</p></li>
+  <li>
+    <p><a href="./Member.html">Member</a></p>
+    <p>Members are strictly mappings of subjects to persistent
+    identifiers for those subjects within Grouper.  While many API
+    operations require that a <code>Subject</code> be passed as a
+    parameter, internally Grouper works on those subjects
+    as <code>Member</code> objects.</p></li>
+  <li>
+    <p><a href="./Membership.html">Membership</a></p>
+    <p>This class maps how all list values (memberships) are stored
+    within the Groups Registry.</p></li>
+  <li>
+    <p><a href="./GrouperSession.html">GrouperSession</a></p>
+    <p>This class provides an operational and security context for
+    performing operations within the Grouper API.  With the exception
+    of <code>SubjectFinder</code> almost <b>all</b> other API
+    operations require a valid session context to operate within.
+    A subject is associated with each session and the privileges
+    of that subject determine what API operations can be performed
+    within the session context.</p></li>
+</ul>
+<p>There is a small - but growing - selection of 
+<a href="./eg/package-summary.html">API usage examples</a>.
+</p>
+<p>This package has the major grouper javabeans (generally mapped to the DB
+via hibernate), along with "Finders" which are static methods to help query
+for the beans.</p>
+</body>
+</html>
+

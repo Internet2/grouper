@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+    version="2.4">
+<!--Processing context-param-->
+<!--Processing filter-->
+<!--Inserting tag from base file-->
+<filter>
+    <filter-name>GrouperUi</filter-name>
+    <filter-class>edu.internet2.middleware.grouper.ui.GrouperUiFilter</filter-class>
+</filter>
+<!--Inserting tag from merge file-->
+<filter>
+    <filter-name>Error Catcher</filter-name>
+    <filter-class>edu.internet2.middleware.grouper.ui.ErrorFilter</filter-class>
+  </filter>
+<!--Inserting tag from base file-->
+<filter>
+  	<filter-name>Login check</filter-name>
+  	<filter-class>edu.internet2.middleware.grouper.ui.LoginCheckFilter</filter-class>
+  	<init-param>    
+  		<param-name>failureUrl</param-name>    
+  		<param-value>/index.jsp</param-value>  
+  	</init-param>
+	 	<init-param>    
+  	<param-name>ignore</param-name>    
+  		<param-value>:/populateIndex.do:/callLogin.do:/error.do:/logout.do:</param-value>  
+  	</init-param>
+  	<init-param>    
+  		<param-name>grouperRole</param-name>    
+  		<param-value>*</param-value>  
+  	</init-param>
+  </filter>
+<!--Inserting tag from base file-->
+<filter>
+  	<filter-name>Caller page</filter-name>
+  	<filter-class>edu.internet2.middleware.grouper.ui.CallerPageFilter</filter-class>
+    </filter>
+
+  <filter-mapping>
+    <filter-name>GrouperUi</filter-name>
+    <url-pattern>/grouperExternal/app/*</url-pattern>
+  </filter-mapping>
+
+  <filter-mapping>
+    <filter-name>GrouperUi</filter-name>
+    <url-pattern>/grouperExternal/appHtml/*</url-pattern>
+  </filter-mapping>
+
+  <!-- Map the filter to a Servlet or URL -->
+  <filter-mapping>
+    <filter-name>GrouperUi</filter-name>
+    <url-pattern>/grouperUi/app/*</url-pattern>
+  </filter-mapping>
+
+<!--Inserting tag from base file-->
+<filter-mapping>
+    <filter-name>GrouperUi</filter-name>
+    <url-pattern>*.do</url-pattern>
+  </filter-mapping>
+<!--Inserting tag from base file-->
+<filter-mapping>
+    <filter-name>GrouperUi</filter-name>
+    <url-pattern>*.jsp</url-pattern>
+  </filter-mapping>
+
+  <filter-mapping>
+    <filter-name>Error Catcher</filter-name>
+    <url-pattern>/grouperUi/app/*</url-pattern>
+  </filter-mapping>
+
+<!--Processing filter-mapping-->
+<!--Inserting tag from merge file-->
+<filter-mapping>
+  	<filter-name>Error Catcher</filter-name>
+  	<url-pattern>*.do</url-pattern>
+  </filter-mapping>
+<!--Inserting tag from merge file-->
+<filter-mapping>
+  	<filter-name>Error Catcher</filter-name>
+  	<url-pattern>/gotoCallerPage</url-pattern>
+  </filter-mapping>
+<!--Inserting tag from base file-->
+<filter-mapping>
+  	<filter-name>Caller page</filter-name>
+  	<url-pattern>/gotoCallerPage</url-pattern>
+  </filter-mapping>
+<!--Inserting tag from base file-->
+<filter-mapping>
+  	<filter-name>Login check</filter-name>
+  	<url-pattern>*.do</url-pattern>
+  </filter-mapping>
+<!--Processing listener-->
+<!--Inserting tag from base file-->
+<listener>
+  	<listener-class>edu.internet2.middleware.grouper.ui.GrouperSessionAttributeListener</listener-class>
+</listener>
+<!--Processing servlet-->
+<!--Inserting tag from base file-->
+<servlet>
+    <servlet-name>action</servlet-name>
+    <servlet-class>org.apache.struts.action.ActionServlet</servlet-class>
+    <init-param>
+      <param-name>config</param-name>
+      <param-value>/WEB-INF/struts-config.xml</param-value>
+    </init-param>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+
+  <servlet>
+    <servlet-name>UiServlet</servlet-name>
+    <servlet-class>edu.internet2.middleware.grouper.j2ee.GrouperUiRestServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>UiServlet</servlet-name>
+    <url-pattern>/grouperUi/app/*</url-pattern>
+  </servlet-mapping>
+
+<!--Processing servlet-mapping-->
+<!--Inserting tag from base file-->
+<servlet-mapping>
+    <servlet-name>action</servlet-name>
+    <url-pattern>*.do</url-pattern>
+  </servlet-mapping>
+<!--Processing mime-mapping-->
+<!--Processing error-page-->
+<!--Inserting tag from base file-->
+<error-page> 
+  <error-code>404</error-code> 
+  <location>/error.do?code=404</location> 
+</error-page>
+<!--Inserting tag from base file-->
+<error-page> 
+  <error-code>403</error-code> 
+  <location>/error.do?code=403</location> 
+</error-page>
+<!--Inserting tag from base file-->
+<error-page> 
+  <error-code>500</error-code> 
+  <location>/error.do?code=500</location> 
+</error-page>
+<!--Processing error-page-->
+<!--Processing taglib-->
+<!--Inserting tag from base file-->
+<!--Processing resource-env-ref-->
+<!--Processing resource-ref-->
+<!--Processing security-constraint-->
+<!--Inserting tag from base file-->
+<security-constraint>
+    <web-resource-collection>
+      <web-resource-name>Tomcat login</web-resource-name>
+      <url-pattern>/login.do</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+       <!-- NOTE:  This role is not present in the default users file -->
+       <role-name>*</role-name>
+    </auth-constraint>
+  </security-constraint>
+
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>UI</web-resource-name>
+      <url-pattern>/grouperUi/app/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>*</role-name>
+    </auth-constraint>
+  </security-constraint>
+
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>UI</web-resource-name>
+      <url-pattern>/grouperUi/appHtml/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>*</role-name>
+    </auth-constraint>
+  </security-constraint>
+
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>UI</web-resource-name>
+      <url-pattern>/grouperExternal/app/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>*</role-name>
+    </auth-constraint>
+  </security-constraint>
+
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>UI</web-resource-name>
+      <url-pattern>/grouperExternal/appHtml/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>*</role-name>
+    </auth-constraint>
+  </security-constraint>
+
+<login-config>
+    <auth-method>BASIC</auth-method>
+    <realm-name>Grouper Application</realm-name>
+  </login-config>
+<!--Processing security-role-->
+<!--Inserting tag from base file-->
+<security-role>
+    <description>
+      The role that is required to log in to the Grouper UI
+    </description>
+    <role-name>*</role-name>
+  </security-role>
+<!--Processing env-entry-->
+<!--Processing ejb-ref-->
+<!--Processing ejb-local-ref-->
+</web-app>

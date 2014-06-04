@@ -1,0 +1,50 @@
+##################################
+## Subject picker.  note, this should be named subjectPicker.properties for it to be valid.
+## http://localhost:8090/grouper/grouperUi/appHtml/grouper.html?operation=SubjectPicker.index&subjectPickerName=subjectPickerExample&subjectPickerElementName=subject1
+## subject picker config defaults
+
+# if the subject should be sent back to the calling page in javascript object
+sendSubjectJsonToCallback = true
+
+#comma separated css urls (relative or absolute) for skinning this subject picker
+extraCss = ../../grouperExternal/public/assets/css/subjectPickerExample.css
+#extraCss = http://localhost:8091/grouper/grouperExternal/public/assets/css/subbjectPickerExample.css
+
+# when the subject object is sent in Javascript to the caller, which fields or attributes should be sent
+subjectObject.include.subjectId = true
+subjectObject.include.sourceId = true
+subjectObject.include.name = true
+subjectObject.include.typeName = true
+subjectObject.include.description = true
+#comma separated list of subject attirbutes or INCLUDE_ALL_ATTRIBUTES for all
+subjectObject.include.attributes = 
+#subjectObject.include.attributes = loginid,lfname
+#subjectObject.include.attributes = INCLUDE_ALL_ATTRIBUTES
+
+# put sourceIds to search in, or leave blank for all
+#searchInSourceIds = jdbc, g:isa
+
+## You can configure per source how the subjects appear on screen, and customize per subject picker instance as well
+# Increment the index (0, 1, 2, etc) to configure multiple sources
+#source id we are configuring
+sourceProperties.sourceId.0 = g:isa
+#this is the expression language of how the subject result should appear on screen
+sourceProperties.subjectElForSource.0 = ${subject.id}
+
+# max results that can be retrieved before the group filter resultsMustBeInGroup is applied
+maxSubjectsResultsBeforeGroupSearch = 800
+
+# max results that can be retrieved
+maxSubjectsResults = 800
+
+#if results must be in group, or blank for no check.  e.g. put your active employee group here
+resultsMustBeInGroup = 
+
+# is an actas should be applied for group operations.  Generally this is GrouperSystem, though could be anyone, or blank
+# to act as the logged in user
+actAsSourceId = g:isa
+actAsSubjectId = GrouperSystem
+
+# put a URL here where the result (subjectId, sourceId, name, description) will be submitted back
+# blank if same domain and just call opener directly
+submitResultToUrl = 

@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    JDBC and JNDI sources for testing
+-->
+
+<sources>
+
+	<!-- 
+        *************************************************************
+        *************** BEGIN NULL SOURCE ***************************
+        *************************************************************
+	-->
+	<source
+		adapterClass="edu.internet2.middleware.subject.provider.NullSourceAdapter">
+		<id>nsa</id>
+		<name>null source adapter</name>
+	</source>
+
+    <!-- 
+        *************************************************************
+        *************** BEGIN JDBC SOURCE ***************************
+        *************************************************************
+    -->
+    <source
+        adapterClass="edu.internet2.middleware.subject.provider.JDBCSourceAdapter">
+        <id>jdbc</id>
+        <name>JDBC Subject Source</name>
+        <type>person</type>
+        <init-param>
+            <param-name>maxActive</param-name>
+            <param-value>4</param-value>
+        </init-param>
+        <init-param>
+            <param-name>maxIdle</param-name>
+            <param-value>4</param-value>
+        </init-param>
+        <init-param>
+            <param-name>maxWait</param-name>
+            <param-value>-1</param-value>
+        </init-param>
+        <init-param>
+            <param-name>dbDriver</param-name>
+            <param-value>org.hsqldb.jdbcDriver</param-value>
+        </init-param>
+        <init-param>
+            <param-name>dbUrl</param-name>
+            <param-value>
+                jdbc:hsqldb:hsql://localhost:51515/grouperdb
+            </param-value>
+        </init-param>
+        <init-param>
+            <param-name>dbUser</param-name>
+            <param-value>sa</param-value>
+        </init-param>
+        <init-param>
+            <param-name>dbPwd</param-name>
+            <param-value></param-value>
+        </init-param>
+        <init-param>
+            <param-name>SubjectID_AttributeType</param-name>
+            <param-value>id</param-value>
+        </init-param>
+        <init-param>
+            <param-name>Name_AttributeType</param-name>
+            <param-value>name</param-value>
+        </init-param>
+        <init-param>
+            <param-name>Description_AttributeType</param-name>
+            <param-value>description</param-value>
+        </init-param>
+
+        <search>
+            <searchType>searchSubject</searchType>
+            <param>
+            	<param-name>numParameters</param-name>
+            	<param-value>1</param-value>
+            </param>
+            <param>
+                <param-name>sql</param-name>
+                <param-value>
+                    select
+						subject.subjectid as id,
+						subject.name as name,
+						lfnamet.lfname as lfname,
+						loginidt.loginid as loginid,
+						desct.description as description
+					from
+	                    subject
+	                left join
+		                (select
+		                	subjectid,
+		                	value as lfname
+	                    from
+	                    	subjectattribute
+	                    where
+	                    	name = 'name') as lfnamet
+                    on
+                    	subject.subjectid = lfnamet.subjectid
+                    left join
+	                    (select
+	                    	subjectid,
+	                    	value as loginid
+	                    from
+	                    	subjectattribute
+	                    where name = 'loginid') as loginidt
+                    on
+                    	subject.subjectid = loginidt.subjectid
+                    left join
+	                    (select
+	                    	subjectid,
+	                    	value as description
+	                    from
+	                    	subjectattribute
+	                    where name = 'description') as desct
+                    on subject.subjectid = desct.subjectid
+                    where
+                    	subject.subjectid = ?
+                </param-value>
+            </param>
+        </search>
+        <search>
+            <searchType>searchSubjectByIdentifier</searchType>
+            <param>
+            	<param-name>numParameters</param-name>
+            	<param-value>1</param-value>
+            </param>
+            <param>
+                <param-name>sql</param-name>
+                <param-value>
+                    select
+                    	subject.subjectid as id,
+                    	subject.name as name,
+                    	lfnamet.lfname as lfname,
+                    	loginidt.loginid as loginid,
+                    	desct.description as description
+                    from
+                        subject
+                    left join
+                    	(select
+                    		subjectid,
+                    		value as lfname
+                    	from
+                    		subjectattribute
+                    	where
+                    		name = 'name') as lfnamet
+                    on
+                    	subject.subjectid = lfnamet.subjectid
+                    left join
+                    	(select
+                    		subjectid,
+                    		value as loginid
+                    	from
+                    		subjectattribute
+                    	where
+                    		name = 'loginid') as loginidt
+                    on
+                    	subject.subjectid = loginidt.subjectid
+                    left join
+                    	(select
+                    		subjectid,
+                    		value as description
+                    	from
+                    		subjectattribute
+                    	where
+                    		name = 'description') as desct
+                    on
+                    	subject.subjectid = desct.subjectid
+                    where
+                    	loginidt.loginid = ?
+                </param-value>
+            </param>
+        </search>
+        <search>
+            <searchType>search</searchType>
+            <param>
+            	<param-name>numParameters</param-name>
+            	<param-value>4</param-value>
+            </param>
+            <param>
+                <param-name>sql</param-name>
+                <param-value>
+                    select
+                    	subject.subjectid as id,
+                    	subject.name as name,
+                    	lfnamet.lfname as lfname,
+                    	loginidt.loginid as loginid,
+                    	desct.description as description
+                    from
+                    	subject
+                    left join
+                    	(select
+                    		subjectid,
+                    		value as lfname
+                    	from
+                    		subjectattribute
+                    	where
+                    		name = 'name') as lfnamet
+                    on
+                    	subject.subjectid = lfnamet.subjectid
+                    left join
+                    	(select
+                    		subjectid,
+                    		value as loginid
+                    	from
+                    		subjectattribute
+                    	where
+                    		name = 'loginid') as loginidt
+                    on
+                    	subject.subjectid = loginidt.subjectid
+                    left join
+                    	(select
+                    		subjectid,
+                    		value as description
+                    	from
+                    		subjectattribute
+                    	where
+                    		name = 'description') as desct
+                    on
+                    	subject.subjectid = desct.subjectid
+                    where
+                    	(lower(name) like '%'||?||'%') or
+                    	(lower(lfnamet.lfname) like '%'||?||'%') or
+                    	(lower(loginidt.loginid) like '%'||?||'%') or
+                    	(lower(desct.description) like '%'||?||'%')
+                </param-value>
+            </param>
+        </search>
+    </source>
+
+    <!-- 
+        *************************************************************
+        **************** BEGIN JNDI SOURCE **************************
+        *************************************************************
+    -->
+	<source adapterClass="edu.internet2.middleware.subject.provider.JNDISourceAdapter">
+	    <id>jndi</id>
+	    <name>JNDI Subject Source</name>
+	    <type>person</type>
+	    <init-param>
+	        <param-name>INITIAL_CONTEXT_FACTORY</param-name>
+	        <param-value>com.sun.jndi.ldap.LdapCtxFactory</param-value>
+	    </init-param>
+	    <init-param>
+	        <param-name>PROVIDER_URL</param-name>
+	        <param-value>ldap://localhost:389</param-value>
+	    </init-param>
+	    <init-param>
+	        <param-name>SECURITY_AUTHENTICATION</param-name>
+	        <param-value>simple</param-value>
+	    </init-param>
+	    <init-param>
+	        <param-name>SECURITY_PRINCIPAL</param-name>
+	        <param-value>cn=Manager,dc=example,dc=edu</param-value>
+	    </init-param>
+	    <init-param>
+	        <param-name>SECURITY_CREDENTIALS</param-name>
+	        <param-value>secret</param-value>
+	    </init-param>
+	    <init-param>
+	        <param-name>SubjectID_AttributeType</param-name>
+	        <param-value>exampleEduRegID</param-value>
+	    </init-param>
+	    <init-param>
+	        <param-name>Name_AttributeType</param-name>
+	        <param-value>cn</param-value>
+	    </init-param>
+	    <init-param>
+	        <param-name>Description_AttributeType</param-name>
+	        <param-value>description</param-value>
+	    </init-param>
+	    
+	    <!--
+	    	Scope Values can be: OBJECT_SCOPE, ONELEVEL_SCOPE, SUBTREE_SCOPE
+	    	For filter use
+	    -->
+	    
+	    <search>
+	        <searchType>searchSubject</searchType>
+	        <param>
+	            <param-name>filter</param-name>
+	            <param-value>
+	                (&amp; (kitnEduPersonRegId=%TERM%) (objectclass=kitnEduPerson))
+	            </param-value>
+	        </param>
+	        <param>
+	            <param-name>scope</param-name>
+	            <param-value>
+	                SUBTREE_SCOPE            
+	            </param-value>
+	        </param>
+	        <param>
+	            <param-name>base</param-name>
+	            <param-value>
+	                ou=kitn,dc=example,dc=edu
+	            </param-value>
+	        </param>
+	    </search>
+	    <search>
+	        <searchType>searchSubjectByIdentifier</searchType>
+	        <param>
+	            <param-name>filter</param-name>
+	            <param-value>
+	                (&amp; (uid=%TERM%) (objectclass=kitnEduPerson))
+	            </param-value>
+	        </param>
+	        <param>
+	            <param-name>scope</param-name>
+	            <param-value>
+	                SUBTREE_SCOPE            
+	            </param-value>
+	        </param>
+	        <param>
+	            <param-name>base</param-name>
+	            <param-value>
+	                ou=kitn,dc=example,dc=edu
+	            </param-value>
+	        </param>
+	    </search>
+	    
+	    <search>
+	        <searchType>search</searchType>
+	        <param>
+	            <param-name>filter</param-name>
+	            <param-value>
+	                (&amp; (|(uid=%TERM%)(cn=*%TERM%*)(kitnEduPersonRegId=%TERM%))(objectclass=kitnEduPerson))
+	            </param-value>
+	        </param>
+	        <param>
+	            <param-name>scope</param-name>
+	            <param-value>
+	                SUBTREE_SCOPE            
+	            </param-value>
+	        </param>
+	        <param>
+	            <param-name>base</param-name>
+	            <param-value>
+	                ou=kitn,dc=example,dc=edu
+	            </param-value>
+	        </param>
+	    </search>
+	    <!--Attributes you would like to display when doing a search -->
+	    <attribute>sn</attribute>
+	    <attribute>department</attribute>
+	</source>
+</sources>

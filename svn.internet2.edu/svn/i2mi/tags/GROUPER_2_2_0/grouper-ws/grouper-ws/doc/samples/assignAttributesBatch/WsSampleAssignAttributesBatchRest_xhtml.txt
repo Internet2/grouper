@@ -1,0 +1,539 @@
+Grouper web service sample of service: assignAttributesBatch, WsSampleAssignAttributesBatchRest, manually written lite/rest, format: xhtml, for version: 2.2.0
+
+
+#########################################
+##
+## HTTP request sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+POST /grouper-ws/servicesRest/v2_2_000/attributeAssignments HTTP/1.1
+Connection: close
+Authorization: Basic xxxxxxxxxxxxxxxxx==
+User-Agent: Jakarta Commons-HttpClient/3.0
+Host: localhost:8092
+Content-Length: 2756
+Content-Type: application/xhtml+xml; charset=UTF-8
+
+<?xml version='1.0' encoding='iso-8859-1'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>WsRestAssignAttributesBatchRequest</title>
+  </head>
+  <body>
+    <div title="WsRestAssignAttributesBatchRequest">
+      <div class="actAsSubjectLookup" title="WsSubjectLookup" />
+      <p class="clientVersion" />
+      <p class="includeGroupDetail" />
+      <p class="includeSubjectDetail" />
+      <p class="txType" />
+      <ul class="wsAssignAttributeBatchEntries">
+        <li title="WsAssignAttributeBatchEntry">
+          <p class="action" />
+          <p class="assignmentDisabledTime" />
+          <p class="assignmentEnabledTime" />
+          <p class="assignmentNotes" />
+          <p class="attributeAssignOperation">assign_attr</p>
+          <p class="attributeAssignType">group</p>
+          <p class="attributeAssignValueOperation" />
+          <p class="delegatable" />
+          <div class="wsAttributeAssignLookup" title="WsAttributeAssignLookup" />
+          <div class="wsAttributeDefNameLookup" title="WsAttributeDefNameLookup">
+            <p class="idIndex" />
+            <p class="name">test:testAttributeAssignDefName</p>
+            <p class="uuid" />
+          </div>
+          <div class="wsOwnerAttributeAssignLookup" title="WsAttributeAssignLookup" />
+          <div class="wsOwnerAttributeDefLookup" title="WsAttributeDefLookup" />
+          <div class="wsOwnerGroupLookup" title="WsGroupLookup">
+            <p class="groupName">test:groupTestAttrAssign</p>
+            <p class="idIndex" />
+            <p class="uuid" />
+          </div>
+          <div class="wsOwnerMembershipAnyLookup" title="WsMembershipAnyLookup" />
+          <div class="wsOwnerMembershipLookup" title="WsMembershipLookup" />
+          <div class="wsOwnerStemLookup" title="WsStemLookup" />
+          <div class="wsOwnerSubjectLookup" title="WsSubjectLookup" />
+        </li>
+        <li title="WsAssignAttributeBatchEntry">
+          <p class="action" />
+          <p class="assignmentDisabledTime" />
+          <p class="assignmentEnabledTime" />
+          <p class="assignmentNotes" />
+          <p class="attributeAssignOperation">assign_attr</p>
+          <p class="attributeAssignType">group_asgn</p>
+          <p class="attributeAssignValueOperation" />
+          <p class="delegatable" />
+          <div class="wsAttributeAssignLookup" title="WsAttributeAssignLookup" />
+          <div class="wsAttributeDefNameLookup" title="WsAttributeDefNameLookup">
+            <p class="idIndex" />
+            <p class="name">test:testAttributeAssignAssignName</p>
+            <p class="uuid" />
+          </div>
+          <div class="wsOwnerAttributeAssignLookup" title="WsAttributeAssignLookup">
+            <p class="batchIndex">0</p>
+            <p class="uuid" />
+          </div>
+          <div class="wsOwnerAttributeDefLookup" title="WsAttributeDefLookup" />
+          <div class="wsOwnerGroupLookup" title="WsGroupLookup" />
+          <div class="wsOwnerMembershipAnyLookup" title="WsMembershipAnyLookup" />
+          <div class="wsOwnerMembershipLookup" title="WsMembershipLookup" />
+          <div class="wsOwnerStemLookup" title="WsStemLookup" />
+          <div class="wsOwnerSubjectLookup" title="WsSubjectLookup" />
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>
+
+
+#########################################
+##
+## HTTP response sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+HTTP/1.1 200 OK
+Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+X-Grouper-resultCode: SUCCESS
+X-Grouper-success: T
+X-Grouper-resultCode2: NONE
+Content-Type: application/xhtml+xml;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Wed, 28 May 2014 22:20:14 GMT
+Connection: close
+
+17f3
+<?xml version='1.0' encoding='iso-8859-1'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>WsAssignAttributesBatchResults</title>
+  </head>
+  <body>
+    <div title="WsAssignAttributesBatchResults">
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="millis">117</p>
+        <p class="resultWarnings" />
+        <p class="serverVersion">2.2.0</p>
+      </div>
+      <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode">SUCCESS</p>
+        <p class="resultCode2" />
+        <p class="resultMessage">Success for: clientVersion: 2.2.0, includeSubjectDetail: false, actAsSubject: null, subjectAttributeNames: null
+, paramNames:
+, params: null
+, wsAssignAttributeBatchEntries: 0. wsAssignAttributeBatchEntry: attributeAssignOperation: assign_attr, attributeAssignType: group, wsAttributeDefNameLookup: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefName], wsOwnerGroupLookup: WsGroupLookup[pitGroups=[],groupName=test:groupTestAttrAssign],</p>
+        <p class="success">T</p>
+      </div>
+      <ul class="wsAssignAttributeBatchResultArray">
+        <li title="WsAssignAttributeBatchResult">
+          <p class="changed">F</p>
+          <p class="deleted">F</p>
+          <div class="resultMetadata" title="WsResultMeta">
+            <p class="resultCode">SUCCESS</p>
+            <p class="resultCode2" />
+            <p class="resultMessage">, Found 1 results.</p>
+            <p class="success">T</p>
+          </div>
+          <p class="valuesChanged">F</p>
+          <ul class="wsAttributeAssigns">
+            <li title="WsAttributeAssign">
+              <p class="attributeAssignActionId">20a2b284bc2341df8a04f92642778f22</p>
+              <p class="attributeAssignActionName">assign</p>
+              <p class="attributeAssignActionType">immediate</p>
+              <p class="attributeAssignDelegatable">FALSE</p>
+              <p class="attributeAssignType">group</p>
+              <p class="attributeDefId">e5070a5081c94b768970fbbeb3901087</p>
+              <p class="attributeDefName">test:testAttributeAssignDefNameDef</p>
+              <p class="attributeDefNameId">9113fb1008b548218d5dc18a3c01649a</p>
+              <p class="attributeDefNameName">test:testAttributeAssignDefName</p>
+              <p class="createdOn">2014/05/28 18:20:11.955</p>
+              <p class="disabledTime" />
+              <p class="disallowed">F</p>
+              <p class="enabled">T</p>
+              <p class="enabledTime" />
+              <p class="id">c7f868959c5f44d4b742569fb2ec39aa</p>
+              <p class="lastUpdated">2014/05/28 18:20:11.955</p>
+              <p class="notes" />
+              <p class="ownerAttributeAssignId" />
+              <p class="ownerAttributeDefId" />
+              <p class="ownerAttributeDefName" />
+              <p class="ownerGroupId">1200d9aa372e44ea9bafaa61a9a2e5bb</p>
+              <p class="ownerGroupName">test:groupTestAttrAssign</p>
+              <p class="ownerMemberId" />
+              <p class="ownerMemberSourceId" />
+              <p class="ownerMemberSubjectId" />
+              <p class="ownerMembershipId" />
+              <p class="ownerStemId" />
+              <p class="ownerStemName" />
+              <ul class="wsAttributeAssignValues">
+                <li title="WsAttributeAssignValue">
+                  <p class="id">10ada52a301745f09559def335910288</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">15</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">545b38a72f534ee2a8fa6b0733ff7bc8</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+                <li title="WsAttributeAssignValue">
+                  <p class="id">bfcae96220d349bcb8c933774cb42b78</p>
+                  <p class="valueFormatted" />
+                  <p class="valueSystem">5</p>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li title="WsAssignAttributeBatchResult">
+          <p class="changed">F</p>
+          <p class="deleted">F</p>
+          <div class="resultMetadata" title="WsResultMeta">
+            <p class="resultCode">SUCCESS</p>
+            <p class="resultCode2" />
+            <p class="resultMessage">, Found 1 results.</p>
+            <p class="success">T</p>
+          </div>
+          <p class="valuesChanged">F</p>
+          <ul class="wsAttributeAssigns">
+            <li title="WsAttributeAssign">
+              <p class="attributeAssignActionId">ccf8eb8c87604e43bfde4dcbefe653e9</p>
+              <p class="attributeAssignActionName">assign</p>
+              <p class="attributeAssignActionType">immediate</p>
+              <p class="attributeAssignDelegatable">FALSE</p>
+              <p class="attributeAssignType">group_asgn</p>
+              <p class="attributeDefId">dc5ed4dfe80b4ee9840574f8fa66578a</p>
+              <p class="attributeDefName">test:testAttributeAssignAssignNameDef</p>
+              <p class="attributeDefNameId">4441a493215544ae880ba0960901593c</p>
+              <p class="attributeDefNameName">test:testAttributeAssignAssignName</p>
+              <p class="createdOn">2014/05/28 18:20:11.996</p>
+              <p class="disabledTime" />
+              <p class="disallowed">F</p>
+              <p class="enabled">T</p>
+              <p class="enabledTime" />
+              <p class="id">e5404a1fe9ae4829b7d4e0fae656fc97</p>
+              <p class="lastUpdated">2014/05/28 18:20:11.996</p>
+              <p class="notes" />
+              <p class="ownerAttributeAssignId">c7f868959c5f44d4b742569fb2ec39aa</p>
+              <p class="ownerAttributeDefId" />
+              <p class="ownerAttributeDefName" />
+              <p class="ownerGroupId" />
+              <p class="ownerGroupName" />
+              <p class="ownerMemberId" />
+              <p class="ownerMemberSourceId" />
+              <p class="ownerMemberSubjectId" />
+              <p class="ownerMembershipId" />
+              <p class="ownerStemId" />
+              <p class="ownerStemName" />
+            </li>
+          </ul>
+        </li>
+      </ul>
+      <ul class="wsAttributeDefNames">
+        <li title="WsAttributeDefName">
+          <p class="attributeDefId">e5070a5081c94b768970fbbeb3901087</p>
+          <p class="attributeDefName">test:testAttributeAssignDefNameDef</p>
+          <p class="description" />
+          <p class="displayExtension">testAttributeAssignDefName</p>
+          <p class="displayName">test:testAttributeAssignDefName</p>
+          <p class="extension">testAttributeAssignDefName</p>
+          <p class="idIndex">10115</p>
+          <p class="name">test:testAttributeAssignDefName</p>
+          <p class="uuid">9113fb1008b548218d5dc18a3c01649a</p>
+        </li>
+      </ul>
+      <ul class="wsAttributeDefs">
+        <li title="WsAttributeDef">
+          <p class="attributeDefType">attr</p>
+          <p class="description" />
+          <p class="extension">testAttributeAssignDefNameDef</p>
+          <p class="idIndex">10031</p>
+          <p class="multiAssignable">F</p>
+          <p class="multiValued">T</p>
+          <p class="name">test:testAttributeAssignDefNameDef</p>
+          <p class="uuid">e5070a5081c94b768970fbbeb3901087</p>
+          <p class="valueType">integer</p>
+        </li>
+      </ul>
+      <ul class="wsGroups">
+        <li title="WsGroup">
+          <p class="description">description</p>
+          <div class="detail" title="WsGroupDetail" />
+          <p class="displayExtension">groupTestAttrAssign</p>
+          <p class="displayName">test:groupTestAttrAssign</p>
+          <p class="extension">groupTestAttrAssign</p>
+          <p class="idIndex">10006</p>
+          <p class="name">test:groupTestAttrAssign</p>
+          <p class="typeOfGroup">group</p>
+          <p class="uuid">1200d9aa372e44ea9bafaa61a9a2e5bb</p>
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>
+0
+
+
+#########################################
+##
+## Java source code (note, any programming language / objects
+## can use used to generate the above request/response.  Nothing
+## is Java specific.  Also, if you are using Java, the client libraries
+## are available
+##
+#########################################
+
+
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
+
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchEntry;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesBatchResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesBatchRequest;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
+import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
+
+/**
+ * @author mchyzer
+ */
+public class WsSampleAssignAttributesBatchRest implements WsSampleRest {
+
+  /**
+   * attribute assignments batch web service with REST
+   * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
+   */
+  public static void assignAttributesBatch(WsSampleRestType wsSampleRestType) {
+
+    try {
+      HttpClient httpClient = new HttpClient();
+      
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
+      //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
+      //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
+      String url = RestClientSettings.URL + "/" + RestClientSettings.VERSION  
+        + "/attributeAssignments";
+      
+      PostMethod method = new PostMethod(
+          url);
+
+      httpClient.getParams().setAuthenticationPreemptive(true);
+      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
+          RestClientSettings.PASS);
+
+      //no keep alive so response if easier to indent for tests
+      method.setRequestHeader("Connection", "close");
+      
+      //e.g. localhost and 8093
+      httpClient.getState()
+          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
+      
+      WsRestAssignAttributesBatchRequest wsRestAssignAttributesBatchRequest = new WsRestAssignAttributesBatchRequest();
+
+      // set the act as id
+      WsSubjectLookup actAsSubject = WsSubjectLookup.class.newInstance();
+      actAsSubject.setSubjectId("GrouperSystem");
+
+      WsAssignAttributeBatchEntry wsAssignAttributeBatchEntry1 = new WsAssignAttributeBatchEntry();
+      
+      {
+        wsAssignAttributeBatchEntry1.setAttributeAssignOperation("assign_attr");
+        wsAssignAttributeBatchEntry1.setAttributeAssignType("group");
+        
+        WsAttributeDefNameLookup wsAttributeDefNameLookup1 = new WsAttributeDefNameLookup();
+        wsAttributeDefNameLookup1.setName("test:testAttributeAssignDefName");
+        wsAssignAttributeBatchEntry1.setWsAttributeDefNameLookup(wsAttributeDefNameLookup1);
+
+        WsGroupLookup wsGroupLookup = new WsGroupLookup();
+        wsGroupLookup.setGroupName("test:groupTestAttrAssign");
+
+        wsAssignAttributeBatchEntry1.setWsOwnerGroupLookup(wsGroupLookup);
+
+      }
+      
+      WsAssignAttributeBatchEntry wsAssignAttributeBatchEntry2 = new WsAssignAttributeBatchEntry();
+
+      {
+        wsAssignAttributeBatchEntry2.setAttributeAssignOperation("assign_attr");
+        wsAssignAttributeBatchEntry2.setAttributeAssignType("group_asgn");
+        
+        WsAttributeDefNameLookup wsAttributeDefNameLookup2 = new WsAttributeDefNameLookup();
+        wsAttributeDefNameLookup2.setName("test:testAttributeAssignAssignName");
+        wsAssignAttributeBatchEntry2.setWsAttributeDefNameLookup(wsAttributeDefNameLookup2);
+  
+        WsAttributeAssignLookup wsAttributeAssignLookup = new WsAttributeAssignLookup();
+        wsAttributeAssignLookup.setBatchIndex("0");
+        wsAssignAttributeBatchEntry2.setWsOwnerAttributeAssignLookup(wsAttributeAssignLookup);
+      }
+      
+
+      WsAssignAttributeBatchEntry[] wsAssignAttributeBatchEntries = new WsAssignAttributeBatchEntry[]{
+          wsAssignAttributeBatchEntry1, wsAssignAttributeBatchEntry2};
+      
+      wsRestAssignAttributesBatchRequest.setWsAssignAttributeBatchEntries(wsAssignAttributeBatchEntries);
+      
+      
+      //get the xml / json / xhtml / paramString
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(wsRestAssignAttributesBatchRequest);
+      
+      //make sure right content type is in request (e.g. application/xhtml+xml
+      String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
+      
+      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
+      
+      httpClient.executeMethod(method);
+
+      //make sure a request came back
+      Header successHeader = method.getResponseHeader("X-Grouper-success");
+      String successString = successHeader == null ? null : successHeader.getValue();
+      if (StringUtils.isBlank(successString)) {
+        throw new RuntimeException("Web service did not even respond!");
+      }
+      boolean success = "T".equals(successString);
+      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+      
+      String response = RestClientSettings.responseBodyAsString(method);
+
+      Object result = wsSampleRestType
+        .getWsLiteResponseContentType().parseString(response);
+      
+      //see if problem
+      if (result instanceof WsRestResultProblem) {
+        throw new RuntimeException(((WsRestResultProblem)result).getResultMetadata().getResultMessage());
+      }
+      
+      //convert to object (from xhtml, xml, json, etc)
+      WsAssignAttributesBatchResults wsAssignAttributesBatchResults = (WsAssignAttributesBatchResults)result;
+
+      System.out.println(ToStringBuilder.reflectionToString(
+          wsAssignAttributesBatchResults));
+
+      String resultMessage = wsAssignAttributesBatchResults.getResultMetadata().getResultMessage();
+
+      // see if request worked or not
+      if (!success) {
+        throw new RuntimeException("Bad response from web service: successString: " + successString + ", resultCode: " + resultCode
+            + ", " + resultMessage);
+      }
+      
+      WsAssignAttributeBatchResult[] wsAssignAttributeBatchResultsArray = wsAssignAttributesBatchResults
+        .getWsAssignAttributeBatchResultArray();
+
+      for (WsAssignAttributeBatchResult wsAssignAttributeBatchResult : wsAssignAttributeBatchResultsArray) {
+        System.out.println(ToStringBuilder.reflectionToString(
+            wsAssignAttributeBatchResult));
+      }
+      
+      WsGroup[] wsGroupsResultArray = wsAssignAttributesBatchResults.getWsGroups();
+
+      for (WsGroup wsGroup : wsGroupsResultArray) {
+        System.out.println(ToStringBuilder.reflectionToString(
+            wsGroup));
+      }
+
+      System.out.println("Server version: " + wsAssignAttributesBatchResults.getResponseMetadata().getServerVersion()
+          + ", result code: " + resultCode
+          + ", result message: " + resultMessage );
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  /**
+   * @param args
+   */
+  public static void main(String[] args) {
+    assignAttributesBatch(WsSampleRestType.xml);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  public void executeSample(WsSampleRestType wsSampleRestType) {
+    assignAttributesBatch(wsSampleRestType);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#validType(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  public boolean validType(WsSampleRestType wsSampleRestType) {
+    //dont allow http params
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
+  }
+}
+
+
+#########################################
+##
+## Stdout
+##
+#########################################
+
+
+WsAssignAttributesBatchResults[
+  wsAttributeDefs={WsAttributeDef[idIndex=10031,extension=testAttributeAssignDefNameDef,name=test:testAttributeAssignDefNameDef,uuid=e5070a5081c94b768970fbbeb3901087,attributeDefType=attr,multiAssignable=F,multiValued=T,valueType=integer]},
+  wsAttributeDefNames={WsAttributeDefName[idIndex=10115,extension=testAttributeAssignDefName,displayExtension=testAttributeAssignDefName,displayName=test:testAttributeAssignDefName,name=test:testAttributeAssignDefName,uuid=9113fb1008b548218d5dc18a3c01649a,attributeDefId=e5070a5081c94b768970fbbeb3901087,attributeDefName=test:testAttributeAssignDefNameDef]},
+  wsAssignAttributeBatchResultArray={edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult@1c1e9a0,edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult@61d10846},
+  resultMetadata=WsResultMeta[resultCode=SUCCESS,resultMessage=Success for: clientVersion: 2.2.0, includeSubjectDetail: false, actAsSubject: null, subjectAttributeNames: null
+, paramNames: 
+, params: null
+, wsAssignAttributeBatchEntries: 0. wsAssignAttributeBatchEntry: attributeAssignOperation: assign_attr, attributeAssignType: group, wsAttributeDefNameLookup: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefName], wsOwnerGroupLookup: WsGroupLookup[pitGroups=[],groupName=test:groupTestAttrAssign],,success=T,httpStatusCode=500],
+  responseMetadata=WsResponseMeta[millis=117,millisStart=0,serverVersion=2.2.0],
+  wsGroups={WsGroup[extension=groupTestAttrAssign,typeOfGroup=group,displayExtension=groupTestAttrAssign,description=description,displayName=test:groupTestAttrAssign,name=test:groupTestAttrAssign,uuid=1200d9aa372e44ea9bafaa61a9a2e5bb,idIndex=10006]}]
+WsAssignAttributeBatchResult[changed=F,valuesChanged=F,deleted=F,
+  resultMetadata=WsResultMeta[resultCode=SUCCESS,resultMessage=, Found 1 results.,success=T,httpStatusCode=500],
+  wsAttributeAssigns={edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssign@1b1e4cd5}]
+WsAssignAttributeBatchResult[changed=F,valuesChanged=F,deleted=F,
+  resultMetadata=WsResultMeta[resultCode=SUCCESS,resultMessage=, Found 1 results.,success=T,httpStatusCode=500],
+  wsAttributeAssigns={edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssign@7f9bad2e}]
+WsGroup[extension=groupTestAttrAssign,typeOfGroup=group,displayExtension=groupTestAttrAssign,description=description,displayName=test:groupTestAttrAssign,name=test:groupTestAttrAssign,uuid=1200d9aa372e44ea9bafaa61a9a2e5bb,idIndex=10006]
+Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, includeSubjectDetail: false, actAsSubject: null, subjectAttributeNames: null
+, paramNames: 
+, params: null
+, wsAssignAttributeBatchEntries: 0. wsAssignAttributeBatchEntry: attributeAssignOperation: assign_attr, attributeAssignType: group, wsAttributeDefNameLookup: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefName], wsOwnerGroupLookup: WsGroupLookup[pitGroups=[],groupName=test:groupTestAttrAssign],

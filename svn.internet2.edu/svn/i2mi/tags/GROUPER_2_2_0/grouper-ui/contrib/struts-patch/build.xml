@@ -1,0 +1,24 @@
+<project name="local" default="webapp" basedir=".">
+		  
+		  <!-- This script contains compiles some Java classfiles which will be used in preference to the
+			 same classes in the struts.jar file. It is intended to be called from the site-specific build file
+			 which in turn is called by the main grouper-ui build file - this ensures that properties defined there
+			are available-->
+		  
+		  
+		  <target name="webapp" >
+			  <fail unless="webapp.folder">webapp.folder must be set</fail>
+			  <echo message="Building Struts patches"/>
+			 
+		  	  	<!-- leverage the class path used for the core UI -->
+		  	  	<path refid="ui.class.path"/>	
+		  	  
+		  	  <javac 
+			    srcdir="java/src"
+                destdir="${webapp.class.folder}"
+                classpathref="ui.class.path.for.run"
+                debuglevel="${debug.level}"
+                debug="true" 
+              />
+		  </target>
+</project>

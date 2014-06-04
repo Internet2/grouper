@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="contrib/struts-patch/java/src"/>
+	<classpathentry kind="src" path="GROUPER_TRUNK_CLIENT_SOURCE"/>
+	<classpathentry kind="src" path="GROUPER_TRUNK_CONF"/>
+	<classpathentry kind="src" path="GROUPER_TRUNK_SOURCE"/>
+	<classpathentry kind="src" path="contrib/yale-cas-auth/java/src"/>
+	<classpathentry kind="src" path="java/src"/>
+	<classpathentry kind="src" path="java/test"/>
+	<classpathentry kind="src" path="contrib/penn-auth/java/src"/>
+	<classpathentry kind="src" path="conf"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="lib" path="java/lib/commons-validator.jar"/>
+	<classpathentry exported="true" kind="lib" path="java/lib/jakarta-oro.jar"/>
+	<classpathentry exported="true" kind="lib" path="java/lib/jstl.jar"/>
+	<classpathentry exported="true" kind="lib" path="java/lib/serializer.jar"/>
+	<classpathentry exported="true" kind="lib" path="java/lib/servlet.jar"/>
+	<classpathentry exported="true" kind="lib" path="java/lib/standard.jar"/>
+	<classpathentry exported="true" kind="lib" path="java/lib/struts.jar" sourcepath="java/lib/struts.jar"/>
+	<classpathentry exported="true" kind="lib" path="java/lib/struts-el.jar"/>
+	<classpathentry exported="true" kind="lib" path="java/lib/taglibs-datetime.jar"/>
+	<classpathentry exported="true" kind="lib" path="java/lib/taglibs-request.jar"/>
+	<classpathentry exported="true" kind="lib" path="contrib/yale-cas-auth/java/lib/casclient.jar"/>
+	<classpathentry exported="true" kind="lib" path="java/lib/commons-fileupload.jar"/>
+	<classpathentry exported="true" kind="lib" path="java/lib/xalan.jar"/>
+	<classpathentry exported="true" kind="lib" path="java/lib/xercesImpl.jar"/>
+	<classpathentry exported="true" kind="lib" path="java/lib/xml-apis.jar"/>
+	<classpathentry kind="lib" path="contrib/penn-auth/java/lib/fastWebsec.jar"/>
+	<classpathentry kind="lib" path="java/lib/opencsv.jar"/>
+	<classpathentry kind="lib" path="java/lib/csrfguard.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/grouper"/>
+	<classpathentry kind="output" path="webapp/WEB-INF/classes"/>
+</classpath>

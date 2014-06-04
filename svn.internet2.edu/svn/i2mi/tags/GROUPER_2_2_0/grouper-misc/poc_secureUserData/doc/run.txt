@@ -1,0 +1,23 @@
+C:\mchyzer\grouper\trunk\poc_secureUserData>java -cp conf;lib\grouperClient.jar;
+lib\log4j.jar;lib\ojdbc14.jar;dist\secureUserData.jar edu.internet2.middleware.p
+oc_secureUserData.SudFullSync
+ - Del 1 mships of group: fgacAlumni
+ - Del 1 mships of group: fgacFacultyAndStaff, personid: 54329
+ - Add mship for group: fgacFacultyAndStaff, personid: 54321
+ - Add mship for group: fgacFacultyAndStaff, personid: 98765
+ - Add mship for group: fgacStudents, personid: 98765
+ - Del 1 row permiss schema: FASTDEV2, action: read, group: fgacAlumni
+ - Del 1 row permiss schema: FASTDEV4, action: write, group: fgacStudents
+ - Del 1 col permiss schema: FASTDEV4, action: read, cols: contact
+ - Del 1 col permiss schema: FASTDEV2, action: read, cols: ssn
+ - Add row permiss schema: FASTDEV2, action: write, group: fgacStudents
+ - Add row permiss schema: FASTDEV2, action: read, group: fgacStudents
+ - Add col permiss schema: FASTDEV3, action: read, cols: name
+ - Add col permiss schema: FASTDEV2, action: read, cols: name
+ - Add col permiss schema: FASTDEV2, action: read, cols: ids
+ - Add col permiss schema: FASTDEV3, action: read, cols: contact
+
+C:\mchyzer\grouper\trunk\poc_secureUserData>java -cp conf;lib\*;dist\secureUserD
+ata.jar edu.internet2.middleware.poc_secureUserData.SudRealTime
+ - Add mship for group: fgacStudents, personid: 54321
+ - Add row permiss schema: FASTDEV3, action: read, group: fgacStudents

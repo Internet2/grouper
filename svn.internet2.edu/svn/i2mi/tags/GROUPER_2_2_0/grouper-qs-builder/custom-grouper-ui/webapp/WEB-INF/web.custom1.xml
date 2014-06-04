@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+    version="2.4">
+
+   <!--Example of adding custom struts configuration to override or supplement that from the standard Grouper Ui-->  
+ <servlet>
+    <servlet-name>action</servlet-name>
+    <servlet-class>org.apache.struts.action.ActionServlet</servlet-class>
+    <init-param>
+      <param-name>config</param-name>
+      <param-value>/WEB-INF/struts-config-custom.xml,/WEB-INF/struts-config.xml,/WEB-INF/struts-config-custom.xml</param-value>
+    </init-param>
+    <init-param>
+      <param-name>config/i2mi</param-name>
+      <param-value>/WEB-INF/struts-config.xml</param-value>
+    </init-param>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  
+   <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>UI</web-resource-name>
+      <url-pattern>/grouperUi/app/*</url-pattern>
+    </web-resource-collection>
+	<user-data-constraint>NONE</user-data-constraint>
+  </security-constraint>
+
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>UI</web-resource-name>
+      <url-pattern>/grouperUi/appHtml/*</url-pattern>
+    </web-resource-collection>
+	<user-data-constraint>NONE</user-data-constraint>
+
+  </security-constraint>
+  
+ <!--ensure that Basic HTTP authentication used for standard UI-->
+   <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>Tomcat login i2mi</web-resource-name>
+      <url-pattern>/i2mi/login.do</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+       <!-- NOTE:  This role is not present in the default users file -->
+       <role-name>*</role-name>
+    </auth-constraint>
+  </security-constraint>
+  </web-app>

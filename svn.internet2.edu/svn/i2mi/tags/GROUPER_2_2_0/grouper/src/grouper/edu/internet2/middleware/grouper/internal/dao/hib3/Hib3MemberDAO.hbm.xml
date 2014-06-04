@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<!--
+  Copyright (C) 2004-2007 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2004-2007 The University Of Chicago
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0 
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!-- $Id: Hib3MemberDAO.hbm.xml,v 1.8 2009-03-24 17:12:08 mchyzer Exp $ -->
+
+<hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
+
+  <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
+    based on the grouper.properties, so dont remove that attribute  -->
+  <class name="Member" table="grouper_members" optimistic-lock="version">
+
+    <meta attribute="implement-equals">true</meta>
+    <meta attribute="session-method">Hib3DAO.getSession();</meta>
+
+    <cache usage="read-write"/>
+
+    <!-- id -->
+    <id name="uuid" unsaved-value="none"
+        type="string" column="id"
+        length="128"
+    >
+      <generator class="assigned" />
+    </id>
+    <!-- id -->
+
+    <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
+    <version name="hibernateVersionNumber" column="hibernate_version_number" type="long"/>
+
+    <!-- subjectId -->
+    <property 
+      name="subjectIdDb"
+      type="string"
+    >
+      <column name="subject_id" 
+              not-null="true"
+              index="member_subjectid_idx"
+              unique-key="subject_idx"
+      />
+    </property>
+    <!-- subjectId -->
+
+    <!-- subjectSourceId -->
+    <property 
+      name="subjectSourceIdDb"
+      type="string"
+    >
+      <column name="subject_source" 
+              not-null="true"
+              index="member_subjectsource_idx"
+              unique-key="subject_idx"
+      />
+    </property>
+    <!-- subjectSourceId -->
+
+    <!-- subjectTypeId -->
+    <property 
+      name="subjectTypeId"
+      type="string"
+    >
+      <column name="subject_type" 
+              not-null="true"
+              index="member_subjecttype_idx"
+              unique-key="subject_idx"
+      />
+    </property>
+    <!-- subjectTypeId -->
+
+    <property name="contextId" column="context_id"/>
+
+    <property name="sortString0" column="sort_string0"/>
+    <property name="sortString1" column="sort_string1"/>
+    <property name="sortString2" column="sort_string2"/>
+    <property name="sortString3" column="sort_string3"/>
+    <property name="sortString4" column="sort_string4"/>
+    <property name="searchString0" column="search_string0"/>
+    <property name="searchString1" column="search_string1"/>
+    <property name="searchString2" column="search_string2"/>
+    <property name="searchString3" column="search_string3"/>
+    <property name="searchString4" column="search_string4"/>
+    <property name="name" column="name"/>
+    <property name="description" column="description"/>
+
+  </class>
+
+</hibernate-mapping>
+

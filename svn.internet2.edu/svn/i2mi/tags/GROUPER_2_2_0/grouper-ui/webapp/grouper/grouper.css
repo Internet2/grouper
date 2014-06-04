@@ -1,0 +1,579 @@
+body {
+	font-family: Verdana,Geneva,Arial,Helvetica,sans-serif;
+}
+
+#title {
+	font-weight: bold;
+  color: #007994;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+h1 {
+  margin-left: 0px;
+  margin-bottom: 10px;
+}
+
+#subtitle {
+	font-size:11px;
+	color:333;
+	font-style: normal;
+	font-weight: bold;
+	text-align: left;
+	text-transform: uppercase;
+
+	position:relative;
+	display:inline;
+	line-height:16px;
+}
+
+.noCSSOnly {
+	display:none;
+}
+
+#LeftInNav {float:left;}
+#RightInNav {float:right;margin-right:9px}
+
+#RightInNav .blueButton {
+  background-color: #DFEFF4;
+  color:  #015782;
+}
+select.inNav {
+font-size:9px;
+}
+#grouperIntro {
+	width:50%;
+	float:left;
+}
+#grouperLogin {
+	float:right;
+	width:45%;
+}
+
+#grouperHelpForMenu {
+	float:right;
+	width:45%;
+}
+
+.groupSubject {
+ font-weight: bold;
+ 
+}
+
+
+.midSectionTitle {
+  font-weight: bold;
+  margin: 0px 0px 10px 10px;  
+}
+.browseStemsLocation {
+  margin-bottom: 5px;  
+}
+.browseStemsLocationHere {
+ font-weight: bold;
+ font-size:120%;
+}
+
+.groupStuff {
+	background-color:ffddcc;
+	padding-below:5px;
+}
+
+.groupLinks {
+	clear:both;
+}
+/*
+.linkButton {
+  margin-top: 5px;
+  margin-bottom: 5px;  
+}
+
+.linkButton a {
+
+  font-weight: bold;
+  margin: 2px 4px 2px 0px;
+
+  padding: 1px 5px 1px 5px;
+  border:1px solid black;
+  border-top-color:#666;
+  border-left-color:#666;
+  background-color: #015782;
+  color: #FFFFFF;
+  letter-spacing: -1px;
+	line-height:220%;
+}
+
+.linkButton a:hover { 
+  text-decoration: none;
+} 
+.linkButton a.redLink {
+  background-color: #990000;
+}
+*/
+
+.linkButton {
+  margin-top: 10px;
+  line-height: 300%;
+}
+
+.linkButton a {
+  text-decoration: underline;
+  margin: 2px 12px 2px 0px;
+  font-size: 12px;
+  white-space: nowrap;
+  font-weight: bold;
+}
+
+
+.pageBlurb {
+	width:50%;
+	margin-bottom:12px;
+	display:block;
+	clear:left;
+}
+.membershipListScope {
+	display:block;
+}
+
+.groupInfo .formTableLeft {
+	background-color:#6699ff;
+	color:000000;
+	font-weight:bold;
+	border-bottom-color:#ffffff;
+	border-bottom-width:1px;
+	border-bottom-style:solid;
+}
+.groupTypes .formTableRight .formTableLeft {
+	background-color:#cccccc;
+	color:000000;
+}
+.groupTypes .formTableLeft {
+	background-color:#99ccff;
+	color:000000;
+}
+tr.groupInfo {
+	border-bottom-color:#cccccc;
+	clear:both;
+}
+
+.formTable {
+  /* makes the negative border */
+  /* background-color: white; */
+  
+}
+
+.formTable tr {
+  /* makes the negative border */
+  background-color: #e8e8e8;
+  
+}
+
+
+.formTableSpaced {
+  
+  margin-top: 20px;
+  margin-bottom: 20px;  
+}
+
+.formTable .formTableRow, .formTable .formTableRow td {
+  vertical-align: top;
+}
+
+.formTable .formTableLeft {
+  text-align: right;  
+  font-weight: bold;
+  width: 238px;
+  color: #015782;
+}
+
+.formTable .formTableRight {
+  width: 390px;
+}
+
+.formSubtable .formTableLeft, .formSubtable .formTableRight {
+  color: black;
+  width: auto;  
+  font-weight: normal;
+}
+
+fieldset.nested {
+	display: block;
+	clear: both;
+}
+
+fieldset {
+  border: none;
+}
+
+.multiOptionItem {
+	width:120px;
+	
+}
+
+.formLeft {
+	display:block;
+	float:left;
+	clear:left;
+	line-height:20px;
+	width:140px;
+	margin-right:10px;
+}
+.formRight {
+	display:block;
+	float:left;
+	clear:right;
+	line-height:20px;
+}
+
+.formRow {
+	display:block;
+	clear:both;
+	margin-top:0px;
+}
+
+.advancedSearchGroups .formLeft {
+	
+	width:140px;
+	
+}
+
+.advancedSearchGroups .formRight {
+	width:260px;
+}
+
+.typesHeader .formTableLeft{
+	background-color:rgb(1, 87, 130);
+	color:#ffffff;
+	font-weight:bold;
+}
+.typesHeader {
+	margin-top:10px;
+}
+
+.typesHeader .formTableRight .formTableLeft {
+	background-color:rgb(1, 87, 130);
+	color:#ffffff;
+	font-weight:bold;
+}
+
+.typesHeader .formTableRight .formTableRow .formTableRight {
+	background-color:rgb(1, 87, 130);
+	color:#ffffff;
+	font-weight:bold;
+	width:200px;	
+}
+
+.termQuery {
+	font-weight:bold;
+}
+
+.termField {
+	font-style:italic;
+}
+
+.fieldIsList {
+	font-style:italic;
+	width:150px;
+	background-color:#cccccc;
+}
+
+
+.compositeDef {
+	margin-left:25px;
+	margin-bottom:20px;
+	
+}
+
+.buttonContainer {
+	display:block;
+	clear:both;
+}
+
+div.memberLink {
+	display:inline;
+}
+
+/* Make sure that form tags do not affect display -
+  most browsers include a line return after a form tag. */
+form {
+  display: inline;
+  margin: 0px;
+}
+
+.jspError{
+	color:#ff0000;
+}
+
+.section {
+  background-color: #f2f2f2;  
+  margin-top: 20px;
+  margin-left: 20px;
+  margin-right: 20px;
+  /* in ie6, text disappears, this will fix it
+  http://plone.org/documentation/how-to/internet-explorer-invisible-text
+  http://www.positioniseverything.net/explorer/peekaboo.html
+   */
+  height: 0.01%;
+}
+
+.sectionBody {
+  padding-top: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-bottom: 8px;
+}
+
+.actionheaderContainer td {
+  text-decoration: none;
+  color: #056496;
+  font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  text-transform : none;
+  font-weight: bold;
+  background-color: #dfeff4;
+  margin: 0px;
+  padding: 3px;
+  padding-left: 10px;
+}
+
+/** not, if there is an infodot, it takes vertical space, so remove padding on top */
+.actionheaderContainerInfodot td {
+  padding-top: 0px;
+    
+}
+
+.actionheader {
+  text-decoration: none;
+  color: #056496;
+  font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  text-transform : none;
+  font-weight: bold;
+  background-color: #DDD;
+  margin: 0px;
+  padding: 0px;
+}
+.actionheaderContainer td .actionheader {
+  background-color: #dfeff4;
+ 
+}
+.helpText {
+  margin: 7px 0px 5px 0px;
+  padding: 10px 6px 10px 6px;
+  background-color: #ffffcc;
+}
+
+/* this makes infodots go away, but if grouperInfodot.css is disabled via
+javascript, then it will take effect, otherwise grouperInfodot.css will make them shown again */
+.infodotImage {
+  display: none;
+  visibility:hidden;
+  position: relative;
+  top: 3px;
+  
+}
+/* the alignment for infodot in h1 doesnt have to be adjusted */
+h1 .infodotImage {
+  top: 0px;
+}
+
+.groupIcon, .subjectIcon {
+  position: relative;
+  top: 3px;
+  margin-right: 2px; 
+}
+
+/* show the icons as bullets, not the actual bullets
+ * - when browsing children of folders and groups,  
+ * - when showing subject search results 
+ */
+div.browseChildren ul, div.subjectSearchResults ul, div.groupSearchSubject ul, div.folderSearchSubject ul  {
+  list-style-type: none;
+  margin: 0px;
+  padding: 5px 0px 0px 20px;
+}
+ul.savedGroups, ul.savedSubjects {
+  list-style-type: none;  
+}
+
+/* underline some links */
+a.underline {
+  text-decoration: underline;  
+}
+div.currentLocationList {
+  margin-left: 10px;
+}
+a.subtitleLink {
+  /* dont wrap this in subtitle */
+  white-space: nowrap;
+  text-transform: none;
+  margin-left: 20px;
+}
+
+div.breadcrumb {
+  text-transform: uppercase;
+  color: #007994;
+  margin-bottom: 10px; 
+  
+}
+
+#ContentSpace {
+  
+  margin-left:200px;
+  margin-right:30px;
+  margin-top: 110px;
+  /** give some whitepace at bottom */
+  padding-bottom: 30px;
+}
+
+/** subheads in menu on left */
+div.menuSubheader {
+  padding: 15px 0px 5px 0px;  
+  color: #949494;
+  padding-left: 10px;
+  font-size: 10px;
+}
+div.actionbox, div.menuSubheader {
+  font-weight: bold;
+}
+div.actionbox {
+  padding-left: 20px;  
+  font-size: 11px;
+}
+div.selectedTab, div.selectedTab a {
+  background-color:#015782;
+  color:white;  
+}
+
+
+/** dont pad this from signet.  This is the blue bar across top with welcome message */
+#Navbar {
+  padding-left:0px;
+  padding-right:0px;
+  padding-top:3px;
+  padding-bottom:3px;
+  line-height=15px;
+  vetical-align:middle;
+}
+/** dont space over from left */
+#Sidebar {
+  padding: 0px 0px 0px 0px;
+  left: 0px;
+  background-color: #dfeff4;
+}
+
+#internet2 {
+  text-align: center;
+  width: 180px;
+  font-size: 9px;
+  position: absolute;
+  top: 500px;
+  left:0px;
+}
+
+body {
+  background-image: url(images/grouperbg.gif);
+  background-repeat: no-repeat;
+}
+
+#Navbar a.logoutLink {
+  text-decoration: underline;  
+  font-style: normal;
+}
+
+#Navbar a.logoutLink:hover {
+  text-decoration: underline;  
+  font-style: normal;
+    
+}
+ 
+.blueButton, .redButton {
+    font-family: Tahoma, Arial, Helvetica, sans-serif;
+    text-decoration: none;
+    color: #FFFFFF;
+    font-weight: bold;
+    white-space: nowrap;
+    font-size: 11px;
+    cursor: pointer;
+}
+/** there is a slight underline on tooltips in buttons that should be removed in certain cases */
+.blueButton .tooltip, .redButton .tooltip, .linkButton a .tooltip {
+  border-bottom: none;
+}
+
+
+.blueButton, .redButton {
+    border:1px solid black;
+    border-top-color:#666;
+    border-left-color:#666;
+}
+.blueButton {
+  background-color: #015782;
+}
+.redButton {
+  background-color: #990000;
+}
+
+div.grouperMessage {
+  font-weight: bold;
+  font-size:11px;
+  color: #990000;
+  border: 2px solid #cc6666;
+  padding-top: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-bottom: 5px;
+  margin-top: 3px;
+  margin-right: 3px;
+  margin-bottom: 8px;
+  /* background-color: #ffcccc; */
+  /* doesnt show up on dark backgrounds, so mandate that is white,
+     you can override with inherit if you like */
+  background-color: #ffffff;
+  width: 650px;
+}
+
+div.Message {
+  color: #000099;
+}
+
+div.WarningMessage {
+  color: #8B4513;
+}
+
+div.genericListHeader {
+  color: #666666;
+  padding-left: 20px;
+  font-size: 10px;
+  
+}
+
+table.groupTypeFields {
+	text-align:left;
+	border-style:solid;
+	border-width:1px;
+	border-color:#cccccc;
+	padding-top:0px;
+	margin-top:0px;
+}
+
+.groupTypeFields th {
+	background-color:#E8E8E8;
+	border-style:solid;
+	border-width:1px;
+	border-color:#cccccc;
+	vertical-align:bottom;
+}
+
+.groupTypeFields td {
+	border-style:solid;
+	border-width:1px;
+	border-color:#cccccc;
+	background-color:#FFFFFF;
+}
+
+.groupTypeFields td.fieldName {
+	font-weight:bold;
+	color:#666666;
+}
+
+

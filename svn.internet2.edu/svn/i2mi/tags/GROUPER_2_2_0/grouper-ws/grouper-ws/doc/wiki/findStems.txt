@@ -1,0 +1,30 @@
+h4. Description
+
+Find stems search for stems based on name, attribute, parent stem, etc.  Can build queries with group math (AND / OR / MINUS)
+
+h4. Features
+
+* Use [query type|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/query/WsStemQueryFilterType.html?root=I2MI&view=co] to build one query object
+* For AND\|OR\|MINUS you can link up multiple queries into one
+* Returns stems
+* Can actAs another user
+
+h4. Find stems Lite service
+
+* Accepts one query to search (cannot use group math)
+* Documentation: [SOAP|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?root=I2MI&view=co] (click on findStemsLite), [REST|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?root=I2MI&view=co] (click on findStemsLite)
+* For REST, the request can put data in query string (in URL or request body)
+* REST request (colon is escaped to %3A): GET /grouper-ws/servicesRest/v1_3_000/stems
+* (see documentation above for details): [Request object|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/rest/stem/WsRestFindStemsLiteRequest.html?root=I2MI&view=co], [response object|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/soap/WsFindStemsLiteResult.html?root=I2MI&view=co]
+* [Response codes|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/soap/WsFindStemsLiteResult.WsFindStemsLiteResultCode.html?root=I2MI&view=co]
+* [Samples|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/samples/findStems/?root=I2MI&pathrev=HEAD] (all files with "Lite" in them, click on "download" to see file)
+
+h4. Find stems service
+
+* Accepts multiple query objects in a graph (can use group math)
+* Documentation: [SOAP|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?root=I2MI&view=co&pathrev=HEAD] (click on findStems), [REST|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?root=I2MI&view=co] (click on findStems)
+* REST request (colon is escaped to %3A): GET /grouper-ws/servicesRest/v1_3_000/stems
+* (see documentation above for details): [Request object|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/rest/stem/WsRestFindStemsRequest.html?root=I2MI&view=co], [response object|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/soap/WsFindStemsResults.html?root=I2MI&view=co]
+* [Response codes overall|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/soap/WsFindStemsResults.WsFindStemsResultsCode.html?root=I2MI&view=co], [response codes for each assignment|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/soap/WsFindStemsResult.WsFindStemsResultCode.html?root=I2MI&view=co]
+* Returns an overall status, and a status for each assignment
+* [Samples|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/samples/findStems/?root=I2MI&pathrev=HEAD] (all files without "Lite" in them, click on "download" to see files)

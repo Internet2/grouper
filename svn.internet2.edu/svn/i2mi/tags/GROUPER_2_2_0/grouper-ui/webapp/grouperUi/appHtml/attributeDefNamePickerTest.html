@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+  <head>
+  
+    <script>
+
+      /* http://localhost:8089/grouper/grouperUi/appHtml/attributeDefNamePickerTest.html
+         grouperSession = GrouperSession.startRootSession();
+         attributeDef = new AttributeDefSave(grouperSession).assignName("test:testAttributeDefName1Def").assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.perm).save();
+         new AttributeDefNameSave(grouperSession, attributeDef).assignName("test:nameA").assignDisplayExtension("displayNameA").assignDescription("description A").assignCreateParentStemsIfNotExist(true).save();         
+         new AttributeDefNameSave(grouperSession, attributeDef).assignName("test:nameB").assignDisplayExtension("displayNameB").assignDescription("description B").assignCreateParentStemsIfNotExist(true).save();
+         new AttributeDefNameSave(grouperSession, attributeDef).assignName("test:nameC").assignDisplayExtension("displayNameC").assignDescription("description C").assignCreateParentStemsIfNotExist(true).save();
+         new AttributeDefNameSave(grouperSession, attributeDef).assignName("test:test1:test2:test3:nameD").assignDisplayExtension("displayNameD").assignDescription("description D").assignCreateParentStemsIfNotExist(true).save();
+         new AttributeDefNameSave(grouperSession, attributeDef).assignName("test:test1:test2:nameE").assignDisplayExtension("displayNameE").assignDescription("description E").assignCreateParentStemsIfNotExist(true).save();
+         attributeDef2 = new AttributeDefSave(grouperSession).assignName("test:testAttributeDefName2Def").assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.perm).save();
+         new AttributeDefNameSave(grouperSession, attributeDef2).assignName("test:name2A").assignDisplayExtension("displayName2A").assignDescription("description2 A").assignCreateParentStemsIfNotExist(true).save();         
+         new AttributeDefNameSave(grouperSession, attributeDef2).assignName("test:name2B").assignDisplayExtension("displayName2B").assignDescription("description2 B").assignCreateParentStemsIfNotExist(true).save();
+         new AttributeDefNameSave(grouperSession, attributeDef2).assignName("test:name2C").assignDisplayExtension("displayName2C").assignDescription("description2 C").assignCreateParentStemsIfNotExist(true).save();
+         new AttributeDefNameSave(grouperSession, attributeDef2).assignName("test:name").assignDisplayExtension("theDisplayName").assignDescription("description name").assignCreateParentStemsIfNotExist(true).save();         
+         
+       */
+      function grouperAttributeDefNameSelected(elementName,attributeDefNameId,screenLabel, 
+          attributeDefNameName, attributeDefNameDisplayName, attributeDefNameDescription) {
+
+        screenLabel = escapeHtml(screenLabel);
+        attributeDefNameId = escapeHtml(attributeDefNameId);
+        attributeDefNameName = escapeHtml(attributeDefNameName);
+        attributeDefNameDisplayName = escapeHtml(attributeDefNameDisplayName);
+        attributeDefNameDescription = escapeHtml(attributeDefNameDescription);
+        
+        //alert('selected: ' + screenLabel);
+        //alert('selectedName: ' + attributeDefNameName);
+        var theElement = document.getElementById(elementName + "IdSpanId");
+        if (theElement) {
+          theElement.value = attributeDefNameId;
+        }
+
+        theElement = document.getElementById(elementName + "ScreenLabelSpanId");
+        if (theElement) {
+          theElement.innerHTML = screenLabel;
+        }
+        
+        theElement = document.getElementById(elementName + "NameSpanId");
+        if (theElement) {
+          theElement.innerHTML = attributeDefNameName;
+        }
+                
+        theElement = document.getElementById(elementName + "DisplayNameSpanId");
+        if (theElement) {
+          theElement.innerHTML = attributeDefNameDisplayName;
+        }
+                
+        theElement = document.getElementById(elementName + "DescriptionSpanId");
+        if (theElement) {
+          theElement.innerHTML = attributeDefNameDescription;
+        }
+
+                
+
+      }
+    
+      /** convert input into a non-null string */
+      function escapeHtml(input) {
+        if (!input) {
+          return input;
+        }
+        input = input.replace(/&/g,  "&amp;");
+        input = input.replace(/</g,  "&lt;");
+        input = input.replace(/>/g,  "&gt;");
+        return input;
+      }
+    </script>
+  
+  </head>
+
+
+  <body>
+  
+  1. 
+    AttributeDefName name: <span id="attributeDefName1NameSpanId"></span>
+    <br />
+    <br />
+    AttributeDefName displayName: <span id="attributeDefName1DisplayNameSpanId"></span>
+    <br />
+    <br />
+    <!-- note: run a tcpip monitor on 8091, but a different url will require submitting to URL -->
+    <button onclick="theWindow = window.open('http://localhost:8091/grouper/grouperUi/appHtml/grouper.html?operation=AttributeDefNamePicker.index&attributeDefNamePickerName=attributeDefNamePickerExample&attributeDefNamePickerElementName=attributeDefName1','newWindow', 'scrollbars,resizable,width=600,height=500'); theWindow.focus(); return false;">Find resource</button>
+    <br />
+    <br />
+  2. 
+    AttributeDefName ID: <input type="text" id="attributeDefName2IdSpanId" />
+    <br />
+    <br />
+    AttributeDefName description: <span id="attributeDefName2DescriptionSpanId"></span>
+    <br />
+    <br />
+    AttributeDefName screenLabel: <span id="attributeDefName2ScreenLabelSpanId"></span>
+    <br />
+    <br />
+    <button onclick="theWindow = window.open('http://localhost:8091/grouper/grouperUi/appHtml/grouper.html?operation=AttributeDefNamePicker.index&attributeDefNamePickerName=attributeDefNamePickerExample&attributeDefNamePickerElementName=attributeDefName2','newWindow', 'scrollbars,resizable,width=600,height=500'); theWindow.focus(); return false;">Find resource</button>
+    <br />
+    <br />
+    
+  
+  </body>
+
+</html>

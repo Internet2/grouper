@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<!--
+  Copyright (C) 2004-2007 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2004-2007 The University Of Chicago
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0 
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!-- $Id: Hib3AttributeDefScopeDAO.hbm.xml,v 1.1 2009-06-29 15:58:24 mchyzer Exp $ -->
+
+<hibernate-mapping package="edu.internet2.middleware.grouper.attr">
+
+  <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
+    based on the grouper.properties, so dont remove that attribute  -->
+  <class name="AttributeDefScope" table="grouper_attribute_def_scope" optimistic-lock="version">
+
+    <cache usage="read-write"/>
+
+    <!-- id -->
+    <id name="id" unsaved-value="none" column="id" type="string" length="128">
+      <generator class="assigned" />
+    </id>
+    <!-- id -->
+
+    <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
+    <version name="hibernateVersionNumber" column="hibernate_version_number" type="long"/>
+
+    <property name="attributeDefId" column="attribute_def_id"/>
+    <property name="contextId" column="context_id"/>
+    <property name="createdOnDb" column="created_on"/>
+    <property name="lastUpdatedDb" column="last_updated"/>
+    <property name="attributeDefScopeTypeDb" column="attribute_def_scope_type"/>
+    <property name="scopeString" column="scope_string"/>
+    <property name="scopeString2" column="scope_string2"/>
+  </class>
+</hibernate-mapping>
+

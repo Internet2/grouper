@@ -1,0 +1,330 @@
+Grouper web service sample of service: getPermissionAssignments, WsSampleGetPermissionAssignmentsRest, manually written lite/rest, format: json, for version: 2.2.0
+
+
+#########################################
+##
+## HTTP request sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+POST /grouper-ws/servicesRest/v2_2_000/permissionAssignments HTTP/1.1
+Connection: close
+Authorization: Basic xxxxxxxxxxxxxxxxx==
+User-Agent: Jakarta Commons-HttpClient/3.0
+Host: localhost:8092
+Content-Length: 110
+Content-Type: text/x-json; charset=UTF-8
+
+{
+  "WsRestGetPermissionAssignmentsRequest":{
+    "wsAttributeDefLookups":[
+      {
+        "name":"aStem:permissionDef",
+        "uuid":""
+      }
+    ]
+  }
+}
+
+
+#########################################
+##
+## HTTP response sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+HTTP/1.1 200 OK
+Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+X-Grouper-resultCode: SUCCESS
+X-Grouper-success: T
+X-Grouper-resultCode2: NONE
+Content-Type: text/x-json;charset=UTF-8
+Content-Length: 2473
+Date: Wed, 28 May 2014 23:57:29 GMT
+Connection: close
+
+{
+  "WsGetPermissionAssignmentsResults":{
+    "responseMetadata":{
+      "millis":"106",
+      "serverVersion":"2.2.0"
+    },
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":", Found 3 results.",
+      "success":"T"
+    },
+    "wsAttributeDefs":[
+      {
+        "attributeDefType":"perm",
+        "extension":"permissionDef",
+        "idIndex":"10033",
+        "multiAssignable":"F",
+        "multiValued":"F",
+        "name":"aStem:permissionDef",
+        "uuid":"a1c3455f554f42618363896f689db2aa",
+        "valueType":"marker"
+      }
+    ]
+    ,
+    "wsGroups":[
+      {
+        "displayExtension":"role",
+        "displayName":"a stem:role",
+        "extension":"role",
+        "idIndex":"10008",
+        "name":"aStem:role",
+        "typeOfGroup":"role",
+        "uuid":"8be031282a69443e8c347402c5b7ccd1"
+      },
+      {
+        "displayExtension":"role2",
+        "displayName":"a stem:role2",
+        "extension":"role2",
+        "idIndex":"10009",
+        "name":"aStem:role2",
+        "typeOfGroup":"role",
+        "uuid":"67874218d8094e1fb4af6f58129e0481"
+      }
+    ]
+    ,
+    "wsPermissionAssigns":[
+      {
+        "action":"read",
+        "allowedOverall":"T",
+        "attributeAssignId":"c864b571daf14f5b9de674e8f16e58dd",
+        "attributeDefId":"a1c3455f554f42618363896f689db2aa",
+        "attributeDefName":"aStem:permissionDef",
+        "attributeDefNameId":"9b024ee7579c4157842aebc2198bec4a",
+        "attributeDefNameName":"aStem:permissionDefName",
+        "disallowed":"F",
+        "enabled":"T",
+        "membershipId":"e6bd262ad3db41988d1d8bb8fce30921:9a79719a53f8484fab90203f0cd89b79",
+        "permissionType":"role",
+        "roleId":"8be031282a69443e8c347402c5b7ccd1",
+        "roleName":"aStem:role",
+        "sourceId":"jdbc",
+        "subjectId":"test.subject.0"
+      },
+      {
+        "action":"read",
+        "allowedOverall":"T",
+        "attributeAssignId":"c864b571daf14f5b9de674e8f16e58dd",
+        "attributeDefId":"a1c3455f554f42618363896f689db2aa",
+        "attributeDefName":"aStem:permissionDef",
+        "attributeDefNameId":"9b024ee7579c4157842aebc2198bec4a",
+        "attributeDefNameName":"aStem:permissionDefName",
+        "disallowed":"F",
+        "enabled":"T",
+        "membershipId":"921f906eb6ce447bb9f7c4991b0d3dea:9a79719a53f8484fab90203f0cd89b79",
+        "permissionType":"role",
+        "roleId":"8be031282a69443e8c347402c5b7ccd1",
+        "roleName":"aStem:role",
+        "sourceId":"jdbc",
+        "subjectId":"test.subject.4"
+      },
+      {
+        "action":"write",
+        "allowedOverall":"T",
+        "attributeAssignId":"8a39d4810cbc4424b03c8878fc779961",
+        "attributeDefId":"a1c3455f554f42618363896f689db2aa",
+        "attributeDefName":"aStem:permissionDef",
+        "attributeDefNameId":"f1026a20954647f9824ff5d6676abac0",
+        "attributeDefNameName":"aStem:permissionDefName2",
+        "disallowed":"F",
+        "enabled":"T",
+        "membershipId":"78455476c57e46f99679c9216b5c761c:46ead7a8250a4dd990753bb5d3c962ed",
+        "permissionType":"role_subject",
+        "roleId":"67874218d8094e1fb4af6f58129e0481",
+        "roleName":"aStem:role2",
+        "sourceId":"jdbc",
+        "subjectId":"test.subject.1"
+      }
+    ]
+    ,
+    "wsSubjects":[
+    ]
+  }
+}
+
+
+#########################################
+##
+## Java source code (note, any programming language / objects
+## can use used to generate the above request/response.  Nothing
+## is Java specific.  Also, if you are using Java, the client libraries
+## are available
+##
+#########################################
+
+
+/*******************************************************************************
+ * Copyright 2012 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+package edu.internet2.middleware.grouper.ws.samples.rest.permission;
+
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetPermissionAssignmentsResults;
+import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
+import edu.internet2.middleware.grouper.ws.rest.permission.WsRestGetPermissionAssignmentsRequest;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
+import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
+
+/**
+ * @author mchyzer
+ */
+public class WsSampleGetPermissionAssignmentsRest implements WsSampleRest {
+
+  /**
+   * get permission assignments lite web service with REST
+   * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
+   */
+  public static void getPermissionAssignments(WsSampleRestType wsSampleRestType) {
+
+    try {
+      HttpClient httpClient = new HttpClient();
+      
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
+      //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
+      //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
+      String url = RestClientSettings.URL + "/" + RestClientSettings.VERSION  
+        + "/permissionAssignments";
+      PostMethod method = new PostMethod(
+          url);
+
+      httpClient.getParams().setAuthenticationPreemptive(true);
+      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
+          RestClientSettings.PASS);
+
+      //no keep alive so response if easier to indent for tests
+      method.setRequestHeader("Connection", "close");
+      
+      //e.g. localhost and 8093
+      httpClient.getState()
+          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
+
+      //Make the body of the request, in this case with beans and marshaling, but you can make
+      //your request document in whatever language or way you want
+      WsRestGetPermissionAssignmentsRequest getPermissionAssignments = new WsRestGetPermissionAssignmentsRequest();
+
+      
+      
+      WsAttributeDefLookup wsAttributeDefLookup = new WsAttributeDefLookup();
+      wsAttributeDefLookup.setUuid("");
+      wsAttributeDefLookup.setName("aStem:permissionDef");
+      getPermissionAssignments.setWsAttributeDefLookups(new WsAttributeDefLookup[]{wsAttributeDefLookup});
+      
+      //get the xml / json / xhtml / paramString
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(getPermissionAssignments);
+      
+      //make sure right content type is in request (e.g. application/xhtml+xml
+      String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
+      
+      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
+      
+      httpClient.executeMethod(method);
+
+      //make sure a request came back
+      Header successHeader = method.getResponseHeader("X-Grouper-success");
+      String successString = successHeader == null ? null : successHeader.getValue();
+      if (StringUtils.isBlank(successString)) {
+        throw new RuntimeException("Web service did not even respond!");
+      }
+      boolean success = "T".equals(successString);
+      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+      
+      String response = RestClientSettings.responseBodyAsString(method);
+
+      Object result = wsSampleRestType
+        .getWsLiteResponseContentType().parseString(response);
+      
+      //see if problem
+      if (result instanceof WsRestResultProblem) {
+        throw new RuntimeException(((WsRestResultProblem)result).getResultMetadata().getResultMessage());
+      }
+      
+      //convert to object (from xhtml, xml, json, etc)
+      WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = (WsGetPermissionAssignmentsResults)result;
+      
+      String resultMessage = wsGetPermissionAssignmentsResults.getResultMetadata().getResultMessage();
+
+      // see if request worked or not
+      if (!success) {
+        throw new RuntimeException("Bad response from web service: successString: " + successString + ", resultCode: " + resultCode
+            + ", " + resultMessage);
+      }
+      
+      System.out.println("Server version: " + wsGetPermissionAssignmentsResults.getResponseMetadata().getServerVersion()
+          + ", result code: " + resultCode
+          + ", result message: " + resultMessage );
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  /**
+   * @param args
+   */
+  public static void main(String[] args) {
+    getPermissionAssignments(WsSampleRestType.xml);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  public void executeSample(WsSampleRestType wsSampleRestType) {
+    getPermissionAssignments(wsSampleRestType);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#validType(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  public boolean validType(WsSampleRestType wsSampleRestType) {
+    //dont allow http params
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
+  }
+}
+
+
+#########################################
+##
+## Stdout
+##
+#########################################
+
+
+Server version: 2.2.0, result code: SUCCESS, result message: , Found 3 results.

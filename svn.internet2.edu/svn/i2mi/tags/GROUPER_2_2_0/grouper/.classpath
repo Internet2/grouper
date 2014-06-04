@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/grouper"/>
+	<classpathentry kind="src" path="src/esb"/>
+	<classpathentry kind="src" path="src/test"/>
+	<classpathentry kind="src" path="confForTest"/>
+	<classpathentry kind="src" path="conf"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/activation.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/antlr.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/asm.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/asm-util.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/backport-util-concurrent.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/bsh.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/c3p0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-beanutils.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-betwixt.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-cli.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-collections.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-digester.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-lang.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-logging.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-math.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/dom4j.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/ehcache.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/hibernate.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/invoker.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/jakarta-oro.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/jsr107cache.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/jta.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/jug.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/log4j.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/mailapi.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/morphString.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/odmg.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/p6spy.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/quartz.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/smtp.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/subject.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jdbcSamples/hsqldb.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jdbcSamples/mysql-connector-java-bin.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jdbcSamples/postgresql.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/junit.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ant/ant-contrib.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-discovery.jar" sourcepath="C:/Users/TEMP.mchyzer-PC.011/.m2/repository/commons-discovery/commons-discovery/0.4/commons-discovery-0.4-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/jamon.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/ant.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-io.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/xstream.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/ezmorph.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/json-lib.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jdbcSamples/sqljdbc4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/xpp3_min.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-jexl.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/smack.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-codec.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty/jetty-util.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty/jetty.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty/servlet-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-httpclient.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/ddlUtils.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/grouperClient.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/javassist.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/slf4j-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/hibernate-jpa-2.0-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/slf4j-log4j12.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/vt-ldap.jar"/>
+	<classpathentry kind="lib" path="lib/jdbcSamples/ojdbc6_g.jar"/>
+	<classpathentry kind="output" path="build"/>
+</classpath>

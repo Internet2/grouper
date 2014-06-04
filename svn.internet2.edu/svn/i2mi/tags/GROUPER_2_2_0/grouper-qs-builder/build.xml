@@ -1,0 +1,279 @@
+<project name="local" default="start" basedir=".">	
+	<property environment="env"/>
+	
+  <property file="misc/version.properties"/>
+
+  <property file="build.properties"/>
+	
+	<target name="start" description="Depending on whether grouper.folder is set, uses defined folder, or checks out Grouper from CVS">
+		<fail unless="quickstart.dir">quickstart.dir must be set in build.properties</fail>
+		<ant dir="${grouper.folder}" target="dist"/>
+		<delete dir="${grouper.folder}/dist/build"/>
+		<antcall target="-make-quickstart-grouper"/>
+		<antcall target="-export-grouper-from-cvs"/>
+		<antcall target="-make-quickstart-grouper-ui"/>
+		<antcall target="-export-grouper-ui-from-cvs"/>
+		<antcall target="complete-quickstart"/>
+		<antcall target="make-javadoc"/>
+		<antcall target="-tar"/>
+		
+		
+	</target>
+	
+	<target name="-tar">
+		<tar basedir="${quickstart.dir}/../" 
+			 includes="${qs.dirname}/**"
+			 compression="gzip" 
+			 destfile="${quickstart.dir}/../grouper.quickstart-${version}.tar.gz" 
+			 longfile="gnu"/>
+	</target>
+	
+	<target name="copydb" description="Ensures baseline database">
+		<fail unless="grouper.folder">grouper.folder must be set in build.properties</fail>
+		<available property="db.exists" file="${grouper.folder}/dist/run/grouper.script"/>
+		<antcall target="-check-overwrite-db"/>
+		<antcall target="-initiate-overwrite-db"/>
+	</target>
+	
+	<target name="-check-overwrite-db" if="db.exists">
+			<input validargs="y,n" addproperty="db.overwrite" message="Database exists at ${grouper.folder}/dist/run. Overwrite?"/>
+			<condition property="user.abort">
+				<equals arg1="${db.overwrite}" arg2="n"/>
+			</condition>
+			<!--fail if="user.abort" message="User chose not to overwrite database. Aborting."/-->
+			<antcall target="-do-overwrite-db"/>
+		</target>
+		<target name="-initiate-overwrite-db" unless="db.exists">
+			<antcall target="-do-overwrite-db"/>
+		</target>
+		
+		<target name="-do-overwrite-db" unless="user.abort">
+			<copy todir="${grouper.folder}/dist/run" overwrite="true">
+				<fileset dir=".">
+					<include name="grouper.script"/>
+					<include name="grouper.script.empty"/>
+					<include name="grouper.properties"/>
+				</fileset>
+			</copy>
+			<copy tofile="${grouper.folder}/conf/grouper.hibernate.properties" file="${grouper.folder}/conf/grouper.hibernate.example.properties" overwrite="true"/>
+			<replace file="${grouper.folder}/conf/grouper.hibernate.properties" token="hibernate.connection.url = jdbc:hsqldb:dist/run/grouper;create=true" value="hibernate.connection.url              = jdbc:hsqldb:hsql://localhost"/>
+			<copy tofile="${grouper.folder}/conf/sources.xml" file="${grouper.folder}/conf/sources.example.xml" overwrite="true"/>
+			<replace file="${grouper.folder}/conf/sources.xml" token="&lt;id&gt;jdbc&lt;/id&gt;" value="&lt;id&gt;example&lt;/id&gt;"/>
+			<!--<copy todir="${grouper.folder}/src/conf" overwrite="true">
+				<fileset dir=".">
+					<include name="sources.xml"/>
+					<include name="grouper.hibernate.properties"/>
+					
+				</fileset>
+			</copy>-->
+			<copy tofile="${grouper.folder}/conf/grouper.properties" file="${grouper.folder}/conf/grouper.example.properties"/>
+			<replace file="${grouper.folder}/conf/grouper.properties" token="groups.wheel.use                      = false"
+				value="groups.wheel.use                      = true"/>
+				<replace file="${grouper.folder}/conf/grouper.properties" token="groups.wheel.group                    = etc:sysadmingroup"
+				value="groups.wheel.group                    = etc:wheel"/>
+		</target>
+
+	 <target name="-make-quickstart-grouper" description="Builds QuickStart. Assumes that database is OK in grouper.folder/dist/run" if="grouper.folder">
+			<antcall target="copydb"/>
+			 <delete dir="${quickstart.dir}"/>
+			 <mkdir dir="${quickstart.dir}"/>
+			 <mkdir dir="${quickstart.dir}/grouper"/>
+			 <mkdir dir="${quickstart.dir}/grouper/doc"/>
+			 <mkdir dir="${quickstart.dir}/grouper/conf"/>
+			 <mkdir dir="${quickstart.dir}/grouper/dist"/>
+			 <mkdir dir="${quickstart.dir}/grouper/dist/lib"/>
+			 <mkdir dir="${quickstart.dir}/grouper/dist/run"/>
+			
+			<!--<copy file="${grouper.folder}/dist/lib/grouper.jar" tofile="${quickstart.dir}/grouper/dist/lib/grouper.jar"/>
+			 <copy todir="${quickstart.dir}/grouper/dist/lib">
+				 <fileset dir="${grouper.folder}/lib"/>
+			 </copy>-->
+			<copy file="${grouper.folder}/dist/run/grouper.script" tofile="${quickstart.dir}/grouper/dist/run/grouper.script"/>
+			<copy file="${grouper.folder}/dist/run/grouper.properties" tofile="${quickstart.dir}/grouper/dist/run/grouper.properties"/>
+			<copy todir="${quickstart.dir}/grouper/conf">
+				<fileset dir="${grouper.folder}/conf"></fileset>
+			</copy>
+			<copy todir="${quickstart.dir}/grouper">
+			  <fileset dir=".">
+					<include name="logs/**/*"/>
+				</fileset>
+			</copy>
+			<chmod dir="${quickstart.dir}/grouper/logs" perm="ug+rw" includes="**/*.log"/>
+			<copy todir="${quickstart.dir}/grouper">
+				<fileset dir="${grouper.folder}">
+					<include name="contrib/**/*"/>
+					<include name="sql/**/*"/>
+					<include name="libAnt/**/*"/>
+					<include name="bin/**/*"/>
+					<include name="dist/**/*"/>
+					<include name="ext/**/*"/>
+					<include name="misc/**/*"/>
+					<include name="LICENSE"/>
+					<include name="README"/>
+					<include name="build.xml"/>
+					<include name="buildGrouper.properties"/>
+					<include name="build.example.properties"/>
+					<include name="*.txt"/>
+					<exclude name="src"/>
+					<exclude name="lib"/>
+				</fileset>
+			</copy>
+			<mkdir dir="${quickstart.dir}/grouper/doc"/>
+			<copy todir="${quickstart.dir}/grouper/doc">
+				<fileset dir="${grouper.folder}">
+					<include name="LICENSE"/>
+					<include name="README"/>
+					<include name="*.txt"/>
+				</fileset>
+			</copy>
+			<antcall target="-make-grouper-complete"/>
+			
+			<copy todir="${quickstart.dir}">
+				<fileset dir=".">
+					<include name="custom-grouper-ui"/>
+					<include name="custom-grouper-ui/**"/>
+				</fileset>
+			</copy>
+			</target>
+			
+			<target name="-make-quickstart-grouper-ui" if="grouper-ui.folder">
+				<mkdir dir="${quickstart.dir}/grouper-ui"/>				
+				<copy todir="${quickstart.dir}/grouper-ui">
+					<fileset dir="${grouper-ui.folder}">
+						
+						<include name="**/*"/>
+						<exclude name="**/classes/"/>
+						<exclude name="webapp/**/lib/"/>
+						<exclude name="webapp/**/web.xml"/>
+					</fileset>
+				</copy>
+			 </target>
+			 
+		<target name="complete-quickstart">			 
+			  <copy todir="${quickstart.dir}" overwrite="true">
+				  <fileset dir=".">
+						 <include name="*.bat"/>
+						 <include name="*.jar"/>
+						 <include name="subjects.xml"/>
+						 <include name="quickstart.xml"/>
+						 <include name="subjects.sql"/>
+				  </fileset>
+			  </copy>
+			  <copy todir="${quickstart.dir}/grouper-ui" file="tomcat-users.xml" overwrite="true"/>
+			  <copy todir="${quickstart.dir}" file="doc/README.html"/>
+			  <copy tofile="${quickstart.dir}/build.xml" file="build-db.xml"/>
+			  <copy file="${quickstart.dir}/grouper-ui/build.properties.template" tofile="${quickstart.dir}/grouper-ui/build.properties"/>
+		 	<copy file="${quickstart.dir}/grouper-ui/log4j.template.properties" tofile="${quickstart.dir}/grouper-ui/log4j.properties"/>
+		 	<copy file="${quickstart.dir}/grouper-ui/template-tomcat-context.xml" tofile="${quickstart.dir}/grouper-ui/tomcat-context.xml"/>
+			 <!-- <copy tofile="${quickstart.dir}/grouper/build.xml" file="grouper-bin-build.xml"/>-->
+			  
+			  <chmod dir="${quickstart.dir}" perm="+x" includes="*.sh"/>
+			  <touch><fileset dir="${quickstart.dir}/grouper/conf"/></touch>
+	 </target>
+	 
+	 <target name="-make-grouper-complete" if="grouper.complete">
+		 <copy todir="${quickstart.dir}/grouper">
+			 <fileset dir="${grouper.folder}">
+				 <include name="src/**/*"/>
+				 <include name="lib/**/*"/>
+			 </fileset>
+		 </copy>
+		 <copy todir="${quickstart.dir}/grouper/lib/custom">
+			 <fileset dir="${grouper.folder}/lib/jdbcSamples">
+				 <include name="hsqldb.jar"/>
+			 </fileset>
+		 </copy>
+	 </target>
+	 
+	 <target name="-export-grouper-from-cvs" unless="grouper.folder">
+		 <available property="exported.grouper.available" file="./temp/grouper"/>
+		 <antcall target="-do-export-grouper"/>
+		 <antcall target="-check-export-grouper"/>
+	 </target>
+	 <target name="-do-export-grouper" unless="exported.grouper.available">
+			  <cvs command="rlog -h grouper/build.xml" cvsRoot=":pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi" />
+			  <input message="Enter a symbolic name from the list above (or nothing for HEAD)&gt;" defaultvalue="HEAD" addproperty="cvs.tag"/>
+			  <echo message="Exporting '${cvs.tag}' from CVS"/>
+			 <delete dir="temp/grouper"/>
+			  <mkdir dir="temp"/> 			  
+			  <cvs command="export -r ${cvs.tag}" cvsRoot=":pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi" package="grouper" dest="temp" />
+			  <antcall target="-make-quickstart-grouper">
+				  <param name="grouper.folder" value="temp/grouper"/>
+			  </antcall> 
+	 </target>
+	 <target name="-check-export-grouper" if="exported.grouper.available">
+			  
+			  <input message="Overwrite previously checked out grouper?" validargs="y,n" addproperty="do.checkout"/>
+			  <condition property="exported.grouper.available">
+				  <equals arg1="${do.checkout}" arg2="n"/>
+			  </condition>
+			  <antcall target="-do-export-grouper"/>
+			  <antcall target="-use-temp-grouper"/>
+	 </target>
+	 <target name="-use-temp-grouper" if="exported.grouper.available">
+		  <antcall target="-make-quickstart-grouper">
+				  <param name="grouper.folder" value="temp/grouper"/>
+			  </antcall> 
+	 </target>
+	 
+	 
+	 <target name="-export-grouper-ui-from-cvs" unless="grouper-ui.folder">
+		 <available property="exported.grouper-ui.available" file="./temp/grouper-ui"/>
+		 <antcall target="-do-export-grouper-ui"/>
+		 <antcall target="-check-export-grouper-ui"/>
+	 </target>
+	 <target name="-do-export-grouper-ui" unless="exported.grouper-ui.available">
+			  <cvs command="rlog -h grouper-ui/build.xml" cvsRoot=":pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi" />
+			  <input message="Enter a symbolic name from the list above (or nothing for HEAD)&gt;" defaultvalue="HEAD" addproperty="cvs.tag"/>
+			  <echo message="Exporting '${cvs.tag}' from CVS"/>
+			 <delete dir="temp/grouper-ui"/>
+			  <mkdir dir="temp"/> 			  
+			  <cvs command="export -r ${cvs.tag}" cvsRoot=":pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi" package="grouper-ui" dest="temp" />
+			      <copy file="temp/grouper-ui/build.properties.template" tofile="temp/grouper-ui/build.properties"/>
+				  <copy file="temp/grouper-ui/template-tomcat-context.xml" tofile="temp/grouper-ui/tomcat-context.xml"/>
+			  <antcall target="-make-quickstart-grouper-ui">
+				  <param name="grouper-ui.folder" value="temp/grouper-ui"/>
+			  </antcall> 
+	 </target>
+	 <target name="-check-export-grouper-ui" if="exported.grouper-ui.available">
+			  
+			  <input message="Overwrite previously checked out grouper-ui?" validargs="y,n" addproperty="do.checkout"/>
+			  <condition property="exported.grouper-ui.available">
+				  <equals arg1="${do.checkout}" arg2="n"/>
+			  </condition>
+			  <echo message="${exported.grouper-ui.available}"/>
+			  <antcall target="-do-export-grouper-ui"/>
+			  <antcall target="-use-temp-grouper-ui"/>
+	 </target>
+	 <target name="-use-temp-grouper-ui" if="exported.grouper-ui.available">
+		  <antcall target="-make-quickstart-grouper-ui">
+				  <param name="grouper-ui.folder" value="temp/grouper-ui"/>
+			  </antcall> 
+	 </target>
+	 
+	 <target name="make-javadoc">
+		 <condition property="grouper.folder.for.javadoc" value="${grouper.folder}">
+			 <and>
+				 <isset property="grouper.folder"/>
+				 <not><isset property="grouper.with-java.folder"/></not>
+			 </and>
+		 </condition>
+	     <condition property="grouper.folder.for.javadoc" value="${grouper.with-java.folder}">
+			<isset property="grouper.with-java.folder"/>
+		 </condition>
+		  <condition property="grouper.folder.for.javadoc" value="temp/grouper">
+				<and>
+					<not><isset property="grouper.with-java.folder"/></not>
+					<not><isset property="grouper.folder"/></not>
+					<available file="temp/grouper/java/src"/>
+				</and>
+		 </condition>
+		 <fail unless="grouper.folder.for.javadoc">Cannot determine a grouper folder to generate Javadoc</fail>
+		 
+		 <ant dir="${quickstart.dir}/grouper-ui" target="html">
+			 <property name="grouper.folder" value="${grouper.folder.for.javadoc}"/>
+		 </ant>
+		 
+	 </target>
+	 
+</project>

@@ -1,0 +1,3 @@
+sso.login.url=https://sso.bris.ac.uk/sso/login
+sso.validate.url=https://sso.bris.ac.uk/sso/serviceValidate
+grouper.server.name=cse-gwb.cse.bris.ac.uk:8080

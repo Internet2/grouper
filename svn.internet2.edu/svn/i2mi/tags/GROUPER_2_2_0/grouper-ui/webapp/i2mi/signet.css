@@ -1,0 +1,543 @@
+/* DEFAULT */
+a { 
+	text-decoration: none; 
+	color: #0053B3; 
+	}
+	
+	a.selectedTab { 
+	text-decoration: none; 
+	color: #ffffff; 
+	background-color:#015782;
+	text-width:100%;
+	}
+
+a.selectedTab:hover {
+	text-decoration: none;
+	color: #FFFFFF; 
+}
+	
+a:hover {
+	text-decoration: underline; 
+	color: #0053B3; 
+	}
+	
+body {
+	margin: 0px 0px 0px 0px;
+	padding: 0px 0px 0px 0px;
+	background-color: #FFF;
+	color: #000; 
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	font-size: 11px; 
+	font-weight: normal;
+	}
+
+h1 {
+	margin: 0px 0px 3px 3px;
+	padding: 0px 0px 0px 0px;
+	
+	color: #10104A; 
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	font-size: 16px; 
+	font-weight: bold;
+	}
+
+fieldset {
+  /*
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	font-size: 11px; 
+	font-weight: normal;
+	width: 70%;
+	border: 1px solid #DDD;
+	margin: 0px 0px 20px 0px;
+	padding: 10px 10px 10px 10px;
+	display:block;
+	clear:both;
+	*/
+	padding: 0px;
+	margin: 0px;
+}
+
+legend {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	font-size: 11px; 
+	font-weight: bold;
+}
+
+iframe {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	font-size: 11px; 
+	height: 200px;
+	scrolling: auto;
+	border: 1px solid #DDD;
+}
+
+p {
+	margin: 0px 0px 15px 0px;
+}
+
+p.nomarg {
+	margin: 0px 0px 0px 0px;
+}
+	
+img {
+	border-width: 0px;
+	}
+	
+img.popup {
+	float: right;
+	border-width: 0px;
+	margin: 2px;
+	}
+	
+select {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	font-size: 11px; 
+	font-weight: normal;
+	}
+	
+select.long {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	font-size: 11px; 
+	font-weight: normal;
+	text-transform : none;	
+	width: 170px;
+	}
+	
+select.short {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	font-size: 11px; 
+	font-weight: normal;
+	text-transform : none;
+	width: 100px;
+	}	
+
+table.invis {
+	border: 0px;
+	padding: 0px;
+	}
+	
+table.full {
+	border: 0px;
+	padding: 0px;
+	width: 100%;
+	}
+
+td {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	font-size: 11px; 
+	font-weight: normal;
+	padding: 3px;
+	vertical-align: top;
+	}
+
+td.line {
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	font-size: 11px; 
+	font-weight: normal;
+	padding: 3px;
+	vertical-align: top;
+	border-bottom: 1px solid #DDD;
+	}
+
+hr {
+	color: #009CCE;
+	height: 1px;
+	}
+
+/* UNORDERED LIST */
+ul {
+	font-size: 11px/16px;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	list-style-position: outside; 
+	marker-offset: 4px; 
+	list-style-type: square;
+	margin-top: 0px;
+	}
+
+ul.arrow     { font-size: 11px 16px; font-family: 
+               Verdana, Geneva, Arial, Helvetica, sans-serif; 
+               list-style-position: outside; marker-offset: 4px; 
+               list-style-type: disc; list-style-image: 
+               url('../../../../Documents%20and%20Settings/isgwb/Local%20Settings/Temporary%20Internet%20Files/Content.IE5/images/arrow.gif'); 
+               margin-top: 0px }
+ul.circle {
+	font-size: 11px/16px;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	list-style-position: outside; 
+	marker-offset: 4px; 
+	list-style-type: circle;
+	margin-top: 0px;	
+	}
+
+ul.none {
+	font-size: 11px/16px;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	list-style-position: outside; 
+	list-style-type: none;
+	margin-top: 0px;	
+	}		
+	
+/* ORDERED LIST */
+ol {
+	font-size: 11px/16px;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	list-style-position: outside; 
+	marker-offset: 4px; 
+	list-style-type: decimal
+	}
+	
+/* DEFINITION LIST */
+dl {
+	font-size: 11px/16px;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	margin: 0px 0px 0px 0px; 
+	}
+	
+dt  {
+	color: #000;
+	font-style: normal;
+	}
+	
+dd  {
+	color: #333;
+	font-style: normal;
+	margin: 0px 0px 5px 20px;
+	}	
+
+/* LAYOUT AND POSITIONING */
+#Header {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	margin: 6px 6px 0px 6px;
+	float: left;
+	clear:both;
+/* Again, the ugly brilliant hack. */
+	voice-family: "\"}\"";
+	voice-family:inherit;
+	}
+/* Again, "be nice to Opera 5". */
+body>#Header {width: 98%;}
+
+#BelowHeader {
+	position: absolute;
+	top: 101px;
+	left: 0px;
+	float:left;
+	width:100%;
+	margin-right:6px;
+	
+/* Again, the ugly brilliant hack. */
+	voice-family: "\"}\"";
+	voice-family:inherit;
+	}
+
+#ContentSpace {
+	
+	
+    margin-top:100px;   
+	margin-left:190px	;
+	margin-right:28px;
+	
+	/* Again, the ugly brilliant hack. */
+	voice-family: "\"}\"";
+	voice-family:inherit;
+	}
+
+#TitleBox {
+	
+	
+	
+		
+	/* Again, the ugly brilliant hack. */
+	voice-family: "\"}\"";
+	voice-family:inherit;
+	}
+
+
+#ErrorMessage {
+	background-color:ffcccc;
+   
+	/* Again, the ugly brilliant hack. */
+	voice-family: "\"}\"";
+	voice-family:inherit;
+	}
+	
+	#Message {
+	background-color:cccccc;
+   
+	/* Again, the ugly brilliant hack. */
+	voice-family: "\"}\"";
+	voice-family:inherit;
+	}
+
+#Content {
+	
+	width:100%;
+/* Again, the ugly brilliant hack. */
+	voice-family: "\"}\"";
+	voice-family:inherit;
+	}
+
+#Right {
+	position:absolute;
+	top:0px;
+	right:18px;
+	width:20px;   
+	background-color:cccccc;
+	/* Again, the ugly brilliant hack. */
+	voice-family: "\"}\"";
+	voice-family:inherit;
+	}
+
+#Footer {
+	position:relative;
+	clear:both;
+	display:block;
+	margin-right:18px;
+	
+
+	/* Again, the ugly brilliant hack. */
+	voice-family: "\"}\"";
+	voice-family:inherit;
+	}
+
+
+
+
+
+#Logo {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 140px;
+	text-align: center;
+	voice-family: "\"}\"";
+	voice-family:inherit;
+	}
+	
+#Signet {
+	position: absolute;
+	top: 0px;
+	right: 12px;
+	height: 60px;
+/* Again, the ugly brilliant hack. */
+	voice-family: "\"}\"";
+	voice-family:inherit;
+	}
+	
+#Navbar {
+	position: absolute;
+	top: 78px;
+	left: 0px;
+	width: 100%;
+	padding: 2px 0px 2px 2px;
+	color: #fff;
+	height:15px;
+	background-color: #015782; /* per GP; was #10104A  */
+	font-style: normal;
+	font-weight: normal;
+	text-align: left;
+/* Again, the ugly brilliant hack. */
+	voice-family: "\"}\"";
+	voice-family:inherit;
+	}
+/* Again, "be nice to Opera 5". */
+body>#Navbar {width: 98%;}
+
+
+#Navbar a { 
+	text-decoration: none; 
+	color: #FFF;  
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	font-style: normal;
+	font-weight: normal;
+	}
+	
+#Navbar a:hover { 
+	text-decoration: underline; 
+	color: #FFF;  
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
+	font-style: italic;
+	font-weight: normal;
+	}
+	
+#Layout {
+	position: absolute;
+	top: 93px;
+	left: 6px;
+	right: 6px;
+	/* width: 98%; */
+	padding: 0px 0px 0px 0px;
+	background-color: #FFF;
+	voice-family: "\"}\"";
+	voice-family:inherit;
+	}
+/* Again, "be nice to Opera 5". */
+body>#Layout {width: 98%;}
+
+
+#Sidebar {
+	position: absolute;
+	
+	margin-top:100px;
+	top: 0px;
+	left: 5px;
+	width: 180px;
+	text-align: left;
+	background-color: #fff;
+	/* top and bottom borders: 1px; left and right borders: 0px */
+/* Again, the ugly brilliant hack. */
+	voice-family: "\"}\"";
+	voice-family:inherit;
+	}
+/* Again, "be nice to Opera 5". */
+body>#Sidebar {width:180px;}
+
+#Scroll {
+	position: relative;
+	border: 1px solid #009CCE;
+	margin-top: 0px;
+	height: 250px;
+	width: 450px;
+	overflow: auto;
+	}
+	
+#Notes {
+	border-top: 2px solid #900;
+	color: #900;
+	margin-top: 100px;
+	margin-bottom: 100px;
+	margin-left: 6px;
+	padding-top: 0px;
+	padding-right: 100px;
+	padding-left: 100px;
+	background-color: #FFF;
+/* Again, the ugly brilliant hack. */
+	voice-family: "\"}\"";
+	voice-family:inherit;
+	}
+
+/* CONTENT SPECIFIC */
+.tableheader {
+	text-decoration: none;
+	color: #000000;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	text-transform : uppercase;
+	font-weight: bold;
+	background-color: #BAD7DA;
+	padding-top:3px;
+	padding-bottom:3px;
+	margin: 0px 0px 0px 0px;
+	height:14px;
+		width:100%;
+	overflow:hidden;
+	}
+.tableheader a{
+	text-transform : none;
+	font-weight: normal;	
+}
+	
+.tablebg1 {
+	background-color: #EEF;
+	}
+
+.tablecontent {
+	text-decoration: none;
+	color: #000;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	background-color: #FFF;
+	padding: 0px 0px 0px 0px;
+	margin: 0px 0px 10px 0px;
+	}
+	
+.textcontent {
+	text-decoration: none;
+	color: #000;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	background-color: #FFF;
+	padding: 3px 3px 3px 3px;
+	margin: 0px 0px 10px 0px;
+	}
+
+.actionheader {
+	text-decoration: none;
+	color: #056496;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	text-transform : uppercase;
+	font-weight: bold;
+	background-color: #DDD;
+	padding: 3px 3px 3px 3px;
+	margin: 0px 0px 0px 0px;
+	}
+	
+.actionbox {
+	text-decoration: none;
+	color: #000;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	line-height: 15px;
+	background-color: #DFEFF4;
+	padding: 3px 3px 3px 3px;
+	margin: 0px 0px 0px 0px;
+
+	}
+
+.columnhead {
+	text-decoration: none;
+	color: #FFF;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	font-weight: normal;
+	background-color: #009CCE;
+	padding: 0px 3px 1px 3px;
+	}
+.colheaddata {
+	font-weight: bold;	
+}	
+.select {
+	font-weight: normal;
+	font-style: italic;
+}
+
+.dropback {
+	color: #666;
+}
+
+.logout {
+	float: right;
+	margin-right: 12px;
+}
+
+.button1 {
+	margin-top: 0px;
+	background-color: #EEE;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	font-weight: normal;	
+}
+.button-def {
+	margin-top: 0px;
+	background-color: #EEE;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	font-weight: bold;	
+}
+
+.button2 {
+	margin-top: 5px;
+	background-color: #EEE;
+	/* vertical-align: -3px; */
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	font-weight: normal;	
+}
+
+.status {
+	color: #CC0000;
+}
