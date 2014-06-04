@@ -98,9 +98,8 @@ public class TestGroup extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(new TestGroup("testNoLocking"));
     //TestRunner.run(TestGroup.class);
-    //TestRunner.run(new TestGroup("testGetTypesSecurity"));
+    TestRunner.run(new TestGroup("testCreateAssignTypesAttributes"));
     //TestRunner.run(TestGroup.class);
-    new TestGroup("testSetInvalidDescription").testSetInvalidDescription();
   }
   
   // Private Class Constants
@@ -131,6 +130,46 @@ public class TestGroup extends GrouperTest {
     LOG.debug("tearDown");
   }
 
+  public void testCreateAssignTypesAttributes() {
+    GrouperSession grouperSession = null;
+    try {
+      
+      grouperSession = GrouperSession.startRootSession();
+
+      //add some types and attributes
+      final GroupType groupType = GroupType.createType(grouperSession, "aType", false);
+      final GroupType groupType2 = GroupType.createType(grouperSession, "aType2", false);
+      final GroupType groupType3 = GroupType.createType(grouperSession, "aType3", false);
+      final String attribute1name = "attr_1";
+      groupType.addAttribute(grouperSession, attribute1name, false);
+      groupType.addAttribute(grouperSession, "attr_2", false);
+      groupType2.addAttribute(grouperSession, "attr2_1", false);
+      groupType2.addAttribute(grouperSession, "attr2_2", false);
+      groupType3.addAttribute(grouperSession, "attr3_1", false);
+      groupType3.addAttribute(grouperSession, "attr3_2", false);
+
+      
+      
+      GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+        
+        public Object callback(GrouperTransaction grouperTransaction)
+            throws GrouperDAOException {
+          
+          Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignCreateParentStemsIfNotExist(true).assignName("someNewStem:someGroup").save();
+          group.addType(groupType);
+          group.setAttribute(attribute1name, "123");
+          return null;
+        }
+      });
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+  
   /**
    * test that privileges are ok for member list
    */
