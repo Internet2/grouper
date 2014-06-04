@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, manually written lite/rest, type: _withInput, format: json, for version: 2.1.1
+Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, manually written lite/rest, type: _withInput, format: json, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, ma
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/subjects/sources/jdbc/subjectId/test.subject.0/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/subjects/sources/jdbc/subjectId/test.subject.0/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 117
 Content-Type: text/x-json; charset=UTF-8
@@ -41,30 +41,35 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1139
-Date: Sun, 01 Jul 2012 13:52:16 GMT
+Content-Length: 1281
+Date: Tue, 03 Jun 2014 22:07:15 GMT
 Connection: close
 
 {
   "WsGetGroupsLiteResult":{
     "responseMetadata":{
-      "millis":"122",
-      "serverVersion":"2.1.1"
+      "millis":"272",
+      "serverVersion":"2.2.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.1.1, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]\n\nmemberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]\n, params: null\n fieldName1: null\n, scope: null, wsStemLookup: WsStemLookup[]\n, stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null\n, pointInTimeFrom: null, pointInTimeTo: null",
+      "resultMessage":"Success for: clientVersion: 2.2.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]\n\nmemberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]\n, params: null\n fieldName1: null\n, scope: null, wsStemLookup: WsStemLookup[]\n, stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null\n, pointInTimeFrom: null, pointInTimeTo: null",
       "success":"T"
     },
+    "subjectAttributeNames":[
+      "name",
+      "description"
+    ]
+    ,
     "wsGroups":[
       {
         "detail":{
           "createSubjectId":"GrouperSystem",
-          "createTime":"2012/07/01 09:52:14.023",
+          "createTime":"2014/06/03 18:07:13.109",
           "hasComposite":"F",
           "isCompositeFactor":"F",
           "modifySubjectId":"GrouperSystem",
-          "modifyTime":"2012/07/01 09:52:14.025",
+          "modifyTime":"2014/06/03 18:07:13.119",
           "typeNames":[
           ]
           
@@ -72,13 +77,19 @@ Connection: close
         "displayExtension":"role",
         "displayName":"a stem:role",
         "extension":"role",
+        "idIndex":"10008",
         "name":"aStem:role",
         "typeOfGroup":"role",
-        "uuid":"635c1e0c7d4c4b74975d684472911db1"
+        "uuid":"e2405249d8654f668cb8e0ab7248b65e"
       }
     ]
     ,
     "wsSubject":{
+      "attributeValues":[
+        "my name is test.subject.0",
+        "description.test.subject.0"
+      ]
+      ,
       "id":"test.subject.0",
       "name":"my name is test.subject.0",
       "resultCode":"SUCCESS",
@@ -261,7 +272,7 @@ public class WsSampleGetGroupsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null

@@ -1,4 +1,4 @@
-Grouper web service sample of service: findGroups, WsSampleFindGroupsLite, code generated classes, format: soap, for version: 2.1.1
+Grouper web service sample of service: findGroups, WsSampleFindGroupsLite, code generated classes, format: soap, for version: 2.2.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: findGroups, WsSampleFindGroupsLite, code 
 #########################################
 
 
-POST /grouper-ws/services/GrouperService_v2_1 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_2 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:findGroupsLite"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
@@ -20,8 +20,8 @@ Transfer-Encoding: chunked
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:findGroupsLite xmlns:ns1="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_1_001</ns1:clientVersion>
+    <ns1:findGroupsLite xmlns:ns1="http://soap_v2_2.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_2_000</ns1:clientVersion>
       <ns1:queryFilterType>FIND_BY_STEM_NAME</ns1:queryFilterType>
       <ns1:groupName></ns1:groupName>
       <ns1:stemName>aStem</ns1:stemName>
@@ -56,13 +56,13 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:findGroupsLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sun, 01 Jul 2012 13:37:57 GMT
+Date: Tue, 03 Jun 2014 21:59:41 GMT
 
-12d9
+1351
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:findGroupsLiteResponse xmlns:ns="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
+    <ns:findGroupsLiteResponse xmlns:ns="http://soap_v2_2.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsFindGroupsResults">
         <ns:groupResults xsi:type="ns:WsGroup">
           <ns:description>a group description</ns:description>
@@ -71,22 +71,23 @@ Date: Sun, 01 Jul 2012 13:37:57 GMT
             <ns:attributeValues xsi:nil="true" />
             <ns:compositeType xsi:nil="true" />
             <ns:createSubjectId>GrouperSystem</ns:createSubjectId>
-            <ns:createTime>2012/07/01 09:37:54.351</ns:createTime>
+            <ns:createTime>2014/06/03 17:56:12.275</ns:createTime>
             <ns:hasComposite>F</ns:hasComposite>
             <ns:isCompositeFactor>F</ns:isCompositeFactor>
             <ns:leftGroup xsi:nil="true" />
             <ns:modifySource xsi:nil="true" />
             <ns:modifySubjectId>GrouperSystem</ns:modifySubjectId>
-            <ns:modifyTime>2012/07/01 09:37:54.398</ns:modifyTime>
+            <ns:modifyTime>2014/06/03 17:56:12.305</ns:modifyTime>
             <ns:params xsi:nil="true" />
             <ns:rightGroup xsi:nil="true" />
           </ns:detail>
           <ns:displayExtension>a group</ns:displayExtension>
           <ns:displayName>a stem:a group</ns:displayName>
           <ns:extension>aGroup</ns:extension>
+          <ns:idIndex>10001</ns:idIndex>
           <ns:name>aStem:aGroup</ns:name>
           <ns:typeOfGroup>group</ns:typeOfGroup>
-          <ns:uuid>c39bfd856dd4413da58bd9cbf12c8257</ns:uuid>
+          <ns:uuid>ffcaa03f3813446e882fad5e4a280226</ns:uuid>
         </ns:groupResults>
         <ns:groupResults xsi:type="ns:WsGroup">
           <ns:description>a group description2</ns:description>
@@ -95,22 +96,23 @@ Date: Sun, 01 Jul 2012 13:37:57 GMT
             <ns:attributeValues xsi:nil="true" />
             <ns:compositeType xsi:nil="true" />
             <ns:createSubjectId>GrouperSystem</ns:createSubjectId>
-            <ns:createTime>2012/07/01 09:37:54.419</ns:createTime>
+            <ns:createTime>2014/06/03 17:56:12.487</ns:createTime>
             <ns:hasComposite>F</ns:hasComposite>
             <ns:isCompositeFactor>F</ns:isCompositeFactor>
             <ns:leftGroup xsi:nil="true" />
             <ns:modifySource xsi:nil="true" />
             <ns:modifySubjectId>GrouperSystem</ns:modifySubjectId>
-            <ns:modifyTime>2012/07/01 09:37:54.461</ns:modifyTime>
+            <ns:modifyTime>2014/06/03 17:56:12.549</ns:modifyTime>
             <ns:params xsi:nil="true" />
             <ns:rightGroup xsi:nil="true" />
           </ns:detail>
           <ns:displayExtension>a group2</ns:displayExtension>
           <ns:displayName>a stem:a group2</ns:displayName>
           <ns:extension>aGroup2</ns:extension>
+          <ns:idIndex>10002</ns:idIndex>
           <ns:name>aStem:aGroup2</ns:name>
           <ns:typeOfGroup>group</ns:typeOfGroup>
-          <ns:uuid>555f7bc998c44abf847cda1380c3a423</ns:uuid>
+          <ns:uuid>229c431b61f74e259126dbf472de626d</ns:uuid>
         </ns:groupResults>
         <ns:groupResults xsi:type="ns:WsGroup">
           <ns:description xsi:nil="true" />
@@ -119,22 +121,23 @@ Date: Sun, 01 Jul 2012 13:37:57 GMT
             <ns:attributeValues xsi:nil="true" />
             <ns:compositeType xsi:nil="true" />
             <ns:createSubjectId>GrouperSystem</ns:createSubjectId>
-            <ns:createTime>2012/07/01 09:37:55.570</ns:createTime>
+            <ns:createTime>2014/06/03 17:56:15.701</ns:createTime>
             <ns:hasComposite>F</ns:hasComposite>
             <ns:isCompositeFactor>F</ns:isCompositeFactor>
             <ns:leftGroup xsi:nil="true" />
             <ns:modifySource xsi:nil="true" />
             <ns:modifySubjectId>GrouperSystem</ns:modifySubjectId>
-            <ns:modifyTime>2012/07/01 09:37:55.572</ns:modifyTime>
+            <ns:modifyTime>2014/06/03 17:56:15.711</ns:modifyTime>
             <ns:params xsi:nil="true" />
             <ns:rightGroup xsi:nil="true" />
           </ns:detail>
           <ns:displayExtension>role</ns:displayExtension>
           <ns:displayName>a stem:role</ns:displayName>
           <ns:extension>role</ns:extension>
+          <ns:idIndex>10008</ns:idIndex>
           <ns:name>aStem:role</ns:name>
           <ns:typeOfGroup>role</ns:typeOfGroup>
-          <ns:uuid>98bad539b0e747b89213ffcbc1fca38b</ns:uuid>
+          <ns:uuid>1ad4531ba72a4b198aad631b862528a1</ns:uuid>
         </ns:groupResults>
         <ns:groupResults xsi:type="ns:WsGroup">
           <ns:description xsi:nil="true" />
@@ -143,33 +146,34 @@ Date: Sun, 01 Jul 2012 13:37:57 GMT
             <ns:attributeValues xsi:nil="true" />
             <ns:compositeType xsi:nil="true" />
             <ns:createSubjectId>GrouperSystem</ns:createSubjectId>
-            <ns:createTime>2012/07/01 09:37:55.629</ns:createTime>
+            <ns:createTime>2014/06/03 17:56:15.850</ns:createTime>
             <ns:hasComposite>F</ns:hasComposite>
             <ns:isCompositeFactor>F</ns:isCompositeFactor>
             <ns:leftGroup xsi:nil="true" />
             <ns:modifySource xsi:nil="true" />
             <ns:modifySubjectId>GrouperSystem</ns:modifySubjectId>
-            <ns:modifyTime>2012/07/01 09:37:55.630</ns:modifyTime>
+            <ns:modifyTime>2014/06/03 17:56:15.861</ns:modifyTime>
             <ns:params xsi:nil="true" />
             <ns:rightGroup xsi:nil="true" />
           </ns:detail>
           <ns:displayExtension>role2</ns:displayExtension>
           <ns:displayName>a stem:role2</ns:displayName>
           <ns:extension>role2</ns:extension>
+          <ns:idIndex>10009</ns:idIndex>
           <ns:name>aStem:role2</ns:name>
           <ns:typeOfGroup>role</ns:typeOfGroup>
-          <ns:uuid>d6cf0f41eb5948a6ae23cfc86ff197c4</ns:uuid>
+          <ns:uuid>c5d8f6eb77ad4081a90b09f98b381db7</ns:uuid>
         </ns:groupResults>
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.1.1</ns:serverVersion>
+          <ns:serverVersion>2.2.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: 2.1.1, wsQueryFilter: WsQueryFilter[queryFilterType=FIND_BY_STEM_NAME,groupName=,stemName=aStem,stemNameScope=ALL_IN_SUBTREE,groupUuid=,groupAttributeValue=,groupAttributeName=]
+          <ns:resultMessage>Success for: clientVersion: 2.2.0, wsQueryFilter: WsQueryFilter[queryFilterType=FIND_BY_STEM_NAME,groupName=,stemName=aStem,stemNameScope=ALL_IN_SUBTREE,groupUuid=,groupAttributeValue=,groupAttributeName=]
 , includeGroupDetail: true, actAsSubject: null, paramNames:
 , params: null
 , wsGroupLookups: null</ns:resultMessage>
@@ -221,9 +225,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.FindGroupsLite;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsFindGroupsResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroup;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.FindGroupsLite;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsFindGroupsResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroup;
 
 
 /**
@@ -319,14 +323,14 @@ public class WsSampleFindGroupsLite implements WsSampleGenerated {
 
 
 WsFindGroupsResults[
-  localGroupResults={edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroup@1cb73d4,edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroup@2176ae,edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroup@f6c29b,edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroup@62717c},localGroupResultsTracker=true,
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@108968d,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@d42142,localResultMetadataTracker=true]
+  localGroupResults={edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroup@6bfbe7bb,edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroup@672add5f,edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroup@2f2bbce3,edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroup@607df346},localGroupResultsTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResponseMeta@6ceeaa27,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResultMeta@28e51e50,localResultMetadataTracker=true]
 WsGroup[localDescription=a group description,localDescriptionTracker=true,
-  localDetail=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroupDetail@d38d19,localDetailTracker=true,localDisplayExtension=a group,localDisplayExtensionTracker=true,localDisplayName=a stem:a group,localDisplayNameTracker=true,localExtension=aGroup,localExtensionTracker=true,localName=aStem:aGroup,localNameTracker=true,localTypeOfGroup=group,localTypeOfGroupTracker=true,localUuid=c39bfd856dd4413da58bd9cbf12c8257,localUuidTracker=true]
+  localDetail=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroupDetail@44d0befd,localDetailTracker=true,localDisplayExtension=a group,localDisplayExtensionTracker=true,localDisplayName=a stem:a group,localDisplayNameTracker=true,localExtension=aGroup,localExtensionTracker=true,localIdIndex=10001,localIdIndexTracker=true,localName=aStem:aGroup,localNameTracker=true,localTypeOfGroup=group,localTypeOfGroupTracker=true,localUuid=ffcaa03f3813446e882fad5e4a280226,localUuidTracker=true]
 WsGroup[localDescription=a group description2,localDescriptionTracker=true,
-  localDetail=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroupDetail@d4806d,localDetailTracker=true,localDisplayExtension=a group2,localDisplayExtensionTracker=true,localDisplayName=a stem:a group2,localDisplayNameTracker=true,localExtension=aGroup2,localExtensionTracker=true,localName=aStem:aGroup2,localNameTracker=true,localTypeOfGroup=group,localTypeOfGroupTracker=true,localUuid=555f7bc998c44abf847cda1380c3a423,localUuidTracker=true]
+  localDetail=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroupDetail@64aaf756,localDetailTracker=true,localDisplayExtension=a group2,localDisplayExtensionTracker=true,localDisplayName=a stem:a group2,localDisplayNameTracker=true,localExtension=aGroup2,localExtensionTracker=true,localIdIndex=10002,localIdIndexTracker=true,localName=aStem:aGroup2,localNameTracker=true,localTypeOfGroup=group,localTypeOfGroupTracker=true,localUuid=229c431b61f74e259126dbf472de626d,localUuidTracker=true]
 WsGroup[localDescriptionTracker=false,
-  localDetail=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroupDetail@13bb31b,localDetailTracker=true,localDisplayExtension=role,localDisplayExtensionTracker=true,localDisplayName=a stem:role,localDisplayNameTracker=true,localExtension=role,localExtensionTracker=true,localName=aStem:role,localNameTracker=true,localTypeOfGroup=role,localTypeOfGroupTracker=true,localUuid=98bad539b0e747b89213ffcbc1fca38b,localUuidTracker=true]
+  localDetail=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroupDetail@145462bc,localDetailTracker=true,localDisplayExtension=role,localDisplayExtensionTracker=true,localDisplayName=a stem:role,localDisplayNameTracker=true,localExtension=role,localExtensionTracker=true,localIdIndex=10008,localIdIndexTracker=true,localName=aStem:role,localNameTracker=true,localTypeOfGroup=role,localTypeOfGroupTracker=true,localUuid=1ad4531ba72a4b198aad631b862528a1,localUuidTracker=true]
 WsGroup[localDescriptionTracker=false,
-  localDetail=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroupDetail@6bbc81,localDetailTracker=true,localDisplayExtension=role2,localDisplayExtensionTracker=true,localDisplayName=a stem:role2,localDisplayNameTracker=true,localExtension=role2,localExtensionTracker=true,localName=aStem:role2,localNameTracker=true,localTypeOfGroup=role,localTypeOfGroupTracker=true,localUuid=d6cf0f41eb5948a6ae23cfc86ff197c4,localUuidTracker=true]
+  localDetail=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroupDetail@301e2f11,localDetailTracker=true,localDisplayExtension=role2,localDisplayExtensionTracker=true,localDisplayName=a stem:role2,localDisplayNameTracker=true,localExtension=role2,localExtensionTracker=true,localIdIndex=10009,localIdIndexTracker=true,localName=aStem:role2,localNameTracker=true,localTypeOfGroup=role,localTypeOfGroupTracker=true,localUuid=c5d8f6eb77ad4081a90b09f98b381db7,localUuidTracker=true]

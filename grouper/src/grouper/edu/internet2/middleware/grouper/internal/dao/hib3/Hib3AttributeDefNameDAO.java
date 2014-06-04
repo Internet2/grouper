@@ -639,6 +639,11 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
 
       //see if we are adding more to the query
       if (GrouperUtil.length(privileges) > 0) {
+        
+        if (subject == null) {
+          subject = grouperSession.getSubject();
+        }
+        
         grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(subject, byHqlStatic,
             sql, whereClause, "theAttributeDefName.attributeDefId", privileges);
       }

@@ -176,7 +176,9 @@ public class MembershipFinder {
    */
   public MembershipFinder assignField(Field theField) {
     this.fields.clear();
-    this.fields.add(theField);
+    if (theField != null) {
+      this.fields.add(theField);
+    }
     return this;
   }
   

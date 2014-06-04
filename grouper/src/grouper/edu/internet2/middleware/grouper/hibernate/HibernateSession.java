@@ -741,14 +741,17 @@ public class HibernateSession {
    */
   @Override
   public String toString() {
-    return "HibernateSession (" + Integer.toHexString(this.hashCode()) + "): " 
-        + (this.isNewHibernateSession() ? "new" : "notNew") + ", " 
-        + (this.isReadonly() ? "readonly" : "notReadonly") + ", "
-        + this.getGrouperTransactionType().name() + ", "
-        + (this.isTransactionActive() ? "activeTransaction" : "notActiveTransaction" ) 
-        + ", session (" + Integer.toHexString(this.getSession().hashCode()) + ")"
-        ;
-        
+    try {
+      return "HibernateSession (" + Integer.toHexString(this.hashCode()) + "): " 
+          + (this.isNewHibernateSession() ? "new" : "notNew") + ", " 
+          + (this.isReadonly() ? "readonly" : "notReadonly") + ", "
+          + (this.getGrouperTransactionType() == null ? null : this.getGrouperTransactionType().name()) + ", "
+          + (this.isTransactionActive() ? "activeTransaction" : "notActiveTransaction" ) 
+          + ", session (" + (this.getSession() == null ? null : Integer.toHexString(this.getSession().hashCode())) + ")"
+          ;
+    } catch (NullPointerException npe) {
+      throw npe;
+    }
   }
 
   /**

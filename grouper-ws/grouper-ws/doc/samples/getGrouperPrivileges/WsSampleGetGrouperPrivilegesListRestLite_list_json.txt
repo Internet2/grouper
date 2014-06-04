@@ -43,7 +43,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
 Content-Length: 743
-Date: Wed, 28 May 2014 23:33:15 GMT
+Date: Tue, 03 Jun 2014 22:25:55 GMT
 Connection: close
 
 {
@@ -69,7 +69,7 @@ Connection: close
           "idIndex":"10001",
           "name":"aStem:aGroup",
           "typeOfGroup":"group",
-          "uuid":"f7793817ad6646e9966fdd5738e49397"
+          "uuid":"b3a260529fab4882a42da3bd00d74e46"
         },
         "wsSubject":{
           "id":"test.subject.9",
@@ -82,7 +82,7 @@ Connection: close
     ]
     ,
     "responseMetadata":{
-      "millis":"36",
+      "millis":"46",
       "serverVersion":"2.2.0"
     },
     "resultMetadata":{
@@ -301,6 +301,6 @@ WsGetGrouperPrivilegesLiteResult[
   resultMetadata=WsResultMeta[resultCode=SUCCESS,success=T,httpStatusCode=500],
   privilegeResults={WsGrouperPrivilegeResult[allowed=T,
   ownerSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.9,name=my name is test.subject.9,sourceId=jdbc],privilegeName=admin,privilegeType=access,revokable=T,
-  wsGroup=WsGroup[extension=aGroup,typeOfGroup=group,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=f7793817ad6646e9966fdd5738e49397,idIndex=10001],
+  wsGroup=WsGroup[extension=aGroup,typeOfGroup=group,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=b3a260529fab4882a42da3bd00d74e46,idIndex=10001],
   wsSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.9,name=my name is test.subject.9,sourceId=jdbc]]},
-  responseMetadata=WsResponseMeta[resultWarnings=,millis=36,millisStart=0,serverVersion=2.2.0]]
+  responseMetadata=WsResponseMeta[resultWarnings=,millis=46,millisStart=0,serverVersion=2.2.0]]

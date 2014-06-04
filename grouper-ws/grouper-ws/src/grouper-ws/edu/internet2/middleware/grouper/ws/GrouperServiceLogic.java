@@ -1753,7 +1753,6 @@ public class GrouperServiceLogic {
       
         membershipFinder.assignMembershipIds(membershipIdSet);
         membershipFinder.assignMembershipType(membershipType);
-        membershipFinder.assignField(fieldName);
         membershipFinder.assignFieldType(fieldType);
 
         membershipFinder.assignSources(sources);

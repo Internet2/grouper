@@ -41,7 +41,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Wed, 28 May 2014 23:34:09 GMT
+Date: Tue, 03 Jun 2014 22:27:00 GMT
 Connection: close
 
 3fe
@@ -70,7 +70,7 @@ Connection: close
         <description>a group description</description>
         <displayName>a stem:a group</displayName>
         <name>aStem:aGroup</name>
-        <uuid>c21e726b47d54e7796cdeb12eea2fb2a</uuid>
+        <uuid>0fab9b998a734d9a9c33a1a69ba54e69</uuid>
         <idIndex>10001</idIndex>
       </wsGroup>
       <wsSubject>
@@ -302,6 +302,6 @@ WsGetGrouperPrivilegesLiteResult[
   resultMetadata=WsResultMeta[resultCode=SUCCESS,success=T,httpStatusCode=0],
   privilegeResults={WsGrouperPrivilegeResult[allowed=T,
   ownerSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.9,name=my name is test.subject.9,sourceId=jdbc],privilegeName=admin,privilegeType=access,revokable=T,
-  wsGroup=WsGroup[extension=aGroup,typeOfGroup=group,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=c21e726b47d54e7796cdeb12eea2fb2a,idIndex=10001],
+  wsGroup=WsGroup[extension=aGroup,typeOfGroup=group,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=0fab9b998a734d9a9c33a1a69ba54e69,idIndex=10001],
   wsSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.9,name=my name is test.subject.9,sourceId=jdbc]]},
-  responseMetadata=WsResponseMeta[resultWarnings=,millis=45,millisStart=0,serverVersion=2.2.0]]
+  responseMetadata=WsResponseMeta[resultWarnings=,millis=96,millisStart=0,serverVersion=2.2.0]]

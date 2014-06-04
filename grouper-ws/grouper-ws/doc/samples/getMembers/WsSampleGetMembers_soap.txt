@@ -56,7 +56,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:getMembersResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Wed, 28 May 2014 23:44:18 GMT
+Date: Tue, 03 Jun 2014 22:12:47 GMT
 
 cca
 <?xml version='1.0' encoding='UTF-8'?>
@@ -101,15 +101,15 @@ cca
             <ns:idIndex>10001</ns:idIndex>
             <ns:name>aStem:aGroup</ns:name>
             <ns:typeOfGroup>group</ns:typeOfGroup>
-            <ns:uuid>d71ebda2726048469bda81279a693f27</ns:uuid>
+            <ns:uuid>4369da46ba724f6ab3864126933018ae</ns:uuid>
           </ns:wsGroup>
           <ns:wsSubjects xsi:type="ns:WsSubject">
             <ns:attributeValues></ns:attributeValues>
-            <ns:attributeValues>10021368</ns:attributeValues>
+            <ns:attributeValues>10039438</ns:attributeValues>
             <ns:attributeValues></ns:attributeValues>
-            <ns:id>10021368</ns:id>
+            <ns:id>10039438</ns:id>
             <ns:identifierLookup xsi:nil="true" />
-            <ns:name>10021368</ns:name>
+            <ns:name>10039438</ns:name>
             <ns:resultCode>SUCCESS</ns:resultCode>
             <ns:sourceId>jdbc</ns:sourceId>
             <ns:success>T</ns:success>
@@ -127,11 +127,11 @@ cca
           </ns:wsSubjects>
           <ns:wsSubjects xsi:type="ns:WsSubject">
             <ns:attributeValues></ns:attributeValues>
-            <ns:attributeValues>10039438</ns:attributeValues>
+            <ns:attributeValues>10021368</ns:attributeValues>
             <ns:attributeValues></ns:attributeValues>
-            <ns:id>10039438</ns:id>
+            <ns:id>10021368</ns:id>
             <ns:identifierLookup xsi:nil="true" />
-            <ns:name>10039438</ns:name>
+            <ns:name>10021368</ns:name>
             <ns:resultCode>SUCCESS</ns:resultCode>
             <ns:sourceId>jdbc</ns:sourceId>
             <ns:success>T</ns:success>
@@ -362,14 +362,14 @@ public class WsSampleGetMembers implements WsSampleGenerated {
 
 
 WsGetMembersResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResponseMeta@1a57fa9f,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResultMeta@606ea3c,localResultMetadataTracker=true,
-  localResults={edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGetMembersResult@4c870e19},localResultsTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResponseMeta@4d47ce48,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResultMeta@2538009b,localResultMetadataTracker=true,
+  localResults={edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGetMembersResult@7052fac2},localResultsTracker=true,
   localSubjectAttributeNames={a,name,description},localSubjectAttributeNamesTracker=true]
 Result: 0: code: SUCCESS
 WsSubject[
-  localAttributeValues={,10021368,},localAttributeValuesTracker=true,localId=10021368,localIdTracker=true,localIdentifierLookupTracker=false,localName=10021368,localNameTracker=true,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]
+  localAttributeValues={,10039438,},localAttributeValuesTracker=true,localId=10039438,localIdTracker=true,localIdentifierLookupTracker=false,localName=10039438,localNameTracker=true,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]
 WsSubject[
   localAttributeValues={,EveryEntity,GrouperSysAdmin},localAttributeValuesTracker=true,localId=GrouperSystem,localIdTracker=true,localIdentifierLookupTracker=false,localName=GrouperSysAdmin,localNameTracker=true,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=g:isa,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]
 WsSubject[
-  localAttributeValues={,10039438,},localAttributeValuesTracker=true,localId=10039438,localIdTracker=true,localIdentifierLookupTracker=false,localName=10039438,localNameTracker=true,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]
+  localAttributeValues={,10021368,},localAttributeValuesTracker=true,localId=10021368,localIdTracker=true,localIdentifierLookupTracker=false,localName=10021368,localNameTracker=true,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]
