@@ -446,6 +446,37 @@ public class LoaderLdapUtils {
   }
 
 
+  
+  
+  /** attribute def name of attribute filter expression  */
+  public static final String ATTR_DEF_EXTENSION_LDAP_ATTRIBUTE_FILTER_EXPRESSION = "grouperLoaderLdapAttributeFilterExpression";
+
+  /** attribute def name of attribute filter expression */
+  private static String grouperLoaderLdapAttributeFilterExpression;
+
+  /**
+   * attribute def name of attribute filter expression
+   * @return name
+   */
+  public static String grouperLoaderLdapAttributeFilterExpressionName() {
+    if (grouperLoaderLdapAttributeFilterExpression == null) {
+      grouperLoaderLdapAttributeFilterExpression = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_LDAP_ATTRIBUTE_FILTER_EXPRESSION;
+    }
+    return grouperLoaderLdapAttributeFilterExpression;
+  }
+  
+  /**
+   * return attribute def name of attribute filter expression
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapAttributeFilterExpressionAttributeDefName() {
+    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapAttributeFilterExpressionName(), true);
+  }
+
+
+  
+  
+  
   /** Attribute name of the filter object result that holds the extra attributes  */
   public static final String ATTR_DEF_EXTENSION_LDAP_EXTRA_ATTRIBUTES = "grouperLoaderLdapExtraAttributes";
 

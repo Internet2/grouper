@@ -47,7 +47,6 @@ import java.util.concurrent.Future;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -340,8 +339,6 @@ public class SourcesXmlResolver implements SubjectResolver {
     try {
       Set<Subject> subjects = sourceObject.search(query);
       
-      this.initGroupAttributes(subjects);
-      
       
       subjects = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjects, null);
       
@@ -598,7 +595,7 @@ public class SourcesXmlResolver implements SubjectResolver {
 
 
   /**
-   * @see     SubjectResolver#findAll(String)
+   * @see     SubjectResolver#findPage(String)
    * @since   1.2.1
    */
   public SearchPageResult findPage(String query)
@@ -635,8 +632,6 @@ public class SourcesXmlResolver implements SubjectResolver {
           subjectsMatchIdentifier.add(subject);
         }
       }
-      
-      this.initGroupAttributes(subjects);
       
       //filter if necessary
       subjects = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjects, null);
@@ -696,9 +691,23 @@ public class SourcesXmlResolver implements SubjectResolver {
    */
   public SearchPageResult findPageInStem(String stemName, String query)
       throws IllegalArgumentException {
+    Set<Source> sources = new LinkedHashSet<Source>(SourceManager.getInstance().getSources());
+    return findPageInStem(stemName, query, sources);
+  }
+
+  /**
+   * note if stem name is blank, it means root
+   * @see edu.internet2.middleware.grouper.subj.SubjectResolver#findAllInStem(java.lang.String, java.lang.String, Set)
+   */
+  public SearchPageResult findPageInStem(String stemName, String query, Set<Source> sources)
+      throws IllegalArgumentException {
     
     SearchPageResult searchPageResult = new SearchPageResult();
     searchPageResult.setTooManyResults(false);
+    
+    if (GrouperUtil.length(sources) == 0) {
+      sources = this.getSources();
+    }
     
     Set<Source> sourcesToLookIn = new LinkedHashSet<Source>();
     
@@ -709,7 +718,7 @@ public class SourcesXmlResolver implements SubjectResolver {
     }
     
     //loop through sources
-    for ( Source sa : this.getSources() ) {
+    for ( Source sa : sources ) {
       
         //see if it is restricted
         RestrictSourceForGroup restrictSourceForGroup = SubjectFinder.restrictSourceForGroup(stemName, sa.getId());
@@ -770,9 +779,6 @@ public class SourcesXmlResolver implements SubjectResolver {
 
     }
     
-    
-    //lets init the group attributes
-    this.initGroupAttributes(subjects);
     
     subjects = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjects, stemName);
     
@@ -848,7 +854,6 @@ public class SourcesXmlResolver implements SubjectResolver {
   }
   
   
-  
   /**
    * @param query 
    * @param sources 
@@ -857,6 +862,57 @@ public class SourcesXmlResolver implements SubjectResolver {
    * @throws SourceUnavailableException 
    */
   private SearchPageResult findPageHelper(final String query, Set<Source> sources, String stemName)
+      throws SourceUnavailableException {
+    
+    if (GrouperUtil.length(sources) == 0) {
+      return findPage(query);
+    }
+    Set<Subject> subjects = null;
+    
+    //can configure not separating search string by commas
+    boolean tooManyResults = false;
+
+    Set<Subject> subjectsMatchIdentifier = Collections.synchronizedSet(new HashSet<Subject>());
+
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperQuerySubjectsMultipleQueriesCommaSeparated", true)) {
+      
+      Set<String> queries = GrouperUtil.splitTrimToSet(query, ",");
+      
+      subjects = new LinkedHashSet<Subject>();
+      for (String individualQuery : GrouperUtil.nonNull(queries)) {
+        
+        SearchPageResult searchPageResult = findPageHelperNonMultiple(individualQuery, sources, stemName, subjectsMatchIdentifier);
+        subjects.addAll(GrouperUtil.nonNull(searchPageResult.getResults()));
+        tooManyResults = tooManyResults || searchPageResult.isTooManyResults();
+      }
+  
+      //take out dupes
+      SubjectHelper.removeDuplicates(subjects);
+      
+    } else {
+      SearchPageResult searchPageResult = findPageHelperNonMultiple(query, sources, stemName, subjectsMatchIdentifier);
+      subjects = searchPageResult.getResults();
+      tooManyResults = searchPageResult.isTooManyResults();
+  
+    }
+    
+    //filter if necessary
+    subjects = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjects, stemName);
+    
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
+      subjects = SubjectHelper.sortSetForSearch(subjects, query, subjectsMatchIdentifier);
+    }
+    
+    return new SearchPageResult(tooManyResults, subjects);
+  }  
+  /**
+   * @param query 
+   * @param sources 
+   * @param stemName 
+   * @return search page result
+   * @throws SourceUnavailableException 
+   */
+  private SearchPageResult findPageHelperNonMultiple(final String query, Set<Source> sources, String stemName, final Set<Subject> subjectsMatchIdentifier)
       throws SourceUnavailableException {
     
     if (GrouperUtil.length(sources) == 0) {
@@ -871,9 +927,7 @@ public class SourcesXmlResolver implements SubjectResolver {
     List<LogLabelCallable<SearchPageResult>> callables = new ArrayList<LogLabelCallable<SearchPageResult>>();
     
     boolean needsThreads = needsThreads(sources, false);
-    
-    final Set<Subject> subjectsMatchIdentifier = Collections.synchronizedSet(new HashSet<Subject>());
-    
+        
     //get all the jobs ready to go
     for ( Source sa : sources ) {
       final Source SOURCE = sa;
@@ -926,42 +980,12 @@ public class SourcesXmlResolver implements SubjectResolver {
       }
     }
     
-    //lets init the group attributes
-    this.initGroupAttributes(subjects);
-    
-    //filter if necessary
-    subjects = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjects, stemName);
-    
-    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
-      subjects = SubjectHelper.sortSetForSearch(subjects, query, subjectsMatchIdentifier);
-      searchPageResult.setResults(subjects);
-    }
+    searchPageResult.setResults(subjects);
 
     return searchPageResult;
 
   }
   
-  /**
-   * init group attributes in few queries
-   * @param subjects
-   */
-  private void initGroupAttributes(Set<Subject> subjects) {
-
-    //if there are none, or if this isnt the group source
-    if (GrouperUtil.length(subjects) == 0) {
-      return;
-    }
-    
-    Set<Group> groups = new HashSet<Group>();
-  
-    //get the grouper subjects
-    for (Subject subject : subjects) {
-      if (subject instanceof GrouperSubject) {
-        groups.add(((GrouperSubject)subject).internal_getGroup());
-      }
-    }
-    Group.initGroupAttributes(groups);
-  }
   /**
    * @see SubjectResolver#findByIdentifiers(Collection)
    */

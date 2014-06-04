@@ -25,7 +25,7 @@ base.append("/");
 <base href="<%=base%>index.html"/>
 <c:set scope="session" var="GM"><%=base%></c:set>
 
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="robots" content="noindex, nofollow" />
 <title><grouper:message key="app.name"/></title>
 
@@ -53,6 +53,7 @@ base.append("/");
 	</c:forTokens>
 </c:if>
 </c:if>
+<script src="grouperExternal/public/OwaspJavaScriptServlet"></script>
 <script type="text/javascript" src="<%=base%>i2mi/signet.js"></script>
 <script type="text/javascript" src="scripts/grouper.js"></script> 
 </grouper:recordTile>

@@ -398,18 +398,27 @@
     <copy todir="${dist.binary.zip}/conf">
       <fileset dir="conf">
         <include name="*.example.*"/>
+        <include name="*.base.*"/>
       </fileset>
     </copy>
-
+  	
+    <mkdir dir="${dist.binary.zip}/misc"/>
+    <copy todir="${dist.binary.zip}/misc">
+      <fileset dir="misc">
+        <include name="*.example.*"/>
+      </fileset>
+    </copy>
+    
     <copy file="${dist.binary.zip}/conf/ehcache.example.xml" tofile="${dist.binary.zip}/conf/ehcache.xml" />
-    <copy file="${dist.binary.zip}/conf/grouper.example.properties" tofile="${dist.binary.zip}/conf/grouper.properties" />
-    <copy file="${dist.binary.zip}/conf/grouper.client.example.properties" tofile="${dist.binary.zip}/conf/grouper.client.properties" />
-    <copy file="${dist.binary.zip}/conf/grouper.hibernate.example.properties" tofile="${dist.binary.zip}/conf/grouper.hibernate.properties" />
-    <copy file="${dist.binary.zip}/conf/grouper-loader.example.properties" tofile="${dist.binary.zip}/conf/grouper-loader.properties" />
+    <copy file="${dist.binary.zip}/misc/grouper.example.properties" tofile="${dist.binary.zip}/conf/grouper.properties" />
+    <copy file="${dist.binary.zip}/misc/grouper.client.example.properties" tofile="${dist.binary.zip}/conf/grouper.client.properties" />
+    <copy file="${dist.binary.zip}/misc/grouper.hibernate.example.properties" tofile="${dist.binary.zip}/conf/grouper.hibernate.properties" />
+    <copy file="${dist.binary.zip}/misc/grouper-loader.example.properties" tofile="${dist.binary.zip}/conf/grouper-loader.properties" />
     <copy file="${dist.binary.zip}/conf/log4j.example.properties" tofile="${dist.binary.zip}/conf/log4j.properties" />
     <copy file="${dist.binary.zip}/conf/morphString.example.properties" tofile="${dist.binary.zip}/conf/morphString.properties" />
     <copy file="${dist.binary.zip}/conf/server.example.properties" tofile="${dist.binary.zip}/conf/server.properties" />
     <copy file="${dist.binary.zip}/conf/sources.example.xml" tofile="${dist.binary.zip}/conf/sources.xml" />
+    <copy file="${dist.binary.zip}/misc/subject.example.properties" tofile="${dist.binary.zip}/conf/subject.properties" />
     <copy file="${dist.binary.zip}/conf/spy.example.properties" tofile="${dist.binary.zip}/conf/spy.properties" />
     
     <mkdir dir="${dist.binary.zip}/api"/>
@@ -625,13 +634,14 @@
       	<exclude name="jetty/*.jar"/>
         <include name="**/*.jar"/>
       </fileset>
+    	<!-- we need this for at least status servlet -->
+      <pathelement  location="${lib.dir}/jetty/servlet-api.jar"/>
       <!--<fileset dir="dist/lib">
         <include name="**/*.jar"/>
       </fileset>-->
       <fileset dir="${ext.dir.lib}">
         <include name="**/*.jar"/>
       </fileset>
-      <pathelement  location="${build.dir.grouper}"/>
       <pathelement  location="${build.dir.grouper}"/>
       <pathelement  location="${build.dir.test}"/>
       <pathelement  location="${user.home}/.ant/lib/clover.jar"/>

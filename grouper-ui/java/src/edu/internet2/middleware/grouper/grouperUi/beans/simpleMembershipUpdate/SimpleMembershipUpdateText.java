@@ -129,6 +129,20 @@ public class SimpleMembershipUpdateText {
   /**
    * @return the label
    */
+  public String getViewInNewUi() {
+    return text("simpleMembershipUpdate.viewInNewUi");
+  }
+  
+  /**
+   * @return the label
+   */
+  public String getViewInNewUiTooltip() {
+    return text("tooltipTargetted.simpleMembershipUpdate.viewInNewUi");
+  }
+
+  /**
+   * @return the label
+   */
   public String getViewInAdminUi() {
     return text("simpleMembershipUpdate.viewInAdminUi");
   }

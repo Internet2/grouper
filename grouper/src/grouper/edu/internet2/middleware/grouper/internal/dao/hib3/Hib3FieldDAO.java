@@ -40,11 +40,7 @@ import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
-import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -109,24 +105,6 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
       .setCacheRegion(KLASS + ".FindAll").listSet(Field.class);
   } // public Set findAll()
 
-  /** 
-   * @param uuid 
-   * @return set of fields
-   * @throws GrouperDAOException 
-   * @since   @HEAD@
-   * @deprecated use the FieldFinder method instead
-   */
-  @Deprecated
-  public Set<Field> findAllFieldsByGroupType(String uuid)
-    throws  GrouperDAOException
-  {
-    return HibernateSession.byHqlStatic()
-      .createQuery("from Field as f where f.groupTypeUuid = :uuid order by f.name asc")
-      .setCacheable(false)
-      .setCacheRegion(KLASS + ".FindAllFieldsByGroupType")
-      .setString("uuid", uuid).listSet(Field.class);
-  } 
-
   /**
    * @param type 
    * @return set of fields
@@ -157,10 +135,7 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
             SchemaException
   {
     ByHqlStatic qry = HibernateSession.byHqlStatic();
-    if      ( f.getType().equals(FieldType.ATTRIBUTE) ) {
-      qry.createQuery("select a from Attribute as a, Field as field where field.name = :name and field.uuid = a.fieldId");
-    }
-    else if ( f.getType().equals(FieldType.LIST) )      {
+    if ( f.getType().equals(FieldType.LIST) )      {
       qry.createQuery("select ms from MembershipEntry as ms, Field as field where field.name = :name and field.uuid = ms.fieldId");
     } else {
       throw new SchemaException( f.getType().toString() );
@@ -177,55 +152,40 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.FieldDAO#createOrUpdate(edu.internet2.middleware.grouper.Field)
    */
   public void createOrUpdate(final Field field) {
-    
-    //do this in its own tx so we can be sure it is done and move on to refreshing cache
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, 
-        AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
-
-      public Object callback(HibernateHandlerBean hibernateHandlerBean)
-          throws GrouperDAOException {
-        hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
-        HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
-        hibernateSession.byObject().saveOrUpdate(field);    
-        return null;
-      }
-
-    });
-    
+    HibernateSession.byObjectStatic().saveOrUpdate(field);
     FieldFinder.clearCache();
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.FieldDAO#findByUuidOrName(java.lang.String, java.lang.String, java.lang.String, boolean)
+   * @see edu.internet2.middleware.grouper.internal.dao.FieldDAO#findByUuidOrName(java.lang.String, java.lang.String, boolean)
    */
-  public Field findByUuidOrName(String uuid, String name, String groupTypeUuid,
+  public Field findByUuidOrName(String uuid, String name, 
       boolean exceptionIfNull) throws GrouperDAOException {
-    return findByUuidOrName(uuid, name, groupTypeUuid, exceptionIfNull, null);
+    return findByUuidOrName(uuid, name, exceptionIfNull, null);
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.FieldDAO#findByUuidOrName(java.lang.String, java.lang.String, java.lang.String, boolean, QueryOptions)
+   * @see edu.internet2.middleware.grouper.internal.dao.FieldDAO#findByUuidOrName(java.lang.String, java.lang.String, boolean, QueryOptions)
    */
-  public Field findByUuidOrName(String uuid, String name, String groupTypeUuid,
+  public Field findByUuidOrName(String uuid, String name,
       boolean exceptionIfNull, QueryOptions queryOptions) throws GrouperDAOException {
     try {
       Field field = HibernateSession.byHqlStatic()
-        .createQuery("from Field as theField where theField.uuid = :uuid or (theField.name = :name and theField.groupTypeUuid = :theGroupTypeUuid)")
+        .createQuery("from Field as theField where theField.uuid = :uuid or theField.name = :name")
         .setCacheable(true)
         .setCacheRegion(KLASS + ".FindByUuidOrName")
         .options(queryOptions)
         .setString("uuid", uuid)
         .setString("name", name)
-        .setString("theGroupTypeUuid", groupTypeUuid)
         .uniqueResult(Field.class);
       if (field == null && exceptionIfNull) {
-        throw new RuntimeException("Can't find field by uuid: '" + uuid + "' or name '" + name + "', '" + groupTypeUuid + "'");
+        throw new RuntimeException("Can't find field by uuid: '" + uuid + "' or name '" + name + "'");
       }
       return field;
     }
     catch (GrouperDAOException e) {
       String error = "Problem find field by uuid: '" 
-        + uuid + "' or name '" + name + "', '" + groupTypeUuid + "', " + e.getMessage();
+        + uuid + "' or name '" + name + "', " + e.getMessage();
       throw new GrouperDAOException( error, e );
     }
   }
@@ -250,6 +210,32 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
    */
   public void update(Field field) throws GrouperDAOException {
     HibernateSession.byObjectStatic().update(field);  
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.FieldDAO#delete(edu.internet2.middleware.grouper.Field)
+   */
+  public void delete(Field field) {
+    HibernateSession.byObjectStatic().delete(field);  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.FieldDAO#delete(java.util.Set)
+   */
+  public void delete(Set<Field> fields) {
+    HibernateSession.byObjectStatic().delete(fields);  
+  }
+  
+  /**
+   *
+   * @param hibernateSession
+   * @throws HibernateException
+   */
+  protected static void reset(HibernateSession hibernateSession)
+    throws  HibernateException {
+
+    //delete custom lists
+    hibernateSession.byHql().createQuery("delete from Field field where typeString='list' and name <> 'members'").executeUpdate();   
   }
 } 
 

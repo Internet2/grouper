@@ -52,7 +52,6 @@ public class FieldTypeValidator extends GrouperValidator {
       !
       (
             f.getType().equals( FieldType.ACCESS    )
-        ||  f.getType().equals( FieldType.ATTRIBUTE )
         ||  f.getType().equals( FieldType.LIST      )
       )
     )

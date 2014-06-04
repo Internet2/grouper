@@ -38,7 +38,6 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 
 
 /** 
@@ -83,11 +82,9 @@ public class GroupAttributeExactFilter extends BaseQueryFilter {
     Set results;
 
     if (ns.isRootStem()) {
-      results = PrivilegeHelper.canViewGroups(
-        s, GrouperDAOFactory.getFactory().getGroup().findAllByAttr(this.attr, this.val));
+      results = GrouperDAOFactory.getFactory().getGroup().findAllByAttr(this.attr, this.val, null, true);
     } else {
-      results = PrivilegeHelper.canViewGroups(
-        s, GrouperDAOFactory.getFactory().getGroup().findAllByAttr(this.attr, this.val, getStringForScope(ns)));
+      results = GrouperDAOFactory.getFactory().getGroup().findAllByAttr(this.attr, this.val, getStringForScope(ns), true);
     }
     return results;
   } // public Set getResults(s)

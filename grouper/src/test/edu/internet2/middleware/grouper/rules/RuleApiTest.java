@@ -2533,7 +2533,7 @@ public class RuleApiTest extends GrouperTest {
 
     //set disabled 7 days in the future
     attributeAssign.setDisabledTime(new java.sql.Timestamp(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000)));
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
     
@@ -2541,7 +2541,7 @@ public class RuleApiTest extends GrouperTest {
     assertEquals(initialEmailCount + 1, GrouperEmail.testingEmailCount);
   
     attributeAssign.setDisabledTime(new java.sql.Timestamp(System.currentTimeMillis() + (5 * 24 * 60 * 60 * 1000)));
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
     
@@ -2549,7 +2549,7 @@ public class RuleApiTest extends GrouperTest {
     assertEquals(initialEmailCount + 1, GrouperEmail.testingEmailCount);
   
     attributeAssign.setDisabledTime(new java.sql.Timestamp(System.currentTimeMillis() + (9 * 24 * 60 * 60 * 1000)));
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
     
@@ -2557,7 +2557,7 @@ public class RuleApiTest extends GrouperTest {
     assertEquals(initialEmailCount + 1, GrouperEmail.testingEmailCount);
   
     attributeAssign.setDisabledTime(new java.sql.Timestamp(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000)));
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
     
@@ -3020,7 +3020,7 @@ public class RuleApiTest extends GrouperTest {
     AttributeAssign attributeAssign = payrollGuest.getPermissionRoleDelegate().assignSubjectRolePermission(canLogin, subject6).getAttributeAssign();
     
     attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis() + (3 * 24 * 60 * 60 * 1000)));
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     //see that they both have the permission
     Member member0 = MemberFinder.findBySubject(grouperSession, subject0, false);

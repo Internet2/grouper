@@ -40,7 +40,10 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.AppState;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSettings;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.InviteExternalSubjects;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.MiscMenu;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleAttributeNameUpdateFilter;
@@ -52,10 +55,17 @@ import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleMembershipU
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleMembershipUpdateMenu;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimplePermissionUpdateFilter;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimplePermissionUpdateMenu;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2ExternalEntities;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Group;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2GroupImport;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Main;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Public;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Stem;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Subject;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter.UiSection;
+import edu.internet2.middleware.grouper.ui.NoUserAuthenticatedException;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
@@ -123,7 +133,21 @@ public class GrouperUiRestServlet extends HttpServlet {
       SimplePermissionUpdateFilter.class.getSimpleName() + ".filterLimitNames",
       SimplePermissionUpdateMenu.class.getSimpleName() + ".limitMenuStructure",
       SimpleGroupUpdateFilter.class.getSimpleName() + ".filterGroupsRolesEntities",
-      UiV2Main.class.getSimpleName() + ".index"
+      UiV2Main.class.getSimpleName() + ".index",
+      UiV2Main.class.getSimpleName() + ".folderMenu",
+      UiV2Group.class.getSimpleName() + ".addMemberFilter",
+      UiV2GroupImport.class.getSimpleName() + ".groupExportSubmit",
+      UiV2Stem.class.getSimpleName() + ".stemCopyParentFolderFilter",
+      UiV2Stem.class.getSimpleName() + ".createGroupParentFolderFilter",
+      UiV2Stem.class.getSimpleName() + ".createStemParentFolderFilter",
+      UiV2Subject.class.getSimpleName() + ".addToGroupFilter",
+      UiV2Group.class.getSimpleName() + ".groupUpdateFilter",
+      UiV2Group.class.getSimpleName() + ".groupCompositeFactorFilter",
+      UiV2Stem.class.getSimpleName() + ".addMemberFilter",
+      UiV2ExternalEntities.class.getSimpleName() + ".addGroupFilter",
+      UiV2Subject.class.getSimpleName() + ".addToStemFilter",
+      UiV2Subject.class.getSimpleName() + ".addToAttributeDefFilter",
+      UiV2Public.class.getSimpleName() + ".index"
   );
 
   /**
@@ -149,6 +173,9 @@ public class GrouperUiRestServlet extends HttpServlet {
     
     RequestContainer.retrieveFromRequest().setAjaxRequest(true);
     
+    //initialize the bean
+    GrouperRequestContainer.retrieveFromRequestOrCreate();
+
     List<String> urlStrings = extractUrlStrings(request);
     
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
@@ -167,6 +194,14 @@ public class GrouperUiRestServlet extends HttpServlet {
     
     try {
       initGui();
+    } catch (NoUserAuthenticatedException nuae) {
+      //redirect to the error screen if no loginid could be found
+      response.sendRedirect(GrouperUiFilter.retrieveServletContext() + "/grouperExternal/public/UiV2Public.index?operation=UiV2Public.postIndex&function=UiV2Public.error&code=noUserAuthenticated");
+      return;
+    } catch (SubjectNotFoundException nuae) {
+      //redirect to the error screen if loginid did not resolve to a subject
+      response.sendRedirect(GrouperUiFilter.retrieveServletContext() + "/grouperExternal/public/UiV2Public.index?operation=UiV2Public.postIndex&function=UiV2Public.error&code=authenticatedSubjectNotFound");
+      return;
     } catch (ControllerDone cd) {
       guiResponseJs.printToScreen();
       return;
@@ -182,10 +217,29 @@ public class GrouperUiRestServlet extends HttpServlet {
       //strip off the filename
       urlStrings = GrouperUtil.toList(urlStrings.get(0), urlStrings.get(1));
     }
+
+    if (GrouperUtil.length(urlStrings) == 5
+        && StringUtils.equals("app", urlStrings.get(0))
+        && StringUtils.equals(UiV2GroupImport.class.getSimpleName() + ".groupExportSubmit", urlStrings.get(1))) {
+
+      //strip off the filename
+      urlStrings = GrouperUtil.toList(urlStrings.get(0), urlStrings.get(1));
+    }
+
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn(true);
+    if (loggedInSubject == null && !StringUtils.equals(UiV2Public.class.getSimpleName() + ".index", urlStrings.get(1))
+        && !StringUtils.equals(UiV2Public.class.getSimpleName() + ".postIndex", urlStrings.get(1))
+        && !StringUtils.defaultString(urlStrings.get(1)).startsWith("ExternalSubjectSelfRegister.")) {
+
+      response.sendRedirect(GrouperUiFilter.retrieveServletContext() + "/grouperExternal/public/UiV2Public.index?operation=UiV2Public.postIndex&function=UiV2Public.error&code=anonymousSessionNotAllowed");
+      return;
+
+    }
     
     //see what operation we are doing
     if (GrouperUtil.length(urlStrings) == 2 
-        && StringUtils.equals("app", urlStrings.get(0))) {
+        && (StringUtils.equals("public", urlStrings.get(0))
+            || StringUtils.equals("app", urlStrings.get(0)))) {
 
       String classAndMethodName = urlStrings.get(1);
 
@@ -210,6 +264,9 @@ public class GrouperUiRestServlet extends HttpServlet {
       String className = GrouperUtil.prefixOrSuffix(classAndMethodName, ".", true);
       String methodName = GrouperUtil.prefixOrSuffix(classAndMethodName, ".", false);
       
+      //not very scientific, oh well
+      boolean uiv2 = className.toLowerCase().startsWith("uiv2");
+      
       //now lets call some simple reflection, must be public static void and take a request and response
       className = "edu.internet2.middleware.grouper.grouperUi.serviceLogic." + className;
       
@@ -221,27 +278,30 @@ public class GrouperUiRestServlet extends HttpServlet {
             new Class<?>[]{HttpServletRequest.class, HttpServletResponse.class}, 
             new Object[]{request, response}, true, false);
 
-        
-
       } catch (NoSessionException nse) {
 
-        boolean addTextArea = guiResponseJs.isAddTextAreaTag();
-        
-        //print out error message for user, a new one
-        guiResponseJs = new GuiResponseJs();
-        guiResponseJs.addAction(GuiScreenAction.newCloseModal());
-        guiResponseJs.setAddTextAreaTag(addTextArea);
-        
-        UiSection uiSection = GrouperUiFilter.uiSectionForRequest();
-        
-        String startOverKey = "simpleMembershipUpdate.startOver";
-        
-        if (uiSection == UiSection.EXTERNAL) {
-          startOverKey = "externalSubjectSelfRegister.startOver";
-        }
-          
-        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message(startOverKey)));
+        if (uiv2) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("guiMiscNoSessionError")));
+        } else {
 
+          boolean addTextArea = guiResponseJs.isAddTextAreaTag();
+          
+          //print out error message for user, a new one
+          guiResponseJs = new GuiResponseJs();
+          guiResponseJs.addAction(GuiScreenAction.newCloseModal());
+          guiResponseJs.setAddTextAreaTag(addTextArea);
+          
+          UiSection uiSection = GrouperUiFilter.uiSectionForRequest();
+          
+          String startOverKey = "simpleMembershipUpdate.startOver";
+          
+          if (uiSection == UiSection.EXTERNAL) {
+            startOverKey = "externalSubjectSelfRegister.startOver";
+          }
+            
+          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message(startOverKey)));
+        }
       } catch (ControllerDone cd) {
         printToScreen = cd.isPrintGuiReponseJs();
         //do nothing, this is ok
@@ -250,15 +310,20 @@ public class GrouperUiRestServlet extends HttpServlet {
         LOG.error(error);
         GrouperUiUtils.appendErrorToRequest(error);
         
-        //if adding text area for form file submits, make sure to do that in errors too
-        boolean addTextArea = guiResponseJs.isAddTextAreaTag();
-        
-        //print out error message for user, a new one
-        guiResponseJs = new GuiResponseJs();
-        guiResponseJs.addAction(GuiScreenAction.newCloseModal());
-        guiResponseJs.setAddTextAreaTag(addTextArea);
-        guiResponseJs.addAction(GuiScreenAction.newAlert("Error: " + GrouperUiUtils.escapeHtml(re.getMessage(), true)));
-        
+        if (uiv2) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("guiMiscErrorPrefix")
+              + " " + GrouperUiUtils.escapeHtml(re.getMessage(), true)));
+        } else {
+          //if adding text area for form file submits, make sure to do that in errors too
+          boolean addTextArea = guiResponseJs.isAddTextAreaTag();
+          
+          //print out error message for user, a new one
+          guiResponseJs = new GuiResponseJs();
+          guiResponseJs.addAction(GuiScreenAction.newCloseModal());
+          guiResponseJs.setAddTextAreaTag(addTextArea);
+          guiResponseJs.addAction(GuiScreenAction.newAlert("Error: " + GrouperUiUtils.escapeHtml(re.getMessage(), true)));
+        }        
       }
     } else {
       //print out error message for user, a new one
@@ -269,7 +334,7 @@ public class GrouperUiRestServlet extends HttpServlet {
       LOG.error(error);
       GrouperUiUtils.appendErrorToRequest(error);
     }
-    
+
     if (printToScreen) {
       guiResponseJs.printToScreen();
     }
@@ -284,20 +349,7 @@ public class GrouperUiRestServlet extends HttpServlet {
     guiSettings.storeToRequest();
     
     guiSettings.setAuthnKey(GrouperUuid.getUuid());
-    
-    Subject loggedInSubject = null;
-    
-    try {
-      loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-      guiSettings.setLoggedInSubject(new GuiSubject(loggedInSubject));
-    } catch (SubjectNotFoundException snfe) {
-      UiSection uiSection = GrouperUiFilter.uiSectionForRequest();
-      //if its anonymous, then there might not be a subject logged in
-      if (!uiSection.isAnonymous()) {
-        throw snfe;
-      }
-    }
-    
+
     // lets see where the templates are: assume grouperUiText.properties is in WEB-INF/classes,
     // and templates are WEB-INF/templates
     AppState appState = AppState.retrieveFromRequest();
@@ -307,6 +359,13 @@ public class GrouperUiRestServlet extends HttpServlet {
       guiResponseJs.addAction(GuiScreenAction.newAssign("allObjects.guiSettings", guiSettings));  
       
       guiResponseJs.addAction(GuiScreenAction.newAssign("allObjects.appState.initted", true));
+    }
+
+    Subject loggedInSubject = null;
+    
+    loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn(true);
+    if (loggedInSubject != null) {
+      guiSettings.setLoggedInSubject(new GuiSubject(loggedInSubject));
     }
     
   }
@@ -343,7 +402,7 @@ public class GrouperUiRestServlet extends HttpServlet {
    * @param request is the request to get the url strings out of
    * @return the list of url strings
    */
-  private static List<String> extractUrlStrings(HttpServletRequest request) {
+  public static List<String> extractUrlStrings(HttpServletRequest request) {
     String requestResourceFull = request.getRequestURI();
     return extractUrlStrings(requestResourceFull);
   }

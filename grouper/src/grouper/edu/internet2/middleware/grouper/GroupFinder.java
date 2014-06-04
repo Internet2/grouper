@@ -31,18 +31,21 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
-import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -57,8 +60,24 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class GroupFinder {
 
+  /**
+   * if we are filtering for groups which are composite owners or not
+   */
+  private Boolean compositeOwner = null;
+
+  /**
+   * if we are filtering for groups which are composite owners or not
+   * @param theCompositeOwner
+   * @return this for chaining
+   */
+  public GroupFinder assignCompositeOwner(Boolean theCompositeOwner) {
+    this.compositeOwner = theCompositeOwner;
+    return this;
+  }
+  
   // PRIVATE CLASS CONSTANTS //
   /** error for finding by attribute */
+  @SuppressWarnings("unused")
   private static final String ERR_FINDBYATTRIBUTE = "could not find group by attribute: ";
 
   /** error for finding by type */
@@ -123,16 +142,22 @@ public class GroupFinder {
     if (v.isInvalid()) {
       throw new IllegalArgumentException("null value");
     }
-    Group g = GrouperDAOFactory.getFactory().getGroup().findByAttribute(attr, val, exceptionOnNull);
-    if (g != null) {
-      if ( s.getMember().canView(g) ) {
-        return g;
+    
+    final String ATTR = attr;
+    final String VAL = val;
+    final boolean EXCEPTION_ON_NULL = exceptionOnNull;
+
+    return (Group)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+      
+      /**
+       *
+       */
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        return GrouperDAOFactory.getFactory().getGroup().findByAttribute(ATTR, VAL, EXCEPTION_ON_NULL, true);
       }
-    }
-    if (exceptionOnNull) {
-      throw new GroupNotFoundException( ERR_FINDBYATTRIBUTE + Quote.single(attr) );
-    }
-    return null;
+    });
+
   } 
 
   /**
@@ -162,16 +187,20 @@ public class GroupFinder {
     if (v.isInvalid()) {
       throw new IllegalArgumentException("null value");
     }
-    Set<Group> groupsDb = GrouperDAOFactory.getFactory().getGroup().findAllByAttr(attr, val);
-    Set<Group> groups= new LinkedHashSet<Group>();
-    if (groupsDb != null && groupsDb.size() > 0) {
-      for (Group group : groupsDb) {
-        if ( s.getMember().canView(group) ) {
-          groups.add(group);
-        }
+    
+    final String ATTR = attr;
+    final String VAL = val;
+    
+    return (Set<Group>)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+      
+      /**
+       *
+       */
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        return GrouperDAOFactory.getFactory().getGroup().findAllByAttr(ATTR, VAL, null, true);
       }
-    }
-    return groups;
+    });
   } 
 
   /**
@@ -188,7 +217,7 @@ public class GroupFinder {
    * @param   name  Name of group to find.
    * @return  A {@link Group}
    * @throws  GroupNotFoundException
-   * @Deprecated
+   * @Deprecated use the overload
    */
   @Deprecated
   public static Group findByName(GrouperSession s, String name) 
@@ -480,10 +509,25 @@ public class GroupFinder {
   private boolean splitScope;
 
   /**
-   * this is the subject that has certain privileges
+   * this is the subject that has certain memberships
    */
   private Subject subject;
 
+  /**
+   * this is a subject which is not in the group already
+   */
+  private Subject subjectNotInGroup;
+  
+  /**
+   * assign a subject which does not have a membership in the group
+   * @param theSubjectNotInGroup
+   * @return this for chaining
+   */
+  public GroupFinder assignSubjectNotInGroup(Subject theSubjectNotInGroup) {
+    this.subjectNotInGroup = theSubjectNotInGroup;
+    return this;
+  }
+  
   /**
    * add a privilege to filter by that the subject has on the group
    * @param privilege should be AccessPrivilege
@@ -521,20 +565,143 @@ public class GroupFinder {
   } 
 
   /**
+   * if this is true, or there is a field assigned, then get memberships for a subject
+   */
+  private boolean membershipsForSubject;
+
+  /**
+   * field to look for if searching for memberships in groups
+   */
+  private Field field;
+
+  /**
+   * group ids to find
+   */
+  private Collection<String> groupIds;
+
+  /**
+   * add a group id to search for
+   * @param groupId
+   * @return this for chaining
+   */
+  public GroupFinder addGroupId(String groupId) {
+    if (this.groupIds == null) {
+      this.groupIds = new HashSet<String>();
+    }
+    this.groupIds.add(groupId);
+    return this;
+  }
+
+  /**
+   * assign group names to search for
+   * @param theGroupNames
+   * @return this for chaining
+   */
+  public GroupFinder assignGroupNames(Collection<String> theGroupNames) {
+    this.groupNames = theGroupNames;
+    return this;
+  }
+  
+  /**
+   * group names to find
+   */
+  private Collection<String> groupNames;
+
+  /**
+   * add a group name to search for
+   * @param groupName
+   * @return this for chaining
+   */
+  public GroupFinder addGroupName(String groupName) {
+    if (this.groupNames == null) {
+      this.groupNames = new HashSet<String>();
+    }
+    this.groupNames.add(groupName);
+    return this;
+  }
+
+  /**
+   * assign group ids to search for
+   * @param theGroupIds
+   * @return this for chaining
+   */
+  public GroupFinder assignGroupIds(Collection<String> theGroupIds) {
+    this.groupIds = theGroupIds;
+    return this;
+  }
+  
+  /**
+   * field to look for if searching for memberships in groups
+   * @param theField
+   * @return this for chaining
+   */
+  public GroupFinder assignField(Field theField) {
+    this.field = theField;
+    return this;
+  }
+
+  /**
+   * field name to look for if searching for memberships in groups
+   * @param theFieldName
+   * @return theFieldName
+   */
+  public GroupFinder assignFieldName(String theFieldName) {
+    if (StringUtils.isBlank(theFieldName)) {
+      this.field = null;
+    }
+    this.field = FieldFinder.find(theFieldName, true);
+    return this;
+  }
+  
+  /**
+   * if this is true, or there is a field assigned, then get memberships for a subject
+   * @param membershipsForSubject1
+   * @return this for chaining
+   */
+  public GroupFinder assignMembershipsForSubject(boolean membershipsForSubject1) {
+    this.membershipsForSubject = membershipsForSubject1;
+    return this;
+  }
+  
+  /**
    * find all the group
    * @return the set of groups or the empty set if none found
    */
   public Set<Group> findGroups() {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
-   
+    
+    if (this.membershipsForSubject && this.field == null) {
+      this.field = Group.getDefaultList();
+    }
+    
+    Subject privSubject = null;
+    
+    if (GrouperUtil.length(this.privileges) > 0) {
+      privSubject = grouperSession.getSubject();
+    }
+    
     return GrouperDAOFactory.getFactory().getGroup()
-      .getAllGroupsSplitScopeSecure(this.scope, grouperSession, this.subject, this.privileges, this.queryOptions, this.typeOfGroups);
+        .getAllGroupsSecure(this.scope, grouperSession, privSubject, this.privileges, 
+            this.queryOptions, this.typeOfGroups, this.splitScope, this.subject, 
+            this.field, this.parentStemId, this.stemScope, this.findByUuidOrName, 
+            this.subjectNotInGroup, this.groupIds, this.groupNames, this.compositeOwner);
+    
   }
 
   /**
    * type of groups to query, if null, qill query just groups and roles and groups that hold people
    */
   private Set<TypeOfGroup> typeOfGroups = new HashSet<TypeOfGroup>();
+
+  /**
+   * parent or ancestor stem of the group
+   */
+  private String parentStemId;
+
+  /**
+   * if passing in a stem, this is the stem scope...
+   */
+  private Scope stemScope;
 
   /**
    * default constructor
@@ -563,7 +730,7 @@ public class GroupFinder {
   /**
    * 
    * @param typeOfGroup
-   * @return
+   * @return this
    */
   public GroupFinder addTypeOfGroup(TypeOfGroup typeOfGroup) {
     
@@ -593,13 +760,60 @@ public class GroupFinder {
   }
 
   /**
-   * this is the subject that has certain privileges or is in the query
+   * this is the subject that has certain memberships in the query
    * @param theSubject
    * @return this for chaining
    */
   public GroupFinder assignSubject(Subject theSubject) {
     this.subject = theSubject;
     return this;
+  }
+
+  /**
+   * parent or ancestor stem of the group
+   * @param theParentStemId
+   * @return this for chaining
+   */
+  public GroupFinder assignParentStemId(String theParentStemId) {
+    this.parentStemId = theParentStemId;
+    return this;
+  }
+
+  /**
+   * if passing in a stem, this is the stem scope...
+   * @param theStemScope
+   * @return this for chaining
+   */
+  public GroupFinder assignStemScope(Scope theStemScope) {
+    this.stemScope = theStemScope;
+    return this;
+  }
+
+  /**
+   * if we are looking up a group, only look by uuid or name
+   */
+  private boolean findByUuidOrName;
+  
+  /**
+   * if we are looking up a group, only look by uuid or name
+   * @param theFindByUuidOrName
+   * @return the group finder
+   */
+  public GroupFinder assignFindByUuidOrName(boolean theFindByUuidOrName) {
+    
+    this.findByUuidOrName = theFindByUuidOrName;
+    
+    return this;
+  }
+
+  /**
+   * find the group
+   * @return the group or null
+   */
+  public Group findGroup() {
+    Set<Group> groups = this.findGroups();
+
+    return GrouperUtil.setPopOne(groups);
   }
 
 }

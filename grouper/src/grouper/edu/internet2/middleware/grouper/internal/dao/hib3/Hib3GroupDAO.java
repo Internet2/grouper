@@ -50,17 +50,16 @@ import org.hibernate.criterion.Restrictions;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
-import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.entity.EntityUtils;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByCriteriaStatic;
@@ -73,15 +72,14 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
-import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
-import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -124,45 +122,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   }
 
   /**
-   * 
-   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#addType(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.GroupType)
-   */
-  public GroupTypeTuple addType(final Group _g, final GroupType _gt) 
-    throws  GrouperDAOException {
-    
-    return (GroupTypeTuple)HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
-        new HibernateHandler() {
-
-          public Object callback(HibernateHandlerBean hibernateHandlerBean)
-              throws GrouperDAOException {
-            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
-            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
-            GroupTypeTuple groupTypeTuple = new GroupTypeTuple();
-            groupTypeTuple.assignGroupUuid( _g.getUuid(), _g );
-            groupTypeTuple.setTypeUuid( _gt.getUuid() );
-            groupTypeTuple.setId(GrouperUuid.getUuid());
-            hibernateSession.byObject().save(groupTypeTuple);
-            
-            //MCH dont save again due to optimistic locking
-            //get it again in case it was changed in the hook
-//            Group g2 = null;
-//            try {
-//              g2 = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), _g.getUuid(), true);
-//            } catch (GroupNotFoundException gnfe) {
-//              throw new RuntimeException("Weird problem getting group: " + _g.getName());
-//            }
-//
-//            //note this used to be saveOrUpdate
-//            hibernateSession.byObject().update( g2 ); // modified group
- 
-            //let HibernateSession commit or rollback depending on if problem or enclosing transaction
-            return groupTypeTuple;
-          }
-    });
-  } 
-
-  /**
    * @param _g 
    * @throws GrouperDAOException 
    * @since   @HEAD@
@@ -177,21 +136,11 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
+            
             hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
-            ByObject byObject = hibernateSession.byObject();
-            
-            // delete attributes
-            ByHql byHql = hibernateSession.byHql();
-            byHql.createQuery("delete from Attribute where group_id = :group");
-            byHql.setString("group", _g.getUuid() );
-            byHql.executeUpdate();
-            // delete type tuples
-            byHql = hibernateSession.byHql();
-            byHql.createQuery("delete from GroupTypeTuple where group_uuid = :group");
-            byHql.setString("group", _g.getUuid() );
-            byHql.executeUpdate();
-            
+            ByObject byObject = hibernateSession.byObject();         
+
             // delete role sets (only the ones underneath of this one, 
             // others might cause foreign key problems
             if (TypeOfGroup.role.equals(_g.getTypeOfGroup())) {
@@ -212,54 +161,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   /**
    * logger
    */
+  @SuppressWarnings("unused")
   private static final Log LOG = GrouperUtil.getLog(Hib3GroupDAO.class);
-
-  /**
-   * @param group 
-   * @param groupType 
-   * @return tuple
-   * @throws GrouperDAOException 
-   * @since   @HEAD@
-   */
-  public GroupTypeTuple deleteType(final Group group, final GroupType groupType) 
-    throws  GrouperDAOException {
-    return (GroupTypeTuple)HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
-        new HibernateHandler() {
-
-          public Object callback(HibernateHandlerBean hibernateHandlerBean)
-              throws GrouperDAOException {
-            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
-            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
-            
-            //delete all attributes used by the group of this type
-            Set<Field> fields = GrouperUtil.nonNull(groupType.getFields());
-            
-            //remove the attributes first
-            for (Field field : fields) {
-              
-              //get attributes each time, in case something else removed
-              if (group.getAttributesMap(false).containsKey(field.getName())) {
-                LOG.debug("deleting attribute: " + field.getName() + " from group: " + group.getName()
-                     + " since the type was removed");
-                try {
-                  group.deleteAttribute(field.getName(), false);
-                } catch (Exception e) {
-                  throw new RuntimeException("Exception removing field: " + field.getName() 
-                      + ", from group: " + group.getName(),e);
-                }
-              }
-            }
-            //take this out for the hook's benefit, then remove the object
-            Set types = group.getTypesDb();
-            types.remove( groupType );
-            GroupTypeTuple groupTypeTuple = Hib3GroupTypeTupleDAO.findByGroupAndType(group, groupType);
-            hibernateSession.byObject().delete( groupTypeTuple );
-
-            return groupTypeTuple;
-          }
-    });
-  } 
 
   /**
    * @param uuid 
@@ -297,35 +200,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public Set<Group> findAllByAnyApproximateAttr(final String val) 
     throws  GrouperDAOException,
             IllegalStateException {
-
-    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
-        new HibernateHandler() {
-
-          public Object callback(HibernateHandlerBean hibernateHandlerBean)
-              throws GrouperDAOException {
-            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
-            
-            String valLowerForQuery = "%" + val.toLowerCase() + "%";
-            Set<Group> groups = hibernateSession.byHql().createQuery(
-                "select theGroup from Group as theGroup where "
-                  + "lower(theGroup.nameDb) like :value "
-                  + "or lower(theGroup.extensionDb) like :value "
-                  + "or lower(theGroup.displayNameDb) like :value "
-                  + "or lower(theGroup.extensionDb) like :value "
-                  + "or lower(theGroup.displayExtensionDb) like :value "
-                  + "or lower(theGroup.descriptionDb) like :value "
-                  + "or exists " +
-                "(select a from Attribute as a where lower(a.value) like :value and a.groupUuid = theGroup.uuid) "
-              ).setCacheable(false).setCacheRegion(KLASS + ".FindAllByAnyApproximateAttr")
-              .setString( "value", valLowerForQuery ).listSet(Group.class);
-
-            return groups;
+    return findAllByAnyApproximateAttr(val, null);
           }
-    });
-
-    return resultGroups;
-  } 
 
   /**
    * @param val 
@@ -338,6 +214,21 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public Set<Group> findAllByAnyApproximateAttr(final String val, final String scope)
     throws  GrouperDAOException,
             IllegalStateException {
+    return findAllByAnyApproximateAttr(val, scope, false);
+  } 
+
+  /**
+   * @param val 
+   * @param scope
+   * @param secureQuery
+   * @return set
+   * @throws GrouperDAOException
+   * @throws IllegalStateException
+   * @since   @HEAD@
+   */
+  public Set<Group> findAllByAnyApproximateAttr(final String val, final String scope, final boolean secureQuery)
+    throws  GrouperDAOException,
+            IllegalStateException {
 
     Set resultGroups = (Set)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
@@ -345,21 +236,78 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
-            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             
-            Set<Group> groups = hibernateSession.byHql().createQuery(
-                "select theGroup from Group as theGroup where "
-                + "(lower(theGroup.nameDb) like :value "
-                + "or lower(theGroup.extensionDb) like :value "
-                + "or lower(theGroup.displayNameDb) like :value "
-                + "or lower(theGroup.extensionDb) like :value "
-                + "or lower(theGroup.displayExtensionDb) like :value "
-                + "or lower(theGroup.descriptionDb) like :value "
-                + "or exists " 
-                + "(select a from Attribute as a where lower(a.value) like :value and a.groupUuid = theGroup.uuid) ) " 
-                + "and theGroup.nameDb like :scope"
-              ).setCacheable(false).setCacheRegion(KLASS + ".FindAllByAnyApproximateAttr")
-              .setString("value", "%" + val.toLowerCase() + "%").setString("scope", scope + "%").listSet(Group.class);
+            ByHqlStatic byHql = HibernateSession.byHqlStatic();
+            
+            
+            StringBuilder hql = new StringBuilder("select distinct theGroup from Group as theGroup ");
+          
+            GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+            
+            //see if we are adding more to the query
+            boolean changedQuery = false;
+            StringBuilder sqlWhereClause = new StringBuilder();
+                
+            if (secureQuery) {
+                changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
+                    grouperSession.getSubject(), byHql, 
+                    hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+            }
+            
+            if (!changedQuery) {
+              hql.append(" where ");
+            } else {
+              hql.append(" and ");
+            }
+                        
+            hql.append(" (lower(theGroup.nameDb) like :value or ");
+            hql.append(" lower(theGroup.extensionDb) like :value or ");
+            hql.append(" lower(theGroup.displayNameDb) like :value or ");
+            hql.append(" lower(theGroup.displayExtensionDb) like :value or ");
+            hql.append(" lower(theGroup.descriptionDb) like :value ");
+
+            String legacyAttributeStemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+            String legacyAttributePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attribute.prefix");
+
+            hql.append(" or exists ");
+            hql.append("(select value from AttributeAssignValue value, AttributeAssign assign, AttributeAssign assign2, AttributeDefName name, AttributeDefName name2");
+            
+            if (secureQuery) {
+              grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
+                  grouperSession.getSubject(), byHql, 
+                  hql, sqlWhereClause, "name.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
+              
+              grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
+                  grouperSession.getSubject(), byHql, 
+                  hql, sqlWhereClause, "name2.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
+              
+              changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
+                  grouperSession.getSubject(), byHql, 
+                  hql, "theGroup.uuid", AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES);
+            }
+            
+            if (!changedQuery) {
+              hql.append(" where ");
+            } else {
+              hql.append(" and ");
+            }
+            
+            if (sqlWhereClause.toString().trim().length() > 0) {
+              hql.append(sqlWhereClause).append(" and ");
+            }
+            
+            hql.append(" assign.ownerGroupId = theGroup.uuid and assign.id = assign2.ownerAttributeAssignId and assign2.id = value.attributeAssignId and assign2.attributeDefNameId = name2.id and assign.attributeDefNameId = name.id and " +
+              "name2.nameDb like :attributeName and lower(value.valueString) like :value)) ");
+            byHql.setString("attributeName", legacyAttributeStemName + ":" + legacyAttributePrefix + "%");
+
+            if (!StringUtils.isBlank(scope)) {
+              hql.append(" and theGroup.nameDb like :scope");
+              byHql.setString("scope", scope + "%");
+            }
+
+            byHql.createQuery(hql.toString());
+            Set<Group> groups = byHql.setCacheable(false).setCacheRegion(KLASS + ".FindAllByApproximateAttr")
+              .setString( "value", "%" + val.toLowerCase() + "%" ).listSet(Group.class);
 
             return groups;
           }
@@ -427,18 +375,33 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             
             StringBuilder hql = new StringBuilder("select distinct theGroup from Group as theGroup ");
             if (!Group._internal_fieldAttribute(attr)) {
-              hql.append(", Field field, Attribute as a ");
+              hql.append(", AttributeAssignValue value, AttributeAssign assign, AttributeAssign assign2, AttributeDefName name, AttributeDefName name2 ");
             }
           
             GrouperSession grouperSession = GrouperSession.staticGrouperSession();
             
             //see if we are adding more to the query
             boolean changedQuery = false;
+            StringBuilder sqlWhereClause = new StringBuilder();
             
             if (secureQuery) {
+              if (Group._internal_fieldAttribute(attr)) {
               changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
                   grouperSession.getSubject(), byHql, 
                   hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+              } else {
+                grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
+                    grouperSession.getSubject(), byHql, 
+                    hql, sqlWhereClause, "name.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
+                
+                grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
+                    grouperSession.getSubject(), byHql, 
+                    hql, sqlWhereClause, "name2.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
+                
+                changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
+                    grouperSession.getSubject(), byHql, 
+                    hql, "theGroup.uuid", AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES);
+              }
             }
             
             if (!changedQuery) {
@@ -447,13 +410,25 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
               hql.append(" and ");
             }
             
+            if (sqlWhereClause.toString().trim().length() > 0) {
+              hql.append(sqlWhereClause).append(" and ");
+            }
+                        
             if (Group._internal_fieldAttribute(attr)) {
               hql.append(" lower(theGroup." + attr + "Db) like :value ");
             } else {
-              hql.append(" a.groupUuid = theGroup.uuid " +
-                "and field.name = :field and lower(a.value) like :value " +
-                "and field.uuid = a.fieldId and field.typeString = 'attribute' ");
-              byHql.setString("field", attr);
+              String legacyAttributeStemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+              String legacyAttributePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attribute.prefix");
+
+              hql.append(" assign.ownerGroupId = theGroup.uuid and assign.id = assign2.ownerAttributeAssignId and assign2.id = value.attributeAssignId and assign2.attributeDefNameId = name2.id and assign.attributeDefNameId = name.id and " +
+                "name2.nameDb = :attributeName and lower(value.valueString) like :value ");
+              
+              String attributePrefix = legacyAttributeStemName + ":" + legacyAttributePrefix;
+              if (attr.startsWith(attributePrefix)) {
+                byHql.setString("attributeName",  attr);
+              } else {
+                byHql.setString("attributeName",  attributePrefix + attr);
+              }
             }
             if (!StringUtils.isBlank(scope)) {
               hql.append(" and theGroup.nameDb like :scope");
@@ -905,9 +880,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             Set<Group> groups = hibernateSession.byHql().createQuery(
-                "select theGroup from Group as theGroup, GroupTypeTuple as gtt " +
-                "where gtt.typeUuid = :type " +
-                "and gtt.groupUuid = theGroup.uuid " +
+                "select theGroup from Group as theGroup, AttributeAssign groupTypeAssign " +
+                "where groupTypeAssign.attributeDefNameId = :type " +
+                "and groupTypeAssign.ownerGroupId = theGroup.uuid " +
                 "and theGroup.nameDb like :scope"
               ).setCacheable(false).setCacheRegion(KLASS + ".FindAllByType")
               .setString("type", _gt.getUuid()).setString("scope", scope + "%").listSet(Group.class);
@@ -917,6 +892,95 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     });
     return resultGroups;
   } 
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#findByAttribute(java.lang.String, java.lang.String, boolean, boolean)
+   */
+  public Group findByAttribute(final String attr, final String val, final boolean exceptionIfNotFound, final boolean secureQuery) 
+      throws GrouperDAOException, GroupNotFoundException {
+    Group result = (Group)HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+        new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+
+            ByHqlStatic byHql = HibernateSession.byHqlStatic();
+            
+            
+            StringBuilder hql = new StringBuilder("select distinct theGroup from Group as theGroup ");
+            if (!Group._internal_fieldAttribute(attr)) {
+              hql.append(", AttributeAssignValue value, AttributeAssign assign, AttributeAssign assign2, AttributeDefName name, AttributeDefName name2 ");
+            }
+          
+            GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+            
+            //see if we are adding more to the query
+            boolean changedQuery = false;
+            StringBuilder sqlWhereClause = new StringBuilder();
+    
+            if (secureQuery) {
+              if (Group._internal_fieldAttribute(attr)) {
+                changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
+                    grouperSession.getSubject(), byHql, 
+                    hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+              } else {
+                grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
+                    grouperSession.getSubject(), byHql, 
+                    hql, sqlWhereClause, "name.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
+                
+                grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
+                    grouperSession.getSubject(), byHql, 
+                    hql, sqlWhereClause, "name2.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
+                
+                changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
+                    grouperSession.getSubject(), byHql, 
+                    hql, "theGroup.uuid", AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES);
+              }
+            }
+            
+            if (!changedQuery) {
+              hql.append(" where ");
+            } else {
+              hql.append(" and ");
+            }
+            
+            if (sqlWhereClause.toString().trim().length() > 0) {
+              hql.append(sqlWhereClause).append(" and ");
+            }
+    
+            if (Group._internal_fieldAttribute(attr)) {
+              hql.append(" theGroup." + attr + "Db = :value ");
+            } else {
+              String legacyAttributeStemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+              String legacyAttributePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attribute.prefix");
+
+              hql.append(" assign.ownerGroupId = theGroup.uuid and assign.id = assign2.ownerAttributeAssignId and assign2.id = value.attributeAssignId and assign2.attributeDefNameId = name2.id and assign.attributeDefNameId = name.id and " +
+                "name2.nameDb = :attributeName and value.valueString like :value ");
+              
+              String attributePrefix = legacyAttributeStemName + ":" + legacyAttributePrefix;
+              if (attr.startsWith(attributePrefix)) {
+                byHql.setString("attributeName", attr);
+              } else {
+                byHql.setString("attributeName", attributePrefix + attr);
+              }
+            }
+
+            byHql.createQuery(hql.toString());
+            Group group = byHql.setCacheable(false).setCacheRegion(KLASS + ".FindByAttribute")
+              .setString("value", val).uniqueResult(Group.class);
+    
+            return group;
+            
+          }
+    });
+ 
+    if (result == null && exceptionIfNotFound) {
+       throw new GroupNotFoundException();
+     }
+    
+    return result;
+  }
 
   /**
    * @param attr
@@ -929,31 +993,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    */
   public Group findByAttribute(String attr, String val, boolean exceptionIfNotFound)
       throws GrouperDAOException, GroupNotFoundException {
-    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
-    String attributeHql = null;
-    
-    if (Group._internal_fieldAttribute(attr)) {
-      attributeHql = "select theGroup from Group as theGroup where theGroup." + attr + "Db = :value";
-      byHqlStatic.createQuery(attributeHql);
-    } else {
-      attributeHql = "select theGroup from Group as theGroup, Field field, " +
-        "Attribute as a where a.groupUuid = theGroup.uuid " +
-        "and field.name = :field and a.value like :value " +
-        "and field.uuid = a.fieldId and field.typeString = 'attribute'";
-      byHqlStatic.createQuery(attributeHql).setString("field", attr);
-    }
-    
-
-    Group group = 
-      byHqlStatic.setCacheable(false)
-      .setCacheRegion(KLASS + ".FindByAttribute")
-      .setString("value", val).uniqueResult(Group.class);
-    
-     if (group == null && exceptionIfNotFound) {
-       throw new GroupNotFoundException();
-     }
-     return group;
-    
+    return findByAttribute(attr, val, exceptionIfNotFound, false);
   }
 
 
@@ -1359,35 +1399,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     throws  HibernateException
   {
     //               but right now that is blowing up due to the session being flushed.
-    hibernateSession.byHql().createQuery("delete from GroupTypeTuple").executeUpdate();
-    hibernateSession.byHql().createQuery("delete from Attribute").executeUpdate(); 
     hibernateSession.byHql().createQuery("delete from Group").executeUpdate();
     getExistsCache().clear();
   } 
-
-
-  /**
-   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#_findAllTypesByGroup(java.lang.String)
-   */
-  public Set<GroupType> _findAllTypesByGroup(final String uuid)
-    throws  GrouperDAOException {
-    Set<GroupType> types = new LinkedHashSet<GroupType>();
-    List<GroupTypeTuple> groupTypeTuples = 
-      HibernateSession.byHqlStatic()
-        .createQuery("from GroupTypeTuple as gtt where gtt.groupUuid = :group")
-        .setCacheable(false).setString("group", uuid).list(GroupTypeTuple.class);
-    
-    GroupTypeDAO dao = GrouperDAOFactory.getFactory().getGroupType(); 
-    try {
-      for (GroupTypeTuple  gtt : groupTypeTuples) {
-        types.add( dao.findByUuid( gtt.getTypeUuid(), true ) );
-      }
-    } catch (SchemaException eS) {
-      throw new GrouperDAOException( "Problem with finding by uuid: " + uuid + ", " + eS.getMessage(), eS );
-    }
-    return types;
-  } // private static Set _findAllTypesByGroup(uuid)
-
 
   // @since 1.2.1         
 //  /**
@@ -1436,27 +1450,88 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    */
   public Set<Group> findAllByAttr(final String attr, final String val) throws GrouperDAOException,
       IllegalStateException {
+    return findAllByAttr(attr, val, null, false);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#findAllByAttr(java.lang.String, java.lang.String, java.lang.String, boolean)
+   */
+  public Set<Group> findAllByAttr(final String attr, final String val, final String scope, final boolean secureQuery) throws GrouperDAOException,
+    IllegalStateException {
+    
     Set resultGroups = (Set)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
         new HibernateHandler() {
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
-            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
-            String attributeHql = null;
-            ByHql byHql = hibernateSession.byHql();
-            if (Group._internal_fieldAttribute(attr)) {
-              attributeHql = "select theGroup from Group as theGroup where theGroup." + attr + "Db = :value";
-              byHql.createQuery(attributeHql);
-            } else {
-              attributeHql = "select theGroup from Group as theGroup, Field field, " +
-                "Attribute as a where a.groupUuid = theGroup.uuid " +
-                "and field.name = :field and a.value = :value " +
-                "and field.uuid = a.fieldId and field.typeString = 'attribute'";
-              byHql.createQuery(attributeHql).setString("field", attr);
+            ByHqlStatic byHql = HibernateSession.byHqlStatic();
+            
+            
+            StringBuilder hql = new StringBuilder("select distinct theGroup from Group as theGroup ");
+            if (!Group._internal_fieldAttribute(attr)) {
+              hql.append(", AttributeAssignValue value, AttributeAssign assign, AttributeAssign assign2, AttributeDefName name, AttributeDefName name2 ");
+            }
+          
+            GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+            
+            //see if we are adding more to the query
+            boolean changedQuery = false;
+            StringBuilder sqlWhereClause = new StringBuilder();
+                
+            if (secureQuery) {
+              if (Group._internal_fieldAttribute(attr)) {
+                changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
+                    grouperSession.getSubject(), byHql, 
+                    hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+              } else {
+                grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
+                    grouperSession.getSubject(), byHql, 
+                    hql, sqlWhereClause, "name.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
+                
+                grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
+                    grouperSession.getSubject(), byHql, 
+                    hql, sqlWhereClause, "name2.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
+                
+                changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
+                    grouperSession.getSubject(), byHql, 
+                    hql, "theGroup.uuid", AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES);
+              }
             }
             
+            if (!changedQuery) {
+              hql.append(" where ");
+            } else {
+              hql.append(" and ");
+            }
+            
+            if (sqlWhereClause.toString().trim().length() > 0) {
+              hql.append(sqlWhereClause).append(" and ");
+            }
+                        
+            if (Group._internal_fieldAttribute(attr)) {
+              hql.append(" theGroup." + attr + "Db = :value ");
+            } else {
+              String legacyAttributeStemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+              String legacyAttributePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attribute.prefix");
+
+              hql.append(" assign.ownerGroupId = theGroup.uuid and assign.id = assign2.ownerAttributeAssignId and assign2.id = value.attributeAssignId and assign2.attributeDefNameId = name2.id and assign.attributeDefNameId = name.id and " +
+                "name2.nameDb = :attributeName and value.valueString = :value ");
+              
+              String attributePrefix = legacyAttributeStemName + ":" + legacyAttributePrefix;
+              if (attr.startsWith(attributePrefix)) {
+                byHql.setString("attributeName", attr);
+              } else {
+                byHql.setString("attributeName", attributePrefix + attr);
+              }
+            }
+            if (!StringUtils.isBlank(scope)) {
+              hql.append(" and theGroup.nameDb like :scope");
+              byHql.setString("scope", scope + "%");
+            }
+            
+            byHql.createQuery(hql.toString());
             Set<Group> groups = byHql.setCacheable(false).setCacheRegion(KLASS + ".FindAllByAttr")
               .setString("value", val).listSet(Group.class);
             
@@ -1478,40 +1553,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    */
   public Set<Group> findAllByAttr(final String attr, final String val, final String scope) throws GrouperDAOException,
       IllegalStateException {
-    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
-        new HibernateHandler() {
-
-          public Object callback(HibernateHandlerBean hibernateHandlerBean)
-              throws GrouperDAOException {
-            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
-
-            String attributeHql = null;
-            ByHql byHql = hibernateSession.byHql();
-            if (Group._internal_fieldAttribute(attr)) {
-              attributeHql = "select theGroup from Group as theGroup where theGroup." + attr + "Db = :value " +
-                "and theGroup.nameDb like :scope";
-              byHql.createQuery(attributeHql);
-            } else {
-              attributeHql = "select theGroup from Group as theGroup, Field field, " +
-                "Attribute as a where a.groupUuid = theGroup.uuid " +
-                "and field.name = :field and a.value = :value " +
-                "and field.uuid = a.fieldId and field.typeString = 'attribute' " +
-                "and theGroup.nameDb like :scope";
-              byHql.createQuery(attributeHql).setString("field", attr);
-            }
-            
-            Set<Group> groups = byHql.setCacheable(false).setCacheRegion(KLASS + ".FindAllByAttr")
-              .setString("value", val).setString("scope", scope + "%").listSet(Group.class);
-            
-            return groups;
-            
-          }
-    });
-
-    return resultGroups;
+    return findAllByAttr(attr, val, scope, false);
   }
-
+            
   /**
    * find groups by creator or modifier
    * @param member
@@ -2204,9 +2248,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             ByHql byHql = hibernateSession.byHql().createQuery(
-                "select theGroup from Group as theGroup, GroupTypeTuple as gtt " +
-                "where gtt.typeUuid = :type " +
-                "and gtt.groupUuid  = theGroup.uuid"
+                "select theGroup from Group as theGroup, AttributeAssign as groupTypeAssign " +
+                "where groupTypeAssign.attributeDefNameId = :type " +
+                "and groupTypeAssign.ownerGroupId  = theGroup.uuid"
               );
             
             if (queryOptions != null && queryOptions.getSecondLevelCache() != null && !queryOptions.getSecondLevelCache()) {
@@ -2318,7 +2362,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions, TypeOfGroup typeOfGroup) {
     Set<TypeOfGroup> typeOfGroups = typeOfGroup == null ? null : GrouperUtil.toSet(typeOfGroup);
-    return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, true, typeOfGroups);
+    return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, 
+        queryOptions, true, typeOfGroups, null, null, null, null, false, null, null, null, null);
   }
 
   /**
@@ -2328,11 +2373,11 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public Set<Group> getAllGroupsSplitScopeSecure(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) {
-    return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, true, typeOfGroups);
+    return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, 
+        queryOptions, true, typeOfGroups, null, null, null, null, false, null, null, null, null);
   }
 
   /**
-   * 
    * @param scope 
    * @param grouperSession 
    * @param subject 
@@ -2340,12 +2385,24 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * @param queryOptions 
    * @param splitScope 
    * @param typeOfGroups
+   * @param membershipSubject
+   * @param parentStemId
+   * @param stemScope
+   * @param findByUuidOrName
+   * @param field
+   * @param subjectNotInGroup
+   * @param totalGroupIds
+   * @param totalGroupNames
+   * @param compositeOwner
    * @return groups
    * 
    */
   private Set<Group> findAllGroupsSecureHelper(String scope,
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
-      QueryOptions queryOptions, boolean splitScope, Set<TypeOfGroup> typeOfGroups) {
+      QueryOptions queryOptions, boolean splitScope, Set<TypeOfGroup> typeOfGroups, Subject membershipSubject, 
+      Field field, String parentStemId, Scope stemScope, boolean findByUuidOrName, Subject subjectNotInGroup,
+      Collection<String> totalGroupIds, Collection<String> totalGroupNames, Boolean compositeOwner) {
+
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
     }
@@ -2353,73 +2410,333 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       queryOptions.sortAsc("theGroup.displayNameDb");
     }
   
-    StringBuilder sql = new StringBuilder(
-        "select distinct theGroup from Group theGroup ");
-  
-    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
-  
-    //see if we are adding more to the query
-    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic,
-        sql, "theGroup.uuid", privileges);
-
-    StringBuilder whereClause = new StringBuilder();
-
-    //see if there is a scope
-    if (!StringUtils.isBlank(scope)) {
-      scope = scope.toLowerCase();
-
-      String[] scopes = splitScope ? GrouperUtil.splitTrim(scope, " ") : new String[]{scope};
-
-      //TODO if entities are here, then search for the entity id too...
-      
-      if (whereClause.length() > 0) {
-        whereClause.append(" and ");
-      }
-      if (GrouperUtil.length(scopes) == 1) {
-        whereClause.append(" ( theGroup.id = :theGroupIdScope or ( ");
-        byHqlStatic.setString("theGroupIdScope", scope);
-      } else {
-        whereClause.append(" ( ( ");
-      }
-
-      int index = 0;
-      for (String theScope : scopes) {
-        if (index != 0) {
-          whereClause.append(" and ");
-        }
-        whereClause.append(" ( lower(theGroup.nameDb) like :scope" + index 
-            + " or lower(theGroup.displayNameDb) like :scope" + index 
-            + " or lower(theGroup.descriptionDb) like :scope" + index + " ) ");
-        if (splitScope) {
-          theScope = "%" + theScope + "%";
-        } else if (!theScope.endsWith("%")) {
-          theScope += "%";
-        }
-        byHqlStatic.setString("scope" + index, theScope);
-        index++;
-      }
-      whereClause.append(" ) ) ");
-    }
-    if (changedQuery) {
-      sql.append(" and ");
-    } else {
-      sql.append(" where ");
-    }
-    sql.append(whereClause);
-
-    TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, sql, byHqlStatic);
-
-    if (queryOptions != null) {
-      massageSortFields(queryOptions.getQuerySort());
+    if (findByUuidOrName && StringUtils.isBlank(scope)) {
+      throw new RuntimeException("If you are looking by uuid or name, you need to pass in a scope");
     }
 
-    Set<Group> groups = byHqlStatic.createQuery(sql.toString())
-      .setCacheable(false)
-      .setCacheRegion(KLASS + ".GetAllGroupsSecure")
-      .options(queryOptions)
-      .listSet(Group.class);
+    Set<Group> overallResults = new LinkedHashSet<Group>();
     
-    return groups;
+    int groupBatches = GrouperUtil.batchNumberOfBatches(totalGroupIds, 100);
+
+    List<String> totalGroupIdsList = new ArrayList<String>(GrouperUtil.nonNull(totalGroupIds));
+    
+    for (int groupIndex = 0; groupIndex < groupBatches; groupIndex++) {
+      
+      List<String> groupIds = GrouperUtil.batchList(totalGroupIdsList, 100, groupIndex);
+
+      int groupNameBatches = GrouperUtil.batchNumberOfBatches(totalGroupNames, 50);
+
+      List<String> totalGroupNamesList = new ArrayList<String>(GrouperUtil.nonNull(totalGroupNames));
+      
+      for (int groupNameIndex = 0; groupNameIndex < groupNameBatches; groupNameIndex++) {
+        
+        List<String> groupNames = GrouperUtil.batchList(totalGroupNamesList, 50, groupNameIndex);
+
+    
+        StringBuilder sql = new StringBuilder(
+            "select distinct theGroup from Group theGroup ");
+      
+        if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
+          
+          if (StringUtils.isBlank(parentStemId) || stemScope == null) {
+            throw new RuntimeException("If you are passing in a parentStemId or a stemScope, then you need to pass both of them: " + parentStemId + ", " + stemScope);
+          }
+          
+          if (stemScope == Scope.SUB) {
+            sql.append(", StemSet theStemSet ");
+          }
+        }      
+    
+        ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      
+        //see if we are adding more to the query
+        boolean changedQuery = false;
+        
+        if (GrouperUtil.length(privileges) > 0) {
+          changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic,
+              sql, "theGroup.uuid", privileges);
+        }
+  
+        StringBuilder whereClause = new StringBuilder();
+  
+        if (GrouperUtil.length(groupIds) > 0) {
+  
+          if (whereClause.length() > 0) {
+            
+            whereClause.append(" and ");
+            
+          }
+  
+          whereClause.append(" theGroup.uuid in (");
+          whereClause.append(HibUtils.convertToInClause(groupIds, byHqlStatic));
+          whereClause.append(") ");
+          
+        }
+
+        //if seeing if the group is a composite owner or not a composite owner
+        if (compositeOwner != null) {
+          if (whereClause.length() > 0) {
+            
+            whereClause.append(" and ");
+            
+          }
+          if (!compositeOwner) {
+            whereClause.append(" not ");
+          }
+          
+          whereClause.append(" exists ( select 1 from Composite as theComposite where theComposite.factorOwnerUuid = theGroup.uuid ) ");
+          
+          
+        }
+        
+        //groupnames or alternate names
+        if (GrouperUtil.length(groupNames) > 0) {
+          
+          if (whereClause.length() > 0) {
+            
+            whereClause.append(" and ");
+            
+          }
+  
+          whereClause.append(" ( theGroup.nameDb in ( ");
+          whereClause.append(HibUtils.convertToInClause(groupNames, byHqlStatic));
+          whereClause.append(") or theGroup.alternateNameDb in ( ");
+          whereClause.append(HibUtils.convertToInClause(groupNames, byHqlStatic));
+          whereClause.append(" ) ");
+          
+          //if entities, then also allow entity identifier
+          if (typeOfGroups != null && typeOfGroups.contains(TypeOfGroup.entity)) {
+            
+            whereClause.append(" or exists ( select theAttributeAssignValue from AttributeAssign theAttributeAssign, " +
+                " AttributeAssignValue theAttributeAssignValue, AttributeDefName theAttributeDefName ");
+  
+            whereClause.append(" where theGroup.typeOfGroupDb = 'entity' and theGroup.uuid = theAttributeAssign.ownerGroupId ");
+            whereClause.append(" and theAttributeAssign.attributeDefNameId = theAttributeDefName.id ");
+  
+            whereClause.append(" and theAttributeDefName.nameDb = :entitySubjectIdDefName ");
+            byHqlStatic.setString("entitySubjectIdDefName", EntityUtils.entitySubjectIdentifierName());
+  
+            whereClause.append(" and theAttributeAssignValue.attributeAssignId = theAttributeAssign.id ");
+  
+            whereClause.append(" and theAttributeAssignValue.valueString in ( ");
+
+            whereClause.append(HibUtils.convertToInClause(groupNames, byHqlStatic));
+            
+            whereClause.append(" )");
+
+            
+            whereClause.append(" ) ");
+            
+          }
+
+          
+          whereClause.append(" ) ");
+          
+        }
+        
+        if (field != null) {
+          
+          if (whereClause.length() > 0) {
+            
+            whereClause.append(" and ");
+            
+          }
+    
+          if (membershipSubject == null) {
+            throw new RuntimeException("Why is membershipSubject null if passing in a field for memberships???");
+          }
+          
+          Member membershipMember = MemberFinder.findBySubject(grouperSession, membershipSubject, false);
+          
+          //if a member does not exist, its not in any groups
+          if (membershipMember == null) {
+            return new HashSet<Group>();
+          }
+          
+          whereClause.append(" exists (select 1 from MembershipEntry fieldMembership where fieldMembership.ownerGroupId = theGroup.uuid " +
+          		" and fieldMembership.fieldId = :fieldId " +
+          		" and fieldMembership.memberUuid = :fieldMembershipMemberUuid and fieldMembership.enabledDb = 'T' ) ");
+          byHqlStatic.setString("fieldId", field.getUuid());
+          byHqlStatic.setString("fieldMembershipMemberUuid", membershipMember.getUuid());
+                
+        }
+    
+        if (subjectNotInGroup != null) {
+    
+          if (whereClause.length() > 0) {
+            
+            whereClause.append(" and ");
+            
+          }
+    
+          Member membershipMember = MemberFinder.findBySubject(grouperSession, subjectNotInGroup, false);
+          
+          //if a member does not exist, its not in any groups
+          if (membershipMember != null) {
+            whereClause.append(" not exists (select 1 from MembershipEntry fieldMembership where fieldMembership.ownerGroupId = theGroup.uuid " +
+                " and fieldMembership.fieldId = :fieldId2 " +
+                " and fieldMembership.memberUuid = :fieldMembershipMemberUuid2 and fieldMembership.enabledDb = 'T' ) ");
+            byHqlStatic.setString("fieldId2", Group.getDefaultList().getUuid());
+            byHqlStatic.setString("fieldMembershipMemberUuid2", membershipMember.getUuid());
+          }
+    
+        }
+        
+        //see if there is a scope
+        if (!StringUtils.isBlank(scope)) {
+          scope = scope.toLowerCase();
+    
+          String[] scopes = splitScope ? GrouperUtil.splitTrim(scope, " ") : new String[]{scope};
+    
+          if (scopes.length > 1 && findByUuidOrName) {
+            throw new RuntimeException("If you are looking by uuid or name, then you can only pass in one scope: " + scope);
+          }
+    
+          if (whereClause.length() > 0) {
+            whereClause.append(" and ");
+          }
+          if (GrouperUtil.length(scopes) == 1) {
+            whereClause.append(" ( theGroup.id = :theGroupIdScope or ( ");
+            byHqlStatic.setString("theGroupIdScope", scope);
+          } else {
+            whereClause.append(" ( ( ");
+          }
+    
+          int index = 0;
+          for (String theScope : scopes) {
+            if (index != 0) {
+              whereClause.append(" and ");
+            }
+            
+            if (findByUuidOrName) {
+              whereClause.append(" theGroup.nameDb = :scope" + index + " or theGroup.alternateNameDb = :scope" + index 
+                  + " or theGroup.displayNameDb = :scope" + index + " ");
+              byHqlStatic.setString("scope" + index, theScope);
+            } else {
+              whereClause.append(" ( lower(theGroup.nameDb) like :scope" + index 
+                  + " or lower(theGroup.alternateNameDb) like :scope" + index 
+                  + " or lower(theGroup.displayNameDb) like :scope" + index 
+                  + " or lower(theGroup.descriptionDb) like :scope" + index + " ) ");
+              if (splitScope) {
+                theScope = "%" + theScope + "%";
+              } else if (!theScope.endsWith("%")) {
+                theScope += "%";
+              }
+              byHqlStatic.setString("scope" + index, theScope.toLowerCase());
+    
+            }        
+            
+            index++;
+          }
+          whereClause.append(" ) ");
+          
+          //if entities, then also allow entity identifier
+          if (typeOfGroups != null && typeOfGroups.contains(TypeOfGroup.entity)) {
+            
+            whereClause.append(" or exists ( select theAttributeAssignValue from AttributeAssign theAttributeAssign, " +
+                " AttributeAssignValue theAttributeAssignValue, AttributeDefName theAttributeDefName ");
+  
+            whereClause.append(" where theGroup.typeOfGroupDb = 'entity' and theGroup.uuid = theAttributeAssign.ownerGroupId ");
+            whereClause.append(" and theAttributeAssign.attributeDefNameId = theAttributeDefName.id ");
+  
+            whereClause.append(" and theAttributeDefName.nameDb = :entitySubjectIdDefName ");
+            byHqlStatic.setString("entitySubjectIdDefName", EntityUtils.entitySubjectIdentifierName());
+  
+            whereClause.append(" and theAttributeAssignValue.attributeAssignId = theAttributeAssign.id ");
+            
+            index = 0;
+            for (@SuppressWarnings("unused") String theScope : scopes) {
+              
+              if (findByUuidOrName) {
+                whereClause.append(" and theAttributeAssignValue.valueString = :scope" + index + " ");
+              } else {
+                whereClause.append(" and lower(theAttributeAssignValue.valueString) like :scope" + index);      
+              }        
+              
+              index++;
+            }
+            
+           whereClause.append(" ) ");
+            
+          }
+
+          
+          whereClause.append(" ) ");
+        }
+        
+        if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
+          if (whereClause.length() > 0) {
+            whereClause.append(" and ");
+          }
+          switch(stemScope) {
+            case ONE:
+              
+              whereClause.append(" theGroup.parentUuid = :theStemId ");
+              byHqlStatic.setString("theStemId", parentStemId);
+              break;
+            case SUB:
+              
+              whereClause.append(" theGroup.parentUuid = theStemSet.ifHasStemId " +
+                " and theStemSet.thenHasStemId = :theStemId ");
+              byHqlStatic.setString("theStemId", parentStemId);
+              
+              break;
+            
+          }
+        }
+        
+        if (changedQuery) {
+          sql.append(" and ");
+        } else {
+          sql.append(" where ");
+        }
+        sql.append(whereClause);
+    
+        TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, sql, byHqlStatic);
+    
+        if (queryOptions != null) {
+          massageSortFields(queryOptions.getQuerySort());
+        }
+    
+        Set<Group> tempGroups = byHqlStatic.createQuery(sql.toString())
+          .setCacheable(false)
+          .setCacheRegion(KLASS + ".GetAllGroupsSecure")
+          .options(queryOptions)
+          .listSet(Group.class);
+        
+        overallResults.addAll(GrouperUtil.nonNull(tempGroups));
+      }      
+    }
+    
+    //if find by uuid or name, try to narrow down to one...
+    if (findByUuidOrName) {
+      
+      //get the one with uuid
+      for (Group group : overallResults) {
+        if (StringUtils.equals(scope, group.getId())) {
+          return GrouperUtil.toSet(group);
+        }
+      }
+      
+      //get the one with name
+      for (Group group : overallResults) {
+        if (StringUtils.equals(scope, group.getName())) {
+          return GrouperUtil.toSet(group);
+        }
+      }
+      
+      //get the one with alternate name
+      for (Group group : overallResults) {
+        if (StringUtils.equals(scope, group.getAlternateName())) {
+          return GrouperUtil.toSet(group);
+        }
+      }
+      
+    }
+
+    Group.initData(overallResults);
+    
+    return overallResults;
   
   }
 
@@ -2522,6 +2839,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             return groups;
           }
     });
+    
+    Group.initData(resultGroups);
+
     return resultGroups;
   }
 
@@ -2755,6 +3075,32 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     
     
     
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#getAllGroupsSecure(java.lang.String, edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.util.Set, boolean, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Field)
+   */
+  @Override
+  public Set<Group> getAllGroupsSecure(String scope, GrouperSession grouperSession,
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions,
+      Set<TypeOfGroup> typeOfGroups, boolean splitScope, Subject membershipSubject, Field field) {
+    return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, splitScope, 
+        typeOfGroups, membershipSubject, field, null, null, false, null, null, null, null);
+  }
+
+  /**
+   * @see GroupDAO#getAllGroupsSecure(String, GrouperSession, Subject, Set, QueryOptions, Set, boolean, Subject, Field, String, Scope, boolean, Subject, Collection, Collection)
+   */
+  @Override
+  public Set<Group> getAllGroupsSecure(String scope, GrouperSession grouperSession,
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions,
+      Set<TypeOfGroup> typeOfGroups, boolean splitScope, Subject membershipSubject,
+      Field field, String parentStemId, Scope stemScope,  
+      boolean findByUuidOrName, Subject subjectNotInGroup, Collection<String> groupIds, Collection<String> groupNames, 
+      Boolean compositeOwner) {
+    return findAllGroupsSecureHelper(scope, grouperSession, subject, privileges, queryOptions, 
+        splitScope, typeOfGroups, membershipSubject, field, parentStemId, stemScope,
+        findByUuidOrName, subjectNotInGroup, groupIds, groupNames, compositeOwner);
   }
 } 
 

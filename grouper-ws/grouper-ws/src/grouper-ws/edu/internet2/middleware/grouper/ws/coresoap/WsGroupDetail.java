@@ -222,13 +222,6 @@ public class WsGroupDetail {
       //set the types
       Set<GroupType> groupTypes = new TreeSet<GroupType>(group.getTypes());
       
-      try {
-        GroupType baseType = GroupTypeFinder.find("base", true);
-        groupTypes.remove(baseType);
-      } catch (SchemaException se) {
-        throw new RuntimeException(se);
-      }
-
       this.typeNames = new String[GrouperUtil.length(groupTypes)];
       int i = 0;
       for (GroupType groupType : GrouperUtil.nonNull(groupTypes)) {

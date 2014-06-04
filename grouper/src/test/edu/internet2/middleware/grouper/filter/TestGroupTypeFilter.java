@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.T;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -74,6 +75,11 @@ public class TestGroupTypeFilter extends GrouperTest {
     LOG.info("testQueryByGroupTypeFilterNothing");
     try {
       R             r   = R.populateRegistry(0, 0, 0);
+      GroupType base = GroupType.createType(r.rs, "base");
+      for (Group g : GrouperDAOFactory.getFactory().getGroup().getAllGroups()) {
+        g.addType(base);
+      }
+      
       GrouperQuery  gq  = GrouperQuery.createQuery(
         r.rs, new GroupTypeFilter( GroupTypeFinder.find("base", true), r.root )
       );
@@ -92,6 +98,11 @@ public class TestGroupTypeFilter extends GrouperTest {
     LOG.info("testQueryByGroupTypeFilterSomething");
     try {
       R             r   = R.populateRegistry(2, 2, 0);
+      GroupType base = GroupType.createType(r.rs, "base");
+      for (Group g : GrouperDAOFactory.getFactory().getGroup().getAllGroups()) {
+        g.addType(base);
+      }
+      
       GrouperQuery  gq  = GrouperQuery.createQuery(
         r.rs, new GroupTypeFilter( GroupTypeFinder.find("base", true), r.root )
       );
@@ -110,6 +121,11 @@ public class TestGroupTypeFilter extends GrouperTest {
     LOG.info("testQueryByGroupTypeFilterSomethingCustomType");
     try {
       R             r     = R.populateRegistry(2, 2, 0);
+      GroupType base = GroupType.createType(r.rs, "base");
+      for (Group g : GrouperDAOFactory.getFactory().getGroup().getAllGroups()) {
+        g.addType(base);
+      }
+      
       GroupType     type  = GroupType.createType(r.rs, "custom type");
       // Add custom type to all existing groups
       GrouperQuery  gq0   = GrouperQuery.createQuery(
@@ -140,6 +156,11 @@ public class TestGroupTypeFilter extends GrouperTest {
     LOG.info("testQueryByGroupTypeFilterSomethingScoped");
     try {
       R             r   = R.populateRegistry(2, 2, 0);
+      GroupType base = GroupType.createType(r.rs, "base");
+      for (Group g : GrouperDAOFactory.getFactory().getGroup().getAllGroups()) {
+        g.addType(base);
+      }
+      
       GrouperQuery  gq  = GrouperQuery.createQuery(
         r.rs, new GroupTypeFilter( GroupTypeFinder.find("base", true), r.getStem("a") )
       );
@@ -168,6 +189,11 @@ public class TestGroupTypeFilter extends GrouperTest {
     LOG.info("testQueryByGroupTypeFilterSomethingScopedCustomType");
     try {
       R             r     = R.populateRegistry(2, 2, 0);
+      GroupType base = GroupType.createType(r.rs, "base");
+      for (Group g : GrouperDAOFactory.getFactory().getGroup().getAllGroups()) {
+        g.addType(base);
+      }
+      
       GroupType     type  = GroupType.createType(r.rs, "custom type");
       // Add custom type to all existing groups
       GrouperQuery  gq0   = GrouperQuery.createQuery(

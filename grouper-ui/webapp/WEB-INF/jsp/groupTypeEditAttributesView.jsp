@@ -20,4 +20,10 @@
 			<tiles:put name="itemView" value="editValue"/>
 			<tiles:put name="listless" value="TRUE"/>
 		</tiles:insert>
+		<tiles:insert definition="dynamicTileDef">
+			<tiles:put name="viewObject" beanName="viewObject" beanProperty="legacyAttributes"/>
+			<tiles:put name="view" value="editAttributesFields"/>
+			<tiles:put name="itemView" value="editValue"/>
+			<tiles:put name="listless" value="TRUE"/>
+		</tiles:insert>
 			

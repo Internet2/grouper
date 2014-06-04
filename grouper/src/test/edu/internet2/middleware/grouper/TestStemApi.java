@@ -87,7 +87,7 @@ public class TestStemApi extends GrouperTest {
   private Stem            child, root, top, top_new, etc, stem_copy_source, stem_copy_target;
   private GroupType       type1;
   @SuppressWarnings("unused")
-  private Field           type1attr1;
+  private AttributeDefName type1attr1;
 
   /**
    * 
@@ -108,7 +108,7 @@ public class TestStemApi extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStemApi("test_alternateNameSecurityCheck"));
+    TestRunner.run(new TestStemApi("test_getChildGroups_PrivilegeArrayAndScope_emptyArray"));
   }
 
   /** size before getting started */
@@ -612,9 +612,6 @@ public class TestStemApi extends GrouperTest {
       assertTrue("threw expected exception", true);
     }
   }
-  public void test_getChildGroups_PrivilegeArrayAndScope_emptyArray() {
-    assertEquals( 0, this.top.getChildGroups( new Privilege[0], Stem.Scope.SUB ).size() );
-  }
   public void test_getChildGroups_PrivilegeArrayAndScope_createPrivAndOneScope() {
     Privilege[] privs = { NamingPrivilege.CREATE };
     assertEquals( 0, this.top.getChildGroups( privs, Stem.Scope.ONE ).size() );
@@ -735,9 +732,6 @@ public class TestStemApi extends GrouperTest {
     catch (IllegalArgumentException eExpected) {
       assertTrue("threw expected exception", true);
     }
-  }
-  public void test_getChildStems_PrivilegeArrayAndScope_emptyArray() {
-    assertEquals( 0, this.root.getChildStems( new Privilege[0], Stem.Scope.SUB ).size() );
   }
   public void test_getChildStems_PrivilegeArrayAndScope_createPrivAndOneScope() {
     Privilege[] privs = { NamingPrivilege.CREATE };
@@ -1958,6 +1952,7 @@ public class TestStemApi extends GrouperTest {
     GrouperSession nrs;
 
     stem_copy_setup(r);
+    stem_copy_source.grantPriv(c, NamingPrivilege.STEM);
 
     nrs = GrouperSession.start(c);
 
@@ -2046,6 +2041,7 @@ public class TestStemApi extends GrouperTest {
     GrouperSession nrs;
 
     stem_copy_setup(r);
+    stem_copy_source.grantPriv(c, NamingPrivilege.STEM);
 
     nrs = GrouperSession.start(c);
     try {
@@ -2086,6 +2082,7 @@ public class TestStemApi extends GrouperTest {
 
     stem_copy_setup(r);
     top_group.grantPriv(c, AccessPrivilege.ADMIN);
+    stem_copy_source.grantPriv(c, NamingPrivilege.STEM);
 
     nrs = GrouperSession.start(c);
     try {
@@ -2129,6 +2126,7 @@ public class TestStemApi extends GrouperTest {
 
     stem_copy_setup(r);
     top.grantPriv(c, NamingPrivilege.STEM);
+    stem_copy_source.grantPriv(c, NamingPrivilege.STEM);
 
     nrs = GrouperSession.start(c);
     try {
@@ -2301,7 +2299,7 @@ public class TestStemApi extends GrouperTest {
     Subject m = r.getSubject("m");
     
     type1 = GroupType.createType(s, "type1");
-    type1attr1 = type1.addAttribute(s, "type1attr1", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN, true);
+    type1attr1 = type1.addAttribute(s, "type1attr1", true);
     stem_copy_source = root.addChildStem("source", "source display name");
     stem_copy_target = root.addChildStem("target", "target display name");
     
@@ -2458,7 +2456,7 @@ public class TestStemApi extends GrouperTest {
     assertTrue(level1Group1.getGroupAttrReaders().size() == 0);
     assertTrue(level1Group1.getGroupAttrUpdaters().size() == 0);
     assertTrue(level1Group1.getMembers().size() == 0);
-    assertTrue(level1Group1.getTypes().size() == 1);
+    assertTrue(level1Group1.getTypes().size() == 0);
     assertTrue(level3Group2.getDisplayExtension().equals("level3Group2 display name"));
     assertTrue(level3Group2.getAdmins().size() == 0);
     assertTrue(level3Group2.getUpdaters().size() == 0);
@@ -2469,7 +2467,8 @@ public class TestStemApi extends GrouperTest {
     assertTrue(level3Group2.getGroupAttrReaders().size() == 0);
     assertTrue(level3Group2.getGroupAttrUpdaters().size() == 0);
     assertTrue(level3Group2.getMembers().size() == 0);
-    assertTrue(level3Group2.getTypes().size() == 1);
+    assertTrue(level3Group2.getTypes().size() == 0);
+    assertTrue(level3Group3.getTypes().size() == 1);
 
     // composite checks
     assertTrue(level1Group1.hasComposite() == true);

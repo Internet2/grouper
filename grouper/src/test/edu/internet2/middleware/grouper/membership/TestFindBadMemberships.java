@@ -34,6 +34,8 @@ package edu.internet2.middleware.grouper.membership;
 
 
 import java.io.StringReader;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.Set;
 
 import junit.textui.TestRunner;
@@ -67,6 +69,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITField;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.PITGroupSet;
+import edu.internet2.middleware.grouper.pit.PITMembership;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -109,7 +112,7 @@ public class TestFindBadMemberships extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestFindBadMemberships("testCircular"));
+    TestRunner.run(new TestFindBadMemberships("testDeletedGroupAsMember2"));
   }
   
   protected void setUp () {
@@ -938,6 +941,129 @@ public class TestFindBadMemberships extends GrouperTest {
     int newPitGroupSetCountActive = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_pit_group_set where active='T'");
     assertEquals(groupSetCount, newGroupSetCount);
     assertEquals(groupSetCount, newPitGroupSetCountActive);
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testDeletedGroupAsMember() throws Exception {
+    grouperSession = SessionHelper.getRootSession();
+    Stem root = StemFinder.findRootStem(grouperSession);
+    top = root.addChildStem("top", "top");
+    
+    // we will delete g2 but leave membership from g1 -> g2.
+    Group g1 = top.addChildGroup("g1", "g1");
+    Group g2 = top.addChildGroup("g2", "g2");
+    g1.addMember(g2.toSubject());
+    
+    Membership membership = MembershipFinder.findImmediateMembership(grouperSession, g1, g2.toSubject(), true);
+
+    ChangeLogTempToEntity.convertRecords();
+    g2.delete();
+    ChangeLogTempToEntity.convertRecords();
+
+    int originalMembershipCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_memberships");
+
+    // save bad membership -- we need to disable the membership first or the save will try to add group sets
+    membership.setHibernateVersionNumber(-1L);
+    membership.setEnabled(false);
+    membership.setDisabledTime(new Timestamp(new Date().getTime() - 10000));
+    GrouperDAOFactory.getFactory().getMembership().save(membership);
+
+    // now make the membership active again (just so we can test the pit sync as well)
+    HibernateSession.bySqlStatic().executeSql("update grouper_memberships set enabled='T', disabled_timestamp=null where id='" + membership.getImmediateMembershipId() + "'");
+    
+    // update bad pit membership
+    PITMembership pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdUnique(membership.getImmediateMembershipId(), true);
+    pitMembership.setActiveDb("T");
+    pitMembership.setEndTimeDb(null);
+    pitMembership.update();
+    
+    int newMembershipCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_memberships");
+    assertEquals(originalMembershipCount + 1, newMembershipCount);
+    
+    assertEquals(1, FindBadMemberships.checkAll());
+    String gsh = "importCommands(\"edu.internet2.middleware.grouper.app.gsh\");\nimport edu.internet2.middleware.grouper.*;\nimport edu.internet2.middleware.grouper.misc.*;\n" + FindBadMemberships.gshScript.toString();
+    new Interpreter(new StringReader(gsh), System.out, System.err, false).run();
+    assertEquals(0, FindBadMemberships.checkAll());
+    
+    newMembershipCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_memberships");
+    assertEquals(originalMembershipCount, newMembershipCount);
+ 
+    // pit sync should work
+    assertEquals(1, new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables());
+    assertEquals(0, new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables());
+    
+    pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdUnique(membership.getImmediateMembershipId(), true);
+    assertEquals("F", pitMembership.getActiveDb());
+    assertNotNull(pitMembership.getEndTimeDb());
+    
+    // should be able to delete g1
+    grouperSession = SessionHelper.getRootSession();
+    g1.delete();
+    ChangeLogTempToEntity.convertRecords();
+  }
+  
+  /**
+   * The difference here is that we're expecting that deleting the group will do the right thing 
+   * (instead of running bad membership finder).
+   * @throws Exception
+   */
+  public void testDeletedGroupAsMember2() throws Exception {
+    grouperSession = SessionHelper.getRootSession();
+    Stem root = StemFinder.findRootStem(grouperSession);
+    top = root.addChildStem("top", "top");
+    
+    // we will delete g2 but leave membership from g1 -> g2.
+    Group g1 = top.addChildGroup("g1", "g1");
+    Group g2 = top.addChildGroup("g2", "g2");
+    Subject g2Subject = g2.toSubject();
+    g1.addMember(g2Subject);
+    
+    g1.revokePriv(AccessPrivilege.READ);
+    g1.revokePriv(AccessPrivilege.VIEW);
+    g1.revokePriv(AccessPrivilege.ADMIN);
+    
+    Membership membership = MembershipFinder.findImmediateMembership(grouperSession, g1, g2.toSubject(), true);
+
+    ChangeLogTempToEntity.convertRecords();
+    g2.delete();
+    ChangeLogTempToEntity.convertRecords();
+
+    int originalMembershipCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_memberships");
+
+    // save bad membership -- we need to disable the membership first or the save will try to add group sets
+    membership.setHibernateVersionNumber(-1L);
+    membership.setEnabled(false);
+    membership.setDisabledTime(new Timestamp(new Date().getTime() - 10000));
+    GrouperDAOFactory.getFactory().getMembership().save(membership);
+
+    // now make the membership active again (just so we can test the pit as well)
+    HibernateSession.bySqlStatic().executeSql("update grouper_memberships set enabled='T', disabled_timestamp=null where id='" + membership.getImmediateMembershipId() + "'");
+    
+    // update bad pit membership
+    PITMembership pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdUnique(membership.getImmediateMembershipId(), true);
+    pitMembership.setActiveDb("T");
+    pitMembership.setEndTimeDb(null);
+    pitMembership.update();
+    
+    int newMembershipCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_memberships");
+    assertEquals(originalMembershipCount + 1, newMembershipCount);
+
+    g1.delete();
+
+    newMembershipCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_memberships");
+    assertEquals(originalMembershipCount, newMembershipCount);
+ 
+    // change log should work
+    ChangeLogTempToEntity.convertRecords();
+
+    // pit sync should work
+    assertEquals(0, new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables());
+    
+    pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdUnique(membership.getImmediateMembershipId(), true);
+    assertEquals("F", pitMembership.getActiveDb());
+    assertNotNull(pitMembership.getEndTimeDb());
   }
 }
 

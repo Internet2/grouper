@@ -54,6 +54,7 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.log.EventLog;
 import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.M;
@@ -699,6 +700,13 @@ public class GrouperSession implements Serializable {
    * @since   1.2.0
    */
   public String getMemberUuid() {
+    
+    //there are problems during configuration where the memberUuid is not correct...
+    if (GrouperCheckConfig.inCheckConfig) {
+      Member m   = MemberFinder.internal_findBySubject(subject, null, true); 
+      this.memberUUID = m.getId();
+    }
+
     return this.memberUUID;
   }
 

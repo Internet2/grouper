@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRestLite, manually written lite/rest, format: xml, for version: 2.1.1
+Grouper web service sample of service: assignPermissions, WsSampleAssignPermissionsRestLite, manually written lite/rest, format: xml, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: assignPermissions, WsSampleAssignPermissi
 #########################################
 
 
-POST /grouper-ws/servicesRest/xml/v2_1_001/permissionAssignments HTTP/1.1
+POST /grouper-ws/servicesRest/xml/v2_2_000/permissionAssignments HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 431
 Content-Type: text/xml; charset=UTF-8
@@ -43,15 +43,18 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 13:27:12 GMT
+Transfer-Encoding: chunked
+Date: Wed, 28 May 2014 23:00:04 GMT
 Connection: close
 
+3f5
 <WsAssignPermissionsLiteResults>
   <wsAttributeDefs>
     <WsAttributeDef>
+      <idIndex>10033</idIndex>
       <extension>permissionDef</extension>
       <name>aStem:permissionDef</name>
-      <uuid>41d428cd29534f4faca58ec5ec5e1e1b</uuid>
+      <uuid>503031ab76c041739bf74968df833507</uuid>
       <attributeDefType>perm</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>F</multiValued>
@@ -59,12 +62,13 @@ Connection: close
     </WsAttributeDef>
   </wsAttributeDefs>
   <wsAttributeDefName>
+    <idIndex>10117</idIndex>
     <extension>permissionDefName</extension>
     <displayExtension>permissionDefName</displayExtension>
     <displayName>a stem:permissionDefName</displayName>
     <name>aStem:permissionDefName</name>
-    <uuid>f9f42b90e1a04c7495efbbbe9db07376</uuid>
-    <attributeDefId>41d428cd29534f4faca58ec5ec5e1e1b</attributeDefId>
+    <uuid>c68fa85c18644eca9d4bb2678840a629</uuid>
+    <attributeDefId>503031ab76c041739bf74968df833507</attributeDefId>
     <attributeDefName>aStem:permissionDef</attributeDefName>
   </wsAttributeDefName>
   <wsPermissionAssignResult>
@@ -76,10 +80,12 @@ Connection: close
     <resultMessage>, Found 1 results.  </resultMessage>
     <success>T</success>
   </resultMetadata>
-  <responseMetadata>
+  <
+13e
+responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>84</millis>
-    <serverVersion>2.1.1</serverVersion>
+    <millis>50</millis>
+    <serverVersion>2.2.0</serverVersion>
   </responseMetadata>
   <wsSubject>
     <resultCode>SUCCESS</resultCode>
@@ -89,6 +95,7 @@ Connection: close
     <sourceId>jdbc</sourceId>
   </wsSubject>
 </WsAssignPermissionsLiteResults>
+0
 
 
 #########################################
@@ -260,4 +267,4 @@ public class WsSampleAssignPermissionsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: , Found 1 results.
+Server version: 2.2.0, result code: SUCCESS, result message: , Found 1 results.

@@ -1,3 +1,0 @@
-<spmlsearch:searchResponse xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlsearch='urn:oasis:names:tc:SPML:2:0:search' status='failure' requestID='REQUEST_ID' error='malformedRequest'>
-  <errorMessage>A query is required.</errorMessage>
-</spmlsearch:searchResponse>

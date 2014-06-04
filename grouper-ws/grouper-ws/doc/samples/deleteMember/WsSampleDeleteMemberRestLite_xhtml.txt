@@ -1,4 +1,4 @@
-Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRestLite, manually written lite/rest, format: xhtml, for version: 2.1.1
+Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRestLite, manually written lite/rest, format: xhtml, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRestLit
 #########################################
 
 
-DELETE /grouper-ws/servicesRest/xhtml/v2_1_001/groups/aStem%3AaGroup/members/10021368 HTTP/1.1
+DELETE /grouper-ws/servicesRest/xhtml/v2_2_000/groups/aStem%3AaGroup/members/10021368 HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 
 
@@ -34,9 +34,11 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 13:33:17 GMT
+Transfer-Encoding: chunked
+Date: Wed, 28 May 2014 23:10:42 GMT
 Connection: close
 
+5d5
 <?xml version='1.0' encoding='iso-8859-1'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -45,41 +47,43 @@ Connection: close
   </head>
   <body>
     <div title="WsDeleteMemberLiteResult">
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="millis">83</p>
+        <p class="resultWarnings" />
+        <p class="serverVersion">2.2.0</p>
+      </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.1.1, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+        <p class="resultMessage">Success for: clientVersion: 2.2.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 , actAsSubject: null, fieldName: null, txType: NONE
 , params: null</p>
         <p class="success">T</p>
       </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">93</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">2.1.1</p>
-      </div>
       <div class="wsGroup" title="WsGroup">
-        <p class="name">aStem:aGroup</p>
-        <p class="displayName">a stem:a group</p>
         <p class="description">a group description</p>
-        <p class="uuid">fc64add79cda4c54ac794b9ad7337f10</p>
         <div class="detail" title="WsGroupDetail" />
-        <p class="extension">aGroup</p>
         <p class="displayExtension">a group</p>
+        <p class="displayName">a stem:a group</p>
+        <p class="extension">aGroup</p>
+        <p class="idIndex">10001</p>
+        <p class="name">aStem:aGroup</p>
         <p class="typeOfGroup">group</p>
+        <p class="uuid">cc26b77231cc497c8f7526e91c110343</p>
       </div>
       <div class="wsSubject" title="WsSubject">
-        <p class="name">10021368</p>
         <p class="id">10021368</p>
-        <p class="sourceId">jdbc</p>
-        <p class="resultCode">SUCCESS</p>
-        <p class="success">T</p>
         <p class="identifierLookup" />
+        <p class="name">10021368</p>
+        <p class="resultCode">SUCCESS</p>
+        <p class="sourceId">jdbc</p>
+        <p class="success">T</p>
       </div>
     </div>
   </body>
 </html>
+0
 
 
 #########################################
@@ -227,7 +231,7 @@ public class WsSampleDeleteMemberRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 , actAsSubject: null, fieldName: null, txType: NONE
 , params: null

@@ -22,13 +22,13 @@ package edu.internet2.middleware.grouper.grouperUi.beans.json;
 import java.io.Serializable;
 
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
-import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * paging object holds state of next.previous etc
  */
+@SuppressWarnings("serial")
 public class GuiPaging implements Serializable {
 
   /** page size */
@@ -108,6 +108,7 @@ public class GuiPaging implements Serializable {
   }
 
   /**
+   * this is for the ui v1
    * init a paging object, if it exists, update the page size
    * @param pagingName 
    */
@@ -127,7 +128,7 @@ public class GuiPaging implements Serializable {
   }
 
   /**
-   * find a paging in response or app state
+   * find a paging in response or app state, this is for the ui v1
    * @param pagingName
    * @param exceptionIfNotFound
    * @return the pager

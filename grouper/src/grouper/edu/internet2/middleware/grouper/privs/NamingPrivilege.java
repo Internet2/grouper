@@ -53,7 +53,7 @@ import edu.internet2.middleware.subject.Subject;
  * @author  blair christensen.
  * @version $Id: NamingPrivilege.java,v 1.8 2009-04-13 20:24:29 mchyzer Exp $
  */
-public class NamingPrivilege implements GrouperPrivilege, Comparable {
+public class NamingPrivilege implements GrouperPrivilege, Comparable<NamingPrivilege> {
 
   /** can create objects in this stem */
   public static final Privilege CREATE  = Privilege.getInstance("create");
@@ -61,16 +61,54 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable {
   /** can create stems in this stem */
   public static final Privilege STEM    = Privilege.getInstance("stem");
 
+  /** any of these constitutes STEM on a stem
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> STEM_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(STEM));
+  
+
   /** can read attributes on this stem */
   public static final Privilege STEM_ATTR_READ    = Privilege.getInstance("stemAttrRead");
 
+  /** any of these constitutes STEM_ATTR_READ on a stem
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> STEM_ATTR_READ_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(STEM_ATTR_READ, STEM));
+  
   /** can update attributes on this stem */
   public static final Privilege STEM_ATTR_UPDATE    = Privilege.getInstance("stemAttrUpdate");
+
+  /** these privileges are implied by STEM  */
+  public static Set<Privilege> STEM_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(STEM, CREATE, STEM_ATTR_READ, STEM_ATTR_UPDATE));
   
+  /** these privileges are implied by CREATE  */
+  public static Set<Privilege> CREATE_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(CREATE));
+  
+  /** these privileges are implied by STEM_ATTR_READ  */
+  public static Set<Privilege> STEM_ATTR_READ_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(STEM_ATTR_READ));
+  
+  /** these privileges are implied by STEM_ATTR_UPDATE  */
+  public static Set<Privilege> STEM_ATTR_UPDATE_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(STEM_ATTR_UPDATE));
+  
+
+  /** any of these constitutes STEM_ATTR_UPDATE on a stem
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> STEM_ATTR_UPDATE_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(STEM_ATTR_UPDATE, STEM));
+
   /** any of these constitutes CREATE on a stem
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> CREATE_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(CREATE, STEM));
+  
+  /** ALL
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> ALL_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(CREATE, STEM, STEM_ATTR_READ, STEM_ATTR_UPDATE));
   
   /** any of these constitutes STEM_ATTR_READ on a group
    * note, keep most common/likely privs toward the front  */
@@ -81,6 +119,16 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable {
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> ATTRIBUTE_UPDATE_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(STEM, CREATE, STEM_ATTR_UPDATE));
+
+  /** any of these constitutes ADMIN on a stem
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> ADMIN_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(STEM));
+
+  /** any of these constitutes some sort of ADMIN on a stem
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> ALL_ADMIN_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(STEM, CREATE, STEM_ATTR_UPDATE, STEM_ATTR_READ));
 
   /** convert a list to priv */
   private static Map<String,Privilege> list2priv = new HashMap<String, Privilege>();
@@ -141,7 +189,7 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable {
   /**
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
-  public int compareTo(Object o) {
+  public int compareTo(NamingPrivilege o) {
     if (o == null || (!(o instanceof NamingPrivilege))) {
       return -1;
     }

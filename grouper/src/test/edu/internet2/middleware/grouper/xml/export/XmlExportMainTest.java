@@ -49,8 +49,6 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.role.Role;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
 
 
@@ -127,7 +125,7 @@ public class XmlExportMainTest extends GrouperTest {
     
     GroupType groupType = GroupType.createType(grouperSession, "test");
     
-    groupType.addAttribute(grouperSession, "attr", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN, false);
+    groupType.addAttribute(grouperSession, "attr", false);
     
     groupB.addType(groupType);
     
@@ -198,20 +196,21 @@ public class XmlExportMainTest extends GrouperTest {
     assertTrue(xml, xml.contains("<idIndex>"));
     assertTrue(xml, xml.contains("<XmlExportGroup>"));
       
-    assertTrue(xml, xml.contains("<groupTypes>"));
-    assertTrue(xml, xml.contains("<XmlExportGroupType>"));
-      
+    assertFalse(xml, xml.contains("<groupTypes>"));
+    assertFalse(xml, xml.contains("<XmlExportGroupType>"));
+    assertTrue(xml, xml.contains("<name>etc:legacy:attribute:legacyGroupType_test</name>"));
+
     assertTrue(xml, xml.contains("<fields>"));
     assertTrue(xml, xml.contains("<XmlExportField>"));
 
-    assertTrue(xml, xml.contains("<groupTypeTuples>"));
-    assertTrue(xml, xml.contains("<XmlExportGroupTypeTuple>"));
+    assertFalse(xml, xml.contains("<groupTypeTuples>"));
+    assertFalse(xml, xml.contains("<XmlExportGroupTypeTuple>"));
 
     assertTrue(xml, xml.contains("<composites>"));
     assertTrue(xml, xml.contains("<XmlExportComposite>"));
 
-    assertTrue(xml, xml.contains("<attributes>"));
-    assertTrue(xml, xml.contains("<XmlExportAttribute>"));
+    assertFalse(xml, xml.contains("<attributes>"));
+    assertFalse(xml, xml.contains("<XmlExportAttribute>"));
 
     assertTrue(xml, xml.contains("<attributeDefs>"));
     assertTrue(xml, xml.contains("<XmlExportAttributeDef>"));
@@ -269,20 +268,23 @@ public class XmlExportMainTest extends GrouperTest {
     assertTrue(xml, xml.contains("<groups>"));
     assertTrue(xml, xml.contains("<XmlExportGroup>"));
       
-    assertTrue(xml, xml.contains("<groupTypes>"));
-    assertTrue(xml, xml.contains("<XmlExportGroupType>"));
-      
+    assertFalse(xml, xml.contains("<groupTypes>"));
+    assertFalse(xml, xml.contains("<XmlExportGroupType>"));
+    assertTrue(xml, xml.contains("<name>etc:legacy:attribute:legacyGroupType_test</name>"));
+
     assertTrue(xml, xml.contains("<fields>"));
     assertTrue(xml, xml.contains("<XmlExportField>"));
 
-    assertTrue(xml, xml.contains("<groupTypeTuples>"));
-    assertTrue(xml, xml.contains("<XmlExportGroupTypeTuple>"));
+    assertFalse(xml, xml.contains("<groupTypeTuples>"));
+    assertFalse(xml, xml.contains("<XmlExportGroupTypeTuple>"));
+    assertTrue(xml, xml.contains("attributeAssign: attributeDefName: etc:legacy:attribute:legacyGroupType_test, group: etc:b"));
 
     assertTrue(xml, xml.contains("<composites>"));
     assertTrue(xml, xml.contains("<XmlExportComposite>"));
 
-    assertTrue(xml, xml.contains("<attributes>"));
-    assertTrue(xml, xml.contains("<XmlExportAttribute>"));
+    assertFalse(xml, xml.contains("<attributes>"));
+    assertFalse(xml, xml.contains("<XmlExportAttribute>"));
+    assertTrue(xml, xml.contains("attributeAssign: attributeDefName: etc:legacy:attribute:legacyAttribute_attr, attrOnAttributeAssign: attributeDefName: etc:legacy:attribute:legacyGroupType_test, group: etc:b"));
 
     assertTrue(xml, xml.contains("<attributeDefs>"));
     assertTrue(xml, xml.contains("<XmlExportAttributeDef>"));
@@ -360,7 +362,7 @@ public class XmlExportMainTest extends GrouperTest {
     
     GroupType groupType = GroupType.createType(grouperSession, "test");
     
-    groupType.addAttribute(grouperSession, "attr", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN, false);
+    groupType.addAttribute(grouperSession, "attr", false);
     
     groupB.addType(groupType);
     groupG.addType(groupType);
@@ -529,6 +531,7 @@ public class XmlExportMainTest extends GrouperTest {
     xmlExportMain.setIncludeAudits(false);
     xmlExportMain.addStem("yesExport");
     xmlExportMain.addStem("whatever");
+    xmlExportMain.addStem("etc:legacy:attribute");
 
     xmlExportMain.addObjectName(groupE.getName());
     
@@ -537,8 +540,7 @@ public class XmlExportMainTest extends GrouperTest {
     xml = stringWriter.toString();
     
     //System.out.println(GrouperUtil.indent(xml, true));
-    
-    assertTrue(xml.contains("folders=\"yesExport:%, whatever:%\"")); 
+    assertTrue(xml.contains("folders=\"etc:legacy:attribute:%, yesExport:%, whatever:%\"")); 
     assertTrue(xml.contains("objects=\"yesExportAlso:e\""));
     assertTrue(xml.contains("members=\"allWithoutUnecessaryGroups\""));
     
@@ -552,8 +554,8 @@ public class XmlExportMainTest extends GrouperTest {
     assertFalse(xml.contains("<leftFactor>" + groupB.getUuid() + "</leftFactor>"));
     assertTrue(xml.contains("<leftFactor>" + groupG.getUuid() + "</leftFactor>"));
     
-    assertFalse(xml.contains("<value>valueB</value>"));
-    assertTrue(xml.contains("<value>valueG</value>"));
+    assertFalse(xml.contains("<valueString>valueB</valueString>"));
+    assertTrue(xml.contains("<valueString>valueG</valueString>"));
     
     assertFalse(xml.contains("<name>" + studentsAttrDef.getName() + "</name>"));
     assertTrue(xml.contains("<name>" + studentsAttrDefYes.getName() + "</name>"));
@@ -613,20 +615,23 @@ public class XmlExportMainTest extends GrouperTest {
     assertTrue(xml, xml.contains("<groups>"));
     assertTrue(xml, xml.contains("<XmlExportGroup>"));
       
-    assertTrue(xml, xml.contains("<groupTypes>"));
-    assertTrue(xml, xml.contains("<XmlExportGroupType>"));
+    assertFalse(xml, xml.contains("<groupTypes>"));
+    assertFalse(xml, xml.contains("<XmlExportGroupType>"));
+    assertTrue(xml, xml.contains("<name>etc:legacy:attribute:legacyGroupType_test</name>"));
       
     assertTrue(xml, xml.contains("<fields>"));
     assertTrue(xml, xml.contains("<XmlExportField>"));
   
-    assertTrue(xml, xml.contains("<groupTypeTuples>"));
-    assertTrue(xml, xml.contains("<XmlExportGroupTypeTuple>"));
+    assertFalse(xml, xml.contains("<groupTypeTuples>"));
+    assertFalse(xml, xml.contains("<XmlExportGroupTypeTuple>"));
+    assertTrue(xml, xml.contains("attributeAssign: attributeDefName: etc:legacy:attribute:legacyGroupType_test, group: yesExport:g"));
   
     assertTrue(xml, xml.contains("<composites>"));
     assertTrue(xml, xml.contains("<XmlExportComposite>"));
   
-    assertTrue(xml, xml.contains("<attributes>"));
-    assertTrue(xml, xml.contains("<XmlExportAttribute>"));
+    assertFalse(xml, xml.contains("<attributes>"));
+    assertFalse(xml, xml.contains("<XmlExportAttribute>"));
+    assertTrue(xml, xml.contains("attributeAssign: attributeDefName: etc:legacy:attribute:legacyAttribute_attr, attrOnAttributeAssign: attributeDefName: etc:legacy:attribute:legacyGroupType_test, group: yesExport:g"));
   
     assertTrue(xml, xml.contains("<attributeDefs>"));
     assertTrue(xml, xml.contains("<XmlExportAttributeDef>"));
@@ -684,20 +689,20 @@ public class XmlExportMainTest extends GrouperTest {
     assertTrue(xml, xml.contains("<groups>"));
     assertTrue(xml, xml.contains("<XmlExportGroup>"));
       
-    assertTrue(xml, xml.contains("<groupTypes>"));
-    assertTrue(xml, xml.contains("<XmlExportGroupType>"));
+    assertFalse(xml, xml.contains("<groupTypes>"));
+    assertFalse(xml, xml.contains("<XmlExportGroupType>"));
       
     assertTrue(xml, xml.contains("<fields>"));
     assertTrue(xml, xml.contains("<XmlExportField>"));
   
-    assertTrue(xml, xml.contains("<groupTypeTuples>"));
-    assertTrue(xml, xml.contains("<XmlExportGroupTypeTuple>"));
+    assertFalse(xml, xml.contains("<groupTypeTuples>"));
+    assertFalse(xml, xml.contains("<XmlExportGroupTypeTuple>"));
   
     assertTrue(xml, xml.contains("<composites>"));
     assertTrue(xml, xml.contains("<XmlExportComposite>"));
   
-    assertTrue(xml, xml.contains("<attributes>"));
-    assertTrue(xml, xml.contains("<XmlExportAttribute>"));
+    assertFalse(xml, xml.contains("<attributes>"));
+    assertFalse(xml, xml.contains("<XmlExportAttribute>"));
   
     assertTrue(xml, xml.contains("<attributeDefs>"));
     assertTrue(xml, xml.contains("<XmlExportAttributeDef>"));

@@ -1,0 +1,25 @@
+#!/bin/sh
+#
+# Startup script for the Tomcat Server
+#
+# chkconfig: - 86 14
+# description: Tomcat
+# processname:
+# pidfile:
+# config:
+# Tomcat
+# description: Starts and stops the Tomcat
+# See how we were called.
+
+export CATALINA_BASE="/opt/tomcats/tomcat_f"
+export TOMCAT_NAME="tomcat_f"
+export JAVA_HOME="/opt/javas/java_f"
+export JAVA_OPTS="-server -Xms50M -Xmx100M -XX:MaxPermSize=60M"
+
+export TOMCAT_HOME="/opt/tomcat6base"
+export CATALINA_HOME="/opt/tomcat6base"
+
+export TOMCAT_USER="appadmin"
+
+source /etc/init.d/tomcat_helper $1
+

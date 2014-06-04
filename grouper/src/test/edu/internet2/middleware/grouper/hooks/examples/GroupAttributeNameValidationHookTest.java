@@ -133,7 +133,7 @@ public class GroupAttributeNameValidationHookTest extends GrouperTest {
   public void testBuiltInAttributeValidator() throws Exception {
   
     this.groupType.addAttribute(grouperSession, 
-        GroupAttributeNameValidationHook.TEST_ATTRIBUTE_NAME, read, write, true);
+        GroupAttributeNameValidationHook.TEST_ATTRIBUTE_NAME, true);
   
     Group group = StemHelper.addChildGroup(this.edu, "test1", "the test1");
   

@@ -38,6 +38,7 @@ import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -46,6 +47,7 @@ import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -55,7 +57,9 @@ import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -71,6 +75,110 @@ public class TestGroupFinder extends GrouperTest {
     super(name);
   }
 
+  
+  /**
+   * 
+   */
+  public void testChainingGroupsManageMemberships() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    GroupType groupType = GroupType.createType(grouperSession, "testType");
+    
+    Field field = groupType.addList(grouperSession, "test1", AccessPrivilege.VIEW, AccessPrivilege.ADMIN);
+    
+    //make some groups
+    Group group1a = new GroupSave(grouperSession).assignName("test:test1:testa").assignCreateParentStemsIfNotExist(true).save();
+    group1a.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    group1a.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW);
+    
+    Group group1b = new GroupSave(grouperSession).assignName("test:test1:testb").assignCreateParentStemsIfNotExist(true).save();
+    group1b.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    group1b.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW);
+    
+    Group group2a = new GroupSave(grouperSession).assignName("test:test2:testa").assignCreateParentStemsIfNotExist(true).save();
+    group2a.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    group2a.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW);
+    
+    Group group2b = new GroupSave(grouperSession).assignName("test:test2:testb").assignCreateParentStemsIfNotExist(true).save();
+    group2b.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    group2b.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW);
+
+    Group group3a = new GroupSave(grouperSession).assignName("test:test3:testa").assignCreateParentStemsIfNotExist(true).save();
+    group3a.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    group3a.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW);
+
+    Group group3b= new GroupSave(grouperSession).assignName("test:test3:testb").assignCreateParentStemsIfNotExist(true).save();
+    group3b.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    group3b.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW);
+
+    group1a.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    group1a.addMember(SubjectTestHelper.SUBJ0, false);
+
+    group1b.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+
+    group2a.addMember(SubjectTestHelper.SUBJ0, false);
+    
+    group2b.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    
+    group3a.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    group3a.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.ADMIN);
+    group3a.addMember(SubjectTestHelper.SUBJ0, false);
+    
+    group3b.addType(groupType);
+    group3b.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.READ);
+    group3b.addMember(SubjectTestHelper.SUBJ0, field, false);
+
+    //subj0 can view and is in group1a and group3b
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    Set<Group> groups = new GroupFinder().assignPrivileges(AccessPrivilege.VIEW_PRIVILEGES)
+        .assignField(Group.getDefaultList()).assignSubject(SubjectTestHelper.SUBJ0)
+        .assignQueryOptions(new QueryOptions().paging(1000, 1, false)).findGroups();
+    
+    assertEquals(GrouperUtil.toStringForLog(groups), 2, groups.size());
+    
+    assertTrue(groups.contains(group1a));
+    assertTrue(groups.contains(group3a));
+
+    //subj0 cant admin and is in group1a and group3b
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    groups = new GroupFinder().assignPrivileges(AccessPrivilege.MANAGE_PRIVILEGES)
+        .assignField(Group.getDefaultList()).assignSubject(SubjectTestHelper.SUBJ0)
+        .assignQueryOptions(new QueryOptions().paging(1000, 1, false)).findGroups();
+    
+    assertEquals(GrouperUtil.toStringForLog(groups), 0, groups.size());
+    
+    
+    //subj2 can read and subj0 is in group3b
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ2);
+    groups = new GroupFinder().assignPrivileges(AccessPrivilege.READ_PRIVILEGES)
+        .assignSubject(SubjectTestHelper.SUBJ0).assignField(Group.getDefaultList())
+        .assignQueryOptions(new QueryOptions().paging(1000, 1, false)).findGroups();
+    
+    assertEquals(GrouperUtil.toStringForLog(groups), 1, groups.size());
+    
+    assertTrue(groups.contains(group3a));
+
+    //subj3 cant read and subj0 is in group3b
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ3);
+    groups = new GroupFinder().assignPrivileges(AccessPrivilege.READ_PRIVILEGES)
+        .assignSubject(SubjectTestHelper.SUBJ0).assignField(Group.getDefaultList())
+        .assignQueryOptions(new QueryOptions().paging(1000, 1, false)).findGroups();
+    
+    assertEquals(GrouperUtil.toStringForLog(groups), 0, groups.size());
+    
+
+    
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    
+  }
+  
   /**
    * 
    */
@@ -116,8 +224,10 @@ public class TestGroupFinder extends GrouperTest {
     group2b.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.UPDATE);
 
     //subj1 can admin group1b, but can update other group2a...
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+
     Set<Group> groups = new GroupFinder().assignPrivileges(AccessPrivilege.MANAGE_PRIVILEGES)
-        .assignSubject(SubjectTestHelper.SUBJ1)
         .assignQueryOptions(new QueryOptions().paging(1000, 1, false)).findGroups();
     
     assertEquals(GrouperUtil.toStringForLog(groups), 2, groups.size());
@@ -126,8 +236,9 @@ public class TestGroupFinder extends GrouperTest {
     assertTrue(groups.contains(group1b));
     
     //subj0 can read group2b, but can admin other group1a...
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
     groups = new GroupFinder().assignPrivileges(AccessPrivilege.READ_PRIVILEGES)
-        .assignSubject(SubjectTestHelper.SUBJ0)
         .assignQueryOptions(new QueryOptions().paging(1000, 1, false)).findGroups();
     
     assertEquals(GrouperUtil.toStringForLog(groups), 2, groups.size());
@@ -139,7 +250,7 @@ public class TestGroupFinder extends GrouperTest {
     
     
   }
-  
+
   public void testFailToFindGroupByAttributeNullSession() {
     LOG.info("testFailToFindGroupByAttributeNullSession");
     try {
@@ -235,7 +346,8 @@ public class TestGroupFinder extends GrouperTest {
     LOG.info("testFailToFindGroupByType");
     try {
       R r = R.populateRegistry(0, 0, 0);
-      assertDoNotFindGroupByType( r.rs, GroupTypeFinder.find("base", true) );
+      GroupType.createType(r.rs, "testType");
+      assertDoNotFindGroupByType( r.rs, GroupTypeFinder.find("testType", true) );
       r.rs.stop();
     }
     catch (Exception e) {
@@ -262,7 +374,14 @@ public class TestGroupFinder extends GrouperTest {
     LOG.info("testFailToFindGroupByTypeNotUnique");
     try {
       R         r     = R.populateRegistry(1, 2, 0);
-      GroupType type  = GroupTypeFinder.find("base", true);
+      GroupType testType = GroupType.createType(r.rs, "testType");
+      Set<Group> groups = GrouperDAOFactory.getFactory().getGroup().getAllGroups();
+      assertTrue(groups.size() == 2);
+      for (Group group : groups) {
+        group.addType(testType);
+      }
+      
+      GroupType type  = GroupTypeFinder.find("testType", true);
       assertDoNotFindGroupByType(r.rs, type);
       r.rs.stop();
     }
@@ -274,8 +393,9 @@ public class TestGroupFinder extends GrouperTest {
   public void testFailToFindGroupByTypeNullSession() {
     LOG.info("testFailToFindGroupByTypeNullSession");
     try {
-      R.populateRegistry(0, 0, 0);
-      GroupFinder.findAllByType( null, GroupTypeFinder.find("base", true) );
+      R r = R.populateRegistry(0, 0, 0);
+      GroupType.createType(r.rs, "testType");
+      GroupFinder.findAllByType( null, GroupTypeFinder.find("testType", true) );
       fail("failed to throw IllegalArgumentException");
     }
     catch (IllegalArgumentException eIA) {
@@ -320,7 +440,14 @@ public class TestGroupFinder extends GrouperTest {
     LOG.info("testFindGroupByType");
     try {
       R         r     = R.populateRegistry(1, 1, 0);
-      GroupType type  = GroupTypeFinder.find("base", true);
+      GroupType testType = GroupType.createType(r.rs, "testType");
+      Set<Group> groups = GrouperDAOFactory.getFactory().getGroup().getAllGroups();
+      assertTrue(groups.size() == 1);
+      for (Group group : groups) {
+        group.addType(testType);
+      }
+      
+      GroupType type  = GroupTypeFinder.find("testType", true);
       assertFindGroupByType(r.rs, type);
       r.rs.stop();
     }
@@ -414,6 +541,94 @@ public class TestGroupFinder extends GrouperTest {
   } // public void testFindByUuid()
 
   /**
+   * 
+   */
+  public void testFindByAttribute() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group group1 = new GroupSave(grouperSession).assignName("test:group1").assignCreateParentStemsIfNotExist(true).save();
+    Group group2 = new GroupSave(grouperSession).assignName("test:group2").assignCreateParentStemsIfNotExist(true).save();
+    Group group3 = new GroupSave(grouperSession).assignName("test:group3").assignCreateParentStemsIfNotExist(true).save();
+
+    group1.revokePriv(AccessPrivilege.VIEW);
+    group1.revokePriv(AccessPrivilege.READ);
+    group2.revokePriv(AccessPrivilege.VIEW);
+    group2.revokePriv(AccessPrivilege.READ);
+    group3.revokePriv(AccessPrivilege.VIEW);
+    group3.revokePriv(AccessPrivilege.READ);
+    
+    GroupType type1 = GroupType.createType(grouperSession, "type1");
+    GroupType type2 = GroupType.createType(grouperSession, "type2");
+    
+    AttributeDefName type1Attr1 = type1.addAttribute(grouperSession, "type1Attr1");
+    AttributeDefName type1Attr2 = type1.addAttribute(grouperSession, "type1Attr2");
+    AttributeDefName type2Attr1 = type2.addAttribute(grouperSession, "type2Attr1");
+    AttributeDefName type2Attr2 = type2.addAttribute(grouperSession, "type2Attr2");
+    
+    group1.addType(type1);
+    group1.addType(type2);
+    group2.addType(type2);
+    
+    group1.setAttribute("type1Attr1", "test value 1");
+    group1.setAttribute("type1Attr2", "test value 2");
+    group1.setAttribute("type2Attr2", "test value 3");
+    group2.setAttribute("type2Attr2", "test value 4");
+    
+    Group group = GroupFinder.findByAttribute(grouperSession, "type1Attr1", "test value 1");
+    assertEquals(group1.getName(), group.getName());
+    
+    group = GroupFinder.findByAttribute(grouperSession, "type1Attr2", "test value 2");
+    assertEquals(group1.getName(), group.getName());
+    
+    group = GroupFinder.findByAttribute(grouperSession, "type2Attr2", "test value 3");
+    assertEquals(group1.getName(), group.getName());
+    
+    group = GroupFinder.findByAttribute(grouperSession, "type2Attr2", "test value 4");
+    assertEquals(group2.getName(), group.getName());
+    
+    group = GroupFinder.findByAttribute(grouperSession, "extension", "group1");
+    assertEquals(group1.getName(), group.getName());
+    
+    group = GroupFinder.findByAttribute(grouperSession, "extension", "group2");
+    assertEquals(group2.getName(), group.getName());
+    
+    group = GroupFinder.findByAttribute(grouperSession, "extension", "group3");
+    assertEquals(group3.getName(), group.getName());
+    
+    group1.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.GROUP_ATTR_READ);
+    group2.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    type1.getAttributeDefName().getAttributeDef().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, false);
+    type1.internal_getAttributeDefForAttributes().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, false);
+    
+    grouperSession.stop();
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    // some queries should work
+    group = GroupFinder.findByAttribute(grouperSession, "type1Attr1", "test value 1");
+    assertEquals(group1.getName(), group.getName());
+    
+    group = GroupFinder.findByAttribute(grouperSession, "etc:legacy:attribute:legacyAttribute_type1Attr1", "test value 1");
+    assertEquals(group1.getName(), group.getName());
+    
+    group = GroupFinder.findByAttribute(grouperSession, "type1Attr2", "test value 2");
+    assertEquals(group1.getName(), group.getName());
+    
+    group = GroupFinder.findByAttribute(grouperSession, "type2Attr2", "test value 3", false);
+    assertNull(group);
+    
+    group = GroupFinder.findByAttribute(grouperSession, "type2Attr2", "test value 4", false);
+    assertNull(group);
+    
+    group = GroupFinder.findByAttribute(grouperSession, "extension", "group1");
+    assertEquals(group1.getName(), group.getName());
+    
+    group = GroupFinder.findByAttribute(grouperSession, "extension", "group2");
+    assertEquals(group2.getName(), group.getName());
+    
+    group = GroupFinder.findByAttribute(grouperSession, "extension", "group3", false);
+    assertNull(group);
+  }
+  
+  /**
    * @see GrouperTest#setupConfigs
    */
   @Override
@@ -429,7 +644,7 @@ public class TestGroupFinder extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(TestGroupFinder.class);
-    TestRunner.run(new TestGroupFinder("testChainingGroupsManage"));
+    TestRunner.run(new TestGroupFinder("testFindByAttribute"));
   }
 
 } // public class TestGroupFinder_FindByAttribute

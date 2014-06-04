@@ -210,7 +210,7 @@ public class GrouperUtilTest extends GrouperTest {
    * see that properties can be retrieved from url
    * note, this is called atestUrlProperties since the URL might not be setup
    */
-  public void testUrlProperties() {
+  public void atestUrlProperties() {
     
     //put test.properties at a url with these contents:
     //test=testProp

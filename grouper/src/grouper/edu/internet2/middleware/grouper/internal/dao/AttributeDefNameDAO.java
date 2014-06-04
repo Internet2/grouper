@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
@@ -56,6 +57,13 @@ public interface AttributeDefNameDAO extends GrouperDAO {
    * @return the attribute def name or null if not there
    */
   public AttributeDefName findByIdSecure(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param id
+   * @param exceptionIfNotFound
+   * @return the attribute def name or null if not there
+   */
+  public AttributeDefName findById(String id, boolean exceptionIfNotFound);
   
   /**
    * find an attribute def name by name
@@ -216,5 +224,37 @@ public interface AttributeDefNameDAO extends GrouperDAO {
       GrouperSession grouperSession, String attributeDefId, 
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, AttributeAssignType attributeAssignType,
       AttributeDefType attributeDefType, ServiceRole serviceRole, boolean anyServiceRole);
+
+  /**
+   * Returns legacy attribute that was either migrated or created in the new attribute framework.
+   * @param name the name of the legacy attribute (without prefix or path)
+   * @param exceptionIfNull 
+   * @return attribute def name
+   */
+  public AttributeDefName findLegacyAttributeByName(String name, boolean exceptionIfNull);
+
+  /**
+   * get all attribute names secure, split the scope by whitespace
+   * @param scope
+   * @param splitScope 
+   * @param attributeDefId optional if filtering by names in a certain attribute definition
+   * @param grouperSession
+   * @param subject
+   * @param privileges
+   * @param queryOptions
+   * @param attributeAssignType
+   * @param attributeDefType
+   * @param anyServiceRole will see if the user has any role in a service, and return those services
+   * @param parentStemId is the id of the parent or ancestor of the object returned
+   * @param stemScope is if the stem scope is ONE or SUB
+   * @param findByUuidOrName if looking for attribute def names by uuid or name
+   * @return set of attribute defs
+   * @since v2.2.0
+   */
+  public Set<AttributeDefName> findAllAttributeNamesSecure(String scope, boolean splitScope,
+      GrouperSession grouperSession, String attributeDefId, 
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, AttributeAssignType attributeAssignType,
+      AttributeDefType attributeDefType, ServiceRole serviceRole, boolean anyServiceRole, 
+      String parentStemId, Scope stemScope, boolean findByUuidOrName);
 
 }

@@ -75,21 +75,7 @@ public class XmlExportField {
 
   /** contextId */
   private String contextId;
-
-  /** group type uuid */
-  private String groupTypeUuid;
   
-  /** nullable T/F */
-  private String nullable;
-  
-  /**
-   * nullable T/F
-   * @return if nullable
-   */
-  public String getNullable() {
-    return this.nullable;
-  }
-
   /**
    * read privilege
    */
@@ -155,30 +141,6 @@ public class XmlExportField {
    */
   public void setType(String type1) {
     this.type = type1;
-  }
-
-  /**
-   * nullable T/F
-   * @param nullable1
-   */
-  public void setNullable(String nullable1) {
-    this.nullable = nullable1;
-  }
-
-  /**
-   * group type uuid
-   * @return group type uuid
-   */
-  public String getGroupTypeUuid() {
-    return this.groupTypeUuid;
-  }
-
-  /**
-   * group type uuid
-   * @param groupTypeUuid1
-   */
-  public void setGroupTypeUuid(String groupTypeUuid1) {
-    this.groupTypeUuid = groupTypeUuid1;
   }
 
   /**
@@ -261,10 +223,8 @@ public class XmlExportField {
     Field field = new Field();
     
     field.setContextId(this.contextId);
-    field.setGroupTypeUuid(this.groupTypeUuid);
     field.setHibernateVersionNumber(this.hibernateVersionNumber);
     field.setName(this.name);
-    field.setIsNullable(GrouperUtil.booleanValue(this.nullable));
     field.setReadPrivilege(this.readPrivilege);
     field.setTypeString(this.type);
     field.setUuid(this.uuid);
@@ -387,26 +347,6 @@ public class XmlExportField {
             while(results.next()) {
               Object object = results.get(0);
               final Field field = (Field)object;
-              
-              //comments to dereference the foreign keys
-              if (xmlExportMain.isIncludeComments()) {
-                HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
-                  
-                  public Object callback(HibernateHandlerBean hibernateHandlerBean)
-                      throws GrouperDAOException {
-                    try {
-                      writer.write("\n    <!-- ");
-
-                      XmlExportUtils.toStringType(writer, field.getGroupTypeUuid(), false);
-
-                      writer.write(" -->\n");
-                      return null;
-                    } catch (IOException ioe) {
-                      throw new RuntimeException(ioe);
-                    }
-                  }
-                });
-              }
               
               XmlExportField xmlExportField = field.xmlToExportField(grouperVersion);
               writer.write("    ");

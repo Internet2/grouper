@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRestLite, manually written lite/rest, type: _admins, format: xhtml, for version: 2.1.1
+Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRestLite, manually written lite/rest, type: _admins, format: xhtml, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRestLit
 #########################################
 
 
-POST /grouper-ws/servicesRest/xhtml/v2_1_001/subjects/10021368/groups HTTP/1.1
+POST /grouper-ws/servicesRest/xhtml/v2_2_000/subjects/10021368/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 1093
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -25,33 +25,33 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestGetGroupsLiteRequest">
-      <p class="subjectSourceId" />
-      <p class="subjectId" />
-      <p class="scope" />
-      <p class="pageSize" />
-      <p class="pageNumber" />
-      <p class="enabled" />
-      <p class="subjectIdentifier" />
+      <p class="actAsSubjectId">GrouperSystem</p>
+      <p class="actAsSubjectIdentifier" />
+      <p class="actAsSubjectSourceId" />
+      <p class="ascending" />
       <p class="clientVersion" />
+      <p class="enabled" />
+      <p class="fieldName" />
       <p class="includeGroupDetail">T</p>
       <p class="includeSubjectDetail">T</p>
-      <p class="subjectAttributeNames" />
-      <p class="stemName" />
-      <p class="stemUuid" />
-      <p class="actAsSubjectId">GrouperSystem</p>
-      <p class="actAsSubjectSourceId" />
-      <p class="actAsSubjectIdentifier" />
-      <p class="paramName0">fieldName</p>
-      <p class="paramValue0">admins</p>
-      <p class="paramName1" />
-      <p class="paramValue1" />
-      <p class="sortString" />
-      <p class="ascending" />
       <p class="memberFilter" />
-      <p class="stemScope" />
+      <p class="pageNumber" />
+      <p class="pageSize" />
+      <p class="paramName0">fieldName</p>
+      <p class="paramName1" />
+      <p class="paramValue0">admins</p>
+      <p class="paramValue1" />
       <p class="pointInTimeFrom" />
       <p class="pointInTimeTo" />
-      <p class="fieldName" />
+      <p class="scope" />
+      <p class="sortString" />
+      <p class="stemName" />
+      <p class="stemScope" />
+      <p class="stemUuid" />
+      <p class="subjectAttributeNames" />
+      <p class="subjectId" />
+      <p class="subjectIdentifier" />
+      <p class="subjectSourceId" />
     </div>
   </body>
 </html>
@@ -72,9 +72,11 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 13:50:56 GMT
+Transfer-Encoding: chunked
+Date: Wed, 28 May 2014 23:40:45 GMT
 Connection: close
 
+5d7
 <?xml version='1.0' encoding='iso-8859-1'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -83,10 +85,15 @@ Connection: close
   </head>
   <body>
     <div title="WsGetGroupsLiteResult">
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="millis">77</p>
+        <p class="resultWarnings" />
+        <p class="serverVersion">2.2.0</p>
+      </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.1.1, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+        <p class="resultMessage">Success for: clientVersion: 2.2.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]
@@ -97,22 +104,26 @@ fieldName1: null
 , pointInTimeFrom: null, pointInTimeTo: null, field: admins</p>
         <p class="success">T</p>
       </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">201</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">2.1.1</p>
-      </div>
+      <ul class="subjectAttributeNames">
+        <li>name</li>
+        <li>description</li>
+      </ul>
       <div class="wsSubject" title="WsSubject">
-        <p class="name">10021368</p>
+        <ul class="attributeValues">
+          <li>10021368</li>
+          <li />
+        </ul>
         <p class="id">10021368</p>
-        <p class="sourceId">jdbc</p>
-        <p class="resultCode">SUCCESS</p>
-        <p class="success">T</p>
         <p class="identifierLookup" />
+        <p class="name">10021368</p>
+        <p class="resultCode">SUCCESS</p>
+        <p class="sourceId">jdbc</p>
+        <p class="success">T</p>
       </div>
     </div>
   </body>
 </html>
+0
 
 
 #########################################
@@ -290,7 +301,7 @@ public class WsSampleGetGroupsAdminsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]

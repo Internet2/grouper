@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
@@ -62,7 +63,7 @@ public class RuleNameChangeTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleNameChangeTest("testPackedSubjectUpdateOnGroupNameChange"));
+    TestRunner.run(new RuleNameChangeTest("testCheckOwnerNameUpdateOnAttributeDefNameChange"));
   }
   
   /**
@@ -127,6 +128,9 @@ public class RuleNameChangeTest extends GrouperTest {
     attributeDef.setExtensionDb("attributeDef-renamed");
     attributeDef.setNameDb("edu:attributeDef-renamed");
     attributeDef.store();
+
+    //query to get the updated attribute
+    attributeDefName = AttributeDefNameFinder.findById(attributeDefName.getId(), true);
     
     // make sure rule is still working
     long initialFirings = RuleEngine.ruleFirings;
@@ -143,7 +147,11 @@ public class RuleNameChangeTest extends GrouperTest {
     // now rename stem..
     edu.setExtension("edu-renamed");
     edu.store();
+
+    //query to get the updated attribute
+    attributeDefName = AttributeDefNameFinder.findById(attributeDefName.getId(), true);
     
+
     // make sure rule is still working
     try {
       role.getPermissionRoleDelegate().assignSubjectRolePermission(attributeDefName, member0.getSubject(), PermissionAllowed.ALLOWED);
@@ -157,7 +165,10 @@ public class RuleNameChangeTest extends GrouperTest {
 
     // now move stem..
     edu.move(edu2);
-    
+
+    //query to get the updated attribute
+    attributeDefName = AttributeDefNameFinder.findById(attributeDefName.getId(), true);
+
     // again make sure the rule is still working
     try {
       role.getPermissionRoleDelegate().assignSubjectRolePermission(attributeDefName, member0.getSubject(), PermissionAllowed.ALLOWED);

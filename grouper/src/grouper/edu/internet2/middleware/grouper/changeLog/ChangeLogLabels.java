@@ -26,49 +26,6 @@ package edu.internet2.middleware.grouper.changeLog;
 public class ChangeLogLabels {
 
   /**
-   * label for group type add
-   */
-  public static enum GROUP_TYPE_ADD implements ChangeLogLabel {
-
-    /** id of the group type */
-    id, 
-    
-    /** name */
-    name;
-  };
-  
-  /** labels for a group type update */
-  public static enum GROUP_TYPE_UPDATE implements ChangeLogLabel {
-    
-    /** id */
-    id, 
-    
-    /** name */
-    name, 
-    
-    /** property which changed */
-    propertyChanged, 
-    
-    /** old value of the property */
-    propertyOldValue,
-
-    /** new value of the property */
-    propertyNewValue;
-  };
-      
-  /**
-   * labels for group type delete
-   */
-  public static enum GROUP_TYPE_DELETE implements ChangeLogLabel {
-    
-    /** id of the group type */
-    id,
-    
-    /** name */
-    name;
-  };
-
-  /**
    * label for group add
    */
   public static enum GROUP_ADD implements ChangeLogLabel {
@@ -535,7 +492,10 @@ public class ChangeLogLabels {
     memberId,
     
     /** field id */
-    fieldId;
+    fieldId,
+    
+    /** subjectName */
+    subjectName;
   };
   
   /**

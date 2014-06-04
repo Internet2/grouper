@@ -54,7 +54,6 @@ import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupTypeTupleDAO;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -80,7 +79,7 @@ public class AuditTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(new AuditTest("testGroupPrivileges"));
-    TestRunner.run(new AuditTest("testAttributeAssignsMember"));
+    TestRunner.run(new AuditTest("testFields"));
   }
   
   /**
@@ -221,11 +220,7 @@ public class AuditTest extends GrouperTest {
       .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
     
     assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
-  
-    GroupTypeTuple groupTypeTuple = Hib3GroupTypeTupleDAO.findByGroupAndType(group, groupType);
-    
-    assertEquals("Context id's should match", auditEntry.getContextId(), groupTypeTuple.getContextId());
-    
+          
     assertTrue("description is blank", StringUtils.isNotBlank(auditEntry.getDescription()));
     
     group.addType(groupType, false);
@@ -744,15 +739,16 @@ public class AuditTest extends GrouperTest {
 
     assertEquals(0, auditCount);
     
-    Field field = groupType.addAttribute(grouperSession, "test1attr", AccessPrivilege.READ, AccessPrivilege.ADMIN,true);
+    Field field = groupType.addList(grouperSession, "test1attr", AccessPrivilege.READ, AccessPrivilege.ADMIN);
     
     int newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_audit_entry");
     
-    assertEquals("Should have added exactly one audit", auditCount+1, newAuditCount);
+    assertTrue("Should have added multiple audit entries", auditCount+1 < newAuditCount);
     
     AuditEntry auditEntry = HibernateSession.byHqlStatic()
-      .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
+      .createQuery("from AuditEntry where auditTypeId = :auditTypeId")
+      .setString("auditTypeId", AuditTypeBuiltin.GROUP_FIELD_ADD.getAuditType().getId()).uniqueResult(AuditEntry.class);
     
     assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
     assertTrue("durationMicros should exist", auditEntry.getDurationMicroseconds() > 0);
@@ -762,52 +758,24 @@ public class AuditTest extends GrouperTest {
     
     assertTrue("description is blank", StringUtils.isNotBlank(auditEntry.getDescription()));
     
-    groupType.addAttribute(grouperSession, "test1attr", AccessPrivilege.READ, AccessPrivilege.ADMIN,true, false);
-    
-    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_audit_entry");
-  
-    assertEquals("Shouldnt have changed since type didnt change", auditCount+1, newAuditCount);
-    
-    //make sure date is different on mysql
-    GrouperUtil.sleep(1000);
-
-    //try an update
-    field = groupType.addOrUpdateAttribute(grouperSession, "test1attr", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN, true);
-  
-    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_audit_entry");
-  
-    assertEquals("Should have added exactly two audits", auditCount+2, newAuditCount);
-  
-    List<AuditEntry> auditEntries = HibernateSession.byHqlStatic()
-      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
-    AuditEntry auditEntry2 = auditEntries.get(1);
-  
-    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry2.getContextId()));
-    
-    assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry2.getContextId()));
-    
-    assertTrue("durationMicros should exist", auditEntry2.getDurationMicroseconds() > 0);
-  
-    assertEquals("Context id's should match", auditEntry2.getContextId(), field.getContextId());
-    
-    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry2.getDescription()));
     
     //make sure date is different on mysql
     GrouperUtil.sleep(1000);
 
     //try a delete
+    auditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
     groupType.deleteField(grouperSession, "test1attr");
   
     newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_audit_entry");
   
-    assertEquals("Should have added exactly three audits", auditCount+3, newAuditCount);
+    assertEquals("Should have another audit", auditCount+1, newAuditCount);
   
-     auditEntries = HibernateSession.byHqlStatic()
+     List<AuditEntry> auditEntries = HibernateSession.byHqlStatic()
       .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
-    AuditEntry auditEntry3 = auditEntries.get(2);
+    AuditEntry auditEntry3 = auditEntries.get(1);
   
     assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry3.getContextId()));
     
@@ -1010,7 +978,7 @@ public class AuditTest extends GrouperTest {
     GrouperUtil.sleep(1000);
   
     attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis()));
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_audit_entry");
@@ -1095,7 +1063,7 @@ public class AuditTest extends GrouperTest {
     GrouperUtil.sleep(1000);
   
     attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis()));
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_audit_entry");
@@ -1180,7 +1148,7 @@ public class AuditTest extends GrouperTest {
     GrouperUtil.sleep(1000);
   
     attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis()));
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_audit_entry");
@@ -1264,7 +1232,7 @@ public class AuditTest extends GrouperTest {
     GrouperUtil.sleep(1000);
   
     attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis()));
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_audit_entry");
@@ -1353,7 +1321,7 @@ public class AuditTest extends GrouperTest {
     GrouperUtil.sleep(1000);
   
     attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis()));
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_audit_entry");
@@ -1443,7 +1411,7 @@ public class AuditTest extends GrouperTest {
     GrouperUtil.sleep(1000);
   
     attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis()));
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_audit_entry");
@@ -1530,7 +1498,7 @@ public class AuditTest extends GrouperTest {
     GrouperUtil.sleep(1000);
   
     attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis()));
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_audit_entry");

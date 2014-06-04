@@ -102,7 +102,7 @@ public class AttributeDefSaveTest extends GrouperTest {
     
     //update
     attributeDefSave = new AttributeDefSave(this.grouperSession)
-      .assignName("top:b").assignDescription("whatever").assignMultiValued(true);
+      .assignName("top:b").assignDescription("whatever").assignValueType(AttributeDefValueType.string).assignMultiValued(true);
     attributeDef = attributeDefSave.save();
     assertEquals(SaveResultType.UPDATE, attributeDefSave.getSaveResultType());
     assertEquals("whatever", attributeDef.getDescription());
@@ -110,7 +110,7 @@ public class AttributeDefSaveTest extends GrouperTest {
     
     //no change
     attributeDefSave = new AttributeDefSave(this.grouperSession)
-      .assignName("top:b").assignDescription("whatever").assignMultiValued(true);
+      .assignName("top:b").assignDescription("whatever").assignValueType(AttributeDefValueType.string).assignMultiValued(true);
     attributeDef = attributeDefSave.save();
     assertEquals(SaveResultType.NO_CHANGE, attributeDefSave.getSaveResultType());
     assertEquals("whatever", attributeDef.getDescription());

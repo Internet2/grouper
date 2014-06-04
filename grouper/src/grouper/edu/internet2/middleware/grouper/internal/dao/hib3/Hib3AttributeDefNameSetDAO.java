@@ -225,7 +225,7 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
     //see if we are adding more to the query
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(grouperSession.getSubject(), 
         byHqlStatic,
-        sql, whereClause, "adn.attributeDefId", AttributeDefPrivilege.VIEW_PRIVILEGES);
+        sql, whereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES);
   
     sql.append(" ").append(whereClause).append(" order by adn.nameDb");
     

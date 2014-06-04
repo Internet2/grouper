@@ -188,6 +188,7 @@ public class TestMemberChangeSubject extends GrouperTest {
           try {
             sysadmingroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.UPDATE);
             sysadmingroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.READ);
+            groupType = GroupType.createType(grouperSession, "groupType");
           } catch (Exception e) {
             throw new RuntimeException(e);
           }
@@ -195,9 +196,7 @@ public class TestMemberChangeSubject extends GrouperTest {
         }
         
       });
-      sysadmingroup.addMember(SubjectTestHelper.SUBJ0);
-      groupType = GroupType.createType(grouperSession, "groupType");
-      
+      sysadmingroup.addMember(SubjectTestHelper.SUBJ0);      
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -339,10 +338,6 @@ public class TestMemberChangeSubject extends GrouperTest {
     String stemModifierId = this.edu.getModifierUuid();
     assertEquals("existing uuid", member0uuid, stemModifierId);
     
-    //grouper_types.creator_uuid
-    String groupTypeId = this.groupType.getCreatorUuid();
-    assertEquals("existing uuid", member0uuid, groupTypeId);
-
     Member member1 = GrouperDAOFactory.getFactory().getMember().findBySubject(
         SubjectTestHelper.SUBJ1, true);
     
@@ -411,12 +406,6 @@ public class TestMemberChangeSubject extends GrouperTest {
     assertEquals("new uuid", member1uuid, stemCreatorId);
     stemModifierId = this.edu.getModifierUuid();
     assertEquals("new uuid", member1uuid, stemModifierId);
-    
-    //grouper_types.creator_uuid
-    this.groupType = GroupTypeFinder.find(this.groupType.getName(), true);
-    groupTypeId = this.groupType.getCreatorUuid();
-    assertEquals("new uuid", member1uuid, groupTypeId);
-    
   }
 
   /**

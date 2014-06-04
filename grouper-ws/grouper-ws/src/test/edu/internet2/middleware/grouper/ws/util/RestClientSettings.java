@@ -181,12 +181,12 @@ public class RestClientSettings {
         GroupType groupType = GroupType.createType(grouperSession, "aType", false);
         GroupType groupType2 = GroupType.createType(grouperSession, "aType2", false);
         GroupType groupType3 = GroupType.createType(grouperSession, "aType3", false);
-        groupType.addAttribute(grouperSession, "attr_1", AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
-        groupType.addAttribute(grouperSession, "attr_2", AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
-        groupType2.addAttribute(grouperSession, "attr2_1", AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
-        groupType2.addAttribute(grouperSession, "attr2_2", AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
-        groupType3.addAttribute(grouperSession, "attr3_1", AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
-        groupType3.addAttribute(grouperSession, "attr3_2", AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+        groupType.addAttribute(grouperSession, "attr_1", false);
+        groupType.addAttribute(grouperSession, "attr_2", false);
+        groupType2.addAttribute(grouperSession, "attr2_1", false);
+        groupType2.addAttribute(grouperSession, "attr2_2", false);
+        groupType3.addAttribute(grouperSession, "attr3_1", false);
+        groupType3.addAttribute(grouperSession, "attr3_2", false);
         
       } catch (Exception e) {
         throw new RuntimeException(e);

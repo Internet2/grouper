@@ -33,17 +33,21 @@
 package edu.internet2.middleware.grouper;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
-import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 
 /**
  * Find group types.
@@ -58,9 +62,18 @@ public class GroupTypeFinder {
    */
   private static GrouperCache<String, GroupType> types = new GrouperCache<String, GroupType>(
       GroupTypeFinder.class.getName() + ".typeCache", 10000, false, 60*10, 60*10, false);
-
-  /** logger */
-  private static final Log LOG = GrouperUtil.getLog(GroupTypeFinder.class);
+  
+  /** 
+   * every 10 minutes, get new elements
+   */
+  private static GrouperCache<String, AttributeDefName> legacyAttributes = new GrouperCache<String, AttributeDefName>(
+      GroupTypeFinder.class.getName() + ".legacyAttributes", 10000, false, 60*10, 60*10, false);
+  
+  /** 
+   * every 10 minutes, get new elements
+   */
+  private static GrouperCache<String, String> fieldIdToTypeId = new GrouperCache<String, String>(
+      GroupTypeFinder.class.getName() + ".fieldIdToTypeIdCache", 10000, false, 60*10, 60*10, false);
 
   /** 
    * Find a {@link GroupType}.
@@ -78,6 +91,7 @@ public class GroupTypeFinder {
    * @param exceptionIfNotFound 
    * @return  {@link GroupType}
    * @throws  SchemaException
+   * @deprecated
    */
   public static GroupType find(String name, boolean exceptionIfNotFound) 
     throws  SchemaException {
@@ -113,6 +127,7 @@ public class GroupTypeFinder {
    * @param exceptionIfNotFound 
    * @return  {@link GroupType}
    * @throws  SchemaException
+   * @deprecated
    */
   public static GroupType findByUuid(String typeUuid, boolean exceptionIfNotFound) 
     throws  SchemaException {
@@ -164,6 +179,7 @@ public class GroupTypeFinder {
    * Set types = GroupTypeFinder.findAll();
    * </pre>
    * @return  A {@link Set} of {@link GroupType} objects.
+   * @deprecated
    */
   public static Set findAll() {
     internal_updateKnownTypes();
@@ -172,9 +188,7 @@ public class GroupTypeFinder {
     Iterator  iter    = types.values().iterator();
     while (iter.hasNext()) {
       t = (GroupType) iter.next();
-      if ( !t .getIsInternal() ) {
-        values.add(t); // We only want !internal group types
-      }
+      values.add(t);
     }
     return values;
   } // public static Set findAll()
@@ -185,18 +199,10 @@ public class GroupTypeFinder {
    * Set types = GroupTypeFinder.findAllAssignable();
    * </pre>
    * @return  A {@link Set} of {@link GroupType} objects.
+   * @deprecated
    */
   public static Set findAllAssignable() {
-    Set       types = new LinkedHashSet();
-    GroupType t;
-    Iterator  iter  = findAll().iterator();
-    while (iter.hasNext()) {
-      t = (GroupType) iter.next();
-      if ( t.getIsAssignable() ) {
-        types.add(t);
-      }
-    }
-    return types;
+    return findAll();
   } // public static Set findAllAssignable()
 
 
@@ -204,63 +210,141 @@ public class GroupTypeFinder {
    * 
    */
   public static void internal_updateKnownTypes() {
-    // This method irks me still even if it is now more functionally correct
-    Set typesInRegistry = _findAll();
-    // Look for types to add
-    GroupType tA;
-    Iterator  addIter   = typesInRegistry.iterator();
-    while (addIter.hasNext()) {
-      tA = (GroupType) addIter.next();
-      if (!types.containsKey(tA.getName())) {
-        types.put(tA.getName(), tA); // New type.  Add it to the cached list.
-      }
-    }
-    // Look for types to remove
-    Set       toDel   = new LinkedHashSet();
-    GroupType tD;
-    Iterator  delIter = types.values().iterator();
-    while (delIter.hasNext()) {
-      tD = (GroupType) delIter.next();
-      if (!typesInRegistry.contains(tD)) {
-        toDel.add(tD.getName());  
-      }
-    }
-    String    type;
-    Iterator  toDelIter = toDel.iterator();
-    while (toDelIter.hasNext()) {
-      type = (String) toDelIter.next();
-      types.remove(type);  
+
+    GrouperSession rootSession = GrouperSession.startRootSession(false);
+
+    try {
+      GrouperSession.callbackGrouperSession(rootSession, new GrouperSessionHandler() {
+  
+        /**
+         *
+         */
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+  
+          Set<GroupType> typesInRegistry = new LinkedHashSet<GroupType>();
+          Set<AttributeDefName> legacyAttributesInRegistry = new LinkedHashSet<AttributeDefName>();
+  
+          String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+          String groupTypePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupType.prefix");
+          String attributePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attribute.prefix");
+  
+          Stem stem = GrouperCheckConfig.legacyAttributeBaseStem(grouperSession);
+          
+          Set<AttributeDefName> attributes = GrouperDAOFactory.getFactory().getAttributeDefName().findByStem(stem.getUuid());
+          for (AttributeDefName attribute : attributes) {
+            if (attribute.getExtension().startsWith(groupTypePrefix)) {
+              GroupType groupType = GroupType.internal_getGroupType(attribute, true);
+              typesInRegistry.add(groupType);
+              
+              // see if there are fields for this type.  if so, cache them.
+              String customListPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.customList.prefix");
+              AttributeDefName customList = AttributeDefNameFinder.findByName(stemName + ":" + customListPrefix + groupType.getName(), false);
+              if (customList != null) {
+                List<String> fieldIds = attribute.getAttributeDef().getAttributeValueDelegate().retrieveValuesString(customList.getName());
+                if (fieldIds != null) {
+                  for (String fieldId : fieldIds) {
+                    fieldIdToTypeId.put(fieldId, groupType.getUuid());
+                  }
+                }
+              }
+            } else if (attribute.getExtension().startsWith(attributePrefix)) {
+              legacyAttributesInRegistry.add(attribute);
+            }
+          }
+          
+          // Look for types to add
+          GroupType tA;
+          Iterator  addIter   = typesInRegistry.iterator();
+          while (addIter.hasNext()) {
+            tA = (GroupType) addIter.next();
+            if (!types.containsKey(tA.getName())) {
+              types.put(tA.getName(), tA); // New type.  Add it to the cached list.
+            }
+          }
+          // Look for types to remove
+          Set       toDel   = new LinkedHashSet();
+          GroupType tD;
+          Iterator  delIter = types.values().iterator();
+          while (delIter.hasNext()) {
+            tD = (GroupType) delIter.next();
+            if (!typesInRegistry.contains(tD)) {
+              toDel.add(tD.getName());  
+            }
+          }
+          String    type;
+          Iterator  toDelIter = toDel.iterator();
+          while (toDelIter.hasNext()) {
+            type = (String) toDelIter.next();
+            types.remove(type);  
+          }
+          
+          // Look for legacy attributes to add
+          for (AttributeDefName legacyAttribute : legacyAttributesInRegistry) {
+            if (!legacyAttributes.containsKey(legacyAttribute.getLegacyAttributeName(true))) {
+              legacyAttributes.put(legacyAttribute.getLegacyAttributeName(true), legacyAttribute);
+            }
+          }
+          
+          // Look for legacy attributes to remove
+          Set<String> toDel2 = new LinkedHashSet<String>();
+          for (AttributeDefName legacyAttribute : legacyAttributes.values()) {
+            if (!legacyAttributesInRegistry.contains(legacyAttribute)) {
+              toDel2.add(legacyAttribute.getLegacyAttributeName(true));  
+            }
+          }
+          
+          for (String legacyAttributeName : toDel2) {
+            legacyAttributes.remove(legacyAttributeName);  
+          }
+          
+          return null;
+        }
+      });
+    } finally {
+      GrouperSession.stopQuietly(rootSession);
     }
   } // protected static void internal_updateKnownTypes()
-
-  /**
-   * 
-   * @return set
-   * @throws GrouperException
-   */
-  private static Set<GroupType> _findAll() throws  GrouperException {
-    try {
-      Set<GroupType>       types = new LinkedHashSet<GroupType>();
-      Iterator<GroupType>  it    = GrouperDAOFactory.getFactory().getGroupType().findAll().iterator();
-      while (it.hasNext()) {
-        GroupType type = it.next() ;
-        types.add(type);
-      }
-      LOG.info("found group types: " + types.size() );
-      return types;
-    }
-    catch (GrouperException eGRE) {
-      String msg = E.GROUPTYPE_FINDALL + eGRE.getMessage();
-      LOG.fatal(msg);
-      throw new GrouperException(msg, eGRE);
-    }
-  } // private Static Set _findAll()
 
   /**
    * clear cache (e.g. if schema export)
    */
   public static void clearCache() {
     types.clear();
+    fieldIdToTypeId.clear();
+    legacyAttributes.clear();
+  }
+  
+  /**
+   * @param field
+   * @param exceptionIfNoGroupType
+   * @return groupType
+   */
+  public static GroupType internal_findGroupTypeByField(Field field, boolean exceptionIfNoGroupType) {
+    String typeId = fieldIdToTypeId.get(field.getUuid());
+    if (typeId == null) {
+      internal_updateKnownTypes();
+      typeId = fieldIdToTypeId.get(field.getUuid());
+    }
+    
+    if (typeId == null) {
+      if (exceptionIfNoGroupType) {
+        throw new RuntimeException("Field " + field.getName() + " is not associated with a group type.");
+      }
+      
+      return null;
+    }
+    
+    return findByUuid(typeId, true);
+  }
+  
+  /**
+   * @return legacy attributes
+   */
+  public static Set<AttributeDefName> internal_findAllLegacyAttributes() {
+    internal_updateKnownTypes();
+    Set<AttributeDefName> values = new LinkedHashSet<AttributeDefName>(legacyAttributes.values());
+    return values;
   }
 
 } // public class GroupTypeFinder

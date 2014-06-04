@@ -198,6 +198,11 @@ public class FindBadMemberships {
       }
     }
     
+    if (printErrorsToSTOUT) {
+      out.println("Checking memberships where member is a deleted group");
+    }
+    errors += checkDeletedGroupAsMember();
+    
     return errors;
   }
   
@@ -330,6 +335,24 @@ public class FindBadMemberships {
     }
     
     return badMemberships.size() + missingMemberships.size();
+  }
+  
+  /**
+   * @return count of bad memberships
+   */
+  public static long checkDeletedGroupAsMember() {
+    
+    Set<Membership> badMemberships = GrouperDAOFactory.getFactory().getMembership().findBadMembershipsDeletedGroupAsMember();
+
+    for (Membership ms : badMemberships) {
+      if (printErrorsToSTOUT) {
+        out.println("Bad membership where member is a deleted group: groupId=" + ms.getOwnerGroupId() + ", group name=" + ms.getOwnerGroup().getName() + ", subjectId=" + ms.getMember().getSubjectId() + ".");
+      }
+      
+      logGshScript("sqlRun(\"delete from grouper_memberships where id='" + ms.getImmediateMembershipId() + "'\");\n");
+    }
+    
+    return badMemberships.size();
   }
   
   /**

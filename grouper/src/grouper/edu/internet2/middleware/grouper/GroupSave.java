@@ -23,6 +23,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
@@ -32,20 +33,13 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
 import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
-import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
-import edu.internet2.middleware.grouper.tableIndex.TableIndex;
-import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -56,6 +50,127 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class GroupSave {
   
+  /**
+   * if the priv admin should be different from the defaults
+   */
+  private Boolean privAllAdmin;
+  
+  /**
+   * if the priv read should be different from the defaults
+   */
+  private Boolean privAllRead;
+  
+  /**
+   * if the priv update should be different from the defaults
+   */
+  private Boolean privAllUpdate;
+  
+  /**
+   * if the priv view should be different from the defaults
+   */
+  private Boolean privAllView;
+  
+  /**
+   * if the priv optin should be different from the defaults
+   */
+  private Boolean privAllOptin;
+  
+  /**
+   * if the priv optout should be different from the defaults
+   */
+  private Boolean privAllOptout;
+  
+  /**
+   * if the priv attr update should be different from the defaults
+   */
+  private Boolean privAllAttrRead;
+  
+  /**
+   * if the priv attr update should be different from the defaults
+   */
+  private Boolean privAllAttrUpdate;
+  
+  /**
+   * assign priv admin to be different than the defaults for grouperAll
+   * @param thePrivAllAdmin
+   * @return this for chaining
+   */
+  public GroupSave assignPrivAllAdmin(boolean thePrivAllAdmin) {
+    this.privAllAdmin = thePrivAllAdmin;
+    return this;
+  }
+
+  /**
+   * assign priv view to be different than the defaults for grouperAll
+   * @param thePrivAllView
+   * @return this for chaining
+   */
+  public GroupSave assignPrivAllView(boolean thePrivAllView) {
+    this.privAllView = thePrivAllView;
+    return this;
+  }
+
+  /**
+   * assign priv read to be different than the defaults for grouperAll
+   * @param thePrivAllRead
+   * @return this for chaining
+   */
+  public GroupSave assignPrivAllRead(boolean thePrivAllRead) {
+    this.privAllRead = thePrivAllRead;
+    return this;
+  }
+
+  /**
+   * assign priv update to be different than the defaults for grouperAll
+   * @param thePrivAllUpdate
+   * @return this for chaining
+   */
+  public GroupSave assignPrivAllUpdate(boolean thePrivAllUpdate) {
+    this.privAllUpdate = thePrivAllUpdate;
+    return this;
+  }
+
+  /**
+   * assign priv optin to be different than the defaults for grouperAll
+   * @param thePrivAllOptin
+   * @return this for chaining
+   */
+  public GroupSave assignPrivAllOptin(boolean thePrivAllOptin) {
+    this.privAllOptin = thePrivAllOptin;
+    return this;
+  }
+
+  /**
+   * assign priv optout to be different than the defaults for grouperAll
+   * @param thePrivAllOptout
+   * @return this for chaining
+   */
+  public GroupSave assignPrivAllOptout(boolean thePrivAllOptout) {
+    this.privAllOptout = thePrivAllOptout;
+    return this;
+  }
+
+  /**
+   * assign priv attr read to be different than the defaults for grouperAll
+   * @param thePrivAllAttrRead
+   * @return this for chaining
+   */
+  public GroupSave assignPrivAllAttrRead(boolean thePrivAllAttrRead) {
+    this.privAllAttrRead = thePrivAllAttrRead;
+    return this;
+  }
+
+  /**
+   * assign priv attr update to be different than the defaults for grouperAll
+   * @param thePrivAllAttrUpdate
+   * @return this for chaining
+   */
+  public GroupSave assignPrivAllAttrUpdate(boolean thePrivAllAttrUpdate) {
+    this.privAllAttrUpdate = thePrivAllAttrUpdate;
+    return this;
+  }
+
+
   /**
    * create a new group save
    * @param theGrouperSession
@@ -271,22 +386,23 @@ public class GroupSave {
     if (StringUtils.isBlank(this.groupNameToEdit)) {
       this.groupNameToEdit = this.name;
     }
-
     
     //validate
     //get the stem name
-    if (!StringUtils.contains(name, ":")) {
-      throw new RuntimeException("Group name must exist and must contain at least one stem name (separated by colons): '" + name + "'" );
+    if (!StringUtils.contains(GroupSave.this.name, ":")) {
+      throw new RuntimeException("Group name must exist and must contain at least one stem name (separated by colons): '" + GroupSave.this.name + "'" );
     }
 
     //default to insert or update
-    saveMode = (SaveMode)ObjectUtils.defaultIfNull(saveMode, SaveMode.INSERT_OR_UPDATE);
-    final SaveMode SAVE_MODE = saveMode;
+    GroupSave.this.saveMode = (SaveMode)ObjectUtils.defaultIfNull(GroupSave.this.saveMode, SaveMode.INSERT_OR_UPDATE);
+    final SaveMode SAVE_MODE = GroupSave.this.saveMode;
 
     try {
       //do this in a transaction
       Group group = (Group)GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
   
+        @SuppressWarnings("cast")
+        @Override
         public Object callback(GrouperTransaction grouperTransaction)
             throws GrouperDAOException {
           
@@ -294,10 +410,11 @@ public class GroupSave {
           
           return (Group)GrouperSession.callbackGrouperSession(GroupSave.this.grouperSession, new GrouperSessionHandler() {
 
-              public Object callback(GrouperSession grouperSession)
+              @Override
+              public Object callback(GrouperSession theGrouperSession)
                   throws GrouperSessionException {
                 
-                String groupNameForError = GrouperUtil.defaultIfBlank(groupNameToEdit, GroupSave.this.name);
+                String groupNameForError = GrouperUtil.defaultIfBlank(GroupSave.this.groupNameToEdit, GroupSave.this.name);
                 
                 int lastColonIndex = GroupSave.this.name.lastIndexOf(':');
                 boolean topLevelGroup = lastColonIndex < 0;
@@ -306,7 +423,7 @@ public class GroupSave {
                 String parentStemNameNew = GrouperUtil.parentStemNameFromName(GroupSave.this.name);
                 
                 //note, this might be blank
-                String parentStemDisplayNameNew = GrouperUtil.parentStemNameFromName(displayName);
+                String parentStemDisplayNameNew = GrouperUtil.parentStemNameFromName(GroupSave.this.displayName);
                 String extensionNew = GrouperUtil.extensionFromName(GroupSave.this.name);
                 
                 String displayExtensionFromDisplayNameNew = GrouperUtil.extensionFromName(GroupSave.this.displayName);
@@ -338,8 +455,8 @@ public class GroupSave {
                 Stem parentStem = null;
                 
                 try {
-                  parentStem = topLevelGroup ? StemFinder.findRootStem(grouperSession) 
-                      : StemFinder.findByName(grouperSession, parentStemNameNew, true);
+                  parentStem = topLevelGroup ? StemFinder.findRootStem(theGrouperSession) 
+                      : StemFinder.findByName(theGrouperSession, parentStemNameNew, true);
                 } catch (StemNotFoundException snfe) {
                   
                   //see if we should fix this problem
@@ -348,14 +465,14 @@ public class GroupSave {
                     //at this point the stem should be there (and is equal to currentStem), 
                     //just to be sure, query again
                     if (GrouperLoader.isDryRun()) {
-                      parentStem = StemFinder.findByName(grouperSession, parentStemNameNew, false);
+                      parentStem = StemFinder.findByName(theGrouperSession, parentStemNameNew, false);
                       if (parentStem == null) {
                         parentStem = new Stem();
                         parentStem.setNameDb(parentStemNameNew);
                         parentStem.setExtensionDb(GrouperUtil.extensionFromName(parentStemNameNew));
                       }
                     } else {
-                      parentStem = Stem._createStemAndParentStemsIfNotExist(grouperSession, parentStemNameNew, parentStemDisplayNameNew);
+                      parentStem = Stem._createStemAndParentStemsIfNotExist(theGrouperSession, parentStemNameNew, parentStemDisplayNameNew);
                     }
                   } else {
                     throw new GrouperSessionException(new StemNotFoundException("Cant find stem: '" + parentStemNameNew 
@@ -374,7 +491,7 @@ public class GroupSave {
                         + parentStemNameLookup + "', new stem: '" + parentStemNameNew + "'"));
                 }    
                 try {
-                    theGroup = GroupFinder.findByName(grouperSession, GroupSave.this.groupNameToEdit, true);
+                    theGroup = GroupFinder.findByName(theGrouperSession, GroupSave.this.groupNameToEdit, true);
                     
                     //while we are here, make sure uuid's match if passed in
                     if (!StringUtils.isBlank(GroupSave.this.uuid) && !StringUtils.equals(GroupSave.this.uuid, theGroup.getUuid())) {
@@ -395,15 +512,15 @@ public class GroupSave {
                 boolean needsSave = false;
                 //if inserting
                 if (!isUpdate) {
-                  saveResultType = SaveResultType.INSERT;
-                  if (typeOfGroup == null || typeOfGroup == TypeOfGroup.group) {
+                  GroupSave.this.saveResultType = SaveResultType.INSERT;
+                  if (GroupSave.this.typeOfGroup == null || GroupSave.this.typeOfGroup == TypeOfGroup.group) {
                     theGroup = parentStem.internal_addChildGroup(extensionNew, theDisplayExtension, GroupSave.this.uuid);
-                  } else if (typeOfGroup == TypeOfGroup.role) {
+                  } else if (GroupSave.this.typeOfGroup == TypeOfGroup.role) {
                     theGroup = (Group)parentStem.internal_addChildRole(extensionNew, theDisplayExtension, GroupSave.this.uuid);
-                  } else if (typeOfGroup == TypeOfGroup.entity) {
+                  } else if (GroupSave.this.typeOfGroup == TypeOfGroup.entity) {
                     theGroup = (Group)parentStem.internal_addChildEntity(extensionNew, theDisplayExtension, GroupSave.this.uuid);
                   } else {
-                    throw new RuntimeException("Not expecting type of group: " + typeOfGroup);
+                    throw new RuntimeException("Not expecting type of group: " + GroupSave.this.typeOfGroup);
                   }
                   
                 } else {
@@ -413,7 +530,7 @@ public class GroupSave {
                       //lets just confirm that one doesnt exist
                       String newName = GrouperUtil.parentStemNameFromName(theGroup.getName()) + ":" + extensionNew;
                       
-                      Group existingGroup = GroupFinder.findByName(grouperSession.internal_getRootSession(), newName, false);
+                      Group existingGroup = GroupFinder.findByName(theGrouperSession.internal_getRootSession(), newName, false);
                       
                       if (existingGroup != null && !StringUtils.equals(theGroup.getUuid(), existingGroup.getUuid())) {
                         throw new GroupModifyAlreadyExistsException("Group already exists: " + newName);
@@ -467,12 +584,93 @@ public class GroupSave {
                 if (needsSave) {
                   theGroup.store();
                 }
+
+                boolean changedPrivs = false;
                 
-                return theGroup;
+                boolean adminDefaultChecked = theGroup.hasAdmin(SubjectFinder.findAllSubject());
+                
+                boolean updateDefaultChecked = theGroup.hasUpdate(SubjectFinder.findAllSubject());
+                
+                boolean readDefaultChecked = theGroup.hasRead(SubjectFinder.findAllSubject());
+      
+                boolean viewDefaultChecked = theGroup.hasView(SubjectFinder.findAllSubject());
+      
+                boolean optinDefaultChecked = theGroup.hasOptin(SubjectFinder.findAllSubject());
+      
+                boolean optoutDefaultChecked = theGroup.hasOptout(SubjectFinder.findAllSubject());
+      
+                boolean attrReadDefaultChecked = theGroup.hasGroupAttrRead(SubjectFinder.findAllSubject());
+      
+                boolean attrUpdateDefaultChecked = theGroup.hasGroupAttrUpdate(SubjectFinder.findAllSubject());
+      
+                if (GroupSave.this.privAllAdmin != null && GroupSave.this.privAllAdmin != adminDefaultChecked) {
+                  if (GroupSave.this.privAllAdmin) {
+                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN, false);
+                  } else {
+                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN, false);
+                  }
+                }
+                            
+                if (GroupSave.this.privAllView != null && GroupSave.this.privAllView != viewDefaultChecked) {
+                  if (GroupSave.this.privAllView) {
+                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+                  } else {
+                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+                  }
+                }
+      
+                if (GroupSave.this.privAllRead != null && GroupSave.this.privAllRead != readDefaultChecked) {
+                  if (GroupSave.this.privAllRead) {
+                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+                  } else {
+                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+                  }
+                }
+                if (GroupSave.this.privAllUpdate != null && GroupSave.this.privAllUpdate != updateDefaultChecked) {
+                  if (GroupSave.this.privAllUpdate) {
+                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
+                  } else {
+                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
+                  }
+                }
+                if (GroupSave.this.privAllOptin != null && GroupSave.this.privAllOptin != optinDefaultChecked) {
+                  if (GroupSave.this.privAllOptin) {
+                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN, false);
+                  } else {
+                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN, false);
+                  }
+                }
+                if (GroupSave.this.privAllOptout != null && GroupSave.this.privAllOptout != optoutDefaultChecked) {
+                  if (GroupSave.this.privAllOptout) {
+                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTOUT, false);
+                  } else {
+                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTOUT, false);
+                  }
+                }
+                if (GroupSave.this.privAllAttrRead != null && GroupSave.this.privAllAttrRead != attrReadDefaultChecked) {
+                  if (GroupSave.this.privAllAttrRead) {
+                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ, false);
+                  } else {
+                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ, false);
+                  }
+                }
+                if (GroupSave.this.privAllAttrUpdate != null && GroupSave.this.privAllAttrUpdate != attrUpdateDefaultChecked) {
+                  if (GroupSave.this.privAllAttrUpdate) {
+                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_UPDATE, false);
+                  } else {
+                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_UPDATE, false);
+                  }
+                }
+                
+                if (changedPrivs) {
+                  if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                    GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                  }
+                }
+                
+			          return theGroup;
               }
-              
-            });
-            
+          });
         }
       });
       return group;

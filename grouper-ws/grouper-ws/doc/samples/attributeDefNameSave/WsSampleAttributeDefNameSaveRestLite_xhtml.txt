@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDefNameSaveRestLite, manually written lite/rest, format: xhtml, for version: 2.1.1
+Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDefNameSaveRestLite, manually written lite/rest, format: xhtml, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDe
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 1128
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -25,25 +25,25 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestAttributeDefNameSaveLiteRequest">
-      <p class="displayExtension">My new attribute def name to save 1 rest lite xhtml</p>
-      <p class="attributeDefNameName">test:testAttributeAssignDefNameToSave1RestLite_xhtml</p>
-      <p class="clientVersion" />
-      <p class="txType" />
       <p class="actAsSubjectId" />
-      <p class="actAsSubjectSourceId" />
       <p class="actAsSubjectIdentifier" />
-      <p class="paramName0" />
-      <p class="paramValue0" />
-      <p class="paramName1" />
-      <p class="paramValue1" />
-      <p class="attributeDefNameUuid" />
-      <p class="attributeDefNameLookupUuid" />
-      <p class="attributeDefNameLookupName" />
-      <p class="attributeDefLookupUuid" />
+      <p class="actAsSubjectSourceId" />
       <p class="attributeDefLookupName">test:testAttributeAssignDefNameDef</p>
-      <p class="saveMode" />
+      <p class="attributeDefLookupUuid" />
+      <p class="attributeDefNameLookupName" />
+      <p class="attributeDefNameLookupUuid" />
+      <p class="attributeDefNameName">test:testAttributeAssignDefNameToSave1RestLite_xhtml</p>
+      <p class="attributeDefNameUuid" />
+      <p class="clientVersion" />
       <p class="createParentStemsIfNotExist" />
       <p class="description">This is a description 1 rest lite xhtml</p>
+      <p class="displayExtension">My new attribute def name to save 1 rest lite xhtml</p>
+      <p class="paramName0" />
+      <p class="paramName1" />
+      <p class="paramValue0" />
+      <p class="paramValue1" />
+      <p class="saveMode" />
+      <p class="txType" />
     </div>
   </body>
 </html>
@@ -64,9 +64,11 @@ X-Grouper-resultCode: SUCCESS_INSERTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 13:31:00 GMT
+Transfer-Encoding: chunked
+Date: Wed, 28 May 2014 23:06:48 GMT
 Connection: close
 
+671
 <?xml version='1.0' encoding='iso-8859-1'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -75,34 +77,36 @@ Connection: close
   </head>
   <body>
     <div title="WsAttributeDefNameSaveLiteResult">
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="millis">115</p>
+        <p class="resultWarnings" />
+        <p class="serverVersion">2.2.0</p>
+      </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS_INSERTED</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.1.1, wsAttributeDefNameToSaves: Array size: 1: [0]: WsAttributeDefNameToSave[
+        <p class="resultMessage">Success for: clientVersion: 2.2.0, wsAttributeDefNameToSaves: Array size: 1: [0]: WsAttributeDefNameToSave[
 wsAttributeDefNameLookup=WsAttributeDefNameLookup[pitAttributeDefNames=[]],
 wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...
 , actAsSubject: null, txType: NONE, paramNames:
 , params: null</p>
         <p class="success">T</p>
       </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">217</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">2.1.1</p>
-      </div>
       <div class="wsAttributeDefName" title="WsAttributeDefName">
-        <p class="name">test:testAttributeAssignDefNameToSave1RestLite_xhtml</p>
-        <p class="displayName">test:My new attribute def name to save 1 rest lite xhtml</p>
-        <p class="description">This is a description 1 rest lite xhtml</p>
-        <p class="uuid">6e9c7e3fdec54c69a7b0908cf4e82bdf</p>
-        <p class="extension">testAttributeAssignDefNameToSave1RestLite_xhtml</p>
-        <p class="displayExtension">My new attribute def name to save 1 rest lite xhtml</p>
+        <p class="attributeDefId">43c2a2e1c2e84da9b37a62ae9dc9a72f</p>
         <p class="attributeDefName">test:testAttributeAssignDefNameDef</p>
-        <p class="attributeDefId">bad2b114a1664e91b8bb72a3fca0c828</p>
+        <p class="description">This is a description 1 rest lite xhtml</p>
+        <p class="displayExtension">My new attribute def name to save 1 rest lite xhtml</p>
+        <p class="displayName">test:My new attribute def name to save 1 rest lite xhtml</p>
+        <p class="extension">testAttributeAssignDefNameToSave1RestLite_xhtml</p>
+        <p class="idIndex">10131</p>
+        <p class="name">test:testAttributeAssignDefNameToSave1RestLite_xhtml</p>
+        <p class="uuid">d7e74fb0826a4e27900bcd66b4fa1ca4</p>
       </div>
     </div>
   </body>
 </html>
+0
 
 
 #########################################
@@ -275,7 +279,7 @@ public class WsSampleAttributeDefNameSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: 2.1.1, wsAttributeDefNameToSaves: Array size: 1: [0]: WsAttributeDefNameToSave[
+Server version: 2.2.0, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: 2.2.0, wsAttributeDefNameToSaves: Array size: 1: [0]: WsAttributeDefNameToSave[
   wsAttributeDefNameLookup=WsAttributeDefNameLookup[pitAttributeDefNames=[]],
   wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...
 , actAsSubject: null, txType: NONE, paramNames: 

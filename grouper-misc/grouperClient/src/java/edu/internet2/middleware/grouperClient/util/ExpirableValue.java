@@ -57,7 +57,9 @@ public class ExpirableValue<T> implements Serializable {
    * @return Returns the content.
    */
   T getContent() {
-    GrouperClientUtils.assertion(!this.expiredLongTime(),"This content is expired!");
+    if (this.expiredLongTime()) {
+      throw new RuntimeException("This content is expired!");
+    }
     return this.content;
   }
 

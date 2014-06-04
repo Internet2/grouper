@@ -61,6 +61,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.entity.Entity;
 import edu.internet2.middleware.grouper.entity.EntitySave;
 import edu.internet2.middleware.grouper.entity.EntityUtils;
+import edu.internet2.middleware.grouper.exception.AttributeAssignNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
@@ -79,6 +80,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.permissions.role.RoleSet;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -105,7 +107,7 @@ public class Test_api_Group extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new Test_api_Group("test_delete_where_group_has_privileges"));
+    TestRunner.run(new Test_api_Group("test_copy_minimum_as_nonadmin_insufficient_privileges"));
   }
   
   private Group           top_group, child_group;
@@ -113,13 +115,17 @@ public class Test_api_Group extends GrouperTest {
   private Stem            child, root, top;
   private GroupType       type1, type2, type3;
   private Field           type1list1, type1list2, type2list1, type2list2, type3list1, type3list2;
-  private Field           type1attr1, type1attr2, type2attr1, type2attr2, type3attr1, type3attr2;
+  private AttributeDefName type1attr1, type1attr2, type2attr1, type2attr2, type3attr1, type3attr2;
 
 
 
   public void setUp() {
     super.setUp();
     try {
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrRead", "true");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrUpdate", "true");
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.groupAttrRead", "true");
+      
       this.s            = GrouperSession.start( SubjectFinder.findRootSubject() );
       this.root         = StemFinder.findRootStem(this.s);
       this.top          = this.root.addChildStem("top", "top display name");
@@ -132,16 +138,16 @@ public class Test_api_Group extends GrouperTest {
       
       type1list1 = type1.addList(s, "type1list1", AccessPrivilege.READ, AccessPrivilege.ADMIN);
       type1list2 = type1.addList(s, "type1list2", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN);
-      type1attr1 = type1.addAttribute(s, "type1attr1", AccessPrivilege.READ, AccessPrivilege.ADMIN, true);
-      type1attr2 = type1.addAttribute(s, "type1attr2", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN, false);
+      type1attr1 = type1.addAttribute(s, "type1attr1", true);
+      type1attr2 = type1.addAttribute(s, "type1attr2",false);
       type2list1 = type2.addList(s, "type2list1", AccessPrivilege.READ, AccessPrivilege.ADMIN);
       type2list2 = type2.addList(s, "type2list2", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN);
-      type2attr1 = type2.addAttribute(s, "type2attr1", AccessPrivilege.READ, AccessPrivilege.ADMIN, true);
-      type2attr2 = type2.addAttribute(s, "type2attr2", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN, false);
+      type2attr1 = type2.addAttribute(s, "type2attr1", true);
+      type2attr2 = type2.addAttribute(s, "type2attr2", false);
       type3list1 = type3.addList(s, "type3list1", AccessPrivilege.READ, AccessPrivilege.ADMIN);
       type3list2 = type3.addList(s, "type3list2", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN);
-      type3attr1 = type3.addAttribute(s, "type3attr1", AccessPrivilege.READ, AccessPrivilege.ADMIN, true);
-      type3attr2 = type3.addAttribute(s, "type3attr2", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN, false);
+      type3attr1 = type3.addAttribute(s, "type3attr1", true);
+      type3attr2 = type3.addAttribute(s, "type3attr2", false);      
     }
     catch (Exception e) {
       throw new GrouperException( "test setUp() error: " + e.getMessage(), e );
@@ -288,7 +294,7 @@ public class Test_api_Group extends GrouperTest {
     assertEquals(1, stem.getStemmers().size());
     assertTrue(group.hasUpdate(a));
     assertFalse(group.hasUpdate(groupToDeleteSubject));
-    assertFalse(group.hasGroupAttrRead(groupToDeleteSubject));
+    assertFalse(group.hasGroupAttrUpdate(groupToDeleteSubject));
     assertEquals(1, group.getAdmins().size());
     
     session.stop();
@@ -1198,12 +1204,12 @@ public class Test_api_Group extends GrouperTest {
 
     group_copy_setup(r, false);
     Group newGroup = child_group.copy(top);
-    assertTrue(newGroup.getTypes().size() == 3);
+    assertTrue(newGroup.getTypes().size() == 2);
     assertGroupName(newGroup, "top:child group.2");
     assertGroupDisplayName(newGroup, "top display name:child group display name");  
     
     Group newGroup2 = child_group.copy(top);
-    assertTrue(newGroup2.getTypes().size() == 3);
+    assertTrue(newGroup2.getTypes().size() == 2);
     assertGroupName(newGroup2, "top:child group.3");
     assertGroupDisplayName(newGroup2, "top display name:child group display name");  
     
@@ -1564,6 +1570,7 @@ public class Test_api_Group extends GrouperTest {
     top_group.deleteMember(child_group.toSubject());
     child_group.addType(type1);
     child_group.setAttribute("type1attr2", "test");
+    type1.internal_getAttributeDefForAttributes().getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, true);
 
     nrs.stop();
     nrs = GrouperSession.start(a);
@@ -1573,7 +1580,7 @@ public class Test_api_Group extends GrouperTest {
           .copyListMembersOfGroup(false).copyListGroupAsMember(false).copyAttributes(
               true).save();
       fail("failed to throw exception");
-    } catch (InsufficientPrivilegeException eExpected) {
+    } catch (AttributeAssignNotFoundException eExpected) {
       assertTrue(true);
     }
     
@@ -1628,8 +1635,8 @@ public class Test_api_Group extends GrouperTest {
     child_group.addMember(i, type1list1);
     child_group.addMember(j, type1list1);
     child_group.setDescription("description test");
-    child_group.setAttribute(type1attr1.getName(), "custom attr value 1");
-    child_group.setAttribute(type2attr1.getName(), "custom attr value 2");
+    child_group.setAttribute(type1attr1.getLegacyAttributeName(true), "custom attr value 1");
+    child_group.setAttribute(type2attr1.getLegacyAttributeName(true), "custom attr value 2");
     child_group.grantPriv(l, AccessPrivilege.GROUP_ATTR_READ);
     child_group.grantPriv(m, AccessPrivilege.GROUP_ATTR_UPDATE);
     child_group.store();
@@ -1654,7 +1661,7 @@ public class Test_api_Group extends GrouperTest {
     Subject m = r.getSubject("m");
     
     // let's do some quick checks to make sure the object that gets returned back is correct
-    assertTrue(newGroup.getTypes().size() == 3);
+    assertTrue(newGroup.getTypes().size() == 2);
     assertGroupName(newGroup, "top:child group");
     assertGroupDisplayName(newGroup, "top display name:child group display name");
     newGroup = null;
@@ -1742,7 +1749,7 @@ public class Test_api_Group extends GrouperTest {
       assertGroupHasRead(newGroup, SubjectFinder.findAllSubject(), true);
       assertTrue(newGroup.getReaders().size() == 2);
       assertGroupHasGroupAttrRead(newGroup, l, true);
-      assertTrue(newGroup.getGroupAttrReaders().size() == 1);
+      assertTrue(newGroup.getGroupAttrReaders().size() == 2);
       assertGroupHasGroupAttrUpdate(newGroup, m, true);
       assertTrue(newGroup.getGroupAttrUpdaters().size() == 1);
     } else {
@@ -1762,8 +1769,8 @@ public class Test_api_Group extends GrouperTest {
       assertGroupHasRead(newGroup, h, true);
       assertGroupHasRead(newGroup, SubjectFinder.findAllSubject(), true);
       assertTrue(newGroup.getReaders().size() == 1);    
-      assertGroupHasGroupAttrRead(newGroup, l, false);
-      assertTrue(newGroup.getGroupAttrReaders().size() == 0);
+      assertGroupHasGroupAttrRead(newGroup, l, true);
+      assertTrue(newGroup.getGroupAttrReaders().size() == 1);
       assertGroupHasGroupAttrUpdate(newGroup, m, false);
       assertTrue(newGroup.getGroupAttrUpdaters().size() == 0);
     }
@@ -1789,19 +1796,19 @@ public class Test_api_Group extends GrouperTest {
     }
     
     // type checks
-    assertTrue(newGroup.getTypes().size() == 3);
+    assertTrue(newGroup.getTypes().size() == 2);
     
     // attribute checks
     if (attributes) {
-      assertTrue(newGroup.getAttributeValue(type1attr1.getName(), false, false).equals("custom attr value 1"));
-      assertTrue(newGroup.getAttributeValue(type1attr2.getName(), false, false).equals(""));
-      assertTrue(newGroup.getAttributeValue(type2attr1.getName(), false, false).equals("custom attr value 2"));
-      assertTrue(newGroup.getAttributeValue(type2attr2.getName(), false, false).equals(""));
+      assertTrue(newGroup.getAttributeValue(type1attr1.getLegacyAttributeName(true), false, false).equals("custom attr value 1"));
+      assertTrue(newGroup.getAttributeValue(type1attr2.getLegacyAttributeName(true), false, false).equals(""));
+      assertTrue(newGroup.getAttributeValue(type2attr1.getLegacyAttributeName(true), false, false).equals("custom attr value 2"));
+      assertTrue(newGroup.getAttributeValue(type2attr2.getLegacyAttributeName(true), false, false).equals(""));
     } else {
-      assertTrue(newGroup.getAttributeValue(type1attr1.getName(), false, false).equals(""));
-      assertTrue(newGroup.getAttributeValue(type1attr2.getName(), false, false).equals(""));
-      assertTrue(newGroup.getAttributeValue(type2attr1.getName(), false, false).equals(""));
-      assertTrue(newGroup.getAttributeValue(type2attr2.getName(), false, false).equals(""));
+      assertTrue(newGroup.getAttributeValue(type1attr1.getLegacyAttributeName(true), false, false).equals(""));
+      assertTrue(newGroup.getAttributeValue(type1attr2.getLegacyAttributeName(true), false, false).equals(""));
+      assertTrue(newGroup.getAttributeValue(type2attr1.getLegacyAttributeName(true), false, false).equals(""));
+      assertTrue(newGroup.getAttributeValue(type2attr2.getLegacyAttributeName(true), false, false).equals(""));
     }
     
     // parent checks

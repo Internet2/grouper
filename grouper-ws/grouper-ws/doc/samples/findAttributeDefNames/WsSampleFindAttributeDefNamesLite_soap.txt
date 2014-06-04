@@ -1,4 +1,4 @@
-Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttributeDefNamesLite, code generated classes, format: soap, for version: 2.1.1
+Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttributeDefNamesLite, code generated classes, format: soap, for version: 2.2.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttrib
 #########################################
 
 
-POST /grouper-ws/services/GrouperService_v2_1 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_2 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:findAttributeDefNamesLite"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
@@ -20,8 +20,8 @@ Transfer-Encoding: chunked
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:findAttributeDefNamesLite xmlns:ns1="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_1_001</ns1:clientVersion>
+    <ns1:findAttributeDefNamesLite xmlns:ns1="http://soap_v2_2.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_2_000</ns1:clientVersion>
       <ns1:scope>test:</ns1:scope>
     </ns1:findAttributeDefNamesLite>
   </soapenv:Body>
@@ -45,43 +45,69 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:findAttributeDefNamesLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sun, 01 Jul 2012 13:35:32 GMT
+Date: Tue, 03 Jun 2014 21:47:41 GMT
 
-c88
+10fb
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:findAttributeDefNamesLiteResponse xmlns:ns="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
+    <ns:findAttributeDefNamesLiteResponse xmlns:ns="http://soap_v2_2.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsFindAttributeDefNamesResults">
         <ns:attributeDefNameResults xsi:type="ns:WsAttributeDefName">
-          <ns:attributeDefId>85e7dfde8e6d49acbc3bc9f276603f6c</ns:attributeDefId>
+          <ns:attributeDefId>38ec4cb774b9439289e52c7f5a1b3995</ns:attributeDefId>
           <ns:attributeDefName>test:testAttributeAssignAssignNameDef</ns:attributeDefName>
           <ns:description xsi:nil="true" />
           <ns:displayExtension>testAttributeAssignAssignName</ns:displayExtension>
           <ns:displayName>test:testAttributeAssignAssignName</ns:displayName>
           <ns:extension>testAttributeAssignAssignName</ns:extension>
+          <ns:idIndex>10116</ns:idIndex>
           <ns:name>test:testAttributeAssignAssignName</ns:name>
-          <ns:uuid>0b77d95deb5c4a559fa4617b8ad3a27e</ns:uuid>
+          <ns:uuid>e7a8b649d069404cbc3272fca1912d41</ns:uuid>
         </ns:attributeDefNameResults>
         <ns:attributeDefNameResults xsi:type="ns:WsAttributeDefName">
-          <ns:attributeDefId>8837332eec344ec1a14a811cc0728b0e</ns:attributeDefId>
+          <ns:attributeDefId>96382351bd0c4c5a9b330df895cd81c2</ns:attributeDefId>
           <ns:attributeDefName>test:testAttributeAssignDefNameDef</ns:attributeDefName>
           <ns:description xsi:nil="true" />
           <ns:displayExtension>testAttributeAssignDefName</ns:displayExtension>
           <ns:displayName>test:testAttributeAssignDefName</ns:displayName>
           <ns:extension>testAttributeAssignDefName</ns:extension>
+          <ns:idIndex>10115</ns:idIndex>
           <ns:name>test:testAttributeAssignDefName</ns:name>
-          <ns:uuid>7536b8b0a86a4d53a7b976992c2d3050</ns:uuid>
+          <ns:uuid>5a06a0cc9f7948a58af6e40e7c69f8d3</ns:uuid>
+        </ns:attributeDefNameResults>
+        <ns:attributeDefNameResults xsi:type="ns:WsAttributeDefName">
+          <ns:attributeDefId>d461f8c2ba5143d9aa7f3825bfbc55a2</ns:attributeDefId>
+          <ns:attributeDefName>test:testAttrNameDef</ns:attributeDefName>
+          <ns:description xsi:nil="true" />
+          <ns:displayExtension>testAttrName</ns:displayExtension>
+          <ns:displayName>test:testAttrName</ns:displayName>
+          <ns:extension>testAttrName</ns:extension>
+          <ns:idIndex>10114</ns:idIndex>
+          <ns:name>test:testAttrName</ns:name>
+          <ns:uuid>d61919cf19e147e2938e59765d50fb49</ns:uuid>
         </ns:attributeDefNameResults>
         <ns:attributeDefs xsi:type="ns:WsAttributeDef">
           <ns:assignableTos xsi:nil="true" />
           <ns:attributeDefType>attr</ns:attributeDefType>
           <ns:description xsi:nil="true" />
+          <ns:extension>testAttrNameDef</ns:extension>
+          <ns:idIndex>10030</ns:idIndex>
+          <ns:multiAssignable>F</ns:multiAssignable>
+          <ns:multiValued>T</ns:multiValued>
+          <ns:name>test:testAttrNameDef</ns:name>
+          <ns:uuid>d461f8c2ba5143d9aa7f3825bfbc55a2</ns:uuid>
+          <ns:valueType>string</ns:valueType>
+        </ns:attributeDefs>
+        <ns:attributeDefs xsi:type="ns:WsAttributeDef">
+          <ns:assignableTos xsi:nil="true" />
+          <ns:attributeDefType>attr</ns:attributeDefType>
+          <ns:description xsi:nil="true" />
           <ns:extension>testAttributeAssignAssignNameDef</ns:extension>
+          <ns:idIndex>10032</ns:idIndex>
           <ns:multiAssignable>F</ns:multiAssignable>
           <ns:multiValued>F</ns:multiValued>
           <ns:name>test:testAttributeAssignAssignNameDef</ns:name>
-          <ns:uuid>85e7dfde8e6d49acbc3bc9f276603f6c</ns:uuid>
+          <ns:uuid>38ec4cb774b9439289e52c7f5a1b3995</ns:uuid>
           <ns:valueType>marker</ns:valueType>
         </ns:attributeDefs>
         <ns:attributeDefs xsi:type="ns:WsAttributeDef">
@@ -89,25 +115,27 @@ c88
           <ns:attributeDefType>attr</ns:attributeDefType>
           <ns:description xsi:nil="true" />
           <ns:extension>testAttributeAssignDefNameDef</ns:extension>
+          <ns:idIndex>10031</ns:idIndex>
           <ns:multiAssignable>F</ns:multiAssignable>
           <ns:multiValued>T</ns:multiValued>
           <ns:name>test:testAttributeAssignDefNameDef</ns:name>
-          <ns:uuid>8837332eec344ec1a14a811cc0728b0e</ns:uuid>
+          <ns:uuid>96382351bd0c4c5a9b330df895cd81c2</ns:uuid>
           <ns:valueType>integer</ns:valueType>
         </ns:attributeDefs>
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.1.1</ns:serverVersion>
+          <ns:serverVersion>2.2.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: 2.1.1, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
+          <ns:resultMessage>Success for: clientVersion: 2.2.0, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
 wsAttributeDefNameLookups: null
 wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: null, paramNames:
-, params: null</ns:resultMessage>
+, params: null
+, wsSubjectLookup: null, serviceRole: null</ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
       </ns:return>
@@ -156,9 +184,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.FindAttributeDefNamesLite;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsFindAttributeDefNamesResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsAttributeDefName;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.FindAttributeDefNamesLite;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsFindAttributeDefNamesResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefName;
 
 
 /**
@@ -244,9 +272,10 @@ public class WsSampleFindAttributeDefNamesLite implements WsSampleGenerated {
 
 
 WsFindAttributeDefNamesResults[
-  localAttributeDefNameResults={edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsAttributeDefName@10b07e,edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsAttributeDefName@1b336cb},localAttributeDefNameResultsTracker=true,
-  localAttributeDefs={edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsAttributeDef@18028a,edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsAttributeDef@4ec06e},localAttributeDefsTracker=true,
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@3bad4f,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@1ef3125,localResultMetadataTracker=true]
-WsAttributeDefName[localAttributeDefId=85e7dfde8e6d49acbc3bc9f276603f6c,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignAssignNameDef,localAttributeDefNameTracker=true,localDescriptionTracker=false,localDisplayExtension=testAttributeAssignAssignName,localDisplayExtensionTracker=true,localDisplayName=test:testAttributeAssignAssignName,localDisplayNameTracker=true,localExtension=testAttributeAssignAssignName,localExtensionTracker=true,localName=test:testAttributeAssignAssignName,localNameTracker=true,localUuid=0b77d95deb5c4a559fa4617b8ad3a27e,localUuidTracker=true]
-WsAttributeDefName[localAttributeDefId=8837332eec344ec1a14a811cc0728b0e,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescriptionTracker=false,localDisplayExtension=testAttributeAssignDefName,localDisplayExtensionTracker=true,localDisplayName=test:testAttributeAssignDefName,localDisplayNameTracker=true,localExtension=testAttributeAssignDefName,localExtensionTracker=true,localName=test:testAttributeAssignDefName,localNameTracker=true,localUuid=7536b8b0a86a4d53a7b976992c2d3050,localUuidTracker=true]
+  localAttributeDefNameResults={edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefName@10dd771b,edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefName@3bb69643,edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefName@50432755},localAttributeDefNameResultsTracker=true,
+  localAttributeDefs={edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDef@1be032b,edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDef@61c1fcf1,edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDef@6c5645b},localAttributeDefsTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResponseMeta@93f95d6,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResultMeta@2d861958,localResultMetadataTracker=true]
+WsAttributeDefName[localAttributeDefId=38ec4cb774b9439289e52c7f5a1b3995,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignAssignNameDef,localAttributeDefNameTracker=true,localDescriptionTracker=false,localDisplayExtension=testAttributeAssignAssignName,localDisplayExtensionTracker=true,localDisplayName=test:testAttributeAssignAssignName,localDisplayNameTracker=true,localExtension=testAttributeAssignAssignName,localExtensionTracker=true,localIdIndex=10116,localIdIndexTracker=true,localName=test:testAttributeAssignAssignName,localNameTracker=true,localUuid=e7a8b649d069404cbc3272fca1912d41,localUuidTracker=true]
+WsAttributeDefName[localAttributeDefId=96382351bd0c4c5a9b330df895cd81c2,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttributeAssignDefNameDef,localAttributeDefNameTracker=true,localDescriptionTracker=false,localDisplayExtension=testAttributeAssignDefName,localDisplayExtensionTracker=true,localDisplayName=test:testAttributeAssignDefName,localDisplayNameTracker=true,localExtension=testAttributeAssignDefName,localExtensionTracker=true,localIdIndex=10115,localIdIndexTracker=true,localName=test:testAttributeAssignDefName,localNameTracker=true,localUuid=5a06a0cc9f7948a58af6e40e7c69f8d3,localUuidTracker=true]
+WsAttributeDefName[localAttributeDefId=d461f8c2ba5143d9aa7f3825bfbc55a2,localAttributeDefIdTracker=true,localAttributeDefName=test:testAttrNameDef,localAttributeDefNameTracker=true,localDescriptionTracker=false,localDisplayExtension=testAttrName,localDisplayExtensionTracker=true,localDisplayName=test:testAttrName,localDisplayNameTracker=true,localExtension=testAttrName,localExtensionTracker=true,localIdIndex=10114,localIdIndexTracker=true,localName=test:testAttrName,localNameTracker=true,localUuid=d61919cf19e147e2938e59765d50fb49,localUuidTracker=true]

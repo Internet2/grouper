@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRestLite, manually written lite/rest, format: xml, for version: 2.1.1
+Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRestLite, manually written lite/rest, format: xml, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRestLite,
 #########################################
 
 
-DELETE /grouper-ws/servicesRest/xml/v2_1_001/groups/aStem%3AaGroup123 HTTP/1.1
+DELETE /grouper-ws/servicesRest/xml/v2_2_000/groups/aStem%3AaGroup123 HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 
 
@@ -34,13 +34,15 @@ X-Grouper-resultCode: SUCCESS_GROUP_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 14:08:39 GMT
+Transfer-Encoding: chunked
+Date: Thu, 29 May 2014 00:09:06 GMT
 Connection: close
 
+2d1
 <WsGroupDeleteLiteResult>
   <resultMetadata>
     <resultCode>SUCCESS_GROUP_NOT_FOUND</resultCode>
-    <resultMessage>Success for: clientVersion: 2.1.1, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123]
+    <resultMessage>Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123]
 
 , actAsSubject: null, txType: NONE, includeGroupDetail: false, paramNames:
 , params: nullCant find group: &apos;WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123,
@@ -49,14 +51,15 @@ groupFindResult=GROUP_NOT_FOUND]&apos;.</resultMessage>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>16</millis>
-    <serverVersion>2.1.1</serverVersion>
+    <millis>13</millis>
+    <serverVersion>2.2.0</serverVersion>
   </responseMetadata>
   <wsGroup>
     <extension>aGroup123</extension>
     <name>aStem:aGroup123</name>
   </wsGroup>
 </WsGroupDeleteLiteResult>
+0
 
 
 #########################################
@@ -204,7 +207,7 @@ public class WsSampleGroupDeleteRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS_GROUP_NOT_FOUND, result message: Success for: clientVersion: 2.1.1, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123]
+Server version: 2.2.0, result code: SUCCESS_GROUP_NOT_FOUND, result message: Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123]
 
 , actAsSubject: null, txType: NONE, includeGroupDetail: false, paramNames: 
 , params: nullCant find group: 'WsGroupLookup[pitGroups=[],groupName=aStem:aGroup123,

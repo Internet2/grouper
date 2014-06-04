@@ -60,7 +60,7 @@ public class QueryPaging {
   private int pageSize = 30;
   
   /**
-   * index of the first record on the first page (1 indexed, friendly) 
+   * getter for pageStartIndex: index of the first record on the first page, this was documented as 1 indexed, but it seems to be 0 indexed
    */
   private int pageStartIndex = -1;
   
@@ -109,7 +109,7 @@ public class QueryPaging {
   }
   
   /**
-   * getter for pageStartIndex: index of the first record on the first page (1 indexed, friendly)
+   * getter for pageStartIndex: index of the first record on the first page, this was documented as 1 indexed, but it seems to be 0 indexed
    * @return the value of the field
    */
   public int getPageStartIndex() {
@@ -153,13 +153,24 @@ public class QueryPaging {
   }
   
   /**
-   * setter for pageStartIndex: index of the first record on the first page (1 indexed, friendly)
+   * setter for pageStartIndex: index of the first record on the first page, this was documented as 1 indexed, but it seems to be 0 indexed
    * @param _pageStartIndex is the data to set
    */
   public void setPageStartIndex(int _pageStartIndex) {
     this.pageStartIndex = _pageStartIndex;
   }
   
+  /**
+   * <pre>
+   * set the first index on the page, 0 indexed, dont use pages to query...
+   * </pre>
+   * @param startIndex
+   */
+  public void setPageStartIndexQueryByIndex(int startIndex) {
+    this.pageNumber = -1;
+    this.pageStartIndex = startIndex;
+  }
+
   /**
    * setter for totalRecordCount: total number of records in the set (you must set this before the tag is called)
    * @param _totalRecordCount is the data to set
@@ -230,7 +241,7 @@ public class QueryPaging {
    */
   public List<Integer> getAllPages() {
     
-    List<Integer> result = new ArrayList(this.getNumberOfPages());
+    List<Integer> result = new ArrayList<Integer>(this.getNumberOfPages());
     for (int counter=0; counter < this.getNumberOfPages(); ++counter) {
       result.add(counter + 1);
     }
@@ -244,6 +255,11 @@ public class QueryPaging {
    * @return the first index on page 0 indexed
    */
   public int getFirstIndexOnPage() {
+    
+    if (this.pageNumber < 0 && this.pageStartIndex > 0) {
+      return this.pageStartIndex - 1;
+    }
+    
     return (this.getPageNumber() - 1) * this.getPageSize();
   }
 
@@ -261,7 +277,7 @@ public class QueryPaging {
     //lets calculate the start index.  0 -> 1, pageSize -> 2, 2*pageSize -> 3
     this.pageNumber = (startIndex / pageSize) + 1;
   }
-  
+    
   /**
    * return the last index on page (0 indexed)
    * @return the last index on page 0 indexed

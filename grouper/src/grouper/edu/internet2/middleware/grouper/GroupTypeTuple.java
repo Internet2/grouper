@@ -31,8 +31,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import java.io.StringWriter;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -40,24 +38,10 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
-import edu.internet2.middleware.grouper.group.GroupSet;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.hooks.GroupTypeTupleHooks;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupTypeTupleBean;
-import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
-import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
-import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
-import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
-import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.misc.GrouperHasContext;
-import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.xml.export.XmlExportGroupTypeTuple;
-import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 
 /**
  * Basic Hibernate <code>Group</code> and <code>GroupType</code> tuple DTO implementation.
@@ -66,17 +50,14 @@ import edu.internet2.middleware.grouper.xml.export.XmlImportable;
  * @since   @HEAD@
  */
 @SuppressWarnings("serial")
-public class GroupTypeTuple extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, XmlImportable<GroupTypeTuple> {
+public class GroupTypeTuple extends GrouperAPI {
 
   /**
    * 
    */
-  public static final String TABLE_GROUPER_GROUPS_TYPES = "grouper_groups_types";
+  public static final String TABLE_OLD_GROUPER_GROUPS_TYPES = "grouper_groups_types";
 
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
-
-  /** constant for field name for: dbVersion */
-  public static final String FIELD_DB_VERSION = "dbVersion";
 
   /** constant for field name for: groupUUID */
   public static final String FIELD_GROUP_UUID = "groupUUID";
@@ -86,12 +67,6 @@ public class GroupTypeTuple extends GrouperAPI implements GrouperHasContext, Hib
 
   /** constant for field name for: typeUUID */
   public static final String FIELD_TYPE_UUID = "typeUUID";
-
-  /**
-   * fields which are included in db version
-   */
-  private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_GROUP_UUID, FIELD_ID, FIELD_TYPE_UUID);
 
   /**
    * fields which are included in clone method
@@ -260,325 +235,45 @@ public class GroupTypeTuple extends GrouperAPI implements GrouperHasContext, Hib
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPostDelete(HibernateSession hibernateSession) {
-
-    super.onPostDelete(hibernateSession);
-    
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP_TYPE_TUPLE, 
-        GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_COMMIT_DELETE, HooksGroupTypeTupleBean.class, 
-        this, GroupTypeTuple.class);
-
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
-        GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_DELETE, HooksGroupTypeTupleBean.class, 
-        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_POST_DELETE, false, true);
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPostSave(HibernateSession hibernateSession) {
-
-    super.onPostSave(hibernateSession);
-    
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
-        GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_INSERT, HooksGroupTypeTupleBean.class, 
-        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_POST_INSERT, true, false);
-
-    //do these second so the right object version is set, and dbVersion is ok
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP_TYPE_TUPLE, 
-        GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_COMMIT_INSERT, HooksGroupTypeTupleBean.class, 
-        this, GroupTypeTuple.class);
-
-  }
-
-  /**
-   * delete this record
-   */
-  public void delete() {
-    GrouperDAOFactory.getFactory().getGroupTypeTuple().delete(this);
-  }
-  
-  /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPostUpdate(HibernateSession hibernateSession) {
-
-    super.onPostUpdate(hibernateSession);
-    
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP_TYPE_TUPLE, 
-        GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_COMMIT_UPDATE, HooksGroupTypeTupleBean.class, 
-        this, GroupTypeTuple.class);
-
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
-        GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_UPDATE, HooksGroupTypeTupleBean.class, 
-        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_POST_UPDATE, true, false);
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPreDelete(HibernateSession hibernateSession) {
-    super.onPreDelete(hibernateSession);
-    
-    // remove group sets
-    Set<Field> fields = FieldFinder.findAllByGroupType(this.getTypeUuid());
-    Iterator<Field> iter = fields.iterator();
-    
-    while (iter.hasNext()) {
-      Field field = iter.next();
-      if (field.isGroupListField()) {
-        GrouperDAOFactory.getFactory().getGroupSet().deleteSelfByOwnerGroupAndField(this.getGroupUuid(), field.getUuid());
-      }
-    }
-    
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
-        GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_PRE_DELETE, HooksGroupTypeTupleBean.class, 
-        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_PRE_DELETE, false, false);
-  
-    GroupType groupType = GroupTypeFinder.findByUuid(this.getTypeUuid(), true);
-    
-    //change log into temp table
-    new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_TYPE_UNASSIGN, 
-        ChangeLogLabels.GROUP_TYPE_UNASSIGN.id.name(), this.getId(), 
-        ChangeLogLabels.GROUP_TYPE_UNASSIGN.groupId.name(), this.getGroupUuid(), 
-        ChangeLogLabels.GROUP_TYPE_UNASSIGN.groupName.name(), this.retrieveGroup(true).getName(),
-        ChangeLogLabels.GROUP_TYPE_UNASSIGN.typeId.name(), this.getTypeUuid(),
-        ChangeLogLabels.GROUP_TYPE_UNASSIGN.typeName.name(), groupType.getName()).save();
-  }
-
-  /**
-   * 
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPreSave(HibernateSession hibernateSession) {
-    super.onPreSave(hibernateSession);
-    
-    // get the group object if we don't already have it..
-    this.retrieveGroup(true);
-    
-    // add group sets
-    Set<Field> fields = FieldFinder.findAllByGroupType(this.getTypeUuid());
-    Iterator<Field> iter = fields.iterator();
-    
-    while (iter.hasNext()) {
-      Field field = iter.next();
-      
-      if (field.isGroupListField()) {
-        if (GroupTypeTuple.this.group != null && GroupTypeTuple.this.group.getTypeOfGroup() != null
-            && GroupTypeTuple.this.group.getTypeOfGroup().supportsField(field)) {
-          GroupSet groupSet = new GroupSet();
-          groupSet.setId(GrouperUuid.getUuid());
-          groupSet.setCreatorId(GrouperSession.staticGrouperSession().getMemberUuid());
-          groupSet.setDepth(0);
-          groupSet.setMemberGroupId(this.getGroupUuid());
-          groupSet.setOwnerGroupId(this.getGroupUuid());
-          groupSet.setParentId(groupSet.getId());
-          groupSet.setFieldId(field.getUuid());
-          GrouperDAOFactory.getFactory().getGroupSet().save(groupSet);
-        }
-      }
-    }
-    
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
-        GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_PRE_INSERT, HooksGroupTypeTupleBean.class, 
-        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_PRE_INSERT, false, false);
-
-    GroupType groupType = GroupTypeFinder.findByUuid(this.getTypeUuid(), true);
-    
-    //change log into temp table
-    new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_TYPE_ASSIGN, 
-        ChangeLogLabels.GROUP_TYPE_ASSIGN.id.name(), this.getId(), 
-        ChangeLogLabels.GROUP_TYPE_ASSIGN.groupId.name(), this.getGroupUuid(), 
-        ChangeLogLabels.GROUP_TYPE_ASSIGN.groupName.name(), this.retrieveGroup(true).getName(),
-        ChangeLogLabels.GROUP_TYPE_ASSIGN.typeId.name(), this.getTypeUuid(),
-        ChangeLogLabels.GROUP_TYPE_ASSIGN.typeName.name(), groupType.getName()).save();
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPreUpdate(HibernateSession hibernateSession) {
-    super.onPreUpdate(hibernateSession);
-    
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
-        GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_PRE_UPDATE, HooksGroupTypeTupleBean.class, 
-        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_PRE_UPDATE, false, false);
-  }
-
-  /**
-   * save the state when retrieving from DB
-   * @return the dbVersion
-   */
-  @Override
-  public GroupTypeTuple dbVersion() {
-    return (GroupTypeTuple)this.dbVersion;
-  }
-
-  /**
-   * note, these are massaged so that name, extension, etc look like normal fields.
-   * access with fieldValue()
-   * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
-   */
-  @Override
-  public Set<String> dbVersionDifferentFields() {
-    if (this.dbVersion == null) {
-      throw new RuntimeException("State was never stored from db");
-    }
-    //easier to unit test if everything is ordered
-    Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
-        DB_VERSION_FIELDS, null);
-    return result;
-  }
-
-  /**
-   * take a snapshot of the data since this is what is in the db
-   */
-  @Override
-  public void dbVersionReset() {
-    //lets get the state from the db so we know what has changed
-    this.dbVersion = GrouperUtil.clone(this, DB_VERSION_FIELDS);
-  }
-
-  /**
    * deep clone the fields in this object
    */
   @Override
   public GroupTypeTuple clone() {
     return GrouperUtil.clone(this, CLONE_FIELDS);
   }
-
-  /**
-   * store this object to the DB.
-   */
-  public void store() {    
-    GrouperDAOFactory.getFactory().getGroupTypeTuple().update(this);
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlCopyBusinessPropertiesToExisting(java.lang.Object)
-   */
-  public void xmlCopyBusinessPropertiesToExisting(GroupTypeTuple existingRecord) {
-    existingRecord.setGroupUuid(this.getGroupUuid());
-    existingRecord.setId(this.getId());
-    existingRecord.setTypeUuid(this.getTypeUuid());
-
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentBusinessProperties(java.lang.Object)
-   */
-  public boolean xmlDifferentBusinessProperties(GroupTypeTuple other) {
-    if (!StringUtils.equals(this.groupUUID, other.groupUUID)) {
-      return true;
-    }
-    if (!StringUtils.equals(this.id, other.id)) {
-      return true;
-    }
-    if (!StringUtils.equals(this.typeUUID, other.typeUUID)) {
-      return true;
-    }
-
-    return false;
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentUpdateProperties(java.lang.Object)
-   */
-  public boolean xmlDifferentUpdateProperties(GroupTypeTuple other) {
-    if (!StringUtils.equals(this.contextId, other.contextId)) {
-      return true;
-    }
-    if (!GrouperUtil.equals(this.getHibernateVersionNumber(), other.getHibernateVersionNumber())) {
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlRetrieveByIdOrKey()
-   */
-  public GroupTypeTuple xmlRetrieveByIdOrKey() {
-    return GrouperDAOFactory.getFactory().getGroupTypeTuple().findByUuidOrKey(this.id, this.groupUUID, this.typeUUID, false);
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
-   */
-  public GroupTypeTuple xmlSaveBusinessProperties(GroupTypeTuple existingRecord) {
-    //if its an insert, call the business method
-    if (existingRecord == null) {
-      existingRecord = this.clone();
-      GrouperDAOFactory.getFactory().getGroupTypeTuple().save(existingRecord);
-    }
-    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
-    //if its an insert or update, then do the rest of the fields
-    existingRecord.store();
-    return existingRecord;
-
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveUpdateProperties()
-   */
-  public void xmlSaveUpdateProperties() {
-    GrouperDAOFactory.getFactory().getGroupTypeTuple().saveUpdateProperties(this);
-  }
-
-  /**
-   * convert to xml bean for export
-   * @param grouperVersion
-   * @return xml bean
-   */
-  public XmlExportGroupTypeTuple xmlToExportGroup(GrouperVersion grouperVersion) {
-    if (grouperVersion == null) {
-      throw new RuntimeException();
-    }
-    
-    XmlExportGroupTypeTuple xmlExportGroupTypeTuple = new XmlExportGroupTypeTuple();
-    
-    xmlExportGroupTypeTuple.setContextId(this.getContextId());
-    xmlExportGroupTypeTuple.setGroupId(this.getGroupUuid());
-    xmlExportGroupTypeTuple.setHibernateVersionNumber(this.getHibernateVersionNumber());
-    xmlExportGroupTypeTuple.setTypeId(this.getTypeUuid());
-    xmlExportGroupTypeTuple.setUuid(this.getId());
-    return xmlExportGroupTypeTuple;
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlGetId()
-   */
-  public String xmlGetId() {
-    return this.getId();
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSetId(java.lang.String)
-   */
-  public void xmlSetId(String theId) {
-    this.setId(theId);
-  }
   
   /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlToString()
+   * @param assignment
+   * @param exceptionIfNotLegacyGroupTypeTuple
+   * @return groupType
    */
-  public String xmlToString() {
-    StringWriter stringWriter = new StringWriter();
+  public static GroupTypeTuple internal_getGroupTypeTuple(AttributeAssign assignment, boolean exceptionIfNotLegacyGroupTypeTuple) {
     
-    stringWriter.write("GroupTypeTuple: " + this.getId() + ", ");
+    AttributeAssignType ownerType = assignment.getAttributeAssignType();
+    if (AttributeAssignType.group == ownerType) {
+      AttributeDefName attributeDefName = assignment.getAttributeDefName();
+      GroupType groupType = GroupType.internal_getGroupType(attributeDefName, false);
+      
+      if (groupType != null) {
+        Group group = assignment.getOwnerGroup();
 
-//    XmlExportUtils.toStringGroupTypeTuple(stringWriter, this, false);
+        GroupTypeTuple gtt = new GroupTypeTuple();
+        gtt.setGroupUuid(group.getId());
+        gtt.assignGroupUuid(group.getId(), group);
+        gtt.setTypeUuid(groupType.getUuid());
+        gtt.setId(assignment.getId());
+        gtt.setContextId(assignment.getContextId());
+        gtt.setHibernateVersionNumber(assignment.getHibernateVersionNumber());
+        
+        return gtt;
+      }
+    }
     
-    return stringWriter.toString();
+    if (exceptionIfNotLegacyGroupTypeTuple) {
+      throw new RuntimeException("AttributeAssign " + assignment.getId() + " is not a legacy group type assignment.");
+    }
     
+    return null;
   }
-
 } 
 

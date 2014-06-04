@@ -1,4 +1,0 @@
-dn: ou=edu,ou=testgroups,${base}
-objectClass: organizationalUnit
-objectClass: top
-ou: edu

@@ -20,7 +20,9 @@ package edu.internet2.middleware.grouper.hibernate;
 
 import java.sql.SQLException;
 import java.sql.Savepoint;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -34,6 +36,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperReadonlyException;
 import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
+import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -124,98 +127,139 @@ public class HibernateSession {
   private HibernateSession(HibernateSession parentHibernateSession,
       GrouperTransactionType grouperTransactionType) throws GrouperDAOException {
 
-    if (!GrouperDdlUtils.okToUseHibernate()) {
-      if (GrouperConfig.retrieveConfig().propertyValueBoolean("ddlutils.failIfNotRightVersion", true)) {
-        throw new RuntimeException("Database schema ddl is not up to date, or has issues, check logs and config ddl in grouper.properties and run: gsh -registry -check");
+    Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+    GrouperTransactionType originalGrouperTransactionType = grouperTransactionType;
+    try {
+
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("grouperTransactionType", grouperTransactionType);
       }
-    }
-    
-    //if readonly, then dont allow read/write transactions
-    if (isReadonlyMode()) {
-      if (grouperTransactionType != null && grouperTransactionType.isTransactional()) {
-        grouperTransactionType = GrouperTransactionType.READONLY_OR_USE_EXISTING;
+      
+      boolean okToUseHibernate = GrouperDdlUtils.okToUseHibernate();
+      
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("okToUseHibernate", okToUseHibernate);
       }
-    }
-    
-    //if we arent using nested transactions, then just use parent if there is one...
-    if (!GrouperConfig.retrieveConfig().propertyValueBoolean("ddlutils.use.nestedTransactions", true) && parentHibernateSession != null) {
-      grouperTransactionType = parentHibernateSession.getGrouperTransactionType();
-      //we dont want new transactions... not sure what happens if none... hmm
-      if (grouperTransactionType.isNewAutonomous()) {
-        if (grouperTransactionType == GrouperTransactionType.READ_WRITE_NEW) {
-          grouperTransactionType = GrouperTransactionType.READ_WRITE_OR_USE_EXISTING;
-        } else if (grouperTransactionType == GrouperTransactionType.READONLY_NEW) {
-          grouperTransactionType = GrouperTransactionType.READONLY_OR_USE_EXISTING;
+        
+      if (!okToUseHibernate) {
+        if (GrouperConfig.retrieveConfig().propertyValueBoolean("ddlutils.failIfNotRightVersion", true)) {
+          throw new RuntimeException("Database schema ddl is not up to date, or has issues, check logs and config ddl in grouper.properties and run: gsh -registry -check");
         }
       }
-      LOG.debug("Not using nested transactions, converting transaction type to: " + parentHibernateSession.getGrouperTransactionType());
-    }
-    
-    this.immediateGrouperTransactionTypeDeclared = grouperTransactionType;
-    
-    //if parent is none, then make sure this is a new transaction (not dependent on none)
-    if (parentHibernateSession != null) {
       
-      this.cachingEnabled = parentHibernateSession.cachingEnabled;
+      //if readonly, then dont allow read/write transactions
+      boolean readonlyMode = isReadonlyMode();
 
-    }
-
-    //if parent is none, then make sure this is a new transaction (not dependent on none)
-    if (parentHibernateSession != null && !grouperTransactionType.isNewAutonomous() && 
-        parentHibernateSession.activeHibernateSession().immediateGrouperTransactionTypeUsed.isTransactional()) {
-
-      //if there is a parent, then it is inherited.  even if not autonomous, only inherit if not parent of none
-      this.parentSession = parentHibernateSession;
-    
-      //make sure the transaction types jive with each other
-      this.immediateGrouperTransactionTypeDeclared.checkCompatibility(
-          this.parentSession.getGrouperTransactionType());
-    }
-    
-    if (this.isNewHibernateSession()) {
-      
-      if (grouperTransactionType == null) {
-        throw new NullPointerException("transaction type is null in hibernate session");
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("readonlyMode", readonlyMode);
+      }
+        
+      if (readonlyMode) {
+        if (grouperTransactionType != null && grouperTransactionType.isTransactional()) {
+          grouperTransactionType = GrouperTransactionType.READONLY_OR_USE_EXISTING;
+          
+          if (LOG.isDebugEnabled() && grouperTransactionType != originalGrouperTransactionType) {
+            debugMap.put("readonlyGrouperTransactionTypeChangedTo", grouperTransactionType);
+          }
+          originalGrouperTransactionType = grouperTransactionType;
+        }
       }
       
-      this.immediateGrouperTransactionTypeUsed = grouperTransactionType
-          .grouperTransactionTypeToUse();
-
-      // need a hibernate session (note, if none, then we dont need a session?)
-      if (!GrouperTransactionType.NONE.equals(grouperTransactionType)) {
-        this.immediateSession = GrouperDAOFactory.getFactory().getSession();
+      boolean parentSessionExists = parentHibernateSession != null;
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("parentSessionExists", parentSessionExists);
       }
-
-      // if not readonly, declare a transaction
-      if (!this.immediateGrouperTransactionTypeUsed.isReadonly()) {
-        this.immediateTransaction = this.immediateSession.beginTransaction();
-
-        String useSavepointsString = GrouperConfig.retrieveConfig().propertyValueString("jdbc.useSavePoints");
-        boolean useSavepoints;
-        if (StringUtils.isBlank(useSavepointsString)) {
-          useSavepoints = !GrouperDdlUtils.isHsql();
-        } else {
-          useSavepoints = GrouperUtil.booleanValue(useSavepointsString);
+      
+      this.immediateGrouperTransactionTypeDeclared = grouperTransactionType;
+      
+      //if parent is none, then make sure this is a new transaction (not dependent on none)
+      if (parentSessionExists) {
+        
+        this.cachingEnabled = parentHibernateSession.cachingEnabled;
+  
+      }
+  
+      //if parent is none, then make sure this is a new transaction (not dependent on none)
+      if (parentSessionExists && !grouperTransactionType.isNewAutonomous() && 
+          parentHibernateSession.activeHibernateSession().immediateGrouperTransactionTypeUsed.isTransactional()) {
+  
+        //if there is a parent, then it is inherited.  even if not autonomous, only inherit if not parent of none
+        this.parentSession = parentHibernateSession;
+      
+        //make sure the transaction types jive with each other
+        this.immediateGrouperTransactionTypeDeclared.checkCompatibility(
+            this.parentSession.getGrouperTransactionType());
+      }
+      
+      boolean newHibernateSession = this.isNewHibernateSession();
+      
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("newHibernateSession", newHibernateSession);
+      }
+      
+      if (newHibernateSession) {
+        
+        if (grouperTransactionType == null) {
+          throw new NullPointerException("transaction type is null in hibernate session");
         }
         
-        if (useSavepoints && (parentHibernateSession != null   // && this.activeHibernateSession().isTransactionActive()  && !this.activeHibernateSession().isReadonly() 
-            || GrouperConfig.retrieveConfig().propertyValueBoolean("jdbc.useSavePointsOnAllNewTransactions", false))) {
-          try {
-            this.savepoint = this.activeHibernateSession().getSession().connection().setSavepoint();
-            savePointCount++;
-          } catch (SQLException sqle) {
-            throw new RuntimeException("Problem setting save point for transaction type: " 
-                + grouperTransactionType, sqle);
+        this.immediateGrouperTransactionTypeUsed = grouperTransactionType
+            .grouperTransactionTypeToUse();
+  
+        // need a hibernate session (note, if none, then we dont need a session?)
+        if (!GrouperTransactionType.NONE.equals(grouperTransactionType)) {
+          this.immediateSession = GrouperDAOFactory.getFactory().getSession();
+        }
+
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("immediateGrouperTransactionTypeUsed", this.immediateGrouperTransactionTypeUsed);
+          debugMap.put("immediateGrouperTransactionTypeReadonly", this.immediateGrouperTransactionTypeUsed.isReadonly());
+        }
+
+        // if not readonly, declare a transaction
+        if (!this.immediateGrouperTransactionTypeUsed.isReadonly()) {
+          if (LOG.isDebugEnabled()) {
+            debugMap.put("beginTransaction", "true");
           }
-        } else if (GrouperDdlUtils.isHsql() && parentHibernateSession != null) {
-          //do this for tests...
-          savePointCount++;
+          this.immediateTransaction = this.immediateSession.beginTransaction();
+  
+          String useSavepointsString = GrouperConfig.retrieveConfig().propertyValueString("jdbc.useSavePoints");
+          boolean useSavepoints;
+          if (StringUtils.isBlank(useSavepointsString)) {
+            useSavepoints = !GrouperDdlUtils.isHsql();
+          } else {
+            useSavepoints = GrouperUtil.booleanValue(useSavepointsString);
+          }
+
+          if (LOG.isDebugEnabled()) {
+            debugMap.put("useSavepoints", useSavepoints);
+          }
+          
+          if (useSavepoints && (parentSessionExists   // && this.activeHibernateSession().isTransactionActive()  && !this.activeHibernateSession().isReadonly() 
+              || GrouperConfig.retrieveConfig().propertyValueBoolean("jdbc.useSavePointsOnAllNewTransactions", false))) {
+            try {
+              this.savepoint = this.activeHibernateSession().getSession().connection().setSavepoint();
+              savePointCount++;
+            } catch (SQLException sqle) {
+              throw new RuntimeException("Problem setting save point for transaction type: " 
+                  + grouperTransactionType, sqle);
+            }
+          } else if (GrouperDdlUtils.isHsql() && parentSessionExists) {
+            //do this for tests...
+            savePointCount++;
+          }
         }
       }
+      
+      
+      addStaticHibernateSession(this);
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("hibernateSession", this.toString());
+        LOG.debug(GrouperUtil.stack());
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
     }
-    
-    
-    addStaticHibernateSession(this);
   }
 
   /** hibernate session object of parent if nested, or null */
@@ -419,6 +463,8 @@ public class HibernateSession {
     // then commit.
     if (hibernateSession.isNewHibernateSession() && !hibernateSession.isReadonly()
         && hibernateSession.immediateTransaction.isActive()) {
+
+      LOG.debug("endTransactionAutoCommit");
       
       assertNotGrouperReadonly();
       
@@ -472,6 +518,7 @@ public class HibernateSession {
     //CH 20080220: should we always rollback?  or if not rollback, flush and clear?
     if (hibernateSession != null && hibernateSession.isNewHibernateSession() && !hibernateSession.isReadonly()) {
       if (hibernateSession.immediateTransaction.isActive()) {
+        LOG.debug("endTransactionRollback");
         hibernateSession.immediateTransaction.rollback();
       }
     }
@@ -497,6 +544,9 @@ public class HibernateSession {
     if (e instanceof HookVeto) {
       throw (HookVeto)e;
     }
+    if (e instanceof GrouperValidationException) {
+      throw (GrouperValidationException)e;
+    }
     // if runtime, then rethrow
     if (e instanceof RuntimeException) {
       if (!GrouperUtil.injectInException(e, errorString)) {
@@ -511,9 +561,11 @@ public class HibernateSession {
   
   /**
    * finally block from hibernate session (dont call unless you know what you are doing
+   * 
    * @param hibernateSession
+   * @return if closed
    */
-  public static void _internal_hibernateSessionFinally(HibernateSession hibernateSession) {
+  public static boolean _internal_hibernateSessionFinally(HibernateSession hibernateSession) {
     if (hibernateSession != null) {
       // take out of threadlocal stack
       removeStaticHibernateSession(hibernateSession);
@@ -522,10 +574,10 @@ public class HibernateSession {
         // we should close the hibernate session if we opened it, and if not
         // already closed
         // transaction is already closed...
-        closeSessionIfNotClosed(hibernateSession.immediateSession);
+        return closeSessionIfNotClosed(hibernateSession.immediateSession);
       }
     }
-
+    return false;
   }
   
   /**
@@ -545,15 +597,42 @@ public class HibernateSession {
   public static Object callbackHibernateSession(
       GrouperTransactionType grouperTransactionType, AuditControl auditControl, HibernateHandler hibernateHandler)
       throws GrouperDAOException {
+    
+    Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+    
     Object ret = null;
     HibernateSession hibernateSession = null;
 
     try {
       
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("grouperTransactionType", grouperTransactionType == null ? null : grouperTransactionType.name());
+        debugMap.put("auditControl", auditControl == null ? null : auditControl);
+      }
+      
       hibernateSession = _internal_hibernateSession(grouperTransactionType);
+
+      if (LOG.isDebugEnabled()) {
+
+        debugMap.put("hibernateSession", hibernateSession.toString());
+
+        StringBuilder sessionsThreadLocal = new StringBuilder();
+        boolean first = true;
+        for (HibernateSession theHibernateSession : getHibernateSessionSet()) {
+          if (!first) {
+            sessionsThreadLocal.append(", ");
+          }
+          sessionsThreadLocal.append(Integer.toHexString(theHibernateSession.hashCode()));
+          first = false;
+        }
+        debugMap.put("hibernateSessionsInThreadLocal", sessionsThreadLocal.toString());
+      }
       
       HibernateHandlerBean hibernateHandlerBean = new HibernateHandlerBean();
       boolean willCreateAudit = AuditControl.WILL_AUDIT.equals(auditControl);
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("willCreateAudit", willCreateAudit);
+      }
       hibernateHandlerBean.setCallerWillCreateAudit(willCreateAudit);
 
       //see if the caller will audit.  if not, then it is up to this call
@@ -561,7 +640,11 @@ public class HibernateSession {
 
       //create a new context
       boolean createdContext = willCreateAudit ? GrouperContext.createNewInnerContextIfNotExist() : false;
-      
+
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("createdContext", createdContext);
+      }
+
       try {
         hibernateHandlerBean.setCallerWillCreateAudit(callerWillAudit);
         hibernateHandlerBean.setNewContext(createdContext);
@@ -580,7 +663,12 @@ public class HibernateSession {
     } catch (Throwable e) {
       _internal_hibernateSessionCatch(hibernateSession, e);
     } finally {
-      _internal_hibernateSessionFinally(hibernateSession);
+      boolean closed = _internal_hibernateSessionFinally(hibernateSession);
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("closedSession", closed);
+        LOG.debug(GrouperUtil.stack());
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
     }
     return ret;
 
@@ -629,8 +717,9 @@ public class HibernateSession {
    * 
    * @param session
    *          is hibernate session to close
+   * @return if closed
    */
-  private static void closeSessionIfNotClosed(Session session) {
+  private static boolean closeSessionIfNotClosed(Session session) {
 
     if (session != null) {
 
@@ -638,11 +727,13 @@ public class HibernateSession {
         // if already closed (not sure why), just ignore
         if (session.isConnected() && session.isOpen()) {
           session.close();
+          return true;
         }
       } catch (Exception e) {
         // swallow the exception... no throwing, no logging
       }
     }
+    return false;
   }
 
   /**
@@ -650,9 +741,17 @@ public class HibernateSession {
    */
   @Override
   public String toString() {
-    return "HibernateSession: isNew: " + this.isNewHibernateSession() + ", isReadonly: "
-        + this.isReadonly() + ", grouperTransactionType: "
-        + this.getGrouperTransactionType().name();
+    try {
+      return "HibernateSession (" + Integer.toHexString(this.hashCode()) + "): " 
+          + (this.isNewHibernateSession() ? "new" : "notNew") + ", " 
+          + (this.isReadonly() ? "readonly" : "notReadonly") + ", "
+          + (this.getGrouperTransactionType() == null ? null : this.getGrouperTransactionType().name()) + ", "
+          + (this.isTransactionActive() ? "activeTransaction" : "notActiveTransaction" ) 
+          + ", session (" + (this.getSession() == null ? null : Integer.toHexString(this.getSession().hashCode())) + ")"
+          ;
+    } catch (NullPointerException npe) {
+      throw npe;
+    }
   }
 
   /**
@@ -740,12 +839,14 @@ public class HibernateSession {
     switch (grouperCommitType) {
       case COMMIT_IF_NEW_TRANSACTION:
         if (this.isNewHibernateSession()) {
+          LOG.debug("endTransactionCommitIfNew");
           this.activeHibernateSession().immediateTransaction.commit();
           this.activeHibernateSession().savepoint = null;
           return true;
         }
         break;
       case COMMIT_NOW:
+        LOG.debug("endTransactionCommitNow");
         this.activeHibernateSession().immediateTransaction.commit();
         this.activeHibernateSession().savepoint = null;
         return true;
@@ -775,12 +876,14 @@ public class HibernateSession {
     switch (grouperRollbackType) {
       case ROLLBACK_IF_NEW_TRANSACTION:
         if (this.isNewHibernateSession()) {
+          LOG.debug("endTransactionRollbackIfNew");
           this.activeHibernateSession().immediateTransaction.rollback();
           return true;
         }
         break;
       case ROLLBACK_NOW:
         if (this.activeHibernateSession() != null && this.activeHibernateSession().immediateTransaction != null) { 
+          LOG.debug("endTransactionRollbackNow");
           this.activeHibernateSession().immediateTransaction.rollback();
         }
         return true;

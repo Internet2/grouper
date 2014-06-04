@@ -389,7 +389,7 @@ public class help {
     i.println("* sqlRun(string)"                                      );
     i.println("* transaction: type  help(\"transaction\")  for more info");
     i.println("* typeAdd(name)"                                       );
-    i.println("* typeAddAttr(type, name, read, write, req)"           );
+    i.println("* typeAddAttr(type, name)"                             );
     i.println("* typeAddList(type, name, read, write)"                );
     i.println("* typeDel(name)"                                       );
     i.println("* typeDelField(type, name)"                            );

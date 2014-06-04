@@ -65,7 +65,7 @@ public class ESCOAttributeHooks extends AttributeHooks implements Serializable {
       
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug("preUpdate attribute: " + attribute.getAttrName() 
-            + ": '" + attribute.dbVersion().getValue() + "' => '" + attribute.getValue() + "'");
+            + ": '" + attribute.getValue() + "'");
       }
     }
     

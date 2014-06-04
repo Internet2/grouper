@@ -1,4 +1,4 @@
-Grouper web service sample of service: addMember, WsSampleAddMemberRest, manually written lite/rest, format: xhtml, for version: 2.1.1
+Grouper web service sample of service: addMember, WsSampleAddMemberRest, manually written lite/rest, format: xhtml, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: addMember, WsSampleAddMemberRest, manuall
 #########################################
 
 
-PUT /grouper-ws/servicesRest/v2_1_001/groups/aStem%3AaGroup/members HTTP/1.1
+PUT /grouper-ws/servicesRest/v2_2_000/groups/aStem%3AaGroup/members HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 1092
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -25,33 +25,33 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestAddMemberRequest">
-      <p class="enabledTime" />
-      <p class="disabledTime" />
-      <p class="clientVersion" />
-      <div class="wsGroupLookup" title="WsGroupLookup" />
-      <ul class="subjectLookups">
-        <li title="WsSubjectLookup">
-          <p class="subjectSourceId" />
-          <p class="subjectId">10021368</p>
-          <p class="subjectIdentifier" />
-        </li>
-        <li title="WsSubjectLookup">
-          <p class="subjectSourceId" />
-          <p class="subjectId">10039438</p>
-          <p class="subjectIdentifier" />
-        </li>
-      </ul>
-      <p class="replaceAllExisting">F</p>
       <div class="actAsSubjectLookup" title="WsSubjectLookup">
-        <p class="subjectSourceId" />
         <p class="subjectId">GrouperSystem</p>
         <p class="subjectIdentifier" />
+        <p class="subjectSourceId" />
       </div>
-      <p class="txType" />
+      <p class="addExternalSubjectIfNotFound" />
+      <p class="clientVersion" />
+      <p class="disabledTime" />
+      <p class="enabledTime" />
+      <p class="fieldName" />
       <p class="includeGroupDetail" />
       <p class="includeSubjectDetail" />
-      <p class="addExternalSubjectIfNotFound" />
-      <p class="fieldName" />
+      <p class="replaceAllExisting">F</p>
+      <ul class="subjectLookups">
+        <li title="WsSubjectLookup">
+          <p class="subjectId">10021368</p>
+          <p class="subjectIdentifier" />
+          <p class="subjectSourceId" />
+        </li>
+        <li title="WsSubjectLookup">
+          <p class="subjectId">10039438</p>
+          <p class="subjectIdentifier" />
+          <p class="subjectSourceId" />
+        </li>
+      </ul>
+      <p class="txType" />
+      <div class="wsGroupLookup" title="WsGroupLookup" />
     </div>
   </body>
 </html>
@@ -75,9 +75,11 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 16:46:08 GMT
+Transfer-Encoding: chunked
+Date: Wed, 28 May 2014 22:22:59 GMT
 Connection: close
 
+956
 <?xml version='1.0' encoding='iso-8859-1'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -86,6 +88,22 @@ Connection: close
   </head>
   <body>
     <div title="WsAddMemberResults">
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="millis">135</p>
+        <p class="resultWarnings" />
+        <p class="serverVersion">2.2.0</p>
+      </div>
+      <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode">SUCCESS</p>
+        <p class="resultCode2" />
+        <p class="resultMessage">Success for: clientVersion: 2.2.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+[1]: WsSubjectLookup[subjectId=10039438]
+
+, replaceAllExisting: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+, params: null
+, disabledDate: null, enabledDate: null</p>
+        <p class="success">T</p>
+      </div>
       <ul class="results">
         <li title="WsAddMemberResult">
           <div class="resultMetadata" title="WsResultMeta">
@@ -95,12 +113,12 @@ Connection: close
             <p class="success">T</p>
           </div>
           <div class="wsSubject" title="WsSubject">
-            <p class="name">10021368</p>
             <p class="id">10021368</p>
-            <p class="sourceId">jdbc</p>
-            <p class="resultCode">SUCCESS</p>
-            <p class="success">T</p>
             <p class="identifierLookup" />
+            <p class="name">10021368</p>
+            <p class="resultCode">SUCCESS</p>
+            <p class="sourceId">jdbc</p>
+            <p class="success">T</p>
           </div>
         </li>
         <li title="WsAddMemberResult">
@@ -111,44 +129,30 @@ Connection: close
             <p class="success">T</p>
           </div>
           <div class="wsSubject" title="WsSubject">
-            <p class="name">10039438</p>
             <p class="id">10039438</p>
-            <p class="sourceId">jdbc</p>
-            <p class="resultCode">SUCCESS</p>
-            <p class="success">T</p>
             <p class="identifierLookup" />
+            <p class="name">10039438</p>
+            <p class="resultCode">SUCCESS</p>
+            <p class="sourceId">jdbc</p>
+            <p class="success">T</p>
           </div>
         </li>
       </ul>
-      <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.1.1, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
-[1]: WsSubjectLookup[subjectId=10039438]
-
-, replaceAllExisting: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
-, params: null
-, disabledDate: null, enabledDate: null</p>
-        <p class="success">T</p>
-      </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">322</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">2.1.1</p>
-      </div>
       <div class="wsGroupAssigned" title="WsGroup">
-        <p class="name">aStem:aGroup</p>
-        <p class="displayName">a stem:a group</p>
         <p class="description">a group description</p>
-        <p class="uuid">ce1b8ad77c634d53a5e5998e199bf523</p>
         <div class="detail" title="WsGroupDetail" />
-        <p class="extension">aGroup</p>
         <p class="displayExtension">a group</p>
+        <p class="displayName">a stem:a group</p>
+        <p class="extension">aGroup</p>
+        <p class="idIndex">10001</p>
+        <p class="name">aStem:aGroup</p>
         <p class="typeOfGroup">group</p>
+        <p class="uuid">938439402a324192895a26f2d1ecdfd6</p>
       </div>
     </div>
   </body>
 </html>
+0
 
 
 #########################################
@@ -338,7 +342,7 @@ public class WsSampleAddMemberRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 , replaceAllExisting: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null

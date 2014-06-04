@@ -1138,16 +1138,16 @@ public class PermissionDisallowTest extends GrouperTest {
     
     //prove that we can do saves and updates
     attributeAssign.setDisabledTime(GrouperUtil.toTimestamp("2010/01/01"));
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     attributeAssign.setDisabledTime(null);
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     //try to change the disallow flag
     attributeAssign.setDisallowed(true);
     
     try {
-      attributeAssign.saveOrUpdate();
+      attributeAssign.saveOrUpdate(true);
       fail("Shouldnt be allowed");
     } catch (Exception e) {
       //good

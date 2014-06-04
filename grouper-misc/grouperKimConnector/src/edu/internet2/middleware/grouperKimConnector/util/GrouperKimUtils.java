@@ -523,6 +523,15 @@ public class GrouperKimUtils {
     String emailAttribute = grouperKimIdentitySourceProperties.getEmailAttribute();
     if (!GrouperClientUtils.isBlank(emailAttribute)) {
       String emailAddress = GrouperKimUtils.subjectAttributeValue(wsSubject, attributeNames, emailAttribute);
+      
+      //this will break routing, so see if there is a default
+      if (GrouperClientUtils.isBlank(emailAddress)) {
+        String defaultEmailAddress = GrouperClientUtils.propertiesValue("kuali.identity.defaultEmailAddress", false);
+        //if its there use it
+        if (!GrouperClientUtils.isBlank(defaultEmailAddress)) {
+          emailAddress = defaultEmailAddress;
+        }
+      }
       if (!GrouperClientUtils.isBlank(emailAddress)) {
         KimEntityEmailImpl kimEntityEmailImpl = new KimEntityEmailImpl();
         kimEntityEmailImpl.setActive(true);

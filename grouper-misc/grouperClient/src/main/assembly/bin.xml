@@ -18,14 +18,9 @@
     </fileSets>
 
     <files>
-        <file>
-            <source>conf/grouper.client.example.properties</source>
+		<file>
+            <source>conf/grouper.client.base.properties</source>
             <outputDirectory>/</outputDirectory>
-        </file>
-        <file>
-            <source>conf/grouper.client.example.properties</source>
-            <outputDirectory>/</outputDirectory>
-            <destName>grouper.client.properties</destName>
         </file>
         <file>
             <source>conf/grouper.client.usage.example.txt</source>

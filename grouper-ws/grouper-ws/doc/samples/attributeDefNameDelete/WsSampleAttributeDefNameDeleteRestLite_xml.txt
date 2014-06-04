@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefNameDelete, WsSampleAttributeDefNameDeleteRestLite, manually written lite/rest, format: xml, for version: 2.1.1
+Grouper web service sample of service: attributeDefNameDelete, WsSampleAttributeDefNameDeleteRestLite, manually written lite/rest, format: xml, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: attributeDefNameDelete, WsSampleAttribute
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 180
 Content-Type: text/xml; charset=UTF-8
@@ -37,13 +37,15 @@ X-Grouper-resultCode: SUCCESS_ATTRIBUTE_DEF_NAME_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 13:29:28 GMT
+Transfer-Encoding: chunked
+Date: Wed, 28 May 2014 23:04:05 GMT
 Connection: close
 
+3c9
 <WsAttributeDefNameDeleteLiteResult>
   <resultMetadata>
     <resultCode>SUCCESS_ATTRIBUTE_DEF_NAME_NOT_FOUND</resultCode>
-    <resultMessage>Success for: clientVersion: 2.1.1, wsGroupLookups: Array size: 1: [0]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDelete1RestLite_xml]
+    <resultMessage>Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 1: [0]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDelete1RestLite_xml]
 
 , actAsSubject: null, txType: NONE, paramNames:
 , params: nullCant find attributeDefName: &apos;WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDelete1RestLite_xml,
@@ -52,14 +54,15 @@ attributeDefNameFindResult=ATTRIBUTE_DEF_NAME_NOT_FOUND]&apos;.</resultMessage>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>143</millis>
-    <serverVersion>2.1.1</serverVersion>
+    <millis>55</millis>
+    <serverVersion>2.2.0</serverVersion>
   </responseMetadata>
   <wsAttributeDefName>
     <extension>testAttributeAssignDefNameToDelete1RestLite_xml</extension>
     <name>test:testAttributeAssignDefNameToDelete1RestLite_xml</name>
   </wsAttributeDefName>
 </WsAttributeDefNameDeleteLiteResult>
+0
 
 
 #########################################
@@ -228,7 +231,7 @@ public class WsSampleAttributeDefNameDeleteRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS_ATTRIBUTE_DEF_NAME_NOT_FOUND, result message: Success for: clientVersion: 2.1.1, wsGroupLookups: Array size: 1: [0]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDelete1RestLite_xml]
+Server version: 2.2.0, result code: SUCCESS_ATTRIBUTE_DEF_NAME_NOT_FOUND, result message: Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 1: [0]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDelete1RestLite_xml]
 
 , actAsSubject: null, txType: NONE, paramNames: 
 , params: nullCant find attributeDefName: 'WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDelete1RestLite_xml,

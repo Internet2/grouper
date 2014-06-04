@@ -1,4 +1,4 @@
-Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttributeDefNamesRestLite, manually written lite/rest, format: http_json, for version: 2.1.1
+Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttributeDefNamesRestLite, manually written lite/rest, format: http_json, for version: 2.2.0
 
 
 #########################################
@@ -9,14 +9,14 @@ Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttrib
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
-Content-Length: 69
+Content-Length: 67
 
-wsLiteObjectType=WsRestFindAttributeDefNamesLiteRequest&scope=test%3A
+wsLiteObjectType=WsRestFindAttributeDefNamesLiteRequest&scope=test:
 
 
 #########################################
@@ -34,61 +34,85 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1665
-Date: Sun, 01 Jul 2012 13:37:06 GMT
+Content-Length: 2267
+Date: Tue, 03 Jun 2014 21:50:34 GMT
 Connection: close
 
 {
   "WsFindAttributeDefNamesResults":{
     "attributeDefNameResults":[
       {
-        "attributeDefId":"186d0b5723fd4100a71568cd0898591c",
+        "attributeDefId":"2173e27572d943bf8a13d3bbcabbbf86",
         "attributeDefName":"test:testAttributeAssignAssignNameDef",
         "displayExtension":"testAttributeAssignAssignName",
         "displayName":"test:testAttributeAssignAssignName",
         "extension":"testAttributeAssignAssignName",
+        "idIndex":"10116",
         "name":"test:testAttributeAssignAssignName",
-        "uuid":"b636d79c0f13442db9562408ea66733c"
+        "uuid":"80d97fc4654c4e37a6882548dc388547"
       },
       {
-        "attributeDefId":"618cd928818e4ffe94896e98ad37d98e",
+        "attributeDefId":"1931473ef94e4acd8f3a76bb08529235",
         "attributeDefName":"test:testAttributeAssignDefNameDef",
         "displayExtension":"testAttributeAssignDefName",
         "displayName":"test:testAttributeAssignDefName",
         "extension":"testAttributeAssignDefName",
+        "idIndex":"10115",
         "name":"test:testAttributeAssignDefName",
-        "uuid":"2dcbb63bc87847b69030d44f97601ed4"
+        "uuid":"f91e01e0fd7242cebc0e0411de8ed3c8"
+      },
+      {
+        "attributeDefId":"486ad7ecbb9a447db6f352aaab9b4b55",
+        "attributeDefName":"test:testAttrNameDef",
+        "displayExtension":"testAttrName",
+        "displayName":"test:testAttrName",
+        "extension":"testAttrName",
+        "idIndex":"10114",
+        "name":"test:testAttrName",
+        "uuid":"35d080a4aa90456a8b1f1624b677dcf9"
       }
     ]
     ,
     "attributeDefs":[
       {
         "attributeDefType":"attr",
+        "extension":"testAttrNameDef",
+        "idIndex":"10030",
+        "multiAssignable":"F",
+        "multiValued":"T",
+        "name":"test:testAttrNameDef",
+        "uuid":"486ad7ecbb9a447db6f352aaab9b4b55",
+        "valueType":"string"
+      },
+      {
+        "attributeDefType":"attr",
         "extension":"testAttributeAssignAssignNameDef",
+        "idIndex":"10032",
         "multiAssignable":"F",
         "multiValued":"F",
         "name":"test:testAttributeAssignAssignNameDef",
-        "uuid":"186d0b5723fd4100a71568cd0898591c",
+        "uuid":"2173e27572d943bf8a13d3bbcabbbf86",
         "valueType":"marker"
       },
       {
         "attributeDefType":"attr",
         "extension":"testAttributeAssignDefNameDef",
+        "idIndex":"10031",
         "multiAssignable":"F",
         "multiValued":"T",
         "name":"test:testAttributeAssignDefNameDef",
-        "uuid":"618cd928818e4ffe94896e98ad37d98e",
+        "uuid":"1931473ef94e4acd8f3a76bb08529235",
         "valueType":"integer"
       }
     ]
     ,
     "responseMetadata":{
-      "millis":"121",
-      "serverVersion":"2.1.1"
+      "millis":"98",
+      "serverVersion":"2.2.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.1.1, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null\nwsAttributeDefNameLookups: null\nwsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: null, paramNames: \n, params: null",
+      "resultMessage":"Success for: clientVersion: 2.2.0, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null\nwsAttributeDefNameLookups: null\nwsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: null, paramNames: \n, params: null\n, wsSubjectLookup: null, serviceRole: null",
       "success":"T"
     }
   }
@@ -261,7 +285,8 @@ public class WsSampleFindAttributeDefNamesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
+Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
 wsAttributeDefNameLookups: null
 wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: null, paramNames: 
 , params: null
+, wsSubjectLookup: null, serviceRole: null

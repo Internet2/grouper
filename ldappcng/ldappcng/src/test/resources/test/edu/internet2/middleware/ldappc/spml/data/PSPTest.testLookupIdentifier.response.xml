@@ -1,5 +1,0 @@
-<lookupResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success' requestID='REQUESTID_TEST'>
-  <pso entityName='group'>
-    <psoID ID='cn=groupB,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
-  </pso>
-</lookupResponse>

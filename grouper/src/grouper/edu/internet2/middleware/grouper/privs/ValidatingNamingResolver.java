@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -193,6 +194,9 @@ public class ValidatingNamingResolver extends NamingResolverDecorator {
   public Set<Stem> postHqlFilterStems(Set<Stem> stems, Subject subject,
       Set<Privilege> privInSet) {
 
+    if (GrouperUtil.length(privInSet) == 0) {
+      return stems;
+    }
     this.param.notNullSubject(subject);
 
     Set<Stem> filteredStems = super.getDecoratedResolver().postHqlFilterStems(stems,

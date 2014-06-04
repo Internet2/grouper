@@ -53,6 +53,22 @@ public class QueryOptions {
 
   /**
    * 
+   * @param queryOptions
+   */
+  public static void initTotalCount(QueryOptions queryOptions) {
+    if (queryOptions == null) {
+      return;
+    }
+    if (queryOptions.getQueryPaging() != null && queryOptions.getQueryPaging().isDoTotalCount()) {
+      queryOptions.getQueryPaging().setTotalRecordCount(0);
+    }
+    if (queryOptions.isRetrieveCount()) {
+      queryOptions.setCount(0L);
+    }
+  }
+  
+  /**
+   * 
    */
   public QueryOptions() {
     
@@ -61,7 +77,7 @@ public class QueryOptions {
   /**
    * @param sortString 
    * @param ascending 
-   * @param pageNumber 
+   * @param pageNumber 1 indexed page number
    * @param pageSize 
    * @return the query options if needed
    * 

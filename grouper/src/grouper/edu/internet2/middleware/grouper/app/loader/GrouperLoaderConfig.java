@@ -29,7 +29,6 @@ import edu.internet2.middleware.grouper.app.loader.ldap.GrouperLoaderLdapServer;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
-import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.morphString.Morph;
 
 
@@ -334,8 +333,8 @@ public class GrouperLoaderConfig extends ConfigPropertiesCascadeBase  {
    * retrieve a config from the config file or from cache
    * @return the config object
    */
-  public static GrouperClientConfig retrieveConfig() {
-    return retrieveConfig(GrouperClientConfig.class);
+  public static GrouperLoaderConfig retrieveConfig() {
+    return retrieveConfig(GrouperLoaderConfig.class);
   }
 
   /**

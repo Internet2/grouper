@@ -1,4 +1,4 @@
-Grouper web service sample of service: stemDelete, WsSampleStemDeleteRestLite, manually written lite/rest, format: json, for version: 2.1.1
+Grouper web service sample of service: stemDelete, WsSampleStemDeleteRestLite, manually written lite/rest, format: json, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: stemDelete, WsSampleStemDeleteRestLite, m
 #########################################
 
 
-DELETE /grouper-ws/servicesRest/json/v2_1_001/stems/aStem%3AaStemToDelete HTTP/1.1
+DELETE /grouper-ws/servicesRest/json/v2_2_000/stems/aStem%3AaStemToDelete HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 
 
@@ -34,19 +34,19 @@ X-Grouper-resultCode: SUCCESS_STEM_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 521
-Date: Sun, 01 Jul 2012 14:21:38 GMT
+Content-Length: 520
+Date: Thu, 29 May 2014 00:32:16 GMT
 Connection: close
 
 {
   "WsStemDeleteLiteResult":{
     "responseMetadata":{
-      "millis":"279",
-      "serverVersion":"2.1.1"
+      "millis":"66",
+      "serverVersion":"2.2.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS_STEM_NOT_FOUND",
-      "resultMessage":"Success for: clientVersion: 2.1.1, wsStemLookups: Array size: 1: [0]: WsStemLookup[stemName=aStem:aStemToDelete]\n\n, actAsSubject: null, txType: NONE, paramNames: \n, params: nullCant find stem: 'WsStemLookup[stemName=aStem:aStemToDelete,\n  stemFindResult=STEM_NOT_FOUND]'.",
+      "resultMessage":"Success for: clientVersion: 2.2.0, wsStemLookups: Array size: 1: [0]: WsStemLookup[stemName=aStem:aStemToDelete]\n\n, actAsSubject: null, txType: NONE, paramNames: \n, params: nullCant find stem: 'WsStemLookup[stemName=aStem:aStemToDelete,\n  stemFindResult=STEM_NOT_FOUND]'.",
       "success":"T"
     },
     "wsStem":{
@@ -202,7 +202,7 @@ public class WsSampleStemDeleteRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS_STEM_NOT_FOUND, result message: Success for: clientVersion: 2.1.1, wsStemLookups: Array size: 1: [0]: WsStemLookup[stemName=aStem:aStemToDelete]
+Server version: 2.2.0, result code: SUCCESS_STEM_NOT_FOUND, result message: Success for: clientVersion: 2.2.0, wsStemLookups: Array size: 1: [0]: WsStemLookup[stemName=aStem:aStemToDelete]
 
 , actAsSubject: null, txType: NONE, paramNames: 
 , params: nullCant find stem: 'WsStemLookup[stemName=aStem:aStemToDelete,

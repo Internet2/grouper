@@ -4289,7 +4289,7 @@ public class RuleTest extends GrouperTest {
 
     //set disabled 7 days in the future
     attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000)));
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
     
@@ -4297,7 +4297,7 @@ public class RuleTest extends GrouperTest {
     assertEquals(initialEmailCount + 1, GrouperEmail.testingEmailCount);
   
     attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis() + (5 * 24 * 60 * 60 * 1000)));
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
     
@@ -4305,7 +4305,7 @@ public class RuleTest extends GrouperTest {
     assertEquals(initialEmailCount + 1, GrouperEmail.testingEmailCount);
   
     attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis() + (9 * 24 * 60 * 60 * 1000)));
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
     
@@ -4313,7 +4313,7 @@ public class RuleTest extends GrouperTest {
     assertEquals(initialEmailCount + 1, GrouperEmail.testingEmailCount);
   
     attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000)));
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
     

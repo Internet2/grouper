@@ -57,9 +57,9 @@ public class MemberHooksTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new MemberHooksTest("testMemberPostChange"));
+    TestRunner.run(new MemberHooksTest("testMemberPostInsert"));
     //TestRunner.run(new MemberHooksTest(""));
-    TestRunner.run(MemberHooksTest.class);
+    //TestRunner.run(MemberHooksTest.class);
   }
   
   /**

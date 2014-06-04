@@ -117,9 +117,30 @@ public class TestStemFinder extends GrouperTest {
     Stem stem = new StemSave(grouperSession).assignName("stem").assignCreateParentStemsIfNotExist(true).save();
     stem.addAlternateName("alternate");
     stem.store();
-    
+
+    Stem stem1 = new StemSave(grouperSession).assignName("stem1").assignCreateParentStemsIfNotExist(true).save();
+    stem1.addAlternateName("alternate1");
+    stem1.store();
+
     assertNotNull(StemFinder.findByName(grouperSession, "stem", false));
     assertNotNull(StemFinder.findByName(grouperSession, "alternate", false));
+    
+    Stem foundStem = new StemFinder().assignFindByUuidOrName(true).assignScope(stem.getName()).findStem();
+    
+    assertNotNull(foundStem);
+    assertEquals(stem.getName(), foundStem.getName());
+    
+    
+    foundStem = new StemFinder().assignFindByUuidOrName(true).assignScope(stem.getUuid()).findStem();
+    
+    assertNotNull(foundStem);
+    assertEquals(stem.getName(), foundStem.getName());
+    
+    foundStem = new StemFinder().assignFindByUuidOrName(true).assignScope("alternate").findStem();
+    
+    assertNotNull(foundStem);
+    assertEquals(stem.getName(), foundStem.getName());
+    
   }
   
   /**

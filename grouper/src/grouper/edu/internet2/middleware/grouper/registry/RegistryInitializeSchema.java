@@ -183,6 +183,7 @@ public class RegistryInitializeSchema {
         if (!dropOnly && (theWriteAndRunScript || runReset || runSqlFile || runForTests)) {
           //start again
           GrouperStartup.started = false;
+          GrouperStartup.ignoreCheckConfig = false;
           //now check config - assuming we are not just dropping or we have used -ddlonly
           GrouperStartup.startup();
         }

@@ -1,0 +1,2 @@
+[appadmin@i2midev1 pass]$ java -jar /opt/grouper/2.1.0/grouper.apiBinary-2.1.0/lib/grouper/morphString.jar dontMask
+Enter the location of morphString.properties: /opt/grouper/2.1.0/filesGrouper/conf/morphString.properties

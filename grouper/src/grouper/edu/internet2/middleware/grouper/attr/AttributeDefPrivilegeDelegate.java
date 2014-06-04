@@ -19,6 +19,7 @@
  */
 package edu.internet2.middleware.grouper.attr;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.StopWatch;
 
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -31,6 +32,8 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
@@ -291,6 +294,116 @@ public class AttributeDefPrivilegeDelegate {
             SchemaException {
     return internal_grantPriv(subj, priv, exceptionIfAlreadyMember, null);
   }
+  
+  /**
+   * grant privs to attributedef
+   * @param subject to add
+   * @param updateChecked
+   * @param adminChecked
+   * @param readChecked
+   * @param viewChecked
+   * @param optinChecked
+   * @param optoutChecked
+   * @param attrReadChecked
+   * @param attrUpdateChecked
+   * @param revokeIfUnchecked
+   * @return if something was changed
+   */
+  public boolean grantPrivs(final Subject subject,
+      final boolean adminChecked,
+      final boolean updateChecked, 
+      final boolean readChecked,
+      final boolean viewChecked,
+      final boolean optinChecked,
+      final boolean optoutChecked,
+      final boolean attrReadChecked,
+      final boolean attrUpdateChecked, final boolean revokeIfUnchecked) {
+    
+    return (Boolean)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
+      
+      @Override
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+  
+        boolean hadChange = false;
+        
+        //see if add or remove
+        if (adminChecked) {
+          hadChange = hadChange | AttributeDefPrivilegeDelegate.this.grantPriv(subject, AttributeDefPrivilege.ATTR_ADMIN, false);
+        } else {
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | AttributeDefPrivilegeDelegate.this.revokePriv(subject, AttributeDefPrivilege.ATTR_ADMIN, false);
+          }
+        }
+
+        //see if add or remove
+        if (updateChecked) {
+          hadChange = hadChange | AttributeDefPrivilegeDelegate.this.grantPriv(subject, AttributeDefPrivilege.ATTR_UPDATE, false);
+        } else {
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | AttributeDefPrivilegeDelegate.this.revokePriv(subject, AttributeDefPrivilege.ATTR_UPDATE, false);
+          }
+        }
+
+        //see if add or remove
+        if (readChecked) {
+          hadChange = hadChange | AttributeDefPrivilegeDelegate.this.grantPriv(subject, AttributeDefPrivilege.ATTR_READ, false);
+        } else {
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | AttributeDefPrivilegeDelegate.this.revokePriv(subject, AttributeDefPrivilege.ATTR_READ, false);
+          }
+        }
+
+        //see if add or remove
+        if (viewChecked) {
+          hadChange = hadChange | AttributeDefPrivilegeDelegate.this.grantPriv(subject, AttributeDefPrivilege.ATTR_VIEW, false);
+        } else {
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | AttributeDefPrivilegeDelegate.this.revokePriv(subject, AttributeDefPrivilege.ATTR_VIEW, false);
+          }
+        }
+
+        //see if add or remove
+        if (optinChecked) {
+          hadChange = hadChange | AttributeDefPrivilegeDelegate.this.grantPriv(subject, AttributeDefPrivilege.ATTR_OPTIN, false);
+        } else {
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | AttributeDefPrivilegeDelegate.this.revokePriv(subject, AttributeDefPrivilege.ATTR_OPTIN, false);
+          }
+        }
+
+        //see if add or remove
+        if (optoutChecked) {
+          hadChange = hadChange | AttributeDefPrivilegeDelegate.this.grantPriv(subject, AttributeDefPrivilege.ATTR_OPTOUT, false);
+        } else {
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | AttributeDefPrivilegeDelegate.this.revokePriv(subject, AttributeDefPrivilege.ATTR_OPTOUT, false);
+          }
+        }
+
+        //see if add or remove
+        if (attrReadChecked) {
+          hadChange = hadChange | AttributeDefPrivilegeDelegate.this.grantPriv(subject, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, false);
+        } else {
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | AttributeDefPrivilegeDelegate.this.revokePriv(subject, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, false);
+          }
+        }
+
+        //see if add or remove
+        if (attrUpdateChecked) {
+          hadChange = hadChange | AttributeDefPrivilegeDelegate.this.grantPriv(subject, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, false);
+        } else {
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | AttributeDefPrivilegeDelegate.this.revokePriv(subject, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, false);
+          }
+        }
+
+        return hadChange;
+      }
+    });
+  }
+
 
   /**
    * Grant privilege to a subject on this attributeDef.
@@ -506,6 +619,51 @@ public class AttributeDefPrivilegeDelegate {
   } 
 
   /**
+   * see if the subject has a privilege.  Note it returns only if the 
+   * subject has this privilege.  
+   * @param subject
+   * @param privilegeOrListName
+   * @return true if has privilege
+   */
+  public boolean hasPrivilege(Subject subject, String privilegeOrListName) {
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_ADMIN.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_ADMIN.getListName())) {
+      return this.hasAttrAdmin(subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_UPDATE.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_UPDATE.getListName())) {
+      return this.hasAttrUpdate(subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_READ.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_READ.getListName())) {
+      return this.hasAttrRead(subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_VIEW.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_VIEW.getListName())) {
+      return this.hasAttrView(subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_OPTIN.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_OPTIN.getListName())) {
+      return this.hasAttrOptin(subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_OPTOUT.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_OPTOUT.getListName())) {
+      return this.hasAttrOptout(subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_DEF_ATTR_READ.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_DEF_ATTR_READ.getListName())) {
+      return this.hasAttrDefAttrRead(subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE.getListName())) {
+      return this.hasAttrDefAttrUpdate(subject);
+    }
+    throw new RuntimeException("Cant find privilege: '" + privilegeOrListName + "'");
+
+  }
+
+  
+  /**
    * Check whether the subject has ATTR_OPTIN on this attributeDef, or something else
    * that allows read (well, actually there isnt anything else right now)
    * <pre class="eg">
@@ -546,6 +704,57 @@ public class AttributeDefPrivilegeDelegate {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     PrivilegeHelper.dispatch(grouperSession, this.attributeDef, grouperSession.getSubject(), AttributeDefPrivilege.ATTR_ADMIN);
     return PrivilegeHelper.canAttrOptout(grouperSession, this.attributeDef, subj);
+  }
+
+  /**
+   * see if the subject has a privilege or another privilege that implies this privilege.
+   * @param subject
+   * @param privilegeOrListName
+   * @param secure if the user must be an admin to check
+   * @return true if has privilege
+   */
+  public boolean canHavePrivilege(Subject subject, String privilegeOrListName, boolean secure) {
+    
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    if (secure) {
+      PrivilegeHelper.dispatch(grouperSession, this.attributeDef, grouperSession.getSubject(), AttributeDefPrivilege.ATTR_ADMIN);
+    }
+    
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_ADMIN.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_ADMIN.getListName())) {
+      return PrivilegeHelper.canAttrAdmin(grouperSession, this.attributeDef, subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_UPDATE.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_UPDATE.getListName())) {
+      return PrivilegeHelper.canAttrUpdate(grouperSession, this.attributeDef, subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_READ.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_READ.getListName())) {
+      return PrivilegeHelper.canAttrRead(grouperSession, this.attributeDef, subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_VIEW.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_VIEW.getListName())) {
+      return PrivilegeHelper.canAttrView(grouperSession, this.attributeDef, subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_OPTIN.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_OPTIN.getListName())) {
+      return PrivilegeHelper.canAttrOptin(grouperSession, this.attributeDef, subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_OPTOUT.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_OPTOUT.getListName())) {
+      return PrivilegeHelper.canAttrOptout(grouperSession, this.attributeDef, subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_DEF_ATTR_READ.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_DEF_ATTR_READ.getListName())) {
+      return PrivilegeHelper.canAttrDefAttrRead(grouperSession, this.attributeDef, subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE.getListName())) {
+      return PrivilegeHelper.canAttrDefAttrUpdate(grouperSession, this.attributeDef, subject);
+    }
+    throw new RuntimeException("Cant find privilege: '" + privilegeOrListName + "'");
+  
   } 
 
 }

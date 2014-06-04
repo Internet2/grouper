@@ -254,6 +254,17 @@ public interface SubjectResolver {
     throws  IllegalArgumentException;
 
   /**
+   * @param stemName name of stem we are querying
+   * @param   query   A source-appropriate query string.
+   * @param   source
+   * @return  All subjects matching <i>query</i>.
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @since   2.0.2
+   */
+  SearchPageResult findPageInStem(String stemName, String query, Set<Source> sources)
+    throws  IllegalArgumentException;
+
+  /**
    * @return  map of search param to subject
    * @param   idsOrIdentifiers    Subject identifiers to search on.
    * @throws  IllegalArgumentException if any parameter is null.

@@ -30,7 +30,9 @@ import junit.textui.TestRunner;
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -74,8 +76,8 @@ import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.permissions.PermissionAssignOperation;
-import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.limits.impl.PermissionLimitElLogic;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -84,17 +86,12 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.service.ServiceRole;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult.WsAddMemberResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults.WsAddMemberResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchEntry;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult.WsAssignAttributeBatchResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults.WsAssignAttributeDefNameInheritanceResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesBatchResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesBatchResults.WsAssignAttributesBatchResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssign;
@@ -107,16 +104,13 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameToSave;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults.WsFindAttributeDefNamesResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults.WsGetAttributeAssignmentsResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResults.WsGetGroupsResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResults.WsGetMembersResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetPermissionAssignmentsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDetail;
@@ -125,9 +119,8 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupToSave;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGrouperPrivilegeResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResult.WsHasMemberResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults.WsHasMemberResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMembership;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipAnyLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsPermissionAssign;
@@ -136,6 +129,17 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsStem;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubject;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult.WsAddMemberResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults.WsAddMemberResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult.WsAssignAttributeBatchResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults.WsAssignAttributeDefNameInheritanceResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesBatchResults.WsAssignAttributesBatchResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults.WsFindAttributeDefNamesResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults.WsGetAttributeAssignmentsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResults.WsGetGroupsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResults.WsGetMembersResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResult.WsHasMemberResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults.WsHasMemberResultsCode;
 import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
 import edu.internet2.middleware.grouper.ws.query.StemScope;
 import edu.internet2.middleware.grouper.ws.query.WsQueryFilterType;
@@ -172,7 +176,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testAssignAttributes"));
+    TestRunner.run(new GrouperServiceLogicTest("testGetPermissionAssignments"));
   }
 
   /**
@@ -1895,6 +1899,48 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertEquals("FALSE", wsPermissionAssign.getDetail().getPermissionDelegatable());
     assertEquals("If not a role assignment, this is not used, -1", "-1", wsPermissionAssign.getDetail().getRoleSetDepth());
     assertEquals(0, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsAttributeDefNames()));
+
+    //#################################################
+    //valid query for everything
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignments(
+        GROUPER_VERSION, null, null, null, new WsSubjectLookup[]{new WsSubjectLookup(SubjectTestHelper.SUBJ1_ID, null, null)}, 
+        null, false, true, false, false, null, false, null, false, null, null, null, null, 
+        false, null, null, null, true);
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+
+    assertEquals("This is ok: " + wsGetPermissionAssignmentsResults.getResultMetadata().getResultMessage(), 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsGetPermissionAssignmentsResults.getResultMetadata().getResultCode());
+
+    assertEquals(1, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsPermissionAssigns()));
+    
+    wsPermissionAssign = wsGetPermissionAssignmentsResults.getWsPermissionAssigns()[0];
+    
+    assertEquals("action2", wsPermissionAssign.getAction());
+    assertEquals(attributeDef.getId(), wsPermissionAssign.getAttributeDefId());
+    assertEquals(attributeDef.getName(), wsPermissionAssign.getAttributeDefName());
+    assertEquals(attrDefName2.getId(), wsPermissionAssign.getAttributeDefNameId());
+    assertEquals(attrDefName2.getName(), wsPermissionAssign.getAttributeDefNameName());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getAttributeAssignId()));
+    assertEquals("T", wsPermissionAssign.getEnabled());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getMembershipId()));
+    assertEquals("role_subject", wsPermissionAssign.getPermissionType());
+    assertEquals(role2.getId(), wsPermissionAssign.getRoleId());
+    assertEquals(role2.getName(), wsPermissionAssign.getRoleName());
+    assertEquals("jdbc", wsPermissionAssign.getSourceId());
+    assertEquals(SubjectTestHelper.SUBJ1_ID, wsPermissionAssign.getSubjectId());
+    assertNull(wsPermissionAssign.getDetail());
+
+    assertEquals(2, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsAttributeDefNames()));
+//    assertEquals(attrDefName2.getId(), wsGetPermissionAssignmentsResults.getWsAttributeDefNames()[0].getUuid());
+//    assertEquals(attrDefName2.getName(), wsGetPermissionAssignmentsResults.getWsAttributeDefNames()[0].getName());
+//
+//    assertEquals(0, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsAttributeAssigns()));
+    
+
     
     //#################################################
     //valid query for attrdef and action and attr def names
@@ -2850,6 +2896,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     
   }
 
+
   /**
    * make sure this privilege is in the array
    * @param wsGrouperPrivilegeResults
@@ -2857,7 +2904,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    * @param subject
    * @param privilege
    */
-  public static void assertHasPrivilege(WsGrouperPrivilegeResult[] wsGrouperPrivilegeResults, String ownerName, Subject subject, Privilege privilege) {
+  public void assertHasPrivilege(WsGrouperPrivilegeResult[] wsGrouperPrivilegeResults, String ownerName, Subject subject, Privilege privilege) {
     for (WsGrouperPrivilegeResult wsGrouperPrivilegeResult : GrouperUtil.nonNull(wsGrouperPrivilegeResults, WsGrouperPrivilegeResult.class)) {
       if (Privilege.isAccess(privilege)) {
         
@@ -2884,10 +2931,57 @@ public class GrouperServiceLogicTest extends GrouperTest {
       }
     }
 
-    assertFalse(GrouperUtil.toStringForLog(wsGrouperPrivilegeResults), false);
+    fail(GrouperUtil.toStringForLog(wsGrouperPrivilegeResults));
     
   }
+  
+  /**
+   * make sure this membership is in the array
+   * @param wsMemberships
+   * @param ownerName
+   * @param subject
+   * @param field
+   */
+  public void assertHasMembership(WsMembership[] wsMemberships, String ownerName, Subject subject, Field field) {
+    for (WsMembership wsMembership : GrouperUtil.nonNull(wsMemberships, WsMembership.class)) {
+      if (field.isGroupListField()) {
+        
+        if (StringUtils.equals(wsMembership.getListName(), field.getName())
+            && StringUtils.equals(wsMembership.getGroupName(), ownerName)
+            && StringUtils.equals(wsMembership.getSubjectId(), subject.getId())
+            && StringUtils.equals(wsMembership.getSubjectSourceId(), subject.getSourceId())) {
+          return;
+        }
+        
+      } else if (field.isStemListField()) {
 
+        if (StringUtils.equals(wsMembership.getListName(), field.getName())
+            && StringUtils.equals(wsMembership.getOwnerStemName(), ownerName)
+            && StringUtils.equals(wsMembership.getSubjectId(), subject.getId())
+            && StringUtils.equals(wsMembership.getSubjectSourceId(), subject.getSourceId())) {
+          return;
+        }
+        
+      } else if (field.isAttributeDefListField()) {
+
+        if (StringUtils.equals(wsMembership.getListName(), field.getName())
+            && StringUtils.equals(wsMembership.getOwnerNameOfAttributeDef(), ownerName)
+            && StringUtils.equals(wsMembership.getSubjectId(), subject.getId())
+            && StringUtils.equals(wsMembership.getSubjectSourceId(), subject.getSourceId())) {
+          return;
+        }
+        
+      } else {
+        throw new RuntimeException("Not expecting field: " + field);
+      }
+    }
+
+    fail(GrouperUtil.toStringForLog(wsMemberships));
+    
+  }
+  
+
+  
   /**
    * test group attribute read
    */
@@ -7929,6 +8023,371 @@ public class GrouperServiceLogicTest extends GrouperTest {
       
   
   
+      
+    }
+
+    /**
+     * test get memberships
+     */
+    public void testGetMemberships() {
+    
+      //    groupName = "test:testPrivilegeIssue";
+      //    subjectIdWithAdminPriv = "test.subject.0";
+      //    subjectIdWithUpdatePriv = "test.subject.1";
+      //    subjectIdNoPrivs = "test.subject.2";
+      //    subjectIdMember = "test.subject.3";
+      //    grouperSession = GrouperSession.startRootSession();
+      //    group = new GroupSave(grouperSession).assignName(groupName).assignCreateParentStemsIfNotExist(true).save();
+      //    subjectWithAdminPriv = SubjectFinder.findByIdOrIdentifier(subjectIdWithAdminPriv, true);
+      //    subjectWithUpdatePriv = SubjectFinder.findByIdOrIdentifier(subjectIdWithUpdatePriv, true);
+      //    subjectNoPrivs = SubjectFinder.findByIdOrIdentifier(subjectIdNoPrivs, true);
+      //    subjectMember = SubjectFinder.findByIdOrIdentifier(subjectIdMember, true);
+      //    group.grantPriv(subjectWithAdminPriv, AccessPrivilege.ADMIN);
+      //    group.grantPriv(subjectWithUpdatePriv, AccessPrivilege.UPDATE);
+      //    group.addMember(subjectMember);
+    
+      String groupName = "test:testPrivilegeIssue";
+      String groupName2 = "test:testPrivilegeIssue2";
+      String stemName = "test";
+      String stemName2 = "test2";
+      String attributeDefName = "test:testAttributeDef";
+      String attributeDefName2 = "test2:testAttributeDef2";
+      String subjectIdWithAdminPriv = "test.subject.0";
+      String subjectIdWithUpdatePriv = "test.subject.1";
+      String subjectIdNoPrivs = "test.subject.2";
+      String subjectIdMember = "test.subject.3";
+      GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+      Stem stem = new StemSave(GrouperServiceUtils.testSession).assignName(stemName).assignCreateParentStemsIfNotExist(true).save();
+      Stem stem2 = new StemSave(GrouperServiceUtils.testSession).assignName(stemName2).assignCreateParentStemsIfNotExist(true).save();
+      AttributeDef attributeDef = new AttributeDefSave(GrouperServiceUtils.testSession).assignName(attributeDefName).assignCreateParentStemsIfNotExist(true).save();
+      AttributeDef attributeDef2 = new AttributeDefSave(GrouperServiceUtils.testSession).assignName(attributeDefName2).assignCreateParentStemsIfNotExist(true).save();
+      Group group = new GroupSave(GrouperServiceUtils.testSession).assignName(groupName).assignCreateParentStemsIfNotExist(true).save();
+      Group group2 = new GroupSave(GrouperServiceUtils.testSession).assignName(groupName2).assignCreateParentStemsIfNotExist(true).save();
+      Subject subjectWithAdminPriv = SubjectFinder.findByIdOrIdentifier(subjectIdWithAdminPriv, true);
+      Subject subjectWithUpdatePriv = SubjectFinder.findByIdOrIdentifier(subjectIdWithUpdatePriv, true);
+      Subject subjectNoPrivs = SubjectFinder.findByIdOrIdentifier(subjectIdNoPrivs, true);
+      Subject subjectMember = SubjectFinder.findByIdOrIdentifier(subjectIdMember, true);
+      group.grantPriv(subjectNoPrivs, AccessPrivilege.VIEW, false);
+      group.grantPriv(subjectWithAdminPriv, AccessPrivilege.ADMIN, false);
+      group.grantPriv(subjectWithUpdatePriv, AccessPrivilege.UPDATE, false);
+      group.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+      group.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+      group2.grantPriv(subjectNoPrivs, AccessPrivilege.VIEW, false);
+      group2.grantPriv(subjectWithAdminPriv, AccessPrivilege.ADMIN, false);
+      group2.grantPriv(subjectWithUpdatePriv, AccessPrivilege.UPDATE, false);
+      group2.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+      group2.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+      stem.grantPriv(subjectWithAdminPriv, NamingPrivilege.STEM);
+      stem.grantPriv(subjectWithUpdatePriv, NamingPrivilege.CREATE);
+      stem2.grantPriv(subjectWithAdminPriv, NamingPrivilege.STEM);
+      stem2.grantPriv(subjectWithUpdatePriv, NamingPrivilege.CREATE);
+      group.addMember(subjectMember);
+      group2.addMember(subjectMember);
+      group.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+      group.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+      group2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+      group2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+
+      attributeDef.getPrivilegeDelegate().grantPriv(subjectWithAdminPriv, AttributeDefPrivilege.ATTR_ADMIN, false);
+      attributeDef.getPrivilegeDelegate().grantPriv(subjectNoPrivs, AttributeDefPrivilege.ATTR_VIEW, false);
+      attributeDef.getPrivilegeDelegate().grantPriv(subjectWithUpdatePriv, AttributeDefPrivilege.ATTR_UPDATE, false);
+      attributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_VIEW, false);
+      attributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
+      attributeDef2.getPrivilegeDelegate().grantPriv(subjectWithAdminPriv, AttributeDefPrivilege.ATTR_ADMIN, false);
+      attributeDef2.getPrivilegeDelegate().grantPriv(subjectWithUpdatePriv, AttributeDefPrivilege.ATTR_UPDATE, false);
+      attributeDef2.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_VIEW, false);
+      attributeDef2.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
+      attributeDef2.getPrivilegeDelegate().grantPriv(subjectNoPrivs, AttributeDefPrivilege.ATTR_VIEW, false);
+
+
+
+      WsGetMembershipsResults wsGetMembershipsResults = null;
+      
+      //#################################
+      //## test that an unprivileged user cannot see memberships on a subject
+
+      GrouperServiceUtils.testSession = GrouperSession.start(subjectNoPrivs);
+
+      wsGetMembershipsResults = GrouperServiceLogic.getMemberships(
+          GROUPER_VERSION, null, new WsSubjectLookup[]{new WsSubjectLookup(subjectMember.getId(), null, null)}, null, null, null,
+          false, null, false, null, null, null, null, null, null, null, null, null, null, null, null);
+
+      assertEquals(GrouperUtil.toStringForLog(wsGetMembershipsResults.getWsMemberships()), 
+          0, GrouperUtil.length(wsGetMembershipsResults.getWsMemberships()));
+      
+      //#################################
+      //## test that a privileged user can see memberships on a subject
+
+      GrouperServiceUtils.testSession = GrouperSession.start(subjectWithAdminPriv);
+
+      wsGetMembershipsResults = GrouperServiceLogic.getMemberships(
+          GROUPER_VERSION, null, new WsSubjectLookup[]{new WsSubjectLookup(subjectMember.getId(), null, null)}, null, null, null,
+          false, null, false, null, null, null, null, null, null, null, null, null, null, null, null);
+
+      assertEquals(GrouperUtil.toStringForLog(wsGetMembershipsResults.getWsMemberships()), 
+          2, GrouperUtil.length(wsGetMembershipsResults.getWsMemberships()));
+
+      assertHasMembership(wsGetMembershipsResults.getWsMemberships(), groupName, subjectMember, Group.getDefaultList());
+      assertHasMembership(wsGetMembershipsResults.getWsMemberships(), groupName2, subjectMember, Group.getDefaultList());
+
+      //#################################
+      //## test that an unprivileged user cannot see memberships on a group
+
+      GrouperServiceUtils.testSession = GrouperSession.start(subjectNoPrivs);
+
+      wsGetMembershipsResults = GrouperServiceLogic.getMemberships(
+          GROUPER_VERSION, null, 
+          new WsSubjectLookup[]{new WsSubjectLookup(subjectMember.getId(), null, null)}, null, null, 
+          null,
+          false, null, false, null, null, null, null, null, null, null, null, null, null, null, null);
+
+      assertEquals(GrouperUtil.toStringForLog(wsGetMembershipsResults.getWsMemberships()), 
+          0, GrouperUtil.length(wsGetMembershipsResults.getWsMemberships()));
+
+      //#################################
+      //## test that a privileged user can see memberships on a group
+
+      GrouperServiceUtils.testSession = GrouperSession.start(subjectWithAdminPriv);
+
+      wsGetMembershipsResults = GrouperServiceLogic.getMemberships(
+          GROUPER_VERSION, null, 
+          new WsSubjectLookup[]{new WsSubjectLookup(subjectMember.getId(), null, null)}, null, null, 
+          null,
+          false, null, false, null, null, null, null, null, null, null, null, null, null, null, null);
+
+      assertEquals(GrouperUtil.toStringForLog(wsGetMembershipsResults.getWsMemberships()), 
+          2, GrouperUtil.length(wsGetMembershipsResults.getWsMemberships()));
+
+      assertHasMembership(wsGetMembershipsResults.getWsMemberships(), groupName, subjectMember, Group.getDefaultList());
+      assertHasMembership(wsGetMembershipsResults.getWsMemberships(), groupName2, subjectMember, Group.getDefaultList());
+
+
+      
+      //#################################
+      //## test that an unprivileged user cannot see privileges on a stem
+
+      GrouperServiceUtils.testSession = GrouperSession.start(subjectNoPrivs);
+
+      wsGetMembershipsResults = GrouperServiceLogic.getMemberships(
+          GROUPER_VERSION, null, null, null, null, null,
+          false, null, false, null, null, null, null, 
+          null, null, null, new WsStemLookup[]{new WsStemLookup(stem.getName(), null)}, null, null, null, null);
+
+      assertEquals(GrouperUtil.toStringForLog(wsGetMembershipsResults.getWsMemberships()), 
+          0, GrouperUtil.length(wsGetMembershipsResults.getWsMemberships()));
+      
+
+      //#################################
+      //## test that a privileged user can see privileges on a stem
+
+      GrouperServiceUtils.testSession = GrouperSession.start(subjectWithAdminPriv);
+
+      wsGetMembershipsResults = GrouperServiceLogic.getMemberships(
+          GROUPER_VERSION, null, 
+          null, null, null, null,
+          false, null, false, null, null, null, null, null, null, null, 
+          new WsStemLookup[]{new WsStemLookup(stem.getName(), null)}, null, null, null, null);
+
+      assertEquals(GrouperUtil.toStringForLog(wsGetMembershipsResults.getWsMemberships()), 
+          3, GrouperUtil.length(wsGetMembershipsResults.getWsMemberships()));
+
+      assertHasMembership(wsGetMembershipsResults.getWsMemberships(), stemName, subjectWithAdminPriv, FieldFinder.find("stemmers", true));
+      assertHasMembership(wsGetMembershipsResults.getWsMemberships(), stemName, subjectWithUpdatePriv, FieldFinder.find("creators", true));
+      assertHasMembership(wsGetMembershipsResults.getWsMemberships(), stemName, SubjectFinder.findRootSubject(), FieldFinder.find("stemmers", true));
+
+      //#################################
+      //## test that a privileged user can see privileges on a stem, filter by field
+
+      GrouperServiceUtils.testSession = GrouperSession.start(subjectWithAdminPriv);
+
+      wsGetMembershipsResults = GrouperServiceLogic.getMemberships(
+          GROUPER_VERSION, null, 
+          null, null, null, FieldFinder.find("creators", true),
+          false, null, false, null, null, null, null, null, null, null, 
+          new WsStemLookup[]{new WsStemLookup(stem.getName(), null)}, null, null, null, null);
+
+      assertEquals(GrouperUtil.toStringForLog(wsGetMembershipsResults.getWsMemberships()), 
+          1, GrouperUtil.length(wsGetMembershipsResults.getWsMemberships()));
+
+      assertHasMembership(wsGetMembershipsResults.getWsMemberships(), stemName, subjectWithUpdatePriv, FieldFinder.find("creators", true));
+
+
+      //#################################
+      //## test that a privileged user can see privs on a stem with field
+
+      GrouperServiceUtils.testSession = GrouperSession.start(subjectWithAdminPriv);
+
+      wsGetMembershipsResults = GrouperServiceLogic.getMemberships(
+          GROUPER_VERSION, null, 
+          new WsSubjectLookup[]{new WsSubjectLookup(subjectWithUpdatePriv.getId(), null, null)}, null, null, 
+          FieldFinder.find("creators", true),
+          false, null, false, null, null, null, null, null, null, null, null, null, null, null, null);
+
+      assertEquals(GrouperUtil.toStringForLog(wsGetMembershipsResults.getWsMemberships()), 
+          2, GrouperUtil.length(wsGetMembershipsResults.getWsMemberships()));
+
+      assertHasMembership(wsGetMembershipsResults.getWsMemberships(), stemName, subjectWithUpdatePriv, FieldFinder.find("creators", true));
+      assertHasMembership(wsGetMembershipsResults.getWsMemberships(), stemName2, subjectWithUpdatePriv, FieldFinder.find("creators", true));
+
+
+
+      //#################################
+      //## test that a privileged user can see stem privs on a subject
+
+      GrouperServiceUtils.testSession = GrouperSession.start(subjectWithAdminPriv);
+
+      wsGetMembershipsResults = GrouperServiceLogic.getMemberships(
+          GROUPER_VERSION, null, 
+          new WsSubjectLookup[]{new WsSubjectLookup(subjectIdWithUpdatePriv, null, null)}, null, null, null,
+          false, null, false, null, null, null, null, null, null, null, null, null, FieldType.NAMING, null, null);
+
+      assertEquals(GrouperUtil.toStringForLog(wsGetMembershipsResults.getWsMemberships()), 
+          2, GrouperUtil.length(wsGetMembershipsResults.getWsMemberships()));
+
+      assertHasMembership(wsGetMembershipsResults.getWsMemberships(), stemName, subjectWithUpdatePriv, FieldFinder.find("creators", true));
+      assertHasMembership(wsGetMembershipsResults.getWsMemberships(), stemName2, subjectWithUpdatePriv, FieldFinder.find("creators", true));
+
+      //#################################
+      //## test that an unprivileged user cannot see stem privs on a subject
+
+      GrouperServiceUtils.testSession = GrouperSession.start(subjectNoPrivs);
+
+      wsGetMembershipsResults = GrouperServiceLogic.getMemberships(
+          GROUPER_VERSION, null, 
+          new WsSubjectLookup[]{new WsSubjectLookup(subjectIdWithUpdatePriv, null, null)}, null, null, null,
+          false, null, false, null, null, null, null, null, null, null, null, null, FieldType.NAMING, null, null);
+
+      assertEquals(GrouperUtil.toStringForLog(wsGetMembershipsResults.getWsMemberships()), 
+          0, GrouperUtil.length(wsGetMembershipsResults.getWsMemberships()));
+
+      //#################################
+      //## test that a privileged user can see group privileges on a subject
+
+      GrouperServiceUtils.testSession = GrouperSession.start(subjectWithAdminPriv);
+
+      wsGetMembershipsResults = GrouperServiceLogic.getMemberships(
+          GROUPER_VERSION, null, 
+          new WsSubjectLookup[]{new WsSubjectLookup(subjectWithUpdatePriv.getId(), null, null)}, null, null, 
+          FieldFinder.find("updaters", true),
+          false, null, false, null, null, null, null, null, null, null, null, null, null, null, null);
+
+      assertEquals(GrouperUtil.toStringForLog(wsGetMembershipsResults.getWsMemberships()), 
+          2, GrouperUtil.length(wsGetMembershipsResults.getWsMemberships()));
+
+      assertHasMembership(wsGetMembershipsResults.getWsMemberships(), groupName, subjectWithUpdatePriv, FieldFinder.find("updaters", true));
+      assertHasMembership(wsGetMembershipsResults.getWsMemberships(), groupName2, subjectWithUpdatePriv, FieldFinder.find("updaters", true));
+
+      //#################################
+      //## test that an unprivileged user cannot see group privileges on a subject
+
+      GrouperServiceUtils.testSession = GrouperSession.start(subjectNoPrivs);
+
+      wsGetMembershipsResults = GrouperServiceLogic.getMemberships(
+          GROUPER_VERSION, null, 
+          new WsSubjectLookup[]{new WsSubjectLookup(subjectWithUpdatePriv.getId(), null, null)}, null, null, 
+          FieldFinder.find("updaters", true),
+          false, null, false, null, null, null, null, null, null, null, null, null, null, null, null);
+
+      assertEquals(GrouperUtil.toStringForLog(wsGetMembershipsResults.getWsMemberships()), 
+          0, GrouperUtil.length(wsGetMembershipsResults.getWsMemberships()));
+
+      //#################################
+      //## test that a privileged user can see privileges on a group
+
+      GrouperServiceUtils.testSession = GrouperSession.start(subjectWithAdminPriv);
+
+      wsGetMembershipsResults = GrouperServiceLogic.getMemberships(
+          GROUPER_VERSION, new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, 
+          null, null, null, 
+          FieldFinder.find("updaters", true),
+          false, null, false, null, null, null, null, null, null, null, null, null, null, null, null);
+
+      assertEquals(GrouperUtil.toStringForLog(wsGetMembershipsResults.getWsMemberships()), 
+          1, GrouperUtil.length(wsGetMembershipsResults.getWsMemberships()));
+
+      assertHasMembership(wsGetMembershipsResults.getWsMemberships(), groupName, subjectWithUpdatePriv, FieldFinder.find("updaters", true));
+
+      //#################################
+      //## test that a unprivileged user cannot see privileges on a group
+
+      GrouperServiceUtils.testSession = GrouperSession.start(subjectNoPrivs);
+
+      wsGetMembershipsResults = GrouperServiceLogic.getMemberships(
+          GROUPER_VERSION, new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, 
+          null, null, null, 
+          FieldFinder.find("updaters", true),
+          false, null, false, null, null, null, null, null, null, null, null, null, null, null, null);
+
+      assertEquals(GrouperUtil.toStringForLog(wsGetMembershipsResults.getWsMemberships()), 
+          0, GrouperUtil.length(wsGetMembershipsResults.getWsMemberships()));
+
+
+
+      
+      //#################################
+      //## test that a privileged user can see attrDef privileges on a subject
+
+      GrouperServiceUtils.testSession = GrouperSession.start(subjectWithAdminPriv);
+
+      wsGetMembershipsResults = GrouperServiceLogic.getMemberships(
+          GROUPER_VERSION, null, 
+          new WsSubjectLookup[]{new WsSubjectLookup(subjectWithUpdatePriv.getId(), null, null)}, null, null, 
+          FieldFinder.find("attrUpdaters", true),
+          false, null, false, null, null, null, null, null, null, null, null, null, null, null, null);
+
+      assertEquals(GrouperUtil.toStringForLog(wsGetMembershipsResults.getWsMemberships()), 
+          2, GrouperUtil.length(wsGetMembershipsResults.getWsMemberships()));
+
+      assertHasMembership(wsGetMembershipsResults.getWsMemberships(), attributeDefName, subjectWithUpdatePriv, FieldFinder.find("attrUpdaters", true));
+      assertHasMembership(wsGetMembershipsResults.getWsMemberships(), attributeDefName2, subjectWithUpdatePriv, FieldFinder.find("attrUpdaters", true));
+
+      //#################################
+      //## test that an unprivileged user cannot see attrDef privileges on a subject
+
+      GrouperServiceUtils.testSession = GrouperSession.start(subjectNoPrivs);
+
+      wsGetMembershipsResults = GrouperServiceLogic.getMemberships(
+          GROUPER_VERSION, null, 
+          new WsSubjectLookup[]{new WsSubjectLookup(subjectWithUpdatePriv.getId(), null, null)}, null, null, 
+          FieldFinder.find("attrUpdaters", true),
+          false, null, false, null, null, null, null, null, null, null, null, null, null, null, null);
+
+      assertEquals(GrouperUtil.toStringForLog(wsGetMembershipsResults.getWsMemberships()), 
+          0, GrouperUtil.length(wsGetMembershipsResults.getWsMemberships()));
+
+      //#################################
+      //## test that a privileged user can see privileges on an attrDef
+
+      GrouperServiceUtils.testSession = GrouperSession.start(subjectWithAdminPriv);
+
+      wsGetMembershipsResults = GrouperServiceLogic.getMemberships(
+          GROUPER_VERSION, null, 
+          null, null, null, 
+          FieldFinder.find("attrUpdaters", true),
+          false, null, false, null, null, null, null, null, null, null, null, 
+          new WsAttributeDefLookup[]{new WsAttributeDefLookup(attributeDefName, null)}, null, null, null);
+
+      assertEquals(GrouperUtil.toStringForLog(wsGetMembershipsResults.getWsMemberships()), 
+          1, GrouperUtil.length(wsGetMembershipsResults.getWsMemberships()));
+
+      assertHasMembership(wsGetMembershipsResults.getWsMemberships(), attributeDefName, subjectWithUpdatePriv, FieldFinder.find("attrUpdaters", true));
+
+      //#################################
+      //## test that a unprivileged user cannot see privileges on a group
+
+      GrouperServiceUtils.testSession = GrouperSession.start(subjectNoPrivs);
+
+      wsGetMembershipsResults = GrouperServiceLogic.getMemberships(
+          GROUPER_VERSION, null, 
+          null, null, null, 
+          FieldFinder.find("attrUpdaters", true),
+          false, null, false, null, null, null, null, null, null, null, null, 
+          new WsAttributeDefLookup[]{new WsAttributeDefLookup(attributeDefName, null)}, null, null, null);
+
+      assertEquals(GrouperUtil.toStringForLog(wsGetMembershipsResults.getWsMemberships()), 
+          0, GrouperUtil.length(wsGetMembershipsResults.getWsMemberships()));
+
+
       
     }
 

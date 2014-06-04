@@ -1088,5 +1088,11 @@ public interface AttributeAssignDAO extends GrouperDAO {
       Collection<String> ownerAttributeDefIds, 
       Collection<String> ownerAttributeDefNameIds,
       Collection<String> ownerActions, boolean useCache);
-  
+ 
+  /**
+   * Returns legacy group types (assigned to a given group) that were either migrated or created in the new attribute framework.
+   * @param groupId
+   * @return the values where the keys are the legacy group type names
+   */
+  public Map<String, AttributeAssign> findLegacyGroupTypeAssignmentsByGroupId(String groupId);
 }

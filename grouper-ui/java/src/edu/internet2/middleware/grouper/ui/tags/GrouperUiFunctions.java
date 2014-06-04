@@ -19,15 +19,31 @@
  */
 package edu.internet2.middleware.grouper.ui.tags;
 
+import java.util.Date;
+import java.util.Locale;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiHideShow;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 
 /**
@@ -36,6 +52,32 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class GrouperUiFunctions {
 
   /**
+   * if an owner has a privilege by the authenticated user
+   * @return true if has privilege, false if not
+   */
+  public static boolean canHavePrivilege(GrouperObject owner, String privilegeOrListName) {
+    
+    Subject subject = GrouperSession.staticGrouperSession().getSubject();
+    
+    //dont check security, this is on behalf of the UI, assume its allowed to check
+    
+    if (owner instanceof Group) {
+      return ((Group)owner).canHavePrivilege(subject, privilegeOrListName, false);
+    }
+    if (owner instanceof Stem) {
+      return ((Stem)owner).canHavePrivilege(subject, privilegeOrListName, false);
+    }
+    if (owner instanceof AttributeDef) {
+      return ((AttributeDef)owner).getPrivilegeDelegate().canHavePrivilege(subject, privilegeOrListName, false);
+    }
+    if (owner instanceof AttributeDefName) {
+      return ((AttributeDefName)owner).getAttributeDef().getPrivilegeDelegate().canHavePrivilege(subject, privilegeOrListName, false);
+    }
+    throw new RuntimeException("Cant find owner for '" + (owner == null ? null : owner.getClass()) + "'");
+    
+  }
+  
+  /**
    * Escapes XML ( ampersand, lessthan, greater than, double quote), and single quote with slash
    * @param input 
    * @return the escaped string
@@ -43,6 +85,35 @@ public class GrouperUiFunctions {
   public static String escapeJavascript(String input) {
     
     input = GrouperUiUtils.escapeJavascript(input, true);
+    return input;
+  }
+
+  /**
+   * concat for EL
+   * @param a
+   * @param b
+   * @return the concatenated strings
+   */
+  public static String concat2(Object a, Object b) {
+    if (a == null) {
+      a = "";
+    }
+    if (b == null) {
+      b = "";
+    }
+    return GrouperUtil.stringValue(a) + GrouperUtil.stringValue(b);
+  }
+
+  /**
+   * Escapes URL
+   * @param input 
+   * @return the escaped string
+   */
+  public static String escapeUrl(String input) {
+    if (input == null) {
+      return "";
+    }
+    input = GrouperUtil.escapeUrlEncode(input);
     return input;
   }
 
@@ -199,7 +270,7 @@ public class GrouperUiFunctions {
   }
 
   /**
-   * Escapes XML ( ampersand, lessthan, greater than)
+   * Escapes XML ( ampersand, lessthan, greater than, double quotes)
    * e.g. grouper:escapeHtml(someVar.someField)
    * @param input 
    * @return the escaped string
@@ -209,5 +280,71 @@ public class GrouperUiFunctions {
     input = GrouperUtil.xmlEscape(input, true);
     return input;
   }
-  
+
+  /**
+   * get a subject string label short 2 from member id
+   * @param memberId
+   * @return the subject string label
+   */
+  public static String subjectStringLabelShort2fromMemberId(String memberId) {
+    
+    if (StringUtils.isBlank(memberId)) {
+      return "";
+    }
+    String subjectId = null;
+    try {
+      Member member = MemberFinder.findByUuid( GrouperSession.staticGrouperSession(), 
+          memberId, true );
+      subjectId = member.getSubjectId();
+      Subject subject = member.getSubject();
+
+      return new GuiSubject(subject).getScreenLabelShort2();
+    } catch (SubjectNotFoundException snfe) {
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setSubjectId(subjectId);
+      try {
+        return TextContainer.retrieveFromRequest().getText().get("guiSubjectNotFound");
+      } finally {
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setSubjectId(null);
+      }
+    }
+
+  }
+
+  /**
+   * convert a date long to a string based on the user's locale
+   * @param dateLong
+   * @return the date string for the user's locale
+   */
+  public static String formatDateLong(Long dateLong) {
+    if (dateLong == null || dateLong == 0L) {
+      return "";
+    }
+    Date date = new Date(dateLong);
+
+    Locale locale = GrouperUiFilter.retrieveLocale();
+
+    //probably doesnt need to be escaped, but who knows...
+    return GrouperUtil.xmlEscape(StringUtils.defaultString(GrouperUiUtils.dateToString(locale, date)));
+
+  }
+
+  /**
+   * concat for EL
+   * @param a
+   * @param b
+   * @param c
+   * @return the concatenated strings
+   */
+  public static String concat3(Object a, Object b, Object c) {
+    if (a == null) {
+      a = "";
+    }
+    if (b == null) {
+      b = "";
+    }
+    if (c == null) {
+      c = "";
+    }
+    return GrouperUtil.stringValue(a) + GrouperUtil.stringValue(b) + GrouperUtil.stringValue(c);
+  }
 }

@@ -33,20 +33,23 @@
 package edu.internet2.middleware.grouper;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Find stems within the Groups Registry.
@@ -56,6 +59,62 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class StemFinder {
 
+  /**
+   * find stems where the user has these fields in a group
+   */
+  private Collection<Field> userHasInGroupFields;
+  
+  /**
+   * find stems where the user has these fields in a group
+   * @param theUserHasInGroupField
+   * @return this for chaining
+   */
+  public StemFinder addUserHasInGroupField(Field theUserHasInGroupField) {
+    if (this.userHasInGroupFields == null) {
+      this.userHasInGroupFields = new HashSet<Field>();
+    }
+    this.userHasInGroupFields.add(theUserHasInGroupField);
+    return this;
+  }
+
+  /**
+   * find stems where the user has these fields in an attribute
+   */
+  private Collection<Field> userHasInAttributeFields;
+
+  /**
+   * find stems where the user has these fields in an attribute
+   * @param theUserHasInAttributeField
+   * @return this for chaining
+   */
+  public StemFinder addUserHasInAttributeField(Field theUserHasInAttributeField) {
+    if (this.userHasInAttributeFields == null) {
+      this.userHasInAttributeFields = new HashSet<Field>();
+    }
+    this.userHasInAttributeFields.add(theUserHasInAttributeField);
+    return this;
+  }
+
+  /**
+   * find stems where the user has these fields in an attribute
+   * @param theUserHasInGroupFields
+   * @return this for chaining
+   */
+  public StemFinder assignUserHasInGroupField(Collection<Field> theUserHasInGroupFields) {
+    this.userHasInGroupFields = theUserHasInGroupFields;
+    return this;
+  }
+
+  /**
+   * find stems where the user has these fields in an attribute
+   * @param theUserHasInAttributeFields
+   * @return this for chaining
+   */
+  public StemFinder assignUserHasInAttributeField(Collection<Field> theUserHasInAttributeFields) {
+    this.userHasInAttributeFields = theUserHasInAttributeFields;
+    return this;
+  }
+  
   /**
    * Find stem by name.
    * <pre class="eg">
@@ -423,6 +482,197 @@ public class StemFinder {
       throws StemNotFoundException {
     Stem s = GrouperDAOFactory.getFactory().getStem().findByIdIndex(idIndex, exceptionIfNotFound, queryOptions);
     return s;
+  }
+
+  /**
+   * find stems where the static grouper session has certain privileges on the results
+   */
+  private Set<Privilege> privileges;
+
+  /**
+   * if sorting or paging
+   */
+  private QueryOptions queryOptions;
+  
+  /**
+   * scope to look for stems Wildcards will be appended or percent is the wildcard
+   */
+  private String scope;
+
+  /**
+   * if the scope has spaces in it, then split by whitespace, and find results that contain all of the scope strings
+   */
+  private boolean splitScope;
+
+  /**
+   * this is the subject that has certain privileges
+   */
+  private Subject subject;
+
+  /**
+   * parent or ancestor stem of the group
+   */
+  private String parentStemId;
+
+  /**
+   * if we are looking up a stem, only look by uuid or name
+   */
+  private boolean findByUuidOrName;
+  
+  /**
+   * if we are looking up a stem, only look by uuid or name
+   * @param theFindByUuidOrName
+   * @return the stem finder
+   */
+  public StemFinder assignFindByUuidOrName(boolean theFindByUuidOrName) {
+    
+    this.findByUuidOrName = theFindByUuidOrName;
+    
+    return this;
+  }
+  
+  /**
+   * if passing in a stem, this is the stem scope...
+   */
+  private Scope stemScope;
+
+  /**
+   * stem ids to find
+   */
+  private Collection<String> stemIds;
+
+  /**
+   * add a privilege to filter by that the subject has on the stem
+   * @param privilege should be AccessPrivilege
+   * @return this for chaining
+   */
+  public StemFinder addPrivilege(Privilege privilege) {
+    
+    if (this.privileges == null) {
+      this.privileges = new HashSet<Privilege>();
+    }
+    
+    this.privileges.add(privilege);
+    
+    return this;
+  }
+
+  /**
+   * assign privileges to filter by that the subject has on the stem
+   * @param theStems
+   * @return this for chaining
+   */
+  public StemFinder assignPrivileges(Set<Privilege> theStems) {
+    this.privileges = theStems;
+    return this;
+  }
+
+  /**
+   * if sorting, paging, caching, etc
+   * @param theQueryOptions
+   * @return this for chaining
+   */
+  public StemFinder assignQueryOptions(QueryOptions theQueryOptions) {
+    this.queryOptions = theQueryOptions;
+    return this;
+  }
+
+  /**
+   * scope to look for stems  Wildcards will be appended or percent is the wildcard
+   * @param theScope
+   * @return this for chaining
+   */
+  public StemFinder assignScope(String theScope) {
+    this.scope = theScope;
+    return this;
+  }
+
+  /**
+   * if the scope has spaces in it, then split by whitespace, and find results that contain all of the scope strings
+   * @param theSplitScope
+   * @return this for chaining
+   */
+  public StemFinder assignSplitScope(boolean theSplitScope) {
+    this.splitScope = theSplitScope;
+    return this;
+  }
+
+  /**
+   * this is the subject that has certain privileges or is in the query
+   * @param theSubject
+   * @return this for chaining
+   */
+  public StemFinder assignSubject(Subject theSubject) {
+    this.subject = theSubject;
+    return this;
+  }
+
+  /**
+   * find the stem
+   * @return the stem or null
+   */
+  public Stem findStem() {
+    Set<Stem> stems = this.findStems();
+    
+    return GrouperUtil.setPopOne(stems);
+  }
+
+  /**
+   * find all the stems
+   * @return the set of stems or the empty set if none found
+   */
+  public Set<Stem> findStems() {
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+  
+    return GrouperDAOFactory.getFactory().getStem()
+        .getAllStemsSecure(this.scope, grouperSession, this.subject, this.privileges, 
+            this.queryOptions, this.splitScope, this.parentStemId, this.stemScope, 
+            this.findByUuidOrName, this.userHasInGroupFields,
+            this.userHasInAttributeFields, this.stemIds);
+    
+  }
+
+  /**
+   * parent or ancestor stem of the stem
+   * @param theParentStemId
+   * @return this for chaining
+   */
+  public StemFinder assignParentStemId(String theParentStemId) {
+    this.parentStemId = theParentStemId;
+    return this;
+  }
+
+  /**
+   * if passing in a stem, this is the stem scope...
+   * @param theStemScope
+   * @return this for chaining
+   */
+  public StemFinder assignStemScope(Scope theStemScope) {
+    this.stemScope = theStemScope;
+    return this;
+  }
+
+  /**
+   * add a stem id to search for
+   * @param stemId
+   * @return this for chaining
+   */
+  public StemFinder addStemId(String stemId) {
+    if (this.stemIds == null) {
+      this.stemIds = new HashSet<String>();
+    }
+    this.stemIds.add(stemId);
+    return this;
+  }
+
+  /**
+   * assign stem ids to search for
+   * @param theStemIds
+   * @return this for chaining
+   */
+  public StemFinder assignStemIds(Collection<String> theStemIds) {
+    this.stemIds = theStemIds;
+    return this;
   }
 
 }

@@ -81,15 +81,25 @@ public class AttributeDefPrivilege implements GrouperPrivilege, Comparable {
   
   /** */
   public static final Privilege ATTR_OPTIN   = Privilege.getInstance("attrOptin");
-  
+
   /** */
   public static final Privilege ATTR_OPTOUT  = Privilege.getInstance("attrOptout");
   
   /** */
   public static final Privilege ATTR_READ    = Privilege.getInstance("attrRead");
-  
+
   /** */
   public static final Privilege ATTR_UPDATE  = Privilege.getInstance("attrUpdate");
+
+  /** any of these constitutes ATTR_OPTIN on an attribute def
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> ATTR_OPTIN_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ATTR_OPTIN, ATTR_UPDATE, ATTR_ADMIN));
+
+  /** any of these constitutes ATTR_OPTOUT on an attribute def
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> ATTR_OPTOUT_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ATTR_OPTOUT, ATTR_UPDATE, ATTR_ADMIN));
 
   /** */
   public static final Privilege ATTR_VIEW    = Privilege.getInstance("attrView");
@@ -102,19 +112,30 @@ public class AttributeDefPrivilege implements GrouperPrivilege, Comparable {
   
   /** any of these constitutes VIEW on a group
    * note, keep most common/likely privs toward the front  */
-  public static Set<Privilege> VIEW_PRIVILEGES = Collections.unmodifiableSet(
+  public static Set<Privilege> ATTR_VIEW_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ATTR_VIEW, ATTR_READ, ATTR_ADMIN, ATTR_UPDATE, ATTR_DEF_ATTR_READ, ATTR_DEF_ATTR_UPDATE, ATTR_OPTIN, ATTR_OPTOUT));
+  
+  /** ALL privileges
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> ALL_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(ATTR_VIEW, ATTR_READ, ATTR_ADMIN, ATTR_UPDATE, ATTR_DEF_ATTR_READ, ATTR_DEF_ATTR_UPDATE, ATTR_OPTIN, ATTR_OPTOUT));
   
   /** any of these constitutes ATTR_DEF_ATTR_READ on a group
    * note, keep most common/likely privs toward the front  */
-  public static Set<Privilege> ATTRIBUTE_READ_PRIVILEGES = Collections.unmodifiableSet(
+  public static Set<Privilege> ATTR_DEF_ATTR_READ_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(ATTR_DEF_ATTR_READ, ATTR_ADMIN));
-  
-  /** any of these constitutes ATTR_DEF_ATTR_UPDATE on a group
+
+  /** any of these constitutes ATTR_DEF_ATTR_UPDATE on an attribute def
    * note, keep most common/likely privs toward the front  */
-  public static Set<Privilege> ATTRIBUTE_UPDATE_PRIVILEGES = Collections.unmodifiableSet(
+  public static Set<Privilege> ATTR_DEF_ATTR_UPDATE_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(ATTR_DEF_ATTR_UPDATE, ATTR_ADMIN));
+
+  /** any of these constitutes ATTR_UPDATE on an attribute def
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> ATTR_UPDATE_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ATTR_UPDATE, ATTR_ADMIN));
   
+
   /** convert a list to priv */
   private static Map<String,Privilege> list2priv = new HashMap<String, Privilege>();
 
@@ -165,13 +186,54 @@ public class AttributeDefPrivilege implements GrouperPrivilege, Comparable {
 
   /** any of these constitutes READ on a group
    * note, keep most common/likely privs toward the front  */
-  public static Set<Privilege> READ_PRIVILEGES = Collections.unmodifiableSet(
-      GrouperUtil.toSet(ATTR_READ, ATTR_ADMIN, ATTR_OPTIN, ATTR_OPTOUT));
+  public static Set<Privilege> ATTR_READ_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ATTR_READ, ATTR_ADMIN));
   
-  /** any of these constitutes MANAGE on a group
+  /** any of these constitutes MANAGE on an attribute def
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> MANAGE_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(ATTR_ADMIN, ATTR_UPDATE, ATTR_DEF_ATTR_UPDATE));
+  
+  /** any of these constitutes ADMIN on an attribute def
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> ATTR_ADMIN_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ATTR_ADMIN));
+
+  /** these privileges are implied by ATTR_ADMIN  */
+  public static Set<Privilege> ATTR_ADMIN_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ATTR_ADMIN, ATTR_UPDATE, ATTR_READ, ATTR_OPTIN, ATTR_OPTOUT, ATTR_DEF_ATTR_UPDATE, ATTR_DEF_ATTR_READ, ATTR_VIEW));
+  
+  /** these privileges are implied by ATTR_UPDATE  */
+  public static Set<Privilege> ATTR_UPDATE_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ATTR_UPDATE, ATTR_OPTIN, ATTR_OPTOUT, ATTR_VIEW));
+
+  /** these privileges are implied by ATTR_READ  */
+  public static Set<Privilege> ATTR_READ_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ATTR_READ, ATTR_VIEW));
+  
+  /** these privileges are implied by ATTR_OPTIN  */
+  public static Set<Privilege> ATTR_OPTIN_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ATTR_OPTIN, ATTR_VIEW));
+  
+  /** these privileges are implied by ATTR_OPTOUT  */
+  public static Set<Privilege> ATTR_OPTOUT_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ATTR_OPTOUT, ATTR_VIEW));
+  
+
+  /** these privileges are implied by ATTR_VIEW  */
+  public static Set<Privilege> ATTR_VIEW_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ATTR_VIEW));
+
+  /** these privileges are implied by ATTR_DEF_ATTR_UPDATE  */
+  public static Set<Privilege> ATTR_DEF_ATTR_UPDATE_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ATTR_DEF_ATTR_UPDATE, ATTR_VIEW));
+
+  /** these privileges are implied by ATTR_DEF_ATTR_READ  */
+  public static Set<Privilege> ATTR_DEF_ATTR_READ_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ATTR_DEF_ATTR_READ, ATTR_VIEW));
+
+
+
 
   /** */
   private AttributeDef attributeDef;

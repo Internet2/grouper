@@ -173,8 +173,31 @@ public class WsGrouperKerberosAuthentication implements WsCustomAuthentication {
       throw new RuntimeException("Cant find jaas.conf!");
     }
 
-    System.setProperty("java.security.krb5.realm", GrouperWsConfig.retrieveConfig().propertyValueString("kerberos.realm"));
-    System.setProperty("java.security.krb5.kdc", GrouperWsConfig.retrieveConfig().propertyValueString("kerberos.kdc.address"));
+    String krb5Location = GrouperWsConfig.retrieveConfig().propertyValueString("kerberos.krb5.conf.location");
+    
+    File krb5confFile = null;
+    
+    //first look for external central file on OS
+    if (!StringUtils.isBlank(krb5Location)) {
+      krb5confFile = new File(krb5Location);
+      if (!krb5confFile.exists() || !krb5confFile.isFile()) {
+        throw new RuntimeException("krb5 conf file in " + krb5Location + " does not exist or is not a file");
+      }
+    } else {
+         
+       krb5confFile = GrouperUtil.fileFromResourceName("krb5.conf"); 
+    }
+    
+    if (krb5confFile == null) { 
+      LOG.info("Cant find krb5.conf from classpath or config location: kerberos.krb5.conf.location"); 
+      System.setProperty("java.security.krb5.realm", GrouperWsConfig.retrieveConfig().propertyValueStringRequired("kerberos.realm"));
+      System.setProperty("java.security.krb5.kdc", GrouperWsConfig.retrieveConfig().propertyValueStringRequired("kerberos.kdc.address"));
+    } else {
+      
+      System.setProperty("java.security.krb5.conf", krb5confFile.getAbsolutePath()); 
+    }
+ 
+    
     System.setProperty("java.security.auth.login.config", jaasConf.getAbsolutePath());
     //System.setProperty("sun.security.krb5.debug", "true");
     

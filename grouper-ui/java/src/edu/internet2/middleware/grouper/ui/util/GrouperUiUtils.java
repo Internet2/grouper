@@ -23,6 +23,7 @@ import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -36,6 +37,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -63,17 +65,16 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.j2ee.GenericServletResponseWrapper;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
-import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -90,6 +91,32 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  */
 public class GrouperUiUtils {
 
+  /**
+   * if search string valid
+   * @param searchString
+   * @return true if the search string is valid
+   */
+  public static boolean searchStringValid(String searchString) {
+    //check by splitting and trimming
+    boolean searchOk = false;
+    if (searchString != null && searchString.length() >= 2) {
+      boolean hasOneToken = false;
+      searchOk = true;
+      String[] tokens = GrouperUtil.splitTrim(searchString, " ");
+      for (String token : tokens) {
+        if (token.length() < 2) {
+          searchOk = false;
+          break;
+        }
+        hasOneToken = true;
+      }
+      if (!hasOneToken) {
+        searchOk = false;
+      }
+    }
+    return searchOk;
+  }
+  
   /**
    * compute a url of a resource
    * @param resourceName
@@ -390,6 +417,9 @@ public class GrouperUiUtils {
 
   /** map from source to subject screen EL */
   private static Map<String, String> subjectToScreenEl = null;
+
+  /** map from source to subject screen EL */
+  private static Map<String, String> subjectToScreenEl2 = null;
 
   /** map from source to subject screen EL the long version */
   private static Map<String, String> subjectToScreenElLong = null;
@@ -1211,6 +1241,46 @@ public class GrouperUiUtils {
     System.out.println(result);
     GrouperSession.stopQuietly(grouperSession);
   }
+
+  /**
+   * source id to an id to use to look up thing in the text file for the source (if special chars in source id)
+   */
+  private static GrouperCache<String, String> sourceIdToSourceTextIdCache = null;
+
+  /**
+   * source id to an id to use to look up thing in the text file for the source (if special chars in source id)
+   * (use the source id if not configured to be different)
+   * lazy load
+   * @return sourceId cache
+   */
+  private static GrouperCache<String, String> sourceIdToSourceTextIdCache() {
+    if (sourceIdToSourceTextIdCache == null) {
+      synchronized(GrouperStartup.class) {
+        if (sourceIdToSourceTextIdCache == null) {
+          sourceIdToSourceTextIdCache = new GrouperCache<String, String>(
+              "edu.internet2.middleware.grouper.ui.util.GrouperUiUtils.sourceIdToSourceTextIdCache",
+              2000, false, 60, 60, false);
+        }
+      }
+    }
+    return sourceIdToSourceTextIdCache;
+  }
+
+  /**
+   * convert a source id to a text id (use the source id if not configured to be different)
+   * @param sourceId
+   * @return the text id
+   */
+  public static String convertSourceIdToTextId(String sourceId) {
+    GrouperCache<String, String> theSourceIdToTextIdCache = sourceIdToSourceTextIdCache();
+    String textId = theSourceIdToTextIdCache.get(sourceId);
+    
+    //this is optional, if not configured, then just use the sourceId
+    if (!StringUtils.isBlank(textId)) {
+      return textId;
+    }
+    return sourceId;
+  }
   
   /**
    * get a label from a subject based on media.properties
@@ -1290,6 +1360,62 @@ public class GrouperUiUtils {
       if (StringUtils.isBlank(label)) {
 
         label = subject.getSourceId() + " - " + subject.getId() + " - " + subject.getName();
+      }
+
+      return label;
+
+    }
+    //run the screen EL
+    Map<String, Object> variableMap = new HashMap<String, Object>();
+    variableMap.put("subject", subject);
+    variableMap.put("grouperUiUtils", new GrouperUiUtils());
+    String result = GrouperUtil.substituteExpressionLanguage(screenEl, variableMap, false, true, true);
+    return result;
+  }
+
+  /**
+   * get a v2 label from a subject based on grouper-ui.properties
+   * @param subject
+   * @return the subject html string
+   */
+  public static String convertSubjectToLabelHtmlConfigured2(Subject subject) {
+    if (subject == null) {
+      return "";
+    }
+  
+    if (subjectToScreenEl2 == null) {
+      {
+        Map<String, String> theSubjectToScreenEl = new HashMap<String, String>();
+        Properties propertiesSettings = GrouperUiConfig.retrieveConfig().properties();
+        
+        int index = 0;
+        while (true) {
+        
+          String sourceName = GrouperUtil.propertiesValue(propertiesSettings, 
+              "grouperUi.screenLabel2.sourceId." + index);
+          String screenEl = GrouperUtil.propertiesValue(propertiesSettings, 
+              "grouperUi.screenLabel2.screenEl." + index);
+          
+          if (StringUtils.isBlank(sourceName)) {
+            break;
+          }
+          if (!StringUtils.isBlank(screenEl)) {
+            theSubjectToScreenEl.put(sourceName, screenEl);
+          }
+          
+          index++;
+        }
+        subjectToScreenEl2 = theSubjectToScreenEl;
+      }
+    }
+    String screenEl = subjectToScreenEl2.get(subject.getSource().getId());
+
+    if (StringUtils.isBlank(screenEl)) {
+
+      String label = subject.getName();
+      if (StringUtils.isBlank(label)) {
+
+        label = subject.getSourceId() + " - " + subject.getId();
       }
 
       return label;
@@ -1475,6 +1601,26 @@ public class GrouperUiUtils {
       return null;
     }
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT);
+    return simpleDateFormat.format(date);
+  }
+
+  /**
+   * convert a date to a string using the standard web service pattern
+   * yyyy/MM/dd HH:mm:ss.SSS Note that HH is 0-23
+   * 
+   * @param date
+   * @return the string, or null if the date is null
+   */
+  public static String dateToString(Locale locale, Date date) {
+    
+    if (locale == null) {
+      return dateToString(date);
+    }
+    
+    if (date == null) {
+      return null;
+    }
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT, locale);
     return simpleDateFormat.format(date);
   }
 

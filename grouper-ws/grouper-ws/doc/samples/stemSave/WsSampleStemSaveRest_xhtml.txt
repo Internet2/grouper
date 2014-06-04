@@ -1,4 +1,4 @@
-Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually written lite/rest, format: xhtml, for version: 2.1.1
+Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually written lite/rest, format: xhtml, for version: 2.2.0
 
 
 #########################################
@@ -9,12 +9,12 @@ Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually 
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/stems HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/stems HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
-Content-Length: 1338
+Content-Length: 1422
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -25,40 +25,44 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestStemSaveRequest">
-      <p class="clientVersion" />
       <div class="actAsSubjectLookup" title="WsSubjectLookup" />
+      <p class="clientVersion" />
       <p class="txType" />
       <ul class="wsStemToSaves">
         <li title="WsStemToSave">
-          <div class="wsStemLookup" title="WsStemLookup">
-            <p class="uuid" />
-            <p class="stemName">aStem:whateverStem</p>
-          </div>
-          <p class="saveMode" />
           <p class="createParentStemsIfNotExist" />
+          <p class="saveMode" />
           <div class="wsStem" title="WsStem">
-            <p class="uuid" />
-            <p class="displayExtension">disp1</p>
-            <p class="name">aStem:whateverStem</p>
-            <p class="displayName" />
             <p class="description">desc1</p>
+            <p class="displayExtension">disp1</p>
+            <p class="displayName" />
             <p class="extension">whateverStem</p>
+            <p class="idIndex" />
+            <p class="name">aStem:whateverStem</p>
+            <p class="uuid" />
+          </div>
+          <div class="wsStemLookup" title="WsStemLookup">
+            <p class="idIndex" />
+            <p class="stemName">aStem:whateverStem</p>
+            <p class="uuid" />
           </div>
         </li>
         <li title="WsStemToSave">
-          <div class="wsStemLookup" title="WsStemLookup">
-            <p class="uuid" />
-            <p class="stemName">aStem:whateverStem2</p>
-          </div>
-          <p class="saveMode" />
           <p class="createParentStemsIfNotExist" />
+          <p class="saveMode" />
           <div class="wsStem" title="WsStem">
-            <p class="uuid" />
-            <p class="displayExtension">disp2</p>
-            <p class="name">aStem:whateverStem2</p>
-            <p class="displayName" />
             <p class="description">descs</p>
+            <p class="displayExtension">disp2</p>
+            <p class="displayName" />
             <p class="extension">whateverStem2</p>
+            <p class="idIndex" />
+            <p class="name">aStem:whateverStem2</p>
+            <p class="uuid" />
+          </div>
+          <div class="wsStemLookup" title="WsStemLookup">
+            <p class="idIndex" />
+            <p class="stemName">aStem:whateverStem2</p>
+            <p class="uuid" />
           </div>
         </li>
       </ul>
@@ -82,9 +86,11 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 14:24:07 GMT
+Transfer-Encoding: chunked
+Date: Thu, 29 May 2014 00:36:14 GMT
 Connection: close
 
+7ce
 <?xml version='1.0' encoding='iso-8859-1'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -93,6 +99,21 @@ Connection: close
   </head>
   <body>
     <div title="WsStemSaveResults">
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="millis">147</p>
+        <p class="resultWarnings" />
+        <p class="serverVersion">2.2.0</p>
+      </div>
+      <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode">SUCCESS</p>
+        <p class="resultCode2" />
+        <p class="resultMessage">Success for: clientVersion: 2.2.0, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
+wsStemLookup=WsStemLookup[stemName=aStem:whateverStem],
+wsStem=WsStem[extension=whateverStem,displayExtension=disp1,description=desc1,name=aStem:whateverStem]]...
+, actAsSubject: null, txType: NONE, paramNames:
+, params: null</p>
+        <p class="success">T</p>
+      </div>
       <ul class="results">
         <li title="WsStemSaveResult">
           <div class="resultMetadata" title="WsResultMeta">
@@ -102,12 +123,13 @@ Connection: close
             <p class="success">T</p>
           </div>
           <div class="wsStem" title="WsStem">
-            <p class="name">aStem:whateverStem</p>
-            <p class="displayName">a stem:disp1</p>
             <p class="description">desc1</p>
-            <p class="uuid">1a0ad550f799493f934c1e8fefc13d1f</p>
-            <p class="extension">whateverStem</p>
             <p class="displayExtension">disp1</p>
+            <p class="displayName">a stem:disp1</p>
+            <p class="extension">whateverStem</p>
+            <p class="idIndex">10036</p>
+            <p class="name">aStem:whateverStem</p>
+            <p class="uuid">9bb53e743b8f4a629c487ec26f29d672</p>
           </div>
         </li>
         <li title="WsStemSaveResult">
@@ -118,33 +140,20 @@ Connection: close
             <p class="success">T</p>
           </div>
           <div class="wsStem" title="WsStem">
-            <p class="name">aStem:whateverStem2</p>
-            <p class="displayName">a stem:disp2</p>
             <p class="description">descs</p>
-            <p class="uuid">91ff399310c24cfbb8c2b0a1ef71ab36</p>
-            <p class="extension">whateverStem2</p>
             <p class="displayExtension">disp2</p>
+            <p class="displayName">a stem:disp2</p>
+            <p class="extension">whateverStem2</p>
+            <p class="idIndex">10037</p>
+            <p class="name">aStem:whateverStem2</p>
+            <p class="uuid">363e1e97deda471399af293de89e4e06</p>
           </div>
         </li>
       </ul>
-      <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.1.1, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
-wsStemLookup=WsStemLookup[stemName=aStem:whateverStem],
-wsStem=WsStem[extension=whateverStem,displayExtension=disp1,description=desc1,name=aStem:whateverStem]]...
-, actAsSubject: null, txType: NONE, paramNames:
-, params: null</p>
-        <p class="success">T</p>
-      </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">481</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">2.1.1</p>
-      </div>
     </div>
   </body>
 </html>
+0
 
 
 #########################################
@@ -339,7 +348,7 @@ public class WsSampleStemSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
+Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
   wsStemLookup=WsStemLookup[stemName=aStem:whateverStem],
   wsStem=WsStem[extension=whateverStem,displayExtension=disp1,description=desc1,name=aStem:whateverStem]]...
 , actAsSubject: null, txType: NONE, paramNames: 

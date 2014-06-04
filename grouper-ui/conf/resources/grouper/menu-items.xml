@@ -69,6 +69,12 @@
 				linkKey="liteUi.list"
 				mediaKeyMustBeTrue="ui-lite.link-from-admin-ui"
 	/>	
+<item   functionalArea="NewUi"
+        action="/grouperUi/app/UiV2Main.index?operation=UiV2Main.indexMain"
+        titleKey="newUi.link.title"
+        linkKey="simpleGroupUpdate.topIndexNewUi"
+        mediaKeyMustBeTrue="ui-new.link-from-admin-ui"
+  />  
 	<item 	functionalArea="Help"
 				action="/help.do"
 				titleKey="groups.help.link.title"

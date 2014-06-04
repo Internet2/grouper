@@ -10,7 +10,6 @@
 
 <div class="section">
 <table border="0" cellpadding="0" cellspacing="0" class="actionheaderContainer" width="100%"><tr><td><span id="grouptype-<c:out value="${viewObject.uuid}"/>" class="actionheader"><c:out value="${viewObject.name}"/></span>
-<c:if test="${!viewObject.isAssignable}"> <grouper:message key="grouptypes.label.internal"/></c:if>
 </td></tr></table>
 <div class="sectionBody">
 <div class="buttonContainer">
@@ -25,8 +24,6 @@
 <tr>
 		<th><grouper:message key="grouptypes.label.field"/></th>
 		<th><grouper:message key="grouptypes.label.type"/></th>
-		<th><grouper:message key="grouptypes.label.required"/></th>
-		<th><grouper:message key="grouptypes.label.nullable"/></th>
 		<th><grouper:message key="grouptypes.label.read-priv"/></th>
 		<th><grouper:message key="grouptypes.label.write-priv"/></th>
 	

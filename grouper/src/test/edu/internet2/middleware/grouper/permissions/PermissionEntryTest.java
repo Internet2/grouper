@@ -1134,7 +1134,7 @@ public class PermissionEntryTest extends GrouperTest {
     
     //############### set disabled 7 days in the future
     attributeAssign.setDisabledTime(timestamp7daysForward);
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     permissions = GrouperDAOFactory.getFactory().getPermissionEntry()
       .findPermissionsByAttributeDefDisabledRange(permissionDef.getId(), 
@@ -1169,7 +1169,7 @@ public class PermissionEntryTest extends GrouperTest {
 
     //################# SET TO 5 DAYS
     attributeAssign.setDisabledTime(timestamp5daysForward);
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     permissions = GrouperDAOFactory.getFactory().getPermissionEntry()
     .findPermissionsByAttributeDefDisabledRange(permissionDef.getId(), 
@@ -1179,7 +1179,7 @@ public class PermissionEntryTest extends GrouperTest {
 
     //################# SET TO 9 DAYS
     attributeAssign.setDisabledTime(timestamp9daysForward);
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     permissions = GrouperDAOFactory.getFactory().getPermissionEntry()
     .findPermissionsByAttributeDefDisabledRange(permissionDef.getId(), 
@@ -1189,7 +1189,7 @@ public class PermissionEntryTest extends GrouperTest {
 
     //################ TRY ONLY FROM
     attributeAssign.setDisabledTime(timestamp7daysForward);
-    attributeAssign.saveOrUpdate();
+    attributeAssign.saveOrUpdate(true);
     
     permissions = GrouperDAOFactory.getFactory().getPermissionEntry()
     .findPermissionsByAttributeDefDisabledRange(permissionDef.getId(), 

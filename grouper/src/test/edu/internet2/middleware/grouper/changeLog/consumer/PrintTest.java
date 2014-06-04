@@ -46,21 +46,6 @@ public class PrintTest extends ChangeLogConsumerBase {
     try {
       for (ChangeLogEntry changeLogEntry : changeLogEntryList) {
         currentId = changeLogEntry.getSequenceNumber();
-
-        //if this is a group type add action and category
-        if (changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_TYPE_ADD)) {
-          
-          //print the name from the entry
-          System.out.println("Group type add, name: " 
-              + changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_TYPE_ADD.name));
-        }
-        
-        if (changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_TYPE_DELETE)) {
-          
-          //print the name from the entry
-          System.out.println("Group type delete, name: " 
-              + changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_TYPE_DELETE.name));
-        }
         
         //if this is a group add action and category
         if (changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_ADD)) {

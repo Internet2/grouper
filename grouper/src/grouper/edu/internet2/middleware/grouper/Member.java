@@ -764,25 +764,6 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
             }
             
             {
-              //grouper_types.creator_uuid
-              Set<GroupType> groupTypes = GrouperDAOFactory.getFactory().getGroupType().findAllByCreator(Member.this);
-              if (GrouperUtil.length(groupTypes) > 0) {
-                for (GroupType groupType : groupTypes) {
-                  if (report == null) {
-                    groupType.setCreatorUuid(newMemberUuid);
-                  } else {
-                    report.append("CHANGE groupType: " 
-                        + groupType.getUuid() + ", " + groupType.getName()
-                        + ", creator id FROM: " + groupType.getCreatorUuid() + ", TO: " + newMemberUuid + "\n");
-                  }
-                }
-                if (report == null) {
-                  hibernateSession.byObject().saveOrUpdate(groupTypes);
-                }
-              }
-            }
-            
-            {
               //grouper_group_set.creator_id
               Set<GroupSet> groupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByCreator(Member.this);
               if (GrouperUtil.length(groupSets) > 0) {
@@ -1687,6 +1668,14 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     return this.memberUUID;
   }
 
+  /**
+   * get a members id
+   * @return the id
+   */
+  public String getId() {
+    return this.getUuid();
+  }
+  
   /**
    * Get groups where this member has the ADMIN privilege.
    * <pre class="eg">

@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -256,6 +257,19 @@ public class ValidatingResolver extends SubjectResolverDecorator {
     this.param.notNullString(query, "null query string");
     this.param.notNullString(stemName, "null stem name");
     return super.getDecoratedResolver().findPageInStem(stemName, query);
+  }
+
+  /**
+   * @see SubjectResolver#findPageInStem(String, String, Set)
+   */
+  public SearchPageResult findPageInStem(String stemName, String query, Set<Source> sources)
+      throws IllegalArgumentException {
+    if (GrouperUtil.length(sources) == 0) {
+      throw new RuntimeException("Need to pass in at least one source");
+    }
+    this.param.notNullString(query, "null query string");
+    this.param.notNullString(stemName, "null stem name");
+    return super.getDecoratedResolver().findPageInStem(stemName, query, sources);
   }
 
   /**

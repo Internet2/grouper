@@ -33,8 +33,13 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 
 import edu.emory.mathcs.backport.java.util.Collections;
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
+import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -59,13 +64,16 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.AttributeAssignNotAllowed;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameAddException;
 import edu.internet2.middleware.grouper.group.GroupMember;
+import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.AttributeAssignHooks;
+import edu.internet2.middleware.grouper.hooks.GroupTypeTupleHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksAttributeAssignBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksGroupTypeTupleBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
@@ -451,6 +459,14 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * save or update this object
    */
   public void saveOrUpdate() {
+    saveOrUpdate(true);
+  }
+  
+  /**
+   * save or update this object
+   * @param checkSecurity 
+   */
+  public void saveOrUpdate(boolean checkSecurity) {
     final AttributeDef theAttributeDef = this.getAttributeDef();
     
     final boolean isInsert = ObjectUtils.equals(this.getHibernateVersionNumber(), GrouperAPI.INITIAL_VERSION_NUMBER);
@@ -541,7 +557,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     //make sure subject is allowed to do this
     final AttributeAssignAction ATTRIBUTE_ASSIGN_ACTION = AttributeAssign.this.getAttributeAssignAction();
 
-    attributeAssignable.getAttributeDelegate().assertCanUpdateAttributeDefName(ATTRIBUTE_DEF_NAME);
+    if (checkSecurity) {
+      attributeAssignable.getAttributeDelegate().assertCanUpdateAttributeDefName(ATTRIBUTE_DEF_NAME);
+    }
     
     HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
@@ -1641,7 +1659,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     }
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
     //if its an insert or update, then do the rest of the fields
-    existingRecord.saveOrUpdate();
+    existingRecord.saveOrUpdate(true);
     return existingRecord;
   }
 
@@ -1864,6 +1882,17 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
         AttributeAssignHooks.METHOD_ATTRIBUTE_ASSIGN_POST_DELETE, HooksAttributeAssignBean.class, 
         this, AttributeAssign.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_POST_DELETE, false, true);
   
+    GroupTypeTuple gtt = GroupTypeTuple.internal_getGroupTypeTuple(this, false);
+    if (gtt != null) {
+      // this is a group type tuple
+      GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP_TYPE_TUPLE,
+          GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_COMMIT_DELETE, HooksGroupTypeTupleBean.class,
+          gtt, GroupTypeTuple.class);
+
+      GrouperHooksUtils.callHooksIfRegistered(gtt, GrouperHookType.GROUP_TYPE_TUPLE,
+          GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_DELETE, HooksGroupTypeTupleBean.class,
+          gtt, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_POST_DELETE, false, true);
+    }
   }
 
   /**
@@ -1883,7 +1912,19 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
         AttributeAssignHooks.METHOD_ATTRIBUTE_ASSIGN_POST_COMMIT_INSERT, HooksAttributeAssignBean.class, 
         this, AttributeAssign.class);
   
-  
+    
+    GroupTypeTuple gtt = GroupTypeTuple.internal_getGroupTypeTuple(this, false);
+    if (gtt != null) {
+      // this is a group type tuple
+      
+      GrouperHooksUtils.callHooksIfRegistered(gtt, GrouperHookType.GROUP_TYPE_TUPLE,
+          GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_INSERT, HooksGroupTypeTupleBean.class,
+          gtt, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_POST_INSERT, true, false);
+
+      GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP_TYPE_TUPLE,
+          GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_COMMIT_INSERT, HooksGroupTypeTupleBean.class,
+          gtt, GroupTypeTuple.class);
+    }
   }
 
   /**
@@ -1902,11 +1943,25 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
         this, AttributeAssign.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_POST_UPDATE, true, false);
   
   
+    GroupTypeTuple gtt = GroupTypeTuple.internal_getGroupTypeTuple(this, false);
+    if (gtt != null) {
+      // this is a group type tuple
+      
+      GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP_TYPE_TUPLE,
+          GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_COMMIT_UPDATE, HooksGroupTypeTupleBean.class,
+          gtt, GroupTypeTuple.class);
+
+      GrouperHooksUtils.callHooksIfRegistered(gtt, GrouperHookType.GROUP_TYPE_TUPLE,
+          GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_UPDATE, HooksGroupTypeTupleBean.class,
+          gtt, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_POST_UPDATE, true, false);
+
+    }
   }
 
   /**
    * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
    */
+  @SuppressWarnings("deprecation")
   @Override
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
@@ -1914,6 +1969,14 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN, 
         AttributeAssignHooks.METHOD_ATTRIBUTE_ASSIGN_PRE_DELETE, HooksAttributeAssignBean.class, 
         this, AttributeAssign.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_PRE_DELETE, false, false);
+    
+    GroupTypeTuple gtt = GroupTypeTuple.internal_getGroupTypeTuple(this, false);
+    if (gtt != null) {
+      // this is a group type tuple
+      GrouperHooksUtils.callHooksIfRegistered(gtt, GrouperHookType.GROUP_TYPE_TUPLE,
+          GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_PRE_DELETE, HooksGroupTypeTupleBean.class,
+          gtt, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_PRE_DELETE, false, false);
+    }
     
     String ownerId1 = null;
     String ownerId2 = null;
@@ -1936,6 +1999,26 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
       ownerId1 = this.getOwnerAttributeAssignId();
     } else {
       throw new RuntimeException("Unexpected ownerType: " + ownerType);
+    }
+    
+    // may need to delete group sets if we're unassigning a group type.  also change log entry.
+    if (gtt != null) {
+      // ok this is really a group type unassignment
+      
+      Group group = gtt.retrieveGroup(true);
+      GroupType groupType = GroupTypeFinder.findByUuid(gtt.getTypeUuid(), true);
+      Set<Field> fields = FieldFinder.findAllByGroupType(groupType);
+      for (Field field : fields) {
+        GrouperDAOFactory.getFactory().getGroupSet().deleteSelfByOwnerGroupAndField(group.getUuid(), field.getUuid());
+      }
+      
+      //change log into temp table
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_TYPE_UNASSIGN,
+          ChangeLogLabels.GROUP_TYPE_UNASSIGN.id.name(), this.getId(),
+          ChangeLogLabels.GROUP_TYPE_UNASSIGN.groupId.name(), group.getUuid(),
+          ChangeLogLabels.GROUP_TYPE_UNASSIGN.groupName.name(), group.getName(),
+          ChangeLogLabels.GROUP_TYPE_UNASSIGN.typeId.name(), groupType.getUuid(),
+          ChangeLogLabels.GROUP_TYPE_UNASSIGN.typeName.name(), groupType.getName()).save();
     }
     
     if (this.dbVersion().isEnabled()) {
@@ -1957,6 +2040,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * 
    * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
    */
+  @SuppressWarnings("deprecation")
   @Override
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
@@ -1967,6 +2051,14 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN, 
         AttributeAssignHooks.METHOD_ATTRIBUTE_ASSIGN_PRE_INSERT, HooksAttributeAssignBean.class, 
         this, AttributeAssign.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_PRE_INSERT, false, false);
+    
+    GroupTypeTuple gtt = GroupTypeTuple.internal_getGroupTypeTuple(this, false);
+    if (gtt != null) {
+      // this is a group type tuple
+      GrouperHooksUtils.callHooksIfRegistered(gtt, GrouperHookType.GROUP_TYPE_TUPLE,
+          GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_PRE_INSERT, HooksGroupTypeTupleBean.class,
+          gtt, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_PRE_INSERT, false, false);
+    }
     
     String ownerId1 = null;
     String ownerId2 = null;
@@ -1989,6 +2081,36 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
       ownerId1 = this.getOwnerAttributeAssignId();
     } else {
       throw new RuntimeException("Unexpected ownerType: " + ownerType);
+    }
+    
+    // may need to add group sets if we're assigning a group type.  also change log entry
+    if (gtt != null) {
+      // ok this is really a group type assignment
+      Group group = gtt.retrieveGroup(true);
+      GroupType groupType = GroupTypeFinder.findByUuid(gtt.getTypeUuid(), true);
+    
+      Set<Field> fields = FieldFinder.findAllByGroupType(groupType);
+      for (Field field : fields) {
+        if (group.getTypeOfGroup() != null && group.getTypeOfGroup().supportsField(field)) {
+          GroupSet groupSet = new GroupSet();
+          groupSet.setId(GrouperUuid.getUuid());
+          groupSet.setCreatorId(GrouperSession.staticGrouperSession().getMemberUuid());
+          groupSet.setDepth(0);
+          groupSet.setMemberGroupId(group.getUuid());
+          groupSet.setOwnerGroupId(group.getUuid());
+          groupSet.setParentId(groupSet.getId());
+          groupSet.setFieldId(field.getUuid());
+          GrouperDAOFactory.getFactory().getGroupSet().save(groupSet);
+        }
+      }
+      
+      //change log into temp table
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_TYPE_ASSIGN,
+          ChangeLogLabels.GROUP_TYPE_ASSIGN.id.name(), this.getId(),
+          ChangeLogLabels.GROUP_TYPE_ASSIGN.groupId.name(), group.getUuid(),
+          ChangeLogLabels.GROUP_TYPE_ASSIGN.groupName.name(), group.getName(),
+          ChangeLogLabels.GROUP_TYPE_ASSIGN.typeId.name(), groupType.getUuid(),
+          ChangeLogLabels.GROUP_TYPE_ASSIGN.typeName.name(), groupType.getName()).save();
     }
     
     if (this.isEnabled()) {
@@ -2044,6 +2166,14 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
         AttributeAssignHooks.METHOD_ATTRIBUTE_ASSIGN_PRE_UPDATE, HooksAttributeAssignBean.class, 
         this, AttributeAssign.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_PRE_UPDATE, false, false);
   
+    GroupTypeTuple gtt = GroupTypeTuple.internal_getGroupTypeTuple(this, false);
+    if (gtt != null) {
+      // this is a group type tuple
+      GrouperHooksUtils.callHooksIfRegistered(gtt, GrouperHookType.GROUP_TYPE_TUPLE,
+          GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_PRE_UPDATE, HooksGroupTypeTupleBean.class,
+          gtt, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_PRE_UPDATE, false, false);  
+    }
+    
     String ownerId1 = null;
     String ownerId2 = null;
     

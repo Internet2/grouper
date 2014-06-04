@@ -19,9 +19,12 @@
  */
 package edu.internet2.middleware.grouper.userData;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 
 
 /**
@@ -80,8 +83,15 @@ public class GrouperUserDataUtils {
    * @param exceptionIfNotFound 
    * @return attribute def name
    */
-  public static AttributeDefName grouperUserDataAttributeDefName(boolean exceptionIfNotFound) {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataName(), exceptionIfNotFound);
+  public static AttributeDefName grouperUserDataAttributeDefName(final boolean exceptionIfNotFound) {
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession().internal_getRootSession();
+    return (AttributeDefName)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataName(), exceptionIfNotFound);
+      }
+    });
   }
 
   /** extension of the attribute def name for favorite groups */
@@ -106,7 +116,14 @@ public class GrouperUserDataUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperUserDataFavoriteGroupsAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataFavoriteGroupsName(), true);
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession().internal_getRootSession();
+    return (AttributeDefName)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataFavoriteGroupsName(), true);
+      }
+    });
   }
 
 
@@ -132,7 +149,14 @@ public class GrouperUserDataUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperUserDataRecentGroupsAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataRecentGroupsName(), true);
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession().internal_getRootSession();
+    return (AttributeDefName)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataRecentGroupsName(), true);
+      }
+    });
   }
 
   
@@ -158,7 +182,14 @@ public class GrouperUserDataUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperUserDataRecentStemsAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataRecentStemsName(), true);
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession().internal_getRootSession();
+    return (AttributeDefName)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataRecentStemsName(), true);
+      }
+    });
   }
 
 
@@ -184,7 +215,14 @@ public class GrouperUserDataUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperUserDataFavoriteStemsAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataFavoriteStemsName(), true);
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession().internal_getRootSession();
+    return (AttributeDefName)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataFavoriteStemsName(), true);
+      }
+    });
   }
 
   
@@ -214,16 +252,14 @@ public class GrouperUserDataUtils {
    */
   public static AttributeDefName grouperUserDataRecentAttributeDefsAttributeDefName() {
 
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataRecentAttributeDefsName(), true);
-
-    //return (AttributeDefName)GrouperSession.callbackGrouperSession(
-    //    GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
-    //  
-    //  @Override
-    //  public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-    //    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataRecentAttributeDefsName(), true);
-    //  }
-    //});
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession().internal_getRootSession();
+    return (AttributeDefName)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataRecentAttributeDefsName(), true);
+      }
+    });
   }
 
 
@@ -249,7 +285,14 @@ public class GrouperUserDataUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperUserDataFavoriteAttributeDefsAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataFavoriteAttributeDefsName(), true);
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession().internal_getRootSession();
+    return (AttributeDefName)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataFavoriteAttributeDefsName(), true);
+      }
+    });
   }
 
   
@@ -275,7 +318,14 @@ public class GrouperUserDataUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperUserDataRecentAttributeDefNamesAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataRecentAttributeDefNamesName(), true);
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession().internal_getRootSession();
+    return (AttributeDefName)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataRecentAttributeDefNamesName(), true);
+      }
+    });
   }
 
 
@@ -293,7 +343,7 @@ public class GrouperUserDataUtils {
     if (grouperUserDataFavoriteAttributeDefNamesName == null) {
       grouperUserDataFavoriteAttributeDefNamesName = grouperUserDataStemName() + ":" + ATTR_DEF_EXTENSION_FAVORITE_ATTRIBUTE_DEF_NAMES;
     }
-    return grouperUserDataFavoriteStemsName;
+    return grouperUserDataFavoriteAttributeDefNamesName;
   }
   
   /**
@@ -301,7 +351,14 @@ public class GrouperUserDataUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperUserDataFavoriteAttributeDefNamesAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataFavoriteStemsName(), true);
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession().internal_getRootSession();
+    return (AttributeDefName)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataFavoriteAttributeDefNamesName(), true);
+      }
+    });
   }
 
 
@@ -329,7 +386,14 @@ public class GrouperUserDataUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperUserDataRecentSubjectsAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataRecentSubjectsName(), true);
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession().internal_getRootSession();
+    return (AttributeDefName)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataRecentSubjectsName(), true);
+      }
+    });
   }
 
 
@@ -355,7 +419,14 @@ public class GrouperUserDataUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperUserDataFavoriteSubjectsAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataFavoriteSubjectsName(), true);
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession().internal_getRootSession();
+    return (AttributeDefName)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataFavoriteSubjectsName(), true);
+      }
+    });
   }
 
 
@@ -382,7 +453,14 @@ public class GrouperUserDataUtils {
    * @return attribute def name
    */
   public static AttributeDefName grouperUserDataPreferencesAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataPreferencesName(), true);
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession().internal_getRootSession();
+    return (AttributeDefName)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperUserDataPreferencesName(), true);
+      }
+    });
   }
 
 

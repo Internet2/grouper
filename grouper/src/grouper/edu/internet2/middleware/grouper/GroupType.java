@@ -32,8 +32,6 @@
 
 package edu.internet2.middleware.grouper;
 import java.io.Serializable;
-import java.io.StringWriter;
-import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -45,13 +43,18 @@ import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
-import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefScopeType;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -59,31 +62,18 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.hooks.GroupTypeHooks;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupTypeBean;
-import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
-import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
-import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
-import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
-import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.log.EventLog;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.misc.GrouperHasContext;
-import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.M;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.validator.AddFieldToGroupTypeValidator;
 import edu.internet2.middleware.grouper.validator.DeleteFieldFromGroupTypeValidator;
 import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
-import edu.internet2.middleware.grouper.xml.export.XmlExportGroupType;
-import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 
 /** 
  * Schema specification for a Group type.
@@ -91,10 +81,10 @@ import edu.internet2.middleware.grouper.xml.export.XmlImportable;
  * @author  blair christensen.
  * @version $Id: GroupType.java,v 1.89 2009-06-10 05:31:35 mchyzer Exp $
  */
-public class GroupType extends GrouperAPI implements GrouperHasContext, Serializable, Hib3GrouperVersioned, Comparable, XmlImportable<GroupType> {
-
+public class GroupType extends GrouperAPI implements Serializable, Comparable {
+  
   /** name of table for grouper_types */
-  public static final String TABLE_GROUPER_TYPES = "grouper_types";
+  public static final String TABLE_OLD_GROUPER_TYPES = "grouper_types";
   
   /** uuid col in db */
   public static final String COLUMN_TYPE_UUID = "type_uuid";
@@ -110,18 +100,6 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
   /** constant for field name for: createTime */
   public static final String FIELD_CREATE_TIME = "createTime";
 
-  /** constant for field name for: creatorUUID */
-  public static final String FIELD_CREATOR_UUID = "creatorUUID";
-
-  /** constant for field name for: dbVersion */
-  public static final String FIELD_DB_VERSION = "dbVersion";
-
-  /** constant for field name for: isAssignable */
-  public static final String FIELD_IS_ASSIGNABLE = "isAssignable";
-
-  /** constant for field name for: isInternal */
-  public static final String FIELD_IS_INTERNAL = "isInternal";
-
   /** constant for field name for: name */
   public static final String FIELD_NAME = "name";
 
@@ -129,18 +107,11 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
   public static final String FIELD_UUID = "uuid";
 
   /**
-   * fields which are included in db version
-   */
-  private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_IS_ASSIGNABLE, FIELD_IS_INTERNAL, 
-      FIELD_NAME, FIELD_UUID);
-
-  /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DB_VERSION, FIELD_HIBERNATE_VERSION_NUMBER, 
-      FIELD_IS_ASSIGNABLE, FIELD_IS_INTERNAL, FIELD_NAME, FIELD_UUID);
+      FIELD_CREATE_TIME, FIELD_DB_VERSION, FIELD_HIBERNATE_VERSION_NUMBER, 
+      FIELD_NAME, FIELD_UUID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -170,6 +141,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
    * @return  New {@link GroupType}.
    * @throws  InsufficientPrivilegeException
    * @throws  SchemaException
+   * @deprecated
    */
   public static GroupType createType(GrouperSession s, String name) 
     throws  InsufficientPrivilegeException, SchemaException  {
@@ -200,6 +172,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
    * @return  New {@link GroupType}.
    * @throws  InsufficientPrivilegeException
    * @throws SchemaException 
+   * @deprecated
    */
   public static GroupType createType(GrouperSession s, String name, 
       boolean exceptionIfExists) 
@@ -214,6 +187,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
    * @return the type
    * @throws InsufficientPrivilegeException
    * @throws SchemaException
+   * @deprecated
    */
   private static GroupType createTypeHelper(GrouperSession s, String name, boolean exceptionIfExists)
       throws InsufficientPrivilegeException, SchemaException {
@@ -221,7 +195,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
     StopWatch sw = new StopWatch();
     sw.start();
     boolean[] existedAlready = new boolean[1];
-    GroupType type = internal_createType(s, name, true, false, exceptionIfExists, existedAlready, null);
+    GroupType type = internal_createType(s, name, exceptionIfExists, existedAlready, null);
     sw.stop();
     if (!existedAlready[0]) {
       EventLog.info(s, M.GROUPTYPE_ADD + Quote.single( type.getName() ), sw);
@@ -231,19 +205,13 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
 
   /** */
   private long    createTime;
-  /** */
-  private String  creatorUUID;
   
   /** */
-  @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
   private Set     fields;
+  private Set<AttributeDefName> legacyAttributes;
   
-  /** */
-  private boolean isAssignable  = true;
-  /** */
-  private boolean isInternal    = false;
   /** */
   private String  name;
   /** */
@@ -251,6 +219,9 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
 
   /** context id of the transaction */
   private String contextId;
+  
+  /** AttributeDefName that corresponds to the group type */
+  private AttributeDefName attributeDefName;
 
   /**
    * context id of the transaction
@@ -284,19 +255,17 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
    * </pre>
    * @param   s         Add attribute within this session context.
    * @param   name      Name of attribute.
-   * @param   read      {@link Privilege} required to write to this {@link Field}.
-   * @param   write     {@link Privilege} required to write to this {@link Field}.
-   * @param   required  Is this attribute required.
    * @return  field
    * @throws  InsufficientPrivilegeException
    * @throws  SchemaException
+   * @deprecated
    */
-  public Field addAttribute(
-    GrouperSession s, String name, Privilege read, Privilege write, boolean required
+  public AttributeDefName addAttribute(
+    GrouperSession s, String name
   )
     throws  InsufficientPrivilegeException,
             SchemaException {
-    return addAttribute(s, name, read, write, required, true);
+    return addAttribute(s, name, true);
   }
 
   /**
@@ -315,50 +284,73 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
    * </pre>
    * @param   s         Add attribute within this session context.
    * @param   name      Name of attribute.
-   * @param   read      {@link Privilege} required to write to this {@link Field}.
-   * @param   write     {@link Privilege} required to write to this {@link Field}.
-   * @param   required  Is this attribute required.
    * @param exceptionIfExists 
    * @return  field
    * @throws  InsufficientPrivilegeException
    * @throws  SchemaException
+   * @deprecated
    */
-  public Field addAttribute(
-    GrouperSession s, String name, Privilege read, Privilege write, boolean required, boolean exceptionIfExists
+  public AttributeDefName addAttribute(
+    final GrouperSession s, final String name, final boolean exceptionIfExists
   )
     throws  InsufficientPrivilegeException,
             SchemaException {
-    return internal_addField(s, name, FieldType.ATTRIBUTE, read, write, required, exceptionIfExists, false, null, null);
-  } // public Field addAttribute(s, name, read, write, required)
 
-  /**
-   * Add a custom attribute {@link Field} to a custom {@link GroupType}.
-   * try {
-   *   Field myAttr = type.addAttribute(
-   *     "my attribute", AccessPrivilege.VIEW, AccessPrivilege.UPDATE, false
-   *   );
-   * }
-   * catch (InsufficientPrivilegeException eIP) {
-   *   // Not privileged to add attribute
-   * }
-   * catch (SchemaException eS) {
-   *   // Invalid schema
-   * }
-   * </pre>
-   * @param   s         Add attribute within this session context.
-   * @param   name      Name of attribute.
-   * @param   read      {@link Privilege} required to write to this {@link Field}.
-   * @param   write     {@link Privilege} required to write to this {@link Field}.
-   * @param   required  Is this attribute required.
-   * @return  field
-   * @throws  InsufficientPrivilegeException
-   * @throws  SchemaException
-   */
-  public Field addOrUpdateAttribute(
-    GrouperSession s, String name, Privilege read, Privilege write, boolean required
-  ) throws  InsufficientPrivilegeException, SchemaException {
-    return internal_addField(s, name, FieldType.ATTRIBUTE, read, write, required, false, true, null, null);
-  } // public Field addAttribute(s, name, read, write, required)
+    return (AttributeDefName)HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+
+        if (!PrivilegeHelper.isRoot(s)) {
+          String msg = "Cannot add legacy attributes.";
+          LOG.error(msg);
+          throw new InsufficientPrivilegeException(msg);
+        }
+        
+        //these are reserved words:
+        if (Group.INTERNAL_FIELD_ATTRIBUTES.contains(name)) {
+          throw new RuntimeException("You cannot add a field which is a reserved word '" 
+              + name + "', reserved words are : " + GrouperUtil.toStringForLog(Group.INTERNAL_FIELD_ATTRIBUTES));
+        }
+      
+        // see if the attribute def exists first.
+        String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+        Stem stem = GrouperDAOFactory.getFactory().getStem().findByName(stemName, true);
+        String attributeDefPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attributeDef.prefix");
+        String attributePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attribute.prefix");
+        AttributeDef attributeDef = AttributeDefFinder.findByName(stemName + ":" + attributeDefPrefix + GroupType.this.name, false);
+        if (attributeDef == null) {
+          // get the attribute definition used for the group type
+          String groupTypePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupType.prefix");
+          AttributeDefName groupType = AttributeDefNameFinder.findByName(stemName + ":" + groupTypePrefix + GroupType.this.name, true);
+          
+          // create it..
+          attributeDef = stem.addChildAttributeDef(attributeDefPrefix + GroupType.this.name, AttributeDefType.attr);
+          attributeDef.setAssignToGroupAssn(true);
+          attributeDef.setValueType(AttributeDefValueType.string);
+          attributeDef.store();
+          
+          // add scope
+          attributeDef.getAttributeDefScopeDelegate().assignScope(AttributeDefScopeType.idEquals, groupType.getId(), null);
+        } else {
+          // see if the attribute already exists.
+          AttributeDefName attribute = AttributeDefNameFinder.findByName(stemName + ":" + attributePrefix + name, false);
+          if (attribute != null) {
+            if (exceptionIfExists) {
+              throw new SchemaException(name + " already exists.");
+            }
+            
+            return attribute;
+          }
+        }
+        
+        return stem.addChildAttributeDefName(attributeDef, attributePrefix + name, attributePrefix + name);
+      }    
+    });          
+  }
+      
+      
 
   /**
    * Add a custom list {@link Field} to a custom {@link GroupType}.
@@ -381,26 +373,105 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
    * @return field
    * @throws  InsufficientPrivilegeException
    * @throws  SchemaException
+   * @deprecated
    */
   public Field addList(
-    GrouperSession s, String name, Privilege read, Privilege write
+    final GrouperSession s, final String name, final Privilege read, final Privilege write
+  )
+    throws  InsufficientPrivilegeException,
+            SchemaException {
+    return internal_addList(s, name, read, write, null, true);
+  }
+  
+  /**
+   * @param s
+   * @param name
+   * @param read
+   * @param write
+   * @param fieldId
+   * @param exceptionIfExists
+   * @return field
+   * @throws InsufficientPrivilegeException
+   * @throws SchemaException
+   */
+  public Field internal_addList(
+    final GrouperSession s, final String name, final Privilege read, final Privilege write,
+    final String fieldId, final boolean exceptionIfExists
   )
     throws  InsufficientPrivilegeException,
             SchemaException
   {
-    //note, no need for GrouperSession inverse of control
-    ModifyGroupTypeValidator v = ModifyGroupTypeValidator.validate(s, this);
-    if (v.isInvalid()) {
-      throw new InsufficientPrivilegeException( v.getErrorMessage() );
-    }
-    if (!Privilege.isAccess(read)) {
-      throw new SchemaException(E.FIELD_READ_PRIV_NOT_ACCESS + read);
-    }
-    if (!Privilege.isAccess(write)) {
-      throw new SchemaException(E.FIELD_WRITE_PRIV_NOT_ACCESS + write);
-    }
-    return this.internal_addField(s, name, FieldType.LIST, read, write, false, true, false, null, null);
-  } // public Field addList(s, name, read, write)
+    final String UUID = StringUtils.isBlank(fieldId) ? GrouperUuid.getUuid() : fieldId;
+
+    return (Field)HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+      
+          if (!Privilege.isAccess(read)) {
+            throw new SchemaException(E.FIELD_READ_PRIV_NOT_ACCESS + read);
+          }
+          if (!Privilege.isAccess(write)) {
+            throw new SchemaException(E.FIELD_WRITE_PRIV_NOT_ACCESS + write);
+          }
+        
+          if (!PrivilegeHelper.isRoot(s)) {
+            String msg = "Cannot add lists.";
+            LOG.error(msg);
+            throw new InsufficientPrivilegeException(msg);
+          }
+                    
+          // see if the attribute def and attribute exist first.
+          String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+          Stem stem = GrouperDAOFactory.getFactory().getStem().findByName(stemName, true);
+          String customListDefPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.customListDef.prefix");
+          String customListPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.customList.prefix");
+          
+          // get the attribute definition used for the group type
+          String groupTypeDefPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupTypeDef.prefix");
+          AttributeDef groupTypeDef = AttributeDefFinder.findByName(stemName + ":" + groupTypeDefPrefix + GroupType.this.name, true);
+          
+          AttributeDef customListDef = AttributeDefFinder.findByName(stemName + ":" + customListDefPrefix + GroupType.this.name, false);
+          AttributeDefName customList = AttributeDefNameFinder.findByName(stemName + ":" + customListPrefix + GroupType.this.name, false);
+          if (customListDef == null) {
+            // create it..
+            customListDef = stem.addChildAttributeDef(customListDefPrefix + GroupType.this.name, AttributeDefType.attr);
+            customListDef.setAssignToAttributeDef(true);
+            customListDef.setValueType(AttributeDefValueType.string);
+            customListDef.setMultiValued(true);
+            customListDef.store();
+            
+            // add scope
+            customListDef.getAttributeDefScopeDelegate().assignScope(AttributeDefScopeType.idEquals, groupTypeDef.getId(), null);
+          }
+          
+          if (customList == null) {
+            customList = stem.addChildAttributeDefName(customListDef, customListPrefix + GroupType.this.name, customListPrefix + GroupType.this.name);
+          }
+          
+          AttributeAssignValue attributeAssignValue = groupTypeDef.getAttributeValueDelegate().findValue(customList.getName(), UUID);
+          
+          if (attributeAssignValue == null) {
+            groupTypeDef.getAttributeValueDelegate().addValue(customList.getName(), UUID);
+          } else {
+            if (exceptionIfExists) {
+              throw new RuntimeException(attributeAssignValue.toString() + " already exists.");
+            }
+          }
+          
+          FieldFinder.clearCache();
+          GroupTypeFinder.clearCache();
+          
+          Field field = Field.internal_addField(s, name, FieldType.LIST, read, write, exceptionIfExists, false, null, UUID);
+          
+          Set fields = GroupType.this.getFields();
+          fields.add(field);
+          
+          return field;
+      }
+    });
+  }
 
   /**
    * Delete a custom {@link GroupType} definition.
@@ -420,6 +491,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
    * @throws  InsufficientPrivilegeException
    * @throws  SchemaException
    * @since   1.0
+   * @deprecated
    */
   public void delete(final GrouperSession s) 
     throws  InsufficientPrivilegeException,
@@ -434,32 +506,66 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
         //note, no need for GrouperSession inverse of control
         StopWatch sw = new StopWatch();
         sw.start();
-        if ( GroupType.this.isSystemType() ) {
-          String msg = E.GROUPTYPE_NODELSYS + GroupType.this.getName();
-          LOG.error( msg);
-          throw new SchemaException(msg);
-        } 
         if (!PrivilegeHelper.isRoot(s)) {
           String msg = E.GROUPTYPE_NODEL;
           LOG.error( msg);
           throw new InsufficientPrivilegeException(msg);
         }
         try {
-          if ( GrouperDAOFactory.getFactory().getGroup().findAllByType( GroupType.this ).size() > 0 ) {
-            String msg = E.GROUPTYPE_DELINUSE;
-            LOG.error( msg);
-            throw new SchemaException(msg);
+          Set<Field> fields = GroupType.this.getFields();
+          
+          // verify fields aren't in use
+          for (Field field : fields) {
+            if (GrouperDAOFactory.getFactory().getField().isInUse(field)) {
+              String msg = E.GROUPTYPE_DELINUSE;
+              LOG.error(msg);
+              throw new SchemaException(msg);
+            }
           }
-          // Now delete the type
+          
+          // verify attributes aren't in use
+          String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+          String groupTypePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupType.prefix");          
+          AttributeDefName groupType = AttributeDefNameFinder.findByName(stemName + ":" + groupTypePrefix + GroupType.this.name, false);
+          if (groupType != null) {
+            if (GrouperDAOFactory.getFactory().getAttributeAssign().findByAttributeDefNameId(groupType.getId()).size() > 0) {
+              String msg = E.GROUPTYPE_DELINUSE;
+              LOG.error(msg);
+              throw new SchemaException(msg);
+            }
+          }
+          
           String typeName = GroupType.this.getName(); // For logging purposes
-          Set<Field> fields2 = GroupType.this.getFields();
-      
+          
           if (LOG.isDebugEnabled()) {
             LOG.debug("Deleting type: " + GroupType.this.getName() + " and fields: " 
-              + Field.fieldNames(fields2));
+              + Field.fieldNames(fields));
           }
-      
-          GrouperDAOFactory.getFactory().getGroupType().delete( GroupType.this, GroupType.this.getFields() );
+          
+          // Now delete
+          GrouperDAOFactory.getFactory().getField().delete(fields);
+          String attributeDefPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attributeDef.prefix");
+          String groupTypeDefPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupTypeDef.prefix");          
+          String customListDefPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.customListDef.prefix");          
+          AttributeDef attributeDef = AttributeDefFinder.findByName(stemName + ":" + attributeDefPrefix + GroupType.this.name, false);
+          AttributeDef groupTypeDef = AttributeDefFinder.findByName(stemName + ":" + groupTypeDefPrefix + GroupType.this.name, false);
+          AttributeDef customListDefDef = AttributeDefFinder.findByName(stemName + ":" + customListDefPrefix + GroupType.this.name, false);
+
+          if (groupType != null) {
+            groupType.delete();
+            GroupType.this.setContextId(groupType.getContextId());
+          }
+          
+          if (attributeDef != null) {
+            attributeDef.delete();
+          }
+          if (customListDefDef != null) {
+            customListDefDef.delete();
+          }
+          if (groupTypeDef != null) {
+            groupTypeDef.delete();
+          }
+          
           sw.stop();
           EventLog.info(s, M.GROUPTYPE_DEL + Quote.single(typeName), sw);
           // Now update the cached types + fields
@@ -508,6 +614,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
    * @param   name      Name of field to delete.
    * @throws  InsufficientPrivilegeException
    * @throws  SchemaException
+   * @deprecated
    */
   public void deleteField(final GrouperSession s, final String name)
       throws  InsufficientPrivilegeException, SchemaException {
@@ -540,7 +647,14 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
           if ( fields.remove( field ) ) {
             GroupType.this.setFields(fields);
             String typeString = field.getTypeString();
-            GrouperDAOFactory.getFactory().getGroupType().deleteField( field);
+            GrouperDAOFactory.getFactory().getField().delete(field);
+            
+            String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+            String groupTypeDefPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupTypeDef.prefix");
+            AttributeDef groupTypeDef = AttributeDefFinder.findByName(stemName + ":" + groupTypeDefPrefix + GroupType.this.name, true);
+            String customListPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.customList.prefix");
+            AttributeDefName customList = AttributeDefNameFinder.findByName(stemName + ":" + customListPrefix + GroupType.this.name, false);
+            groupTypeDef.getAttributeValueDelegate().deleteValue(customList.getName(), field.getUuid());
             
             if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
               //only audit if actually changed the type
@@ -562,6 +676,8 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
             LOG.error( msg);
             throw new SchemaException(msg);
           }
+          
+          FieldFinder.clearCache();
         } catch (GrouperDAOException eDAO) {
           String msg = E.GROUPTYPE_FIELDDEL + name + ": " + eDAO.getMessage();
           LOG.error( msg);
@@ -577,9 +693,6 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
    * @return true if system type
    */
   public boolean isSystemType() {
-    if ( "base".equals( this.getName() ) || "naming".equals( this.getName() ) ) {
-      return true;
-    }
     return false;
   } 
   
@@ -588,8 +701,6 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
    * 
    * @param s
    * @param name
-   * @param isAssignable
-   * @param isInternal
    * @param exceptionIfExists
    * @param changed boolean array, the fisrt index will be in it existed already
    * @param uuid to use or null for one to be assigned
@@ -598,8 +709,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
    * @throws SchemaException
    */
   public static GroupType internal_createType(
-    final GrouperSession s, final String name, final boolean isAssignable, 
-    final boolean isInternal, final boolean exceptionIfExists, final boolean[] changed, String uuid)
+    final GrouperSession s, final String name, final boolean exceptionIfExists, final boolean[] changed, String uuid)
       throws  InsufficientPrivilegeException,
               SchemaException { 
     
@@ -617,11 +727,14 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
             LOG.error( msg);
             throw new InsufficientPrivilegeException(msg);
           }
-          GroupTypeDAO dao = GrouperDAOFactory.getFactory().getGroupType();
+          
+          @SuppressWarnings("deprecation")
+          GroupType existing = GroupTypeFinder.find(name, false);
+
           if (GrouperUtil.length(changed) >= 1) {
             changed[0] = true;
           }
-          if ( dao.existsByName(name) ) {
+          if (existing != null) {
             if (GrouperUtil.length(changed) >= 1) {
               changed[0] = false;
             }
@@ -630,28 +743,30 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
               LOG.error( msg);
               throw new SchemaException(msg);
             }
-            return GroupTypeFinder.find(name, true);
+
+            return existing;
           }
-          GroupType _gt = new GroupType();
-          _gt.setCreateTime( new Date().getTime() );
-            _gt.setCreatorUuid( s.getMember().getUuid() );
-            _gt.setFields( new LinkedHashSet() );
-            _gt.setIsAssignable(isAssignable);
-            _gt.setIsInternal(isInternal);
-            _gt.setName(name);
-            _gt.setUuid( UUID );
-            
-          dao.createOrUpdate(_gt) ;
           
+          String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+          String groupTypeDefPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupTypeDef.prefix");
+          String groupTypePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupType.prefix");
+          
+          Stem stem = GrouperDAOFactory.getFactory().getStem().findByName(stemName, true);
+          AttributeDef groupTypeDef = stem.addChildAttributeDef(groupTypeDefPrefix + name, AttributeDefType.attr);
+          groupTypeDef.setAssignToGroup(true);
+          groupTypeDef.store();
+          
+          AttributeDefName groupType = stem.internal_addChildAttributeDefName(s, groupTypeDef, groupTypePrefix + name, groupTypePrefix + name, UUID, null);
+                      
           if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
             //only audit if actually changed the type
             AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_TYPE_ADD, "id", 
-                _gt.getUuid(), "name", _gt.getName());
-            auditEntry.setDescription("Added group type: " + _gt.getName());
+                groupType.getId(), "name", groupType.getName());
+            auditEntry.setDescription("Added group type: " + groupType.getName());
             auditEntry.saveOrUpdate(true);
           }
           
-          return _gt;
+          return GroupType.internal_getGroupType(groupType, true);
         } catch (GrouperDAOException eDAO) {
           String msg = E.GROUPTYPE_ADD + name + ": " + eDAO.getMessage();
           LOG.error( msg);
@@ -662,194 +777,6 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
     });
 
   }
-
-
-  /**
-   * add a field if it is not already there
-   * @param s
-   * @param name
-   * @param type
-   * @param read
-   * @param write
-   * @param required
-   * @param exceptionIfExists
-   * @param updateIfExists 
-   * @param changedArray is an array of 1 if you want to know if this method changed anything, else null
-   * @param uuid 
-   * @return the field
-   * @throws InsufficientPrivilegeException
-   * @throws SchemaException
-   */
-  public Field internal_addField(
-    final GrouperSession s, final String name, final FieldType type, final Privilege read, 
-    final Privilege write, final boolean required, final boolean exceptionIfExists, final boolean updateIfExists,
-    final boolean[] changedArray, String uuid) throws  InsufficientPrivilegeException, SchemaException {
-
-    //these are reserved words:
-    if (Group.INTERNAL_FIELD_ATTRIBUTES.contains(name)) {
-      throw new RuntimeException("You cannot add a field which is a reserved word '" 
-          + name + "', reserved words are : " + GrouperUtil.toStringForLog(Group.INTERNAL_FIELD_ATTRIBUTES));
-    }
-    
-    final String UUID = StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid;
-    
-    return (Field)HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
-
-      public Object callback(HibernateHandlerBean hibernateHandlerBean)
-          throws GrouperDAOException {
-        
-        try {
-          if (FieldType.ATTRIBUTE.equals(type)) {
-            //note, no need for GrouperSession inverse of control
-            ModifyGroupTypeValidator v = ModifyGroupTypeValidator.validate(s, GroupType.this);
-            if (v.isInvalid()) {
-              throw new InsufficientPrivilegeException( v.getErrorMessage() + ", attribute: '" + name + "'" );
-            }
-            if (!Privilege.isAccess(read)) {
-              throw new SchemaException(E.FIELD_READ_PRIV_NOT_ACCESS + read);
-            }
-            if (!Privilege.isAccess(write)) {
-              throw new SchemaException(E.FIELD_WRITE_PRIV_NOT_ACCESS + write);
-            }
-          }
-          
-          //note, no need for GrouperSession inverse of control
-          StopWatch sw  = new StopWatch();
-          sw.start();
-          AddFieldToGroupTypeValidator v = AddFieldToGroupTypeValidator.validate(name, !exceptionIfExists);
-          if (v.isInvalid()) {
-            throw new SchemaException( v.getErrorMessage() );
-          }
-          Field field = FieldFinder.find(name, false);
-
-          if (field != null) {
-            boolean changed = false;
-            if (!type.equals(field.getType())) {
-              //dont want to change types, that could be bad!
-              throw new SchemaException("field '" + name + "' does not have type: " + type + ", it has: " + field.getType());
-            }
-            if (field.getRequired() != required) {
-              if (exceptionIfExists) {
-                throw new SchemaException("field '" + name + "' does not match required flag: " + required);
-              }
-              if (updateIfExists) {
-                changed = true;
-                field.setIsNullable(!required);
-              }
-            }
-            if (!read.equals(field.getReadPriv())) {
-              if (exceptionIfExists) {
-                throw new SchemaException("field '" + name + "' does not have read privilege: " + read + ", it has: " + field.getReadPrivilege());
-              }
-              if (updateIfExists) {
-                changed = true;
-                field.setReadPrivilege(read);
-              }
-            }
-            if (!write.equals(field.getWritePriv())) {
-              if (exceptionIfExists) {
-                throw new SchemaException("field '" + name + "' does not have write privilege: " + write + ", it has: " + field.getWritePrivilege());
-              }
-              if (updateIfExists) {
-                changed = true;
-                field.setWritePrivilege(write);
-              }
-            }
-            if (exceptionIfExists) {
-              throw new SchemaException("field exists: '" + name + "'");
-            }
-            //store minor changes to db
-            if (changed && updateIfExists) {
-              changed = true;
-              
-              String differences = GrouperUtil.dbVersionDescribeDifferences(field.dbVersion(), 
-                  field, field.dbVersion() != null ? field.dbVersionDifferentFields() : GroupType.CLONE_FIELDS);
-              
-              GrouperDAOFactory.getFactory().getField().createOrUpdate(field);
-  
-              if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-                //audit the update
-                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_FIELD_UPDATE, "id", 
-                    field.getUuid(), "name", field.getName(), "groupTypeId", GroupType.this.getUuid(), 
-                    "groupTypeName", GroupType.this.getName(), "type", type.getType());
-                
-                String description = "Updated group field: " + name + ", id: " + field.getUuid() 
-                    + ", type: " + type + ", groupType: " + GroupType.this.getName() + ".\n" + differences;
-                auditEntry.setDescription(description);
-                
-                auditEntry.saveOrUpdate(true);
-              }
-              
-              if (GrouperUtil.length(changedArray) > 0) {
-                changedArray[0] = true;
-              }
-            } else {
-              if (GrouperUtil.length(changedArray) > 0) {
-                changedArray[0] = false;
-              }
-            }
-            FieldFinder.internal_updateKnownFields();
-            return field;
-          }
-          if (GrouperUtil.length(changedArray) > 0) {
-            changedArray[0] = true;
-          }
-          try {
-            boolean nullable = true;
-            if (required == true) {
-              nullable = false;
-            }
-            field = new Field();
-            field.setGroupTypeUuid( GroupType.this.getUuid() );
-            field.setIsNullable(nullable);
-            field.setName(name);
-            field.setReadPrivilege(read);
-            field.setType(type);
-            field.setUuid(UUID);
-            field.setWritePrivilege(write);
-              
-            GrouperDAOFactory.getFactory().getGroupType().createField(field);
-  
-            Set fields = GroupType.this.getFields();
-            fields.add( field );
-  
-            sw.stop();
-            EventLog.info(
-              s, 
-              M.GROUPTYPE_ADDFIELD + Quote.single(field.getName()) + " ftype=" + Quote.single(type.toString()) 
-              + " gtype=" + Quote.single( GroupType.this.getName() ),
-              sw
-            );
-            FieldFinder.internal_updateKnownFields();
-          }
-          catch (GrouperDAOException eDAO) {
-            String msg = E.GROUPTYPE_FIELDADD + name + ": " + eDAO.getMessage();
-            LOG.error( msg);
-            throw new SchemaException(msg, eDAO);
-          }
-          
-          
-          //only audit if actually changed the type
-          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_FIELD_ADD, "id", 
-              field.getUuid(), "name", field.getName(), "groupTypeId", GroupType.this.getUuid(), "groupTypeName", GroupType.this.getName(), "type", type.getType());
-          auditEntry.setDescription("Added group field: " + name + ", id: " + field.getUuid() + ", type: " + type + ", groupType: " + GroupType.this.getName());
-          auditEntry.saveOrUpdate(true);
-          
-          return field;
-        } catch (GrouperDAOException eDAO) {
-          String msg = E.GROUPTYPE_FIELDADD + name + ": " + eDAO.getMessage();
-          LOG.error( msg);
-          throw new SchemaException(msg, eDAO);
-        }
-      }
-      
-    });
-    
-    
-    
-    
-  } // protected Field internal_addField(s, name, type, read, write, required)
 
 
   /**
@@ -880,14 +807,6 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
 
 
   /**
-   * @return creator uuid
-   * @since   1.2.0
-   */ 
-  public String getCreatorUuid() {
-    return this.creatorUUID;
-  }
-
-  /**
    * @return fields
    * @since   1.2.0
    */ 
@@ -897,25 +816,6 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
     }
     return this.fields;
   }
-
-
-  /**
-   * @return if assignable
-   * @since   1.2.0
-   */ 
-  public boolean getIsAssignable() {
-    return this.isAssignable;
-  }
-
-
-  /**
-   * @return if internal
-   * @since   1.2.0
-   */ 
-  public boolean getIsInternal() {
-    return this.isInternal;
-  }
-
 
   /**
    * @return name
@@ -957,16 +857,6 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
 
 
   /**
-   * @param creatorUUID 
-   * @since   1.2.0
-   */ 
-  public void setCreatorUuid(String creatorUUID) {
-    this.creatorUUID = creatorUUID;
-  
-  }
-
-
-  /**
    * @param fields 
    * @since   1.2.0
    */ 
@@ -974,27 +864,6 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
     this.fields = fields;
   
   }
-
-
-  /**
-   * @param isAssignable 
-   * @since   1.2.0
-   */ 
-  public void setIsAssignable(boolean isAssignable) {
-    this.isAssignable = isAssignable;
-  
-  }
-
-
-  /**
-   * @param isInternal 
-   * @since   1.2.0
-   */ 
-  public void setIsInternal(boolean isInternal) {
-    this.isInternal = isInternal;
-  
-  }
-
 
   /**
    * @param name 
@@ -1023,160 +892,11 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-      .append( "creatorUuid",  this.getCreatorUuid()  )
       .append( "createTime",   this.getCreateTime()   )
       .append( "fields",       GrouperUtil.length(this.getFields()))
-      .append( "isAssignable", this.getIsAssignable() )
-      .append( "isInternal",   this.getIsInternal()   )
       .append( "name",         this.getName()         )
       .append( "uuid",         this.getUuid()         )
       .toString();
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPostDelete(HibernateSession hibernateSession) {
-
-    super.onPostDelete(hibernateSession);
-    
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP_TYPE, 
-        GroupTypeHooks.METHOD_GROUP_TYPE_POST_COMMIT_DELETE, HooksGroupTypeBean.class, 
-        this, GroupType.class);
-
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE, 
-        GroupTypeHooks.METHOD_GROUP_TYPE_POST_DELETE, HooksGroupTypeBean.class, 
-        this, GroupType.class, VetoTypeGrouper.GROUP_TYPE_POST_DELETE, false, true);
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPostSave(HibernateSession hibernateSession) {
-
-    super.onPostSave(hibernateSession);
-
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE, 
-        GroupTypeHooks.METHOD_GROUP_TYPE_POST_INSERT, HooksGroupTypeBean.class, 
-        this, GroupType.class, VetoTypeGrouper.GROUP_TYPE_POST_INSERT, true, false);
-
-    //do these second so the right object version is set, and dbVersion is ok
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP_TYPE, 
-        GroupTypeHooks.METHOD_GROUP_TYPE_POST_COMMIT_INSERT, HooksGroupTypeBean.class, 
-        this, GroupType.class);
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPostUpdate(HibernateSession hibernateSession) {
-
-    super.onPostUpdate(hibernateSession);
-
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP_TYPE, 
-        GroupTypeHooks.METHOD_GROUP_TYPE_POST_COMMIT_UPDATE, HooksGroupTypeBean.class, 
-        this, GroupType.class);
-
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE, 
-        GroupTypeHooks.METHOD_GROUP_TYPE_POST_UPDATE, HooksGroupTypeBean.class, 
-        this, GroupType.class, VetoTypeGrouper.GROUP_TYPE_POST_UPDATE, true, false);
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPreDelete(HibernateSession hibernateSession) {
-
-    super.onPreDelete(hibernateSession);
-    
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE, 
-        GroupTypeHooks.METHOD_GROUP_TYPE_PRE_DELETE, HooksGroupTypeBean.class, 
-        this, GroupType.class, VetoTypeGrouper.GROUP_TYPE_PRE_DELETE, false, false);
-  
-    //change log into temp table
-    new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_TYPE_DELETE, 
-        ChangeLogLabels.GROUP_TYPE_DELETE.id.name(), 
-        this.getUuid(), ChangeLogLabels.GROUP_TYPE_DELETE.name.name(), 
-        this.getName()).save();
-  }
-
-  /**
-   * 
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPreSave(HibernateSession hibernateSession) {
-    super.onPreSave(hibernateSession);
-    
-    
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE, 
-        GroupTypeHooks.METHOD_GROUP_TYPE_PRE_INSERT, HooksGroupTypeBean.class, 
-        this, GroupType.class, VetoTypeGrouper.GROUP_TYPE_PRE_INSERT, false, false);
-
-    //change log into temp table
-    new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_TYPE_ADD, 
-        ChangeLogLabels.GROUP_TYPE_ADD.id.name(), 
-        this.getUuid(), ChangeLogLabels.GROUP_TYPE_ADD.name.name(), 
-        this.getName()).save();
-    
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPreUpdate(HibernateSession hibernateSession) {
-    super.onPreUpdate(hibernateSession);
-    
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE, 
-        GroupTypeHooks.METHOD_GROUP_TYPE_PRE_UPDATE, HooksGroupTypeBean.class, 
-        this, GroupType.class, VetoTypeGrouper.GROUP_TYPE_PRE_UPDATE, false, false);
-    
-    //change log into temp table
-    ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.GROUP_TYPE_UPDATE, 
-        this, this.dbVersion(),
-        GrouperUtil.toList(ChangeLogLabels.GROUP_TYPE_UPDATE.id.name(),this.getUuid(), 
-            ChangeLogLabels.GROUP_TYPE_UPDATE.name.name(), this.getName()),
-        GrouperUtil.toList(FIELD_NAME),
-        GrouperUtil.toList(ChangeLogLabels.GROUP_TYPE_UPDATE.name.name()));    
-  }
-
-  /**
-   * save the state when retrieving from DB
-   * @return the dbVersion
-   */
-  @Override
-  public GroupType dbVersion() {
-    return (GroupType)this.dbVersion;
-  }
-
-  /**
-   * note, these are massaged so that name, extension, etc look like normal fields.
-   * access with fieldValue()
-   * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
-   */
-  @Override
-  public Set<String> dbVersionDifferentFields() {
-    if (this.dbVersion == null) {
-      throw new RuntimeException("State was never stored from db");
-    }
-    //easier to unit test if everything is ordered
-    Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
-        DB_VERSION_FIELDS, null);
-    return result;
-  }
-
-  /**
-   * take a snapshot of the data since this is what is in the db
-   */
-  @Override
-  public void dbVersionReset() {
-    //lets get the state from the db so we know what has changed
-    this.dbVersion = GrouperUtil.clone(this, DB_VERSION_FIELDS);
   }
 
   /**
@@ -1198,141 +918,108 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
     String otherName = StringUtils.defaultString(((GroupType)o).name);
     return thisName.compareTo(otherName);
   }
-
+  
   /**
-   * store this object to the DB.
+   * @return attributeDefName that corresponds to this group type
    */
-  public void store() {    
-    GrouperDAOFactory.getFactory().getGroupType().update(this);
+  public AttributeDefName getAttributeDefName() {
+    if (this.attributeDefName == null) {
+      this.attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findById(this.uuid, true);
+    }
+    
+    return this.attributeDefName;
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlCopyBusinessPropertiesToExisting(java.lang.Object)
+   * @param attributeDefName1
    */
-  public void xmlCopyBusinessPropertiesToExisting(GroupType existingRecord) {
-    existingRecord.isAssignable = this.isAssignable;
-    existingRecord.isInternal = this.isInternal;
-    existingRecord.name = this.name;
-    existingRecord.setUuid(this.getUuid());
-
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentBusinessProperties(java.lang.Object)
-   */
-  public boolean xmlDifferentBusinessProperties(GroupType other) {
-    if (this.isAssignable != other.isAssignable) {
-      return true;
-    }
-    if (this.isInternal != other.isInternal) {
-      return true;
-    }
-    if (!StringUtils.equals(this.name, other.name)) {
-      return true;
-    }
-    if (!StringUtils.equals(this.uuid, other.uuid)) {
-      return true;
-    }
-
-    return false;
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentUpdateProperties(java.lang.Object)
-   */
-  public boolean xmlDifferentUpdateProperties(GroupType other) {
-    if (!StringUtils.equals(this.contextId, other.contextId)) {
-      return true;
-    }
-    if (this.createTime != other.createTime) {
-      return true;
-    }
-    if (!StringUtils.equals(this.creatorUUID, other.creatorUUID)) {
-      return true;
-    }
-    if (!GrouperUtil.equals(this.getHibernateVersionNumber(), other.getHibernateVersionNumber())) {
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlRetrieveByIdOrKey()
-   */
-  public GroupType xmlRetrieveByIdOrKey() {
-    return GrouperDAOFactory.getFactory().getGroupType().findByUuidOrName(this.uuid, this.name, false, 
-        new QueryOptions().secondLevelCache(false));
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
-   */
-  public GroupType xmlSaveBusinessProperties(GroupType existingRecord) {
-    //if its an insert, call the business method
-    if (existingRecord == null) {
-      existingRecord = internal_createType(GrouperSession.staticGrouperSession(), this.name, this.isAssignable, this.isInternal, true, null, this.uuid);
-    }
-    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
-    //if its an insert or update, then do the rest of the fields
-    existingRecord.store();
-    return existingRecord;
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveUpdateProperties()
-   */
-  public void xmlSaveUpdateProperties() {
-    GrouperDAOFactory.getFactory().getGroupType().saveUpdateProperties(this);
-  }
-
-  /**
-   * convert to xml bean for export
-   * @param grouperVersion
-   * @return xml bean
-   */
-  public XmlExportGroupType xmlToExportGroupType(GrouperVersion grouperVersion) {
-    if (grouperVersion == null) {
-      throw new RuntimeException();
+  public void internalSetAttributeDefName(AttributeDefName attributeDefName1) {
+    
+    if (attributeDefName1 != null) {
+      if (!StringUtils.equals(this.uuid, attributeDefName1.getId())) {
+        throw new RuntimeException("Why does the groupType id " 
+            + this.uuid + " not equal the param id: " + attributeDefName1.getId());
+      }
     }
     
-    XmlExportGroupType xmlExportGroupType = new XmlExportGroupType();
+    this.attributeDefName = attributeDefName1;
+  }
+
+  /**
+   * @param attribute
+   * @param exceptionIfNotLegacyGroupType 
+   * @return groupType
+   */
+  public static GroupType internal_getGroupType(AttributeDefName attribute, boolean exceptionIfNotLegacyGroupType) {
+    String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+    String groupTypePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupType.prefix");
     
-    xmlExportGroupType.setAssignable(this.getIsAssignable() ? "T" : "F");
-    xmlExportGroupType.setContextId(this.getContextId());
-    xmlExportGroupType.setCreateTime(GrouperUtil.dateStringValue(new Date(this.getCreateTime())));
-    xmlExportGroupType.setCreatorId(this.getCreatorUuid());
-    xmlExportGroupType.setHibernateVersionNumber(this.getHibernateVersionNumber());
-    xmlExportGroupType.setInternal(this.getIsInternal() ? "T" : "F");
-    xmlExportGroupType.setName(this.getName());
-    xmlExportGroupType.setUuid(this.getUuid());
-    return xmlExportGroupType;
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlGetId()
-   */
-  public String xmlGetId() {
-    return this.getUuid();
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSetId(java.lang.String)
-   */
-  public void xmlSetId(String theId) {
-    this.setUuid(theId);
+    if (!attribute.getName().startsWith(stemName + ":" + groupTypePrefix)) {
+      if (exceptionIfNotLegacyGroupType) {
+        throw new RuntimeException("AttributeDefName " + attribute.getName() + " is not a legacy group type.");
+      }
+      
+      return null;
+    }
+    
+    GroupType gt = new GroupType();
+    gt.setContextId(attribute.getContextId());
+    gt.setCreateTime(attribute.getCreatedOnDb());
+    gt.setHibernateVersionNumber(attribute.getHibernateVersionNumber());
+    gt.setName(attribute.getExtension().substring(groupTypePrefix.length()));
+    gt.setUuid(attribute.getId());
+    gt.internalSetAttributeDefName(attribute);
+    
+    return gt;
   }
   
-
   /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlToString()
+   * @return the attributeDef for attribute assignments
    */
-  public String xmlToString() {
-    StringWriter stringWriter = new StringWriter();
+  public AttributeDef internal_getAttributeDefForAttributes() {
+    String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+    String attributeDefPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attributeDef.prefix");
+    AttributeDef attributeDef = AttributeDefFinder.findByName(stemName + ":" + attributeDefPrefix + GroupType.this.name, false);
     
-    stringWriter.write("GroupType: " + this.getUuid() + ", " + this.getName());
-
-    return stringWriter.toString();
-    
+    return attributeDef;
   }
+  
+  /**
+   * @return the attributeDef for custom lists
+   */
+  public AttributeDef internal_getAttributeDefForCustomLists() {
+    String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");    
+    String customListDefPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.customListDef.prefix");
+    AttributeDef customListDef = AttributeDefFinder.findByName(stemName + ":" + customListDefPrefix + GroupType.this.name, false);    
+    
+    return customListDef;
+  }
+  
+  /**
+   * @return the attributeDefName for custom lists
+   */
+  public AttributeDefName internal_getAttributeDefNameForCustomLists() {
+    String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");    
+    String customListPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.customList.prefix");
+    AttributeDefName customList = AttributeDefNameFinder.findByName(stemName + ":" + customListPrefix + GroupType.this.name, false);
 
+    return customList;
+  }
+  
+  /**
+   * @return legacy attributes
+   */
+  public Set<AttributeDefName> getLegacyAttributes() {
+    if (legacyAttributes == null) {
+      AttributeDef attributeDefForAttributes = this.internal_getAttributeDefForAttributes();
+      
+      if (attributeDefForAttributes != null) {
+        legacyAttributes = GrouperDAOFactory.getFactory().getAttributeDefName().findByAttributeDef(attributeDefForAttributes.getId());
+      } else {
+        legacyAttributes = new LinkedHashSet<AttributeDefName>();
+      }
+    }
+    
+    return legacyAttributes;
+  }
 }

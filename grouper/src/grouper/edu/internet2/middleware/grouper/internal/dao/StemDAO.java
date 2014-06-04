@@ -34,9 +34,9 @@ package edu.internet2.middleware.grouper.internal.dao;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -89,7 +89,7 @@ public interface StemDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  void createChildGroup(Stem _parent, Group _child, Member _m, Map<String, String> attributes)
+  void createChildGroup(Stem _parent, Group _child, Member _m)
     throws  GrouperDAOException;
 
   /**
@@ -423,7 +423,7 @@ public interface StemDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  void renameStemAndChildren(Set children)
+  void renameStemAndChildren(Set<?> children)
     throws  GrouperDAOException;
 
   /**
@@ -483,6 +483,31 @@ public interface StemDAO extends GrouperDAO {
       Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
     throws  GrouperDAOException;
   
+  /**
+   * 
+   * @param scope is blank for no scope
+   * @param grouperSession
+   * @param subject
+   * @param queryOptions
+   * @param inPrivSet means that each row must have a matching priv in this set to user or GrouperAll.
+   * There are some constants in NamingPrivilege of pre-canned sets
+   * @param splitScope true to split scopes by whitespace
+   * @param parentStemId true if filtering by parent of ancestor
+   * @param stemScope ONE or SUB
+   * @param findByUuidOrName if we are looking up a stem, only look by uuid or name
+   * @param userHasInGroupFields find stems where the user has these fields in a group
+   * @param userHasInAttributeFields find stems where the user has these fields in an attribute
+   * @return the stems
+   * @throws GrouperDAOException
+   * @since v2.2
+   */
+  Set<Stem> getAllStemsSecure(String scope, GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions,
+      boolean splitScope, String parentStemId, Scope stemScope, boolean findByUuidOrName,
+      Collection<Field> userHasInGroupFields, Collection<Field> userHasInAttributeFields,
+      Collection<String> stemIds)
+    throws  GrouperDAOException;
+
   /**
    * get all stems secure, split the scope by whitespace
    * @param scope

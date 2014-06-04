@@ -49,9 +49,14 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.GrouperSourceAdapter;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -65,6 +70,7 @@ import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
@@ -73,6 +79,7 @@ import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectUtils;
 
 /**
  * Grouper-specific JUnit assertions.
@@ -82,6 +89,27 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
+
+  /**
+   * Asserts that two subjects are equal. If they are not
+   * an AssertionFailedError is thrown with the given message.
+   */
+  static public void assertEquals(Subject expected, Subject actual) {
+    assertEquals(null, expected, actual);
+  }
+
+  /**
+   * Asserts that two subjects are equal. If they are not
+   * an AssertionFailedError is thrown with the given message.
+   */
+  static public void assertEquals(String message, Subject expected, Subject actual) {
+    if (expected == null && actual == null)
+      return;
+    if (expected != null && SubjectHelper.eq(expected,actual))
+      return;
+    failNotEquals(message, expected, actual);
+  }
+
 
   // PRIVATE CLASS CONSTANTS //
   private static final String G   = "group";
@@ -624,6 +652,11 @@ public class GrouperTest extends TestCase {
     
   }
   
+  /**
+   * if prompted user to see if db ok to make changes
+   */
+  private static boolean promptedUserToSeeIfOk = false;
+  
   // @since   1.2.0
   protected void setUp () {
     LOG.debug("setUp");
@@ -634,9 +667,14 @@ public class GrouperTest extends TestCase {
     //set this and leave it...
     GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.JUNIT, false, true);
     
+    if (!promptedUserToSeeIfOk) {
+      GrouperUtil.promptUserAboutDbChanges("delete all data in the database to run junit test(s)", true);
+    }
+    
     //remove any settings in testconfig
     GrouperConfig.retrieveConfig().propertiesOverrideMap().clear();
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().clear();
+    SubjectFinder.internalClearSubjectCustomizerCache();
 
     for (int i=0;i<20;i++) {
       GrouperConfig.retrieveConfig().propertiesOverrideMap().put("configuration.autocreate.group.name." + i, null);
@@ -733,6 +771,169 @@ public class GrouperTest extends TestCase {
 
   }
 
+  /**
+   * make sure a result set has a privilege from a user and stem
+   * @param result set of object arrays of membership, stem, member
+   * @param stemA 
+   * @param subject
+   * @param privilege
+   */
+  public void assertHasPrivilege(Set<Object[]> results, Stem stem, Subject subject, Privilege privilege) {
+    for (Object[] result : results) {
+      Membership resultMembership = (Membership)result[0];
+      if (!(result[1] instanceof Stem)) {
+        continue;
+      }
+      Stem resultStem = (Stem)result[1];
+      Member resultMember = (Member)result[2];
+      
+      if (!StringUtils.equals(resultStem.getId(), stem.getId())) {
+        continue;
+      }
+      
+      if (!SubjectHelper.eq(resultMember.getSubject(), subject)) {
+        continue;
+      }
+
+      if (!StringUtils.equals(resultMembership.getListName(), privilege.getListName())) {
+        continue;
+      }
+      
+      if (!resultMembership.isEnabled()) {
+        continue;
+      }
+      //should be good
+      return;
+    }
+    
+    printMemberships(results);
+
+    //couldnt find it
+    fail("Couldnt find privilege: " + stem.getName() + ", " + subject.getId() + ", " + privilege.getListName());
+  }
+  
+  /**
+   * make sure a result set has a privilege from a user and attribute def
+   * @param result set of object arrays of membership, attribute def, member
+   * @param attributeDef 
+   * @param subject
+   * @param privilege
+   */
+  public void assertHasPrivilege(Set<Object[]> results, AttributeDef attributeDef, Subject subject, Privilege privilege) {
+    for (Object[] result : results) {
+      Membership resultMembership = (Membership)result[0];
+      if (!(result[1] instanceof AttributeDef)) {
+        continue;
+      }
+      AttributeDef resultAttributeDef = (AttributeDef)result[1];
+      Member resultMember = (Member)result[2];
+      
+      if (!StringUtils.equals(resultAttributeDef.getId(), attributeDef.getId())) {
+        continue;
+      }
+      
+      if (!SubjectHelper.eq(resultMember.getSubject(), subject)) {
+        continue;
+      }
+
+      if (!StringUtils.equals(resultMembership.getListName(), privilege.getListName())) {
+        continue;
+      }
+      
+      if (!resultMembership.isEnabled()) {
+        continue;
+      }
+      //should be good
+      return;
+    }
+    
+    printMemberships(results);
+
+    //couldnt find it
+    fail("Couldnt find privilege: " + attributeDef.getName() + ", " + subject.getId() + ", " + privilege.getListName());
+  }
+  
+  /**
+   * make sure a result set has a privilege from a user and stem
+   * @param result set of object arrays of membership, stem, member
+   * @param stemA 
+   * @param subject
+   * @param privilege
+   */
+  public void assertHasPrivilege(Set<Object[]> results, Group group, Subject subject, Privilege privilege) {
+    for (Object[] result : results) {
+      Membership resultMembership = (Membership)result[0];
+      if (!(result[1] instanceof Group)) {
+        continue;
+      }
+      Group resultGroup = (Group)result[1];
+      Member resultMember = (Member)result[2];
+      
+      if (!StringUtils.equals(resultGroup.getId(), group.getId())) {
+        continue;
+      }
+      
+      if (!SubjectHelper.eq(resultMember.getSubject(), subject)) {
+        continue;
+      }
+
+      if (!StringUtils.equals(resultMembership.getListName(), privilege.getListName())) {
+        continue;
+      }
+      
+      if (!resultMembership.isEnabled()) {
+        continue;
+      }
+      //should be good
+      return;
+    }
+
+    printMemberships(results);
+    
+    //couldnt find it
+    fail("Couldnt find privilege: " + group.getName() + ", " + subject.getId() + ", " + privilege.getListName());
+  }
+
+  /**
+   * print out memberships to help with debugging
+   * @param memberships
+   */
+  public void printMemberships(Set<Object[]> results) {
+    //print out memberships
+    for (Object[] result : results) {
+      Membership resultMembership = (Membership)result[0];
+      if (!(result[1] instanceof Group)) {
+        System.out.println("Type: " + ((result[1] == null ? null : result[1].getClass().getName())));
+      }
+      String ownerName = null;
+      if (result[1] instanceof Group) {
+        ownerName = ((Group)result[1]).getName();
+      }
+      if (result[1] instanceof Stem) {
+        ownerName = ((Stem)result[1]).getName();
+      }
+      if (result[1] instanceof AttributeDef) {
+        ownerName = ((AttributeDef)result[1]).getName();
+      }
+        
+      Member resultMember = (Member)result[2];
+      
+      String memberString = null;
+      
+      if (StringUtils.equals(resultMember.getSubjectSourceId(), GrouperSourceAdapter.groupSourceId())) {
+        Group theGroup = GroupFinder.findByUuid(
+            GrouperSession.staticGrouperSession().internal_getRootSession(), resultMember.getSubjectId(), false);
+        memberString = theGroup == null ? "null group?" : theGroup.getName();
+      } else {
+        memberString = resultMember.getSubjectId();
+      }
+      
+      System.out.println("Group: " + ownerName + ", Member: " + memberString + ", Field: " + resultMembership.getListName());
+      
+    }    
+    
+  }
+  
   /**
    * make sure a set of groups is similar to another by group name including order
    * @param set1 expected set

@@ -9,8 +9,6 @@
 	<tr>
 		<td class="fieldName"><c:out value="${viewObject.name}"/></td>
 		<td><c:out value="${viewObject.type}"/></td>
-		<td><c:out value="${viewObject.required}"/></td>
-		<td><c:out value="${viewObject.isNullable}"/></td>
 		<td><c:out value="${viewObject.readPrivilege}"/></td>
 		<td><c:out value="${viewObject.writePrivilege}"/></td>
 	

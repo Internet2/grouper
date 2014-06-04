@@ -94,7 +94,7 @@ public class Hib3AuditEntryDAO extends Hib3DAO implements AuditEntryDAO {
 
     StringBuilder sql = new StringBuilder("select theAuditEntry "
         + " from AuditEntry theAuditEntry where "
-        + " theAuditEntry.actAsMemberId = :actAsMemberId ");
+        + " (theAuditEntry.actAsMemberId = :actAsMemberId) or (theAuditEntry.loggedInMemberId = :loggedInMemberId and theAuditEntry.actAsMemberId is null) ");
 
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
@@ -112,6 +112,7 @@ public class Hib3AuditEntryDAO extends Hib3DAO implements AuditEntryDAO {
       .setCacheable(true)
       .setCacheRegion(KLASS + ".FindByActingUser")
       .setString( "actAsMemberId", actAsMemberId ) 
+      .setString( "loggedInMemberId", actAsMemberId ) 
       .listSet(AuditEntry.class);
   }
 

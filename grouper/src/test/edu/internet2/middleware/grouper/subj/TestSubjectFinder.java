@@ -52,6 +52,8 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.entity.Entity;
+import edu.internet2.middleware.grouper.entity.EntitySave;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectTest;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -95,8 +97,9 @@ public class TestSubjectFinder extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(TestSubjectFinder.class);
-    TestRunner.run(new TestSubjectFinder("testFindAllMultipleInSomeSources"));
+    TestRunner.run(TestSubjectFinder.class);
+    //TestRunner.run(new TestSubjectFinder("testFindAllMultipleInAllSources"));
+    //new TestSubjectFinder("").testFindGroupsCanRead();
   }
   
   /**
@@ -121,7 +124,140 @@ public class TestSubjectFinder extends GrouperTest {
     LOG.debug("tearDown");
   }
 
+  /**
+   * 
+   */
+  public void testFindGroupsCanRead() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Group viewGroup = new GroupSave(grouperSession).assignName("test:abc:viewGroup")
+        .assignCreateParentStemsIfNotExist(true).save();
+    
+    viewGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    viewGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    viewGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
+    viewGroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW, false);
+    
+    Group adminGroup = new GroupSave(grouperSession).assignName("test:abc:adminGroup")
+        .assignCreateParentStemsIfNotExist(true).save();
+    
+    adminGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    adminGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    adminGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
+    adminGroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+    
+    Group adminAllGroup = new GroupSave(grouperSession).assignName("test:abc:adminAllGroup")
+        .assignCreateParentStemsIfNotExist(true).save();
+    
+    adminAllGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    adminAllGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    adminAllGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
+    adminAllGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN, false);
+    
+    Group viewAllGroup = new GroupSave(grouperSession).assignName("test:abc:viewAllGroup")
+        .assignCreateParentStemsIfNotExist(true).save();
+    
+    viewAllGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    viewAllGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    viewAllGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
+    
+    Entity viewEntity = new EntitySave(grouperSession).assignName("test:abc:viewEntity")
+        .assignCreateParentStemsIfNotExist(true).save();
+    
+    viewEntity.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    viewEntity.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW, false);
+    
+    Group readGroup = new GroupSave(grouperSession).assignName("test:abc:readGroup")
+        .assignCreateParentStemsIfNotExist(true).save();
+    
+    readGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
+    readGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    readGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    readGroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.READ, false);
 
+    Group updateGroup = new GroupSave(grouperSession).assignName("test:abc:updateGroup")
+        .assignCreateParentStemsIfNotExist(true).save();
+    
+    updateGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
+    updateGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    updateGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    updateGroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.UPDATE, false);
+
+    Group readAllGroup = new GroupSave(grouperSession).assignName("test:abc:readAllGroup")
+        .assignCreateParentStemsIfNotExist(true).save();
+    
+    readAllGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
+    readAllGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    readAllGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+
+    Group noPrivsGroup = new GroupSave(grouperSession).assignName("test:abc:noPrivsGroup")
+        .assignCreateParentStemsIfNotExist(true).save();
+    
+    noPrivsGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+    noPrivsGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    noPrivsGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
+
+    Entity noPrivsEntity = new EntitySave(grouperSession).assignName("test:abc:noPrivsEntity")
+        .assignCreateParentStemsIfNotExist(true).save();
+    
+    noPrivsEntity.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    //do a search, get back all the groups with privs
+    List<Subject> subjectList = new ArrayList<Subject>(SubjectFinder.findAll("test:abc"));
+    
+    assertEquals(GrouperUtil.toStringForLog(subjectList), 8, GrouperUtil.length(subjectList));
+    assertEquals(GrouperUtil.toStringForLog(subjectList), adminAllGroup, ((GrouperSubject)(subjectList.get(0))).internal_getGroup());
+    assertEquals(GrouperUtil.toStringForLog(subjectList), adminGroup, ((GrouperSubject)(subjectList.get(1))).internal_getGroup());
+    assertEquals(GrouperUtil.toStringForLog(subjectList), readAllGroup, ((GrouperSubject)(subjectList.get(2))).internal_getGroup());
+    assertEquals(GrouperUtil.toStringForLog(subjectList), readGroup, ((GrouperSubject)(subjectList.get(3))).internal_getGroup());
+    assertEquals(GrouperUtil.toStringForLog(subjectList), updateGroup, ((GrouperSubject)(subjectList.get(4))).internal_getGroup());
+    assertEquals(GrouperUtil.toStringForLog(subjectList), viewAllGroup, ((GrouperSubject)(subjectList.get(5))).internal_getGroup());
+    assertEquals(GrouperUtil.toStringForLog(subjectList), viewGroup, ((GrouperSubject)(subjectList.get(6))).internal_getGroup());
+    assertEquals(GrouperUtil.toStringForLog(subjectList), viewEntity, ((GrouperSubject)(subjectList.get(7))).internal_getGroup());
+
+    assertEquals(viewGroup.toSubject(), SubjectFinder.findById(viewGroup.getId(), false));
+    assertEquals(viewGroup.toSubject(), SubjectFinder.findByIdentifier(viewGroup.getName(), false));
+    assertEquals(viewGroup.toSubject(), SubjectFinder.findByIdOrIdentifier(viewGroup.getId(), false));
+    assertEquals(viewGroup.toSubject(), SubjectFinder.findByIdOrIdentifier(viewGroup.getName(), false));
+    assertEquals(readGroup.toSubject(), SubjectFinder.findById(readGroup.getId(), false));
+    assertEquals(readGroup.toSubject(), SubjectFinder.findByIdentifier(readGroup.getName(), false));
+    assertEquals(readGroup.toSubject(), SubjectFinder.findByIdOrIdentifier(readGroup.getId(), false));
+    assertEquals(readGroup.toSubject(), SubjectFinder.findByIdOrIdentifier(readGroup.getName(), false));
+    
+    //do a search for groups we can READ
+    try {
+      GrouperSourceAdapter.searchForGroupsWithReadPrivilege(true);
+      
+      subjectList = new ArrayList<Subject>(SubjectFinder.findAll("test:abc"));
+      
+      assertEquals(GrouperUtil.toStringForLog(subjectList), 5, GrouperUtil.length(subjectList));
+      assertEquals(GrouperUtil.toStringForLog(subjectList), adminAllGroup, ((GrouperSubject)(subjectList.get(0))).internal_getGroup());
+      assertEquals(GrouperUtil.toStringForLog(subjectList), adminGroup, ((GrouperSubject)(subjectList.get(1))).internal_getGroup());
+      assertEquals(GrouperUtil.toStringForLog(subjectList), readAllGroup, ((GrouperSubject)(subjectList.get(2))).internal_getGroup());
+      assertEquals(GrouperUtil.toStringForLog(subjectList), readGroup, ((GrouperSubject)(subjectList.get(3))).internal_getGroup());
+      assertEquals(GrouperUtil.toStringForLog(subjectList), viewEntity, ((GrouperSubject)(subjectList.get(4))).internal_getGroup());
+
+      assertNull(SubjectFinder.findById(viewGroup.getId(), false));
+      assertNull(SubjectFinder.findByIdentifier(viewGroup.getName(), false));
+      assertNull(SubjectFinder.findByIdOrIdentifier(viewGroup.getId(), false));
+      assertNull(SubjectFinder.findByIdOrIdentifier(viewGroup.getName(), false));
+      assertEquals(readGroup.toSubject(), SubjectFinder.findById(readGroup.getId(), false));
+      assertEquals(readGroup.toSubject(), SubjectFinder.findByIdentifier(readGroup.getName(), false));
+      assertEquals(readGroup.toSubject(), SubjectFinder.findByIdOrIdentifier(readGroup.getId(), false));
+      assertEquals(readGroup.toSubject(), SubjectFinder.findByIdOrIdentifier(readGroup.getName(), false));
+
+    } finally {
+      GrouperSourceAdapter.clearSearchForGroupsWithReadPrivilege();
+    }
+    
+    GrouperSession.stopQuietly(grouperSession);
+
+  }
   
   /**
    * 
@@ -1134,7 +1270,51 @@ public class TestSubjectFinder extends GrouperTest {
     assertEquals(GrouperUtil.subjectToString(subject), SubjectTestHelper.SUBJ1_ID, subject.getId());
 
     //############# test find a lot
-    subjects = SubjectFinder.findAll("Test, somethingElse" );
+    subjects = SubjectFinder.findAll("test.sub, somethingElseZ" );
+
+    assertTrue("" + GrouperUtil.length(subjects) + StringUtils.trimToEmpty(postgresError), GrouperUtil.length(subjects) >= 10);
+    
+  }
+
+  /**
+   * test that finding page by multiple comma separated queries will aggregate the results
+   */
+  public void testFindPageMultipleInAllSources() {
+
+    //############# test no find
+    Set<Subject> subjects = SubjectFinder.findPage("whatever, whatever2").getResults();
+    assertEquals(0, GrouperUtil.length(subjects));
+
+    //############# test find after comma
+    subjects = SubjectFinder.findPage("whatever, " + SubjectTestHelper.SUBJ0_ID).getResults();
+    
+    String postgresError = GrouperDdlUtils.isPostgres() ? "Note, with postgres, you need to adjust your sources.xml for it to " +
+        "work with postgres, uncomment the postgres part of the jdbc source, search sql " +
+        "part, and comment out the current part" : null;
+    
+    assertEquals(postgresError, 1, GrouperUtil.length(subjects));
+
+    assertEquals(SubjectTestHelper.SUBJ0_ID, subjects.iterator().next().getId());
+
+    //############# test find before comma
+    subjects = SubjectFinder.findPage(SubjectTestHelper.SUBJ0_ID + ", whatever").getResults();
+
+    assertEquals(postgresError, 1, GrouperUtil.length(subjects));
+
+    assertEquals(SubjectTestHelper.SUBJ0_ID, subjects.iterator().next().getId());
+
+    //############# test find multiple with dupe
+    subjects = SubjectFinder.findPage(SubjectTestHelper.SUBJ0_ID + ", " + SubjectTestHelper.SUBJ1_ID + ", " + SubjectTestHelper.SUBJ0_ID ).getResults();
+
+    assertEquals(postgresError, 2, GrouperUtil.length(subjects));
+
+    assertEquals(SubjectTestHelper.SUBJ0_ID, subjects.iterator().next().getId());
+
+    Subject subject = (Subject)GrouperUtil.get(subjects, 1);
+    assertEquals(GrouperUtil.subjectToString(subject), SubjectTestHelper.SUBJ1_ID, subject.getId());
+
+    //############# test find a lot
+    subjects = SubjectFinder.findPage("test., somethingElseA" ).getResults();
 
     assertTrue("" + GrouperUtil.length(subjects) + StringUtils.trimToEmpty(postgresError), GrouperUtil.length(subjects) >= 10);
     
@@ -1394,6 +1574,8 @@ public class TestSubjectFinder extends GrouperTest {
     long initialQueryCount = GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting;
     Map<String, Subject> subjectMap = SubjectFinder.findByIdentifiers(identifiers);
     
+    assertNotNull("subjectMap is null??????", subjectMap);
+    
     assertEquals(identifiers.size()-1, subjectMap.size());
     assertEquals(SubjectTestHelper.SUBJ0_NAME, subjectMap.get(SubjectTestHelper.SUBJ0_IDENTIFIER).getName());
     
@@ -1477,7 +1659,7 @@ public class TestSubjectFinder extends GrouperTest {
         
     List<Group> groups = new ArrayList<Group>();
     
-    for (int i=0;i<10;i++) {
+    for (int i=0;i<50;i++) {
       
       Group group = new GroupSave(grouperSession)
         .assignName("test:testGroup" + i)
@@ -1508,7 +1690,7 @@ public class TestSubjectFinder extends GrouperTest {
     
     List<ExternalSubject> externalSubjects = new ArrayList<ExternalSubject>();
     
-    for (int i=0;i<8;i++) {
+    for (int i=0;i<50;i++) {
       ExternalSubject externalSubject = new ExternalSubject();
       externalSubject.setEmail("a" + i + "@b.c");
       externalSubject.setIdentifier("a" + i + "@id.b.c");
@@ -1549,13 +1731,15 @@ public class TestSubjectFinder extends GrouperTest {
     long initialQueryCount = GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting;
     Map<String, Subject> subjectMap = SubjectFinder.findByIdsOrIdentifiers(identifiers);
     
+    assertNotNull("subjectMap is null??????", subjectMap);
+    
     assertEquals(identifiers.size()-1, subjectMap.size());
     assertEquals(SubjectTestHelper.SUBJ0_NAME, subjectMap.get(SubjectTestHelper.SUBJ0_ID).getName());
     assertEquals(SubjectTestHelper.SUBJ1_NAME, subjectMap.get(SubjectTestHelper.SUBJ1_IDENTIFIER).getName());
     
     long numberOfQueries = (GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting) - initialQueryCount;
     
-    assertTrue("queries: " + numberOfQueries, numberOfQueries < 10);
+    assertTrue("queries: " + numberOfQueries, numberOfQueries < 20);
     assertTrue("queries: " + numberOfQueries, numberOfQueries > 0);
     
     GrouperSession.stopQuietly(grouperSession);
@@ -1573,12 +1757,12 @@ public class TestSubjectFinder extends GrouperTest {
     initialQueryCount = GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting;
     subjectMap = SubjectFinder.findByIdsOrIdentifiers(identifiers);
     
-    assertEquals((identifiers.size()-1) - 7, subjectMap.size());
+    assertEquals(65, subjectMap.size());
     assertEquals(SubjectTestHelper.SUBJ0_NAME, subjectMap.get(SubjectTestHelper.SUBJ0_ID).getName());
     
     numberOfQueries = (GrouperContext.totalQueryCount + JDBCSourceAdapter.queryCountforTesting) - initialQueryCount;
     
-    assertTrue("queries: " + numberOfQueries, numberOfQueries < 20);
+    assertTrue("queries: " + numberOfQueries, numberOfQueries < 30);
     assertTrue("queries: " + numberOfQueries, numberOfQueries > 0);
     
     System.out.println("Took: " + ((System.nanoTime() - start) / 1000000) + "ms");
@@ -1657,9 +1841,51 @@ public class TestSubjectFinder extends GrouperTest {
     assertEquals(GrouperUtil.subjectToString(subject), SubjectTestHelper.SUBJ1_ID, subject.getId());
   
     //############# test find a lot
-    subjects = SubjectFinder.findAll("Test, somethingElse", GrouperUtil.convertSources("g:isa") );
+    subjects = SubjectFinder.findAll("Test.s, somethingElseX", GrouperUtil.convertSources("g:isa") );
   
     assertTrue("" + GrouperUtil.length(subjects) + StringUtils.trimToEmpty(postgresError), GrouperUtil.length(subjects) == 00);
+    
+  }
+
+  /**
+   * test that finding by multiple comma separated queries will aggregate the results
+   */
+  public void testFindPageMultipleInSomeSources() {
+  
+    //############# test no find
+    Set<Subject> subjects = SubjectFinder.findPage("whatever, whatever2", GrouperUtil.convertSources("jdbc,g:isa")).getResults();
+    assertEquals(GrouperUtil.toStringForLog(subjects), 0, GrouperUtil.length(subjects));
+  
+    //############# test find after comma
+    subjects = SubjectFinder.findPage("whatever, " + SubjectTestHelper.SUBJ0_ID, GrouperUtil.convertSources("jdbc, g:isa")).getResults();
+    
+    String postgresError = GrouperDdlUtils.isPostgres() ? "Note, with postgres, you need to adjust your sources.xml for it to " +
+        "work with postgres, uncomment the postgres part of the jdbc source, search sql " +
+        "part, and comment out the current part" : null;
+    
+    assertEquals(postgresError, 1, GrouperUtil.length(subjects));
+  
+    assertEquals(SubjectTestHelper.SUBJ0_ID, subjects.iterator().next().getId());
+  
+    //############# test find before comma
+    subjects = SubjectFinder.findPage(SubjectTestHelper.SUBJ0_ID + ", whatever", GrouperUtil.convertSources("g:isa")).getResults();
+  
+    assertEquals(postgresError, 0, GrouperUtil.length(subjects));
+  
+    //############# test find multiple with dupe
+    subjects = SubjectFinder.findPage(SubjectTestHelper.SUBJ0_ID + ", " + SubjectTestHelper.SUBJ1_ID + ", " + SubjectTestHelper.SUBJ0_ID, GrouperUtil.convertSources("jdbc") ).getResults();
+  
+    assertEquals(postgresError, 2, GrouperUtil.length(subjects));
+  
+    assertEquals(SubjectTestHelper.SUBJ0_ID, subjects.iterator().next().getId());
+  
+    Subject subject = (Subject)GrouperUtil.get(subjects, 1);
+    assertEquals(GrouperUtil.subjectToString(subject), SubjectTestHelper.SUBJ1_ID, subject.getId());
+  
+    //############# test find a lot
+    subjects = SubjectFinder.findPage("Test.su, somethingElseY", GrouperUtil.convertSources("g:isa") ).getResults();
+  
+    assertTrue("" + GrouperUtil.length(subjects) + StringUtils.trimToEmpty(postgresError), GrouperUtil.length(subjects) == 0);
     
   }
 }

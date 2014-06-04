@@ -901,11 +901,11 @@ public class PITAttributeAssignValueTests extends GrouperTest {
     // disable
     attributeAssign1.setEnabled(false);
     attributeAssign1.setEnabledTime(new Timestamp(new Date().getTime() + 100000));
-    attributeAssign1.saveOrUpdate();
+    attributeAssign1.saveOrUpdate(true);
     
     attributeAssign3.setEnabled(false);
     attributeAssign3.setEnabledTime(new Timestamp(new Date().getTime() + 100000));
-    attributeAssign3.saveOrUpdate();
+    attributeAssign3.saveOrUpdate(true);
     
     // update PIT tables
     ChangeLogTempToEntity.convertRecords();
@@ -915,11 +915,11 @@ public class PITAttributeAssignValueTests extends GrouperTest {
     // enable
     attributeAssign1.setEnabled(true);
     attributeAssign1.setEnabledTime(null);
-    attributeAssign1.saveOrUpdate();
+    attributeAssign1.saveOrUpdate(true);
     
     attributeAssign3.setEnabled(true);
     attributeAssign3.setEnabledTime(null);
-    attributeAssign3.saveOrUpdate();
+    attributeAssign3.saveOrUpdate(true);
     
     // update PIT tables
     ChangeLogTempToEntity.convertRecords();

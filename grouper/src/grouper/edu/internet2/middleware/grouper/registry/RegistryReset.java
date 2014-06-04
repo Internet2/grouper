@@ -214,7 +214,7 @@ public class RegistryReset {
   {
     GrouperDAOFactory.getFactory().getRegistry().reset(includeTypesAndFields);
     // Now update the cached types + fields
-    GroupTypeFinder.internal_updateKnownTypes();
+    GroupTypeFinder.clearCache();
     FieldFinder.internal_updateKnownFields();
     SubjectFinder.reset(); 
   } 

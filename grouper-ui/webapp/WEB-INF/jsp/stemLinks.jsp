@@ -50,7 +50,7 @@
 		<c:set target="${auditParams}" property="origCallerPageId" value="${thisPageId}"/>
 		<c:set target="${auditParams}" property="stemId" value="${currentLocation.id}"/>
 		<html:link page="/userAudit.do"  name="auditParams">
-			<grouper:message key="groups.action.audit"/>
+			<grouper:message key="stems.action.audit"/>
 		</html:link>
 
 </c:if>

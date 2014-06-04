@@ -30,6 +30,7 @@ import javax.xml.xpath.XPathException;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.log4j.Logger;
 import org.kuali.rice.kew.edl.EDocLitePostProcessor;
 import org.kuali.rice.kew.postprocessor.ActionTakenEvent;
 import org.kuali.rice.kew.postprocessor.DocumentRouteStatusChange;
@@ -59,7 +60,6 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsMembershipAnyLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.grouperClientMail.GrouperClientEmail;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperKimConnector.util.GrouperKimServiceUtils;
 import edu.internet2.middleware.grouperKimConnector.util.GrouperKimSubject;
 import edu.internet2.middleware.grouperKimConnector.util.GrouperKimUtils;
@@ -73,7 +73,7 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
   /**
    * logger
    */
-  private static final Log LOG = GrouperClientUtils.retrieveLog(GrouperEdoclitePostProcessor.class);
+  private static final Logger LOG = Logger.getLogger(GrouperEdoclitePostProcessor.class);
 
   /**
    * @see org.kuali.rice.kew.edl.EDLDatabasePostProcessor#doActionTaken(org.kuali.rice.kew.postprocessor.ActionTakenEvent)

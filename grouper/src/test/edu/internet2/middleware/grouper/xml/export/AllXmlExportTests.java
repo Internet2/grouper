@@ -40,7 +40,6 @@ public class AllXmlExportTests {
     suite.addTestSuite(XmlExportAttributeAssignValueTest.class);
     suite.addTestSuite(XmlExportGroupTest.class);
     suite.addTestSuite(XmlExportMembershipTest.class);
-    suite.addTestSuite(XmlExportGroupTypeTest.class);
     suite.addTestSuite(XmlExportMainTest.class);
     suite.addTestSuite(XmlExportAttributeDefTest.class);
     suite.addTestSuite(XmlExportAttributeDefNameTest.class);
@@ -49,10 +48,8 @@ public class AllXmlExportTests {
     suite.addTestSuite(XmlExportAttributeAssignActionTest.class);
     suite.addTestSuite(XmlExportCompositeTest.class);
     suite.addTestSuite(XmlExportAttributeAssignTest.class);
-    suite.addTestSuite(XmlExportGroupTypeTupleTest.class);
     suite.addTestSuite(XmlExportMemberTest.class);
     suite.addTestSuite(XmlExportAttributeDefScopeTest.class);
-    suite.addTestSuite(XmlExportAttributeTest.class);
     //$JUnit-END$
     return suite;
   }

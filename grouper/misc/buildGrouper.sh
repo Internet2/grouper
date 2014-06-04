@@ -3,9 +3,9 @@
 if [ $# -ne "1" ]
 then
   echo
-  echo "Give the branch to build as the command line argument!"
-  echo "e.g. trunk, GROUPER_1_6_BRANCH, etc"
-  echo "e.g. buildGrouper.sh GROUPER_1_6_0"
+  echo "Give the version to build as the command line argument!"
+  echo "e.g. HEAD, GROUPER_1_3_1, etc"
+  echo "e.g. buildGrouper.sh HEAD"
   echo
   exit 1
 fi  
@@ -30,7 +30,7 @@ fi
 
 cd $buildDir
 
-#export CVSROOT=/home/cvs/i2mi
+export CVSROOT=/home/cvs/i2mi
 
 #/usr/bin/cvs export -r $1 grouper
 
@@ -48,7 +48,7 @@ $ANT_HOME/bin/ant distBinary
 
 mv $buildDir/grouper/dist/binary/*.tar.gz $buildDir/
 
-$M2_HOME/bin/mvn install -DskipTests
+# $M2_HOME/bin/mvn install -DskipTests
 
 echo
 echo "regular result is in $buildDir/" 

@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.subject.Subject;
 
@@ -41,7 +42,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  *
  */
-public interface Entity extends GrouperSetElement, Comparable {
+public interface Entity extends GrouperSetElement, Comparable, GrouperObject {
 
   /**
    * delete this role.  Note if the role participates in role

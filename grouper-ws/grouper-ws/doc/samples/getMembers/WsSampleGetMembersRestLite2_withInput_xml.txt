@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMembers, WsSampleGetMembersRestLite2, manually written lite/rest, type: _withInput, format: xml, for version: 2.1.1
+Grouper web service sample of service: getMembers, WsSampleGetMembersRestLite2, manually written lite/rest, type: _withInput, format: xml, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getMembers, WsSampleGetMembersRestLite2, 
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/groups/aStem%3AaGroup/members HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/groups/aStem%3AaGroup/members HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 105
 Content-Type: text/xml; charset=UTF-8
@@ -37,25 +37,27 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 13:56:22 GMT
+Transfer-Encoding: chunked
+Date: Wed, 28 May 2014 23:49:04 GMT
 Connection: close
 
+3fa
 <WsGetMembersLiteResult>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.1.1, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
+    <resultMessage>Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
 
 , memberFilter: All, includeSubjectDetail: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, subjectAttributeNames: null
 , paramNames:
 , params: null
 , sourceIds: null
-, pointInTimeFrom: null, pointInTimeTo: null</resultMessage>
+, pointInTimeFrom: null, pointInTimeTo: null, pageSize: null, pageNumber: null, sortString: null, ascending: null</resultMessage>
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>151</millis>
-    <serverVersion>2.1.1</serverVersion>
+    <millis>61</millis>
+    <serverVersion>2.2.0</serverVersion>
   </responseMetadata>
   <wsGroup>
     <extension>aGroup</extension>
@@ -64,16 +66,13 @@ Connection: close
     <description>a group description</description>
     <displayName>a stem:a group</displayName>
     <name>aStem:aGroup</name>
-    <uuid>be2212e460844897850de1a415e98d8f</uuid>
+    <uuid>a599537b786344e5870b93dc350449d8</uuid>
+    <idIndex>10001</idIndex>
   </wsGroup>
   <wsSubjects>
-    <WsSubject>
-      <resultCode>SUCCESS</resultCode>
-      <success>T</success>
-      <id>10039438</id>
-      <sourceId>jdbc</sourceId>
-    </WsSubject>
-    <WsSubject>
+    <
+18a
+WsSubject>
       <resultCode>SUCCESS</resultCode>
       <success>T</success>
       <id>10021368</id>
@@ -85,8 +84,15 @@ Connection: close
       <id>GrouperSystem</id>
       <sourceId>g:isa</sourceId>
     </WsSubject>
+    <WsSubject>
+      <resultCode>SUCCESS</resultCode>
+      <success>T</success>
+      <id>10039438</id>
+      <sourceId>jdbc</sourceId>
+    </WsSubject>
   </wsSubjects>
 </WsGetMembersLiteResult>
+0
 
 
 #########################################
@@ -258,10 +264,10 @@ public class WsSampleGetMembersRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
+Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
 
 , memberFilter: All, includeSubjectDetail: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, subjectAttributeNames: null
 , paramNames: 
 , params: null
 , sourceIds: null
-, pointInTimeFrom: null, pointInTimeTo: null
+, pointInTimeFrom: null, pointInTimeTo: null, pageSize: null, pageNumber: null, sortString: null, ascending: null

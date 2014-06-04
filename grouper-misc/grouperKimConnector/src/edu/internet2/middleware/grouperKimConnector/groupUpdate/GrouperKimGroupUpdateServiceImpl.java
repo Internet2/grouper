@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.kuali.rice.kim.bo.group.dto.GroupInfo;
 import org.kuali.rice.kim.bo.types.dto.AttributeSet;
 import org.kuali.rice.kim.service.GroupUpdateService;
@@ -55,7 +56,7 @@ public class GrouperKimGroupUpdateServiceImpl implements GroupUpdateService {
   /**
    * logger
    */
-  private static final Log LOG = GrouperClientUtils.retrieveLog(GrouperKimGroupUpdateServiceImpl.class);
+  private static final Logger LOG = Logger.getLogger(GrouperKimGroupUpdateServiceImpl.class);
   
   /**
    * @see org.kuali.rice.kim.service.GroupUpdateService#addGroupToGroup(java.lang.String, java.lang.String)

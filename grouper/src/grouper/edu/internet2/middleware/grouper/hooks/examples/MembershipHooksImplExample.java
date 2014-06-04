@@ -62,7 +62,7 @@ public class MembershipHooksImplExample extends MembershipHooks {
         } catch (SchemaException se) {
           throw new RuntimeException(se);
         }
-        if (group.hasType(groupType)) {
+        if (group.hasType(groupType, false)) {
           throw new HookVeto("hook.veto.loader.membership", "the membership of this group is automatically managed and does not permit manual changes");
         }
         

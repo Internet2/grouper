@@ -134,6 +134,7 @@ public class Hib3TableIndexDAO extends Hib3DAO implements TableIndexDAO {
    * @see TableIndexDAO#reserveIds(TableIndexType, int)
    * @param tableIndexType
    * @param numberOfIndicesToReserve
+   * @return TableIndex
    */
   private TableIndex reserveIdsHelper(final TableIndexType tableIndexType, final int numberOfIndicesToReserve) {
     

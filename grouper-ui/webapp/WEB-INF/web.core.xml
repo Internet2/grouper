@@ -18,7 +18,7 @@
   	</init-param>
 	 	<init-param>    
   	<param-name>ignore</param-name>    
-  		<param-value>:/populateIndex.do:/callLogin.do:/error.do:/logout.do:</param-value>  
+  		<param-value>:/populateIndex.do:/callLogin.do:/error.do:/logout.do:/status:</param-value>  
   	</init-param>
   	<init-param>    
   		<param-name>grouperRole</param-name>    
@@ -49,6 +49,33 @@
 <listener>
   	<listener-class>edu.internet2.middleware.grouper.ui.GrouperSessionAttributeListener</listener-class>
 </listener>
+
+  <listener>
+    <listener-class>org.owasp.csrfguard.CsrfGuardServletContextListener</listener-class>
+  </listener>
+  <listener>
+    <listener-class>org.owasp.csrfguard.CsrfGuardHttpSessionListener</listener-class>
+  </listener>
+
+  <servlet>
+     <servlet-name>OwaspJavaScriptServlet</servlet-name>
+     <servlet-class>org.owasp.csrfguard.servlet.JavaScriptServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+     <servlet-name>OwaspJavaScriptServlet</servlet-name>
+     <url-pattern>/grouperExternal/public/OwaspJavaScriptServlet</url-pattern>
+  </servlet-mapping>
+
+  <filter>
+    <filter-name>CSRFGuard</filter-name>
+    <filter-class>org.owasp.csrfguard.CsrfGuardFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>CSRFGuard</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
   <servlet>
     <servlet-name>action</servlet-name>
     <servlet-class>org.apache.struts.action.ActionServlet</servlet-class>
@@ -62,22 +89,6 @@
     <servlet-name>action</servlet-name>
     <url-pattern>*.do</url-pattern>
   </servlet-mapping>
-    <error-page> 
-  <error-code>404</error-code> 
-  <location>/error.jsp?code=404</location> 
-</error-page>
-  <error-page> 
-  <error-code>403</error-code> 
-  <location>/error.jsp?code=403</location> 
-</error-page>
-  <error-page> 
-  <error-code>500</error-code> 
-  <location>/error.jsp?code=500</location> 
-</error-page>
-<error-page> 
-  <exception-type>java.lang.Exception</exception-type> 
-  <location>/error.jsp</location> 
-</error-page>
   
    <security-constraint>
     <web-resource-collection>

@@ -122,6 +122,7 @@ import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -139,6 +140,16 @@ public class GrouperUtil {
   /** override map for properties in thread local to be used in a web server or the like */
   private static ThreadLocal<Map<String, Map<String, String>>> propertiesThreadLocalOverrideMap = new ThreadLocal<Map<String, Map<String, String>>>();
 
+  /**
+   * take email addresses from a textarea and turn them into semi separated
+   * @param emailAddresses
+   * @return string of email addresses
+   */
+  public static String splitTrimEmailAddresses(String emailAddresses) {
+    //this is renamed since the normalize method is difficult to find
+    return normalizeEmailAddresses(emailAddresses);
+  }
+  
   /**
    * take email addresses from a textarea and turn them into semi separated
    * @param emailAddresses can be whitespace, comma, or semi separated
@@ -313,6 +324,31 @@ public class GrouperUtil {
 
     return sourceSet;
   }
+
+  /**
+   * escape single quotes in javascript
+   * @param string
+   * @return the escaped string
+   */
+  public static String escapeSingleQuotes(String string) {
+    if (string == null) {
+      return string;
+    }
+    return string.replace("'", "\'");
+  }
+  
+  /**
+   * escape double quotes in javascript
+   * @param string
+   * @return the escaped string
+   */
+  public static String escapeDoubleQuotes(String string) {
+    if (string == null) {
+      return string;
+    }
+    return string.replace("\"", "&quot;");
+  }
+  
 
   /**
    * e.g. ('g:gsa', 'jdbc')
@@ -1726,7 +1762,7 @@ public class GrouperUtil {
           result.append("Array size: ").append(length).append(": ");
           for (int i = 0; i < length; i++) {
             result.append("[").append(i).append("]: ").append(
-                Array.get(object, i)).append("\n");
+                toStringForLog(Array.get(object, i), maxChars)).append("\n");
             if (maxChars != -1 && result.length() > maxChars) {
               return;
             }
@@ -1743,13 +1779,15 @@ public class GrouperUtil {
           int i=0;
           for (Object collectionObject : collection) {
             result.append("[").append(i).append("]: ").append(
-                collectionObject).append("\n");
+                toStringForLog(collectionObject, maxChars)).append("\n");
             if (maxChars != -1 && result.length() > maxChars) {
               return;
             }
             i++;
           }
         }
+      } else if (object instanceof Subject) {
+        result.append(subjectToString((Subject)object));
       } else {
         result.append(object.toString());
       }
@@ -2118,6 +2156,9 @@ public class GrouperUtil {
     } catch (UnsupportedEncodingException ex) {
       throw new RuntimeException("UTF-8 not supported", ex);
     }
+    //i dont think colon is needed to url escape, and it makes urls
+    //better looking when stem name is in it...
+    result = replace(result, "%3A", ":");
     return result;
   }
 
@@ -2231,8 +2272,6 @@ public class GrouperUtil {
     return toList(classes);
   }
 
-
-
   /**
    * return a set of objects from varargs.
    *
@@ -2241,7 +2280,7 @@ public class GrouperUtil {
    * @return the set
    */
   public static <T> Set<T> toSet(T... objects) {
-    if (objects == null) {
+    if (objects == null || objects.length == 0 || (objects.length == 1 && objects[0] == null )) {
       return null;
     }
     Set<T> result = new LinkedHashSet<T>();
@@ -4781,12 +4820,14 @@ public class GrouperUtil {
       if (equalsIgnoreCase(string, "true")
           || equalsIgnoreCase(string, "t")
           || equalsIgnoreCase(string, "yes")
+          || equalsIgnoreCase(string, "on")
           || equalsIgnoreCase(string, "y")) {
         return true;
       }
       if (equalsIgnoreCase(string, "false")
           || equalsIgnoreCase(string, "f")
           || equalsIgnoreCase(string, "no")
+          || equalsIgnoreCase(string, "off")
           || equalsIgnoreCase(string, "n")) {
         return false;
       }
@@ -7565,7 +7606,7 @@ public class GrouperUtil {
   }
   
   /**
-   * find the length of ascii chars (non ascii are counted as two)
+   * find the length of ascii chars (non ascii are counted as three)
    * @param input is the string to operate on
    * @param requiredLength length we need the string to be
    * @return the length of ascii chars
@@ -7613,6 +7654,9 @@ public class GrouperUtil {
       return null;
     }
     try {
+      if (subject instanceof GrouperSubject) {
+        return "Subject groupName: " + subject.getName() + ", sourceId: " + subject.getSource().getId();
+      }
       return "Subject id: " + subject.getId() + ", sourceId: " + subject.getSource().getId();
     } catch (RuntimeException e) {
       //might be subject not found if lazy subject
@@ -8754,9 +8798,37 @@ public class GrouperUtil {
       if ((object1 == null) || (object2 == null)) {
           return false;
       }
+      if (object1 instanceof Date && object2 instanceof Date) {
+        return ((Date)object1).getTime() == ((Date)object2).getTime();
+      }
       return object1.equals(object2);
   }
 
+  /**
+   * see if two lists are deep equals using the equals() method on each item
+   * @param list1
+   * @param list2
+   * @return if lists are equal
+   */
+  public static boolean equalsList(List<?> list1, List<?> list2) {
+    if (list1 == list2) {
+      return true;
+    }
+    if (list1 == null || list2 == null) {
+      return false;
+    }
+    if (list1.size() != list2.size()) {
+      return false;
+    }
+    for (int i = 0; i < list1.size(); ++i) {
+      if (!equals(list1.get(i), list2.get(i))) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+  
   /**
    * <p>A way to get the entire nested stack-trace of an throwable.</p>
    *
@@ -9003,6 +9075,11 @@ public class GrouperUtil {
           throw je;
         }
 
+        //we dont want "null" in the result I think...
+        if (o == null && lenient) {
+          o = "";
+        }
+        
         if (o == null) {
           LOG.warn("expression returned null: " + script + ", in pattern: '" + stringToParse + "', available variables are: "
               + toStringForLog(variableMap.keySet()));
@@ -10366,6 +10443,21 @@ public class GrouperUtil {
 
   /** array for converting HTML to string */
   private static final String[] XML_REPLACE_NO_SINGLE = new String[]{"&amp;","&lt;","&gt;","&quot;"};
+
+
+  /**
+   * Convert an XML string to HTML to display on the screen
+   * 
+   * @param input
+   *          is the XML to convert
+   * @param isEscape true to escape chars, false to unescape
+   * 
+   * @return the HTML converted string
+   */
+  public static String xmlEscape(String input) {
+    return xmlEscape(input, true);
+  }
+
   /**
    * Convert an XML string to HTML to display on the screen
    *
@@ -11388,4 +11480,111 @@ public class GrouperUtil {
     return executorService;
   }
 
+  
+  /**
+   * concat two strings
+   * @param a
+   * @param b
+   * @return the concatted string
+   */
+  public static String concat(String a, String b) {
+    return a+b;
+  }
+  
+  /**
+   * concat strings
+   * @param a
+   * @param b
+   * @param c
+   * @return the concatted string
+   */
+  public static String concat(String a, String b, String c) {
+    return a+b+c;
+  }
+  
+  /**
+   * concat strings
+   * @param a
+   * @param b
+   * @param c
+   * @param d
+   * @return the concatted string
+   */
+  public static String concat(String a, String b, String c, String d) {
+    return a+b+c+d;
+  }
+  
+  /**
+   * concat strings
+   * @param a
+   * @param b
+   * @param c
+   * @param d
+   * @return the concatted string
+   */
+  public static String concat(String a, String b, String c, String d, String e) {
+    return a+b+c+d+e;
+  }
+
+  /**
+   * get a couple of lines of stack
+   * @return the couple of lines of stack
+   */
+  public static String stack() {
+    Exception exception = new Exception();
+    //get the stack
+    String stack = getFullStackTrace(exception);
+    //split into an array of strings (on newline)
+    String[] stackLines = splitTrim(stack, "\n");
+    
+    StringBuffer result = new StringBuffer();
+    
+    for (int i=0;i<stackLines.length;i++) {
+      String current = stackLines[i];
+      if (current.startsWith("at edu.internet2") && !current.startsWith("at edu.internet2.middleware.grouper.util.GrouperUtil.stack(")) {
+        if (result.length() > 0) {
+          result.append(", ");
+        }
+        result.append(extractFileLine(current));
+      }
+    }
+    return result.toString();
+  }
+  
+  
+  /**
+   * pattern to get the file, method, and line number:
+   * ^.*    beginning
+   * \\.    dot
+   * (.+) method
+   * \\(    open paren
+   * (.+)   file name
+   * :      colon
+   * (\\d+) line number
+   * \\)    close paren
+   * .*$      end
+   */
+  private static Pattern extractFileLinePattern = Pattern.compile("^.*\\.(.+)\\((.+):(\\d+)\\).*$"); 
+  
+  /**
+   * get the good part out of the full line (or just return it if the parsing doesnt work)
+   * @param fullLine
+   * @return the file, method, line
+   */
+  private static String extractFileLine(String fullLine) {
+    Matcher matchResult = extractFileLinePattern.matcher(fullLine);
+
+    if (matchResult.find()) {
+      String method = matchResult.group(1);
+      String file = matchResult.group(2);
+      if (file.endsWith(".java")) {
+        file = file.substring(0, file.length() - ".java".length());
+      }
+      String line = matchResult.group(3);
+      return file + "." + method + "() line " + line;
+    }
+    return fullLine;
+  }
+
+  
 }
