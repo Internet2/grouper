@@ -40,7 +40,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 /**
  * This basic function of this class is to return a Method object for a

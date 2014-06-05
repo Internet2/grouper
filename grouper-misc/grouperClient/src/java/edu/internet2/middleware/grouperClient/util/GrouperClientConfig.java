@@ -64,6 +64,12 @@ public class GrouperClientConfig extends ConfigPropertiesCascadeBase {
     return "grouperClient.config.secondsBetweenUpdateChecks";
   }
 
-  
+  /**
+   * @see edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase#getConfigClassInJarToLookForConfigFiles()
+   */
+  @Override
+  protected Class<?> getClassInSiblingJar() {
+    return GrouperClientCommonUtils.class;
+  }
   
 }

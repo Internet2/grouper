@@ -2120,7 +2120,7 @@ public class GrouperInstaller {
     command.add(GrouperInstallerUtils.javaCommand());
     command.add("-jar");
     command.addAll(GrouperInstallerUtils.splitTrimToList(
-        "-jar grouperClient.jar --operation=getMembersWs --groupNames=etc:webServiceClientUsers", " "));
+        "grouperClient.jar --operation=getMembersWs --groupNames=etc:webServiceClientUsers", " "));
             
     CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(command, String.class), true, true, null, this.untarredClientDir, null);
 
