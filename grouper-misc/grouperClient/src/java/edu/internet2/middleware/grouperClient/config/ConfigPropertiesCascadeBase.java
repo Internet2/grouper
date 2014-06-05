@@ -689,7 +689,7 @@ public abstract class ConfigPropertiesCascadeBase {
     
     //lets get the config hierarchy...
     //properties from override first
-    Properties mainConfigFile = propertiesFromResourceName(this.getMainConfigClasspath(), false);
+    Properties mainConfigFile = propertiesFromResourceName(this.getMainConfigClasspath(), false, this.getClassInSiblingJar());
 
     String secondsToCheckConfigString = null;
     
@@ -703,7 +703,7 @@ public abstract class ConfigPropertiesCascadeBase {
     //if couldnt find it from the override, get from example
     if (ConfigPropertiesCascadeUtils.isBlank(overrideFullConfig) || ConfigPropertiesCascadeUtils.isBlank(secondsToCheckConfigString)) {
       
-      Properties mainExampleConfigFile = propertiesFromResourceName(this.getMainExampleConfigClasspath(), false);
+      Properties mainExampleConfigFile = propertiesFromResourceName(this.getMainExampleConfigClasspath(), false, this.getClassInSiblingJar());
       
       if (mainExampleConfigFile != null) {
         
@@ -1092,6 +1092,18 @@ public abstract class ConfigPropertiesCascadeBase {
    */
   protected static Properties propertiesFromResourceName(String resourceName, 
       boolean exceptionIfNotExist) {
+    return propertiesFromResourceName(resourceName, exceptionIfNotExist, null);
+  }
+
+  /**
+   * read properties from a resource, dont modify the properties returned since they are cached
+   * @param resourceName
+   * @param exceptionIfNotExist 
+   * @param classInSiblingJar if also looking for config next to a jar
+   * @return the properties or null if not exist
+   */
+  protected static Properties propertiesFromResourceName(String resourceName, 
+      boolean exceptionIfNotExist, Class<?> classInSiblingJar) {
 
     Properties properties = new Properties();
 
@@ -1102,9 +1114,41 @@ public abstract class ConfigPropertiesCascadeBase {
       url = ConfigPropertiesCascadeUtils.computeUrl(resourceName, true);
       
     } catch (Exception e) {
-      
       //I guess this ok
       logInfo("Problem loading config file: " + resourceName, e); 
+      
+    }
+
+    if (url == null) {
+      File jarFile = classInSiblingJar == null ? null : ConfigPropertiesCascadeUtils.jarFile(classInSiblingJar);
+      File parentDir = jarFile == null ? null : jarFile.getParentFile();
+      String fileName = parentDir == null ? null 
+          : (ConfigPropertiesCascadeUtils.stripLastSlashIfExists(ConfigPropertiesCascadeUtils.fileCanonicalPath(parentDir)) + File.separator + resourceName);
+      File configFile = fileName == null ? null 
+          : new File(fileName);
+
+      InputStream inputStream = null;
+      
+      try {
+        //looks like we have a match
+        if (configFile != null && configFile.exists() && configFile.isFile()) {
+          inputStream = new FileInputStream(configFile);
+          properties.load(inputStream);
+          if (LOG != null && LOG.isDebugEnabled()) {
+            String theLog = "Reading resource: " + resourceName + ", from: " + ConfigPropertiesCascadeUtils.fileCanonicalPath(configFile);
+            LOG.debug(theLog);
+          }
+          return properties;
+        }
+        
+      } catch (Exception e2) {
+        if (LOG != null && LOG.isDebugEnabled()) {
+          LOG.debug("Error reading from file for resource: " + resourceName + ", file: " + fileName, e2);
+        }
+      } finally {
+        ConfigPropertiesCascadeUtils.closeQuietly(inputStream);
+      }
+     
       
     }
     

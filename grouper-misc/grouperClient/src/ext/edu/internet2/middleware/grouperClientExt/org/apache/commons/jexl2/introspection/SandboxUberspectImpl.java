@@ -31,7 +31,7 @@
  */
 package edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.introspection;
 
-import org.apache.commons.logging.Log;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.JexlInfo;
 

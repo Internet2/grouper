@@ -48,8 +48,8 @@ import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.JexlContext;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.JexlEngine;

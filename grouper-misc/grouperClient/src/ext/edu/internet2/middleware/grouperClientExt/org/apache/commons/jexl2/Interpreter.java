@@ -39,7 +39,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.introspection.JexlMethod;

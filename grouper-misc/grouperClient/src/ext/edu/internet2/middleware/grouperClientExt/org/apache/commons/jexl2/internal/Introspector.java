@@ -37,7 +37,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 
 
-import org.apache.commons.logging.Log;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.internal.introspection.IntrospectorBase;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.internal.introspection.MethodKey;
