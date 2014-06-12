@@ -39,6 +39,8 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
@@ -50,6 +52,7 @@ import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.misc.CompositeType;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -291,8 +294,11 @@ public class WsGroupToSave {
           //see if in the passed in set
           if (!attributeNamesPassedIn.contains(key)) {
             groupDirty = true;
-            Field field = FieldFinder.find(key, true);
-            GroupType groupType = field.getGroupType();
+            String attributeDefPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attributeDef.prefix");
+            AttributeDefName legacyAttribute = GrouperDAOFactory.getFactory().getAttributeDefName().findLegacyAttributeByName(key, true);
+            AttributeDef legacyAttributeDef = legacyAttribute.getAttributeDef();
+            String groupTypeName = legacyAttributeDef.getExtension().substring(attributeDefPrefix.length());
+            GroupType groupType = GroupTypeFinder.find(groupTypeName, true);
             if (LOG.isDebugEnabled()) {
               LOG.debug("Group: " + group.getName() + ": delete attribute: " + key 
                 + ", groupType: " + groupType + ", groupHasType? " + group.hasType(groupType));
