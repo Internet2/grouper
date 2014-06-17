@@ -406,6 +406,7 @@
     <copy todir="${dist.binary.zip}/misc">
       <fileset dir="misc">
         <include name="*.example.*"/>
+        <include name="postGrouper2_2Upgrade.gsh" />
       </fileset>
     </copy>
     
