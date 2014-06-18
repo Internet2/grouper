@@ -35,7 +35,6 @@ public class AllGrouperPrivilegeTests {
     TestSuite suite = new TestSuite(
         "Test for edu.internet2.middleware.grouper.ws.samples.rest.grouperPrivileges");
     //$JUnit-BEGIN$
-    suite.addTestSuite(WsSampleGetAssignGrouperPrivilegesRestLiteTest.class);
     //$JUnit-END$
     return suite;
   }
