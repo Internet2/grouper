@@ -176,7 +176,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testGetPermissionAssignments"));
+    TestRunner.run(new GrouperServiceLogicTest("testGetGrouperPrivilegesLite"));
   }
 
   /**
@@ -2890,8 +2890,6 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertHasPrivilege(wsGetGrouperPrivilegesLiteResult.getPrivilegeResults(), groupName2, subjectWithUpdatePriv, AccessPrivilege.UPDATE);
     assertHasPrivilege(wsGetGrouperPrivilegesLiteResult.getPrivilegeResults(), groupName2, subjectWithUpdatePriv, AccessPrivilege.VIEW);
     assertHasPrivilege(wsGetGrouperPrivilegesLiteResult.getPrivilegeResults(), groupName2, subjectWithUpdatePriv, AccessPrivilege.READ);
-    assertHasPrivilege(wsGetGrouperPrivilegesLiteResult.getPrivilegeResults(), stemName, subjectWithAdminPriv, NamingPrivilege.STEM);
-    assertHasPrivilege(wsGetGrouperPrivilegesLiteResult.getPrivilegeResults(), stemName, SubjectFinder.findRootSubject(), NamingPrivilege.STEM);
 
     
   }
@@ -2911,8 +2909,10 @@ public class GrouperServiceLogicTest extends GrouperTest {
         if (StringUtils.equals(wsGrouperPrivilegeResult.getAllowed(), "T") 
             && StringUtils.equals(wsGrouperPrivilegeResult.getPrivilegeName(), privilege.getName())
             && StringUtils.equals(wsGrouperPrivilegeResult.getWsGroup().getName(), ownerName)
-            && StringUtils.equals(wsGrouperPrivilegeResult.getOwnerSubject().getId(), subject.getId())
-            && StringUtils.equals(wsGrouperPrivilegeResult.getOwnerSubject().getSourceId(), subject.getSourceId())) {
+            && (StringUtils.equals(wsGrouperPrivilegeResult.getWsSubject().getId(), subject.getId())
+            && StringUtils.equals(wsGrouperPrivilegeResult.getWsSubject().getSourceId(), subject.getSourceId())
+            || (StringUtils.equals(wsGrouperPrivilegeResult.getOwnerSubject().getId(), subject.getId())
+                && StringUtils.equals(wsGrouperPrivilegeResult.getOwnerSubject().getSourceId(), subject.getSourceId())))) {
           return;
         }
         
@@ -2931,7 +2931,8 @@ public class GrouperServiceLogicTest extends GrouperTest {
       }
     }
 
-    fail(GrouperUtil.toStringForLog(wsGrouperPrivilegeResults));
+    fail("\nExpected user: " + subject.getSourceId() + " - " + subject.getId() + " to have " + privilege.getName() + " on " + ownerName + ", but these were the privs:\n" 
+        + GrouperUtil.toStringForLog(wsGrouperPrivilegeResults));
     
   }
   

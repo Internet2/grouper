@@ -62,6 +62,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GroupHelper;
@@ -123,6 +124,9 @@ public class GrouperClientWsTest extends GrouperTest {
         "grouperClient.webService." + wsUserLabel);
 
     RestClientSettings.resetData(wsUserString, false);
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "true");
 
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("encrypt.key",
         "sdfklj24lkj34lk34");
@@ -7314,10 +7318,10 @@ public class GrouperClientWsTest extends GrouperTest {
     Group jiraGroup = new GroupSave(grouperSession)
       .assignName("apps:jira:groups:admins").assignCreateParentStemsIfNotExist(true).save();
     
-    jiraGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
-    jiraGroup.revokePriv(grouperSession.getSubject(), AccessPrivilege.ADMIN);
-    jiraGroup.grantPriv(SubjectTestHelper.SUBJ5, AccessPrivilege.READ);
-    jiraGroup.grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.ADMIN);
+    jiraGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    jiraGroup.revokePriv(grouperSession.getSubject(), AccessPrivilege.ADMIN, false);
+    jiraGroup.grantPriv(SubjectTestHelper.SUBJ5, AccessPrivilege.READ, false);
+    jiraGroup.grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.ADMIN, false);
     
     jiraGroup.addMember(SubjectTestHelper.SUBJ0);
     jiraGroup.addMember(SubjectTestHelper.SUBJ1);
