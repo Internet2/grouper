@@ -64,13 +64,13 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
 Content-Length: 1084
-Date: Thu, 29 May 2014 00:13:01 GMT
+Date: Wed, 18 Jun 2014 18:31:56 GMT
 Connection: close
 
 {
   "WsGroupSaveResults":{
     "responseMetadata":{
-      "millis":"304",
+      "millis":"563",
       "serverVersion":"2.2.0"
     },
     "resultMetadata":{
@@ -89,10 +89,10 @@ Connection: close
           "displayExtension":"disp1",
           "displayName":"a stem:disp1",
           "extension":"whateverGroup",
-          "idIndex":"10027",
+          "idIndex":"10013",
           "name":"aStem:whateverGroup",
           "typeOfGroup":"group",
-          "uuid":"598e3837a30245a18c97765892536b1b"
+          "uuid":"96f6184aa92741a4a9bc78ce1cc2ad9a"
         }
         
       },
@@ -106,10 +106,10 @@ Connection: close
           "displayExtension":"disp2",
           "displayName":"a stem:disp2",
           "extension":"whateverGroup2",
-          "idIndex":"10028",
+          "idIndex":"10014",
           "name":"aStem:whateverGroup2",
           "typeOfGroup":"group",
-          "uuid":"5c36fccdd23646f7b4a735e00b7a0b3f"
+          "uuid":"7d340d8d36274a05962c45ae689a1735"
         }
       }
     ]

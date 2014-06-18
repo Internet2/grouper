@@ -43,13 +43,13 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
 Content-Length: 723
-Date: Thu, 29 May 2014 00:16:47 GMT
+Date: Wed, 18 Jun 2014 18:40:37 GMT
 Connection: close
 
 {
   "WsGroupSaveLiteResult":{
     "responseMetadata":{
-      "millis":"103",
+      "millis":"188",
       "serverVersion":"2.2.0"
     },
     "resultMetadata":{
@@ -65,7 +65,7 @@ Connection: close
       "idIndex":"10001",
       "name":"aStem:aGroup",
       "typeOfGroup":"group",
-      "uuid":"185d21fc39cd4dcc821f3a51c783d9e9"
+      "uuid":"97db69bda3804897a34bd6a033431841"
     }
   }
 }

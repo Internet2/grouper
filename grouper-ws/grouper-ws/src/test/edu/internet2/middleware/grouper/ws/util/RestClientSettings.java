@@ -37,10 +37,12 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefScopeType;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
@@ -130,6 +132,9 @@ public class RestClientSettings {
         String groupType2Attribute2Id = null;
         String groupType3Attribute1Id = null;
         String groupType3Attribute2Id = null;
+        String groupTypeAssignId = null;
+        String groupType2AssignId = null;
+        String groupType3AssignId = null;
 
         {
           String attributePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attribute.prefix");
@@ -139,8 +144,12 @@ public class RestClientSettings {
           if (groupType != null) {
             groupTypeId = groupType.getUuid();
             
+            AttributeDefName attribute = AttributeDefNameFinder.findById(groupTypeId, false);
+            AttributeAssignAction attributeAssignAction = GrouperDAOFactory.getFactory().getAttributeAssignAction().findByUuidOrKey(null, attribute.getAttributeDefId(), "assign", false);
+            groupTypeAssignId = attributeAssignAction == null ? null : attributeAssignAction.getId();
+            
             // see if the attribute already exists.
-            AttributeDefName attribute = AttributeDefNameFinder.findByName(stemName + ":" + attributePrefix + "attr_1", false);
+            attribute = AttributeDefNameFinder.findByName(stemName + ":" + attributePrefix + "attr_1", false);
             if (attribute != null) {
               groupTypeAttribute1Id = attribute.getId();
             }
@@ -156,8 +165,12 @@ public class RestClientSettings {
           if (groupType != null) {
             groupType2Id = groupType.getUuid();
             
+            AttributeDefName attribute = AttributeDefNameFinder.findById(groupTypeId, false);
+            AttributeAssignAction attributeAssignAction = GrouperDAOFactory.getFactory().getAttributeAssignAction().findByUuidOrKey(null, attribute.getAttributeDefId(), "assign", false);
+            groupType2AssignId = attributeAssignAction == null ? null : attributeAssignAction.getId();
+
             // see if the attribute already exists.
-            AttributeDefName attribute = AttributeDefNameFinder.findByName(stemName + ":" + attributePrefix + "attr2_1", false);
+            attribute = AttributeDefNameFinder.findByName(stemName + ":" + attributePrefix + "attr2_1", false);
             if (attribute != null) {
               groupType2Attribute1Id = attribute.getId();
             }
@@ -173,8 +186,12 @@ public class RestClientSettings {
           if (groupType != null) {
             groupType3Id = groupType.getUuid();
             
+            AttributeDefName attribute = AttributeDefNameFinder.findById(groupTypeId, false);
+            AttributeAssignAction attributeAssignAction = GrouperDAOFactory.getFactory().getAttributeAssignAction().findByUuidOrKey(null, attribute.getAttributeDefId(), "assign", false);
+            groupType3AssignId = attributeAssignAction == null ? null : attributeAssignAction.getId();
+
             // see if the attribute already exists.
-            AttributeDefName attribute = AttributeDefNameFinder.findByName(stemName + ":" + attributePrefix + "attr3_1", false);
+            attribute = AttributeDefNameFinder.findByName(stemName + ":" + attributePrefix + "attr3_1", false);
             if (attribute != null) {
               groupType3Attribute1Id = attribute.getId();
             }
@@ -262,11 +279,11 @@ public class RestClientSettings {
         GroupType groupType2 = GroupType.createType(grouperSession, "aType2", false, groupType2Id);
         GroupType groupType3 = GroupType.createType(grouperSession, "aType3", false, groupType3Id);
         groupType.addAttribute(grouperSession, "attr_1", false, groupTypeAttribute1Id);
-        groupType.addAttribute(grouperSession, "attr_2", false);
-        groupType2.addAttribute(grouperSession, "attr2_1", false);
-        groupType2.addAttribute(grouperSession, "attr2_2", false);
-        groupType3.addAttribute(grouperSession, "attr3_1", false);
-        groupType3.addAttribute(grouperSession, "attr3_2", false);
+        groupType.addAttribute(grouperSession, "attr_2", false, groupTypeAttribute2Id);
+        groupType2.addAttribute(grouperSession, "attr2_1", false, groupType2Attribute1Id);
+        groupType2.addAttribute(grouperSession, "attr2_2", false, groupType2Attribute2Id);
+        groupType3.addAttribute(grouperSession, "attr3_1", false, groupType3Attribute1Id);
+        groupType3.addAttribute(grouperSession, "attr3_2", false, groupType3Attribute2Id);
         
       } catch (Exception e) {
         throw new RuntimeException(e);

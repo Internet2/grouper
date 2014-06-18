@@ -1411,6 +1411,25 @@
           statistics="false"
   />
 
+  <!-- cache of attribute def names for legacy attributes.  note, this must be short for tests to work, in prod can be longer -->
+  <cache  name="edu.internet2.middleware.grouper.GroupType.attributeDefNameFromTypeIdCache"
+          maxElementsInMemory="200"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="30"
+          overflowToDisk="false"
+          statistics="false"
+  />
+
+  <!-- cache of set of attribute def names for legacy attributes.  note, this must be short for tests to work, in prod can be longer -->
+  <cache  name="edu.internet2.middleware.grouper.GroupType.legacyAttributesFromTypeIdCache"
+          maxElementsInMemory="200"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="30"
+          overflowToDisk="false"
+          statistics="false"
+  />
 
 
 </ehcache>

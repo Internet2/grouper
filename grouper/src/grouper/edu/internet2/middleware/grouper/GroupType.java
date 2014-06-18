@@ -54,6 +54,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -201,6 +202,8 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
    * @param   s     Create type within this session context.
    * @param   name  Create type with this name.
    * @param exceptionIfExists 
+   * @param uuid 
+   * @param actionId 
    * @return  New {@link GroupType}.
    * @throws  InsufficientPrivilegeException
    * @throws SchemaException 
@@ -216,6 +219,8 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
    * @param s
    * @param name
    * @param exceptionIfExists 
+   * @param uuid 
+   * @param actionId 
    * @return the type
    * @throws InsufficientPrivilegeException
    * @throws SchemaException
@@ -242,7 +247,6 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
   private Set     fields;
-  private Set<AttributeDefName> legacyAttributes;
   
   /** */
   private String  name;
@@ -252,9 +256,45 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
   /** context id of the transaction */
   private String contextId;
   
-  /** AttributeDefName that corresponds to the group type */
-  private AttributeDefName attributeDefName;
+  /**
+   * cache of group type id to attribute def name
+   */
+  private static GrouperCache<String, AttributeDefName> attributeDefNameFromTypeIdCache = null;
+  
+  /**
+   * cache of group type id to attribute def name
+   * @return cache
+   */
+  private static GrouperCache<String, AttributeDefName> attributeDefNameFromTypeIdCache() {
+    if (attributeDefNameFromTypeIdCache == null) {
+      attributeDefNameFromTypeIdCache = new GrouperCache<String, AttributeDefName>(
+          GroupType.class.getName() + ".attributeDefNameFromTypeIdCache", 200, false, 
+          30, 30, false);
+    }
+    return attributeDefNameFromTypeIdCache;
+  }  
 
+  /**
+   * cache of group type id to legacy attributes
+   */
+  private static GrouperCache<String, Set<AttributeDefName>> legacyAttributesFromTypeIdCache = null;
+  
+  /**
+   * cache of group type id to legacy attributes
+   * @return cache
+   */
+  private static GrouperCache<String, Set<AttributeDefName>> legacyAttributesFromTypeIdCache() {
+    if (legacyAttributesFromTypeIdCache == null) {
+      legacyAttributesFromTypeIdCache = new GrouperCache<String, Set<AttributeDefName>>(
+          GroupType.class.getName() + ".legacyAttributesFromTypeIdCache", 200, false, 
+          30, 30, false);
+    }
+    return legacyAttributesFromTypeIdCache;
+  }  
+
+  
+  
+  
   /**
    * context id of the transaction
    * @return context id
@@ -347,6 +387,7 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
    * @param   s         Add attribute within this session context.
    * @param   name      Name of attribute.
    * @param exceptionIfExists 
+   * @param uuid 
    * @return  field
    * @throws  InsufficientPrivilegeException
    * @throws  SchemaException
@@ -766,6 +807,7 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
    * @param exceptionIfExists
    * @param changed boolean array, the fisrt index will be in it existed already
    * @param uuid to use or null for one to be assigned
+   * @param actionId
    * @return the type
    * @throws InsufficientPrivilegeException
    * @throws SchemaException
@@ -814,7 +856,7 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
           String groupTypePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupType.prefix");
           
           Stem stem = GrouperDAOFactory.getFactory().getStem().findByName(stemName, true);
-          AttributeDef groupTypeDef = stem.addChildAttributeDef(groupTypeDefPrefix + name, AttributeDefType.attr);
+          AttributeDef groupTypeDef = stem.addChildAttributeDef(groupTypeDefPrefix + name, AttributeDefType.attr), actionsId;
           groupTypeDef.setAssignToGroup(true);
           groupTypeDef.store();
           
@@ -985,11 +1027,15 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
    * @return attributeDefName that corresponds to this group type
    */
   public AttributeDefName getAttributeDefName() {
-    if (this.attributeDefName == null) {
-      this.attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findById(this.uuid, true);
+    
+    AttributeDefName attributeDefName = attributeDefNameFromTypeIdCache().get(this.uuid);
+    
+    if (attributeDefName == null) {
+      attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findById(this.uuid, true);
+      attributeDefNameFromTypeIdCache().put(this.uuid, attributeDefName);
     }
     
-    return this.attributeDefName;
+    return attributeDefName;
   }
   
   /**
@@ -1003,8 +1049,8 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
             + this.uuid + " not equal the param id: " + attributeDefName1.getId());
       }
     }
+    attributeDefNameFromTypeIdCache().put(this.uuid, attributeDefName1);
     
-    this.attributeDefName = attributeDefName1;
   }
 
   /**
@@ -1072,6 +1118,9 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
    * @return legacy attributes
    */
   public Set<AttributeDefName> getLegacyAttributes() {
+    
+    Set<AttributeDefName> legacyAttributes = legacyAttributesFromTypeIdCache().get(this.uuid);
+    
     if (legacyAttributes == null) {
       AttributeDef attributeDefForAttributes = this.internal_getAttributeDefForAttributes();
       
@@ -1080,8 +1129,9 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
       } else {
         legacyAttributes = new LinkedHashSet<AttributeDefName>();
       }
+      
+      legacyAttributesFromTypeIdCache().put(this.uuid, legacyAttributes);
     }
-    
     return legacyAttributes;
   }
 }
