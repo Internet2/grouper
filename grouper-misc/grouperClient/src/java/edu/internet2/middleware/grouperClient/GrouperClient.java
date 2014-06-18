@@ -2965,7 +2965,7 @@ public class GrouperClient {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.getMemberships.output");
     }
     log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsGetMembershipsResults, " +
-      "grouperClientUtils, index, wsMembership");
+      "grouperClientUtils, index, wsMembership, type, ownerName");
   
     //lets index the groups by groupId 
     Map<String, WsGroup> groupLookup = new HashMap<String, WsGroup>();

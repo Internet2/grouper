@@ -140,7 +140,7 @@ public class GcGetMemberships {
   
   /**
    * set the owner attributeDef name
-   * @param theOwnerAttributeDefName
+   * @param theOwnerNameOfAttributeDef
    * @return this for chaining
    */
   public GcGetMemberships addOwnerNameOfAttributeDef(String theOwnerNameOfAttributeDef) {
@@ -241,8 +241,9 @@ public class GcGetMemberships {
         && GrouperClientUtils.length(this.groupIdIndexes) == 0
         && GrouperClientUtils.length(this.membershipIds) == 0
         && GrouperClientUtils.length(this.wsSubjectLookups) == 0
-        && GrouperClientUtils.isBlank(this.serviceRole)) {
-      throw new RuntimeException("Group name or uuid or id index or subject lookup or membership id or owner stem uuid or name or owner uuid or name of attribute def or serviceRole is required: " + this);
+        && GrouperClientUtils.isBlank(this.serviceRole)
+        && this.wsStemLookup == null) {
+      throw new RuntimeException("Group name or uuid or id index or subject lookup or membership id or owner stem uuid or name or owner uuid or name of attribute def or serviceRole or stem lookup is required: " + this);
     }
     if (GrouperClientUtils.isBlank(this.serviceRole) != (this.serviceLookup == null 
           || (GrouperClientUtils.isBlank(this.serviceLookup.getIdIndex())
@@ -265,6 +266,7 @@ public class GcGetMemberships {
    * fieldType is the type of field to look at, e.g. list (default, memberships), 
    * access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)
    * @param fieldType1
+   * @return this for chaining
    */
   public GcGetMemberships assignFieldType(String fieldType1) {
     this.fieldType = fieldType1;
