@@ -228,7 +228,13 @@ public class StemSave {
     if (StringUtils.isBlank(this.name)) {
       this.name = this.stemNameToEdit;
     }
-    
+
+    //get from uuid since could be a rename
+    if (StringUtils.isBlank(this.stemNameToEdit) && !StringUtils.isBlank(this.uuid)) {
+      Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.uuid, true);
+      this.stemNameToEdit = stem.getName();
+    }
+
     if (StringUtils.isBlank(this.stemNameToEdit)) {
       this.stemNameToEdit = this.name;
     }

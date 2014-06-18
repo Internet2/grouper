@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.Subject;
  * @author  blair christensen.
  * @version $Id: AccessPrivilege.java,v 1.12 2009-09-25 16:13:45 tzeller Exp $
  */
-public class AccessPrivilege implements GrouperPrivilege, Comparable<AccessPrivilege> {
+public class AccessPrivilege implements GrouperPrivilege, Comparable<Object> {
 
   /**
    * filter some privs for access privs
@@ -434,18 +434,20 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable<AccessPrivi
   /**
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
-  public int compareTo(AccessPrivilege that) {
-    if (that == null) {
+  public int compareTo(Object that) {
+    //note must compare to object or causes problems in sets with other privs
+    if (that == null || (!(that instanceof AccessPrivilege))) {
       return -1;
     }
+    AccessPrivilege accessPrivilegeThat = (AccessPrivilege)that;
     //dont use source since might be down
     String thisSubjectId = this.subj == null ? null : this.subj.getId();
-    String thatSubjectId = that.subj == null ? null : that.subj.getId();
+    String thatSubjectId = accessPrivilegeThat.subj == null ? null : accessPrivilegeThat.subj.getId();
     
     return new CompareToBuilder()
-      .append(this.group, that.group)
+      .append(this.group, accessPrivilegeThat.group)
       .append(thisSubjectId, thatSubjectId)
-      .append(this.name, that.name)
+      .append(this.name, accessPrivilegeThat.name)
       .toComparison();
   }
 
