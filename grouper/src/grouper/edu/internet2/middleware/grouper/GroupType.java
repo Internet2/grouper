@@ -145,7 +145,7 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
    */
   public static GroupType createType(GrouperSession s, String name) 
     throws  InsufficientPrivilegeException, SchemaException  {
-    return createTypeHelper(s, name, true);
+    return createTypeHelper(s, name, true, null);
   }
 
   /**
@@ -177,7 +177,39 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
   public static GroupType createType(GrouperSession s, String name, 
       boolean exceptionIfExists) 
     throws  InsufficientPrivilegeException, SchemaException  {
-    return createTypeHelper(s, name, exceptionIfExists);
+    return createTypeHelper(s, name, exceptionIfExists, null);
+  }
+
+  /**
+   * Create a new {@link GroupType}.  
+   * <p/>
+   * Create a new custom group type that can be assigned to existing or
+   * new groups.  If the type already exists, a {@link SchemaException}
+   * will be thrown.  If the subject is not root-like, an 
+   * {@link InsufficientPrivilegeException} will be thrown.
+   * <pre class="eg">
+   * try {
+   *   GroupType type = GroupType.createType(s, "my custom type");
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Subject not privileged to add group types.
+   * }
+   * catch (SchemaException eS) {
+   *   // Type not created
+   * }
+   * </pre>
+   * @param   s     Create type within this session context.
+   * @param   name  Create type with this name.
+   * @param exceptionIfExists 
+   * @return  New {@link GroupType}.
+   * @throws  InsufficientPrivilegeException
+   * @throws SchemaException 
+   * @deprecated
+   */
+  public static GroupType createType(GrouperSession s, String name, 
+      boolean exceptionIfExists, String uuid) 
+    throws  InsufficientPrivilegeException, SchemaException  {
+    return createTypeHelper(s, name, exceptionIfExists, uuid);
   }
 
   /**
@@ -189,13 +221,13 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
    * @throws SchemaException
    * @deprecated
    */
-  private static GroupType createTypeHelper(GrouperSession s, String name, boolean exceptionIfExists)
+  private static GroupType createTypeHelper(GrouperSession s, String name, boolean exceptionIfExists, String uuid)
       throws InsufficientPrivilegeException, SchemaException {
     //note, no need for GrouperSession inverse of control
     StopWatch sw = new StopWatch();
     sw.start();
     boolean[] existedAlready = new boolean[1];
-    GroupType type = internal_createType(s, name, exceptionIfExists, existedAlready, null);
+    GroupType type = internal_createType(s, name, exceptionIfExists, existedAlready, StringUtils.trimToNull(uuid));
     sw.stop();
     if (!existedAlready[0]) {
       EventLog.info(s, M.GROUPTYPE_ADD + Quote.single( type.getName() ), sw);
@@ -295,6 +327,36 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
   )
     throws  InsufficientPrivilegeException,
             SchemaException {
+    return addAttribute(s, name, exceptionIfExists, null);
+  }
+
+  /**
+   * Add a custom attribute {@link Field} to a custom {@link GroupType}.
+   * try {
+   *   Field myAttr = type.addAttribute(
+   *     "my attribute", AccessPrivilege.VIEW, AccessPrivilege.UPDATE, false
+   *   );
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to add attribute
+   * }
+   * catch (SchemaException eS) {
+   *   // Invalid schema
+   * }
+   * </pre>
+   * @param   s         Add attribute within this session context.
+   * @param   name      Name of attribute.
+   * @param exceptionIfExists 
+   * @return  field
+   * @throws  InsufficientPrivilegeException
+   * @throws  SchemaException
+   * @deprecated
+   */
+  public AttributeDefName addAttribute(
+    final GrouperSession s, final String name, final boolean exceptionIfExists, final String uuid
+  )
+    throws  InsufficientPrivilegeException,
+            SchemaException {
 
     return (AttributeDefName)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
@@ -345,7 +407,7 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
           }
         }
         
-        return stem.addChildAttributeDefName(attributeDef, attributePrefix + name, attributePrefix + name);
+        return stem.addChildAttributeDefName(attributeDef, attributePrefix + name, attributePrefix + name, uuid);
       }    
     });          
   }

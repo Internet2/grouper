@@ -27,10 +27,18 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefScopeType;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -108,6 +116,79 @@ public class RestClientSettings {
      */
     public static void resetData(String loginUserString, boolean loginIsWheel) {
       try {
+
+        GrouperSession grouperSession = GrouperSession.startRootSession();
+
+        //make sure to create with the same id
+        
+        String groupTypeId = null;
+        String groupType2Id = null;
+        String groupType3Id = null;
+        String groupTypeAttribute1Id = null;
+        String groupTypeAttribute2Id = null;
+        String groupType2Attribute1Id = null;
+        String groupType2Attribute2Id = null;
+        String groupType3Attribute1Id = null;
+        String groupType3Attribute2Id = null;
+
+        {
+          String attributePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attribute.prefix");
+          String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+
+          GroupType groupType = GroupTypeFinder.find("aType", false);
+          if (groupType != null) {
+            groupTypeId = groupType.getUuid();
+            
+            // see if the attribute already exists.
+            AttributeDefName attribute = AttributeDefNameFinder.findByName(stemName + ":" + attributePrefix + "attr_1", false);
+            if (attribute != null) {
+              groupTypeAttribute1Id = attribute.getId();
+            }
+
+            attribute = AttributeDefNameFinder.findByName(stemName + ":" + attributePrefix + "attr_2", false);
+            if (attribute != null) {
+              groupTypeAttribute2Id = attribute.getId();
+            }
+
+          }
+          
+          groupType = GroupTypeFinder.find("aType2", false);
+          if (groupType != null) {
+            groupType2Id = groupType.getUuid();
+            
+            // see if the attribute already exists.
+            AttributeDefName attribute = AttributeDefNameFinder.findByName(stemName + ":" + attributePrefix + "attr2_1", false);
+            if (attribute != null) {
+              groupType2Attribute1Id = attribute.getId();
+            }
+
+            attribute = AttributeDefNameFinder.findByName(stemName + ":" + attributePrefix + "attr2_2", false);
+            if (attribute != null) {
+              groupType2Attribute2Id = attribute.getId();
+            }
+
+          }
+          
+          groupType = GroupTypeFinder.find("aType3", false);
+          if (groupType != null) {
+            groupType3Id = groupType.getUuid();
+            
+            // see if the attribute already exists.
+            AttributeDefName attribute = AttributeDefNameFinder.findByName(stemName + ":" + attributePrefix + "attr3_1", false);
+            if (attribute != null) {
+              groupType3Attribute1Id = attribute.getId();
+            }
+
+            attribute = AttributeDefNameFinder.findByName(stemName + ":" + attributePrefix + "attr3_2", false);
+            if (attribute != null) {
+              groupType3Attribute2Id = attribute.getId();
+            }
+
+          }
+          
+        }
+                
+        
         RegistryReset.internal_resetRegistryAndAddTestSubjects(false);
         
         GrouperCheckConfig.checkAttributes();
@@ -115,7 +196,6 @@ public class RestClientSettings {
         GrouperCheckConfig.checkGroups();
 
         String userGroupName = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_CLIENT_USER_GROUP_NAME);
-        GrouperSession grouperSession = GrouperSession.startRootSession();
         
         Subject userSubject = SubjectFinder.findByIdOrIdentifier(loginUserString, true);
 
@@ -178,10 +258,10 @@ public class RestClientSettings {
         aGroup.grantPriv(userSubject, AccessPrivilege.VIEW, false);
         
         //add some types and attributes
-        GroupType groupType = GroupType.createType(grouperSession, "aType", false);
-        GroupType groupType2 = GroupType.createType(grouperSession, "aType2", false);
-        GroupType groupType3 = GroupType.createType(grouperSession, "aType3", false);
-        groupType.addAttribute(grouperSession, "attr_1", false);
+        GroupType groupType = GroupType.createType(grouperSession, "aType", false, groupTypeId);
+        GroupType groupType2 = GroupType.createType(grouperSession, "aType2", false, groupType2Id);
+        GroupType groupType3 = GroupType.createType(grouperSession, "aType3", false, groupType3Id);
+        groupType.addAttribute(grouperSession, "attr_1", false, groupTypeAttribute1Id);
         groupType.addAttribute(grouperSession, "attr_2", false);
         groupType2.addAttribute(grouperSession, "attr2_1", false);
         groupType2.addAttribute(grouperSession, "attr2_2", false);
