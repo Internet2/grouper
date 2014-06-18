@@ -203,7 +203,6 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
    * @param   name  Create type with this name.
    * @param exceptionIfExists 
    * @param uuid 
-   * @param actionId 
    * @return  New {@link GroupType}.
    * @throws  InsufficientPrivilegeException
    * @throws SchemaException 
@@ -220,7 +219,6 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
    * @param name
    * @param exceptionIfExists 
    * @param uuid 
-   * @param actionId 
    * @return the type
    * @throws InsufficientPrivilegeException
    * @throws SchemaException
@@ -807,7 +805,6 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
    * @param exceptionIfExists
    * @param changed boolean array, the fisrt index will be in it existed already
    * @param uuid to use or null for one to be assigned
-   * @param actionId
    * @return the type
    * @throws InsufficientPrivilegeException
    * @throws SchemaException
@@ -856,7 +853,7 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
           String groupTypePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupType.prefix");
           
           Stem stem = GrouperDAOFactory.getFactory().getStem().findByName(stemName, true);
-          AttributeDef groupTypeDef = stem.addChildAttributeDef(groupTypeDefPrefix + name, AttributeDefType.attr), actionsId;
+          AttributeDef groupTypeDef = stem.addChildAttributeDef(groupTypeDefPrefix + name, AttributeDefType.attr);
           groupTypeDef.setAssignToGroup(true);
           groupTypeDef.store();
           
