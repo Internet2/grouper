@@ -159,9 +159,9 @@ public class MigrateLegacyAttributes {
             logDetail("Would be migrating groupType with id=" + id + ", name=" + name);
           }
         }
+
+        processedCount++;
       }
-      
-      processedCount++;
       
       if (saveUpdates) {
         showStatus("Done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
@@ -284,9 +284,9 @@ public class MigrateLegacyAttributes {
             logDetail("Would be migrating list with name=" + name);
           }
         }
+
+        processedCount++;
       }
-      
-      processedCount++;
       
       if (saveUpdates) {
         showStatus("Done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
@@ -350,9 +350,9 @@ public class MigrateLegacyAttributes {
             logDetail("Would be migrating group type assignment.  Group=" + group.getName() + ", type="  + typeId);
           }
         }
+
+        processedCount++;
       }
-      
-      processedCount++;
       
       if (saveUpdates) {
         showStatus("Done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
@@ -427,9 +427,9 @@ public class MigrateLegacyAttributes {
             logDetail("Would be migrating attribute assignment.  Group=" + group.getName() + ", attribute="  + attributeName);
           }
         }
+
+        processedCount++;
       }
-      
-      processedCount++;
       
       if (saveUpdates) {
         showStatus("Done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
