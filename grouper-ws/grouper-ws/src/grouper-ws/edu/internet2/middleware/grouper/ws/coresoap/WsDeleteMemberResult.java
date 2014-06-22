@@ -349,8 +349,15 @@ public class WsDeleteMemberResult  implements ResultMetadataHolder {
    * assign a success based on four situations based on hasImmediate and hasEffective
    * @param hasImmediate
    * @param hasEffective
+   * @param canRead if the caller cant read then dont tell them the membership status
    */
-  public void assignResultCodeSuccess(boolean hasImmediate, boolean hasEffective) {
+  public void assignResultCodeSuccess(boolean hasImmediate, boolean hasEffective, boolean canRead) {
+    
+    if (!canRead) {
+      this.assignResultCode(WsDeleteMemberResultCode.SUCCESS);
+      return;
+    }
+    
     //set success based on scenario
     if (hasEffective) {
       this
