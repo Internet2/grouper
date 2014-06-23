@@ -62,6 +62,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GroupHelper;
@@ -102,7 +103,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testGetMembershipsForService"));
+    TestRunner.run(new GrouperClientWsTest("testGetPermissionAssignsPIT"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -123,6 +124,9 @@ public class GrouperClientWsTest extends GrouperTest {
         "grouperClient.webService." + wsUserLabel);
 
     RestClientSettings.resetData(wsUserString, false);
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "true");
 
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("encrypt.key",
         "sdfklj24lkj34lk34");
@@ -7314,10 +7318,10 @@ public class GrouperClientWsTest extends GrouperTest {
     Group jiraGroup = new GroupSave(grouperSession)
       .assignName("apps:jira:groups:admins").assignCreateParentStemsIfNotExist(true).save();
     
-    jiraGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
-    jiraGroup.revokePriv(grouperSession.getSubject(), AccessPrivilege.ADMIN);
-    jiraGroup.grantPriv(SubjectTestHelper.SUBJ5, AccessPrivilege.READ);
-    jiraGroup.grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.ADMIN);
+    jiraGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    jiraGroup.revokePriv(grouperSession.getSubject(), AccessPrivilege.ADMIN, false);
+    jiraGroup.grantPriv(SubjectTestHelper.SUBJ5, AccessPrivilege.READ, false);
+    jiraGroup.grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.ADMIN, false);
     
     jiraGroup.addMember(SubjectTestHelper.SUBJ0);
     jiraGroup.addMember(SubjectTestHelper.SUBJ1);
@@ -7595,10 +7599,11 @@ public class GrouperClientWsTest extends GrouperTest {
   
       String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
   
-      // match: Index: 0: type: group, ownerName: aStem:aGroup, subject: GrouperSystem, list: members, type: immediate, enabled: T
+      // OLD match: Index: 0: type: group, ownerName: aStem:aGroup, subject: GrouperSystem, list: members, type: immediate, enabled: T
+      // NEW match: Index: 0: group: aStem:aGroup, subject: test.subject.0, list: members, type: immediate, enabled: T
       // match: ^Index: (\d+)\: type: group, ownerName\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
       Pattern pattern = Pattern
-          .compile("^Index: (\\d+)\\: type\\: group, ownerName\\: (.+), subject\\: (.+), list: (.+), type\\: (.+), enabled\\: (T|F)$");
+          .compile("^Index: (\\d+)\\: group\\: (.+), subject\\: (.+), list: (.+), type\\: (.+), enabled\\: (T|F)$");
       String outputLine = outputLines[0];
 
       Matcher matcher = pattern.matcher(outputLines[0]);
@@ -8243,8 +8248,9 @@ public class GrouperClientWsTest extends GrouperTest {
       //attributeDef2.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ8, AttributeDefPrivilege.ATTR_UPDATE, false);
 
       // match: ^Index: (\d+)\: type: group, ownerName\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
+      // match:  Index: 0: group: aStem:aGroup, subject: test.subject.7, list: updaters, type: immediate, enabled: T
       pattern = Pattern
-          .compile("^Index: (\\d+)\\: type\\: (.+), ownerName\\: (.+), subject\\: (.+), list: (.+), type\\: (.+), enabled\\: (T|F)$");
+          .compile("^Index: (\\d+)\\: (group|folder)\\: (.+), subject\\: (.+), list: (.+), type\\: (.+), enabled\\: (T|F)$");
   
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
@@ -8365,7 +8371,7 @@ public class GrouperClientWsTest extends GrouperTest {
       GrouperClient
           .main(GrouperClientUtils
               .splitTrim(
-                  "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --stemIdIndex=" + aStem.getIdIndex() + " --stemScope=ONE_LEVEL",
+                  "--operation=getMembershipsWs --subjectIds=test.subject.7,test.subject.8 --fieldType=naming --stemIdIndex=" + aStem.getParentStem().getIdIndex() + " --stemScope=ONE_LEVEL",
                   " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -8374,7 +8380,7 @@ public class GrouperClientWsTest extends GrouperTest {
   
       outputLines = GrouperClientUtils.splitTrim(output, "\n");
   
-      assertEquals(4, GrouperUtil.length(outputLines));
+      assertEquals(output, 4, GrouperUtil.length(outputLines));
   
       outputLine = outputLines[0];
 
@@ -8457,9 +8463,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("membershipIds"));
       assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("wsStemLookup"));
+          GrouperClientWs.mostRecentRequest.contains("wsStemLookup"));
       assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("stemScope"));
+          GrouperClientWs.mostRecentRequest.contains("stemScope"));
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("ALL_IN_SUBTREE"));
       assertTrue(GrouperClientWs.mostRecentRequest,
@@ -8648,9 +8654,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("wsSubjectLookup"));
       assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("fieldType"));
+          !GrouperClientWs.mostRecentRequest.contains("fieldType"));
       assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("attributeDef"));
+          !GrouperClientWs.mostRecentRequest.contains("attributeDef"));
 
       // #######################################################
       // try all in subtree
@@ -17037,9 +17043,10 @@ public class GrouperClientWsTest extends GrouperTest {
         String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
                   
         // match: Index: 0: permissionType: role, role: aStem:role, subject: jdbc - test.subject.0, attributeDefNameName: aStem:permissionDefName, action: action, enabled: null
+        // match: Index: 0: permissionType: role, role: aStem:role, subject: jdbc - test.subject.0, attributeDefNameName: aStem:permissionDefName, action: action, allowedOverall: T, enabled:
         // match: ^Index: (\d+)\: permissionType\: (.+), role\: (.+), subject\: (.+), attributeDefNameName\: (.+), action\: (.+), enabled\: null
         Pattern pattern = Pattern
-            .compile("^Index: (\\d+)\\: permissionType\\: (.+), role\\: (.+), subject\\: (.+), attributeDefNameName: (.+), action\\: (.+), allowedOverall\\: (T|F), enabled\\: null$");
+            .compile("^Index: (\\d+)\\: permissionType\\: (.+), role\\: (.+), subject\\: (.+), attributeDefNameName: (.+), action\\: (.+), allowedOverall\\: (T|F), enabled\\:.*$");
         
         assertEquals(2, outputLines.length);
         String outputLine = outputLines[0];

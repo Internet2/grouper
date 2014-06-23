@@ -55,7 +55,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:groupSaveLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Thu, 29 May 2014 00:12:13 GMT
+Date: Wed, 18 Jun 2014 18:30:10 GMT
 
 646
 <?xml version='1.0' encoding='UTF-8'?>
@@ -85,10 +85,10 @@ wsGroup=WsGroup[displayExtension=the test group,description=test group,name=aSte
           <ns:displayExtension>the test group</ns:displayExtension>
           <ns:displayName>a stem:the test group</ns:displayName>
           <ns:extension>test</ns:extension>
-          <ns:idIndex>10024</ns:idIndex>
+          <ns:idIndex>10010</ns:idIndex>
           <ns:name>aStem:test</ns:name>
           <ns:typeOfGroup>group</ns:typeOfGroup>
-          <ns:uuid>6295b8a8a052421f8d7ff0e9ac0ec14f</ns:uuid>
+          <ns:uuid>0e86578f98ae4fd8b7554e2f182059df</ns:uuid>
         </ns:wsGroup>
       </ns:return>
     </ns:groupSaveLiteResponse>
@@ -222,6 +222,6 @@ public class WsSampleGroupSaveLite implements WsSampleGenerated {
 
 
 WsGroupSaveLiteResult[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResponseMeta@4a101cdf,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResultMeta@67d79a75,localResultMetadataTracker=true,
-  localWsGroup=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroup@7bddac95,localWsGroupTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResponseMeta@f992b15,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResultMeta@10db77b3,localResultMetadataTracker=true,
+  localWsGroup=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroup@388f916a,localWsGroupTracker=true]

@@ -57,7 +57,7 @@ public class HibernateSessionTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new HibernateSessionTest("testNestedTransactionsAndSavepoints"));
+    TestRunner.run(new HibernateSessionTest("testRollback"));
     //TestRunner.run(HibernateSessionTest.class);
   }
   
@@ -69,6 +69,32 @@ public class HibernateSessionTest extends GrouperTest {
     super(name);
   }
 
+  /**
+   * 
+   */
+  public void testRollback() {
+    
+    
+    final GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+      
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        
+        new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup").save();
+        
+        grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
+        
+        return null;
+      }
+    });
+    
+    Group group = GroupFinder.findByName(grouperSession, "test:testGroup", false);
+    assertNull(group);
+  }
+  
   /**
    * make sure only savepoints are used in nested read/write transactions
    */

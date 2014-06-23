@@ -4,10 +4,10 @@
 /subject/target/
 /grouper/target/
 /ldappcng/grouper-shib/target/
-/grouper/conf/
 /grouper/bin/*
 /grouper/logs/
 /ldappcng/ldappcng/target/
 /grouper/build.properties
 /grouper/build.log
 /grouper-misc/grouperScim/target/
+/grouper-ui/webapp/WEB-INF/classes

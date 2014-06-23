@@ -107,13 +107,13 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
 Content-Length: 1508
-Date: Thu, 05 Jun 2014 02:00:09 GMT
+Date: Wed, 18 Jun 2014 18:34:35 GMT
 Connection: close
 
 {
   "WsGroupSaveResults":{
     "responseMetadata":{
-      "millis":"2468",
+      "millis":"1157",
       "serverVersion":"2.2.0"
     },
     "resultMetadata":{
@@ -132,10 +132,10 @@ Connection: close
           "displayExtension":"whateverGroupLeftDispExt",
           "displayName":"a stem:whateverGroupLeftDispExt",
           "extension":"whateverGroupLeft",
-          "idIndex":"10012",
+          "idIndex":"10010",
           "name":"aStem:whateverGroupLeft",
           "typeOfGroup":"group",
-          "uuid":"35d7369aa6124d2d943528993891719e"
+          "uuid":"9f3d7577e3ca47ca8fd8c318b2eb3d99"
         }
         
       },
@@ -149,10 +149,10 @@ Connection: close
           "displayExtension":"whateverGroupRightDispExt",
           "displayName":"a stem:whateverGroupRightDispExt",
           "extension":"whateverGroupRight",
-          "idIndex":"10013",
+          "idIndex":"10011",
           "name":"aStem:whateverGroupRight",
           "typeOfGroup":"group",
-          "uuid":"2e4c13ccb0604038b767c9daf65770fd"
+          "uuid":"22535461106c47098da4bfff06ab3b4e"
         }
         
       },
@@ -166,10 +166,10 @@ Connection: close
           "displayExtension":"disp1",
           "displayName":"a stem:disp1",
           "extension":"whateverGroup",
-          "idIndex":"10014",
+          "idIndex":"10012",
           "name":"aStem:whateverGroup",
           "typeOfGroup":"group",
-          "uuid":"c41960f9eb1b4df894ea592c2a96e027"
+          "uuid":"96ebfbb7d0bf4a068112bd91f40dd9fc"
         }
       }
     ]

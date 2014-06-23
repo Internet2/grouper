@@ -54,6 +54,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -145,7 +146,7 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
    */
   public static GroupType createType(GrouperSession s, String name) 
     throws  InsufficientPrivilegeException, SchemaException  {
-    return createTypeHelper(s, name, true);
+    return createTypeHelper(s, name, true, null);
   }
 
   /**
@@ -177,25 +178,59 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
   public static GroupType createType(GrouperSession s, String name, 
       boolean exceptionIfExists) 
     throws  InsufficientPrivilegeException, SchemaException  {
-    return createTypeHelper(s, name, exceptionIfExists);
+    return createTypeHelper(s, name, exceptionIfExists, null);
+  }
+
+  /**
+   * Create a new {@link GroupType}.  
+   * <p/>
+   * Create a new custom group type that can be assigned to existing or
+   * new groups.  If the type already exists, a {@link SchemaException}
+   * will be thrown.  If the subject is not root-like, an 
+   * {@link InsufficientPrivilegeException} will be thrown.
+   * <pre class="eg">
+   * try {
+   *   GroupType type = GroupType.createType(s, "my custom type");
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Subject not privileged to add group types.
+   * }
+   * catch (SchemaException eS) {
+   *   // Type not created
+   * }
+   * </pre>
+   * @param   s     Create type within this session context.
+   * @param   name  Create type with this name.
+   * @param exceptionIfExists 
+   * @param uuid 
+   * @return  New {@link GroupType}.
+   * @throws  InsufficientPrivilegeException
+   * @throws SchemaException 
+   * @deprecated
+   */
+  public static GroupType createType(GrouperSession s, String name, 
+      boolean exceptionIfExists, String uuid) 
+    throws  InsufficientPrivilegeException, SchemaException  {
+    return createTypeHelper(s, name, exceptionIfExists, uuid);
   }
 
   /**
    * @param s
    * @param name
    * @param exceptionIfExists 
+   * @param uuid 
    * @return the type
    * @throws InsufficientPrivilegeException
    * @throws SchemaException
    * @deprecated
    */
-  private static GroupType createTypeHelper(GrouperSession s, String name, boolean exceptionIfExists)
+  private static GroupType createTypeHelper(GrouperSession s, String name, boolean exceptionIfExists, String uuid)
       throws InsufficientPrivilegeException, SchemaException {
     //note, no need for GrouperSession inverse of control
     StopWatch sw = new StopWatch();
     sw.start();
     boolean[] existedAlready = new boolean[1];
-    GroupType type = internal_createType(s, name, exceptionIfExists, existedAlready, null);
+    GroupType type = internal_createType(s, name, exceptionIfExists, existedAlready, StringUtils.trimToNull(uuid));
     sw.stop();
     if (!existedAlready[0]) {
       EventLog.info(s, M.GROUPTYPE_ADD + Quote.single( type.getName() ), sw);
@@ -210,7 +245,6 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
   private Set     fields;
-  private Set<AttributeDefName> legacyAttributes;
   
   /** */
   private String  name;
@@ -220,9 +254,45 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
   /** context id of the transaction */
   private String contextId;
   
-  /** AttributeDefName that corresponds to the group type */
-  private AttributeDefName attributeDefName;
+  /**
+   * cache of group type id to attribute def name
+   */
+  private static GrouperCache<String, AttributeDefName> attributeDefNameFromTypeIdCache = null;
+  
+  /**
+   * cache of group type id to attribute def name
+   * @return cache
+   */
+  private static GrouperCache<String, AttributeDefName> attributeDefNameFromTypeIdCache() {
+    if (attributeDefNameFromTypeIdCache == null) {
+      attributeDefNameFromTypeIdCache = new GrouperCache<String, AttributeDefName>(
+          GroupType.class.getName() + ".attributeDefNameFromTypeIdCache", 200, false, 
+          30, 30, false);
+    }
+    return attributeDefNameFromTypeIdCache;
+  }  
 
+  /**
+   * cache of group type id to legacy attributes
+   */
+  private static GrouperCache<String, Set<AttributeDefName>> legacyAttributesFromTypeIdCache = null;
+  
+  /**
+   * cache of group type id to legacy attributes
+   * @return cache
+   */
+  private static GrouperCache<String, Set<AttributeDefName>> legacyAttributesFromTypeIdCache() {
+    if (legacyAttributesFromTypeIdCache == null) {
+      legacyAttributesFromTypeIdCache = new GrouperCache<String, Set<AttributeDefName>>(
+          GroupType.class.getName() + ".legacyAttributesFromTypeIdCache", 200, false, 
+          30, 30, false);
+    }
+    return legacyAttributesFromTypeIdCache;
+  }  
+
+  
+  
+  
   /**
    * context id of the transaction
    * @return context id
@@ -295,6 +365,37 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
   )
     throws  InsufficientPrivilegeException,
             SchemaException {
+    return addAttribute(s, name, exceptionIfExists, null);
+  }
+
+  /**
+   * Add a custom attribute {@link Field} to a custom {@link GroupType}.
+   * try {
+   *   Field myAttr = type.addAttribute(
+   *     "my attribute", AccessPrivilege.VIEW, AccessPrivilege.UPDATE, false
+   *   );
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to add attribute
+   * }
+   * catch (SchemaException eS) {
+   *   // Invalid schema
+   * }
+   * </pre>
+   * @param   s         Add attribute within this session context.
+   * @param   name      Name of attribute.
+   * @param exceptionIfExists 
+   * @param uuid 
+   * @return  field
+   * @throws  InsufficientPrivilegeException
+   * @throws  SchemaException
+   * @deprecated
+   */
+  public AttributeDefName addAttribute(
+    final GrouperSession s, final String name, final boolean exceptionIfExists, final String uuid
+  )
+    throws  InsufficientPrivilegeException,
+            SchemaException {
 
     return (AttributeDefName)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
@@ -345,7 +446,7 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
           }
         }
         
-        return stem.addChildAttributeDefName(attributeDef, attributePrefix + name, attributePrefix + name);
+        return stem.addChildAttributeDefName(attributeDef, attributePrefix + name, attributePrefix + name, uuid);
       }    
     });          
   }
@@ -923,11 +1024,15 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
    * @return attributeDefName that corresponds to this group type
    */
   public AttributeDefName getAttributeDefName() {
-    if (this.attributeDefName == null) {
-      this.attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findById(this.uuid, true);
+    
+    AttributeDefName attributeDefName = attributeDefNameFromTypeIdCache().get(this.uuid);
+    
+    if (attributeDefName == null) {
+      attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findById(this.uuid, true);
+      attributeDefNameFromTypeIdCache().put(this.uuid, attributeDefName);
     }
     
-    return this.attributeDefName;
+    return attributeDefName;
   }
   
   /**
@@ -941,8 +1046,8 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
             + this.uuid + " not equal the param id: " + attributeDefName1.getId());
       }
     }
+    attributeDefNameFromTypeIdCache().put(this.uuid, attributeDefName1);
     
-    this.attributeDefName = attributeDefName1;
   }
 
   /**
@@ -1010,6 +1115,9 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
    * @return legacy attributes
    */
   public Set<AttributeDefName> getLegacyAttributes() {
+    
+    Set<AttributeDefName> legacyAttributes = legacyAttributesFromTypeIdCache().get(this.uuid);
+    
     if (legacyAttributes == null) {
       AttributeDef attributeDefForAttributes = this.internal_getAttributeDefForAttributes();
       
@@ -1018,8 +1126,9 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
       } else {
         legacyAttributes = new LinkedHashSet<AttributeDefName>();
       }
+      
+      legacyAttributesFromTypeIdCache().put(this.uuid, legacyAttributes);
     }
-    
     return legacyAttributes;
   }
 }

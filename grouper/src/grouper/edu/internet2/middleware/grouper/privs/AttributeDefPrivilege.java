@@ -404,6 +404,7 @@ public class AttributeDefPrivilege implements GrouperPrivilege, Comparable {
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
   public int compareTo(Object o) {
+    //note must compare to object or causes problems in sets with other privs
     if (o == null || (!(o instanceof AttributeDefPrivilege))) {
       return -1;
     }

@@ -559,6 +559,20 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   }
 
   /**
+   * Add a new attribute def to the registry.
+   * @param attributeDef is the definition of this attribute
+   * @param   extension attributeDef's extension
+   * @param displayExtension 
+   * @return  The added {@link AttributeDef}
+   * @throws  InsufficientPrivilegeException
+   */
+  public AttributeDefName addChildAttributeDefName(AttributeDef attributeDef, String extension, String displayExtension, String uuid) 
+    throws InsufficientPrivilegeException {
+    return this.internal_addChildAttributeDefName(GrouperSession.staticGrouperSession(true), attributeDef,
+        extension, displayExtension, StringUtils.trimToNull(uuid), null);
+  }
+
+  /**
    * Add a new stem to the registry.
    * <pre class="eg">
    * // Add a stem with the extension "edu" beneath this stem.

@@ -14,10 +14,10 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
-Content-Length: 845
+Content-Length: 840
 Content-Type: application/xhtml+xml; charset=UTF-8
 
-<?xml version='1.0' encoding='iso-8859-1'?>
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -63,11 +63,11 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Thu, 29 May 2014 00:16:25 GMT
+Date: Wed, 18 Jun 2014 18:39:45 GMT
 Connection: close
 
-54a
-<?xml version='1.0' encoding='iso-8859-1'?>
+545
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -76,7 +76,7 @@ Connection: close
   <body>
     <div title="WsGroupSaveLiteResult">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">103</p>
+        <p class="millis">141</p>
         <p class="resultWarnings" />
         <p class="serverVersion">2.2.0</p>
       </div>
@@ -100,7 +100,7 @@ wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroup]]
         <p class="idIndex">10001</p>
         <p class="name">aStem:aGroup</p>
         <p class="typeOfGroup">group</p>
-        <p class="uuid">c6299f5579c344ff852bcfba17066060</p>
+        <p class="uuid">da15adc9d52a412bb73905278c811380</p>
       </div>
     </div>
   </body>

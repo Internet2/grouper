@@ -278,6 +278,8 @@ public class GrouperServiceLogic {
                 }
               }
 
+              final boolean canRead = group.canHavePrivilege(SESSION.getSubject(), AccessPrivilege.READ.getName(), false);
+              
               for (final WsSubjectLookup wsSubjectLookup : GrouperUtil.nonNull(subjectLookups, WsSubjectLookup.class)) {
                 final WsAddMemberResult wsAddMemberResult = new WsAddMemberResult();
                 wsAddMemberResults.getResults()[resultIndex++] = wsAddMemberResult;
@@ -324,7 +326,8 @@ public class GrouperServiceLogic {
                           }
                         }
 
-                        wsAddMemberResult.assignResultCode(GrouperWsVersionUtils.addMemberSuccessResultCode(didntAlreadyExist, wsSubjectLookup.retrieveSubjectFindResult()));
+                        wsAddMemberResult.assignResultCode(GrouperWsVersionUtils.addMemberSuccessResultCode(
+                            didntAlreadyExist, wsSubjectLookup.retrieveSubjectFindResult(), canRead));
 
                       } catch (InsufficientPrivilegeException ipe) {
                         wsAddMemberResult
@@ -533,7 +536,7 @@ public class GrouperServiceLogic {
               int subjectLength = GrouperServiceUtils.arrayLengthAtLeastOne(
                   subjectLookups, GrouperWsConfig.WS_ADD_MEMBER_SUBJECTS_MAX, 1000000, "subjectLookups");
   
-              Group group = wsGroupLookup.retrieveGroupIfNeeded(SESSION, "wsGroupLookup");
+              final Group group = wsGroupLookup.retrieveGroupIfNeeded(SESSION, "wsGroupLookup");
   
               //assign the group to the result to be descriptive
               wsDeleteMemberResults.setWsGroup(new WsGroup(group, wsGroupLookup,
@@ -542,7 +545,9 @@ public class GrouperServiceLogic {
               wsDeleteMemberResults.setResults(new WsDeleteMemberResult[subjectLength]);
   
               int resultIndex = 0;
-  
+
+              boolean canRead = group.canHavePrivilege(SESSION.getSubject(), AccessPrivilege.READ.getName(), false);
+
               //loop through all subjects and do the delete
               for (WsSubjectLookup wsSubjectLookup : subjectLookups) {
                 WsDeleteMemberResult wsDeleteMemberResult = new WsDeleteMemberResult();
@@ -560,18 +565,14 @@ public class GrouperServiceLogic {
                     if (member != null) {
                       if (fieldName == null) {
                         // dont fail if already a direct member
-                        hasEffective = member.isEffectiveMember(group);
-                        hasImmediate = member.isImmediateMember(group);
-                        if (hasImmediate) {
-                          group.deleteMember(member);
-                        }
+                        hasEffective = canRead ? member.isEffectiveMember(group) : false;
+                        hasImmediate = canRead ? member.isImmediateMember(group) : false;
+                        group.deleteMember(member, false);
                       } else {
                         // dont fail if already a direct member
-                        hasEffective = member.isEffectiveMember(group, fieldName);
-                        hasImmediate = member.isImmediateMember(group, fieldName);
-                        if (hasImmediate) {
-                          group.deleteMember(member, fieldName);
-                        }
+                        hasEffective = canRead ? member.isEffectiveMember(group, fieldName) : false;
+                        hasImmediate = canRead ? member.isImmediateMember(group, fieldName) : false;
+                        group.deleteMember(member, fieldName, false);
                       }
                     }
                     if (LOG.isDebugEnabled()) {
@@ -581,7 +582,7 @@ public class GrouperServiceLogic {
   
                     //assign one of 4 success codes
                     wsDeleteMemberResult.assignResultCodeSuccess(hasImmediate,
-                        hasEffective);
+                        hasEffective, canRead);
   
                   } catch (InsufficientPrivilegeException ipe) {
                     wsDeleteMemberResult

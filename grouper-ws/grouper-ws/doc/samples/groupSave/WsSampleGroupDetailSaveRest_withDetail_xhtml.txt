@@ -155,10 +155,10 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Wed, 04 Jun 2014 21:32:10 GMT
+Date: Wed, 18 Jun 2014 18:33:43 GMT
 Connection: close
 
-b3f
+b3d
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -168,7 +168,7 @@ b3f
   <body>
     <div title="WsGroupSaveResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">22294</p>
+        <p class="millis">969</p>
         <p class="resultWarnings" />
         <p class="serverVersion">2.2.0</p>
       </div>
@@ -196,10 +196,10 @@ wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDi
             <p class="displayExtension">whateverGroupLeftDispExt</p>
             <p class="displayName">a stem:whateverGroupLeftDispExt</p>
             <p class="extension">whateverGroupLeft</p>
-            <p class="idIndex">10020</p>
+            <p class="idIndex">10017</p>
             <p class="name">aStem:whateverGroupLeft</p>
             <p class="typeOfGroup">group</p>
-            <p class="uuid">3919326775264b2b8ca791036a886a14</p>
+            <p class="uuid">500b7ffa003b49878e0849169db58372</p>
           </div>
         </li>
         <li title="WsGroupSaveResult">
@@ -215,10 +215,10 @@ wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDi
             <p class="displayExtension">whateverGroupRightDispExt</p>
             <p class="displayName">a stem:whateverGroupRightDispExt</p>
             <p class="extension">whateverGroupRight</p>
-            <p class="idIndex">10021</p>
+            <p class="idIndex">10018</p>
             <p class="name">aStem:whateverGroupRight</p>
             <p class="typeOfGroup">group</p>
-            <p class="uuid">ce471c2557254787a9b00fa72a644706</p>
+            <p class="uuid">739531b97b4d4ae590ec47bce7a3a387</p>
           </div>
         </li>
         <li title="WsGroupSaveResult">
@@ -234,10 +234,10 @@ wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDi
             <p class="displayExtension">disp1</p>
             <p class="displayName">a stem:disp1</p>
             <p class="extension">whateverGroup</p>
-            <p class="idIndex">10022</p>
+            <p class="idIndex">10019</p>
             <p class="name">aStem:whateverGroup</p>
             <p class="typeOfGroup">group</p>
-            <p class="uuid">3d16d01af8d44ec99ee4f16d17e36f47</p>
+            <p class="uuid">795aad746aba4838a43b6dd6b7ef5391</p>
           </div>
         </li>
       </ul>

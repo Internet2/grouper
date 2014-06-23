@@ -31,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.RegistrySubject;
@@ -43,6 +44,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
@@ -205,41 +207,42 @@ public class SampleCapture {
 
 //    captureAssignAttributesWithValue();
 
-//    captureAssignAttributesBatch();
+//    captureGetGrouperPrivileges();
 
+    captureGroupSave();
 
 //  captureRampart();
 //    captureSample(WsSampleClientType.REST_BEANS,  
 //        WsSampleMemberChangeSubjectRest.class, "memberChangeSubject", null);
 
     
-    captureAddMember();
-    captureAssignAttributeDefNameInheritance();
-    captureAssignAttributes();
+//    captureAddMember();
+//    captureAssignAttributeDefNameInheritance();
+//    captureAssignAttributes();
 //    captureAssignAttributesBatch();
-    captureAssignAttributesWithValue();
-    captureAssignGrouperPrivileges();
-    captureAssignPermissions();
-    captureAttributeDefNameDelete();
-    captureAttributeDefNameSave();
-    captureDeleteMember();
-    captureFindAttributeDefNames();
-    captureFindGroups();
-    captureFindStems();
-    captureGetAttributeAssignments();
-    captureGetGrouperPrivileges();
-    captureGetGroups();
-    captureGetMembers();
-    captureGetMemberships();
-    captureGetPermissionAssignments();
-    captureGetSubjects();
-    captureGroupDelete();
-    captureGroupSave();
-    captureHasMember();
-    captureMemberChangeSubject();
-//    captureRampart();
-    captureStemDelete();
-    captureStemSave();
+//    captureAssignAttributesWithValue();
+//    captureAssignGrouperPrivileges();
+//    captureAssignPermissions();
+//    captureAttributeDefNameDelete();
+//    captureAttributeDefNameSave();
+//    captureDeleteMember();
+//    captureFindAttributeDefNames();
+//    captureFindGroups();
+//    captureFindStems();
+//    captureGetAttributeAssignments();
+//    captureGetGrouperPrivileges();
+//    captureGetGroups();
+//    captureGetMembers();
+//    captureGetMemberships();
+//    captureGetPermissionAssignments();
+//    captureGetSubjects();
+//    captureGroupDelete();
+//    captureGroupSave();
+//    captureHasMember();
+//    captureMemberChangeSubject();
+////    captureRampart();
+//    captureStemDelete();
+//    captureStemSave();
     
 
   }
@@ -248,14 +251,83 @@ public class SampleCapture {
   private static void setupData() {
     GrouperSession grouperSession = null;
     try {
+
+      grouperSession = GrouperSession.startRootSession();
+
+      //make sure to create with the same id
       
+      String groupTypeId = null;
+      String groupType2Id = null;
+      String groupType3Id = null;
+      String groupTypeAttribute1Id = null;
+      String groupTypeAttribute2Id = null;
+      String groupType2Attribute1Id = null;
+      String groupType2Attribute2Id = null;
+      String groupType3Attribute1Id = null;
+      String groupType3Attribute2Id = null;
+
+      {
+        String attributePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attribute.prefix");
+        String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+
+        GroupType groupType = GroupTypeFinder.find("aType", false);
+        if (groupType != null) {
+          groupTypeId = groupType.getUuid();
+          
+          // see if the attribute already exists.
+          AttributeDefName attribute = AttributeDefNameFinder.findByName(stemName + ":" + attributePrefix + "attr_1", false);
+          if (attribute != null) {
+            groupTypeAttribute1Id = attribute.getId();
+          }
+
+          attribute = AttributeDefNameFinder.findByName(stemName + ":" + attributePrefix + "attr_2", false);
+          if (attribute != null) {
+            groupTypeAttribute2Id = attribute.getId();
+          }
+
+        }
+        
+        groupType = GroupTypeFinder.find("aType2", false);
+        if (groupType != null) {
+          groupType2Id = groupType.getUuid();
+          
+          // see if the attribute already exists.
+          AttributeDefName attribute = AttributeDefNameFinder.findByName(stemName + ":" + attributePrefix + "attr2_1", false);
+          if (attribute != null) {
+            groupType2Attribute1Id = attribute.getId();
+          }
+
+          attribute = AttributeDefNameFinder.findByName(stemName + ":" + attributePrefix + "attr2_2", false);
+          if (attribute != null) {
+            groupType2Attribute2Id = attribute.getId();
+          }
+
+        }
+        
+        groupType = GroupTypeFinder.find("aType3", false);
+        if (groupType != null) {
+          groupType3Id = groupType.getUuid();
+          
+          // see if the attribute already exists.
+          AttributeDefName attribute = AttributeDefNameFinder.findByName(stemName + ":" + attributePrefix + "attr3_1", false);
+          if (attribute != null) {
+            groupType3Attribute1Id = attribute.getId();
+          }
+
+          attribute = AttributeDefNameFinder.findByName(stemName + ":" + attributePrefix + "attr3_2", false);
+          if (attribute != null) {
+            groupType3Attribute2Id = attribute.getId();
+          }
+
+        }
+        
+      }
+
       RegistryReset.internal_resetRegistryAndAddTestSubjects(false);
       
       GrouperCheckConfig.checkAttributes();
 
       GrouperCheckConfig.checkGroups();
-
-      grouperSession = GrouperSession.startRootSession();
 
       Subject grouperSystemSubject = SubjectFinder.findById("GrouperSystem", true);
       
@@ -342,16 +414,17 @@ public class SampleCapture {
       MemberFinder.findBySubject(grouperSession, SubjectFinder.findById("test.subject.3", true), true);
       
       //add some types and attributes
-      GroupType groupType = GroupType.createType(grouperSession, "aType", false);
-      GroupType groupType2 = GroupType.createType(grouperSession, "aType2", false);
-      GroupType groupType3 = GroupType.createType(grouperSession, "aType3", false);
-      groupType.addAttribute(grouperSession, "attr_1", false);
-      groupType.addAttribute(grouperSession, "attr_2", false);
-      groupType2.addAttribute(grouperSession, "attr2_1", false);
-      groupType2.addAttribute(grouperSession, "attr2_2", false);
-      groupType3.addAttribute(grouperSession, "attr3_1", false);
-      groupType3.addAttribute(grouperSession, "attr3_2", false);
+      GroupType groupType = GroupType.createType(grouperSession, "aType", false, groupTypeId);
+      GroupType groupType2 = GroupType.createType(grouperSession, "aType2", false, groupType2Id);
+      GroupType groupType3 = GroupType.createType(grouperSession, "aType3", false, groupType3Id);
+      groupType.addAttribute(grouperSession, "attr_1", false, groupTypeAttribute1Id);
+      groupType.addAttribute(grouperSession, "attr_2", false, groupTypeAttribute2Id);
+      groupType2.addAttribute(grouperSession, "attr2_1", false, groupType2Attribute1Id);
+      groupType2.addAttribute(grouperSession, "attr2_2", false, groupType2Attribute2Id);
+      groupType3.addAttribute(grouperSession, "attr3_1", false, groupType3Attribute1Id);
+      groupType3.addAttribute(grouperSession, "attr3_2", false, groupType3Attribute2Id);
 
+      
       //new attribute framework
       //###################################
       
@@ -607,19 +680,19 @@ public class SampleCapture {
    */
   public static void captureGroupSave() {
     captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGroupSave.class, "groupSave", (String)null);
+        WsSampleGroupSave.class, "groupSave", (String)null, 30000);
     captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGroupDetailSave.class, "groupSave", "_withDetail");
+        WsSampleGroupDetailSave.class, "groupSave", "_withDetail", 30000);
     captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGroupSaveLite.class, "groupSave", null);
+        WsSampleGroupSaveLite.class, "groupSave", null, 30000);
     captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleGroupSaveRest.class, "groupSave", null);
+        WsSampleGroupSaveRest.class, "groupSave", null, 30000);
     captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleGroupDetailSaveRest.class, "groupSave", "_withDetail");
+        WsSampleGroupDetailSaveRest.class, "groupSave", "_withDetail", 30000);
     captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleGroupSaveRestLite.class, "groupSave", null);
+        WsSampleGroupSaveRestLite.class, "groupSave", null, 30000);
     captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleGroupSaveRestLite.class, "groupSave", "_withInput");
+        WsSampleGroupSaveRestLite.class, "groupSave", "_withInput", 30000);
     
   }
 
@@ -665,6 +738,7 @@ public class SampleCapture {
         WsSampleGetMembershipsLite.class, "getMemberships", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleGetMembershipsRest.class, "getMemberships", null);
+    //shold be commented out?
     captureSample(WsSampleClientType.REST_BEANS,  
             WsSampleGetMembershipsRest2.class, "getMemberships", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -709,6 +783,20 @@ public class SampleCapture {
   public static void captureSample(WsSampleClientType clientType,
         Class<? extends WsSample> clientClass, 
         String samplesFolderName, String fileNameInfo) {
+    captureSample(clientType, clientClass, samplesFolderName, fileNameInfo);
+  }
+
+  /**
+   * run a sample and capture the output, and put it in the 
+   * @param clientType
+   * @param clientClass
+   * @param samplesFolderName is the for
+   * @param fileNameInfo to specify description of example, or none
+   * @param sleepMillis how many millis to sleep in between
+   */
+  public static void captureSample(WsSampleClientType clientType,
+        Class<? extends WsSample> clientClass, 
+        String samplesFolderName, String fileNameInfo, long sleepMillis) {
     Object[] formats = clientType.formats();
     //just pass null if none
     formats = GrouperUtil.defaultIfNull(formats, new Object[]{null});
@@ -719,7 +807,7 @@ public class SampleCapture {
         setupData();
         captureSample(clientType, clientClass, samplesFolderName, fileNameInfo, format);
         //let the cache clear
-        GrouperUtil.sleep(10000);
+        GrouperUtil.sleep(sleepMillis);
       }
     }
   }

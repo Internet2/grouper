@@ -41,7 +41,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Thu, 29 May 2014 00:16:03 GMT
+Date: Wed, 18 Jun 2014 18:38:56 GMT
 Connection: close
 
 395
@@ -58,7 +58,7 @@ wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroup]]
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>126</millis>
+    <millis>140</millis>
     <serverVersion>2.2.0</serverVersion>
   </responseMetadata>
   <wsGroup>
@@ -68,7 +68,7 @@ wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroup]]
     <description>desc1</description>
     <displayName>a stem:disp1</displayName>
     <name>aStem:aGroup</name>
-    <uuid>11741c2d5d2b4a0cb8f901c56adfe2a0</uuid>
+    <uuid>00d3b1097d0c442d9192bd30dfd86933</uuid>
     <idIndex>10001</idIndex>
   </wsGroup>
 </WsGroupSaveLiteResult>

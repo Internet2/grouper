@@ -61,7 +61,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Thu, 29 May 2014 00:13:24 GMT
+Date: Wed, 18 Jun 2014 18:32:49 GMT
 Connection: close
 
 3ff
@@ -75,8 +75,8 @@ Connection: close
         <description>desc1</description>
         <displayName>a stem:disp1</displayName>
         <name>aStem:whateverGroup</name>
-        <uuid>d8a4dafa10e640678376dd548908218d</uuid>
-        <idIndex>10029</idIndex>
+        <uuid>d87b9a24848749e5984418dedb383914</uuid>
+        <idIndex>10015</idIndex>
       </wsGroup>
       <resultMetadata>
         <resultCode>SUCCESS_INSERTED</resultCode>
@@ -91,8 +91,8 @@ Connection: close
         <description>descs</description>
         <displayName>a stem:disp2</displayName>
         <name>aStem:whateverGroup2</name>
-        <uuid>7b661a0952934d76992f558ebc86cb66</uuid>
-        <idIndex>10010</idIndex>
+        <uuid>76d199d9f5f947fd9ba048a7fe4cbd6f</uuid>
+        <idIndex>10016</idIndex>
       </wsGroup>
       <resultMetadata>
         <resultCode>SUCCESS_INSERTED</resultCode>
@@ -113,7 +113,7 @@ wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>256</millis>
+    <millis>640</millis>
     <serverVersion>2.2.0</serverVersion>
   </responseMetadata>
 </WsGroupSaveResults>

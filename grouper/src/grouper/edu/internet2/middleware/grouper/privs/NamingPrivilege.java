@@ -53,7 +53,7 @@ import edu.internet2.middleware.subject.Subject;
  * @author  blair christensen.
  * @version $Id: NamingPrivilege.java,v 1.8 2009-04-13 20:24:29 mchyzer Exp $
  */
-public class NamingPrivilege implements GrouperPrivilege, Comparable<NamingPrivilege> {
+public class NamingPrivilege implements GrouperPrivilege, Comparable<Object> {
 
   /** can create objects in this stem */
   public static final Privilege CREATE  = Privilege.getInstance("create");
@@ -189,7 +189,8 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable<NamingPrivi
   /**
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
-  public int compareTo(NamingPrivilege o) {
+  public int compareTo(Object o) {
+    //note must compare to object or causes problems in sets with other privs
     if (o == null || (!(o instanceof NamingPrivilege))) {
       return -1;
     }

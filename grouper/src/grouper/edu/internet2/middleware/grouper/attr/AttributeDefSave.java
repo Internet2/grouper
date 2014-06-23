@@ -38,7 +38,6 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
-import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -418,6 +417,13 @@ public class AttributeDefSave {
     if (StringUtils.isBlank(this.name)) {
       this.name = this.attributeDefNameToEdit;
     }
+    
+    //get from uuid since could be a rename
+    if (StringUtils.isBlank(this.attributeDefNameToEdit) && !StringUtils.isBlank(this.id)) {
+      AttributeDef attributeDef = AttributeDefFinder.findById(this.id, true);
+      this.attributeDefNameToEdit = attributeDef.getName();
+    }
+    
     
     if (StringUtils.isBlank(this.attributeDefNameToEdit)) {
       this.attributeDefNameToEdit = this.name;

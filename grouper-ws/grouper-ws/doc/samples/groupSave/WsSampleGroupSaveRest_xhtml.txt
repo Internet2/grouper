@@ -14,10 +14,10 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
-Content-Length: 1613
+Content-Length: 1608
 Content-Type: application/xhtml+xml; charset=UTF-8
 
-<?xml version='1.0' encoding='iso-8859-1'?>
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -92,11 +92,11 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Thu, 29 May 2014 00:12:39 GMT
+Date: Wed, 18 Jun 2014 18:31:04 GMT
 Connection: close
 
-873
-<?xml version='1.0' encoding='iso-8859-1'?>
+86e
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -105,7 +105,7 @@ Connection: close
   <body>
     <div title="WsGroupSaveResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">266</p>
+        <p class="millis">704</p>
         <p class="resultWarnings" />
         <p class="serverVersion">2.2.0</p>
       </div>
@@ -133,10 +133,10 @@ wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1
             <p class="displayExtension">disp1</p>
             <p class="displayName">a stem:disp1</p>
             <p class="extension">whateverGroup</p>
-            <p class="idIndex">10025</p>
+            <p class="idIndex">10011</p>
             <p class="name">aStem:whateverGroup</p>
             <p class="typeOfGroup">group</p>
-            <p class="uuid">cf62bacd43284ea09b79817196d28b52</p>
+            <p class="uuid">9f47e03a287548528b210a01f5ad4eac</p>
           </div>
         </li>
         <li title="WsGroupSaveResult">
@@ -152,10 +152,10 @@ wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1
             <p class="displayExtension">disp2</p>
             <p class="displayName">a stem:disp2</p>
             <p class="extension">whateverGroup2</p>
-            <p class="idIndex">10026</p>
+            <p class="idIndex">10012</p>
             <p class="name">aStem:whateverGroup2</p>
             <p class="typeOfGroup">group</p>
-            <p class="uuid">ca144c3ebae84fa79142adf7e50e4ea9</p>
+            <p class="uuid">d765ecc954244e2b81bc3c85958b5cd3</p>
           </div>
         </li>
       </ul>

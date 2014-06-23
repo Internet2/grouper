@@ -194,6 +194,10 @@
                             </tr>
                           </c:if>
                           <tr>
+                            <td><strong>${textContainer.text['groupLabelIdIndex']}</strong></td>
+                            <td>${grouperRequestContainer.groupContainer.guiGroup.group.idIndex}</td>
+                          </tr>
+                          <tr>
                             <td><strong>${textContainer.text['groupLabelUuid']}</strong></td>
                             <td>${grouperRequestContainer.groupContainer.guiGroup.group.uuid}</td>
                           </tr>
