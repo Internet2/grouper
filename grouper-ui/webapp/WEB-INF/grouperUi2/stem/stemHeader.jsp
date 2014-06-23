@@ -125,8 +125,12 @@
                             <td>${grouper:subjectStringLabelShort2fromMemberId(grouperRequestContainer.stemContainer.guiStem.stem.modifierUuid)}</td>
                           </tr>
                           <tr>
+                            <td><strong>${textContainer.text['stemLabelIdIndex']}</strong></td>
+                            <td>${grouperRequestContainer.stemContainer.guiStem.stem.idIndex}</td>
+                          </tr>
+                          <tr>
                             <td><strong>${textContainer.text['stemLabelUuid'] }</strong></td>
-                            <td>${grouper:subjectStringLabelShort2fromMemberId(grouperRequestContainer.stemContainer.guiStem.stem.modifierUuid)}</td>
+                            <td>${grouperRequestContainer.stemContainer.guiStem.stem.uuid}</td>
                           </tr>
                           
                           
