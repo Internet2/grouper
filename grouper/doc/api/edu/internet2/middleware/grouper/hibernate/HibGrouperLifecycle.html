@@ -1,0 +1,316 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+HibGrouperLifecycle
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="HibGrouperLifecycle";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibUtils.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="HibGrouperLifecycle.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.hibernate</FONT>
+<BR>
+Interface HibGrouperLifecycle</H2>
+<DL>
+<DT><B>All Known Implementing Classes:</B> <DD><A HREF="../../../../../edu/internet2/middleware/grouper/Attribute.html?view=co" title="class in edu.internet2.middleware.grouper">Attribute</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignAction</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSet.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignActionSet</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValue.html?view=co" title="class in edu.internet2.middleware.grouper.attr.value">AttributeAssignValue</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefNameSet.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefNameSet</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefScope.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefScope</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditType.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditType</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogConsumer.html?view=co" title="class in edu.internet2.middleware.grouper.changeLog">ChangeLogConsumer</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html?view=co" title="class in edu.internet2.middleware.grouper.changeLog">ChangeLogEntry</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogType.html?view=co" title="class in edu.internet2.middleware.grouper.changeLog">ChangeLogType</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/Composite.html?view=co" title="class in edu.internet2.middleware.grouper">Composite</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co" title="class in edu.internet2.middleware.grouper.externalSubjects">ExternalSubject</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubjectAttribute.html?view=co" title="class in edu.internet2.middleware.grouper.externalSubjects">ExternalSubjectAttribute</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/Field.html?view=co" title="class in edu.internet2.middleware.grouper">Field</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/pit/GrouperPIT.html?view=co" title="class in edu.internet2.middleware.grouper.pit">GrouperPIT</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/group/GroupSet.html?view=co" title="class in edu.internet2.middleware.grouper.group">GroupSet</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GroupType.html?view=co" title="class in edu.internet2.middleware.grouper">GroupType</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GroupTypeTuple.html?view=co" title="class in edu.internet2.middleware.grouper">GroupTypeTuple</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperLoaderLog.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperLoaderLog</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/Membership.html?view=co" title="class in edu.internet2.middleware.grouper">Membership</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntryBase.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionEntryBase</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntryImpl.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionEntryImpl</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITAttributeAssign</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeAssignAction.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITAttributeAssignAction</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeAssignActionSet.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITAttributeAssignActionSet</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeAssignValue.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITAttributeAssignValue</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeAssignValueView.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITAttributeAssignValueView</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITAttributeDef</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITAttributeDefName</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeDefNameSet.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITAttributeDefNameSet</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/pit/PITField.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITField</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/pit/PITGroupSet.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroupSet</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/pit/PITMember.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITMember</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/pit/PITMembership.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITMembership</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/pit/PITPermissionAllView.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITPermissionAllView</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/pit/PITRoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITRoleSet</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/pit/PITStem.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITStem</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/RegistrySubject.html?view=co" title="class in edu.internet2.middleware.grouper">RegistrySubject</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/service/ServiceRoleView.html?view=co" title="class in edu.internet2.middleware.grouper.service">ServiceRoleView</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/stem/StemSet.html?view=co" title="class in edu.internet2.middleware.grouper.stem">StemSet</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/tableIndex/TableIndex.html?view=co" title="class in edu.internet2.middleware.grouper.tableIndex">TableIndex</A></DD>
+</DL>
+<HR>
+<DL>
+<DT><PRE>public interface <B>HibGrouperLifecycle</B></DL>
+</PRE>
+
+<P>
+callbacks for hib grouper lifecycle events
+<P>
+
+<P>
+<HR>
+
+<P>
+
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPostDelete</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;after a delete occurs</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPostSave</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;after a save (insert) occurs</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPostUpdate</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;after an update occurs</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreDelete</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;before a delete (insert) occurs</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreSave</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;before a save (insert) occurs</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreUpdate</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;before an update occurs</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)"><!-- --></A><H3>
+onPostUpdate</H3>
+<PRE>
+void <B>onPostUpdate</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</PRE>
+<DL>
+<DD>after an update occurs
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>hibernateSession</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)"><!-- --></A><H3>
+onPostSave</H3>
+<PRE>
+void <B>onPostSave</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</PRE>
+<DL>
+<DD>after a save (insert) occurs
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>hibernateSession</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)"><!-- --></A><H3>
+onPreUpdate</H3>
+<PRE>
+void <B>onPreUpdate</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</PRE>
+<DL>
+<DD>before an update occurs
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>hibernateSession</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)"><!-- --></A><H3>
+onPreSave</H3>
+<PRE>
+void <B>onPreSave</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</PRE>
+<DL>
+<DD>before a save (insert) occurs
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>hibernateSession</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)"><!-- --></A><H3>
+onPostDelete</H3>
+<PRE>
+void <B>onPostDelete</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</PRE>
+<DL>
+<DD>after a delete occurs
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>hibernateSession</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)"><!-- --></A><H3>
+onPreDelete</H3>
+<PRE>
+void <B>onPreDelete</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</PRE>
+<DL>
+<DD>before a delete (insert) occurs
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>hibernateSession</CODE> - </DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibUtils.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="HibGrouperLifecycle.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

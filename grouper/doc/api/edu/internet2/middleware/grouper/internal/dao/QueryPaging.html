@@ -1,0 +1,971 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+QueryPaging
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="QueryPaging";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QuerySort.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="QueryPaging.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.internal.dao</FONT>
+<BR>
+Class QueryPaging</H2>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.internal.dao.QueryPaging</B>
+</PRE>
+<HR>
+<DL>
+<DT><PRE>public class <B>QueryPaging</B><DT>extends <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></DL>
+</PRE>
+
+<P>
+<HR>
+
+<P>
+
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#QueryPaging()">QueryPaging</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#QueryPaging(int, int, boolean)">QueryPaging</A></B>(int&nbsp;pageSize1,
+            int&nbsp;pageNumber1,
+            boolean&nbsp;doTotalCount1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constructor.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#assertInitted()">assertInitted</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw exception if this bean is not initted</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#calculateIndexes()">calculateIndexes</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Based on the pageNumber, pageSize, and totalRecordCount, figure out the rest.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#getAllPages()">getAllPages</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This can be used to provide a drop down box of possible pages to skip to.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#getFirstIndexOnPage()">getFirstIndexOnPage</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return the first index on page (0 indexed), from 0
+ to the number of results</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#getLastIndexOnPage()">getLastIndexOnPage</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return the last index on page (0 indexed)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#getNumberOfPages()">getNumberOfPages</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;getter for numberOfPages: number of pages total</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#getNumberOfResultsOnPage()">getNumberOfResultsOnPage</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get the number of results on the current page</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#getPageEndIndex()">getPageEndIndex</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;getter for pageEndIndex: index (1 indexed) of the last record on the page</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#getPageNumber()">getPageNumber</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;getter for pageNumber: page number indexed by 1 (friendly)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#getPageSize()">getPageSize</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;getter for pageSize: the number of records per page</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#getPageStartIndex()">getPageStartIndex</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;getter for pageStartIndex: index of the first record on the first page, this was documented as 1 indexed, but it seems to be 0 indexed</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#getTotalOnLastPage()">getTotalOnLastPage</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;calculate the total record count on last page</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#getTotalRecordCount()">getTotalRecordCount</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;getter for totalRecordCount: total number of records in the set (you must set this before the tag is called)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#initted()">initted</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if this bean has been calculated</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#isCacheTotalCount()">isCacheTotalCount</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if we should cache the total count and not run again if already run</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#isDoTotalCount()">isDoTotalCount</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if we should do the total count when we do that actual query
+ (note, this might not always be possible in all cases, will throw an
+ exception if not possible)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#isFirstPage()">isFirstPage</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if the paging is on first page</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#isLastPage()">isLastPage</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if the paging is on last page</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#nextPageNeeded(int)">nextPageNeeded</A></B>(int&nbsp;currentPageNumber)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;based on a paging bean, and a current page, return the next page needed
+ to display (ellipses, button, or label)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryPaging</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#page(int, int, boolean)">page</A></B>(int&nbsp;pageSize,
+     int&nbsp;pageNumber,
+     boolean&nbsp;doTotalCount)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;factory for query paging</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#setCacheTotalCount(boolean)">setCacheTotalCount</A></B>(boolean&nbsp;cacheTotalCount1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if we should cache the total count and not run again if already run</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#setDoTotalCount(boolean)">setDoTotalCount</A></B>(boolean&nbsp;doTotalCount1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if we should do the total count when we do that actual query
+ (note, this might not always be possible in all cases, will throw an
+ exception if not possible)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#setFirstIndexOnPage(int)">setFirstIndexOnPage</A></B>(int&nbsp;startIndex)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ set the first index on the page, 0 indexed
+ 0 -> 1, pageSize -> 2, 2*pageSize -> 3</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#setNumberOfPages(int)">setNumberOfPages</A></B>(int&nbsp;_numberOfPages)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setter for numberOfPages: number of pages total</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#setPageEndIndex(int)">setPageEndIndex</A></B>(int&nbsp;_pageEndIndex)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setter for pageEndIndex: index (1 indexed) of the last record on the page</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#setPageNumber(int)">setPageNumber</A></B>(int&nbsp;_pageNumber)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pageNumber: page number indexed by 1 (friendly)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#setPageSize(int)">setPageSize</A></B>(int&nbsp;_pageSize)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setter for pageSize: the number of records per page</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#setPageStartIndex(int)">setPageStartIndex</A></B>(int&nbsp;_pageStartIndex)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setter for pageStartIndex: index of the first record on the first page, this was documented as 1 indexed, but it seems to be 0 indexed</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#setPageStartIndexQueryByIndex(int)">setPageStartIndexQueryByIndex</A></B>(int&nbsp;startIndex)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ set the first index on the page, 0 indexed, dont use pages to query...</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#setTotalRecordCount(int)">setTotalRecordCount</A></B>(int&nbsp;_totalRecordCount)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setter for totalRecordCount: total number of records in the set (you must set this before the tag is called)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#shouldPage()">shouldPage</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if we should page</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co#toString()">toString</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">equals</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">hashCode</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="QueryPaging()"><!-- --></A><H3>
+QueryPaging</H3>
+<PRE>
+public <B>QueryPaging</B>()</PRE>
+<DL>
+</DL>
+<HR>
+
+<A NAME="QueryPaging(int, int, boolean)"><!-- --></A><H3>
+QueryPaging</H3>
+<PRE>
+public <B>QueryPaging</B>(int&nbsp;pageSize1,
+                   int&nbsp;pageNumber1,
+                   boolean&nbsp;doTotalCount1)</PRE>
+<DL>
+<DD>constructor.  NOTE, THIS IS 1 INDEXED ON PAGE NUMBER
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>pageSize1</CODE> - number of records per page<DD><CODE>pageNumber1</CODE> - 1 indexed page number to show<DD><CODE>doTotalCount1</CODE> - if hibernate session should do a total count and
+ calculate indexes when doing the query</DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="getNumberOfPages()"><!-- --></A><H3>
+getNumberOfPages</H3>
+<PRE>
+public int <B>getNumberOfPages</B>()</PRE>
+<DL>
+<DD>getter for numberOfPages: number of pages total
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the value of the field</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getPageEndIndex()"><!-- --></A><H3>
+getPageEndIndex</H3>
+<PRE>
+public int <B>getPageEndIndex</B>()</PRE>
+<DL>
+<DD>getter for pageEndIndex: index (1 indexed) of the last record on the page
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the value of the field</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getPageNumber()"><!-- --></A><H3>
+getPageNumber</H3>
+<PRE>
+public int <B>getPageNumber</B>()</PRE>
+<DL>
+<DD>getter for pageNumber: page number indexed by 1 (friendly)
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the value of the field</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getPageSize()"><!-- --></A><H3>
+getPageSize</H3>
+<PRE>
+public int <B>getPageSize</B>()</PRE>
+<DL>
+<DD>getter for pageSize: the number of records per page
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the value of the field</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getPageStartIndex()"><!-- --></A><H3>
+getPageStartIndex</H3>
+<PRE>
+public int <B>getPageStartIndex</B>()</PRE>
+<DL>
+<DD>getter for pageStartIndex: index of the first record on the first page, this was documented as 1 indexed, but it seems to be 0 indexed
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the value of the field</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getTotalRecordCount()"><!-- --></A><H3>
+getTotalRecordCount</H3>
+<PRE>
+public int <B>getTotalRecordCount</B>()</PRE>
+<DL>
+<DD>getter for totalRecordCount: total number of records in the set (you must set this before the tag is called)
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the value of the field</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setNumberOfPages(int)"><!-- --></A><H3>
+setNumberOfPages</H3>
+<PRE>
+public void <B>setNumberOfPages</B>(int&nbsp;_numberOfPages)</PRE>
+<DL>
+<DD>setter for numberOfPages: number of pages total
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>_numberOfPages</CODE> - is the data to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setPageEndIndex(int)"><!-- --></A><H3>
+setPageEndIndex</H3>
+<PRE>
+public void <B>setPageEndIndex</B>(int&nbsp;_pageEndIndex)</PRE>
+<DL>
+<DD>setter for pageEndIndex: index (1 indexed) of the last record on the page
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>_pageEndIndex</CODE> - is the data to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setPageSize(int)"><!-- --></A><H3>
+setPageSize</H3>
+<PRE>
+public void <B>setPageSize</B>(int&nbsp;_pageSize)</PRE>
+<DL>
+<DD>setter for pageSize: the number of records per page
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>_pageSize</CODE> - is the data to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setPageStartIndex(int)"><!-- --></A><H3>
+setPageStartIndex</H3>
+<PRE>
+public void <B>setPageStartIndex</B>(int&nbsp;_pageStartIndex)</PRE>
+<DL>
+<DD>setter for pageStartIndex: index of the first record on the first page, this was documented as 1 indexed, but it seems to be 0 indexed
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>_pageStartIndex</CODE> - is the data to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setPageStartIndexQueryByIndex(int)"><!-- --></A><H3>
+setPageStartIndexQueryByIndex</H3>
+<PRE>
+public void <B>setPageStartIndexQueryByIndex</B>(int&nbsp;startIndex)</PRE>
+<DL>
+<DD><pre>
+ set the first index on the page, 0 indexed, dont use pages to query...
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>startIndex</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setTotalRecordCount(int)"><!-- --></A><H3>
+setTotalRecordCount</H3>
+<PRE>
+public void <B>setTotalRecordCount</B>(int&nbsp;_totalRecordCount)</PRE>
+<DL>
+<DD>setter for totalRecordCount: total number of records in the set (you must set this before the tag is called)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>_totalRecordCount</CODE> - is the data to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assertInitted()"><!-- --></A><H3>
+assertInitted</H3>
+<PRE>
+public void <B>assertInitted</B>()</PRE>
+<DL>
+<DD>throw exception if this bean is not initted
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="calculateIndexes()"><!-- --></A><H3>
+calculateIndexes</H3>
+<PRE>
+public void <B>calculateIndexes</B>()</PRE>
+<DL>
+<DD>Based on the pageNumber, pageSize, and totalRecordCount, figure out the rest.
+ Pretty much everything is friendly / oracle indexed (by 1)
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAllPages()"><!-- --></A><H3>
+getAllPages</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&gt; <B>getAllPages</B>()</PRE>
+<DL>
+<DD>This can be used to provide a drop down box of possible pages to skip to.  This 
+ is helpful for example if there are 30 pages and you want page 15, normally this
+ would require numerous clicks before page 15 is displayed as a choice.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>a list of all the valid page numbers that could be referred to</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getFirstIndexOnPage()"><!-- --></A><H3>
+getFirstIndexOnPage</H3>
+<PRE>
+public int <B>getFirstIndexOnPage</B>()</PRE>
+<DL>
+<DD>return the first index on page (0 indexed), from 0
+ to the number of results
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the first index on page 0 indexed</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setFirstIndexOnPage(int)"><!-- --></A><H3>
+setFirstIndexOnPage</H3>
+<PRE>
+public void <B>setFirstIndexOnPage</B>(int&nbsp;startIndex)</PRE>
+<DL>
+<DD><pre>
+ set the first index on the page, 0 indexed
+ 0 -> 1, pageSize -> 2, 2*pageSize -> 3
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>startIndex</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLastIndexOnPage()"><!-- --></A><H3>
+getLastIndexOnPage</H3>
+<PRE>
+public int <B>getLastIndexOnPage</B>()</PRE>
+<DL>
+<DD>return the last index on page (0 indexed)
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the last index on page 0 indexed</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getNumberOfResultsOnPage()"><!-- --></A><H3>
+getNumberOfResultsOnPage</H3>
+<PRE>
+public int <B>getNumberOfResultsOnPage</B>()</PRE>
+<DL>
+<DD>Get the number of results on the current page
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>number of results on current page</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getTotalOnLastPage()"><!-- --></A><H3>
+getTotalOnLastPage</H3>
+<PRE>
+public int <B>getTotalOnLastPage</B>()</PRE>
+<DL>
+<DD>calculate the total record count on last page
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>total records on last page</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="initted()"><!-- --></A><H3>
+initted</H3>
+<PRE>
+public boolean <B>initted</B>()</PRE>
+<DL>
+<DD>see if this bean has been calculated
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>true if initted</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isFirstPage()"><!-- --></A><H3>
+isFirstPage</H3>
+<PRE>
+public boolean <B>isFirstPage</B>()</PRE>
+<DL>
+<DD>see if the paging is on first page
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>true if first page</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isLastPage()"><!-- --></A><H3>
+isLastPage</H3>
+<PRE>
+public boolean <B>isLastPage</B>()</PRE>
+<DL>
+<DD>see if the paging is on last page
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>true if last page</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="nextPageNeeded(int)"><!-- --></A><H3>
+nextPageNeeded</H3>
+<PRE>
+public int <B>nextPageNeeded</B>(int&nbsp;currentPageNumber)</PRE>
+<DL>
+<DD>based on a paging bean, and a current page, return the next page needed
+ to display (ellipses, button, or label)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>currentPageNumber</CODE> - 
+<DT><B>Returns:</B><DD>the next page number which is relevant</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setPageNumber(int)"><!-- --></A><H3>
+setPageNumber</H3>
+<PRE>
+public void <B>setPageNumber</B>(int&nbsp;_pageNumber)</PRE>
+<DL>
+<DD>pageNumber: page number indexed by 1 (friendly)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>_pageNumber</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="shouldPage()"><!-- --></A><H3>
+shouldPage</H3>
+<PRE>
+public boolean <B>shouldPage</B>()</PRE>
+<DL>
+<DD>if we should page
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>if should page</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="page(int, int, boolean)"><!-- --></A><H3>
+page</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryPaging</A> <B>page</B>(int&nbsp;pageSize,
+                               int&nbsp;pageNumber,
+                               boolean&nbsp;doTotalCount)</PRE>
+<DL>
+<DD>factory for query paging
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>pageSize</CODE> - <DD><CODE>pageNumber</CODE> - 1 indexed page number<DD><CODE>doTotalCount</CODE> - true to do total count, false to not
+<DT><B>Returns:</B><DD>the query paging</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="toString()"><!-- --></A><H3>
+toString</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>toString</B>()</PRE>
+<DL>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A></CODE> in class <CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang"><CODE>Object.toString()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isDoTotalCount()"><!-- --></A><H3>
+isDoTotalCount</H3>
+<PRE>
+public boolean <B>isDoTotalCount</B>()</PRE>
+<DL>
+<DD>if we should do the total count when we do that actual query
+ (note, this might not always be possible in all cases, will throw an
+ exception if not possible)
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>true if we should do a total count</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setDoTotalCount(boolean)"><!-- --></A><H3>
+setDoTotalCount</H3>
+<PRE>
+public void <B>setDoTotalCount</B>(boolean&nbsp;doTotalCount1)</PRE>
+<DL>
+<DD>if we should do the total count when we do that actual query
+ (note, this might not always be possible in all cases, will throw an
+ exception if not possible)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>doTotalCount1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isCacheTotalCount()"><!-- --></A><H3>
+isCacheTotalCount</H3>
+<PRE>
+public boolean <B>isCacheTotalCount</B>()</PRE>
+<DL>
+<DD>if we should cache the total count and not run again if already run
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>if we should cache the total count</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setCacheTotalCount(boolean)"><!-- --></A><H3>
+setCacheTotalCount</H3>
+<PRE>
+public void <B>setCacheTotalCount</B>(boolean&nbsp;cacheTotalCount1)</PRE>
+<DL>
+<DD>if we should cache the total count and not run again if already run
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>cacheTotalCount1</CODE> - </DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QuerySort.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="QueryPaging.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

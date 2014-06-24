@@ -1,0 +1,371 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+XmlImportableBase
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="XmlImportableBase";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportable.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableMultiple.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="XmlImportableBase.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.xml.export</FONT>
+<BR>
+Interface XmlImportableBase&lt;T&gt;</H2>
+<DL>
+<DT><DT><B>Type Parameters:</B><DD><CODE>T</CODE> - is the type of the object</DL>
+<DL>
+<DT><B>All Known Subinterfaces:</B> <DD><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportable.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportable</A>&lt;T&gt;, <A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableMultiple.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportableMultiple</A>&lt;T&gt;</DD>
+</DL>
+<DL>
+<DT><B>All Known Implementing Classes:</B> <DD><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignAction</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSet.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignActionSet</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValue.html?view=co" title="class in edu.internet2.middleware.grouper.attr.value">AttributeAssignValue</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefNameSet.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefNameSet</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefScope.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefScope</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/audit/AuditType.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditType</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/Composite.html?view=co" title="class in edu.internet2.middleware.grouper">Composite</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/Field.html?view=co" title="class in edu.internet2.middleware.grouper">Field</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/Membership.html?view=co" title="class in edu.internet2.middleware.grouper">Membership</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A></DD>
+</DL>
+<HR>
+<DL>
+<DT><PRE>public interface <B>XmlImportableBase&lt;T&gt;</B></DL>
+</PRE>
+
+<P>
+Hibernated object which can be imported into
+<P>
+
+<P>
+<HR>
+
+<P>
+
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlCopyBusinessPropertiesToExisting(T)">xmlCopyBusinessPropertiesToExisting</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="type parameter in XmlImportableBase">T</A>&nbsp;existingRecord)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;copy business (non update) properties to an existing record</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlDifferentBusinessProperties(T)">xmlDifferentBusinessProperties</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="type parameter in XmlImportableBase">T</A>&nbsp;other)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if the non update cols are different (e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlDifferentUpdateProperties(T)">xmlDifferentUpdateProperties</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="type parameter in XmlImportableBase">T</A>&nbsp;other)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if the update cols are different (e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlGetId()">xmlGetId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set id key in db</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="type parameter in XmlImportableBase">T</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlSaveBusinessProperties(T)">xmlSaveBusinessProperties</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="type parameter in XmlImportableBase">T</A>&nbsp;existingRecord)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;save the business properties (not update properties)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlSaveUpdateProperties()">xmlSaveUpdateProperties</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;save the udpate properties (e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlSetId(java.lang.String)">xmlSetId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set id key in db</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlToString()">xmlToString</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert to string for log</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="xmlToString()"><!-- --></A><H3>
+xmlToString</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>xmlToString</B>()</PRE>
+<DL>
+<DD>convert to string for log
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the string value for log</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlDifferentUpdateProperties(java.lang.Object)"><!-- --></A><A NAME="xmlDifferentUpdateProperties(T)"><!-- --></A><H3>
+xmlDifferentUpdateProperties</H3>
+<PRE>
+boolean <B>xmlDifferentUpdateProperties</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="type parameter in XmlImportableBase">T</A>&nbsp;other)</PRE>
+<DL>
+<DD>see if the update cols are different (e.g. last updated)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>other</CODE> - the one to compare with
+<DT><B>Returns:</B><DD>true if so</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlDifferentBusinessProperties(java.lang.Object)"><!-- --></A><A NAME="xmlDifferentBusinessProperties(T)"><!-- --></A><H3>
+xmlDifferentBusinessProperties</H3>
+<PRE>
+boolean <B>xmlDifferentBusinessProperties</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="type parameter in XmlImportableBase">T</A>&nbsp;other)</PRE>
+<DL>
+<DD>see if the non update cols are different (e.g. name)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>other</CODE> - the one to compare with
+<DT><B>Returns:</B><DD>true if so</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlSaveBusinessProperties(java.lang.Object)"><!-- --></A><A NAME="xmlSaveBusinessProperties(T)"><!-- --></A><H3>
+xmlSaveBusinessProperties</H3>
+<PRE>
+<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="type parameter in XmlImportableBase">T</A> <B>xmlSaveBusinessProperties</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="type parameter in XmlImportableBase">T</A>&nbsp;existingRecord)</PRE>
+<DL>
+<DD>save the business properties (not update properties)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>existingRecord</CODE> - null if insert, the object if exists in DB
+ generally just copy the hibernate version number, and last updated to the
+ object and store it
+<DT><B>Returns:</B><DD>the new object or existing</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlSaveUpdateProperties()"><!-- --></A><H3>
+xmlSaveUpdateProperties</H3>
+<PRE>
+void <B>xmlSaveUpdateProperties</B>()</PRE>
+<DL>
+<DD>save the udpate properties (e.g. last updated).  Note, this is
+ done with a sql update statement, not with hibernate
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlCopyBusinessPropertiesToExisting(java.lang.Object)"><!-- --></A><A NAME="xmlCopyBusinessPropertiesToExisting(T)"><!-- --></A><H3>
+xmlCopyBusinessPropertiesToExisting</H3>
+<PRE>
+void <B>xmlCopyBusinessPropertiesToExisting</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="type parameter in XmlImportableBase">T</A>&nbsp;existingRecord)</PRE>
+<DL>
+<DD>copy business (non update) properties to an existing record
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>existingRecord</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlGetId()"><!-- --></A><H3>
+xmlGetId</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>xmlGetId</B>()</PRE>
+<DL>
+<DD>set id key in db
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>id</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlSetId(java.lang.String)"><!-- --></A><H3>
+xmlSetId</H3>
+<PRE>
+void <B>xmlSetId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theId)</PRE>
+<DL>
+<DD>set id key in db
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theId</CODE> - </DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportable.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableMultiple.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="XmlImportableBase.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

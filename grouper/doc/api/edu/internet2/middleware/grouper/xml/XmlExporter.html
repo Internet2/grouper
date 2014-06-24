@@ -1,0 +1,663 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+XmlExporter
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="XmlExporter";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlArgs.html?view=co" title="class in edu.internet2.middleware.grouper.xml"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html?view=co" title="class in edu.internet2.middleware.grouper.xml"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="XmlExporter.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.xml</FONT>
+<BR>
+Class XmlExporter</H2>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.xml.XmlExporter</B>
+</PRE>
+<HR>
+<DL>
+<DT><PRE>public class <B>XmlExporter</B><DT>extends <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></DL>
+</PRE>
+
+<P>
+Utility class for exporting data from the Groups Registry in XML format.
+ <p>
+ This class can export all-or-port of a Groups Registry as a stem/group
+ hierarchy.  Alternatively, collections of <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Stem</CODE></A>s, <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Group</CODE></A>s,
+ <CODE>Subject</CODE>s or <A HREF="../../../../../edu/internet2/middleware/grouper/Membership.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Membership</CODE></A>s may be exported.
+ </p>
+ <p>
+ Exported stem and group data may be imported, as is, or with modifications,
+ into the same repository or into another repository. See <A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html?view=co" title="class in edu.internet2.middleware.grouper.xml"><CODE>XmlImporter</CODE></A>.
+ </p>
+ <p><b>The API for this class will change in future Grouper releases.</b></p>
+<P>
+
+<P>
+<DL>
+<DT><B>Since:</B></DT>
+  <DD>1.0</DD>
+<DT><B>Version:</B></DT>
+  <DD>$Id: XmlExporter.java,v 1.17 2009-12-07 07:31:09 mchyzer Exp $</DD>
+<DT><B>Author:</B></DT>
+  <DD>Gary Brown., blair christensen.</DD>
+</DL>
+<HR>
+
+<P>
+
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlExporter.html?view=co#XmlExporter(edu.internet2.middleware.grouper.GrouperSession, java.util.Properties)">XmlExporter</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Properties.html?view=co" title="class or interface in java.util">Properties</A>&nbsp;userOptions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Export the Groups Registry to XML.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlExporter.html?view=co#export(java.io.Writer)">export</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Exports data for the entire repository
+ <p/></TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlExporter.html?view=co#export(java.io.Writer, java.util.Collection, java.lang.String)">export</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
+       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&nbsp;items,
+       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;msg)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Export a Collection of Stems, Groups, Members, Subjects or Memberships.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlExporter.html?view=co#export(java.io.Writer, edu.internet2.middleware.grouper.Group, boolean, boolean)">export</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
+       <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g,
+       boolean&nbsp;relative,
+       boolean&nbsp;includeParent)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Export a single group.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlExporter.html?view=co#export(java.io.Writer, edu.internet2.middleware.grouper.Stem, boolean)">export</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
+       <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ns,
+       boolean&nbsp;relative)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Export a single stem.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlExporter.html?view=co#export(java.io.Writer, edu.internet2.middleware.grouper.Stem, boolean, boolean)">export</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
+       <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ns,
+       boolean&nbsp;relative,
+       boolean&nbsp;childrenOnly)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Export a single stem.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Properties.html?view=co" title="class or interface in java.util">Properties</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlExporter.html?view=co#internal_getOptions()">internal_getOptions</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlExporter.html?view=co#internal_groupToXML(edu.internet2.middleware.grouper.Group, boolean)">internal_groupToXML</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g,
+                    boolean&nbsp;writeAbsoluteName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Return a <i>String</i> containing a <i>Group</i> as XML.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlExporter.html?view=co#internal_membershipToXML(edu.internet2.middleware.grouper.Membership)">internal_membershipToXML</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Membership.html?view=co" title="class in edu.internet2.middleware.grouper">Membership</A>&nbsp;ms)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Return a <i>String</i> containing a <i>Membership</i> as XML.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlExporter.html?view=co#internal_subjectToXML(edu.internet2.middleware.subject.Subject, java.lang.String)">internal_subjectToXML</A></B>(edu.internet2.middleware.subject.Subject&nbsp;subj,
+                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;immediate)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Return a <i>String</i> containing a <i>Subject</i> as XML.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlExporter.html?view=co#main(java.lang.String[])">main</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>[]&nbsp;args)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Export Groups Registry to XML output.</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">equals</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">hashCode</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="XmlExporter(edu.internet2.middleware.grouper.GrouperSession, java.util.Properties)"><!-- --></A><H3>
+XmlExporter</H3>
+<PRE>
+public <B>XmlExporter</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Properties.html?view=co" title="class or interface in java.util">Properties</A>&nbsp;userOptions)
+            throws <A HREF="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GrouperException</A></PRE>
+<DL>
+<DD>Export the Groups Registry to XML.
+ <p>
+ The export process is configured using the follow properties.
+ </p>
+ <table width="90%" border="1">
+ <tr>
+ <td>Key</td>
+ <td>Values</td>
+ <td>Default Value</td>
+ <td>Description</td>
+ </tr>
+ <tr>
+ <td>export.metadata</td>
+ <td>true/false</td>
+ <td>true</td>
+ <td>If true Group type and field information as well as Subject sources will be exported.</td>
+ </tr>
+ <tr>
+ <td>export.data</td>
+ <td>true/false</td>
+ <td>true</td>
+ <td>If true data will be exported.</td>
+ </tr>
+ <tr>
+ <td>export.privs.naming</td>
+ <td>true/false</td>
+ <td>true</td>
+ <td>If true naming privileges will be exported along with Stems.</td>
+ </tr>
+ <tr>
+ <td>export.privs.access</td>
+ <td>true/false</td>
+ <td>true</td>
+ <td>If true access privileges will be exported along with Groups.</td>
+ </tr>
+ <tr>
+ <td>export.privs.immediate-only</td>
+ <td>true/false</td>
+ <td>false</td>
+ <td>If true only directly granted privileges will be exported.</td>
+ </tr>
+ <tr>
+ <td>export.group.members</td>
+ <td>true/false</td>
+ <td>true</td>
+ <td>If true group memberships are exported.</td>
+ </tr>
+ <tr>
+ <td>export.group.members.immediate-only</td>
+ <td>true/false</td>
+ <td>true</td>
+ <td>If true only immediate group memberships will be exported.</td>
+ </tr>
+ <tr>
+ <td>export.group.lists</td>
+ <td>true/false</td>
+ <td>true</td>
+ <td>If true custom list attributes will be exported.</td>
+ </tr>
+ <tr>
+ <td>export.group.lists.immediate-only</td>
+ <td>true/false</td>
+ <td>true</td>
+ <td>If true only immediate list members will be exported.</td>
+ </tr>
+ <tr>
+ <td>export.uuids</td>
+ <td>true/false</td>
+ <td>true</td>
+ <td>If true group and stem uuids will be exported</td>
+ </tr>
+ <tr>
+ <td>export.group.internal-attributes</td>
+ <td>true/false</td>
+ <td>true</td>
+ <td>If true system-maintained Group attributes (eg. <tt>modifyDate</tt>) will be exported.</td>
+ </tr>
+ <tr>
+ <td>export.group.custom-attributes</td>
+ <td>true/false</td>
+ <td>true</td>
+ <td>If true custom attributes will be exported.</td>
+ </tr>
+ <tr>
+ <td>export.stem.internal-attributes</td>
+ <td>true/false</td>
+ <td>true</td>
+ <td>If true system-maintained Stem attributes (eg. <tt>modifyDate</tt>) will be exported.</td>
+ </tr>
+ <tr>
+ <td>export.privs.for-parents</td>
+ <td>true/false</td>
+ <td>false</td>
+ <td>If true and only exporting a partial hierarchy then privileges for parent stems will be exported.</td>
+ </tr>
+ <tr>
+ <td>export.data.fail-on-unresolvable-subject</td>
+ <td>true/false</td>
+ <td>false</td>
+ <td>If true and there is a problem resolving a subject attribute abort.</td>
+ </tr>
+ <tr>
+ <td>export.subject-attributes.source.&lt;source name&gt;.&lt;subject type&gt;</td>
+ <td>Space separated list of attribute names</td>
+ <td>?</td>
+ <td>Specifices any attributes that should be exported with a Subject given the specified Source and Subject Type.</td>
+ </tr>
+ <tr>
+ <td>export.subject-attributes.source.&lt;source name&gt;</td>
+ <td>Space separated list of attribute names</td>
+ <td>?</td>
+ <td>Specifies any attributes that should be exported with a Subject given the specified Source.</td>
+ </tr>
+ <tr>
+ <td>export.subject-attributes.type.&lt;subject type&gt;</td>
+ <td>Space separated list of attribute names</td>
+ <td>?</td>
+ <td>Specifies any attributes that should be exported with a Subject given the Subject Type.</td>
+ </tr>
+ </table>
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - Perform export within this session.<DD><CODE>userOptions</CODE> - User-specified configuration parameters.
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GrouperException</A></CODE><DT><B>Since:</B></DT>
+  <DD>1.1.0</DD>
+</DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="main(java.lang.String[])"><!-- --></A><H3>
+main</H3>
+<PRE>
+public static void <B>main</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>[]&nbsp;args)</PRE>
+<DL>
+<DD>Export Groups Registry to XML output.
+ <p/>
+<P>
+<DD><DL>
+<DT><B>Since:</B></DT>
+  <DD>1.1.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="export(java.io.Writer)"><!-- --></A><H3>
+export</H3>
+<PRE>
+public void <B>export</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer)
+            throws <A HREF="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GrouperException</A></PRE>
+<DL>
+<DD>Exports data for the entire repository
+ <p/>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>writer</CODE> - Write XML here.
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GrouperException</A></CODE><DT><B>Since:</B></DT>
+  <DD>1.1.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="export(java.io.Writer, edu.internet2.middleware.grouper.Group, boolean, boolean)"><!-- --></A><H3>
+export</H3>
+<PRE>
+public void <B>export</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
+                   <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g,
+                   boolean&nbsp;relative,
+                   boolean&nbsp;includeParent)
+            throws <A HREF="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GrouperException</A></PRE>
+<DL>
+<DD>Export a single group.
+ <p/>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>writer</CODE> - Write XML here.<DD><CODE>g</CODE> - Export this group.<DD><CODE>relative</CODE> - If true export in a format suitable for relocating within the Groups Registry.<DD><CODE>includeParent</CODE> - Include parent stem in export.
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GrouperException</A></CODE><DT><B>Since:</B></DT>
+  <DD>1.1.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="export(java.io.Writer, edu.internet2.middleware.grouper.Stem, boolean)"><!-- --></A><H3>
+export</H3>
+<PRE>
+public void <B>export</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
+                   <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ns,
+                   boolean&nbsp;relative)
+            throws <A HREF="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GrouperException</A></PRE>
+<DL>
+<DD>Export a single stem.
+ <p/>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>writer</CODE> - Write XML here.<DD><CODE>ns</CODE> - Export this stem.<DD><CODE>relative</CODE> - If true export in a format suitable for relocating within the Groups Registry.
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GrouperException</A></CODE><DT><B>Since:</B></DT>
+  <DD>1.1.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="export(java.io.Writer, edu.internet2.middleware.grouper.Stem, boolean, boolean)"><!-- --></A><H3>
+export</H3>
+<PRE>
+public void <B>export</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
+                   <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ns,
+                   boolean&nbsp;relative,
+                   boolean&nbsp;childrenOnly)
+            throws <A HREF="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GrouperException</A></PRE>
+<DL>
+<DD>Export a single stem.
+ <p/>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>writer</CODE> - Write XML here.<DD><CODE>ns</CODE> - Export this stem.<DD><CODE>relative</CODE> - If true export in a format suitable for relocating within the Groups Registry.<DD><CODE>childrenOnly</CODE> - If true omit the actual stem and only export child stems/groups
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GrouperException</A></CODE><DT><B>Since:</B></DT>
+  <DD>1.4.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="export(java.io.Writer, java.util.Collection, java.lang.String)"><!-- --></A><H3>
+export</H3>
+<PRE>
+public void <B>export</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Writer.html?view=co" title="class or interface in java.io">Writer</A>&nbsp;writer,
+                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&nbsp;items,
+                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;msg)
+            throws <A HREF="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GrouperException</A></PRE>
+<DL>
+<DD>Export a Collection of Stems, Groups, Members, Subjects or Memberships.
+ <p>
+ <b>NOTE:</b> <tt>XmlImporter</tt> cannot currently import the XML generated
+ by this method.
+ </p>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>writer</CODE> - Write XML here.<DD><CODE>items</CODE> - Collection to export.<DD><CODE>msg</CODE> - Comment to indicate how collection was generated.
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GrouperException</A></CODE><DT><B>Since:</B></DT>
+  <DD>1.1.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="internal_getOptions()"><!-- --></A><H3>
+internal_getOptions</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Properties.html?view=co" title="class or interface in java.util">Properties</A> <B>internal_getOptions</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="internal_groupToXML(edu.internet2.middleware.grouper.Group, boolean)"><!-- --></A><H3>
+internal_groupToXML</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>internal_groupToXML</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g,
+                                  boolean&nbsp;writeAbsoluteName)</PRE>
+<DL>
+<DD>Return a <i>String</i> containing a <i>Group</i> as XML.
+<P>
+<DD><DL>
+<DT><B>Since:</B></DT>
+  <DD>1.2.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="internal_membershipToXML(edu.internet2.middleware.grouper.Membership)"><!-- --></A><H3>
+internal_membershipToXML</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>internal_membershipToXML</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Membership.html?view=co" title="class in edu.internet2.middleware.grouper">Membership</A>&nbsp;ms)
+                                throws <A HREF="../../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A>,
+                                       <A HREF="../../../../../edu/internet2/middleware/grouper/exception/MemberNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotFoundException</A>,
+                                       edu.internet2.middleware.subject.SubjectNotFoundException</PRE>
+<DL>
+<DD>Return a <i>String</i> containing a <i>Membership</i> as XML.
+<P>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A></CODE>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/MemberNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotFoundException</A></CODE>
+<DD><CODE>edu.internet2.middleware.subject.SubjectNotFoundException</CODE><DT><B>Since:</B></DT>
+  <DD>1.2.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="internal_subjectToXML(edu.internet2.middleware.subject.Subject, java.lang.String)"><!-- --></A><H3>
+internal_subjectToXML</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>internal_subjectToXML</B>(edu.internet2.middleware.subject.Subject&nbsp;subj,
+                                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;immediate)</PRE>
+<DL>
+<DD>Return a <i>String</i> containing a <i>Subject</i> as XML.
+<P>
+<DD><DL>
+<DT><B>Since:</B></DT>
+  <DD>1.2.0</DD>
+</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlArgs.html?view=co" title="class in edu.internet2.middleware.grouper.xml"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html?view=co" title="class in edu.internet2.middleware.grouper.xml"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="XmlExporter.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

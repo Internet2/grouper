@@ -1,0 +1,1183 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+GroupFinder
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="GroupFinder";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co" title="class in edu.internet2.middleware.grouper"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupMove.html?view=co" title="class in edu.internet2.middleware.grouper"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="GroupFinder.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper</FONT>
+<BR>
+Class GroupFinder</H2>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.GroupFinder</B>
+</PRE>
+<HR>
+<DL>
+<DT><PRE>public class <B>GroupFinder</B><DT>extends <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></DL>
+</PRE>
+
+<P>
+Find groups within the Groups Registry.
+ <p/>
+<P>
+
+<P>
+<DL>
+<DT><B>Version:</B></DT>
+  <DD>$Id: GroupFinder.java,v 1.62 2009-11-17 02:52:29 mchyzer Exp $</DD>
+<DT><B>Author:</B></DT>
+  <DD>blair christensen.</DD>
+</DL>
+<HR>
+
+<P>
+
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#GroupFinder()">GroupFinder</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;default constructor</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#addGroupId(java.lang.String)">addGroupId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a group id to search for</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#addGroupName(java.lang.String)">addGroupName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a group name to search for</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#addPrivilege(edu.internet2.middleware.grouper.privs.Privilege)">addPrivilege</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a privilege to filter by that the subject has on the group</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#addTypeOfGroup(edu.internet2.middleware.grouper.group.TypeOfGroup)">addTypeOfGroup</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&nbsp;typeOfGroup)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#assignCompositeOwner(java.lang.Boolean)">assignCompositeOwner</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;theCompositeOwner)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if we are filtering for groups which are composite owners or not</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#assignField(edu.internet2.middleware.grouper.Field)">assignField</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/Field.html?view=co" title="class in edu.internet2.middleware.grouper">Field</A>&nbsp;theField)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;field to look for if searching for memberships in groups</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#assignFieldName(java.lang.String)">assignFieldName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theFieldName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;field name to look for if searching for memberships in groups</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#assignFindByUuidOrName(boolean)">assignFindByUuidOrName</A></B>(boolean&nbsp;theFindByUuidOrName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if we are looking up a group, only look by uuid or name</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#assignGroupIds(java.util.Collection)">assignGroupIds</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;theGroupIds)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assign group ids to search for</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#assignGroupNames(java.util.Collection)">assignGroupNames</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;theGroupNames)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assign group names to search for</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#assignMembershipsForSubject(boolean)">assignMembershipsForSubject</A></B>(boolean&nbsp;membershipsForSubject1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is true, or there is a field assigned, then get memberships for a subject</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#assignParentStemId(java.lang.String)">assignParentStemId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theParentStemId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;parent or ancestor stem of the group</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#assignPrivileges(java.util.Set)">assignPrivileges</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;theGroups)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assign privileges to filter by that the subject has on the group</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#assignQueryOptions(edu.internet2.middleware.grouper.internal.dao.QueryOptions)">assignQueryOptions</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;theQueryOptions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if sorting, paging, caching, etc</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#assignScope(java.lang.String)">assignScope</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theScope)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;scope to look for groups  Wildcards will be appended or percent is the wildcard</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#assignSplitScope(boolean)">assignSplitScope</A></B>(boolean&nbsp;theSplitScope)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if the scope has spaces in it, then split by whitespace, and find results that contain all of the scope strings</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#assignStemScope(edu.internet2.middleware.grouper.Stem.Scope)">assignStemScope</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;theStemScope)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if passing in a stem, this is the stem scope...</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#assignSubject(edu.internet2.middleware.subject.Subject)">assignSubject</A></B>(edu.internet2.middleware.subject.Subject&nbsp;theSubject)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this is the subject that has certain memberships in the query</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#assignSubjectNotInGroup(edu.internet2.middleware.subject.Subject)">assignSubjectNotInGroup</A></B>(edu.internet2.middleware.subject.Subject&nbsp;theSubjectNotInGroup)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assign a subject which does not have a membership in the group</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#assignTypeOfGroups(java.util.Set)">assignTypeOfGroups</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt;&nbsp;theTypeOfGroups)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#findAllByAttribute(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, java.lang.String)">findAllByAttribute</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attr,
+                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;val)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Find <tt>Group</tt>s by attribute value.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#findAllByType(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.GroupType)">findAllByType</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+              <A HREF="../../../../edu/internet2/middleware/grouper/GroupType.html?view=co" title="class in edu.internet2.middleware.grouper">GroupType</A>&nbsp;type)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Find all groups within the registry by their <A HREF="../../../../edu/internet2/middleware/grouper/GroupType.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>GroupType</CODE></A>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#findByAlternateName(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, boolean)">findByAlternateName</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+                    boolean&nbsp;exceptionIfNotFound)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Find a group within the registry by its alternate name.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#findByAttribute(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, java.lang.String)">findByAttribute</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attr,
+                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;val)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>Deprecated.</B>&nbsp;<I>use the overload</I></TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#findByAttribute(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, java.lang.String, boolean)">findByAttribute</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attr,
+                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;val,
+                boolean&nbsp;exceptionOnNull)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Find <tt>Group</tt> by attribute value.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#findByCurrentName(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, boolean)">findByCurrentName</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+                  boolean&nbsp;exceptionIfNotFound)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Find a group within the registry by its current name.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#findByIdIndexSecure(java.lang.Long, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)">findByIdIndexSecure</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;idIndex,
+                    boolean&nbsp;exceptionIfNotFound,
+                    <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Find a group within the registry by ID index.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#findByName(edu.internet2.middleware.grouper.GrouperSession, java.lang.String)">findByName</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>Deprecated.</B>&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#findByName(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, boolean)">findByName</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+           boolean&nbsp;exceptionIfNotFound)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Find a group within the registry by name.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#findByName(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)">findByName</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+           boolean&nbsp;exceptionIfNotFound,
+           <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Find a group within the registry by name.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#findByUuid(edu.internet2.middleware.grouper.GrouperSession, java.lang.String)">findByUuid</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>Deprecated.</B>&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#findByUuid(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, boolean)">findByUuid</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid,
+           boolean&nbsp;exceptionIfNotFound)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Find a group within the registry by UUID.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#findByUuid(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)">findByUuid</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid,
+           boolean&nbsp;exceptionIfNotFound,
+           <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Find a group within the registry by UUID.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#findGroup()">findGroup</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find the group</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co#findGroups()">findGroups</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find all the group</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">equals</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">hashCode</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="GroupFinder()"><!-- --></A><H3>
+GroupFinder</H3>
+<PRE>
+public <B>GroupFinder</B>()</PRE>
+<DL>
+<DD>default constructor
+<P>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="assignCompositeOwner(java.lang.Boolean)"><!-- --></A><H3>
+assignCompositeOwner</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A> <B>assignCompositeOwner</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;theCompositeOwner)</PRE>
+<DL>
+<DD>if we are filtering for groups which are composite owners or not
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theCompositeOwner</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByAttribute(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, java.lang.String)"><!-- --></A><H3>
+findByAttribute</H3>
+<PRE>
+<FONT SIZE="-1"><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Deprecated.html?view=co" title="class or interface in java.lang">@Deprecated</A>
+</FONT>public static <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A> <B>findByAttribute</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attr,
+                                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;val)
+                             throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A>,
+                                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></PRE>
+<DL>
+<DD><B>Deprecated.</B>&nbsp;<I>use the overload</I>
+<P>
+<DD>Find <tt>Group</tt> by attribute value.
+ <pre class="eg">
+ try {
+   Group g = GroupFinder.findByAttribute(s, "description", "some value");
+ }
+ catch (GroupNotFoundException eGNF) {
+ }
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - Search within this session context.<DD><CODE>attr</CODE> - Search on this attribute.<DD><CODE>val</CODE> - Search for this value.
+<DT><B>Returns:</B><DD>Matching <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Group</CODE></A>.
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A></CODE>
+<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></CODE><DT><B>Since:</B></DT>
+  <DD>1.1.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByAttribute(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, java.lang.String, boolean)"><!-- --></A><H3>
+findByAttribute</H3>
+<PRE>
+public static <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A> <B>findByAttribute</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attr,
+                                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;val,
+                                    boolean&nbsp;exceptionOnNull)
+                             throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A>,
+                                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></PRE>
+<DL>
+<DD>Find <tt>Group</tt> by attribute value.
+ <pre class="eg">
+   Group g = GroupFinder.findByAttribute(s, "description", "some value", true);
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - Search within this session context.<DD><CODE>attr</CODE> - Search on this attribute.<DD><CODE>val</CODE> - Search for this value.<DD><CODE>exceptionOnNull</CODE> - true if there should be an exception on null
+<DT><B>Returns:</B><DD>Matching <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Group</CODE></A>.
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A></CODE>
+<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></CODE><DT><B>Since:</B></DT>
+  <DD>1.1.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findAllByAttribute(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, java.lang.String)"><!-- --></A><H3>
+findAllByAttribute</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt; <B>findAllByAttribute</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attr,
+                                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;val)
+                                     throws <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></PRE>
+<DL>
+<DD>Find <tt>Group</tt>s by attribute value.  Returns groups or empty set if none (never null)
+ <pre class="eg">
+   Set<Group> groups = GroupFinder.findAllByAttribute(s, "description", "some value");
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - Search within this session context.<DD><CODE>attr</CODE> - Search on this attribute.<DD><CODE>val</CODE> - Search for this value.
+<DT><B>Returns:</B><DD>Matching <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Group</CODE></A>.
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></CODE><DT><B>Since:</B></DT>
+  <DD>1.1.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByName(edu.internet2.middleware.grouper.GrouperSession, java.lang.String)"><!-- --></A><H3>
+findByName</H3>
+<PRE>
+<FONT SIZE="-1"><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Deprecated.html?view=co" title="class or interface in java.lang">@Deprecated</A>
+</FONT>public static <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A> <B>findByName</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                          <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name)
+                        throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A></PRE>
+<DL>
+<DD><B>Deprecated.</B>&nbsp;
+<P>
+<DD>Find a group within the registry by name.
+ <pre class="eg">
+ try {
+   Group g = GroupFinder.findByName(name);
+ }
+ catch (GroupNotFoundException e) {
+   // Group not found
+ }
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - Find group within this session context.<DD><CODE>name</CODE> - Name of group to find.
+<DT><B>Returns:</B><DD>A <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Group</CODE></A>
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByName(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, boolean)"><!-- --></A><H3>
+findByName</H3>
+<PRE>
+public static <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A> <B>findByName</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+                               boolean&nbsp;exceptionIfNotFound)
+                        throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A></PRE>
+<DL>
+<DD>Find a group within the registry by name.
+ <pre class="eg">
+ try {
+   Group g = GroupFinder.findByName(name);
+ }
+ catch (GroupNotFoundException e) {
+   // Group not found
+ }
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - Find group within this session context.<DD><CODE>name</CODE> - Name of group to find.<DD><CODE>exceptionIfNotFound</CODE> - 
+<DT><B>Returns:</B><DD>A <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Group</CODE></A>
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByName(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)"><!-- --></A><H3>
+findByName</H3>
+<PRE>
+public static <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A> <B>findByName</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+                               boolean&nbsp;exceptionIfNotFound,
+                               <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)
+                        throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A></PRE>
+<DL>
+<DD>Find a group within the registry by name.
+ <pre class="eg">
+ try {
+   Group g = GroupFinder.findByName(name);
+ }
+ catch (GroupNotFoundException e) {
+   // Group not found
+ }
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - Find group within this session context.<DD><CODE>name</CODE> - Name of group to find.<DD><CODE>exceptionIfNotFound</CODE> - <DD><CODE>queryOptions</CODE> - paging, sorting, caching options
+<DT><B>Returns:</B><DD>A <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Group</CODE></A>
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByCurrentName(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, boolean)"><!-- --></A><H3>
+findByCurrentName</H3>
+<PRE>
+public static <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A> <B>findByCurrentName</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+                                      boolean&nbsp;exceptionIfNotFound)
+                               throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A></PRE>
+<DL>
+<DD>Find a group within the registry by its current name.
+ <pre class="eg">
+ try {
+   Group g = GroupFinder.findByCurrentName(name, true);
+ }
+ catch (GroupNotFoundException e) {
+   // Group not found
+ }
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - Find group within this session context.<DD><CODE>name</CODE> - Name of group to find.<DD><CODE>exceptionIfNotFound</CODE> - 
+<DT><B>Returns:</B><DD>A <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Group</CODE></A>
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByAlternateName(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, boolean)"><!-- --></A><H3>
+findByAlternateName</H3>
+<PRE>
+public static <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A> <B>findByAlternateName</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+                                        boolean&nbsp;exceptionIfNotFound)
+                                 throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A></PRE>
+<DL>
+<DD>Find a group within the registry by its alternate name.
+ <pre class="eg">
+ try {
+   Group g = GroupFinder.findByAlternateName(name, true);
+ }
+ catch (GroupNotFoundException e) {
+   // Group not found
+ }
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - Find group within this session context.<DD><CODE>name</CODE> - Name of group to find.<DD><CODE>exceptionIfNotFound</CODE> - 
+<DT><B>Returns:</B><DD>A <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Group</CODE></A>
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findAllByType(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.GroupType)"><!-- --></A><H3>
+findAllByType</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt; <B>findAllByType</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                       <A HREF="../../../../edu/internet2/middleware/grouper/GroupType.html?view=co" title="class in edu.internet2.middleware.grouper">GroupType</A>&nbsp;type)
+                                throws <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></PRE>
+<DL>
+<DD>Find all groups within the registry by their <A HREF="../../../../edu/internet2/middleware/grouper/GroupType.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>GroupType</CODE></A>.  Or empty set if none (never null).
+ <pre class="eg">
+   Set<Group> groups = GroupFinder.findAllByType( s, GroupTypeFinder.find("your type") );
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - Find group within this session context.<DD><CODE>type</CODE> - Find group with this <A HREF="../../../../edu/internet2/middleware/grouper/GroupType.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>GroupType</CODE></A>.
+<DT><B>Returns:</B><DD>A set of <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Group</CODE></A>s
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByUuid(edu.internet2.middleware.grouper.GrouperSession, java.lang.String)"><!-- --></A><H3>
+findByUuid</H3>
+<PRE>
+<FONT SIZE="-1"><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Deprecated.html?view=co" title="class or interface in java.lang">@Deprecated</A>
+</FONT>public static <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A> <B>findByUuid</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                          <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid)
+                        throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A></PRE>
+<DL>
+<DD><B>Deprecated.</B>&nbsp;
+<P>
+<DD>Find a group within the registry by UUID.
+ <pre class="eg">
+   Group g = GroupFinder.findByUuid(s, uuid);
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - Find group within this session context.<DD><CODE>uuid</CODE> - UUID of group to find.
+<DT><B>Returns:</B><DD>A <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Group</CODE></A>
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByUuid(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, boolean)"><!-- --></A><H3>
+findByUuid</H3>
+<PRE>
+public static <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A> <B>findByUuid</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid,
+                               boolean&nbsp;exceptionIfNotFound)
+                        throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A></PRE>
+<DL>
+<DD>Find a group within the registry by UUID.
+ <pre class="eg">
+   Group g = GroupFinder.findByUuid(s, uuid);
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - Find group within this session context.<DD><CODE>uuid</CODE> - UUID of group to find.<DD><CODE>exceptionIfNotFound</CODE> - true if exception if not found
+<DT><B>Returns:</B><DD>A <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Group</CODE></A>
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A></CODE> - if not found an exceptionIfNotFound is true</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByUuid(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)"><!-- --></A><H3>
+findByUuid</H3>
+<PRE>
+public static <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A> <B>findByUuid</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid,
+                               boolean&nbsp;exceptionIfNotFound,
+                               <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)
+                        throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A></PRE>
+<DL>
+<DD>Find a group within the registry by UUID.
+ <pre class="eg">
+   Group g = GroupFinder.findByUuid(s, uuid);
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - Find group within this session context.<DD><CODE>uuid</CODE> - UUID of group to find.<DD><CODE>exceptionIfNotFound</CODE> - true if exception if not found<DD><CODE>queryOptions</CODE> - 
+<DT><B>Returns:</B><DD>A <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Group</CODE></A>
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A></CODE> - if not found an exceptionIfNotFound is true</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByIdIndexSecure(java.lang.Long, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)"><!-- --></A><H3>
+findByIdIndexSecure</H3>
+<PRE>
+public static <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A> <B>findByIdIndexSecure</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;idIndex,
+                                        boolean&nbsp;exceptionIfNotFound,
+                                        <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)
+                                 throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A></PRE>
+<DL>
+<DD>Find a group within the registry by ID index.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>idIndex</CODE> - id index of group to find.<DD><CODE>exceptionIfNotFound</CODE> - true if exception if not found<DD><CODE>queryOptions</CODE> - 
+<DT><B>Returns:</B><DD>A <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Group</CODE></A>
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/GroupNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GroupNotFoundException</A></CODE> - if not found an exceptionIfNotFound is true</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignSubjectNotInGroup(edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+assignSubjectNotInGroup</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A> <B>assignSubjectNotInGroup</B>(edu.internet2.middleware.subject.Subject&nbsp;theSubjectNotInGroup)</PRE>
+<DL>
+<DD>assign a subject which does not have a membership in the group
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theSubjectNotInGroup</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addPrivilege(edu.internet2.middleware.grouper.privs.Privilege)"><!-- --></A><H3>
+addPrivilege</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A> <B>addPrivilege</B>(<A HREF="../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege)</PRE>
+<DL>
+<DD>add a privilege to filter by that the subject has on the group
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>privilege</CODE> - should be AccessPrivilege
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignPrivileges(java.util.Set)"><!-- --></A><H3>
+assignPrivileges</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A> <B>assignPrivileges</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;theGroups)</PRE>
+<DL>
+<DD>assign privileges to filter by that the subject has on the group
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theGroups</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignQueryOptions(edu.internet2.middleware.grouper.internal.dao.QueryOptions)"><!-- --></A><H3>
+assignQueryOptions</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A> <B>assignQueryOptions</B>(<A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;theQueryOptions)</PRE>
+<DL>
+<DD>if sorting, paging, caching, etc
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theQueryOptions</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addGroupId(java.lang.String)"><!-- --></A><H3>
+addGroupId</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A> <B>addGroupId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupId)</PRE>
+<DL>
+<DD>add a group id to search for
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>groupId</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignGroupNames(java.util.Collection)"><!-- --></A><H3>
+assignGroupNames</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A> <B>assignGroupNames</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;theGroupNames)</PRE>
+<DL>
+<DD>assign group names to search for
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theGroupNames</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addGroupName(java.lang.String)"><!-- --></A><H3>
+addGroupName</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A> <B>addGroupName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupName)</PRE>
+<DL>
+<DD>add a group name to search for
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>groupName</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignGroupIds(java.util.Collection)"><!-- --></A><H3>
+assignGroupIds</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A> <B>assignGroupIds</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;theGroupIds)</PRE>
+<DL>
+<DD>assign group ids to search for
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theGroupIds</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignField(edu.internet2.middleware.grouper.Field)"><!-- --></A><H3>
+assignField</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A> <B>assignField</B>(<A HREF="../../../../edu/internet2/middleware/grouper/Field.html?view=co" title="class in edu.internet2.middleware.grouper">Field</A>&nbsp;theField)</PRE>
+<DL>
+<DD>field to look for if searching for memberships in groups
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theField</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignFieldName(java.lang.String)"><!-- --></A><H3>
+assignFieldName</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A> <B>assignFieldName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theFieldName)</PRE>
+<DL>
+<DD>field name to look for if searching for memberships in groups
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theFieldName</CODE> - 
+<DT><B>Returns:</B><DD>theFieldName</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignMembershipsForSubject(boolean)"><!-- --></A><H3>
+assignMembershipsForSubject</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A> <B>assignMembershipsForSubject</B>(boolean&nbsp;membershipsForSubject1)</PRE>
+<DL>
+<DD>if this is true, or there is a field assigned, then get memberships for a subject
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>membershipsForSubject1</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findGroups()"><!-- --></A><H3>
+findGroups</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt; <B>findGroups</B>()</PRE>
+<DL>
+<DD>find all the group
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the set of groups or the empty set if none found</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignTypeOfGroups(java.util.Set)"><!-- --></A><H3>
+assignTypeOfGroups</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A> <B>assignTypeOfGroups</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt;&nbsp;theTypeOfGroups)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theTypeOfGroups</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addTypeOfGroup(edu.internet2.middleware.grouper.group.TypeOfGroup)"><!-- --></A><H3>
+addTypeOfGroup</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A> <B>addTypeOfGroup</B>(<A HREF="../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&nbsp;typeOfGroup)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>typeOfGroup</CODE> - 
+<DT><B>Returns:</B><DD>this</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignScope(java.lang.String)"><!-- --></A><H3>
+assignScope</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A> <B>assignScope</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theScope)</PRE>
+<DL>
+<DD>scope to look for groups  Wildcards will be appended or percent is the wildcard
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theScope</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignSplitScope(boolean)"><!-- --></A><H3>
+assignSplitScope</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A> <B>assignSplitScope</B>(boolean&nbsp;theSplitScope)</PRE>
+<DL>
+<DD>if the scope has spaces in it, then split by whitespace, and find results that contain all of the scope strings
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theSplitScope</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignSubject(edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+assignSubject</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A> <B>assignSubject</B>(edu.internet2.middleware.subject.Subject&nbsp;theSubject)</PRE>
+<DL>
+<DD>this is the subject that has certain memberships in the query
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theSubject</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignParentStemId(java.lang.String)"><!-- --></A><H3>
+assignParentStemId</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A> <B>assignParentStemId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theParentStemId)</PRE>
+<DL>
+<DD>parent or ancestor stem of the group
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theParentStemId</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignStemScope(edu.internet2.middleware.grouper.Stem.Scope)"><!-- --></A><H3>
+assignStemScope</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A> <B>assignStemScope</B>(<A HREF="../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;theStemScope)</PRE>
+<DL>
+<DD>if passing in a stem, this is the stem scope...
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theStemScope</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignFindByUuidOrName(boolean)"><!-- --></A><H3>
+assignFindByUuidOrName</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper">GroupFinder</A> <B>assignFindByUuidOrName</B>(boolean&nbsp;theFindByUuidOrName)</PRE>
+<DL>
+<DD>if we are looking up a group, only look by uuid or name
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theFindByUuidOrName</CODE> - 
+<DT><B>Returns:</B><DD>the group finder</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findGroup()"><!-- --></A><H3>
+findGroup</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A> <B>findGroup</B>()</PRE>
+<DL>
+<DD>find the group
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the group or null</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co" title="class in edu.internet2.middleware.grouper"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupMove.html?view=co" title="class in edu.internet2.middleware.grouper"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="GroupFinder.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

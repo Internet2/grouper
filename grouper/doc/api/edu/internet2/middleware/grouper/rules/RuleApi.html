@@ -1,0 +1,979 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+RuleApi
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="RuleApi";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;PREV CLASS&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleCheck.html?view=co" title="class in edu.internet2.middleware.grouper.rules"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="RuleApi.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.rules</FONT>
+<BR>
+Class RuleApi</H2>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.rules.RuleApi</B>
+</PRE>
+<HR>
+<DL>
+<DT><PRE>public class <B>RuleApi</B><DT>extends <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></DL>
+</PRE>
+
+<P>
+helper methods to assign rules to objects without having to deal with attributes
+ note, you can use this from gsh too
+<P>
+
+<P>
+<DL>
+<DT><B>Author:</B></DT>
+  <DD>mchyzer</DD>
+</DL>
+<HR>
+
+<P>
+
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#RuleApi()">RuleApi</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#emailOnFlattenedDisabledDate(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Group, java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.String, java.lang.String)">emailOnFlattenedDisabledDate</A></B>(edu.internet2.middleware.subject.Subject&nbsp;actAsSubject,
+                             <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;ruleGroup,
+                             <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&nbsp;daysInFutureDisabledDateMin,
+                             <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&nbsp;daysInFutureDisabledDateMax,
+                             <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailToValue,
+                             <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailSubjectValue,
+                             <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailBodyValue)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;send emails via daemon on impending disabled memberships</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#emailOnFlattenedMembershipAdd(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Group, java.lang.String, java.lang.String, java.lang.String)">emailOnFlattenedMembershipAdd</A></B>(edu.internet2.middleware.subject.Subject&nbsp;actAsSubject,
+                              <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;ruleGroup,
+                              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailToValue,
+                              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailSubjectValue,
+                              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailBodyValue)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#emailOnFlattenedMembershipAddFromStem(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.String, java.lang.String, java.lang.String)">emailOnFlattenedMembershipAddFromStem</A></B>(edu.internet2.middleware.subject.Subject&nbsp;actAsSubject,
+                                      <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ruleStem,
+                                      <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope,
+                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailToValue,
+                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailSubjectValue,
+                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailBodyValue)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#emailOnFlattenedMembershipRemove(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Group, java.lang.String, java.lang.String, java.lang.String)">emailOnFlattenedMembershipRemove</A></B>(edu.internet2.middleware.subject.Subject&nbsp;actAsSubject,
+                                 <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;ruleGroup,
+                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailToValue,
+                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailSubjectValue,
+                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailBodyValue)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#emailOnFlattenedMembershipRemoveFromStem(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.String, java.lang.String, java.lang.String)">emailOnFlattenedMembershipRemoveFromStem</A></B>(edu.internet2.middleware.subject.Subject&nbsp;actAsSubject,
+                                         <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ruleStem,
+                                         <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope,
+                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailToValue,
+                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailSubjectValue,
+                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailBodyValue)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#emailOnFlattenedPermissionDisabledDate(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.attr.AttributeDef, java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.String, java.lang.String)">emailOnFlattenedPermissionDisabledDate</A></B>(edu.internet2.middleware.subject.Subject&nbsp;actAsSubject,
+                                       <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;permissionDef,
+                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&nbsp;daysInFutureDisabledDateMin,
+                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&nbsp;daysInFutureDisabledDateMax,
+                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailToValue,
+                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailSubjectValue,
+                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailBodyValue)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#groupIntersection(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.Group)">groupIntersection</A></B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                  <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;ruleGroup,
+                  <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;mustBeInGroup)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;put a rule on the rule group which says that if the user is not in the mustBeInGroup, 
+ then remove from ruleGroup</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#groupIntersection(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.Group, int)">groupIntersection</A></B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                  <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;ruleGroup,
+                  <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;mustBeInGroup,
+                  int&nbsp;daysInFutureForDisabledDate)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;put a rule on the rule group which says that if the user is not in the mustBeInGroup, 
+ then add an end date to the membership in the rule group X days in the future</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#groupIntersectionWithFolder(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope)">groupIntersectionWithFolder</A></B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                            <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;ruleGroup,
+                            <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;folder,
+                            <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if a member is removed from a folder, and has no more memberships in any group in the folder, then
+ remove from the group</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#inheritAttributeDefPrivileges(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, edu.internet2.middleware.subject.Subject, java.util.Set)">inheritAttributeDefPrivileges</A></B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                              <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;stem,
+                              <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope,
+                              edu.internet2.middleware.subject.Subject&nbsp;subjectToAssign,
+                              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;privileges)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make sure stem privileges are inherited in a attributeDef</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#inheritFolderPrivileges(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, edu.internet2.middleware.subject.Subject, java.util.Set)">inheritFolderPrivileges</A></B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                        <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;stem,
+                        <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope,
+                        edu.internet2.middleware.subject.Subject&nbsp;subjectToAssign,
+                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;privileges)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make sure stem privileges are inherited in a stem</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#inheritGroupPrivileges(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, edu.internet2.middleware.subject.Subject, java.util.Set)">inheritGroupPrivileges</A></B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                       <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;stem,
+                       <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope,
+                       edu.internet2.middleware.subject.Subject&nbsp;subjectToAssign,
+                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;privileges)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make sure group privileges are inherited in a stem</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#inheritGroupPrivileges(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, edu.internet2.middleware.subject.Subject, java.util.Set, java.lang.String)">inheritGroupPrivileges</A></B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                       <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;stem,
+                       <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope,
+                       edu.internet2.middleware.subject.Subject&nbsp;subjectToAssign,
+                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;privileges,
+                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;sqlLikeString)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make sure group privileges are inherited in a stem</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#permissionFolderIntersection(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope)">permissionFolderIntersection</A></B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                             <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;permissionToAssignRule,
+                             <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;mustBeInGroupInFolder,
+                             <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#permissionGroupIntersection(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.grouper.Group)">permissionGroupIntersection</A></B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                            <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;permissionToAssignRule,
+                            <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;mustBeInGroup)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;put a rule on an attribute def so that if a user comes out of a group, the user will be removed from
+ a role which has permissions or removed assignments directly to the user</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#permissionGroupIntersection(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.grouper.Group, int)">permissionGroupIntersection</A></B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                            <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;permissionToAssignRule,
+                            <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;mustBeInGroup,
+                            int&nbsp;daysInFutureToDisable)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;put a rule on an attribute def so that if a user comes out of a group, the user will have disabled dates from
+ a role which has permissions or removed assignments directly to the user</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#reassignAttributeDefPrivilegesIfFromGroup(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope)">reassignAttributeDefPrivilegesIfFromGroup</A></B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                                          <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ruleStem,
+                                          <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;normalize privileges if the user who creates a group is in a group which has create privilegs on the stem</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#reassignGroupPrivilegesIfFromGroup(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope)">reassignGroupPrivilegesIfFromGroup</A></B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                                   <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ruleStem,
+                                   <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;normalize privileges if the user who creates a group is in a group which has create privilegs on the stem</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#reassignStemPrivilegesIfFromGroup(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope)">reassignStemPrivilegesIfFromGroup</A></B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                                  <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ruleStem,
+                                  <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;normalize privileges if the user who creates a stem is in a group which has create privileges on the stem</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#rulesToString()">rulesToString</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#rulesToString(edu.internet2.middleware.grouper.attr.assign.AttributeAssignable)">rulesToString</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignable.html?view=co" title="interface in edu.internet2.middleware.grouper.attr.assign">AttributeAssignable</A>&nbsp;attributeAssignable)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#runRulesForOwner(edu.internet2.middleware.grouper.attr.assign.AttributeAssignable)">runRulesForOwner</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignable.html?view=co" title="interface in edu.internet2.middleware.grouper.attr.assign">AttributeAssignable</A>&nbsp;attributeAssignable)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;run rules for an attribute assignable</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#vetoMembershipIfNotInGroup(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.Group, java.lang.String, java.lang.String)">vetoMembershipIfNotInGroup</A></B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                           <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;ruleGroup,
+                           <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;mustBeInGroup,
+                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;vetoKey,
+                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;vetoMessage)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#vetoMembershipIfNotInGroupInFolder(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.String, java.lang.String)">vetoMembershipIfNotInGroupInFolder</A></B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                                   <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;ruleGroup,
+                                   <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;mustBeInGroupInFolder,
+                                   <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope,
+                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;vetoKey,
+                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;vetoMessage)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#vetoPermissionIfNotInGroup(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.grouper.Group, java.lang.String, java.lang.String)">vetoPermissionIfNotInGroup</A></B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                           <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;permissionDef,
+                           <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;mustBeInGroup,
+                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;vetoKey,
+                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;vetoMessage)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;veto a direct permission assignment if not in group</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleApi.html?view=co#vetoSubjectAssignInFolderIfNotInGroup(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Group, boolean, java.lang.String, edu.internet2.middleware.grouper.Stem.Scope, java.lang.String, java.lang.String)">vetoSubjectAssignInFolderIfNotInGroup</A></B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                                      <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ruleStem,
+                                      <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;mustBeInGroup,
+                                      boolean&nbsp;allowAll,
+                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;sourceId,
+                                      <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope,
+                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;vetoKey,
+                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;vetoMessage)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a rule on a stem saying that all subject use in the folder must be in a certain group.</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">equals</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">hashCode</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="RuleApi()"><!-- --></A><H3>
+RuleApi</H3>
+<PRE>
+public <B>RuleApi</B>()</PRE>
+<DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="reassignGroupPrivilegesIfFromGroup(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope)"><!-- --></A><H3>
+reassignGroupPrivilegesIfFromGroup</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>reassignGroupPrivilegesIfFromGroup</B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                                                                 <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ruleStem,
+                                                                 <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope)</PRE>
+<DL>
+<DD>normalize privileges if the user who creates a group is in a group which has create privilegs on the stem
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>actAs</CODE> - <DD><CODE>ruleStem</CODE> - <DD><CODE>stemScope</CODE> - 
+<DT><B>Returns:</B><DD>the attribute assignment</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="reassignAttributeDefPrivilegesIfFromGroup(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope)"><!-- --></A><H3>
+reassignAttributeDefPrivilegesIfFromGroup</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>reassignAttributeDefPrivilegesIfFromGroup</B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                                                                        <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ruleStem,
+                                                                        <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope)</PRE>
+<DL>
+<DD>normalize privileges if the user who creates a group is in a group which has create privilegs on the stem
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>actAs</CODE> - <DD><CODE>ruleStem</CODE> - <DD><CODE>stemScope</CODE> - 
+<DT><B>Returns:</B><DD>the attribute assignment</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="vetoMembershipIfNotInGroupInFolder(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.String, java.lang.String)"><!-- --></A><H3>
+vetoMembershipIfNotInGroupInFolder</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>vetoMembershipIfNotInGroupInFolder</B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                                                                 <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;ruleGroup,
+                                                                 <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;mustBeInGroupInFolder,
+                                                                 <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope,
+                                                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;vetoKey,
+                                                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;vetoMessage)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>actAs</CODE> - <DD><CODE>ruleGroup</CODE> - <DD><CODE>mustBeInGroupInFolder</CODE> - <DD><CODE>stemScope</CODE> - <DD><CODE>vetoKey</CODE> - <DD><CODE>vetoMessage</CODE> - 
+<DT><B>Returns:</B><DD>the assignment in case there are edits</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="vetoSubjectAssignInFolderIfNotInGroup(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Group, boolean, java.lang.String, edu.internet2.middleware.grouper.Stem.Scope, java.lang.String, java.lang.String)"><!-- --></A><H3>
+vetoSubjectAssignInFolderIfNotInGroup</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>vetoSubjectAssignInFolderIfNotInGroup</B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                                                                    <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ruleStem,
+                                                                    <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;mustBeInGroup,
+                                                                    boolean&nbsp;allowAll,
+                                                                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;sourceId,
+                                                                    <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope,
+                                                                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;vetoKey,
+                                                                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;vetoMessage)</PRE>
+<DL>
+<DD>add a rule on a stem saying that all subject use in the folder must be in a certain group.
+ note, the first rule found will be used
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>actAs</CODE> - <DD><CODE>ruleStem</CODE> - <DD><CODE>mustBeInGroup</CODE> - if blank and not allowAll, then restrict all<DD><CODE>allowAll</CODE> - if mustBeIn is blank and allowAll, then allow all (to override a restriction in ancestor folders)<DD><CODE>sourceId</CODE> - optional (recommended), to constraint this to subjects from certain sources<DD><CODE>stemScope</CODE> - <DD><CODE>vetoKey</CODE> - <DD><CODE>vetoMessage</CODE> - 
+<DT><B>Returns:</B><DD>the assignment in case there are edits</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="vetoMembershipIfNotInGroup(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.Group, java.lang.String, java.lang.String)"><!-- --></A><H3>
+vetoMembershipIfNotInGroup</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>vetoMembershipIfNotInGroup</B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                                                         <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;ruleGroup,
+                                                         <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;mustBeInGroup,
+                                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;vetoKey,
+                                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;vetoMessage)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>actAs</CODE> - <DD><CODE>ruleGroup</CODE> - <DD><CODE>mustBeInGroup</CODE> - <DD><CODE>vetoKey</CODE> - <DD><CODE>vetoMessage</CODE> - 
+<DT><B>Returns:</B><DD>the assignment in case there are edits</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="inheritAttributeDefPrivileges(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, edu.internet2.middleware.subject.Subject, java.util.Set)"><!-- --></A><H3>
+inheritAttributeDefPrivileges</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>inheritAttributeDefPrivileges</B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                                                            <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;stem,
+                                                            <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope,
+                                                            edu.internet2.middleware.subject.Subject&nbsp;subjectToAssign,
+                                                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;privileges)</PRE>
+<DL>
+<DD>make sure stem privileges are inherited in a attributeDef
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>actAs</CODE> - <DD><CODE>stem</CODE> - <DD><CODE>stemScope</CODE> - ONE or SUB<DD><CODE>subjectToAssign</CODE> - <DD><CODE>privileges</CODE> - can use Privilege.getInstances() to convert from string
+<DT><B>Returns:</B><DD>the assignment in case there are edits</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="inheritFolderPrivileges(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, edu.internet2.middleware.subject.Subject, java.util.Set)"><!-- --></A><H3>
+inheritFolderPrivileges</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>inheritFolderPrivileges</B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                                                      <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;stem,
+                                                      <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope,
+                                                      edu.internet2.middleware.subject.Subject&nbsp;subjectToAssign,
+                                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;privileges)</PRE>
+<DL>
+<DD>make sure stem privileges are inherited in a stem
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>actAs</CODE> - <DD><CODE>stem</CODE> - <DD><CODE>stemScope</CODE> - ONE or SUB<DD><CODE>subjectToAssign</CODE> - <DD><CODE>privileges</CODE> - can use Privilege.getInstances() to convert from string
+<DT><B>Returns:</B><DD>the assignment in case there are edits</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="inheritGroupPrivileges(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, edu.internet2.middleware.subject.Subject, java.util.Set)"><!-- --></A><H3>
+inheritGroupPrivileges</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>inheritGroupPrivileges</B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                                                     <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;stem,
+                                                     <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope,
+                                                     edu.internet2.middleware.subject.Subject&nbsp;subjectToAssign,
+                                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;privileges)</PRE>
+<DL>
+<DD>make sure group privileges are inherited in a stem
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>actAs</CODE> - <DD><CODE>stem</CODE> - <DD><CODE>stemScope</CODE> - ONE or SUB<DD><CODE>subjectToAssign</CODE> - <DD><CODE>privileges</CODE> - can use Privilege.getInstances() to convert from string
+<DT><B>Returns:</B><DD>the assignment in case there are edits</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="inheritGroupPrivileges(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, edu.internet2.middleware.subject.Subject, java.util.Set, java.lang.String)"><!-- --></A><H3>
+inheritGroupPrivileges</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>inheritGroupPrivileges</B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                                                     <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;stem,
+                                                     <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope,
+                                                     edu.internet2.middleware.subject.Subject&nbsp;subjectToAssign,
+                                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;privileges,
+                                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;sqlLikeString)</PRE>
+<DL>
+<DD>make sure group privileges are inherited in a stem
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>actAs</CODE> - <DD><CODE>stem</CODE> - <DD><CODE>stemScope</CODE> - ONE or SUB<DD><CODE>subjectToAssign</CODE> - <DD><CODE>privileges</CODE> - can use Privilege.getInstances() to convert from string<DD><CODE>sqlLikeString</CODE> - 
+<DT><B>Returns:</B><DD>the assignment in case there are edits</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="groupIntersectionWithFolder(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope)"><!-- --></A><H3>
+groupIntersectionWithFolder</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>groupIntersectionWithFolder</B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                                                          <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;ruleGroup,
+                                                          <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;folder,
+                                                          <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope)</PRE>
+<DL>
+<DD>if a member is removed from a folder, and has no more memberships in any group in the folder, then
+ remove from the group
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>actAs</CODE> - <DD><CODE>ruleGroup</CODE> - <DD><CODE>folder</CODE> - <DD><CODE>stemScope</CODE> - 
+<DT><B>Returns:</B><DD>the assignment in case there are edits</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="groupIntersection(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.Group)"><!-- --></A><H3>
+groupIntersection</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>groupIntersection</B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                                                <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;ruleGroup,
+                                                <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;mustBeInGroup)</PRE>
+<DL>
+<DD>put a rule on the rule group which says that if the user is not in the mustBeInGroup, 
+ then remove from ruleGroup
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>actAs</CODE> - <DD><CODE>ruleGroup</CODE> - <DD><CODE>mustBeInGroup</CODE> - 
+<DT><B>Returns:</B><DD>the assignment in case there are edits</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="groupIntersection(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.Group, int)"><!-- --></A><H3>
+groupIntersection</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>groupIntersection</B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                                                <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;ruleGroup,
+                                                <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;mustBeInGroup,
+                                                int&nbsp;daysInFutureForDisabledDate)</PRE>
+<DL>
+<DD>put a rule on the rule group which says that if the user is not in the mustBeInGroup, 
+ then add an end date to the membership in the rule group X days in the future
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>actAs</CODE> - <DD><CODE>ruleGroup</CODE> - <DD><CODE>mustBeInGroup</CODE> - <DD><CODE>daysInFutureForDisabledDate</CODE> - 
+<DT><B>Returns:</B><DD>the assignment in case there are edits</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="rulesToString()"><!-- --></A><H3>
+rulesToString</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>rulesToString</B>()</PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the string</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="rulesToString(edu.internet2.middleware.grouper.attr.assign.AttributeAssignable)"><!-- --></A><H3>
+rulesToString</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>rulesToString</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignable.html?view=co" title="interface in edu.internet2.middleware.grouper.attr.assign">AttributeAssignable</A>&nbsp;attributeAssignable)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeAssignable</CODE> - 
+<DT><B>Returns:</B><DD>the string</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="runRulesForOwner(edu.internet2.middleware.grouper.attr.assign.AttributeAssignable)"><!-- --></A><H3>
+runRulesForOwner</H3>
+<PRE>
+public static int <B>runRulesForOwner</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignable.html?view=co" title="interface in edu.internet2.middleware.grouper.attr.assign">AttributeAssignable</A>&nbsp;attributeAssignable)</PRE>
+<DL>
+<DD>run rules for an attribute assignable
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeAssignable</CODE> - 
+<DT><B>Returns:</B><DD>the number of rules ran (note, if not valid or not daemonable then dont run, then that doesnt count)</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="permissionGroupIntersection(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.grouper.Group, int)"><!-- --></A><H3>
+permissionGroupIntersection</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>permissionGroupIntersection</B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                                                          <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;permissionToAssignRule,
+                                                          <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;mustBeInGroup,
+                                                          int&nbsp;daysInFutureToDisable)</PRE>
+<DL>
+<DD>put a rule on an attribute def so that if a user comes out of a group, the user will have disabled dates from
+ a role which has permissions or removed assignments directly to the user
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>actAs</CODE> - <DD><CODE>permissionToAssignRule</CODE> - <DD><CODE>mustBeInGroup</CODE> - <DD><CODE>daysInFutureToDisable</CODE> - 
+<DT><B>Returns:</B><DD>the assignment in case there are edits</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="permissionGroupIntersection(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.grouper.Group)"><!-- --></A><H3>
+permissionGroupIntersection</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>permissionGroupIntersection</B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                                                          <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;permissionToAssignRule,
+                                                          <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;mustBeInGroup)</PRE>
+<DL>
+<DD>put a rule on an attribute def so that if a user comes out of a group, the user will be removed from
+ a role which has permissions or removed assignments directly to the user
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>actAs</CODE> - <DD><CODE>permissionToAssignRule</CODE> - <DD><CODE>mustBeInGroup</CODE> - 
+<DT><B>Returns:</B><DD>the assignment in case there are edits</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="permissionFolderIntersection(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope)"><!-- --></A><H3>
+permissionFolderIntersection</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>permissionFolderIntersection</B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                                                           <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;permissionToAssignRule,
+                                                           <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;mustBeInGroupInFolder,
+                                                           <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>actAs</CODE> - <DD><CODE>permissionToAssignRule</CODE> - <DD><CODE>mustBeInGroupInFolder</CODE> - <DD><CODE>stemScope</CODE> - 
+<DT><B>Returns:</B><DD>the assignment in case there are edits</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="vetoPermissionIfNotInGroup(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.grouper.Group, java.lang.String, java.lang.String)"><!-- --></A><H3>
+vetoPermissionIfNotInGroup</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>vetoPermissionIfNotInGroup</B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                                                         <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;permissionDef,
+                                                         <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;mustBeInGroup,
+                                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;vetoKey,
+                                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;vetoMessage)</PRE>
+<DL>
+<DD>veto a direct permission assignment if not in group
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>actAs</CODE> - <DD><CODE>permissionDef</CODE> - <DD><CODE>mustBeInGroup</CODE> - <DD><CODE>vetoKey</CODE> - <DD><CODE>vetoMessage</CODE> - 
+<DT><B>Returns:</B><DD>the assignment in case there are edits</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="emailOnFlattenedMembershipRemove(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Group, java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
+emailOnFlattenedMembershipRemove</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>emailOnFlattenedMembershipRemove</B>(edu.internet2.middleware.subject.Subject&nbsp;actAsSubject,
+                                                               <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;ruleGroup,
+                                                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailToValue,
+                                                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailSubjectValue,
+                                                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailBodyValue)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ruleGroup</CODE> - <DD><CODE>actAsSubject</CODE> - <DD><CODE>emailToValue</CODE> - e.g. "a@b.c, ${safeSubject.emailAddress}"<DD><CODE>emailSubjectValue</CODE> - e.g. "You will be removed from group: ${groupDisplayExtension}"<DD><CODE>emailBodyValue</CODE> - e.g. "template: testEmailGroupBodyFlattenedRemove"
+<DT><B>Returns:</B><DD>the assignment in case there are edits</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="emailOnFlattenedMembershipAddFromStem(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
+emailOnFlattenedMembershipAddFromStem</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>emailOnFlattenedMembershipAddFromStem</B>(edu.internet2.middleware.subject.Subject&nbsp;actAsSubject,
+                                                                    <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ruleStem,
+                                                                    <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope,
+                                                                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailToValue,
+                                                                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailSubjectValue,
+                                                                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailBodyValue)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>actAsSubject</CODE> - <DD><CODE>ruleStem</CODE> - <DD><CODE>stemScope</CODE> - <DD><CODE>emailToValue</CODE> - <DD><CODE>emailSubjectValue</CODE> - <DD><CODE>emailBodyValue</CODE> - 
+<DT><B>Returns:</B><DD>the assignment in case there are edits</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="emailOnFlattenedMembershipRemoveFromStem(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
+emailOnFlattenedMembershipRemoveFromStem</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>emailOnFlattenedMembershipRemoveFromStem</B>(edu.internet2.middleware.subject.Subject&nbsp;actAsSubject,
+                                                                       <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ruleStem,
+                                                                       <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope,
+                                                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailToValue,
+                                                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailSubjectValue,
+                                                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailBodyValue)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>actAsSubject</CODE> - <DD><CODE>ruleStem</CODE> - <DD><CODE>stemScope</CODE> - <DD><CODE>emailToValue</CODE> - <DD><CODE>emailSubjectValue</CODE> - <DD><CODE>emailBodyValue</CODE> - 
+<DT><B>Returns:</B><DD>the assignment to tweak it</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="emailOnFlattenedMembershipAdd(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Group, java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
+emailOnFlattenedMembershipAdd</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>emailOnFlattenedMembershipAdd</B>(edu.internet2.middleware.subject.Subject&nbsp;actAsSubject,
+                                                            <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;ruleGroup,
+                                                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailToValue,
+                                                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailSubjectValue,
+                                                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailBodyValue)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ruleGroup</CODE> - <DD><CODE>actAsSubject</CODE> - <DD><CODE>emailToValue</CODE> - e.g. "a@b.c, ${safeSubject.emailAddress}"<DD><CODE>emailSubjectValue</CODE> - e.g. "You were added to group: ${groupDisplayExtension}"<DD><CODE>emailBodyValue</CODE> - e.g. "template: testEmailGroupBodyFlattenedAdd"
+<DT><B>Returns:</B><DD>the assignment to tweak it</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="emailOnFlattenedDisabledDate(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Group, java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
+emailOnFlattenedDisabledDate</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>emailOnFlattenedDisabledDate</B>(edu.internet2.middleware.subject.Subject&nbsp;actAsSubject,
+                                                           <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;ruleGroup,
+                                                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&nbsp;daysInFutureDisabledDateMin,
+                                                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&nbsp;daysInFutureDisabledDateMax,
+                                                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailToValue,
+                                                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailSubjectValue,
+                                                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailBodyValue)</PRE>
+<DL>
+<DD>send emails via daemon on impending disabled memberships
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>actAsSubject</CODE> - <DD><CODE>ruleGroup</CODE> - <DD><CODE>daysInFutureDisabledDateMin</CODE> - <DD><CODE>daysInFutureDisabledDateMax</CODE> - <DD><CODE>emailToValue</CODE> - <DD><CODE>emailSubjectValue</CODE> - <DD><CODE>emailBodyValue</CODE> - 
+<DT><B>Returns:</B><DD>the attribute assign for customizing</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="emailOnFlattenedPermissionDisabledDate(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.attr.AttributeDef, java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
+emailOnFlattenedPermissionDisabledDate</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>emailOnFlattenedPermissionDisabledDate</B>(edu.internet2.middleware.subject.Subject&nbsp;actAsSubject,
+                                                                     <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;permissionDef,
+                                                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&nbsp;daysInFutureDisabledDateMin,
+                                                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&nbsp;daysInFutureDisabledDateMax,
+                                                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailToValue,
+                                                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailSubjectValue,
+                                                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailBodyValue)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>actAsSubject</CODE> - <DD><CODE>permissionDef</CODE> - <DD><CODE>daysInFutureDisabledDateMin</CODE> - <DD><CODE>daysInFutureDisabledDateMax</CODE> - <DD><CODE>emailToValue</CODE> - <DD><CODE>emailSubjectValue</CODE> - <DD><CODE>emailBodyValue</CODE> - 
+<DT><B>Returns:</B><DD>attribute assign for customizing</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="reassignStemPrivilegesIfFromGroup(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope)"><!-- --></A><H3>
+reassignStemPrivilegesIfFromGroup</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>reassignStemPrivilegesIfFromGroup</B>(edu.internet2.middleware.subject.Subject&nbsp;actAs,
+                                                                <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ruleStem,
+                                                                <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope)</PRE>
+<DL>
+<DD>normalize privileges if the user who creates a stem is in a group which has create privileges on the stem
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>actAs</CODE> - <DD><CODE>ruleStem</CODE> - <DD><CODE>stemScope</CODE> - 
+<DT><B>Returns:</B><DD>the attribute assignment</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;PREV CLASS&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/rules/RuleCheck.html?view=co" title="class in edu.internet2.middleware.grouper.rules"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="RuleApi.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

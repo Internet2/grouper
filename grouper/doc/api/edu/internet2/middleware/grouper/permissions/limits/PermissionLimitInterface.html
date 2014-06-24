@@ -1,0 +1,298 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+PermissionLimitInterface
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="PermissionLimitInterface";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitDocumentation.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.limits"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.limits"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="PermissionLimitInterface.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.permissions.limits</FONT>
+<BR>
+Interface PermissionLimitInterface</H2>
+<DL>
+<DT><B>All Known Implementing Classes:</B> <DD><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/impl/PermissionLimitAmountLessThan.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.limits.impl">PermissionLimitAmountLessThan</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/impl/PermissionLimitAmountLessThanEquals.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.limits.impl">PermissionLimitAmountLessThanEquals</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitBase.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.limits">PermissionLimitBase</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/impl/PermissionLimitElLogic.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.limits.impl">PermissionLimitElLogic</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/impl/PermissionLimitIpOnNetworkRealm.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.limits.impl">PermissionLimitIpOnNetworkRealm</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/impl/PermissionLimitIpOnNetworks.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.limits.impl">PermissionLimitIpOnNetworks</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/impl/PermissionLimitLabelsContain.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.limits.impl">PermissionLimitLabelsContain</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/impl/PermissionLimitWeekday9to5Logic.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.limits.impl">PermissionLimitWeekday9to5Logic</A></DD>
+</DL>
+<HR>
+<DL>
+<DT><PRE>public interface <B>PermissionLimitInterface</B></DL>
+</PRE>
+
+<P>
+implement this interface to attach logic to a permission limit
+<P>
+
+<P>
+<DL>
+<DT><B>Author:</B></DT>
+  <DD>mchyzer</DD>
+</DL>
+<HR>
+
+<P>
+
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitInterface.html?view=co#allowPermission(edu.internet2.middleware.grouper.permissions.PermissionEntry, edu.internet2.middleware.grouper.attr.assign.AttributeAssign, java.util.Set, java.util.Map, java.util.Set)">allowPermission</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html?view=co" title="interface in edu.internet2.middleware.grouper.permissions">PermissionEntry</A>&nbsp;permissionEntry,
+                <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&nbsp;limitAssignment,
+                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValue.html?view=co" title="class in edu.internet2.middleware.grouper.attr.value">AttributeAssignValue</A>&gt;&nbsp;limitAssignmentValues,
+                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Map.html?view=co" title="class or interface in java.util">Map</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>,<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&gt;&nbsp;limitEnvVars,
+                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitBean.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.limits">PermissionLimitBean</A>&gt;&nbsp;permissionLimitBeans)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if the limit allowed the permission to be allowed</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitInterface.html?view=co#cacheLimitValueResultMinutes()">cacheLimitValueResultMinutes</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if we can cache the result for a some minutes.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitDocumentation.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.limits">PermissionLimitDocumentation</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitInterface.html?view=co#documentation()">documentation</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return a UI key to documentation about the limit.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitDocumentation.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.limits">PermissionLimitDocumentation</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitInterface.html?view=co#validateLimitAssignValue(edu.internet2.middleware.grouper.attr.assign.AttributeAssign, java.util.Set)">validateLimitAssignValue</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&nbsp;limitAssign,
+                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValue.html?view=co" title="class in edu.internet2.middleware.grouper.attr.value">AttributeAssignValue</A>&gt;&nbsp;limitAssignmentValues)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;validate a user entered value(s) on the limit assignment</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="allowPermission(edu.internet2.middleware.grouper.permissions.PermissionEntry, edu.internet2.middleware.grouper.attr.assign.AttributeAssign, java.util.Set, java.util.Map, java.util.Set)"><!-- --></A><H3>
+allowPermission</H3>
+<PRE>
+boolean <B>allowPermission</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html?view=co" title="interface in edu.internet2.middleware.grouper.permissions">PermissionEntry</A>&nbsp;permissionEntry,
+                        <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&nbsp;limitAssignment,
+                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValue.html?view=co" title="class in edu.internet2.middleware.grouper.attr.value">AttributeAssignValue</A>&gt;&nbsp;limitAssignmentValues,
+                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Map.html?view=co" title="class or interface in java.util">Map</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>,<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&gt;&nbsp;limitEnvVars,
+                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitBean.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.limits">PermissionLimitBean</A>&gt;&nbsp;permissionLimitBeans)</PRE>
+<DL>
+<DD>if the limit allowed the permission to be allowed
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>permissionEntry</CODE> - to check<DD><CODE>limitAssignment</CODE> - the assignment of the limit (e.g. to the permission 
+ assignment a parent assignment, or the role, etc)<DD><CODE>limitAssignmentValues</CODE> - <DD><CODE>limitEnvVars</CODE> - value could be String, Long, or Double<DD><CODE>permissionLimitBeans</CODE> - all limits for this permission (in case the limit logic needs it... 
+ note, dont use built in caching if this is the case)
+<DT><B>Returns:</B><DD>true if allowed, false if not</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="validateLimitAssignValue(edu.internet2.middleware.grouper.attr.assign.AttributeAssign, java.util.Set)"><!-- --></A><H3>
+validateLimitAssignValue</H3>
+<PRE>
+<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitDocumentation.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.limits">PermissionLimitDocumentation</A> <B>validateLimitAssignValue</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&nbsp;limitAssign,
+                                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/value/AttributeAssignValue.html?view=co" title="class in edu.internet2.middleware.grouper.attr.value">AttributeAssignValue</A>&gt;&nbsp;limitAssignmentValues)</PRE>
+<DL>
+<DD>validate a user entered value(s) on the limit assignment
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>limitAssign</CODE> - <DD><CODE>limitAssignmentValues</CODE> - 
+<DT><B>Returns:</B><DD>the UI key and args for the error code (arbitrary, in Grouper should put in nav.properties)
+ or null for ok</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="documentation()"><!-- --></A><H3>
+documentation</H3>
+<PRE>
+<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitDocumentation.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.limits">PermissionLimitDocumentation</A> <B>documentation</B>()</PRE>
+<DL>
+<DD>return a UI key to documentation about the limit.  for Grouper, put in nav.properties
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>a UI key</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="cacheLimitValueResultMinutes()"><!-- --></A><H3>
+cacheLimitValueResultMinutes</H3>
+<PRE>
+int <B>cacheLimitValueResultMinutes</B>()</PRE>
+<DL>
+<DD>if we can cache the result for a some minutes.
+ i.e. for the same attribute assignment and value and input map, is the result the same...
+ e.g. ip address math can be cached, amount limits, etc.  If there are conditions about the 
+ permission names, then dont cache
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the number of minutes to cache</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitDocumentation.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.limits"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.limits"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="PermissionLimitInterface.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>
