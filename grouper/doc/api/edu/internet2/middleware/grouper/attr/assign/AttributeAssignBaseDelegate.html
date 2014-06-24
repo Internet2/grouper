@@ -1,0 +1,1463 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+AttributeAssignBaseDelegate
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="AttributeAssignBaseDelegate";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAttributeDefDelegate.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignDelegatable.html?view=co" title="enum in edu.internet2.middleware.grouper.attr.assign"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="AttributeAssignBaseDelegate.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.attr.assign</FONT>
+<BR>
+Class AttributeAssignBaseDelegate</H2>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate</B>
+</PRE>
+<DL>
+<DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAttrAssignDelegate.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignAttrAssignDelegate</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAttributeDefDelegate.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignAttributeDefDelegate</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignEffMshipDelegate.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignEffMshipDelegate</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignGroupDelegate.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignGroupDelegate</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignMemberDelegate.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignMemberDelegate</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignMembershipDelegate.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignMembershipDelegate</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignStemDelegate.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignStemDelegate</A></DD>
+</DL>
+<HR>
+<DL>
+<DT><PRE>public abstract class <B>AttributeAssignBaseDelegate</B><DT>extends <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></DL>
+</PRE>
+
+<P>
+delegate privilege calls from attribute defs
+<P>
+
+<P>
+<HR>
+
+<P>
+<!-- =========== FIELD SUMMARY =========== -->
+
+<A NAME="field_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Field Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;long</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#allAttributeAssignsCacheHitsForTest">allAttributeAssignsCacheHitsForTest</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cache hits for testing</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;long</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#allAttributeAssignsCacheMissesForTest">allAttributeAssignsCacheMissesForTest</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cache misses for testing</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#addAttribute(edu.internet2.middleware.grouper.attr.AttributeDefName)">addAttribute</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a multi assignable attribute</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#addAttribute(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName)">addAttribute</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+             <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a multi assignable attribute</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#addAttributeById(java.lang.String)">addAttributeById</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a multi assignable attribute</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#addAttributeById(java.lang.String, java.lang.String)">addAttributeById</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a multi assignable attribute</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#addAttributeByName(java.lang.String)">addAttributeByName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a multi assignable attribute</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#addAttributeByName(java.lang.String, java.lang.String)">addAttributeByName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a multi assignable attribute</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#assertCanDelegateAttributeDefName(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName)">assertCanDelegateAttributeDefName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                                  <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make sure the user can delegate the attribute</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#assertCanGrantAttributeDefName(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName)">assertCanGrantAttributeDefName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                               <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make sure the user can grant delegation to the attribute</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>abstract &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#assertCanReadAttributeDef(edu.internet2.middleware.grouper.attr.AttributeDef)">assertCanReadAttributeDef</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make sure the user can read the attribute (including looking at object if necessary)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#assertCanReadAttributeDefName(edu.internet2.middleware.grouper.attr.AttributeDefName)">assertCanReadAttributeDefName</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make sure the user can read the attribute (including looking at object if necessary)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>abstract &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#assertCanUpdateAttributeDefName(edu.internet2.middleware.grouper.attr.AttributeDefName)">assertCanUpdateAttributeDefName</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make sure the user can update the attribute (including looking at object if necessary)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#assertScopeOk(edu.internet2.middleware.grouper.attr.AttributeDef)">assertScopeOk</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#assignAttribute(edu.internet2.middleware.grouper.attr.AttributeDefName)">assignAttribute</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#assignAttribute(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName)">assignAttribute</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#assignAttribute(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName, edu.internet2.middleware.grouper.permissions.PermissionAllowed)">assignAttribute</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName,
+                <A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/PermissionAllowed.html?view=co" title="enum in edu.internet2.middleware.grouper.permissions">PermissionAllowed</A>&nbsp;permissionAllowed)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#assignAttributeById(java.lang.String)">assignAttributeById</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#assignAttributeById(java.lang.String, java.lang.String)">assignAttributeById</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#assignAttributeByName(java.lang.String)">assignAttributeByName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#assignAttributeByName(java.lang.String, java.lang.String)">assignAttributeByName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#delegateAttribute(edu.internet2.middleware.grouper.attr.AttributeDefName, boolean, edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegateOptions)">delegateAttribute</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName,
+                  boolean&nbsp;assign,
+                  <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignDelegateOptions.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignDelegateOptions</A>&nbsp;attributeAssignDelegateOptions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#delegateAttribute(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName, boolean, edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegateOptions)">delegateAttribute</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                  <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName,
+                  boolean&nbsp;assign,
+                  <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignDelegateOptions.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignDelegateOptions</A>&nbsp;attributeAssignDelegateOptions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#delegateAttributeById(java.lang.String, boolean, edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegateOptions)">delegateAttributeById</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameId,
+                      boolean&nbsp;assign,
+                      <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignDelegateOptions.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignDelegateOptions</A>&nbsp;attributeAssignDelegateOptions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#delegateAttributeById(java.lang.String, java.lang.String, boolean, edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegateOptions)">delegateAttributeById</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameId,
+                      boolean&nbsp;assign,
+                      <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignDelegateOptions.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignDelegateOptions</A>&nbsp;attributeAssignDelegateOptions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#delegateAttributeByName(java.lang.String, boolean, edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegateOptions)">delegateAttributeByName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameName,
+                        boolean&nbsp;assign,
+                        <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignDelegateOptions.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignDelegateOptions</A>&nbsp;attributeAssignDelegateOptions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#delegateAttributeByName(java.lang.String, java.lang.String, boolean, edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegateOptions)">delegateAttributeByName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameName,
+                        boolean&nbsp;assign,
+                        <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignDelegateOptions.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignDelegateOptions</A>&nbsp;attributeAssignDelegateOptions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>abstract &nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignable.html?view=co" title="interface in edu.internet2.middleware.grouper.attr.assign">AttributeAssignable</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#getAttributeAssignable()">getAttributeAssignable</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get the assignable object</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#getAttributeAssigns()">getAttributeAssigns</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find the assignments of any name associated with an owner
+ this is the javabean equivalent to retrieveAssignments</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#hasAttribute(edu.internet2.middleware.grouper.attr.AttributeDefName)">hasAttribute</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#hasAttribute(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName)">hasAttribute</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+             <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#hasAttributeById(java.lang.String)">hasAttributeById</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#hasAttributeById(java.lang.String, java.lang.String)">hasAttributeById</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#hasAttributeByName(java.lang.String)">hasAttributeByName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if the group</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#hasAttributeByName(java.lang.String, java.lang.String)">hasAttributeByName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if the group</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#internal_addAttributeHelper(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName, boolean, java.lang.String)">internal_addAttributeHelper</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                            <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName,
+                            boolean&nbsp;checkSecurity,
+                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a multi assignable attribute</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#internal_assignAttributeHelper(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName, boolean, java.lang.String, edu.internet2.middleware.grouper.permissions.PermissionAllowed)">internal_assignAttributeHelper</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                               <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName,
+                               boolean&nbsp;checkSecurity,
+                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid,
+                               <A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/PermissionAllowed.html?view=co" title="enum in edu.internet2.middleware.grouper.permissions">PermissionAllowed</A>&nbsp;permissionAllowed)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#removeAttribute(edu.internet2.middleware.grouper.attr.AttributeDefName)">removeAttribute</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#removeAttribute(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName)">removeAttribute</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#removeAttributeByAssignId(java.lang.String)">removeAttributeByAssignId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;assignId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remove an attribute assign by id</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#removeAttributeByAssignId(java.lang.String, boolean)">removeAttributeByAssignId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;assignId,
+                          boolean&nbsp;checkSecurity)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#removeAttributeById(java.lang.String)">removeAttributeById</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#removeAttributeById(java.lang.String, java.lang.String)">removeAttributeById</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#removeAttributeByName(java.lang.String)">removeAttributeByName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#removeAttributeByName(java.lang.String, java.lang.String)">removeAttributeByName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#retrieveAssignment(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName, boolean, boolean)">retrieveAssignment</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                   <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName,
+                   boolean&nbsp;checkSecurity,
+                   boolean&nbsp;exceptionIfNull)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve an assignment (should be single assign)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#retrieveAssignments()">retrieveAssignments</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find the assignments of any name associated with an owner</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#retrieveAssignments(edu.internet2.middleware.grouper.attr.AttributeDef)">retrieveAssignments</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find the assignments of any name associated with a def</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#retrieveAssignments(edu.internet2.middleware.grouper.attr.AttributeDefName)">retrieveAssignments</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#retrieveAssignmentsByAttributeDef(java.lang.String)">retrieveAssignmentsByAttributeDef</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#retrieveAssignmentsByAttributeDefId(java.lang.String)">retrieveAssignmentsByAttributeDefId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#retrieveAttributes()">retrieveAttributes</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#retrieveAttributes(edu.internet2.middleware.grouper.attr.AttributeDef)">retrieveAttributes</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#retrieveAttributesByAttributeDef(java.lang.String)">retrieveAttributesByAttributeDef</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;nameOfAttributeDef)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#retrieveAttributesByAttributeDefId(java.lang.String)">retrieveAttributesByAttributeDefId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>abstract &nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignBaseDelegate.html?view=co#toString()">toString</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">equals</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">hashCode</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ============ FIELD DETAIL =========== -->
+
+<A NAME="field_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Field Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="allAttributeAssignsCacheHitsForTest"><!-- --></A><H3>
+allAttributeAssignsCacheHitsForTest</H3>
+<PRE>
+public static long <B>allAttributeAssignsCacheHitsForTest</B></PRE>
+<DL>
+<DD>cache hits for testing
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="allAttributeAssignsCacheMissesForTest"><!-- --></A><H3>
+allAttributeAssignsCacheMissesForTest</H3>
+<PRE>
+public static long <B>allAttributeAssignsCacheMissesForTest</B></PRE>
+<DL>
+<DD>cache misses for testing
+<P>
+<DL>
+</DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="assertCanReadAttributeDefName(edu.internet2.middleware.grouper.attr.AttributeDefName)"><!-- --></A><H3>
+assertCanReadAttributeDefName</H3>
+<PRE>
+public void <B>assertCanReadAttributeDefName</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</PRE>
+<DL>
+<DD>make sure the user can read the attribute (including looking at object if necessary)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefName</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assertCanReadAttributeDef(edu.internet2.middleware.grouper.attr.AttributeDef)"><!-- --></A><H3>
+assertCanReadAttributeDef</H3>
+<PRE>
+public abstract void <B>assertCanReadAttributeDef</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef)</PRE>
+<DL>
+<DD>make sure the user can read the attribute (including looking at object if necessary)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDef</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assertCanUpdateAttributeDefName(edu.internet2.middleware.grouper.attr.AttributeDefName)"><!-- --></A><H3>
+assertCanUpdateAttributeDefName</H3>
+<PRE>
+public abstract void <B>assertCanUpdateAttributeDefName</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</PRE>
+<DL>
+<DD>make sure the user can update the attribute (including looking at object if necessary)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefName</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assertCanDelegateAttributeDefName(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName)"><!-- --></A><H3>
+assertCanDelegateAttributeDefName</H3>
+<PRE>
+public void <B>assertCanDelegateAttributeDefName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                                              <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</PRE>
+<DL>
+<DD>make sure the user can delegate the attribute
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>action</CODE> - <DD><CODE>attributeDefName</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assertCanGrantAttributeDefName(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName)"><!-- --></A><H3>
+assertCanGrantAttributeDefName</H3>
+<PRE>
+public void <B>assertCanGrantAttributeDefName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                                           <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</PRE>
+<DL>
+<DD>make sure the user can grant delegation to the attribute
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>action</CODE> - <DD><CODE>attributeDefName</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignAttribute(edu.internet2.middleware.grouper.attr.AttributeDefName)"><!-- --></A><H3>
+assignAttribute</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>assignAttribute</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefName</CODE> - 
+<DT><B>Returns:</B><DD>the result including if added or already there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignAttributeByName(java.lang.String)"><!-- --></A><H3>
+assignAttributeByName</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>assignAttributeByName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameName)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefNameName</CODE> - 
+<DT><B>Returns:</B><DD>the result including if added or already there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignAttributeById(java.lang.String)"><!-- --></A><H3>
+assignAttributeById</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>assignAttributeById</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameId)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefNameId</CODE> - 
+<DT><B>Returns:</B><DD>the result including if added or already there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="hasAttributeById(java.lang.String)"><!-- --></A><H3>
+hasAttributeById</H3>
+<PRE>
+public boolean <B>hasAttributeById</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameId)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefNameId</CODE> - 
+<DT><B>Returns:</B><DD>true if has attribute, false if not</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="hasAttribute(edu.internet2.middleware.grouper.attr.AttributeDefName)"><!-- --></A><H3>
+hasAttribute</H3>
+<PRE>
+public boolean <B>hasAttribute</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefName</CODE> - 
+<DT><B>Returns:</B><DD>true if has attribute, false if not</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveAssignment(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName, boolean, boolean)"><!-- --></A><H3>
+retrieveAssignment</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A> <B>retrieveAssignment</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                                          <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName,
+                                          boolean&nbsp;checkSecurity,
+                                          boolean&nbsp;exceptionIfNull)</PRE>
+<DL>
+<DD>retrieve an assignment (should be single assign)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>action</CODE> - <DD><CODE>attributeDefName</CODE> - <DD><CODE>checkSecurity</CODE> - <DD><CODE>exceptionIfNull</CODE> - 
+<DT><B>Returns:</B><DD>the assignment</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="hasAttributeByName(java.lang.String)"><!-- --></A><H3>
+hasAttributeByName</H3>
+<PRE>
+public boolean <B>hasAttributeByName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameName)</PRE>
+<DL>
+<DD>see if the group
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefNameName</CODE> - 
+<DT><B>Returns:</B><DD>true if has attribute, false if not</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveAssignmentsByAttributeDefId(java.lang.String)"><!-- --></A><H3>
+retrieveAssignmentsByAttributeDefId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&gt; <B>retrieveAssignmentsByAttributeDefId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefId)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefId</CODE> - 
+<DT><B>Returns:</B><DD>the assignments for a def name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveAttributesByAttributeDefId(java.lang.String)"><!-- --></A><H3>
+retrieveAttributesByAttributeDefId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&gt; <B>retrieveAttributesByAttributeDefId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefId)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefId</CODE> - 
+<DT><B>Returns:</B><DD>the assignments for a def</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveAttributesByAttributeDef(java.lang.String)"><!-- --></A><H3>
+retrieveAttributesByAttributeDef</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&gt; <B>retrieveAttributesByAttributeDef</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;nameOfAttributeDef)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>nameOfAttributeDef</CODE> - 
+<DT><B>Returns:</B><DD>the attributes for a def</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveAssignmentsByAttributeDef(java.lang.String)"><!-- --></A><H3>
+retrieveAssignmentsByAttributeDef</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&gt; <B>retrieveAssignmentsByAttributeDef</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>name</CODE> - is the name of the attribute def
+<DT><B>Returns:</B><DD>the assignments for a def</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveAssignments(edu.internet2.middleware.grouper.attr.AttributeDef)"><!-- --></A><H3>
+retrieveAssignments</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&gt; <B>retrieveAssignments</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef)</PRE>
+<DL>
+<DD>find the assignments of any name associated with a def
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDef</CODE> - 
+<DT><B>Returns:</B><DD>the set of assignments or the empty set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveAssignments(edu.internet2.middleware.grouper.attr.AttributeDefName)"><!-- --></A><H3>
+retrieveAssignments</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&gt; <B>retrieveAssignments</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefName</CODE> - 
+<DT><B>Returns:</B><DD>the assignments for a def name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveAttributes(edu.internet2.middleware.grouper.attr.AttributeDef)"><!-- --></A><H3>
+retrieveAttributes</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&gt; <B>retrieveAttributes</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDef</CODE> - 
+<DT><B>Returns:</B><DD>the attributes for a def</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="removeAttribute(edu.internet2.middleware.grouper.attr.AttributeDefName)"><!-- --></A><H3>
+removeAttribute</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>removeAttribute</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefName</CODE> - 
+<DT><B>Returns:</B><DD>if removed or already not assigned</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="removeAttributeById(java.lang.String)"><!-- --></A><H3>
+removeAttributeById</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>removeAttributeById</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameId)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefNameId</CODE> - 
+<DT><B>Returns:</B><DD>if added or already there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="removeAttributeByName(java.lang.String)"><!-- --></A><H3>
+removeAttributeByName</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>removeAttributeByName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameName)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefNameName</CODE> - 
+<DT><B>Returns:</B><DD>if added or already there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignAttribute(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName)"><!-- --></A><H3>
+assignAttribute</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>assignAttribute</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                                             <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>action</CODE> - is the action on the assignment (null means default action)<DD><CODE>attributeDefName</CODE> - 
+<DT><B>Returns:</B><DD>the result including if added or already there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignAttribute(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName, edu.internet2.middleware.grouper.permissions.PermissionAllowed)"><!-- --></A><H3>
+assignAttribute</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>assignAttribute</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                                             <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName,
+                                             <A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/PermissionAllowed.html?view=co" title="enum in edu.internet2.middleware.grouper.permissions">PermissionAllowed</A>&nbsp;permissionAllowed)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>action</CODE> - is the action on the assignment (null means default action)<DD><CODE>attributeDefName</CODE> - <DD><CODE>permissionAllowed</CODE> - if permission then if allowed or disallowed
+<DT><B>Returns:</B><DD>the result including if added or already there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="internal_assignAttributeHelper(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName, boolean, java.lang.String, edu.internet2.middleware.grouper.permissions.PermissionAllowed)"><!-- --></A><H3>
+internal_assignAttributeHelper</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>internal_assignAttributeHelper</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                                                            <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName,
+                                                            boolean&nbsp;checkSecurity,
+                                                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid,
+                                                            <A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/PermissionAllowed.html?view=co" title="enum in edu.internet2.middleware.grouper.permissions">PermissionAllowed</A>&nbsp;permissionAllowed)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>action</CODE> - is the action on the assignment (null means default action)<DD><CODE>attributeDefName</CODE> - <DD><CODE>checkSecurity</CODE> - <DD><CODE>uuid</CODE> - uuid of the assignment<DD><CODE>permissionAllowed</CODE> - if permission this is the allowed flag
+<DT><B>Returns:</B><DD>the result including if added or already there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignAttributeById(java.lang.String, java.lang.String)"><!-- --></A><H3>
+assignAttributeById</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>assignAttributeById</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameId)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>action</CODE> - is the action on the assignment (null means default action)<DD><CODE>attributeDefNameId</CODE> - 
+<DT><B>Returns:</B><DD>the result including if added or already there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignAttributeByName(java.lang.String, java.lang.String)"><!-- --></A><H3>
+assignAttributeByName</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>assignAttributeByName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameName)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>action</CODE> - is the action on the assignment (null means default action)<DD><CODE>attributeDefNameName</CODE> - 
+<DT><B>Returns:</B><DD>the result including if added or already there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="hasAttribute(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName)"><!-- --></A><H3>
+hasAttribute</H3>
+<PRE>
+public boolean <B>hasAttribute</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                            <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>action</CODE> - is the action on the assignment (null means default action)<DD><CODE>attributeDefName</CODE> - 
+<DT><B>Returns:</B><DD>true if has attribute, false if not</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="hasAttributeById(java.lang.String, java.lang.String)"><!-- --></A><H3>
+hasAttributeById</H3>
+<PRE>
+public boolean <B>hasAttributeById</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameId)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>action</CODE> - is the action on the assignment (null means default action)<DD><CODE>attributeDefNameId</CODE> - 
+<DT><B>Returns:</B><DD>true if has attribute, false if not</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="hasAttributeByName(java.lang.String, java.lang.String)"><!-- --></A><H3>
+hasAttributeByName</H3>
+<PRE>
+public boolean <B>hasAttributeByName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameName)</PRE>
+<DL>
+<DD>see if the group
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>action</CODE> - is the action on the assignment (null means default action)<DD><CODE>attributeDefNameName</CODE> - 
+<DT><B>Returns:</B><DD>true if has attribute, false if not</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="removeAttribute(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName)"><!-- --></A><H3>
+removeAttribute</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>removeAttribute</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                                             <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>action</CODE> - is the action on the assignment (null means default action)<DD><CODE>attributeDefName</CODE> - 
+<DT><B>Returns:</B><DD>if removed or already not assigned</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="removeAttributeById(java.lang.String, java.lang.String)"><!-- --></A><H3>
+removeAttributeById</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>removeAttributeById</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameId)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>action</CODE> - is the action on the assignment (null means default action)<DD><CODE>attributeDefNameId</CODE> - 
+<DT><B>Returns:</B><DD>if added or already there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="removeAttributeByAssignId(java.lang.String)"><!-- --></A><H3>
+removeAttributeByAssignId</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>removeAttributeByAssignId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;assignId)</PRE>
+<DL>
+<DD>remove an attribute assign by id
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>assignId</CODE> - 
+<DT><B>Returns:</B><DD>if removed or already gone</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="removeAttributeByAssignId(java.lang.String, boolean)"><!-- --></A><H3>
+removeAttributeByAssignId</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>removeAttributeByAssignId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;assignId,
+                                                       boolean&nbsp;checkSecurity)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>checkSecurity</CODE> - <DD><CODE>assignId</CODE> - 
+<DT><B>Returns:</B><DD>if removed or already gone</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="removeAttributeByName(java.lang.String, java.lang.String)"><!-- --></A><H3>
+removeAttributeByName</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>removeAttributeByName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameName)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>action</CODE> - is the action on the assignment (null means default action)<DD><CODE>attributeDefNameName</CODE> - 
+<DT><B>Returns:</B><DD>if added or already there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="toString()"><!-- --></A><H3>
+toString</H3>
+<PRE>
+public abstract <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>toString</B>()</PRE>
+<DL>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A></CODE> in class <CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang"><CODE>Object.toString()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="delegateAttribute(edu.internet2.middleware.grouper.attr.AttributeDefName, boolean, edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegateOptions)"><!-- --></A><H3>
+delegateAttribute</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>delegateAttribute</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName,
+                                               boolean&nbsp;assign,
+                                               <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignDelegateOptions.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignDelegateOptions</A>&nbsp;attributeAssignDelegateOptions)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefName</CODE> - <DD><CODE>assign</CODE> - true to assign, false to unassign<DD><CODE>attributeAssignDelegateOptions</CODE> - if there are more options, null if not
+<DT><B>Returns:</B><DD>the result including if added or already there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="delegateAttribute(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName, boolean, edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegateOptions)"><!-- --></A><H3>
+delegateAttribute</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>delegateAttribute</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                                               <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName,
+                                               boolean&nbsp;assign,
+                                               <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignDelegateOptions.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignDelegateOptions</A>&nbsp;attributeAssignDelegateOptions)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>action</CODE> - is the action on the assignment (null means default action)<DD><CODE>attributeDefName</CODE> - <DD><CODE>assign</CODE> - true to assign, false to unassign<DD><CODE>attributeAssignDelegateOptions</CODE> - if there are more options, null if not
+<DT><B>Returns:</B><DD>the result including if added or already there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="delegateAttributeById(java.lang.String, boolean, edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegateOptions)"><!-- --></A><H3>
+delegateAttributeById</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>delegateAttributeById</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameId,
+                                                   boolean&nbsp;assign,
+                                                   <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignDelegateOptions.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignDelegateOptions</A>&nbsp;attributeAssignDelegateOptions)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefNameId</CODE> - <DD><CODE>assign</CODE> - true to assign, false to unassign<DD><CODE>attributeAssignDelegateOptions</CODE> - if there are more options, null if not
+<DT><B>Returns:</B><DD>the result including if added or already there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="delegateAttributeById(java.lang.String, java.lang.String, boolean, edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegateOptions)"><!-- --></A><H3>
+delegateAttributeById</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>delegateAttributeById</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameId,
+                                                   boolean&nbsp;assign,
+                                                   <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignDelegateOptions.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignDelegateOptions</A>&nbsp;attributeAssignDelegateOptions)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>action</CODE> - is the action on the assignment (null means default action)<DD><CODE>attributeDefNameId</CODE> - <DD><CODE>assign</CODE> - true to assign, false to unassign<DD><CODE>attributeAssignDelegateOptions</CODE> - if there are more options, null if not
+<DT><B>Returns:</B><DD>the result including if added or already there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="delegateAttributeByName(java.lang.String, boolean, edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegateOptions)"><!-- --></A><H3>
+delegateAttributeByName</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>delegateAttributeByName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameName,
+                                                     boolean&nbsp;assign,
+                                                     <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignDelegateOptions.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignDelegateOptions</A>&nbsp;attributeAssignDelegateOptions)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefNameName</CODE> - <DD><CODE>assign</CODE> - true to assign, false to unassign<DD><CODE>attributeAssignDelegateOptions</CODE> - if there are more options, null if not
+<DT><B>Returns:</B><DD>the result including if added or already there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="delegateAttributeByName(java.lang.String, java.lang.String, boolean, edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegateOptions)"><!-- --></A><H3>
+delegateAttributeByName</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>delegateAttributeByName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameName,
+                                                     boolean&nbsp;assign,
+                                                     <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignDelegateOptions.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignDelegateOptions</A>&nbsp;attributeAssignDelegateOptions)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>action</CODE> - is the action on the assignment (null means default action)<DD><CODE>assign</CODE> - true to assign, false to unassign<DD><CODE>attributeAssignDelegateOptions</CODE> - if there are more options, null if not<DD><CODE>attributeDefNameName</CODE> - 
+<DT><B>Returns:</B><DD>the result including if added or already there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addAttribute(edu.internet2.middleware.grouper.attr.AttributeDefName)"><!-- --></A><H3>
+addAttribute</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>addAttribute</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</PRE>
+<DL>
+<DD>add a multi assignable attribute
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefName</CODE> - 
+<DT><B>Returns:</B><DD>the result including if added or already there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addAttribute(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName)"><!-- --></A><H3>
+addAttribute</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>addAttribute</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                                          <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</PRE>
+<DL>
+<DD>add a multi assignable attribute
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>action</CODE> - is the action on the assignment (null means default action)<DD><CODE>attributeDefName</CODE> - 
+<DT><B>Returns:</B><DD>the result including if added or already there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addAttributeById(java.lang.String)"><!-- --></A><H3>
+addAttributeById</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>addAttributeById</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameId)</PRE>
+<DL>
+<DD>add a multi assignable attribute
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefNameId</CODE> - 
+<DT><B>Returns:</B><DD>the result including if added or already there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addAttributeById(java.lang.String, java.lang.String)"><!-- --></A><H3>
+addAttributeById</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>addAttributeById</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                                              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameId)</PRE>
+<DL>
+<DD>add a multi assignable attribute
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>action</CODE> - is the action on the assignment (null means default action)<DD><CODE>attributeDefNameId</CODE> - 
+<DT><B>Returns:</B><DD>the result including if added or already there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addAttributeByName(java.lang.String)"><!-- --></A><H3>
+addAttributeByName</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>addAttributeByName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameName)</PRE>
+<DL>
+<DD>add a multi assignable attribute
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefNameName</CODE> - 
+<DT><B>Returns:</B><DD>the result including if added or already there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addAttributeByName(java.lang.String, java.lang.String)"><!-- --></A><H3>
+addAttributeByName</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>addAttributeByName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                                                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameName)</PRE>
+<DL>
+<DD>add a multi assignable attribute
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>action</CODE> - is the action on the assignment (null means default action)<DD><CODE>attributeDefNameName</CODE> - 
+<DT><B>Returns:</B><DD>the result including if added or already there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assertScopeOk(edu.internet2.middleware.grouper.attr.AttributeDef)"><!-- --></A><H3>
+assertScopeOk</H3>
+<PRE>
+public void <B>assertScopeOk</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDef</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAttributeAssignable()"><!-- --></A><H3>
+getAttributeAssignable</H3>
+<PRE>
+public abstract <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignable.html?view=co" title="interface in edu.internet2.middleware.grouper.attr.assign">AttributeAssignable</A> <B>getAttributeAssignable</B>()</PRE>
+<DL>
+<DD>get the assignable object
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the assignable object</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="internal_addAttributeHelper(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName, boolean, java.lang.String)"><!-- --></A><H3>
+internal_addAttributeHelper</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignResult.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignResult</A> <B>internal_addAttributeHelper</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action,
+                                                         <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName,
+                                                         boolean&nbsp;checkSecurity,
+                                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid)</PRE>
+<DL>
+<DD>add a multi assignable attribute
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>action</CODE> - is the action on the assignment (null means default action)<DD><CODE>attributeDefName</CODE> - <DD><CODE>checkSecurity</CODE> - <DD><CODE>uuid</CODE> - uuid of the assignment
+<DT><B>Returns:</B><DD>the result including if added or already there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveAttributes()"><!-- --></A><H3>
+retrieveAttributes</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&gt; <B>retrieveAttributes</B>()</PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the attributes for an owner</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAttributeAssigns()"><!-- --></A><H3>
+getAttributeAssigns</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&gt; <B>getAttributeAssigns</B>()</PRE>
+<DL>
+<DD>find the assignments of any name associated with an owner
+ this is the javabean equivalent to retrieveAssignments
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the set of assignments or the empty set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveAssignments()"><!-- --></A><H3>
+retrieveAssignments</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&gt; <B>retrieveAssignments</B>()</PRE>
+<DL>
+<DD>find the assignments of any name associated with an owner
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the set of assignments or the empty set</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAttributeDefDelegate.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignDelegatable.html?view=co" title="enum in edu.internet2.middleware.grouper.attr.assign"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="AttributeAssignBaseDelegate.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

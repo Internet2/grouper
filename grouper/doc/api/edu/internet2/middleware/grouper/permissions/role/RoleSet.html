@@ -1,0 +1,2113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+RoleSet
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="RoleSet";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleInheritanceDelegate.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSetView.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="RoleSet.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.permissions.role</FONT>
+<BR>
+Class RoleSet</H2>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">edu.internet2.middleware.grouper.GrouperAPI</A>
+      <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.permissions.role.RoleSet</B>
+</PRE>
+<DL>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co" title="interface in edu.internet2.middleware.grouper.grouperSet">GrouperSet</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate">HibGrouperLifecycle</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3GrouperVersioned.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao.hib3">Hib3GrouperVersioned</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/misc/GrouperCloneable.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperCloneable</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/misc/GrouperHasContext.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperHasContext</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/util/GrouperUtil.FieldValuable.html?view=co" title="interface in edu.internet2.middleware.grouper.util">GrouperUtil.FieldValuable</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportable.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportable</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A>&gt;, <A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportableBase</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A>&gt;, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Serializable.html?view=co" title="class or interface in java.io">Serializable</A>, org.hibernate.classic.Lifecycle</DD>
+</DL>
+<HR>
+<DL>
+<DT><PRE>public class <B>RoleSet</B><DT>extends <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A><DT>implements <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3GrouperVersioned.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao.hib3">Hib3GrouperVersioned</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co" title="interface in edu.internet2.middleware.grouper.grouperSet">GrouperSet</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/misc/GrouperHasContext.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperHasContext</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportable.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportable</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A>&gt;</DL>
+</PRE>
+
+<P>
+<DL>
+<DT><B>Author:</B></DT>
+  <DD>mchyzer $Id: RoleSet.java,v 1.1 2009-10-02 05:57:58 mchyzer Exp $</DD>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../serialized-form.html?view=co#edu.internet2.middleware.grouper.permissions.role.RoleSet">Serialized Form</A></DL>
+<HR>
+
+<P>
+<!-- =========== FIELD SUMMARY =========== -->
+
+<A NAME="field_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Field Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#COLUMN_CONTEXT_ID">COLUMN_CONTEXT_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#COLUMN_CREATED_ON">COLUMN_CREATED_ON</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#COLUMN_DEPTH">COLUMN_DEPTH</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#COLUMN_ID">COLUMN_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#COLUMN_IF_HAS_ROLE_ID">COLUMN_IF_HAS_ROLE_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#COLUMN_LAST_UPDATED">COLUMN_LAST_UPDATED</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#COLUMN_PARENT_ROLE_SET_ID">COLUMN_PARENT_ROLE_SET_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#COLUMN_THEN_HAS_ROLE_ID">COLUMN_THEN_HAS_ROLE_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#COLUMN_TYPE">COLUMN_TYPE</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#FIELD_CONTEXT_ID">FIELD_CONTEXT_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: contextId</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#FIELD_CREATED_ON_DB">FIELD_CREATED_ON_DB</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: createdOnDb</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#FIELD_DEPTH">FIELD_DEPTH</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: depth</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#FIELD_ID">FIELD_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: id</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#FIELD_IF_HAS_ROLE_ID">FIELD_IF_HAS_ROLE_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: ifHasRoleId</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#FIELD_LAST_UPDATED_DB">FIELD_LAST_UPDATED_DB</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: lastUpdatedDb</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#FIELD_PARENT_ROLE_SET_ID">FIELD_PARENT_ROLE_SET_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: parentRoleSetId</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#FIELD_THEN_HAS_ROLE_ID">FIELD_THEN_HAS_ROLE_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: thenHasRoleId</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#FIELD_TYPE">FIELD_TYPE</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: type</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#TABLE_GROUPER_ROLE_SET">TABLE_GROUPER_ROLE_SET</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of the groups role table in the db</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="fields_inherited_from_class_edu.internet2.middleware.grouper.GrouperAPI"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Fields inherited from class edu.internet2.middleware.grouper.<A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#COLUMN_HIBERNATE_VERSION_NUMBER">COLUMN_HIBERNATE_VERSION_NUMBER</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#FIELD_DB_VERSION">FIELD_DB_VERSION</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#FIELD_HIBERNATE_VERSION_NUMBER">FIELD_HIBERNATE_VERSION_NUMBER</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#INITIAL_VERSION_NUMBER">INITIAL_VERSION_NUMBER</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="fields_inherited_from_class_org.hibernate.classic.Lifecycle"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Fields inherited from interface org.hibernate.classic.Lifecycle</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>NO_VETO, VETO</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#RoleSet()">RoleSet</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#__getDepth()">__getDepth</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;depth of this relationship (0 means self, 1 means one hop, 2 means 2 hops, etc)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#__getId()">__getId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if of this object</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSetElement.html?view=co" title="interface in edu.internet2.middleware.grouper.grouperSet">GrouperSetElement</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#__getIfHasElement()">__getIfHasElement</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if has this element then has another element</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#__getIfHasElementId()">__getIfHasElementId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if has this element id then has another element id</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co" title="interface in edu.internet2.middleware.grouper.grouperSet">GrouperSet</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#__getParentGrouperSet()">__getParentGrouperSet</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get the parent set
+ the parent is the relationship leading up to this relationship.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#__getParentGrouperSetId()">__getParentGrouperSetId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;parent set id</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSetElement.html?view=co" title="interface in edu.internet2.middleware.grouper.grouperSet">GrouperSetElement</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#__getThenHasElement()">__getThenHasElement</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;has this element if it has another</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#__getThenHasElementId()">__getThenHasElementId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;has this element Id if it has another id</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#__setParentGrouperSetId(java.lang.String)">__setParentGrouperSetId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;grouperSetId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set the parent id of this set.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#clone()">clone</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;deep clone the fields in this object</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#dbVersion()">dbVersion</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;save the state when retrieving from DB</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#dbVersionDifferentFields()">dbVersionDifferentFields</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see which fields have changed compared to the DB state (last known)
+ note that attributes will print out: attribute__attributeName</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#dbVersionReset()">dbVersionReset</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;take a snapshot of the data since this is what is in the db</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#delete()">delete</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;save or update this object</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#equals(java.lang.Object)">equals</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;other)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#findInCollection(java.util.Collection, java.lang.String, java.lang.String, int, boolean)">findInCollection</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A>&gt;&nbsp;roleSets,
+                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ifHasId,
+                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;thenHasId,
+                 int&nbsp;depth,
+                 boolean&nbsp;exceptionIfNull)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find role set, better be here</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#getContextId()">getContextId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;context id of the transaction</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#getCreatedOn()">getCreatedOn</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when created</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#getCreatedOnDb()">getCreatedOnDb</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when created</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#getDepth()">getDepth</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#getId()">getId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/Role.html?view=co" title="interface in edu.internet2.middleware.grouper.permissions.role">Role</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#getIfHasRole()">getIfHasRole</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#getIfHasRoleId()">getIfHasRoleId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#getLastUpdated()">getLastUpdated</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when last updated</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#getLastUpdatedDb()">getLastUpdatedDb</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when last updated</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#getParentRoleSet()">getParentRoleSet</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#getParentRoleSetId()">getParentRoleSetId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for self, or immediate, just use this id.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/Role.html?view=co" title="interface in edu.internet2.middleware.grouper.permissions.role">Role</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#getThenHasRole()">getThenHasRole</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#getThenHasRoleId()">getThenHasRoleId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleHierarchyType.html?view=co" title="enum in edu.internet2.middleware.grouper.permissions.role">RoleHierarchyType</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#getType()">getType</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#getTypeDb()">getTypeDb</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get string value of type for hibernate</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#hashCode()">hashCode</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreDelete</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;before a delete (insert) occurs</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreSave</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;before a save (insert) occurs</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreUpdate</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;before an update occurs</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#saveOrUpdate()">saveOrUpdate</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;save or update this object</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#setContextId(java.lang.String)">setContextId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;contextId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set context id</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#setCreatedOn(java.sql.Timestamp)">setCreatedOn</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;createdOn1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when created</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#setCreatedOnDb(java.lang.Long)">setCreatedOnDb</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;createdOn1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when created</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#setDepth(int)">setDepth</A></B>(int&nbsp;depth)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set depth</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#setId(java.lang.String)">setId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set id</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#setIfHasRoleId(java.lang.String)">setIfHasRoleId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;memberRoleId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set role id for the child</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#setLastUpdated(java.sql.Timestamp)">setLastUpdated</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;lastUpdated1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when last updated</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#setLastUpdatedDb(java.lang.Long)">setLastUpdatedDb</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;lastUpdated1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when last updated</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#setParentRoleSetId(java.lang.String)">setParentRoleSetId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;parentId1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for self, or immediate, just use this id.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#setThenHasRoleId(java.lang.String)">setThenHasRoleId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;thenHasRoleId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set role id for the then</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#setType(edu.internet2.middleware.grouper.permissions.role.RoleHierarchyType)">setType</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleHierarchyType.html?view=co" title="enum in edu.internet2.middleware.grouper.permissions.role">RoleHierarchyType</A>&nbsp;type1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set group set assignment type</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#setTypeDb(java.lang.String)">setTypeDb</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;type1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set group set assignment type</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#xmlCopyBusinessPropertiesToExisting(edu.internet2.middleware.grouper.permissions.role.RoleSet)">xmlCopyBusinessPropertiesToExisting</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A>&nbsp;existingRecord)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;copy business (non update) properties to an existing record</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#xmlDifferentBusinessProperties(edu.internet2.middleware.grouper.permissions.role.RoleSet)">xmlDifferentBusinessProperties</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A>&nbsp;other)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if the non update cols are different (e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#xmlDifferentUpdateProperties(edu.internet2.middleware.grouper.permissions.role.RoleSet)">xmlDifferentUpdateProperties</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A>&nbsp;other)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if the update cols are different (e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#xmlGetId()">xmlGetId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set id key in db</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#xmlRetrieveByIdOrKey()">xmlRetrieveByIdOrKey</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve from db by id or key.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#xmlSaveBusinessProperties(edu.internet2.middleware.grouper.permissions.role.RoleSet)">xmlSaveBusinessProperties</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A>&nbsp;existingRecord)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;save the business properties (not update properties)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#xmlSaveUpdateProperties()">xmlSaveUpdateProperties</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;save the udpate properties (e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#xmlSetId(java.lang.String)">xmlSetId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set id key in db</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportRoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export">XmlExportRoleSet</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#xmlToExportRoleSet(edu.internet2.middleware.grouper.misc.GrouperVersion)">xmlToExportRoleSet</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html?view=co" title="class in edu.internet2.middleware.grouper.misc">GrouperVersion</A>&nbsp;grouperVersion)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert to xml bean for export</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co#xmlToString()">xmlToString</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert to string for log</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_edu.internet2.middleware.grouper.GrouperAPI"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class edu.internet2.middleware.grouper.<A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#dbVersionClear()">dbVersionClear</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#dbVersionIsDifferent()">dbVersionIsDifferent</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#fieldValue(java.lang.String)">fieldValue</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#getHibernateVersionNumber()">getHibernateVersionNumber</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onDelete(org.hibernate.Session)">onDelete</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onLoad(org.hibernate.Session, java.io.Serializable)">onLoad</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPostDelete</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPostSave</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPostUpdate</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onSave(org.hibernate.Session)">onSave</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onUpdate(org.hibernate.Session)">onUpdate</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#setHibernateVersionNumber(java.lang.Long)">setHibernateVersionNumber</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ============ FIELD DETAIL =========== -->
+
+<A NAME="field_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Field Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="TABLE_GROUPER_ROLE_SET"><!-- --></A><H3>
+TABLE_GROUPER_ROLE_SET</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>TABLE_GROUPER_ROLE_SET</B></PRE>
+<DL>
+<DD>name of the groups role table in the db
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.role.RoleSet.TABLE_GROUPER_ROLE_SET">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_CONTEXT_ID"><!-- --></A><H3>
+COLUMN_CONTEXT_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_CONTEXT_ID</B></PRE>
+<DL>
+<DD>column
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.role.RoleSet.COLUMN_CONTEXT_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_CREATED_ON"><!-- --></A><H3>
+COLUMN_CREATED_ON</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_CREATED_ON</B></PRE>
+<DL>
+<DD>column
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.role.RoleSet.COLUMN_CREATED_ON">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_LAST_UPDATED"><!-- --></A><H3>
+COLUMN_LAST_UPDATED</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_LAST_UPDATED</B></PRE>
+<DL>
+<DD>column
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.role.RoleSet.COLUMN_LAST_UPDATED">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_ID"><!-- --></A><H3>
+COLUMN_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_ID</B></PRE>
+<DL>
+<DD>column
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.role.RoleSet.COLUMN_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_DEPTH"><!-- --></A><H3>
+COLUMN_DEPTH</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_DEPTH</B></PRE>
+<DL>
+<DD>column
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.role.RoleSet.COLUMN_DEPTH">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_IF_HAS_ROLE_ID"><!-- --></A><H3>
+COLUMN_IF_HAS_ROLE_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_IF_HAS_ROLE_ID</B></PRE>
+<DL>
+<DD>column
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.role.RoleSet.COLUMN_IF_HAS_ROLE_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_THEN_HAS_ROLE_ID"><!-- --></A><H3>
+COLUMN_THEN_HAS_ROLE_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_THEN_HAS_ROLE_ID</B></PRE>
+<DL>
+<DD>column
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.role.RoleSet.COLUMN_THEN_HAS_ROLE_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_PARENT_ROLE_SET_ID"><!-- --></A><H3>
+COLUMN_PARENT_ROLE_SET_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_PARENT_ROLE_SET_ID</B></PRE>
+<DL>
+<DD>column
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.role.RoleSet.COLUMN_PARENT_ROLE_SET_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_TYPE"><!-- --></A><H3>
+COLUMN_TYPE</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_TYPE</B></PRE>
+<DL>
+<DD>column
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.role.RoleSet.COLUMN_TYPE">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_CONTEXT_ID"><!-- --></A><H3>
+FIELD_CONTEXT_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_CONTEXT_ID</B></PRE>
+<DL>
+<DD>constant for field name for: contextId
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.role.RoleSet.FIELD_CONTEXT_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_CREATED_ON_DB"><!-- --></A><H3>
+FIELD_CREATED_ON_DB</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_CREATED_ON_DB</B></PRE>
+<DL>
+<DD>constant for field name for: createdOnDb
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.role.RoleSet.FIELD_CREATED_ON_DB">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_DEPTH"><!-- --></A><H3>
+FIELD_DEPTH</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_DEPTH</B></PRE>
+<DL>
+<DD>constant for field name for: depth
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.role.RoleSet.FIELD_DEPTH">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_ID"><!-- --></A><H3>
+FIELD_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_ID</B></PRE>
+<DL>
+<DD>constant for field name for: id
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.role.RoleSet.FIELD_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_IF_HAS_ROLE_ID"><!-- --></A><H3>
+FIELD_IF_HAS_ROLE_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_IF_HAS_ROLE_ID</B></PRE>
+<DL>
+<DD>constant for field name for: ifHasRoleId
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.role.RoleSet.FIELD_IF_HAS_ROLE_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_LAST_UPDATED_DB"><!-- --></A><H3>
+FIELD_LAST_UPDATED_DB</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_LAST_UPDATED_DB</B></PRE>
+<DL>
+<DD>constant for field name for: lastUpdatedDb
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.role.RoleSet.FIELD_LAST_UPDATED_DB">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_THEN_HAS_ROLE_ID"><!-- --></A><H3>
+FIELD_THEN_HAS_ROLE_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_THEN_HAS_ROLE_ID</B></PRE>
+<DL>
+<DD>constant for field name for: thenHasRoleId
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.role.RoleSet.FIELD_THEN_HAS_ROLE_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_PARENT_ROLE_SET_ID"><!-- --></A><H3>
+FIELD_PARENT_ROLE_SET_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_PARENT_ROLE_SET_ID</B></PRE>
+<DL>
+<DD>constant for field name for: parentRoleSetId
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.role.RoleSet.FIELD_PARENT_ROLE_SET_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_TYPE"><!-- --></A><H3>
+FIELD_TYPE</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_TYPE</B></PRE>
+<DL>
+<DD>constant for field name for: type
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.role.RoleSet.FIELD_TYPE">Constant Field Values</A></DL>
+</DL>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="RoleSet()"><!-- --></A><H3>
+RoleSet</H3>
+<PRE>
+public <B>RoleSet</B>()</PRE>
+<DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)"><!-- --></A><H3>
+onPreSave</H3>
+<PRE>
+public void <B>onPreSave</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)">HibGrouperLifecycle</A></CODE></B></DD>
+<DD>before a save (insert) occurs
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreSave</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate">HibGrouperLifecycle</A></CODE><DT><B>Overrides:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreSave</A></CODE> in class <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)"><CODE>GrouperAPI.onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)"><!-- --></A><H3>
+onPreDelete</H3>
+<PRE>
+public void <B>onPreDelete</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)">HibGrouperLifecycle</A></CODE></B></DD>
+<DD>before a delete (insert) occurs
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreDelete</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate">HibGrouperLifecycle</A></CODE><DT><B>Overrides:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreDelete</A></CODE> in class <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)"><CODE>GrouperAPI.onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)"><!-- --></A><H3>
+onPreUpdate</H3>
+<PRE>
+public void <B>onPreUpdate</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)">HibGrouperLifecycle</A></CODE></B></DD>
+<DD>before an update occurs
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreUpdate</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate">HibGrouperLifecycle</A></CODE><DT><B>Overrides:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreUpdate</A></CODE> in class <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)"><CODE>GrouperAPI.onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findInCollection(java.util.Collection, java.lang.String, java.lang.String, int, boolean)"><!-- --></A><H3>
+findInCollection</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A> <B>findInCollection</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A>&gt;&nbsp;roleSets,
+                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ifHasId,
+                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;thenHasId,
+                                       int&nbsp;depth,
+                                       boolean&nbsp;exceptionIfNull)</PRE>
+<DL>
+<DD>find role set, better be here
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>roleSets</CODE> - <DD><CODE>ifHasId</CODE> - <DD><CODE>thenHasId</CODE> - <DD><CODE>depth</CODE> - is the depth expecting<DD><CODE>exceptionIfNull</CODE> - 
+<DT><B>Returns:</B><DD>the def name set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="equals(java.lang.Object)"><!-- --></A><H3>
+equals</H3>
+<PRE>
+public boolean <B>equals</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;other)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">equals</A></CODE> in class <CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang"><CODE>Object.equals(java.lang.Object)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="hashCode()"><!-- --></A><H3>
+hashCode</H3>
+<PRE>
+public int <B>hashCode</B>()</PRE>
+<DL>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">hashCode</A></CODE> in class <CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang"><CODE>Object.hashCode()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="clone()"><!-- --></A><H3>
+clone</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A> <B>clone</B>()</PRE>
+<DL>
+<DD><B>Description copied from class: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#clone()">GrouperAPI</A></CODE></B></DD>
+<DD>deep clone the fields in this object
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/misc/GrouperCloneable.html?view=co#clone()">clone</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/misc/GrouperCloneable.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperCloneable</A></CODE><DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#clone()">clone</A></CODE> in class <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the clone of the object<DT><B>See Also:</B><DD><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang"><CODE>Object.clone()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getParentRoleSet()"><!-- --></A><H3>
+getParentRoleSet</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A> <B>getParentRoleSet</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the parent group set or null if none</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getIfHasRole()"><!-- --></A><H3>
+getIfHasRole</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/Role.html?view=co" title="interface in edu.internet2.middleware.grouper.permissions.role">Role</A> <B>getIfHasRole</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the parent group set or null if none</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getThenHasRole()"><!-- --></A><H3>
+getThenHasRole</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/Role.html?view=co" title="interface in edu.internet2.middleware.grouper.permissions.role">Role</A> <B>getThenHasRole</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the parent group set or null if none</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getId()"><!-- --></A><H3>
+getId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getId</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>id</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setId(java.lang.String)"><!-- --></A><H3>
+setId</H3>
+<PRE>
+public void <B>setId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id)</PRE>
+<DL>
+<DD>set id
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>id</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setContextId(java.lang.String)"><!-- --></A><H3>
+setContextId</H3>
+<PRE>
+public void <B>setContextId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;contextId)</PRE>
+<DL>
+<DD>set context id
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/misc/GrouperHasContext.html?view=co#setContextId(java.lang.String)">setContextId</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/misc/GrouperHasContext.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperHasContext</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>contextId</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getParentRoleSetId()"><!-- --></A><H3>
+getParentRoleSetId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getParentRoleSetId</B>()</PRE>
+<DL>
+<DD>for self, or immediate, just use this id.
+ for effective, this is the first hop on the directed graph
+ to get to this membership.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>parent id</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setParentRoleSetId(java.lang.String)"><!-- --></A><H3>
+setParentRoleSetId</H3>
+<PRE>
+public void <B>setParentRoleSetId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;parentId1)</PRE>
+<DL>
+<DD>for self, or immediate, just use this id.
+ for effective, this is the first hop on the directed graph
+ to get to this membership.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>parentId1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getThenHasRoleId()"><!-- --></A><H3>
+getThenHasRoleId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getThenHasRoleId</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>role id for then</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setThenHasRoleId(java.lang.String)"><!-- --></A><H3>
+setThenHasRoleId</H3>
+<PRE>
+public void <B>setThenHasRoleId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;thenHasRoleId)</PRE>
+<DL>
+<DD>Set role id for the then
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>thenHasRoleId</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getIfHasRoleId()"><!-- --></A><H3>
+getIfHasRoleId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getIfHasRoleId</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>member role id for the child</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setIfHasRoleId(java.lang.String)"><!-- --></A><H3>
+setIfHasRoleId</H3>
+<PRE>
+public void <B>setIfHasRoleId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;memberRoleId)</PRE>
+<DL>
+<DD>Set role id for the child
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>memberRoleId</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getType()"><!-- --></A><H3>
+getType</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleHierarchyType.html?view=co" title="enum in edu.internet2.middleware.grouper.permissions.role">RoleHierarchyType</A> <B>getType</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>membership type (immediate, effective, or composite)</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getTypeDb()"><!-- --></A><H3>
+getTypeDb</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getTypeDb</B>()</PRE>
+<DL>
+<DD>get string value of type for hibernate
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>type</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setType(edu.internet2.middleware.grouper.permissions.role.RoleHierarchyType)"><!-- --></A><H3>
+setType</H3>
+<PRE>
+public void <B>setType</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleHierarchyType.html?view=co" title="enum in edu.internet2.middleware.grouper.permissions.role">RoleHierarchyType</A>&nbsp;type1)</PRE>
+<DL>
+<DD>set group set assignment type
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>type1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setTypeDb(java.lang.String)"><!-- --></A><H3>
+setTypeDb</H3>
+<PRE>
+public void <B>setTypeDb</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;type1)</PRE>
+<DL>
+<DD>set group set assignment type
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>type1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getDepth()"><!-- --></A><H3>
+getDepth</H3>
+<PRE>
+public int <B>getDepth</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>depth</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setDepth(int)"><!-- --></A><H3>
+setDepth</H3>
+<PRE>
+public void <B>setDepth</B>(int&nbsp;depth)</PRE>
+<DL>
+<DD>set depth
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>depth</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getContextId()"><!-- --></A><H3>
+getContextId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getContextId</B>()</PRE>
+<DL>
+<DD>context id of the transaction
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>context id</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getCreatedOn()"><!-- --></A><H3>
+getCreatedOn</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A> <B>getCreatedOn</B>()</PRE>
+<DL>
+<DD>when created
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>timestamp</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getCreatedOnDb()"><!-- --></A><H3>
+getCreatedOnDb</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A> <B>getCreatedOnDb</B>()</PRE>
+<DL>
+<DD>when created
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>timestamp</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLastUpdated()"><!-- --></A><H3>
+getLastUpdated</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A> <B>getLastUpdated</B>()</PRE>
+<DL>
+<DD>when last updated
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>timestamp</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLastUpdatedDb()"><!-- --></A><H3>
+getLastUpdatedDb</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A> <B>getLastUpdatedDb</B>()</PRE>
+<DL>
+<DD>when last updated
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>timestamp</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="saveOrUpdate()"><!-- --></A><H3>
+saveOrUpdate</H3>
+<PRE>
+public void <B>saveOrUpdate</B>()</PRE>
+<DL>
+<DD>save or update this object
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#saveOrUpdate()">saveOrUpdate</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co" title="interface in edu.internet2.middleware.grouper.grouperSet">GrouperSet</A></CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="delete()"><!-- --></A><H3>
+delete</H3>
+<PRE>
+public void <B>delete</B>()</PRE>
+<DL>
+<DD>save or update this object
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#delete()">delete</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co" title="interface in edu.internet2.middleware.grouper.grouperSet">GrouperSet</A></CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setCreatedOnDb(java.lang.Long)"><!-- --></A><H3>
+setCreatedOnDb</H3>
+<PRE>
+public void <B>setCreatedOnDb</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;createdOn1)</PRE>
+<DL>
+<DD>when created
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>createdOn1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setCreatedOn(java.sql.Timestamp)"><!-- --></A><H3>
+setCreatedOn</H3>
+<PRE>
+public void <B>setCreatedOn</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;createdOn1)</PRE>
+<DL>
+<DD>when created
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>createdOn1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLastUpdated(java.sql.Timestamp)"><!-- --></A><H3>
+setLastUpdated</H3>
+<PRE>
+public void <B>setLastUpdated</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;lastUpdated1)</PRE>
+<DL>
+<DD>when last updated
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>lastUpdated1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLastUpdatedDb(java.lang.Long)"><!-- --></A><H3>
+setLastUpdatedDb</H3>
+<PRE>
+public void <B>setLastUpdatedDb</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;lastUpdated1)</PRE>
+<DL>
+<DD>when last updated
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>lastUpdated1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="__getId()"><!-- --></A><H3>
+__getId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>__getId</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__getId()">GrouperSet</A></CODE></B></DD>
+<DD>if of this object
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__getId()">__getId</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co" title="interface in edu.internet2.middleware.grouper.grouperSet">GrouperSet</A></CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>id<DT><B>See Also:</B><DD><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__getId()"><CODE>GrouperSet.__getId()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="__getIfHasElementId()"><!-- --></A><H3>
+__getIfHasElementId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>__getIfHasElementId</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__getIfHasElementId()">GrouperSet</A></CODE></B></DD>
+<DD>if has this element id then has another element id
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__getIfHasElementId()">__getIfHasElementId</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co" title="interface in edu.internet2.middleware.grouper.grouperSet">GrouperSet</A></CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>id<DT><B>See Also:</B><DD><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__getIfHasElementId()"><CODE>GrouperSet.__getIfHasElementId()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="__getThenHasElementId()"><!-- --></A><H3>
+__getThenHasElementId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>__getThenHasElementId</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__getThenHasElementId()">GrouperSet</A></CODE></B></DD>
+<DD>has this element Id if it has another id
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__getThenHasElementId()">__getThenHasElementId</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co" title="interface in edu.internet2.middleware.grouper.grouperSet">GrouperSet</A></CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>id<DT><B>See Also:</B><DD><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__getThenHasElementId()"><CODE>GrouperSet.__getThenHasElementId()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="__getDepth()"><!-- --></A><H3>
+__getDepth</H3>
+<PRE>
+public int <B>__getDepth</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__getDepth()">GrouperSet</A></CODE></B></DD>
+<DD>depth of this relationship (0 means self, 1 means one hop, 2 means 2 hops, etc)
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__getDepth()">__getDepth</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co" title="interface in edu.internet2.middleware.grouper.grouperSet">GrouperSet</A></CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>depth<DT><B>See Also:</B><DD><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__getDepth()"><CODE>GrouperSet.__getDepth()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="__getIfHasElement()"><!-- --></A><H3>
+__getIfHasElement</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSetElement.html?view=co" title="interface in edu.internet2.middleware.grouper.grouperSet">GrouperSetElement</A> <B>__getIfHasElement</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__getIfHasElement()">GrouperSet</A></CODE></B></DD>
+<DD>if has this element then has another element
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__getIfHasElement()">__getIfHasElement</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co" title="interface in edu.internet2.middleware.grouper.grouperSet">GrouperSet</A></CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>id<DT><B>See Also:</B><DD><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__getIfHasElement()"><CODE>GrouperSet.__getIfHasElement()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="__getThenHasElement()"><!-- --></A><H3>
+__getThenHasElement</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSetElement.html?view=co" title="interface in edu.internet2.middleware.grouper.grouperSet">GrouperSetElement</A> <B>__getThenHasElement</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__getThenHasElement()">GrouperSet</A></CODE></B></DD>
+<DD>has this element if it has another
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__getThenHasElement()">__getThenHasElement</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co" title="interface in edu.internet2.middleware.grouper.grouperSet">GrouperSet</A></CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>id<DT><B>See Also:</B><DD><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__getThenHasElement()"><CODE>GrouperSet.__getThenHasElement()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="__setParentGrouperSetId(java.lang.String)"><!-- --></A><H3>
+__setParentGrouperSetId</H3>
+<PRE>
+public void <B>__setParentGrouperSetId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;grouperSetId)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__setParentGrouperSetId(java.lang.String)">GrouperSet</A></CODE></B></DD>
+<DD>set the parent id of this set.  
+ the parent is the relationship leading up to this relationship.
+ e.g. if this is the graph: A->B->C, and the relationship is A->C, then the parent is A->B
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__setParentGrouperSetId(java.lang.String)">__setParentGrouperSetId</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co" title="interface in edu.internet2.middleware.grouper.grouperSet">GrouperSet</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__setParentGrouperSetId(java.lang.String)"><CODE>GrouperSet.__setParentGrouperSetId(java.lang.String)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="__getParentGrouperSet()"><!-- --></A><H3>
+__getParentGrouperSet</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co" title="interface in edu.internet2.middleware.grouper.grouperSet">GrouperSet</A> <B>__getParentGrouperSet</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__getParentGrouperSet()">GrouperSet</A></CODE></B></DD>
+<DD>get the parent set
+ the parent is the relationship leading up to this relationship.
+ e.g. if this is the graph: A->B->C, and the relationship is A->C, then the parent is A->B
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__getParentGrouperSet()">__getParentGrouperSet</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co" title="interface in edu.internet2.middleware.grouper.grouperSet">GrouperSet</A></CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>parent<DT><B>See Also:</B><DD><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__getParentGrouperSet()"><CODE>GrouperSet.__getParentGrouperSet()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="__getParentGrouperSetId()"><!-- --></A><H3>
+__getParentGrouperSetId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>__getParentGrouperSetId</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__getParentGrouperSetId()">GrouperSet</A></CODE></B></DD>
+<DD>parent set id
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__getParentGrouperSetId()">__getParentGrouperSetId</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co" title="interface in edu.internet2.middleware.grouper.grouperSet">GrouperSet</A></CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>parent set id<DT><B>See Also:</B><DD><A HREF="../../../../../../edu/internet2/middleware/grouper/grouperSet/GrouperSet.html?view=co#__getParentGrouperSetId()"><CODE>GrouperSet.__getParentGrouperSetId()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlCopyBusinessPropertiesToExisting(edu.internet2.middleware.grouper.permissions.role.RoleSet)"><!-- --></A><H3>
+xmlCopyBusinessPropertiesToExisting</H3>
+<PRE>
+public void <B>xmlCopyBusinessPropertiesToExisting</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A>&nbsp;existingRecord)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlCopyBusinessPropertiesToExisting(T)">XmlImportableBase</A></CODE></B></DD>
+<DD>copy business (non update) properties to an existing record
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlCopyBusinessPropertiesToExisting(T)">xmlCopyBusinessPropertiesToExisting</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportableBase</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlCopyBusinessPropertiesToExisting(T)"><CODE>XmlImportableBase.xmlCopyBusinessPropertiesToExisting(java.lang.Object)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlDifferentBusinessProperties(edu.internet2.middleware.grouper.permissions.role.RoleSet)"><!-- --></A><H3>
+xmlDifferentBusinessProperties</H3>
+<PRE>
+public boolean <B>xmlDifferentBusinessProperties</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A>&nbsp;other)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlDifferentBusinessProperties(T)">XmlImportableBase</A></CODE></B></DD>
+<DD>see if the non update cols are different (e.g. name)
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlDifferentBusinessProperties(T)">xmlDifferentBusinessProperties</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportableBase</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>other</CODE> - the one to compare with
+<DT><B>Returns:</B><DD>true if so<DT><B>See Also:</B><DD><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlDifferentBusinessProperties(T)"><CODE>XmlImportableBase.xmlDifferentBusinessProperties(java.lang.Object)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlDifferentUpdateProperties(edu.internet2.middleware.grouper.permissions.role.RoleSet)"><!-- --></A><H3>
+xmlDifferentUpdateProperties</H3>
+<PRE>
+public boolean <B>xmlDifferentUpdateProperties</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A>&nbsp;other)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlDifferentUpdateProperties(T)">XmlImportableBase</A></CODE></B></DD>
+<DD>see if the update cols are different (e.g. last updated)
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlDifferentUpdateProperties(T)">xmlDifferentUpdateProperties</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportableBase</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>other</CODE> - the one to compare with
+<DT><B>Returns:</B><DD>true if so<DT><B>See Also:</B><DD><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlDifferentUpdateProperties(T)"><CODE>XmlImportableBase.xmlDifferentUpdateProperties(java.lang.Object)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlRetrieveByIdOrKey()"><!-- --></A><H3>
+xmlRetrieveByIdOrKey</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A> <B>xmlRetrieveByIdOrKey</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportable.html?view=co#xmlRetrieveByIdOrKey()">XmlImportable</A></CODE></B></DD>
+<DD>retrieve from db by id or key.  throws exception if duplicate
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportable.html?view=co#xmlRetrieveByIdOrKey()">xmlRetrieveByIdOrKey</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportable.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportable</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the object or null if not found<DT><B>See Also:</B><DD><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportable.html?view=co#xmlRetrieveByIdOrKey()"><CODE>XmlImportable.xmlRetrieveByIdOrKey()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlSaveBusinessProperties(edu.internet2.middleware.grouper.permissions.role.RoleSet)"><!-- --></A><H3>
+xmlSaveBusinessProperties</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A> <B>xmlSaveBusinessProperties</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A>&nbsp;existingRecord)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlSaveBusinessProperties(T)">XmlImportableBase</A></CODE></B></DD>
+<DD>save the business properties (not update properties)
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlSaveBusinessProperties(T)">xmlSaveBusinessProperties</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportableBase</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>existingRecord</CODE> - null if insert, the object if exists in DB
+ generally just copy the hibernate version number, and last updated to the
+ object and store it
+<DT><B>Returns:</B><DD>the new object or existing<DT><B>See Also:</B><DD><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlSaveBusinessProperties(T)"><CODE>XmlImportableBase.xmlSaveBusinessProperties(java.lang.Object)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlSaveUpdateProperties()"><!-- --></A><H3>
+xmlSaveUpdateProperties</H3>
+<PRE>
+public void <B>xmlSaveUpdateProperties</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlSaveUpdateProperties()">XmlImportableBase</A></CODE></B></DD>
+<DD>save the udpate properties (e.g. last updated).  Note, this is
+ done with a sql update statement, not with hibernate
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlSaveUpdateProperties()">xmlSaveUpdateProperties</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportableBase</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlSaveUpdateProperties()"><CODE>XmlImportableBase.xmlSaveUpdateProperties()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlToExportRoleSet(edu.internet2.middleware.grouper.misc.GrouperVersion)"><!-- --></A><H3>
+xmlToExportRoleSet</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportRoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export">XmlExportRoleSet</A> <B>xmlToExportRoleSet</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html?view=co" title="class in edu.internet2.middleware.grouper.misc">GrouperVersion</A>&nbsp;grouperVersion)</PRE>
+<DL>
+<DD>convert to xml bean for export
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperVersion</CODE> - 
+<DT><B>Returns:</B><DD>xml bean</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlGetId()"><!-- --></A><H3>
+xmlGetId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>xmlGetId</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlGetId()">XmlImportableBase</A></CODE></B></DD>
+<DD>set id key in db
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlGetId()">xmlGetId</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportableBase</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>id<DT><B>See Also:</B><DD><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlGetId()"><CODE>XmlImportableBase.xmlGetId()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlSetId(java.lang.String)"><!-- --></A><H3>
+xmlSetId</H3>
+<PRE>
+public void <B>xmlSetId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theId)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlSetId(java.lang.String)">XmlImportableBase</A></CODE></B></DD>
+<DD>set id key in db
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlSetId(java.lang.String)">xmlSetId</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportableBase</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlSetId(java.lang.String)"><CODE>XmlImportableBase.xmlSetId(java.lang.String)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlToString()"><!-- --></A><H3>
+xmlToString</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>xmlToString</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlToString()">XmlImportableBase</A></CODE></B></DD>
+<DD>convert to string for log
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlToString()">xmlToString</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportableBase</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the string value for log<DT><B>See Also:</B><DD><A HREF="../../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlToString()"><CODE>XmlImportableBase.xmlToString()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="dbVersion()"><!-- --></A><H3>
+dbVersion</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role">RoleSet</A> <B>dbVersion</B>()</PRE>
+<DL>
+<DD>save the state when retrieving from DB
+<P>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#dbVersion()">dbVersion</A></CODE> in class <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the dbVersion</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="dbVersionReset()"><!-- --></A><H3>
+dbVersionReset</H3>
+<PRE>
+public void <B>dbVersionReset</B>()</PRE>
+<DL>
+<DD>take a snapshot of the data since this is what is in the db
+<P>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#dbVersionReset()">dbVersionReset</A></CODE> in class <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="dbVersionDifferentFields()"><!-- --></A><H3>
+dbVersionDifferentFields</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt; <B>dbVersionDifferentFields</B>()</PRE>
+<DL>
+<DD><B>Description copied from class: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#dbVersionDifferentFields()">GrouperAPI</A></CODE></B></DD>
+<DD>see which fields have changed compared to the DB state (last known)
+ note that attributes will print out: attribute__attributeName
+<P>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#dbVersionDifferentFields()">dbVersionDifferentFields</A></CODE> in class <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>a set of attributes changed, or empty set if none<DT><B>See Also:</B><DD><A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#dbVersionDifferentFields()"><CODE>GrouperAPI.dbVersionDifferentFields()</CODE></A></DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleInheritanceDelegate.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/role/RoleSetView.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.role"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="RoleSet.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

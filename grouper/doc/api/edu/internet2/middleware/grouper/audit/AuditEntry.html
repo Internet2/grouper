@@ -1,0 +1,3033 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+AuditEntry
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="AuditEntry";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;PREV CLASS&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditFieldType.html?view=co" title="class in edu.internet2.middleware.grouper.audit"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="AuditEntry.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.audit</FONT>
+<BR>
+Class AuditEntry</H2>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">edu.internet2.middleware.grouper.GrouperAPI</A>
+      <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.audit.AuditEntry</B>
+</PRE>
+<DL>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate">HibGrouperLifecycle</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3GrouperVersioned.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao.hib3">Hib3GrouperVersioned</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperCloneable.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperCloneable</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/util/GrouperUtil.FieldValuable.html?view=co" title="interface in edu.internet2.middleware.grouper.util">GrouperUtil.FieldValuable</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportable.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportable</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&gt;, <A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportableBase</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&gt;, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Serializable.html?view=co" title="class or interface in java.io">Serializable</A>, org.hibernate.classic.Lifecycle</DD>
+</DL>
+<HR>
+<DL>
+<DT><PRE>public class <B>AuditEntry</B><DT>extends <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A><DT>implements <A HREF="../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3GrouperVersioned.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao.hib3">Hib3GrouperVersioned</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportable.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportable</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&gt;</DL>
+</PRE>
+
+<P>
+represents a user audit record.  This is one unit of work that could 
+ contain multiple operations.
+<P>
+
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../serialized-form.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry">Serialized Form</A></DL>
+<HR>
+
+<P>
+<!-- =========== FIELD SUMMARY =========== -->
+
+<A NAME="field_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Field Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_ACT_AS_MEMBER_ID">FIELD_ACT_AS_MEMBER_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: actAsMemberId</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_AUDIT_TYPE_ID">FIELD_AUDIT_TYPE_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: auditTypeId</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_CONTEXT_ID">FIELD_CONTEXT_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: contextId</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_CREATED_ON_DB">FIELD_CREATED_ON_DB</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: createdOnDb</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_DESCRIPTION">FIELD_DESCRIPTION</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: description</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_DURATION_MICROSECONDS">FIELD_DURATION_MICROSECONDS</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: durationMicroseconds</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_ENV_NAME">FIELD_ENV_NAME</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: envName</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_GROUPER_ENGINE">FIELD_GROUPER_ENGINE</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: grouperEngine</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_GROUPER_VERSION">FIELD_GROUPER_VERSION</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: grouperVersion</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_ID">FIELD_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: id</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_INT01">FIELD_INT01</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: int01</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_INT02">FIELD_INT02</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: int02</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_INT03">FIELD_INT03</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: int03</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_INT04">FIELD_INT04</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: int04</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_INT05">FIELD_INT05</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: int05</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_LAST_UPDATED_DB">FIELD_LAST_UPDATED_DB</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: lastUpdatedDb</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_LOGGED_IN_MEMBER_ID">FIELD_LOGGED_IN_MEMBER_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: loggedInMemberId</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_QUERY_COUNT">FIELD_QUERY_COUNT</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: queryCount</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_SERVER_HOST">FIELD_SERVER_HOST</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: serverHost</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_SERVER_USER_NAME">FIELD_SERVER_USER_NAME</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: serverUserName</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_STRING01">FIELD_STRING01</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: string01</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_STRING02">FIELD_STRING02</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: string02</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_STRING03">FIELD_STRING03</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: string03</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_STRING04">FIELD_STRING04</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: string04</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_STRING05">FIELD_STRING05</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: string05</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_STRING06">FIELD_STRING06</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: string06</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_STRING07">FIELD_STRING07</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: string07</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_STRING08">FIELD_STRING08</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: string08</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#FIELD_USER_IP_ADDRESS">FIELD_USER_IP_ADDRESS</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: userIpAddress</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#TABLE_GROUPER_AUDIT_ENTRY">TABLE_GROUPER_AUDIT_ENTRY</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of the grouper audit entry table in the db</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="fields_inherited_from_class_edu.internet2.middleware.grouper.GrouperAPI"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Fields inherited from class edu.internet2.middleware.grouper.<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#COLUMN_HIBERNATE_VERSION_NUMBER">COLUMN_HIBERNATE_VERSION_NUMBER</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#FIELD_DB_VERSION">FIELD_DB_VERSION</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#FIELD_HIBERNATE_VERSION_NUMBER">FIELD_HIBERNATE_VERSION_NUMBER</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#INITIAL_VERSION_NUMBER">INITIAL_VERSION_NUMBER</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="fields_inherited_from_class_org.hibernate.classic.Lifecycle"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Fields inherited from interface org.hibernate.classic.Lifecycle</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>NO_VETO, VETO</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#AuditEntry()">AuditEntry</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;construct</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#AuditEntry(edu.internet2.middleware.grouper.audit.AuditTypeIdentifier, java.lang.String...)">AuditEntry</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditTypeIdentifier.html?view=co" title="interface in edu.internet2.middleware.grouper.audit">AuditTypeIdentifier</A>&nbsp;auditTypeIdentifier,
+           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>...&nbsp;labelNamesAndValues)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;construct, assign an id</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#assignIntValue(edu.internet2.middleware.grouper.audit.AuditType, java.lang.String, java.lang.Long)">assignIntValue</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditType.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditType</A>&nbsp;auditType,
+               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;label,
+               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;value)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#assignStringValue(edu.internet2.middleware.grouper.audit.AuditType, java.lang.String, java.lang.String)">assignStringValue</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditType.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditType</A>&nbsp;auditType,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;label,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;value)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#clone()">clone</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;deep clone the fields in this object</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#equalsDeep(edu.internet2.middleware.grouper.audit.AuditEntry)">equalsDeep</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&nbsp;auditEntry)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if one audit type is the same as another (not looking at last update, id, etc)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getActAsMemberId()">getActAsMemberId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;member uuid of the user being acted as</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditType.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditType</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getAuditType()">getAuditType</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get the audit type, it better be there</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getAuditTypeId()">getAuditTypeId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;foreign key to the type of audit entry this is</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getContextId()">getContextId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;context id ties multiple db changes</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getCreatedOn()">getCreatedOn</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when created</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getCreatedOnDb()">getCreatedOnDb</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when created</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getDescription()">getDescription</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;description of what happened in paragraph form</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;long</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getDurationMicroseconds()">getDurationMicroseconds</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number of nanos that the duration of the context took</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getEnvName()">getEnvName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;env label from grouper.properties</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getGrouperEngine()">getGrouperEngine</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WS, UI, loader, GSH, etc</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getGrouperVersion()">getGrouperVersion</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;version of the grouper API, e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getId()">getId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;primary key uuid of this record</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getInt01()">getInt01</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc integer field 1</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getInt02()">getInt02</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc integer field 2</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getInt03()">getInt03</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc integer field 3</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getInt04()">getInt04</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc integer field 4</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getInt05()">getInt05</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc integer field 5</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getLastUpdated()">getLastUpdated</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when last updated</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getLastUpdatedDb()">getLastUpdatedDb</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when last updated</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getLoggedInMemberId()">getLoggedInMemberId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;member uuid of the user logged in to grouper ui or ws etc</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getQueryCount()">getQueryCount</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number of queries (count be db or otherwise)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getServerHost()">getServerHost</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;host of the server that executed the transaction</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getServerUserName()">getServerUserName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Username of the OS user running the API.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getString01()">getString01</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc field 1</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getString02()">getString02</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc field 2</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getString03()">getString03</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc field 3</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getString04()">getString04</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc field 4</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getString05()">getString05</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc field 5</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getString06()">getString06</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc field 6</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getString07()">getString07</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc field 7</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getString08()">getString08</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc field 8</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#getUserIpAddress()">getUserIpAddress</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ip address of user (from WS or UI etc)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreSave</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;before a save (insert) occurs</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreUpdate</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;before an update occurs</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#retrieveStringValue(edu.internet2.middleware.grouper.audit.AuditType, java.lang.String)">retrieveStringValue</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditType.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditType</A>&nbsp;auditType,
+                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;label)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get a string value from name value pairs</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#retrieveStringValue(java.lang.String)">retrieveStringValue</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;label)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get a string value from name value pairs</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#saveOrUpdate(boolean)">saveOrUpdate</A></B>(boolean&nbsp;copyContextData)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;save or update this object</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setActAsMemberId(java.lang.String)">setActAsMemberId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;actAsMemberUuid1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;member uuid of the user being acted as</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setAuditTypeId(java.lang.String)">setAuditTypeId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;auditTypeId1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;foreign key to the type of audit entry this is</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setContextId(java.lang.String)">setContextId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;contextId1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;context id ties multiple db changes</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setCreatedOn(java.sql.Timestamp)">setCreatedOn</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;createdOn1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when created</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setCreatedOnDb(java.lang.Long)">setCreatedOnDb</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;createdOn1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when created</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setDescription(java.lang.String)">setDescription</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;description1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;description of what happened in paragraph form</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setDurationMicroseconds(long)">setDurationMicroseconds</A></B>(long&nbsp;durationMicroseconds1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number of nanos that the duration of the context took</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setEnvName(java.lang.String)">setEnvName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;envLabel1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;env label from grouper.properties</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setGrouperEngine(java.lang.String)">setGrouperEngine</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;grouperSystem1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WS, UI, loader, GSH, etc</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setGrouperVersion(java.lang.String)">setGrouperVersion</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;grouperVersion1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;version of the grouper API, e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setId(java.lang.String)">setId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;primary key uuid of this record</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setInt01(java.lang.Long)">setInt01</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;int01a)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc integer field 1</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setInt02(java.lang.Long)">setInt02</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;int02a)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc integer field 2</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setInt03(java.lang.Long)">setInt03</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;int03a)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc integer field 3</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setInt04(java.lang.Long)">setInt04</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;int04a)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc integer field 4</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setInt05(java.lang.Long)">setInt05</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;int05a)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc integer field 5</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setLastUpdated(java.sql.Timestamp)">setLastUpdated</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;lastUpdated1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when last updated</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setLastUpdatedDb(java.lang.Long)">setLastUpdatedDb</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;lastUpdated1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when last updated</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setLoggedInMemberId(java.lang.String)">setLoggedInMemberId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;loggedInMemberUuid)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;member uuid of the user logged in to grouper ui or ws etc</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setQueryCount(int)">setQueryCount</A></B>(int&nbsp;queryCount)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number of queries (count be db or otherwise)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setServerHost(java.lang.String)">setServerHost</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;serverHost1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;host of the server that executed the transaction</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setServerUserName(java.lang.String)">setServerUserName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;serverUserName1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Username of the OS user running the API.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setString01(java.lang.String)">setString01</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;string01a)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc field 1</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setString02(java.lang.String)">setString02</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;string02a)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc field 2</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setString03(java.lang.String)">setString03</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;string03a)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc field 3</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setString04(java.lang.String)">setString04</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;string04a)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc field 4</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setString05(java.lang.String)">setString05</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;string05a)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc field 5</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setString06(java.lang.String)">setString06</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;string06a)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc field 6</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setString07(java.lang.String)">setString07</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;string07a)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc field 7</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setString08(java.lang.String)">setString08</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;string08a)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc field 8</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#setUserIpAddress(java.lang.String)">setUserIpAddress</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;userIpAddress1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ip address of user (from WS or UI etc)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#toString()">toString</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#toStringDeep()">toStringDeep</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the string repre</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#toStringReport(boolean)">toStringReport</A></B>(boolean&nbsp;extended)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#truncate()">truncate</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make sure this object will fit in the DB</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#xmlCopyBusinessPropertiesToExisting(edu.internet2.middleware.grouper.audit.AuditEntry)">xmlCopyBusinessPropertiesToExisting</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&nbsp;existingRecord)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;copy business (non update) properties to an existing record</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#xmlDifferentBusinessProperties(edu.internet2.middleware.grouper.audit.AuditEntry)">xmlDifferentBusinessProperties</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&nbsp;other)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if the non update cols are different (e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#xmlDifferentUpdateProperties(edu.internet2.middleware.grouper.audit.AuditEntry)">xmlDifferentUpdateProperties</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&nbsp;other)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if the update cols are different (e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#xmlGetId()">xmlGetId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set id key in db</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportable.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportable</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#xmlRetrieveByIdOrKey()">xmlRetrieveByIdOrKey</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve from db by id or key.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#xmlSaveBusinessProperties(edu.internet2.middleware.grouper.audit.AuditEntry)">xmlSaveBusinessProperties</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&nbsp;existingRecord)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;save the business properties (not update properties)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#xmlSaveUpdateProperties()">xmlSaveUpdateProperties</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;save the udpate properties (e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#xmlSetId(java.lang.String)">xmlSetId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set id key in db</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export">XmlExportAuditEntry</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#xmlToExportAuditEntry(edu.internet2.middleware.grouper.misc.GrouperVersion)">xmlToExportAuditEntry</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html?view=co" title="class in edu.internet2.middleware.grouper.misc">GrouperVersion</A>&nbsp;grouperVersion)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert to xml bean for export</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co#xmlToString()">xmlToString</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert to string for log</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_edu.internet2.middleware.grouper.GrouperAPI"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class edu.internet2.middleware.grouper.<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#dbVersion()">dbVersion</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#dbVersionClear()">dbVersionClear</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#dbVersionDifferentFields()">dbVersionDifferentFields</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#dbVersionIsDifferent()">dbVersionIsDifferent</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#dbVersionReset()">dbVersionReset</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#fieldValue(java.lang.String)">fieldValue</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#getHibernateVersionNumber()">getHibernateVersionNumber</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onDelete(org.hibernate.Session)">onDelete</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onLoad(org.hibernate.Session, java.io.Serializable)">onLoad</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPostDelete</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPostSave</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPostUpdate</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreDelete</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onSave(org.hibernate.Session)">onSave</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onUpdate(org.hibernate.Session)">onUpdate</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#setHibernateVersionNumber(java.lang.Long)">setHibernateVersionNumber</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">equals</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">hashCode</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ============ FIELD DETAIL =========== -->
+
+<A NAME="field_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Field Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="FIELD_ACT_AS_MEMBER_ID"><!-- --></A><H3>
+FIELD_ACT_AS_MEMBER_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_ACT_AS_MEMBER_ID</B></PRE>
+<DL>
+<DD>constant for field name for: actAsMemberId
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_ACT_AS_MEMBER_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_AUDIT_TYPE_ID"><!-- --></A><H3>
+FIELD_AUDIT_TYPE_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_AUDIT_TYPE_ID</B></PRE>
+<DL>
+<DD>constant for field name for: auditTypeId
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_AUDIT_TYPE_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_CONTEXT_ID"><!-- --></A><H3>
+FIELD_CONTEXT_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_CONTEXT_ID</B></PRE>
+<DL>
+<DD>constant for field name for: contextId
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_CONTEXT_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_CREATED_ON_DB"><!-- --></A><H3>
+FIELD_CREATED_ON_DB</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_CREATED_ON_DB</B></PRE>
+<DL>
+<DD>constant for field name for: createdOnDb
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_CREATED_ON_DB">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_DESCRIPTION"><!-- --></A><H3>
+FIELD_DESCRIPTION</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_DESCRIPTION</B></PRE>
+<DL>
+<DD>constant for field name for: description
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_DESCRIPTION">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_DURATION_MICROSECONDS"><!-- --></A><H3>
+FIELD_DURATION_MICROSECONDS</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_DURATION_MICROSECONDS</B></PRE>
+<DL>
+<DD>constant for field name for: durationMicroseconds
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_DURATION_MICROSECONDS">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_ENV_NAME"><!-- --></A><H3>
+FIELD_ENV_NAME</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_ENV_NAME</B></PRE>
+<DL>
+<DD>constant for field name for: envName
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_ENV_NAME">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_GROUPER_ENGINE"><!-- --></A><H3>
+FIELD_GROUPER_ENGINE</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_GROUPER_ENGINE</B></PRE>
+<DL>
+<DD>constant for field name for: grouperEngine
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_GROUPER_ENGINE">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_GROUPER_VERSION"><!-- --></A><H3>
+FIELD_GROUPER_VERSION</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_GROUPER_VERSION</B></PRE>
+<DL>
+<DD>constant for field name for: grouperVersion
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_GROUPER_VERSION">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_ID"><!-- --></A><H3>
+FIELD_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_ID</B></PRE>
+<DL>
+<DD>constant for field name for: id
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_INT01"><!-- --></A><H3>
+FIELD_INT01</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_INT01</B></PRE>
+<DL>
+<DD>constant for field name for: int01
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_INT01">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_INT02"><!-- --></A><H3>
+FIELD_INT02</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_INT02</B></PRE>
+<DL>
+<DD>constant for field name for: int02
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_INT02">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_INT03"><!-- --></A><H3>
+FIELD_INT03</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_INT03</B></PRE>
+<DL>
+<DD>constant for field name for: int03
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_INT03">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_INT04"><!-- --></A><H3>
+FIELD_INT04</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_INT04</B></PRE>
+<DL>
+<DD>constant for field name for: int04
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_INT04">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_INT05"><!-- --></A><H3>
+FIELD_INT05</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_INT05</B></PRE>
+<DL>
+<DD>constant for field name for: int05
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_INT05">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_LAST_UPDATED_DB"><!-- --></A><H3>
+FIELD_LAST_UPDATED_DB</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_LAST_UPDATED_DB</B></PRE>
+<DL>
+<DD>constant for field name for: lastUpdatedDb
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_LAST_UPDATED_DB">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_LOGGED_IN_MEMBER_ID"><!-- --></A><H3>
+FIELD_LOGGED_IN_MEMBER_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_LOGGED_IN_MEMBER_ID</B></PRE>
+<DL>
+<DD>constant for field name for: loggedInMemberId
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_LOGGED_IN_MEMBER_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_QUERY_COUNT"><!-- --></A><H3>
+FIELD_QUERY_COUNT</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_QUERY_COUNT</B></PRE>
+<DL>
+<DD>constant for field name for: queryCount
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_QUERY_COUNT">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_SERVER_HOST"><!-- --></A><H3>
+FIELD_SERVER_HOST</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_SERVER_HOST</B></PRE>
+<DL>
+<DD>constant for field name for: serverHost
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_SERVER_HOST">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_SERVER_USER_NAME"><!-- --></A><H3>
+FIELD_SERVER_USER_NAME</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_SERVER_USER_NAME</B></PRE>
+<DL>
+<DD>constant for field name for: serverUserName
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_SERVER_USER_NAME">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_STRING01"><!-- --></A><H3>
+FIELD_STRING01</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_STRING01</B></PRE>
+<DL>
+<DD>constant for field name for: string01
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_STRING01">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_STRING02"><!-- --></A><H3>
+FIELD_STRING02</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_STRING02</B></PRE>
+<DL>
+<DD>constant for field name for: string02
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_STRING02">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_STRING03"><!-- --></A><H3>
+FIELD_STRING03</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_STRING03</B></PRE>
+<DL>
+<DD>constant for field name for: string03
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_STRING03">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_STRING04"><!-- --></A><H3>
+FIELD_STRING04</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_STRING04</B></PRE>
+<DL>
+<DD>constant for field name for: string04
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_STRING04">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_STRING05"><!-- --></A><H3>
+FIELD_STRING05</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_STRING05</B></PRE>
+<DL>
+<DD>constant for field name for: string05
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_STRING05">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_STRING06"><!-- --></A><H3>
+FIELD_STRING06</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_STRING06</B></PRE>
+<DL>
+<DD>constant for field name for: string06
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_STRING06">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_STRING07"><!-- --></A><H3>
+FIELD_STRING07</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_STRING07</B></PRE>
+<DL>
+<DD>constant for field name for: string07
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_STRING07">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_STRING08"><!-- --></A><H3>
+FIELD_STRING08</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_STRING08</B></PRE>
+<DL>
+<DD>constant for field name for: string08
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_STRING08">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_USER_IP_ADDRESS"><!-- --></A><H3>
+FIELD_USER_IP_ADDRESS</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_USER_IP_ADDRESS</B></PRE>
+<DL>
+<DD>constant for field name for: userIpAddress
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.FIELD_USER_IP_ADDRESS">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="TABLE_GROUPER_AUDIT_ENTRY"><!-- --></A><H3>
+TABLE_GROUPER_AUDIT_ENTRY</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>TABLE_GROUPER_AUDIT_ENTRY</B></PRE>
+<DL>
+<DD>name of the grouper audit entry table in the db
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.audit.AuditEntry.TABLE_GROUPER_AUDIT_ENTRY">Constant Field Values</A></DL>
+</DL>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="AuditEntry()"><!-- --></A><H3>
+AuditEntry</H3>
+<PRE>
+public <B>AuditEntry</B>()</PRE>
+<DL>
+<DD>construct
+<P>
+</DL>
+<HR>
+
+<A NAME="AuditEntry(edu.internet2.middleware.grouper.audit.AuditTypeIdentifier, java.lang.String...)"><!-- --></A><H3>
+AuditEntry</H3>
+<PRE>
+public <B>AuditEntry</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditTypeIdentifier.html?view=co" title="interface in edu.internet2.middleware.grouper.audit">AuditTypeIdentifier</A>&nbsp;auditTypeIdentifier,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>...&nbsp;labelNamesAndValues)</PRE>
+<DL>
+<DD>construct, assign an id
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>auditTypeIdentifier</CODE> - points to audit type<DD><CODE>labelNamesAndValues</CODE> - alternate label name and value</DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="equalsDeep(edu.internet2.middleware.grouper.audit.AuditEntry)"><!-- --></A><H3>
+equalsDeep</H3>
+<PRE>
+public boolean <B>equalsDeep</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&nbsp;auditEntry)</PRE>
+<DL>
+<DD>see if one audit type is the same as another (not looking at last update, id, etc)
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>auditEntry</CODE> - 
+<DT><B>Returns:</B><DD>true if equals, false if not</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="toString()"><!-- --></A><H3>
+toString</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>toString</B>()</PRE>
+<DL>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A></CODE> in class <CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang"><CODE>Object.toString()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAuditType()"><!-- --></A><H3>
+getAuditType</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditType.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditType</A> <B>getAuditType</B>()</PRE>
+<DL>
+<DD>get the audit type, it better be there
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the audit type</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="toStringReport(boolean)"><!-- --></A><H3>
+toStringReport</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>toStringReport</B>(boolean&nbsp;extended)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>extended</CODE> - if all fields should be printed
+<DT><B>Returns:</B><DD>the report</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="saveOrUpdate(boolean)"><!-- --></A><H3>
+saveOrUpdate</H3>
+<PRE>
+public void <B>saveOrUpdate</B>(boolean&nbsp;copyContextData)</PRE>
+<DL>
+<DD>save or update this object
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>copyContextData</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignStringValue(edu.internet2.middleware.grouper.audit.AuditType, java.lang.String, java.lang.String)"><!-- --></A><H3>
+assignStringValue</H3>
+<PRE>
+public void <B>assignStringValue</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditType.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditType</A>&nbsp;auditType,
+                              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;label,
+                              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;value)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>auditType</CODE> - <DD><CODE>label</CODE> - <DD><CODE>value</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignIntValue(edu.internet2.middleware.grouper.audit.AuditType, java.lang.String, java.lang.Long)"><!-- --></A><H3>
+assignIntValue</H3>
+<PRE>
+public void <B>assignIntValue</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditType.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditType</A>&nbsp;auditType,
+                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;label,
+                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;value)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>auditType</CODE> - <DD><CODE>label</CODE> - <DD><CODE>value</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAuditTypeId()"><!-- --></A><H3>
+getAuditTypeId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getAuditTypeId</B>()</PRE>
+<DL>
+<DD>foreign key to the type of audit entry this is
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the audit type id</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setAuditTypeId(java.lang.String)"><!-- --></A><H3>
+setAuditTypeId</H3>
+<PRE>
+public void <B>setAuditTypeId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;auditTypeId1)</PRE>
+<DL>
+<DD>foreign key to the type of audit entry this is
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>auditTypeId1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getId()"><!-- --></A><H3>
+getId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getId</B>()</PRE>
+<DL>
+<DD>primary key uuid of this record
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the id</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setId(java.lang.String)"><!-- --></A><H3>
+setId</H3>
+<PRE>
+public void <B>setId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id1)</PRE>
+<DL>
+<DD>primary key uuid of this record
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>id1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getActAsMemberId()"><!-- --></A><H3>
+getActAsMemberId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getActAsMemberId</B>()</PRE>
+<DL>
+<DD>member uuid of the user being acted as
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>uuid</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getContextId()"><!-- --></A><H3>
+getContextId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getContextId</B>()</PRE>
+<DL>
+<DD>context id ties multiple db changes
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>id</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLoggedInMemberId()"><!-- --></A><H3>
+getLoggedInMemberId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLoggedInMemberId</B>()</PRE>
+<DL>
+<DD>member uuid of the user logged in to grouper ui or ws etc
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>uuid</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getServerHost()"><!-- --></A><H3>
+getServerHost</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getServerHost</B>()</PRE>
+<DL>
+<DD>host of the server that executed the transaction
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>host</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getUserIpAddress()"><!-- --></A><H3>
+getUserIpAddress</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getUserIpAddress</B>()</PRE>
+<DL>
+<DD>ip address of user (from WS or UI etc)
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>user ip address</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setActAsMemberId(java.lang.String)"><!-- --></A><H3>
+setActAsMemberId</H3>
+<PRE>
+public void <B>setActAsMemberId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;actAsMemberUuid1)</PRE>
+<DL>
+<DD>member uuid of the user being acted as
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>actAsMemberUuid1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setContextId(java.lang.String)"><!-- --></A><H3>
+setContextId</H3>
+<PRE>
+public void <B>setContextId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;contextId1)</PRE>
+<DL>
+<DD>context id ties multiple db changes
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>contextId1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLoggedInMemberId(java.lang.String)"><!-- --></A><H3>
+setLoggedInMemberId</H3>
+<PRE>
+public void <B>setLoggedInMemberId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;loggedInMemberUuid)</PRE>
+<DL>
+<DD>member uuid of the user logged in to grouper ui or ws etc
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>loggedInMemberUuid</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setServerHost(java.lang.String)"><!-- --></A><H3>
+setServerHost</H3>
+<PRE>
+public void <B>setServerHost</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;serverHost1)</PRE>
+<DL>
+<DD>host of the server that executed the transaction
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>serverHost1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setUserIpAddress(java.lang.String)"><!-- --></A><H3>
+setUserIpAddress</H3>
+<PRE>
+public void <B>setUserIpAddress</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;userIpAddress1)</PRE>
+<DL>
+<DD>ip address of user (from WS or UI etc)
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>userIpAddress1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getEnvName()"><!-- --></A><H3>
+getEnvName</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getEnvName</B>()</PRE>
+<DL>
+<DD>env label from grouper.properties
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>env label</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setEnvName(java.lang.String)"><!-- --></A><H3>
+setEnvName</H3>
+<PRE>
+public void <B>setEnvName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;envLabel1)</PRE>
+<DL>
+<DD>env label from grouper.properties
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>envLabel1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGrouperEngine()"><!-- --></A><H3>
+getGrouperEngine</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getGrouperEngine</B>()</PRE>
+<DL>
+<DD>WS, UI, loader, GSH, etc
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>grouper system</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setGrouperEngine(java.lang.String)"><!-- --></A><H3>
+setGrouperEngine</H3>
+<PRE>
+public void <B>setGrouperEngine</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;grouperSystem1)</PRE>
+<DL>
+<DD>WS, UI, loader, GSH, etc
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSystem1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getString01()"><!-- --></A><H3>
+getString01</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getString01</B>()</PRE>
+<DL>
+<DD>misc field 1
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>field</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setString01(java.lang.String)"><!-- --></A><H3>
+setString01</H3>
+<PRE>
+public void <B>setString01</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;string01a)</PRE>
+<DL>
+<DD>misc field 1
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>string01a</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getString02()"><!-- --></A><H3>
+getString02</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getString02</B>()</PRE>
+<DL>
+<DD>misc field 2
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>field</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setString02(java.lang.String)"><!-- --></A><H3>
+setString02</H3>
+<PRE>
+public void <B>setString02</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;string02a)</PRE>
+<DL>
+<DD>misc field 2
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>string02a</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getString03()"><!-- --></A><H3>
+getString03</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getString03</B>()</PRE>
+<DL>
+<DD>misc field 3
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>field</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setString03(java.lang.String)"><!-- --></A><H3>
+setString03</H3>
+<PRE>
+public void <B>setString03</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;string03a)</PRE>
+<DL>
+<DD>misc field 3
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>string03a</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getString04()"><!-- --></A><H3>
+getString04</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getString04</B>()</PRE>
+<DL>
+<DD>misc field 4
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>field</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setString04(java.lang.String)"><!-- --></A><H3>
+setString04</H3>
+<PRE>
+public void <B>setString04</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;string04a)</PRE>
+<DL>
+<DD>misc field 4
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>string04a</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getString05()"><!-- --></A><H3>
+getString05</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getString05</B>()</PRE>
+<DL>
+<DD>misc field 5
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>field</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setString05(java.lang.String)"><!-- --></A><H3>
+setString05</H3>
+<PRE>
+public void <B>setString05</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;string05a)</PRE>
+<DL>
+<DD>misc field 5
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>string05a</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getString06()"><!-- --></A><H3>
+getString06</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getString06</B>()</PRE>
+<DL>
+<DD>misc field 6
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>field</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setString06(java.lang.String)"><!-- --></A><H3>
+setString06</H3>
+<PRE>
+public void <B>setString06</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;string06a)</PRE>
+<DL>
+<DD>misc field 6
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>string06a</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getString07()"><!-- --></A><H3>
+getString07</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getString07</B>()</PRE>
+<DL>
+<DD>misc field 7
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>field</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setString07(java.lang.String)"><!-- --></A><H3>
+setString07</H3>
+<PRE>
+public void <B>setString07</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;string07a)</PRE>
+<DL>
+<DD>misc field 7
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>string07a</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getString08()"><!-- --></A><H3>
+getString08</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getString08</B>()</PRE>
+<DL>
+<DD>misc field 8
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>field</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setString08(java.lang.String)"><!-- --></A><H3>
+setString08</H3>
+<PRE>
+public void <B>setString08</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;string08a)</PRE>
+<DL>
+<DD>misc field 8
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>string08a</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getInt01()"><!-- --></A><H3>
+getInt01</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A> <B>getInt01</B>()</PRE>
+<DL>
+<DD>misc integer field 1
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>field</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setInt01(java.lang.Long)"><!-- --></A><H3>
+setInt01</H3>
+<PRE>
+public void <B>setInt01</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;int01a)</PRE>
+<DL>
+<DD>misc integer field 1
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>int01a</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getInt02()"><!-- --></A><H3>
+getInt02</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A> <B>getInt02</B>()</PRE>
+<DL>
+<DD>misc integer field 2
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>field</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setInt02(java.lang.Long)"><!-- --></A><H3>
+setInt02</H3>
+<PRE>
+public void <B>setInt02</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;int02a)</PRE>
+<DL>
+<DD>misc integer field 2
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>int02a</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getInt03()"><!-- --></A><H3>
+getInt03</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A> <B>getInt03</B>()</PRE>
+<DL>
+<DD>misc integer field 3
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>field</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setInt03(java.lang.Long)"><!-- --></A><H3>
+setInt03</H3>
+<PRE>
+public void <B>setInt03</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;int03a)</PRE>
+<DL>
+<DD>misc integer field 3
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>int03a</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getInt04()"><!-- --></A><H3>
+getInt04</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A> <B>getInt04</B>()</PRE>
+<DL>
+<DD>misc integer field 4
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>field</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setInt04(java.lang.Long)"><!-- --></A><H3>
+setInt04</H3>
+<PRE>
+public void <B>setInt04</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;int04a)</PRE>
+<DL>
+<DD>misc integer field 4
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>int04a</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getInt05()"><!-- --></A><H3>
+getInt05</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A> <B>getInt05</B>()</PRE>
+<DL>
+<DD>misc integer field 5
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>field</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setInt05(java.lang.Long)"><!-- --></A><H3>
+setInt05</H3>
+<PRE>
+public void <B>setInt05</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;int05a)</PRE>
+<DL>
+<DD>misc integer field 5
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>int05a</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getDescription()"><!-- --></A><H3>
+getDescription</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getDescription</B>()</PRE>
+<DL>
+<DD>description of what happened in paragraph form
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>description</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setDescription(java.lang.String)"><!-- --></A><H3>
+setDescription</H3>
+<PRE>
+public void <B>setDescription</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;description1)</PRE>
+<DL>
+<DD>description of what happened in paragraph form
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>description1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getCreatedOn()"><!-- --></A><H3>
+getCreatedOn</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A> <B>getCreatedOn</B>()</PRE>
+<DL>
+<DD>when created
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>timestamp</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLastUpdated()"><!-- --></A><H3>
+getLastUpdated</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A> <B>getLastUpdated</B>()</PRE>
+<DL>
+<DD>when last updated
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>timestamp</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getCreatedOnDb()"><!-- --></A><H3>
+getCreatedOnDb</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A> <B>getCreatedOnDb</B>()</PRE>
+<DL>
+<DD>when created
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>timestamp</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLastUpdatedDb()"><!-- --></A><H3>
+getLastUpdatedDb</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A> <B>getLastUpdatedDb</B>()</PRE>
+<DL>
+<DD>when last updated
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>timestamp</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setCreatedOn(java.sql.Timestamp)"><!-- --></A><H3>
+setCreatedOn</H3>
+<PRE>
+public void <B>setCreatedOn</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;createdOn1)</PRE>
+<DL>
+<DD>when created
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>createdOn1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLastUpdated(java.sql.Timestamp)"><!-- --></A><H3>
+setLastUpdated</H3>
+<PRE>
+public void <B>setLastUpdated</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;lastUpdated1)</PRE>
+<DL>
+<DD>when last updated
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>lastUpdated1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="truncate()"><!-- --></A><H3>
+truncate</H3>
+<PRE>
+public void <B>truncate</B>()</PRE>
+<DL>
+<DD>make sure this object will fit in the DB
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGrouperVersion()"><!-- --></A><H3>
+getGrouperVersion</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getGrouperVersion</B>()</PRE>
+<DL>
+<DD>version of the grouper API, e.g. 1.4.0
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>version</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setGrouperVersion(java.lang.String)"><!-- --></A><H3>
+setGrouperVersion</H3>
+<PRE>
+public void <B>setGrouperVersion</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;grouperVersion1)</PRE>
+<DL>
+<DD>version of the grouper API, e.g. 1.4.0
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperVersion1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="clone()"><!-- --></A><H3>
+clone</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A> <B>clone</B>()</PRE>
+<DL>
+<DD><B>Description copied from class: <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#clone()">GrouperAPI</A></CODE></B></DD>
+<DD>deep clone the fields in this object
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperCloneable.html?view=co#clone()">clone</A></CODE> in interface <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperCloneable.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperCloneable</A></CODE><DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#clone()">clone</A></CODE> in class <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the clone of the object<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#clone()"><CODE>GrouperAPI.clone()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getDurationMicroseconds()"><!-- --></A><H3>
+getDurationMicroseconds</H3>
+<PRE>
+public long <B>getDurationMicroseconds</B>()</PRE>
+<DL>
+<DD>number of nanos that the duration of the context took
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>duration nanos</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setDurationMicroseconds(long)"><!-- --></A><H3>
+setDurationMicroseconds</H3>
+<PRE>
+public void <B>setDurationMicroseconds</B>(long&nbsp;durationMicroseconds1)</PRE>
+<DL>
+<DD>number of nanos that the duration of the context took
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>durationMicroseconds1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)"><!-- --></A><H3>
+onPreSave</H3>
+<PRE>
+public void <B>onPreSave</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)">HibGrouperLifecycle</A></CODE></B></DD>
+<DD>before a save (insert) occurs
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreSave</A></CODE> in interface <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate">HibGrouperLifecycle</A></CODE><DT><B>Overrides:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreSave</A></CODE> in class <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)"><CODE>GrouperAPI.onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)"><!-- --></A><H3>
+onPreUpdate</H3>
+<PRE>
+public void <B>onPreUpdate</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)">HibGrouperLifecycle</A></CODE></B></DD>
+<DD>before an update occurs
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreUpdate</A></CODE> in interface <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate">HibGrouperLifecycle</A></CODE><DT><B>Overrides:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreUpdate</A></CODE> in class <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)"><CODE>GrouperAPI.onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getQueryCount()"><!-- --></A><H3>
+getQueryCount</H3>
+<PRE>
+public int <B>getQueryCount</B>()</PRE>
+<DL>
+<DD>number of queries (count be db or otherwise)
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>query count</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setQueryCount(int)"><!-- --></A><H3>
+setQueryCount</H3>
+<PRE>
+public void <B>setQueryCount</B>(int&nbsp;queryCount)</PRE>
+<DL>
+<DD>number of queries (count be db or otherwise)
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>queryCount</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getServerUserName()"><!-- --></A><H3>
+getServerUserName</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getServerUserName</B>()</PRE>
+<DL>
+<DD>Username of the OS user running the API.  This might identify who ran a GSH call
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>server user name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setServerUserName(java.lang.String)"><!-- --></A><H3>
+setServerUserName</H3>
+<PRE>
+public void <B>setServerUserName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;serverUserName1)</PRE>
+<DL>
+<DD>Username of the OS user running the API.  This might identify who ran a GSH call
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>serverUserName1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setCreatedOnDb(java.lang.Long)"><!-- --></A><H3>
+setCreatedOnDb</H3>
+<PRE>
+public void <B>setCreatedOnDb</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;createdOn1)</PRE>
+<DL>
+<DD>when created
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>createdOn1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLastUpdatedDb(java.lang.Long)"><!-- --></A><H3>
+setLastUpdatedDb</H3>
+<PRE>
+public void <B>setLastUpdatedDb</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;lastUpdated1)</PRE>
+<DL>
+<DD>when last updated
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>lastUpdated1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="toStringDeep()"><!-- --></A><H3>
+toStringDeep</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>toStringDeep</B>()</PRE>
+<DL>
+<DD>the string repre
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>string</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlRetrieveByIdOrKey()"><!-- --></A><H3>
+xmlRetrieveByIdOrKey</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportable.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportable</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&gt; <B>xmlRetrieveByIdOrKey</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportable.html?view=co#xmlRetrieveByIdOrKey()">XmlImportable</A></CODE></B></DD>
+<DD>retrieve from db by id or key.  throws exception if duplicate
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportable.html?view=co#xmlRetrieveByIdOrKey()">xmlRetrieveByIdOrKey</A></CODE> in interface <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportable.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportable</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the object or null if not found<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportable.html?view=co#xmlRetrieveByIdOrKey()"><CODE>XmlImportable.xmlRetrieveByIdOrKey()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlCopyBusinessPropertiesToExisting(edu.internet2.middleware.grouper.audit.AuditEntry)"><!-- --></A><H3>
+xmlCopyBusinessPropertiesToExisting</H3>
+<PRE>
+public void <B>xmlCopyBusinessPropertiesToExisting</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&nbsp;existingRecord)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlCopyBusinessPropertiesToExisting(T)">XmlImportableBase</A></CODE></B></DD>
+<DD>copy business (non update) properties to an existing record
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlCopyBusinessPropertiesToExisting(T)">xmlCopyBusinessPropertiesToExisting</A></CODE> in interface <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportableBase</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlCopyBusinessPropertiesToExisting(T)"><CODE>XmlImportableBase.xmlCopyBusinessPropertiesToExisting(java.lang.Object)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlDifferentBusinessProperties(edu.internet2.middleware.grouper.audit.AuditEntry)"><!-- --></A><H3>
+xmlDifferentBusinessProperties</H3>
+<PRE>
+public boolean <B>xmlDifferentBusinessProperties</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&nbsp;other)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlDifferentBusinessProperties(T)">XmlImportableBase</A></CODE></B></DD>
+<DD>see if the non update cols are different (e.g. name)
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlDifferentBusinessProperties(T)">xmlDifferentBusinessProperties</A></CODE> in interface <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportableBase</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>other</CODE> - the one to compare with
+<DT><B>Returns:</B><DD>true if so<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlDifferentBusinessProperties(T)"><CODE>XmlImportableBase.xmlDifferentBusinessProperties(java.lang.Object)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlDifferentUpdateProperties(edu.internet2.middleware.grouper.audit.AuditEntry)"><!-- --></A><H3>
+xmlDifferentUpdateProperties</H3>
+<PRE>
+public boolean <B>xmlDifferentUpdateProperties</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&nbsp;other)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlDifferentUpdateProperties(T)">XmlImportableBase</A></CODE></B></DD>
+<DD>see if the update cols are different (e.g. last updated)
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlDifferentUpdateProperties(T)">xmlDifferentUpdateProperties</A></CODE> in interface <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportableBase</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>other</CODE> - the one to compare with
+<DT><B>Returns:</B><DD>true if so<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlDifferentUpdateProperties(T)"><CODE>XmlImportableBase.xmlDifferentUpdateProperties(java.lang.Object)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlGetId()"><!-- --></A><H3>
+xmlGetId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>xmlGetId</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlGetId()">XmlImportableBase</A></CODE></B></DD>
+<DD>set id key in db
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlGetId()">xmlGetId</A></CODE> in interface <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportableBase</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>id<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlGetId()"><CODE>XmlImportableBase.xmlGetId()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlSaveBusinessProperties(edu.internet2.middleware.grouper.audit.AuditEntry)"><!-- --></A><H3>
+xmlSaveBusinessProperties</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A> <B>xmlSaveBusinessProperties</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&nbsp;existingRecord)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlSaveBusinessProperties(T)">XmlImportableBase</A></CODE></B></DD>
+<DD>save the business properties (not update properties)
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlSaveBusinessProperties(T)">xmlSaveBusinessProperties</A></CODE> in interface <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportableBase</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>existingRecord</CODE> - null if insert, the object if exists in DB
+ generally just copy the hibernate version number, and last updated to the
+ object and store it
+<DT><B>Returns:</B><DD>the new object or existing<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlSaveBusinessProperties(T)"><CODE>XmlImportableBase.xmlSaveBusinessProperties(java.lang.Object)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlSaveUpdateProperties()"><!-- --></A><H3>
+xmlSaveUpdateProperties</H3>
+<PRE>
+public void <B>xmlSaveUpdateProperties</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlSaveUpdateProperties()">XmlImportableBase</A></CODE></B></DD>
+<DD>save the udpate properties (e.g. last updated).  Note, this is
+ done with a sql update statement, not with hibernate
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlSaveUpdateProperties()">xmlSaveUpdateProperties</A></CODE> in interface <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportableBase</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlSaveUpdateProperties()"><CODE>XmlImportableBase.xmlSaveUpdateProperties()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlSetId(java.lang.String)"><!-- --></A><H3>
+xmlSetId</H3>
+<PRE>
+public void <B>xmlSetId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theId)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlSetId(java.lang.String)">XmlImportableBase</A></CODE></B></DD>
+<DD>set id key in db
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlSetId(java.lang.String)">xmlSetId</A></CODE> in interface <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportableBase</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlSetId(java.lang.String)"><CODE>XmlImportableBase.xmlSetId(java.lang.String)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlToExportAuditEntry(edu.internet2.middleware.grouper.misc.GrouperVersion)"><!-- --></A><H3>
+xmlToExportAuditEntry</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlExportAuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.xml.export">XmlExportAuditEntry</A> <B>xmlToExportAuditEntry</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html?view=co" title="class in edu.internet2.middleware.grouper.misc">GrouperVersion</A>&nbsp;grouperVersion)</PRE>
+<DL>
+<DD>convert to xml bean for export
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperVersion</CODE> - 
+<DT><B>Returns:</B><DD>xml bean</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveStringValue(java.lang.String)"><!-- --></A><H3>
+retrieveStringValue</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>retrieveStringValue</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;label)</PRE>
+<DL>
+<DD>get a string value from name value pairs
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>label</CODE> - 
+<DT><B>Returns:</B><DD>value</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveStringValue(edu.internet2.middleware.grouper.audit.AuditType, java.lang.String)"><!-- --></A><H3>
+retrieveStringValue</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>retrieveStringValue</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditType.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditType</A>&nbsp;auditType,
+                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;label)</PRE>
+<DL>
+<DD>get a string value from name value pairs
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>auditType</CODE> - <DD><CODE>label</CODE> - 
+<DT><B>Returns:</B><DD>value</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="xmlToString()"><!-- --></A><H3>
+xmlToString</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>xmlToString</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlToString()">XmlImportableBase</A></CODE></B></DD>
+<DD>convert to string for log
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlToString()">xmlToString</A></CODE> in interface <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co" title="interface in edu.internet2.middleware.grouper.xml.export">XmlImportableBase</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html?view=co" title="class in edu.internet2.middleware.grouper.audit">AuditEntry</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the string value for log<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/xml/export/XmlImportableBase.html?view=co#xmlToString()"><CODE>XmlImportableBase.xmlToString()</CODE></A></DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;PREV CLASS&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/audit/AuditFieldType.html?view=co" title="class in edu.internet2.middleware.grouper.audit"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="AuditEntry.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

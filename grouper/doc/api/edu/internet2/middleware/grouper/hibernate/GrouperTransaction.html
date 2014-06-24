@@ -1,0 +1,444 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+GrouperTransaction
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="GrouperTransaction";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperRollbackType.html?view=co" title="enum in edu.internet2.middleware.grouper.hibernate"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionHandler.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="GrouperTransaction.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.hibernate</FONT>
+<BR>
+Class GrouperTransaction</H2>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.hibernate.GrouperTransaction</B>
+</PRE>
+<HR>
+<DL>
+<DT><PRE>public class <B>GrouperTransaction</B><DT>extends <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></DL>
+</PRE>
+
+<P>
+Use this class to make a transaction around grouper operations
+ (can also use HibernateSession, thoguh if hib it will throw exceptions)
+<P>
+
+<P>
+<DL>
+<DT><B>Author:</B></DT>
+  <DD>mchyzer</DD>
+</DL>
+<HR>
+
+<P>
+
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransaction.html?view=co#GrouperTransaction()">GrouperTransaction</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransaction.html?view=co#_internal_getPayload()">_internal_getPayload</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the dao can store some state here</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransaction.html?view=co#_internal_setPayload(java.lang.Object)">_internal_setPayload</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;payload)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the dao can store some state here</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransaction.html?view=co#callbackGrouperTransaction(edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler)">callbackGrouperTransaction</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionHandler.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate">GrouperTransactionHandler</A>&nbsp;grouperTransactionHandler)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;call this to establish a transaction demarcation for the GrouperTransactionHandler business logic.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransaction.html?view=co#callbackGrouperTransaction(edu.internet2.middleware.grouper.hibernate.GrouperTransactionType, edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler)">callbackGrouperTransaction</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html?view=co" title="enum in edu.internet2.middleware.grouper.hibernate">GrouperTransactionType</A>&nbsp;grouperTransactionType,
+                           <A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionHandler.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate">GrouperTransactionHandler</A>&nbsp;grouperTransactionHandler)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;call this to establish a transaction demarcation for the GrouperTransactionHandler business logic</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransaction.html?view=co#commit(edu.internet2.middleware.grouper.hibernate.GrouperCommitType)">commit</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperCommitType.html?view=co" title="enum in edu.internet2.middleware.grouper.hibernate">GrouperCommitType</A>&nbsp;grouperCommitType)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;commit a transaction (perhaps, based on type)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransaction.html?view=co#isCachingEnabled()">isCachingEnabled</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;provide ability to turn off all caching for this session</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransaction.html?view=co#isTransactionActive()">isTransactionActive</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if a transaction has an open transaction (that hasnt been committed or rolled back yet)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransaction.html?view=co#rollback(edu.internet2.middleware.grouper.hibernate.GrouperRollbackType)">rollback</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperRollbackType.html?view=co" title="enum in edu.internet2.middleware.grouper.hibernate">GrouperRollbackType</A>&nbsp;grouperRollbackType)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rollback a transaction (perhaps, based on type)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransaction.html?view=co#setCachingEnabled(boolean)">setCachingEnabled</A></B>(boolean&nbsp;enabledCaching1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;provide ability to turn off all caching for this session</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">equals</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">hashCode</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="GrouperTransaction()"><!-- --></A><H3>
+GrouperTransaction</H3>
+<PRE>
+public <B>GrouperTransaction</B>()</PRE>
+<DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="isCachingEnabled()"><!-- --></A><H3>
+isCachingEnabled</H3>
+<PRE>
+public boolean <B>isCachingEnabled</B>()</PRE>
+<DL>
+<DD>provide ability to turn off all caching for this session
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the enabledCaching</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setCachingEnabled(boolean)"><!-- --></A><H3>
+setCachingEnabled</H3>
+<PRE>
+public void <B>setCachingEnabled</B>(boolean&nbsp;enabledCaching1)</PRE>
+<DL>
+<DD>provide ability to turn off all caching for this session
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>enabledCaching1</CODE> - the enabledCaching to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="_internal_getPayload()"><!-- --></A><H3>
+_internal_getPayload</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A> <B>_internal_getPayload</B>()</PRE>
+<DL>
+<DD>the dao can store some state here
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the payload</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="_internal_setPayload(java.lang.Object)"><!-- --></A><H3>
+_internal_setPayload</H3>
+<PRE>
+public void <B>_internal_setPayload</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;payload)</PRE>
+<DL>
+<DD>the dao can store some state here
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>payload</CODE> - the payload to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="callbackGrouperTransaction(edu.internet2.middleware.grouper.hibernate.GrouperTransactionType, edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler)"><!-- --></A><H3>
+callbackGrouperTransaction</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A> <B>callbackGrouperTransaction</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionType.html?view=co" title="enum in edu.internet2.middleware.grouper.hibernate">GrouperTransactionType</A>&nbsp;grouperTransactionType,
+                                                <A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionHandler.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate">GrouperTransactionHandler</A>&nbsp;grouperTransactionHandler)</PRE>
+<DL>
+<DD>call this to establish a transaction demarcation for the GrouperTransactionHandler business logic
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperTransactionType</CODE> - is enum of how the transaction should work.<DD><CODE>grouperTransactionHandler</CODE> - will get the callback
+<DT><B>Returns:</B><DD>the object returned from the callback
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/RuntimeException.html?view=co" title="class or interface in java.lang">RuntimeException</A></CODE> - if something wrong inside, not sure which exceptions... its
+ whatever your methods throw</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="callbackGrouperTransaction(edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler)"><!-- --></A><H3>
+callbackGrouperTransaction</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A> <B>callbackGrouperTransaction</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionHandler.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate">GrouperTransactionHandler</A>&nbsp;grouperTransactionHandler)</PRE>
+<DL>
+<DD>call this to establish a transaction demarcation for the GrouperTransactionHandler business logic.
+ The transaction type will be READ_WRITE_OR_USE_EXISTING (this is the default since probably
+ is what is wanted).
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperTransactionHandler</CODE> - will get the callback
+<DT><B>Returns:</B><DD>the object returned from the callback
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/RuntimeException.html?view=co" title="class or interface in java.lang">RuntimeException</A></CODE> - if something wrong inside, not sure which exceptions... its
+ whatever your methods throw</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="commit(edu.internet2.middleware.grouper.hibernate.GrouperCommitType)"><!-- --></A><H3>
+commit</H3>
+<PRE>
+public boolean <B>commit</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperCommitType.html?view=co" title="enum in edu.internet2.middleware.grouper.hibernate">GrouperCommitType</A>&nbsp;grouperCommitType)</PRE>
+<DL>
+<DD>commit a transaction (perhaps, based on type)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperCommitType</CODE> - 
+<DT><B>Returns:</B><DD>if the tx committed</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="rollback(edu.internet2.middleware.grouper.hibernate.GrouperRollbackType)"><!-- --></A><H3>
+rollback</H3>
+<PRE>
+public boolean <B>rollback</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperRollbackType.html?view=co" title="enum in edu.internet2.middleware.grouper.hibernate">GrouperRollbackType</A>&nbsp;grouperRollbackType)</PRE>
+<DL>
+<DD>rollback a transaction (perhaps, based on type)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperRollbackType</CODE> - 
+<DT><B>Returns:</B><DD>if the tx rolled back</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isTransactionActive()"><!-- --></A><H3>
+isTransactionActive</H3>
+<PRE>
+public boolean <B>isTransactionActive</B>()</PRE>
+<DL>
+<DD>see if a transaction has an open transaction (that hasnt been committed or rolled back yet)
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>true if transaction exists and active (not committed or rolled back)</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperRollbackType.html?view=co" title="enum in edu.internet2.middleware.grouper.hibernate"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransactionHandler.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="GrouperTransaction.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

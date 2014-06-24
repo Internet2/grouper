@@ -1,0 +1,1193 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+StemFinder
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="StemFinder";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/StemCopy.html?view=co" title="class in edu.internet2.middleware.grouper"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/StemMove.html?view=co" title="class in edu.internet2.middleware.grouper"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="StemFinder.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper</FONT>
+<BR>
+Class StemFinder</H2>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.StemFinder</B>
+</PRE>
+<HR>
+<DL>
+<DT><PRE>public class <B>StemFinder</B><DT>extends <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></DL>
+</PRE>
+
+<P>
+Find stems within the Groups Registry.
+ <p/>
+<P>
+
+<P>
+<DL>
+<DT><B>Version:</B></DT>
+  <DD>$Id: StemFinder.java,v 1.54 2009-11-18 17:03:50 mchyzer Exp $</DD>
+<DT><B>Author:</B></DT>
+  <DD>blair christensen.</DD>
+</DL>
+<HR>
+
+<P>
+
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#StemFinder()">StemFinder</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#addPrivilege(edu.internet2.middleware.grouper.privs.Privilege)">addPrivilege</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a privilege to filter by that the subject has on the stem</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#addStemId(java.lang.String)">addStemId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;stemId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a stem id to search for</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#addUserHasInAttributeField(edu.internet2.middleware.grouper.Field)">addUserHasInAttributeField</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/Field.html?view=co" title="class in edu.internet2.middleware.grouper">Field</A>&nbsp;theUserHasInAttributeField)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find stems where the user has these fields in an attribute</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#addUserHasInGroupField(edu.internet2.middleware.grouper.Field)">addUserHasInGroupField</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/Field.html?view=co" title="class in edu.internet2.middleware.grouper">Field</A>&nbsp;theUserHasInGroupField)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find stems where the user has these fields in a group</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#assignFindByUuidOrName(boolean)">assignFindByUuidOrName</A></B>(boolean&nbsp;theFindByUuidOrName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if we are looking up a stem, only look by uuid or name</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#assignParentStemId(java.lang.String)">assignParentStemId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theParentStemId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;parent or ancestor stem of the stem</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#assignPrivileges(java.util.Set)">assignPrivileges</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;theStems)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assign privileges to filter by that the subject has on the stem</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#assignQueryOptions(edu.internet2.middleware.grouper.internal.dao.QueryOptions)">assignQueryOptions</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;theQueryOptions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if sorting, paging, caching, etc</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#assignScope(java.lang.String)">assignScope</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theScope)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;scope to look for stems  Wildcards will be appended or percent is the wildcard</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#assignSplitScope(boolean)">assignSplitScope</A></B>(boolean&nbsp;theSplitScope)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if the scope has spaces in it, then split by whitespace, and find results that contain all of the scope strings</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#assignStemIds(java.util.Collection)">assignStemIds</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;theStemIds)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assign stem ids to search for</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#assignStemScope(edu.internet2.middleware.grouper.Stem.Scope)">assignStemScope</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;theStemScope)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if passing in a stem, this is the stem scope...</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#assignSubject(edu.internet2.middleware.subject.Subject)">assignSubject</A></B>(edu.internet2.middleware.subject.Subject&nbsp;theSubject)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this is the subject that has certain privileges or is in the query</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#assignUserHasInAttributeField(java.util.Collection)">assignUserHasInAttributeField</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Field.html?view=co" title="class in edu.internet2.middleware.grouper">Field</A>&gt;&nbsp;theUserHasInAttributeFields)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find stems where the user has these fields in an attribute</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#assignUserHasInGroupField(java.util.Collection)">assignUserHasInGroupField</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Field.html?view=co" title="class in edu.internet2.middleware.grouper">Field</A>&gt;&nbsp;theUserHasInGroupFields)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find stems where the user has these fields in an attribute</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#findByAlternateName(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)">findByAlternateName</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+                    boolean&nbsp;exceptionOnNotFound,
+                    <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Find stem by its alternate name.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#findByCurrentName(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)">findByCurrentName</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+                  boolean&nbsp;exceptionOnNotFound,
+                  <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Find stem by its current name.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#findByIdIndex(java.lang.Long, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)">findByIdIndex</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;idIndex,
+              boolean&nbsp;exceptionIfNotFound,
+              <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Find a stem within the registry by ID index.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#findByName(edu.internet2.middleware.grouper.GrouperSession, java.lang.String)">findByName</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>Deprecated.</B>&nbsp;<I>see overload</I></TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#findByName(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, boolean)">findByName</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+           boolean&nbsp;exceptionOnNotFound)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Find stem by name.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#findByName(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)">findByName</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+           boolean&nbsp;exceptionOnNotFound,
+           <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Find stem by name.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#findByUuid(edu.internet2.middleware.grouper.GrouperSession, java.lang.String)">findByUuid</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>Deprecated.</B>&nbsp;<I>see overload</I></TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#findByUuid(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, boolean)">findByUuid</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid,
+           boolean&nbsp;exceptionIfNull)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get stem by uuid.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#findByUuid(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)">findByUuid</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid,
+           boolean&nbsp;exceptionIfNull,
+           <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get stem by uuid.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#findByUuids(edu.internet2.middleware.grouper.GrouperSession, java.util.Collection, edu.internet2.middleware.grouper.internal.dao.QueryOptions)">findByUuids</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;uuids,
+            <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get stems by uuids.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#findRootStem(edu.internet2.middleware.grouper.GrouperSession)">findRootStem</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Find root stem of the Groups Registry.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#findStem()">findStem</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find the stem</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#findStems()">findStems</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find all the stems</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#internal_findAllByApproximateDisplayExtension(edu.internet2.middleware.grouper.GrouperSession, java.lang.String)">internal_findAllByApproximateDisplayExtension</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;val)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#internal_findAllByApproximateDisplayName(edu.internet2.middleware.grouper.GrouperSession, java.lang.String)">internal_findAllByApproximateDisplayName</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;val)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#internal_findAllByApproximateExtension(edu.internet2.middleware.grouper.GrouperSession, java.lang.String)">internal_findAllByApproximateExtension</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;val)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#internal_findAllByApproximateName(edu.internet2.middleware.grouper.GrouperSession, java.lang.String)">internal_findAllByApproximateName</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;val)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#internal_findAllByApproximateNameAny(edu.internet2.middleware.grouper.GrouperSession, java.lang.String)">internal_findAllByApproximateNameAny</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;val)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#internal_findAllByCreatedAfter(edu.internet2.middleware.grouper.GrouperSession, java.util.Date)">internal_findAllByCreatedAfter</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Date.html?view=co" title="class or interface in java.util">Date</A>&nbsp;d)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#internal_findAllByCreatedBefore(edu.internet2.middleware.grouper.GrouperSession, java.util.Date)">internal_findAllByCreatedBefore</A></B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Date.html?view=co" title="class or interface in java.util">Date</A>&nbsp;d)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co#internal_findByName(java.lang.String, boolean)">internal_findByName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+                    boolean&nbsp;exceptionIfNull)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">equals</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">hashCode</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="StemFinder()"><!-- --></A><H3>
+StemFinder</H3>
+<PRE>
+public <B>StemFinder</B>()</PRE>
+<DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="addUserHasInGroupField(edu.internet2.middleware.grouper.Field)"><!-- --></A><H3>
+addUserHasInGroupField</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A> <B>addUserHasInGroupField</B>(<A HREF="../../../../edu/internet2/middleware/grouper/Field.html?view=co" title="class in edu.internet2.middleware.grouper">Field</A>&nbsp;theUserHasInGroupField)</PRE>
+<DL>
+<DD>find stems where the user has these fields in a group
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theUserHasInGroupField</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addUserHasInAttributeField(edu.internet2.middleware.grouper.Field)"><!-- --></A><H3>
+addUserHasInAttributeField</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A> <B>addUserHasInAttributeField</B>(<A HREF="../../../../edu/internet2/middleware/grouper/Field.html?view=co" title="class in edu.internet2.middleware.grouper">Field</A>&nbsp;theUserHasInAttributeField)</PRE>
+<DL>
+<DD>find stems where the user has these fields in an attribute
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theUserHasInAttributeField</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignUserHasInGroupField(java.util.Collection)"><!-- --></A><H3>
+assignUserHasInGroupField</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A> <B>assignUserHasInGroupField</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Field.html?view=co" title="class in edu.internet2.middleware.grouper">Field</A>&gt;&nbsp;theUserHasInGroupFields)</PRE>
+<DL>
+<DD>find stems where the user has these fields in an attribute
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theUserHasInGroupFields</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignUserHasInAttributeField(java.util.Collection)"><!-- --></A><H3>
+assignUserHasInAttributeField</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A> <B>assignUserHasInAttributeField</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Field.html?view=co" title="class in edu.internet2.middleware.grouper">Field</A>&gt;&nbsp;theUserHasInAttributeFields)</PRE>
+<DL>
+<DD>find stems where the user has these fields in an attribute
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theUserHasInAttributeFields</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByName(edu.internet2.middleware.grouper.GrouperSession, java.lang.String)"><!-- --></A><H3>
+findByName</H3>
+<PRE>
+<FONT SIZE="-1"><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Deprecated.html?view=co" title="class or interface in java.lang">@Deprecated</A>
+</FONT>public static <A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A> <B>findByName</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name)
+                       throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></PRE>
+<DL>
+<DD><B>Deprecated.</B>&nbsp;<I>see overload</I>
+<P>
+<DD>Find stem by name.
+ <pre class="eg">
+ try {
+   Stem stem = StemFinder.findByName(s, name);
+ }
+ catch (StemNotFoundException e) {
+   // Stem not found
+ }
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - Search within this <A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>GrouperSession</CODE></A> context<DD><CODE>name</CODE> - Find stem with this name.
+<DT><B>Returns:</B><DD>A <A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Stem</CODE></A> object
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByName(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, boolean)"><!-- --></A><H3>
+findByName</H3>
+<PRE>
+public static <A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A> <B>findByName</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+                              boolean&nbsp;exceptionOnNotFound)
+                       throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></PRE>
+<DL>
+<DD>Find stem by name.
+ <pre class="eg">
+   Stem stem = StemFinder.findByName(s, name, false);
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - Search within this <A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>GrouperSession</CODE></A> context<DD><CODE>name</CODE> - Find stem with this name.<DD><CODE>exceptionOnNotFound</CODE> - 
+<DT><B>Returns:</B><DD>A <A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Stem</CODE></A> object
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByName(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)"><!-- --></A><H3>
+findByName</H3>
+<PRE>
+public static <A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A> <B>findByName</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+                              boolean&nbsp;exceptionOnNotFound,
+                              <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)
+                       throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></PRE>
+<DL>
+<DD>Find stem by name.
+ <pre class="eg">
+   Stem stem = StemFinder.findByName(s, name, false);
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - Search within this <A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>GrouperSession</CODE></A> context<DD><CODE>name</CODE> - Find stem with this name.<DD><CODE>exceptionOnNotFound</CODE> - <DD><CODE>queryOptions</CODE> - 
+<DT><B>Returns:</B><DD>A <A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Stem</CODE></A> object
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByAlternateName(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)"><!-- --></A><H3>
+findByAlternateName</H3>
+<PRE>
+public static <A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A> <B>findByAlternateName</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+                                       boolean&nbsp;exceptionOnNotFound,
+                                       <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)
+                                throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></PRE>
+<DL>
+<DD>Find stem by its alternate name.
+ <pre class="eg">
+   Stem stem = StemFinder.findByAlternateName(s, name, false);
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - Search within this <A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>GrouperSession</CODE></A> context<DD><CODE>name</CODE> - Find stem with this alternate name.<DD><CODE>exceptionOnNotFound</CODE> - <DD><CODE>queryOptions</CODE> - 
+<DT><B>Returns:</B><DD>A <A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Stem</CODE></A> object
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByCurrentName(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)"><!-- --></A><H3>
+findByCurrentName</H3>
+<PRE>
+public static <A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A> <B>findByCurrentName</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+                                     boolean&nbsp;exceptionOnNotFound,
+                                     <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)
+                              throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></PRE>
+<DL>
+<DD>Find stem by its current name.
+ <pre class="eg">
+   Stem stem = StemFinder.findByCurrentName(s, name, false);
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - Search within this <A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>GrouperSession</CODE></A> context<DD><CODE>name</CODE> - Find stem with this name.<DD><CODE>exceptionOnNotFound</CODE> - <DD><CODE>queryOptions</CODE> - 
+<DT><B>Returns:</B><DD>A <A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Stem</CODE></A> object
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findRootStem(edu.internet2.middleware.grouper.GrouperSession)"><!-- --></A><H3>
+findRootStem</H3>
+<PRE>
+public static <A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A> <B>findRootStem</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s)
+                         throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></PRE>
+<DL>
+<DD>Find root stem of the Groups Registry.
+ <pre class="eg">
+ // Find the root stem.
+ Stem rootStem = StemFinder.findRootStem(s);
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - Search within this <A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>GrouperSession</CODE></A> context
+<DT><B>Returns:</B><DD>A <A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Stem</CODE></A> object
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/GrouperException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GrouperException</A></CODE>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByUuid(edu.internet2.middleware.grouper.GrouperSession, java.lang.String)"><!-- --></A><H3>
+findByUuid</H3>
+<PRE>
+<FONT SIZE="-1"><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Deprecated.html?view=co" title="class or interface in java.lang">@Deprecated</A>
+</FONT>public static <A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A> <B>findByUuid</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid)
+                       throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></PRE>
+<DL>
+<DD><B>Deprecated.</B>&nbsp;<I>see overload</I>
+<P>
+<DD>Get stem by uuid.
+ <pre class="eg">
+ // Get the specified stem by uuid.
+ try {
+   Stem stem = StemFinder.findByUuid(s, uuid);
+ }
+ catch (StemNotFoundException e) {
+   // Stem not found
+ }
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - Search within this <A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>GrouperSession</CODE></A> context<DD><CODE>uuid</CODE> - Get stem with this UUID.
+<DT><B>Returns:</B><DD>A <A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Stem</CODE></A> object
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByUuid(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, boolean)"><!-- --></A><H3>
+findByUuid</H3>
+<PRE>
+public static <A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A> <B>findByUuid</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid,
+                              boolean&nbsp;exceptionIfNull)
+                       throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></PRE>
+<DL>
+<DD>Get stem by uuid.
+ <pre class="eg">
+ // Get the specified stem by uuid.
+ try {
+   Stem stem = StemFinder.findByUuid(s, uuid);
+ }
+ catch (StemNotFoundException e) {
+   // Stem not found
+ }
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - Search within this <A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>GrouperSession</CODE></A> context<DD><CODE>uuid</CODE> - Get stem with this UUID.<DD><CODE>exceptionIfNull</CODE> - 
+<DT><B>Returns:</B><DD>A <A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Stem</CODE></A> object
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByUuid(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)"><!-- --></A><H3>
+findByUuid</H3>
+<PRE>
+public static <A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A> <B>findByUuid</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid,
+                              boolean&nbsp;exceptionIfNull,
+                              <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)
+                       throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></PRE>
+<DL>
+<DD>Get stem by uuid.
+ <pre class="eg">
+ // Get the specified stem by uuid.
+ try {
+   Stem stem = StemFinder.findByUuid(s, uuid);
+ }
+ catch (StemNotFoundException e) {
+   // Stem not found
+ }
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - Search within this <A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>GrouperSession</CODE></A> context<DD><CODE>uuid</CODE> - Get stem with this UUID.<DD><CODE>exceptionIfNull</CODE> - <DD><CODE>queryOptions</CODE> - 
+<DT><B>Returns:</B><DD>A <A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Stem</CODE></A> object
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByUuids(edu.internet2.middleware.grouper.GrouperSession, java.util.Collection, edu.internet2.middleware.grouper.internal.dao.QueryOptions)"><!-- --></A><H3>
+findByUuids</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&gt; <B>findByUuids</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;uuids,
+                                    <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)
+                             throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></PRE>
+<DL>
+<DD>Get stems by uuids.
+ <pre class="eg">
+ // Get the specified stems by uuids.
+ try {
+   Set<Stem> stems = StemFinder.findByUuids(s, uuids, null);
+ }
+ catch (StemNotFoundException e) {
+   // Stem not found
+ }
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - Search within this <A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>GrouperSession</CODE></A> context<DD><CODE>uuid</CODE> - Get stem with this UUID.<DD><CODE>exceptionIfNull</CODE> - <DD><CODE>queryOptions</CODE> - 
+<DT><B>Returns:</B><DD>A <A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Stem</CODE></A> object
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="internal_findAllByApproximateDisplayExtension(edu.internet2.middleware.grouper.GrouperSession, java.lang.String)"><!-- --></A><H3>
+internal_findAllByApproximateDisplayExtension</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A> <B>internal_findAllByApproximateDisplayExtension</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                                                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;val)
+                                                         throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/QueryException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">QueryException</A></PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/QueryException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">QueryException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="internal_findAllByApproximateDisplayName(edu.internet2.middleware.grouper.GrouperSession, java.lang.String)"><!-- --></A><H3>
+internal_findAllByApproximateDisplayName</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A> <B>internal_findAllByApproximateDisplayName</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;val)
+                                                    throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/QueryException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">QueryException</A></PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/QueryException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">QueryException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="internal_findAllByApproximateExtension(edu.internet2.middleware.grouper.GrouperSession, java.lang.String)"><!-- --></A><H3>
+internal_findAllByApproximateExtension</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A> <B>internal_findAllByApproximateExtension</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;val)
+                                                  throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/QueryException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">QueryException</A></PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/QueryException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">QueryException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="internal_findAllByApproximateName(edu.internet2.middleware.grouper.GrouperSession, java.lang.String)"><!-- --></A><H3>
+internal_findAllByApproximateName</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A> <B>internal_findAllByApproximateName</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;val)
+                                             throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/QueryException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">QueryException</A></PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/QueryException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">QueryException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="internal_findAllByApproximateNameAny(edu.internet2.middleware.grouper.GrouperSession, java.lang.String)"><!-- --></A><H3>
+internal_findAllByApproximateNameAny</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A> <B>internal_findAllByApproximateNameAny</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;val)
+                                                throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/QueryException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">QueryException</A></PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/QueryException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">QueryException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="internal_findAllByCreatedAfter(edu.internet2.middleware.grouper.GrouperSession, java.util.Date)"><!-- --></A><H3>
+internal_findAllByCreatedAfter</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A> <B>internal_findAllByCreatedAfter</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Date.html?view=co" title="class or interface in java.util">Date</A>&nbsp;d)
+                                          throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/QueryException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">QueryException</A></PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/QueryException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">QueryException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="internal_findAllByCreatedBefore(edu.internet2.middleware.grouper.GrouperSession, java.util.Date)"><!-- --></A><H3>
+internal_findAllByCreatedBefore</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A> <B>internal_findAllByCreatedBefore</B>(<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Date.html?view=co" title="class or interface in java.util">Date</A>&nbsp;d)
+                                           throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/QueryException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">QueryException</A></PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/QueryException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">QueryException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="internal_findByName(java.lang.String, boolean)"><!-- --></A><H3>
+internal_findByName</H3>
+<PRE>
+public static <A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A> <B>internal_findByName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+                                       boolean&nbsp;exceptionIfNull)
+                                throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>name</CODE> - <DD><CODE>exceptionIfNull</CODE> - 
+<DT><B>Returns:</B><DD>
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByIdIndex(java.lang.Long, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)"><!-- --></A><H3>
+findByIdIndex</H3>
+<PRE>
+public static <A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A> <B>findByIdIndex</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;idIndex,
+                                 boolean&nbsp;exceptionIfNotFound,
+                                 <A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)
+                          throws <A HREF="../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></PRE>
+<DL>
+<DD>Find a stem within the registry by ID index.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>idIndex</CODE> - id index of stem to find.<DD><CODE>exceptionIfNotFound</CODE> - true if exception if not found<DD><CODE>queryOptions</CODE> - 
+<DT><B>Returns:</B><DD>A <A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Stem</CODE></A>
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">StemNotFoundException</A></CODE> - if not found an exceptionIfNotFound is true</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignFindByUuidOrName(boolean)"><!-- --></A><H3>
+assignFindByUuidOrName</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A> <B>assignFindByUuidOrName</B>(boolean&nbsp;theFindByUuidOrName)</PRE>
+<DL>
+<DD>if we are looking up a stem, only look by uuid or name
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theFindByUuidOrName</CODE> - 
+<DT><B>Returns:</B><DD>the stem finder</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addPrivilege(edu.internet2.middleware.grouper.privs.Privilege)"><!-- --></A><H3>
+addPrivilege</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A> <B>addPrivilege</B>(<A HREF="../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege)</PRE>
+<DL>
+<DD>add a privilege to filter by that the subject has on the stem
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>privilege</CODE> - should be AccessPrivilege
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignPrivileges(java.util.Set)"><!-- --></A><H3>
+assignPrivileges</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A> <B>assignPrivileges</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;theStems)</PRE>
+<DL>
+<DD>assign privileges to filter by that the subject has on the stem
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theStems</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignQueryOptions(edu.internet2.middleware.grouper.internal.dao.QueryOptions)"><!-- --></A><H3>
+assignQueryOptions</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A> <B>assignQueryOptions</B>(<A HREF="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;theQueryOptions)</PRE>
+<DL>
+<DD>if sorting, paging, caching, etc
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theQueryOptions</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignScope(java.lang.String)"><!-- --></A><H3>
+assignScope</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A> <B>assignScope</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theScope)</PRE>
+<DL>
+<DD>scope to look for stems  Wildcards will be appended or percent is the wildcard
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theScope</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignSplitScope(boolean)"><!-- --></A><H3>
+assignSplitScope</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A> <B>assignSplitScope</B>(boolean&nbsp;theSplitScope)</PRE>
+<DL>
+<DD>if the scope has spaces in it, then split by whitespace, and find results that contain all of the scope strings
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theSplitScope</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignSubject(edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+assignSubject</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A> <B>assignSubject</B>(edu.internet2.middleware.subject.Subject&nbsp;theSubject)</PRE>
+<DL>
+<DD>this is the subject that has certain privileges or is in the query
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theSubject</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findStem()"><!-- --></A><H3>
+findStem</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A> <B>findStem</B>()</PRE>
+<DL>
+<DD>find the stem
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the stem or null</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findStems()"><!-- --></A><H3>
+findStems</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&gt; <B>findStems</B>()</PRE>
+<DL>
+<DD>find all the stems
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the set of stems or the empty set if none found</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignParentStemId(java.lang.String)"><!-- --></A><H3>
+assignParentStemId</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A> <B>assignParentStemId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theParentStemId)</PRE>
+<DL>
+<DD>parent or ancestor stem of the stem
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theParentStemId</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignStemScope(edu.internet2.middleware.grouper.Stem.Scope)"><!-- --></A><H3>
+assignStemScope</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A> <B>assignStemScope</B>(<A HREF="../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;theStemScope)</PRE>
+<DL>
+<DD>if passing in a stem, this is the stem scope...
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theStemScope</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addStemId(java.lang.String)"><!-- --></A><H3>
+addStemId</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A> <B>addStemId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;stemId)</PRE>
+<DL>
+<DD>add a stem id to search for
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>stemId</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignStemIds(java.util.Collection)"><!-- --></A><H3>
+assignStemIds</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/grouper/StemFinder.html?view=co" title="class in edu.internet2.middleware.grouper">StemFinder</A> <B>assignStemIds</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;theStemIds)</PRE>
+<DL>
+<DD>assign stem ids to search for
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theStemIds</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/StemCopy.html?view=co" title="class in edu.internet2.middleware.grouper"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/StemMove.html?view=co" title="class in edu.internet2.middleware.grouper"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="StemFinder.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

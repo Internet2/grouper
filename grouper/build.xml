@@ -779,6 +779,64 @@
   </target>
   <!-- target: javadoc -->
 
+  <target name="javadocForSvn" description="generate public api docs to doc/api"
+    depends="init.conf">
+    <!-- Let's be sure we clear out old cruft first... -->
+    <mkdir dir="doc/api" />
+    <delete>
+      <fileset dir="doc/api">
+        <exclude name="**/.svn" />
+        <exclude name="**/.svn/**" />
+      </fileset>
+    </delete>
+    <mkdir dir="doc/api" />
+    <!-- header="&lt;script&gt;alert('whatever');&lt;/script&gt;" -->
+    <javadoc destdir="doc/api" classpathref="project.classpath" access="public"
+      additionalparam="-notimestamp" >
+      <packageset dir="src/grouper" defaultexcludes="yes">
+        <include name="edu/internet2/middleware/grouper/**" />
+
+      </packageset>
+
+      <link href="http://struts.apache.org/release/1.3.x/apidocs/" />
+      <link href="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/" />
+      <link href="http://docs.oracle.com/javase/1.5.0/docs/api/" />
+
+    </javadoc>
+
+    <!-- replace .html?edu/internet2/middleware/grouper/webservices/GrouperService.html" with 
+    .html" -->
+    <!-- take out existing params, these are used by javascript to go to frames gracefully, trash them -->
+    <replaceregexp flags="g">
+      <regexp pattern="\.html\?[^&quot; ]*&quot;" />
+      <substitution expression="\.html&quot;" />
+      <fileset dir="doc/api" includes="**/*.html" />
+    </replaceregexp>
+    <!-- replace relative links, e.g. method links -->
+    <replaceregexp flags="g">
+      <regexp pattern="\.html#([^&quot;>]*)&quot;" />
+      <substitution expression="\.html?view=co#\1&quot;" />
+      <fileset dir="doc/api" includes="**/*.html" />
+    </replaceregexp>
+    <!-- replace onLoad="top.loadFrames()" with onLoad="", this javascript messes things up with viewvc params -->
+    <replace file="doc/api/index.html">
+      <replacetoken><![CDATA[onLoad="top.loadFrames()"]]></replacetoken>
+      <replacevalue><![CDATA[onLoad=""]]></replacevalue>
+    </replace>
+    <!-- replace for cvs web: .html" with .html?view=co"   -->
+    <replace dir="doc/api" value=".html?view=co&quot;">
+      <include name="**/*.html" />
+      <replacetoken><![CDATA[.html"]]></replacetoken>
+    </replace>
+    <replace dir="doc/api" value=".css?view=co&quot;">
+      <include name="**/*.html" />
+      <replacetoken><![CDATA[.css"]]></replacetoken>
+    </replace>
+
+
+  </target>
+  
+  
   <!-- target: test -->
   <target name="test" 
           depends="test.compile"

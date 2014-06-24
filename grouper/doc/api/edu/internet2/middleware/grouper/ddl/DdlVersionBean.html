@@ -1,0 +1,873 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+DdlVersionBean
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="DdlVersionBean";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionable.html?view=co" title="interface in edu.internet2.middleware.grouper.ddl"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperAntProject.html?view=co" title="class in edu.internet2.middleware.grouper.ddl"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="DdlVersionBean.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.ddl</FONT>
+<BR>
+Class DdlVersionBean</H2>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.ddl.DdlVersionBean</B>
+</PRE>
+<HR>
+<DL>
+<DT><PRE>public class <B>DdlVersionBean</B><DT>extends <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></DL>
+</PRE>
+
+<P>
+bean to pass to versions to update stuff
+<P>
+
+<P>
+<HR>
+
+<P>
+
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#DdlVersionBean(java.lang.String, org.apache.ddlutils.Platform, java.sql.Connection, java.lang.String, org.apache.ddlutils.platform.SqlBuilder, org.apache.ddlutils.model.Database, org.apache.ddlutils.model.Database, java.lang.StringBuilder, boolean, int, java.lang.StringBuilder)">DdlVersionBean</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;objectName,
+               org.apache.ddlutils.Platform&nbsp;platform,
+               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Connection.html?view=co" title="class or interface in java.sql">Connection</A>&nbsp;connection,
+               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;schema,
+               org.apache.ddlutils.platform.SqlBuilder&nbsp;sqlBuilder,
+               org.apache.ddlutils.model.Database&nbsp;oldDatabase,
+               org.apache.ddlutils.model.Database&nbsp;database,
+               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;additionalScripts,
+               boolean&nbsp;isDestinationVersion,
+               int&nbsp;buildingToVersion,
+               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;fullScript)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;construct</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#appendAdditionalScriptUnique(java.lang.String)">appendAdditionalScriptUnique</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;script)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;append an additionalScript, but only if it is not already in the body of the script (or additionalScript)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#getAdditionalScripts()">getAdditionalScripts</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;additional scripts to add after ddlutils scripts</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#getBuildingToVersion()">getBuildingToVersion</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the eventual version we are build to</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Connection.html?view=co" title="class or interface in java.sql">Connection</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#getConnection()">getConnection</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;jdbc connection</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;org.apache.ddlutils.model.Database</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#getDatabase()">getDatabase</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;database we are operating on</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#getFullScript()">getFullScript</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;full script so far (to make sure we dont have duplicate scripts, shouldnt add
+ directly to it from here though</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#getObjectName()">getObjectName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ddl object name (e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;org.apache.ddlutils.model.Database</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#getOldDatabase()">getOldDatabase</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;current state of the database (after modifications :) ).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;org.apache.ddlutils.Platform</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#getPlatform()">getPlatform</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ddlutils platform</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#getSchema()">getSchema</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;schema</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;org.apache.ddlutils.platform.SqlBuilder</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#getSqlBuilder()">getSqlBuilder</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ddlutils schemabuilder</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#isDestinationVersion()">isDestinationVersion</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#isHsql()">isHsql</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#isMysql()">isMysql</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#isOracle()">isOracle</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#isPostgres()">isPostgres</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#isSmallIndexes()">isSmallIndexes</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if small indexes</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#isSqlServer()">isSqlServer</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#setAdditionalScripts(java.lang.StringBuilder)">setAdditionalScripts</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;additionalScripts)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;additional scripts to add after ddlutils scripts</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#setBuildingToVersion(int)">setBuildingToVersion</A></B>(int&nbsp;buildingToVersion)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the eventual version we are build to</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#setConnection(java.sql.Connection)">setConnection</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Connection.html?view=co" title="class or interface in java.sql">Connection</A>&nbsp;connection)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;jdbc connection</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#setDatabase(org.apache.ddlutils.model.Database)">setDatabase</A></B>(org.apache.ddlutils.model.Database&nbsp;database)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;database we are operating on</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#setDestinationVersion(boolean)">setDestinationVersion</A></B>(boolean&nbsp;isDestinationVersion)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#setFullScript(java.lang.StringBuilder)">setFullScript</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;fullScript)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;full script so far (to make sure we dont have duplicate scripts, shouldnt add
+ directly to it from here though</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#setObjectName(java.lang.String)">setObjectName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;objectName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ddl object name (e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#setOldDatabase(org.apache.ddlutils.model.Database)">setOldDatabase</A></B>(org.apache.ddlutils.model.Database&nbsp;oldDatabase)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;current state of the database (after modifications :) ).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#setPlatform(org.apache.ddlutils.Platform)">setPlatform</A></B>(org.apache.ddlutils.Platform&nbsp;platform)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ddlutils platform</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#setSchema(java.lang.String)">setSchema</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;schema)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;schema</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co#setSqlBuilder(org.apache.ddlutils.platform.SqlBuilder)">setSqlBuilder</A></B>(org.apache.ddlutils.platform.SqlBuilder&nbsp;sqlBuilder)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ddlutils schemabuilder</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">equals</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">hashCode</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="DdlVersionBean(java.lang.String, org.apache.ddlutils.Platform, java.sql.Connection, java.lang.String, org.apache.ddlutils.platform.SqlBuilder, org.apache.ddlutils.model.Database, org.apache.ddlutils.model.Database, java.lang.StringBuilder, boolean, int, java.lang.StringBuilder)"><!-- --></A><H3>
+DdlVersionBean</H3>
+<PRE>
+public <B>DdlVersionBean</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;objectName,
+                      org.apache.ddlutils.Platform&nbsp;platform,
+                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Connection.html?view=co" title="class or interface in java.sql">Connection</A>&nbsp;connection,
+                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;schema,
+                      org.apache.ddlutils.platform.SqlBuilder&nbsp;sqlBuilder,
+                      org.apache.ddlutils.model.Database&nbsp;oldDatabase,
+                      org.apache.ddlutils.model.Database&nbsp;database,
+                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;additionalScripts,
+                      boolean&nbsp;isDestinationVersion,
+                      int&nbsp;buildingToVersion,
+                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;fullScript)</PRE>
+<DL>
+<DD>construct
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>objectName</CODE> - <DD><CODE>platform</CODE> - <DD><CODE>connection</CODE> - <DD><CODE>schema</CODE> - <DD><CODE>sqlBuilder</CODE> - <DD><CODE>oldDatabase</CODE> - <DD><CODE>database</CODE> - <DD><CODE>additionalScripts</CODE> - <DD><CODE>isDestinationVersion</CODE> - <DD><CODE>buildingToVersion</CODE> - <DD><CODE>fullScript</CODE> - </DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="isPostgres()"><!-- --></A><H3>
+isPostgres</H3>
+<PRE>
+public boolean <B>isPostgres</B>()</PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>true if postgres</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isMysql()"><!-- --></A><H3>
+isMysql</H3>
+<PRE>
+public boolean <B>isMysql</B>()</PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>true if mysql</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isSmallIndexes()"><!-- --></A><H3>
+isSmallIndexes</H3>
+<PRE>
+public boolean <B>isSmallIndexes</B>()</PRE>
+<DL>
+<DD>if small indexes
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>true if small indexes</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isOracle()"><!-- --></A><H3>
+isOracle</H3>
+<PRE>
+public boolean <B>isOracle</B>()</PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>true if postgres</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isHsql()"><!-- --></A><H3>
+isHsql</H3>
+<PRE>
+public boolean <B>isHsql</B>()</PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>true if hsql</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isSqlServer()"><!-- --></A><H3>
+isSqlServer</H3>
+<PRE>
+public boolean <B>isSqlServer</B>()</PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>true if hsql</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="appendAdditionalScriptUnique(java.lang.String)"><!-- --></A><H3>
+appendAdditionalScriptUnique</H3>
+<PRE>
+public void <B>appendAdditionalScriptUnique</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;script)</PRE>
+<DL>
+<DD>append an additionalScript, but only if it is not already in the body of the script (or additionalScript)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>script</CODE> - should contain script (or scripts), and should end in a semicolon (each line should), and should end in newline</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getOldDatabase()"><!-- --></A><H3>
+getOldDatabase</H3>
+<PRE>
+public org.apache.ddlutils.model.Database <B>getOldDatabase</B>()</PRE>
+<DL>
+<DD>current state of the database (after modifications :) ).  Note, this is null if this is working on old db
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the oldDatabase</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setOldDatabase(org.apache.ddlutils.model.Database)"><!-- --></A><H3>
+setOldDatabase</H3>
+<PRE>
+public void <B>setOldDatabase</B>(org.apache.ddlutils.model.Database&nbsp;oldDatabase)</PRE>
+<DL>
+<DD>current state of the database (after modifications :) ).  Note, this is null if this is working on old db
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>oldDatabase</CODE> - the oldDatabase to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getDatabase()"><!-- --></A><H3>
+getDatabase</H3>
+<PRE>
+public org.apache.ddlutils.model.Database <B>getDatabase</B>()</PRE>
+<DL>
+<DD>database we are operating on
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the database</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setDatabase(org.apache.ddlutils.model.Database)"><!-- --></A><H3>
+setDatabase</H3>
+<PRE>
+public void <B>setDatabase</B>(org.apache.ddlutils.model.Database&nbsp;database)</PRE>
+<DL>
+<DD>database we are operating on
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>database</CODE> - the database to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAdditionalScripts()"><!-- --></A><H3>
+getAdditionalScripts</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A> <B>getAdditionalScripts</B>()</PRE>
+<DL>
+<DD>additional scripts to add after ddlutils scripts
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the additionalScripts</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setAdditionalScripts(java.lang.StringBuilder)"><!-- --></A><H3>
+setAdditionalScripts</H3>
+<PRE>
+public void <B>setAdditionalScripts</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;additionalScripts)</PRE>
+<DL>
+<DD>additional scripts to add after ddlutils scripts
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>additionalScripts</CODE> - the additionalScripts to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isDestinationVersion()"><!-- --></A><H3>
+isDestinationVersion</H3>
+<PRE>
+public boolean <B>isDestinationVersion</B>()</PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the isDestinationVersion</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setDestinationVersion(boolean)"><!-- --></A><H3>
+setDestinationVersion</H3>
+<PRE>
+public void <B>setDestinationVersion</B>(boolean&nbsp;isDestinationVersion)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>isDestinationVersion</CODE> - the isDestinationVersion to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getBuildingToVersion()"><!-- --></A><H3>
+getBuildingToVersion</H3>
+<PRE>
+public int <B>getBuildingToVersion</B>()</PRE>
+<DL>
+<DD>the eventual version we are build to
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the buildingToVersion</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setBuildingToVersion(int)"><!-- --></A><H3>
+setBuildingToVersion</H3>
+<PRE>
+public void <B>setBuildingToVersion</B>(int&nbsp;buildingToVersion)</PRE>
+<DL>
+<DD>the eventual version we are build to
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>buildingToVersion</CODE> - the buildingToVersion to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getFullScript()"><!-- --></A><H3>
+getFullScript</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A> <B>getFullScript</B>()</PRE>
+<DL>
+<DD>full script so far (to make sure we dont have duplicate scripts, shouldnt add
+ directly to it from here though
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the fullScript</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setFullScript(java.lang.StringBuilder)"><!-- --></A><H3>
+setFullScript</H3>
+<PRE>
+public void <B>setFullScript</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;fullScript)</PRE>
+<DL>
+<DD>full script so far (to make sure we dont have duplicate scripts, shouldnt add
+ directly to it from here though
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>fullScript</CODE> - the fullScript to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getPlatform()"><!-- --></A><H3>
+getPlatform</H3>
+<PRE>
+public org.apache.ddlutils.Platform <B>getPlatform</B>()</PRE>
+<DL>
+<DD>ddlutils platform
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the platform</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setPlatform(org.apache.ddlutils.Platform)"><!-- --></A><H3>
+setPlatform</H3>
+<PRE>
+public void <B>setPlatform</B>(org.apache.ddlutils.Platform&nbsp;platform)</PRE>
+<DL>
+<DD>ddlutils platform
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>platform</CODE> - the platform to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getConnection()"><!-- --></A><H3>
+getConnection</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Connection.html?view=co" title="class or interface in java.sql">Connection</A> <B>getConnection</B>()</PRE>
+<DL>
+<DD>jdbc connection
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the connection</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setConnection(java.sql.Connection)"><!-- --></A><H3>
+setConnection</H3>
+<PRE>
+public void <B>setConnection</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Connection.html?view=co" title="class or interface in java.sql">Connection</A>&nbsp;connection)</PRE>
+<DL>
+<DD>jdbc connection
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>connection</CODE> - the connection to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSchema()"><!-- --></A><H3>
+getSchema</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getSchema</B>()</PRE>
+<DL>
+<DD>schema
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the schema</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setSchema(java.lang.String)"><!-- --></A><H3>
+setSchema</H3>
+<PRE>
+public void <B>setSchema</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;schema)</PRE>
+<DL>
+<DD>schema
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>schema</CODE> - the schema to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSqlBuilder()"><!-- --></A><H3>
+getSqlBuilder</H3>
+<PRE>
+public org.apache.ddlutils.platform.SqlBuilder <B>getSqlBuilder</B>()</PRE>
+<DL>
+<DD>ddlutils schemabuilder
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the sqlBuilder</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setSqlBuilder(org.apache.ddlutils.platform.SqlBuilder)"><!-- --></A><H3>
+setSqlBuilder</H3>
+<PRE>
+public void <B>setSqlBuilder</B>(org.apache.ddlutils.platform.SqlBuilder&nbsp;sqlBuilder)</PRE>
+<DL>
+<DD>ddlutils schemabuilder
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>sqlBuilder</CODE> - the sqlBuilder to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getObjectName()"><!-- --></A><H3>
+getObjectName</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getObjectName</B>()</PRE>
+<DL>
+<DD>ddl object name (e.g. Grouper or Subject)
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the objectName</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setObjectName(java.lang.String)"><!-- --></A><H3>
+setObjectName</H3>
+<PRE>
+public void <B>setObjectName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;objectName)</PRE>
+<DL>
+<DD>ddl object name (e.g. Grouper or Subject)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>objectName</CODE> - the objectName to set</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionable.html?view=co" title="interface in edu.internet2.middleware.grouper.ddl"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperAntProject.html?view=co" title="class in edu.internet2.middleware.grouper.ddl"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="DdlVersionBean.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

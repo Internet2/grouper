@@ -1,0 +1,2108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+GrouperDdlUtils
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="GrouperDdlUtils";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdl.html?view=co" title="enum in edu.internet2.middleware.grouper.ddl"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.DbMetadataBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="GrouperDdlUtils.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.ddl</FONT>
+<BR>
+Class GrouperDdlUtils</H2>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.ddl.GrouperDdlUtils</B>
+</PRE>
+<HR>
+<DL>
+<DT><PRE>public class <B>GrouperDdlUtils</B><DT>extends <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></DL>
+</PRE>
+
+<P>
+<HR>
+
+<P>
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+
+<A NAME="nested_class_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Nested Class Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.DbMetadataBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">GrouperDdlUtils.DbMetadataBean</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bean</TD>
+</TR>
+</TABLE>
+&nbsp;<!-- =========== FIELD SUMMARY =========== -->
+
+<A NAME="field_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Field Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#compareFromDbDllVersion">compareFromDbDllVersion</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;true to compare ddl from db version to the current java version, 
+ false to start over and find all diffs (without deleting existing)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#deepCheck">deepCheck</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if check from scratch</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#everythingRightVersion">everythingRightVersion</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if everything is the right version</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#internal_printDdlUpdateMessage">internal_printDdlUpdateMessage</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set this to false for testing</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#GrouperDdlUtils()">GrouperDdlUtils</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#assertColumnThere(boolean, java.lang.String, java.lang.String)">assertColumnThere</A></B>(boolean&nbsp;expectTrue,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;columnName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if tables are there (at least the grouper groups one)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#assertTablesThere(boolean, boolean)">assertTablesThere</A></B>(boolean&nbsp;expectRecords,
+                  boolean&nbsp;expectTrue)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if tables are there (at least the grouper groups one)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#assertTablesThere(boolean, boolean, java.lang.String, boolean)">assertTablesThere</A></B>(boolean&nbsp;expectRecords,
+                  boolean&nbsp;expectTrue,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+                  boolean&nbsp;falseIfDropBeforeCreate)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if tables are there (at least the grouper groups one)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#bootstrap(boolean, boolean, boolean)">bootstrap</A></B>(boolean&nbsp;callFromCommandLine,
+          boolean&nbsp;installDefaultGrouperData,
+          boolean&nbsp;promptUser)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;startup the process, if the version table is not there, print out that ddl</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#bootstrapHelper(boolean, boolean, boolean, boolean, boolean, boolean, boolean, java.util.Map, boolean)">bootstrapHelper</A></B>(boolean&nbsp;callFromCommandLine,
+                boolean&nbsp;fromUnitTest,
+                boolean&nbsp;theCompareFromDbVersion,
+                boolean&nbsp;theDropBeforeCreate,
+                boolean&nbsp;theWriteAndRunScript,
+                boolean&nbsp;dropOnly,
+                boolean&nbsp;installDefaultGrouperData,
+                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Map.html?view=co" title="class or interface in java.util">Map</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>,<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionable.html?view=co" title="interface in edu.internet2.middleware.grouper.ddl">DdlVersionable</A>&gt;&nbsp;maxVersions,
+                boolean&nbsp;promptUser)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;helper method which is more easily testable</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#changeDatabase(java.lang.String, edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase)">changeDatabase</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;objectName,
+               <A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlUtilsChangeDatabase.html?view=co" title="interface in edu.internet2.middleware.grouper.ddl">DdlUtilsChangeDatabase</A>&nbsp;ddlUtilsChangeDatabase)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ helper method to run custom db ddl, which is more easily testable
+ TODO consolidate this code with the bootstrap code in the DdlVersionBean or somewhere
+ Here is an example:
+ 
+     GrouperDdlUtils.changeDatabase(GrouperDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+ 
+       public void changeDatabase(DdlVersionBean ddlVersionBean) {
+         
+         Database database = ddlVersionBean.getDatabase();
+         {
+           Table attributesTable = database.findTable(Attribute.TABLE_GROUPER_ATTRIBUTES);
+           Column attributesFieldIdColumn = attributesTable.findColumn(Attribute.COLUMN_FIELD_ID);
+           attributesTable.removeColumn(attributesFieldIdColumn);
+         }
+         
+         {
+           Table membershipsTable = database.findTable(Membership.TABLE_GROUPER_MEMBERSHIPS);
+           Column membershipsFieldIdColumn = membershipsTable.findColumn(Membership.COLUMN_FIELD_ID);
+           membershipsTable.removeColumn(membershipsFieldIdColumn);
+         }
+         
+       }
+       
+     });</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#convertUrlToDriverClassIfNeeded(java.lang.String, java.lang.String)">convertUrlToDriverClassIfNeeded</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;connectionUrl,
+                                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;driverClassName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if there is no driver class specified, then try to derive it from the URL</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#convertUrlToHibernateDialectIfNeeded(java.lang.String, java.lang.String)">convertUrlToHibernateDialectIfNeeded</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;connectionUrl,
+                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;hibernateDialect)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if there is no driver class specified, then try to derive it from the URL</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#ddlutilsBackupTable(edu.internet2.middleware.grouper.ddl.DdlVersionBean, java.lang.String, java.lang.String)">ddlutilsBackupTable</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean,
+                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;backupTableName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;backup a table into another table (which should not exist)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#ddlutilsColumnComment(edu.internet2.middleware.grouper.ddl.DdlVersionBean, java.lang.String, java.lang.String, java.lang.String)">ddlutilsColumnComment</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean,
+                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;objectName,
+                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;columnName,
+                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;comment)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ add a table or view column comment if the DB supports it
+   COMMENT ON COLUMN zip_code.zip_code IS '5 Digit Zip Code';</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#ddlutilsCreateOrReplaceView(edu.internet2.middleware.grouper.ddl.DdlVersionBean, java.lang.String, java.lang.String, java.util.Set, java.util.Set, java.lang.String)">ddlutilsCreateOrReplaceView</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean,
+                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;viewName,
+                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;viewComment,
+                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;aliases,
+                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;columnComments,
+                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;sql)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a view if the DB supports it</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#ddlutilsDropColumn(org.apache.ddlutils.model.Database, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ddl.DdlVersionBean)">ddlutilsDropColumn</A></B>(org.apache.ddlutils.model.Database&nbsp;database,
+                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;columnName,
+                   <A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find and drop a column if it is there.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#ddlutilsDropColumn(org.apache.ddlutils.model.Table, java.lang.String, edu.internet2.middleware.grouper.ddl.DdlVersionBean)">ddlutilsDropColumn</A></B>(org.apache.ddlutils.model.Table&nbsp;table,
+                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;columnName,
+                   <A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find and drop a column if it is there
+ also drop all related indexes</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#ddlutilsDropIndexes(org.apache.ddlutils.model.Table, java.lang.String)">ddlutilsDropIndexes</A></B>(org.apache.ddlutils.model.Table&nbsp;table,
+                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;columnName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;drop all indexes by column name (e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#ddlutilsDropTable(edu.internet2.middleware.grouper.ddl.DdlVersionBean, java.lang.String, boolean)">ddlutilsDropTable</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+                  boolean&nbsp;falseIfDropBeforeCreate)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find and drop a table if it is there</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#ddlutilsDropViewIfExists(edu.internet2.middleware.grouper.ddl.DdlVersionBean, java.lang.String, boolean)">ddlutilsDropViewIfExists</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean,
+                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;viewName,
+                         boolean&nbsp;falseIfDropBeforeCreate)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;drop a view if it is detected as existing</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;org.apache.ddlutils.model.Column</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#ddlutilsFindColumn(org.apache.ddlutils.model.Database, java.lang.String, java.lang.String, boolean)">ddlutilsFindColumn</A></B>(org.apache.ddlutils.model.Database&nbsp;database,
+                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;columnName,
+                   boolean&nbsp;exceptionIfNotFound)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find table, if not exist, throw exception</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;org.apache.ddlutils.model.Column</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#ddlutilsFindColumn(org.apache.ddlutils.model.Table, java.lang.String, boolean)">ddlutilsFindColumn</A></B>(org.apache.ddlutils.model.Table&nbsp;table,
+                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;columnName,
+                   boolean&nbsp;exceptionOnNotFound)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find column, if not exist, throw exception</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;org.apache.ddlutils.model.Column</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#ddlutilsFindOrCreateColumn(org.apache.ddlutils.model.Table, java.lang.String, int, java.lang.String, boolean, boolean)">ddlutilsFindOrCreateColumn</A></B>(org.apache.ddlutils.model.Table&nbsp;table,
+                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;columnName,
+                           int&nbsp;typeCode,
+                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;size,
+                           boolean&nbsp;primaryKey,
+                           boolean&nbsp;required)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find or create column with various properties</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;org.apache.ddlutils.model.Column</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#ddlutilsFindOrCreateColumn(org.apache.ddlutils.model.Table, java.lang.String, int, java.lang.String, boolean, boolean, java.lang.String)">ddlutilsFindOrCreateColumn</A></B>(org.apache.ddlutils.model.Table&nbsp;table,
+                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;columnName,
+                           int&nbsp;typeCode,
+                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;size,
+                           boolean&nbsp;primaryKey,
+                           boolean&nbsp;required,
+                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;defaultValue)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find or create column with various properties</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;org.apache.ddlutils.model.ForeignKey</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#ddlutilsFindOrCreateForeignKey(org.apache.ddlutils.model.Database, java.lang.String, java.lang.String, java.lang.String, java.util.List, java.util.List)">ddlutilsFindOrCreateForeignKey</A></B>(org.apache.ddlutils.model.Database&nbsp;database,
+                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;foreignKeyName,
+                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;foreignTableName,
+                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;localColumnNames,
+                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;foreignColumnNames)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a foreign key on a table.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;org.apache.ddlutils.model.ForeignKey</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#ddlutilsFindOrCreateForeignKey(org.apache.ddlutils.model.Database, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)">ddlutilsFindOrCreateForeignKey</A></B>(org.apache.ddlutils.model.Database&nbsp;database,
+                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;foreignKeyName,
+                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;foreignTableName,
+                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;localColumnName,
+                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;foreignColumnName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a foreign key on a table.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;org.apache.ddlutils.model.Index</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#ddlutilsFindOrCreateIndex(org.apache.ddlutils.model.Database, edu.internet2.middleware.grouper.ddl.DdlVersionBean, java.lang.String, java.lang.String, java.lang.String, boolean, java.lang.String...)">ddlutilsFindOrCreateIndex</A></B>(org.apache.ddlutils.model.Database&nbsp;database,
+                          <A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean,
+                          <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+                          <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;indexName,
+                          <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;customScript,
+                          boolean&nbsp;unique,
+                          <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>...&nbsp;columnNames)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add an index on a table.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;org.apache.ddlutils.model.Index</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#ddlutilsFindOrCreateIndex(org.apache.ddlutils.model.Database, java.lang.String, java.lang.String, boolean, java.lang.String...)">ddlutilsFindOrCreateIndex</A></B>(org.apache.ddlutils.model.Database&nbsp;database,
+                          <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+                          <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;indexName,
+                          boolean&nbsp;unique,
+                          <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>...&nbsp;columnNames)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add an index on a table.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;org.apache.ddlutils.model.Table</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#ddlutilsFindOrCreateTable(org.apache.ddlutils.model.Database, java.lang.String)">ddlutilsFindOrCreateTable</A></B>(org.apache.ddlutils.model.Database&nbsp;database,
+                          <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find or create table</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;org.apache.ddlutils.model.Table</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#ddlutilsFindTable(org.apache.ddlutils.model.Database, java.lang.String, boolean)">ddlutilsFindTable</A></B>(org.apache.ddlutils.model.Database&nbsp;database,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+                  boolean&nbsp;exceptionOnNotFound)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find table, if not exist, throw exception</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;org.apache.ddlutils.model.Column</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#ddlutilsFixSizeColumn(org.apache.ddlutils.model.Table, java.lang.String, int, java.lang.String, boolean, boolean)">ddlutilsFixSizeColumn</A></B>(org.apache.ddlutils.model.Table&nbsp;table,
+                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;columnName,
+                      int&nbsp;typeCode,
+                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;size,
+                      boolean&nbsp;primaryKey,
+                      boolean&nbsp;required)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find or create column with various properties</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;org.apache.ddlutils.model.Column</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#ddlutilsFixSizeColumn(org.apache.ddlutils.model.Table, java.lang.String, int, java.lang.String, boolean, boolean, java.lang.String)">ddlutilsFixSizeColumn</A></B>(org.apache.ddlutils.model.Table&nbsp;table,
+                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;columnName,
+                      int&nbsp;typeCode,
+                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;size,
+                      boolean&nbsp;primaryKey,
+                      boolean&nbsp;required,
+                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;defaultValue)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find or create column with various properties</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#ddlutilsTableComment(edu.internet2.middleware.grouper.ddl.DdlVersionBean, java.lang.String, java.lang.String)">ddlutilsTableComment</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableComment)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a table comment if the DB supports it</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#ddlutilsViewComment(edu.internet2.middleware.grouper.ddl.DdlVersionBean, java.lang.String, java.lang.String)">ddlutilsViewComment</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean,
+                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;viewName,
+                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableComment)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a view comment if the DB supports it</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#dropAllForeignKeys(org.apache.ddlutils.model.Database)">dropAllForeignKeys</A></B>(org.apache.ddlutils.model.Database&nbsp;database)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;drop all foreign keys from a ddlutils database object</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#dropAllForeignKeysScript(edu.internet2.middleware.grouper.ddl.GrouperDdlUtils.DbMetadataBean, edu.internet2.middleware.grouper.ddl.DdlVersionBean)">dropAllForeignKeysScript</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.DbMetadataBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">GrouperDdlUtils.DbMetadataBean</A>&nbsp;dbMetadataBean,
+                         <A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;drop all foreign keys (database dependent), and generate the script</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.DbMetadataBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">GrouperDdlUtils.DbMetadataBean</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#findDbMetadataBean(edu.internet2.middleware.grouper.ddl.DdlVersionable)">findDbMetadataBean</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionable.html?view=co" title="interface in edu.internet2.middleware.grouper.ddl">DdlVersionable</A>&nbsp;ddlVersionable)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find the correct metadata for the DB</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#findScriptOverride(edu.internet2.middleware.grouper.ddl.DdlVersionable, java.lang.String)">findScriptOverride</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionable.html?view=co" title="interface in edu.internet2.middleware.grouper.ddl">DdlVersionable</A>&nbsp;dbObjectVersion,
+                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;dbname)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ File name must be objectName.V#.dbname.sql
+ e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#findScriptOverride(java.lang.String, int, java.lang.String)">findScriptOverride</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;objectName,
+                   int&nbsp;version,
+                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;dbNameExact)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ get an override file (exact, dont look for the all ones like oracleall)
+ File name must be objectName.V#.dbname.sql
+ e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#getTableCount(java.lang.String, boolean)">getTableCount</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+              boolean&nbsp;exceptionIfTableDoesNotExist)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get the number of records in a table</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#isHsql()">isHsql</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if the config file seems to be hsql</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#isHsql(java.lang.String)">isHsql</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;connectionUrl)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if the config file seems to be hsql</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#isMysql()">isMysql</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if the config file seems to be mysql</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#isMysql(java.lang.String)">isMysql</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;connectionUrl)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if the config file seems to be mysql</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#isOracle()">isOracle</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if the config file seems to be oracle</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#isOracle(java.lang.String)">isOracle</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;connectionUrl)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if the config file seems to be oracle</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#isPostgres()">isPostgres</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if the config file seems to be postgres</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#isPostgres(java.lang.String)">isPostgres</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;connectionUrl)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if the config file seems to be postgres</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#isSQLServer()">isSQLServer</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if the config file seems to be sql server</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#isSQLServer(java.lang.String)">isSQLServer</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;connectionUrl)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if the config file seems to be sql server</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#main(java.lang.String[])">main</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>[]&nbsp;args)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;kick off bootstrap</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#objectName(java.lang.Enum)">objectName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Enum.html?view=co" title="class or interface in java.lang">Enum</A>&nbsp;dbObjectVersion)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find the object name from the db object version</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#okToUseHibernate()">okToUseHibernate</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if we are inside the bootstrap, or if everything is ok, we are good to go</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#removeAllTables(org.apache.ddlutils.model.Database)">removeAllTables</A></B>(org.apache.ddlutils.model.Database&nbsp;database)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remove all objects, the foreign keys, then the tables</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionable.html?view=co" title="interface in edu.internet2.middleware.grouper.ddl">DdlVersionable</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#retieveVersion(java.lang.String, int)">retieveVersion</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;objectName,
+               int&nbsp;version)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve a version of a ddl object versionable</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#retrieveDdlDbVersion(java.lang.String)">retrieveDdlDbVersion</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;objectName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get the version of a ddl object in the DB</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Class.html?view=co" title="class or interface in java.lang">Class</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Enum.html?view=co" title="class or interface in java.lang">Enum</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#retrieveDdlEnum(java.lang.String)">retrieveDdlEnum</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;objectName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the relationship between object name and the enum is as follows.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#retrieveDdlJavaVersion(java.lang.String)">retrieveDdlJavaVersion</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;objectName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get the version of a ddl object in the DB</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperDdl.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperDdl</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#retrieveDdlsFromDb()">retrieveDdlsFromDb</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get all the ddls, put grouper at the front</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#retrieveHistory(java.lang.String)">retrieveHistory</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;objectName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find history for a certain object name</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#retrieveObjectNames()">retrieveObjectNames</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get the object names from the</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;org.apache.ddlutils.Platform</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#retrievePlatform()">retrievePlatform</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve the ddl utils platform</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;org.apache.ddlutils.Platform</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#retrievePlatform(boolean)">retrievePlatform</A></B>(boolean&nbsp;useCache)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve the ddl utils platform</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#sqlConcatenation(java.lang.String, java.lang.String)">sqlConcatenation</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;field1,
+                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;field2)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the sql to concatenate these two fields separated by the separator</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#sqlConcatenation(java.lang.String, java.lang.String, java.lang.String)">sqlConcatenation</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;field1,
+                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;field2,
+                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;separator)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the sql to concatenate these two fields separated by the separator</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#sqlRun(java.io.File, boolean, boolean)">sqlRun</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/File.html?view=co" title="class or interface in java.io">File</A>&nbsp;scriptFile,
+       boolean&nbsp;fromUnitTest,
+       boolean&nbsp;printErrorToStdOut)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;run a script file against the default database</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#sqlRun(java.io.File, java.lang.String, java.lang.String, java.lang.String, java.lang.String, boolean, boolean)">sqlRun</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/File.html?view=co" title="class or interface in java.io">File</A>&nbsp;scriptFile,
+       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;driver,
+       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;url,
+       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;user,
+       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;pass,
+       boolean&nbsp;fromUnitTest,
+       boolean&nbsp;printErrorToStdOut)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;run some sql</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#tableExists(java.lang.String)">tableExists</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if tables are there (at least the grouper groups one)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#upgradeDatabaseVersion(org.apache.ddlutils.model.Database, org.apache.ddlutils.model.Database, int, java.lang.String, int, int, java.lang.StringBuilder, java.lang.StringBuilder, org.apache.ddlutils.Platform, java.sql.Connection, java.lang.String, org.apache.ddlutils.platform.SqlBuilder)">upgradeDatabaseVersion</A></B>(org.apache.ddlutils.model.Database&nbsp;baseVersion,
+                       org.apache.ddlutils.model.Database&nbsp;oldVersion,
+                       int&nbsp;baseDatabaseVersion,
+                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;objectName,
+                       int&nbsp;requestedVersion,
+                       int&nbsp;upgradeToVersion,
+                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;additionalScripts,
+                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;fullScript,
+                       org.apache.ddlutils.Platform&nbsp;platform,
+                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Connection.html?view=co" title="class or interface in java.sql">Connection</A>&nbsp;connection,
+                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;schema,
+                       org.apache.ddlutils.platform.SqlBuilder&nbsp;sqlBuilder)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get a database object of a certain version based on the existing database, and tack on
+ all the enums up to the version we want (if any)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.html?view=co#versionIntFromEnum(java.lang.Enum)">versionIntFromEnum</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Enum.html?view=co" title="class or interface in java.lang">Enum</A>&nbsp;ddlVersion)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find a version from an enum version int</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">equals</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">hashCode</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ============ FIELD DETAIL =========== -->
+
+<A NAME="field_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Field Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="compareFromDbDllVersion"><!-- --></A><H3>
+compareFromDbDllVersion</H3>
+<PRE>
+public static boolean <B>compareFromDbDllVersion</B></PRE>
+<DL>
+<DD>true to compare ddl from db version to the current java version, 
+ false to start over and find all diffs (without deleting existing)
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="everythingRightVersion"><!-- --></A><H3>
+everythingRightVersion</H3>
+<PRE>
+public static boolean <B>everythingRightVersion</B></PRE>
+<DL>
+<DD>if everything is the right version
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="internal_printDdlUpdateMessage"><!-- --></A><H3>
+internal_printDdlUpdateMessage</H3>
+<PRE>
+public static boolean <B>internal_printDdlUpdateMessage</B></PRE>
+<DL>
+<DD>set this to false for testing
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="deepCheck"><!-- --></A><H3>
+deepCheck</H3>
+<PRE>
+public static boolean <B>deepCheck</B></PRE>
+<DL>
+<DD>if check from scratch
+<P>
+<DL>
+</DL>
+</DL>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="GrouperDdlUtils()"><!-- --></A><H3>
+GrouperDdlUtils</H3>
+<PRE>
+public <B>GrouperDdlUtils</B>()</PRE>
+<DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="isHsql()"><!-- --></A><H3>
+isHsql</H3>
+<PRE>
+public static boolean <B>isHsql</B>()</PRE>
+<DL>
+<DD>see if the config file seems to be hsql
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>see if hsql</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isHsql(java.lang.String)"><!-- --></A><H3>
+isHsql</H3>
+<PRE>
+public static boolean <B>isHsql</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;connectionUrl)</PRE>
+<DL>
+<DD>see if the config file seems to be hsql
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>connectionUrl</CODE> - url to check against
+<DT><B>Returns:</B><DD>see if hsql</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isPostgres()"><!-- --></A><H3>
+isPostgres</H3>
+<PRE>
+public static boolean <B>isPostgres</B>()</PRE>
+<DL>
+<DD>see if the config file seems to be postgres
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>see if postgres</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isPostgres(java.lang.String)"><!-- --></A><H3>
+isPostgres</H3>
+<PRE>
+public static boolean <B>isPostgres</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;connectionUrl)</PRE>
+<DL>
+<DD>see if the config file seems to be postgres
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>connectionUrl</CODE> - 
+<DT><B>Returns:</B><DD>see if postgres</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isOracle()"><!-- --></A><H3>
+isOracle</H3>
+<PRE>
+public static boolean <B>isOracle</B>()</PRE>
+<DL>
+<DD>see if the config file seems to be oracle
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>see if oracle</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isOracle(java.lang.String)"><!-- --></A><H3>
+isOracle</H3>
+<PRE>
+public static boolean <B>isOracle</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;connectionUrl)</PRE>
+<DL>
+<DD>see if the config file seems to be oracle
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>connectionUrl</CODE> - 
+<DT><B>Returns:</B><DD>see if oracle</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isMysql()"><!-- --></A><H3>
+isMysql</H3>
+<PRE>
+public static boolean <B>isMysql</B>()</PRE>
+<DL>
+<DD>see if the config file seems to be mysql
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>see if mysql</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isMysql(java.lang.String)"><!-- --></A><H3>
+isMysql</H3>
+<PRE>
+public static boolean <B>isMysql</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;connectionUrl)</PRE>
+<DL>
+<DD>see if the config file seems to be mysql
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>connectionUrl</CODE> - 
+<DT><B>Returns:</B><DD>see if mysql</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isSQLServer()"><!-- --></A><H3>
+isSQLServer</H3>
+<PRE>
+public static boolean <B>isSQLServer</B>()</PRE>
+<DL>
+<DD>see if the config file seems to be sql server
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>see if sql server</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isSQLServer(java.lang.String)"><!-- --></A><H3>
+isSQLServer</H3>
+<PRE>
+public static boolean <B>isSQLServer</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;connectionUrl)</PRE>
+<DL>
+<DD>see if the config file seems to be sql server
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>connectionUrl</CODE> - 
+<DT><B>Returns:</B><DD>see if sql server</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="okToUseHibernate()"><!-- --></A><H3>
+okToUseHibernate</H3>
+<PRE>
+public static boolean <B>okToUseHibernate</B>()</PRE>
+<DL>
+<DD>if we are inside the bootstrap, or if everything is ok, we are good to go
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>true if ok</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrievePlatform()"><!-- --></A><H3>
+retrievePlatform</H3>
+<PRE>
+public static org.apache.ddlutils.Platform <B>retrievePlatform</B>()</PRE>
+<DL>
+<DD>retrieve the ddl utils platform
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the platform object</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrievePlatform(boolean)"><!-- --></A><H3>
+retrievePlatform</H3>
+<PRE>
+public static org.apache.ddlutils.Platform <B>retrievePlatform</B>(boolean&nbsp;useCache)</PRE>
+<DL>
+<DD>retrieve the ddl utils platform
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>useCache</CODE> - if we should get from cache if it is available
+<DT><B>Returns:</B><DD>the platform object</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="main(java.lang.String[])"><!-- --></A><H3>
+main</H3>
+<PRE>
+public static void <B>main</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>[]&nbsp;args)</PRE>
+<DL>
+<DD>kick off bootstrap
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>args</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="bootstrap(boolean, boolean, boolean)"><!-- --></A><H3>
+bootstrap</H3>
+<PRE>
+public static void <B>bootstrap</B>(boolean&nbsp;callFromCommandLine,
+                             boolean&nbsp;installDefaultGrouperData,
+                             boolean&nbsp;promptUser)</PRE>
+<DL>
+<DD>startup the process, if the version table is not there, print out that ddl
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>callFromCommandLine</CODE> - <DD><CODE>installDefaultGrouperData</CODE> - <DD><CODE>promptUser</CODE> - prompt user to see if they really want to do this</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="bootstrapHelper(boolean, boolean, boolean, boolean, boolean, boolean, boolean, java.util.Map, boolean)"><!-- --></A><H3>
+bootstrapHelper</H3>
+<PRE>
+public static boolean <B>bootstrapHelper</B>(boolean&nbsp;callFromCommandLine,
+                                      boolean&nbsp;fromUnitTest,
+                                      boolean&nbsp;theCompareFromDbVersion,
+                                      boolean&nbsp;theDropBeforeCreate,
+                                      boolean&nbsp;theWriteAndRunScript,
+                                      boolean&nbsp;dropOnly,
+                                      boolean&nbsp;installDefaultGrouperData,
+                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Map.html?view=co" title="class or interface in java.util">Map</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>,<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionable.html?view=co" title="interface in edu.internet2.middleware.grouper.ddl">DdlVersionable</A>&gt;&nbsp;maxVersions,
+                                      boolean&nbsp;promptUser)</PRE>
+<DL>
+<DD>helper method which is more easily testable
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>callFromCommandLine</CODE> - <DD><CODE>fromUnitTest</CODE> - true if just testing this method<DD><CODE>theCompareFromDbVersion</CODE> - <DD><CODE>theDropBeforeCreate</CODE> - <DD><CODE>theWriteAndRunScript</CODE> - <DD><CODE>dropOnly</CODE> - just drop stuff, e.g. for unit test<DD><CODE>installDefaultGrouperData</CODE> - if registry install should be called afterwards<DD><CODE>maxVersions</CODE> - if unit testing, and not going to max, then associate object name
+ with max version<DD><CODE>promptUser</CODE> - promptUser to see if they want to do this...
+<DT><B>Returns:</B><DD>true if up to date, false if needs to run a script</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="sqlRun(java.io.File, boolean, boolean)"><!-- --></A><H3>
+sqlRun</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>sqlRun</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/File.html?view=co" title="class or interface in java.io">File</A>&nbsp;scriptFile,
+                            boolean&nbsp;fromUnitTest,
+                            boolean&nbsp;printErrorToStdOut)</PRE>
+<DL>
+<DD>run a script file against the default database
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>scriptFile</CODE> - <DD><CODE>fromUnitTest</CODE> - <DD><CODE>printErrorToStdOut</CODE> - 
+<DT><B>Returns:</B><DD>the output</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="convertUrlToDriverClassIfNeeded(java.lang.String, java.lang.String)"><!-- --></A><H3>
+convertUrlToDriverClassIfNeeded</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>convertUrlToDriverClassIfNeeded</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;connectionUrl,
+                                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;driverClassName)</PRE>
+<DL>
+<DD>if there is no driver class specified, then try to derive it from the URL
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>connectionUrl</CODE> - <DD><CODE>driverClassName</CODE> - 
+<DT><B>Returns:</B><DD>the driver class</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="convertUrlToHibernateDialectIfNeeded(java.lang.String, java.lang.String)"><!-- --></A><H3>
+convertUrlToHibernateDialectIfNeeded</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>convertUrlToHibernateDialectIfNeeded</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;connectionUrl,
+                                                          <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;hibernateDialect)</PRE>
+<DL>
+<DD>if there is no driver class specified, then try to derive it from the URL
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>connectionUrl</CODE> - <DD><CODE>hibernateDialect</CODE> - 
+<DT><B>Returns:</B><DD>the driver class</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="sqlRun(java.io.File, java.lang.String, java.lang.String, java.lang.String, java.lang.String, boolean, boolean)"><!-- --></A><H3>
+sqlRun</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>sqlRun</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/File.html?view=co" title="class or interface in java.io">File</A>&nbsp;scriptFile,
+                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;driver,
+                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;url,
+                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;user,
+                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;pass,
+                            boolean&nbsp;fromUnitTest,
+                            boolean&nbsp;printErrorToStdOut)</PRE>
+<DL>
+<DD>run some sql
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>scriptFile</CODE> - <DD><CODE>driver</CODE> - <DD><CODE>url</CODE> - <DD><CODE>user</CODE> - <DD><CODE>pass</CODE> - <DD><CODE>fromUnitTest</CODE> - <DD><CODE>printErrorToStdOut</CODE> - 
+<DT><B>Returns:</B><DD>the output</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="changeDatabase(java.lang.String, edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase)"><!-- --></A><H3>
+changeDatabase</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>changeDatabase</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;objectName,
+                                    <A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlUtilsChangeDatabase.html?view=co" title="interface in edu.internet2.middleware.grouper.ddl">DdlUtilsChangeDatabase</A>&nbsp;ddlUtilsChangeDatabase)</PRE>
+<DL>
+<DD><pre>
+ helper method to run custom db ddl, which is more easily testable
+ TODO consolidate this code with the bootstrap code in the DdlVersionBean or somewhere
+ Here is an example:
+ 
+     GrouperDdlUtils.changeDatabase(GrouperDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+ 
+       public void changeDatabase(DdlVersionBean ddlVersionBean) {
+         
+         Database database = ddlVersionBean.getDatabase();
+         {
+           Table attributesTable = database.findTable(Attribute.TABLE_GROUPER_ATTRIBUTES);
+           Column attributesFieldIdColumn = attributesTable.findColumn(Attribute.COLUMN_FIELD_ID);
+           attributesTable.removeColumn(attributesFieldIdColumn);
+         }
+         
+         {
+           Table membershipsTable = database.findTable(Membership.TABLE_GROUPER_MEMBERSHIPS);
+           Column membershipsFieldIdColumn = membershipsTable.findColumn(Membership.COLUMN_FIELD_ID);
+           membershipsTable.removeColumn(membershipsFieldIdColumn);
+         }
+         
+       }
+       
+     });
+ 
+ 
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>objectName</CODE> - (from enum of ddl utils type)<DD><CODE>ddlUtilsChangeDatabase</CODE> - is the callback to change the database
+<DT><B>Returns:</B><DD>string</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="dropAllForeignKeysScript(edu.internet2.middleware.grouper.ddl.GrouperDdlUtils.DbMetadataBean, edu.internet2.middleware.grouper.ddl.DdlVersionBean)"><!-- --></A><H3>
+dropAllForeignKeysScript</H3>
+<PRE>
+public static void <B>dropAllForeignKeysScript</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.DbMetadataBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">GrouperDdlUtils.DbMetadataBean</A>&nbsp;dbMetadataBean,
+                                            <A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean)</PRE>
+<DL>
+<DD>drop all foreign keys (database dependent), and generate the script
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>dbMetadataBean</CODE> - <DD><CODE>ddlVersionBean</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="removeAllTables(org.apache.ddlutils.model.Database)"><!-- --></A><H3>
+removeAllTables</H3>
+<PRE>
+public static void <B>removeAllTables</B>(org.apache.ddlutils.model.Database&nbsp;database)</PRE>
+<DL>
+<DD>remove all objects, the foreign keys, then the tables
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>database</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveHistory(java.lang.String)"><!-- --></A><H3>
+retrieveHistory</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A> <B>retrieveHistory</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;objectName)</PRE>
+<DL>
+<DD>find history for a certain object name
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>objectName</CODE> - 
+<DT><B>Returns:</B><DD>the history or new stringbuilder if none available</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retieveVersion(java.lang.String, int)"><!-- --></A><H3>
+retieveVersion</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionable.html?view=co" title="interface in edu.internet2.middleware.grouper.ddl">DdlVersionable</A> <B>retieveVersion</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;objectName,
+                                            int&nbsp;version)</PRE>
+<DL>
+<DD>retrieve a version of a ddl object versionable
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>objectName</CODE> - <DD><CODE>version</CODE> - 
+<DT><B>Returns:</B><DD>the ddl versionable</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveDdlJavaVersion(java.lang.String)"><!-- --></A><H3>
+retrieveDdlJavaVersion</H3>
+<PRE>
+public static int <B>retrieveDdlJavaVersion</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;objectName)</PRE>
+<DL>
+<DD>get the version of a ddl object in the DB
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>objectName</CODE> - 
+<DT><B>Returns:</B><DD>the version or -1 if not in the DB</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveDdlEnum(java.lang.String)"><!-- --></A><H3>
+retrieveDdlEnum</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Class.html?view=co" title="class or interface in java.lang">Class</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Enum.html?view=co" title="class or interface in java.lang">Enum</A>&gt; <B>retrieveDdlEnum</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;objectName)</PRE>
+<DL>
+<DD>the relationship between object name and the enum is as follows.  If the object name
+ is "Grouper", then the enum is edu.internet2.middleware.grouper.ddl.GrouperDdl
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>objectName</CODE> - 
+<DT><B>Returns:</B><DD>the enum</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="ddlutilsDropViewIfExists(edu.internet2.middleware.grouper.ddl.DdlVersionBean, java.lang.String, boolean)"><!-- --></A><H3>
+ddlutilsDropViewIfExists</H3>
+<PRE>
+public static void <B>ddlutilsDropViewIfExists</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean,
+                                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;viewName,
+                                            boolean&nbsp;falseIfDropBeforeCreate)</PRE>
+<DL>
+<DD>drop a view if it is detected as existing
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ddlVersionBean</CODE> - <DD><CODE>viewName</CODE> - <DD><CODE>falseIfDropBeforeCreate</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="ddlutilsBackupTable(edu.internet2.middleware.grouper.ddl.DdlVersionBean, java.lang.String, java.lang.String)"><!-- --></A><H3>
+ddlutilsBackupTable</H3>
+<PRE>
+public static void <B>ddlutilsBackupTable</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean,
+                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;backupTableName)</PRE>
+<DL>
+<DD>backup a table into another table (which should not exist)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ddlVersionBean</CODE> - <DD><CODE>tableName</CODE> - <DD><CODE>backupTableName</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="ddlutilsCreateOrReplaceView(edu.internet2.middleware.grouper.ddl.DdlVersionBean, java.lang.String, java.lang.String, java.util.Set, java.util.Set, java.lang.String)"><!-- --></A><H3>
+ddlutilsCreateOrReplaceView</H3>
+<PRE>
+public static void <B>ddlutilsCreateOrReplaceView</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean,
+                                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;viewName,
+                                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;viewComment,
+                                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;aliases,
+                                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;columnComments,
+                                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;sql)</PRE>
+<DL>
+<DD>add a view if the DB supports it
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ddlVersionBean</CODE> - <DD><CODE>viewName</CODE> - <DD><CODE>viewComment</CODE> - <DD><CODE>aliases</CODE> - <DD><CODE>columnComments</CODE> - <DD><CODE>sql</CODE> - should not have a semicolon at end</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="ddlutilsTableComment(edu.internet2.middleware.grouper.ddl.DdlVersionBean, java.lang.String, java.lang.String)"><!-- --></A><H3>
+ddlutilsTableComment</H3>
+<PRE>
+public static void <B>ddlutilsTableComment</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean,
+                                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+                                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableComment)</PRE>
+<DL>
+<DD>add a table comment if the DB supports it
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ddlVersionBean</CODE> - <DD><CODE>tableName</CODE> - <DD><CODE>tableComment</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="ddlutilsViewComment(edu.internet2.middleware.grouper.ddl.DdlVersionBean, java.lang.String, java.lang.String)"><!-- --></A><H3>
+ddlutilsViewComment</H3>
+<PRE>
+public static void <B>ddlutilsViewComment</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean,
+                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;viewName,
+                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableComment)</PRE>
+<DL>
+<DD>add a view comment if the DB supports it
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ddlVersionBean</CODE> - <DD><CODE>viewName</CODE> - <DD><CODE>tableComment</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="ddlutilsColumnComment(edu.internet2.middleware.grouper.ddl.DdlVersionBean, java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
+ddlutilsColumnComment</H3>
+<PRE>
+public static void <B>ddlutilsColumnComment</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean,
+                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;objectName,
+                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;columnName,
+                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;comment)</PRE>
+<DL>
+<DD><pre>
+ add a table or view column comment if the DB supports it
+   COMMENT ON COLUMN zip_code.zip_code IS '5 Digit Zip Code';
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ddlVersionBean</CODE> - <DD><CODE>objectName</CODE> - <DD><CODE>comment</CODE> - <DD><CODE>columnName</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveObjectNames()"><!-- --></A><H3>
+retrieveObjectNames</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt; <B>retrieveObjectNames</B>()</PRE>
+<DL>
+<DD>get the object names from the
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the list of object names</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveDdlDbVersion(java.lang.String)"><!-- --></A><H3>
+retrieveDdlDbVersion</H3>
+<PRE>
+public static int <B>retrieveDdlDbVersion</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;objectName)</PRE>
+<DL>
+<DD>get the version of a ddl object in the DB
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>objectName</CODE> - 
+<DT><B>Returns:</B><DD>the version or -1 if not in the DB</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveDdlsFromDb()"><!-- --></A><H3>
+retrieveDdlsFromDb</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperDdl.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperDdl</A>&gt; <B>retrieveDdlsFromDb</B>()</PRE>
+<DL>
+<DD>get all the ddls, put grouper at the front
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the ddls</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findScriptOverride(edu.internet2.middleware.grouper.ddl.DdlVersionable, java.lang.String)"><!-- --></A><H3>
+findScriptOverride</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>findScriptOverride</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionable.html?view=co" title="interface in edu.internet2.middleware.grouper.ddl">DdlVersionable</A>&nbsp;dbObjectVersion,
+                                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;dbname)</PRE>
+<DL>
+<DD><pre>
+ File name must be objectName.V#.dbname.sql
+ e.g. Grouper.5.oracle10.sql
+ 
+ The dbname must be a valid ddlutils dbname:
+ axion, cloudscape, db2, db2v8, derby, firebird, hsqldb, interbase, maxdb, mckoi, 
+ mssql, mysql, mysql5, oracle, oracle10, oracle9, postgresql, sapdb, sybase, sybasease15
+
+ Also the following catchalls are acceptable: oracleall, mysqlall, db2all, sybaseall
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>dbObjectVersion</CODE> - e.g. Grouper or GrouperLoader<DD><CODE>dbname</CODE> - e.g. oracle10 or mysql5
+<DT><B>Returns:</B><DD>the script or blank if it is not found</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findScriptOverride(java.lang.String, int, java.lang.String)"><!-- --></A><H3>
+findScriptOverride</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>findScriptOverride</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;objectName,
+                                        int&nbsp;version,
+                                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;dbNameExact)</PRE>
+<DL>
+<DD><pre>
+ get an override file (exact, dont look for the all ones like oracleall)
+ File name must be objectName.V#.dbname.sql
+ e.g. Grouper.5.oracle10.sql
+ 
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>objectName</CODE> - <DD><CODE>version</CODE> - <DD><CODE>dbNameExact</CODE> - 
+<DT><B>Returns:</B><DD>the script or null if none found</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="versionIntFromEnum(java.lang.Enum)"><!-- --></A><H3>
+versionIntFromEnum</H3>
+<PRE>
+public static int <B>versionIntFromEnum</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Enum.html?view=co" title="class or interface in java.lang">Enum</A>&nbsp;ddlVersion)</PRE>
+<DL>
+<DD>find a version from an enum version int
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ddlVersion</CODE> - 
+<DT><B>Returns:</B><DD>the version</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="objectName(java.lang.Enum)"><!-- --></A><H3>
+objectName</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>objectName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Enum.html?view=co" title="class or interface in java.lang">Enum</A>&nbsp;dbObjectVersion)</PRE>
+<DL>
+<DD>find the object name from the db object version
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>dbObjectVersion</CODE> - 
+<DT><B>Returns:</B><DD>the object name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="upgradeDatabaseVersion(org.apache.ddlutils.model.Database, org.apache.ddlutils.model.Database, int, java.lang.String, int, int, java.lang.StringBuilder, java.lang.StringBuilder, org.apache.ddlutils.Platform, java.sql.Connection, java.lang.String, org.apache.ddlutils.platform.SqlBuilder)"><!-- --></A><H3>
+upgradeDatabaseVersion</H3>
+<PRE>
+public static void <B>upgradeDatabaseVersion</B>(org.apache.ddlutils.model.Database&nbsp;baseVersion,
+                                          org.apache.ddlutils.model.Database&nbsp;oldVersion,
+                                          int&nbsp;baseDatabaseVersion,
+                                          <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;objectName,
+                                          int&nbsp;requestedVersion,
+                                          int&nbsp;upgradeToVersion,
+                                          <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;additionalScripts,
+                                          <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;fullScript,
+                                          org.apache.ddlutils.Platform&nbsp;platform,
+                                          <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Connection.html?view=co" title="class or interface in java.sql">Connection</A>&nbsp;connection,
+                                          <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;schema,
+                                          org.apache.ddlutils.platform.SqlBuilder&nbsp;sqlBuilder)</PRE>
+<DL>
+<DD>get a database object of a certain version based on the existing database, and tack on
+ all the enums up to the version we want (if any)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>baseVersion</CODE> - <DD><CODE>oldVersion</CODE> - old version if there is one, null if not<DD><CODE>baseDatabaseVersion</CODE> - <DD><CODE>objectName</CODE> - <DD><CODE>requestedVersion</CODE> - <DD><CODE>upgradeToVersion</CODE> - eventual upgrade version<DD><CODE>additionalScripts</CODE> - <DD><CODE>fullScript</CODE> - so far<DD><CODE>platform</CODE> - <DD><CODE>connection</CODE> - <DD><CODE>schema</CODE> - <DD><CODE>sqlBuilder</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="ddlutilsFindOrCreateTable(org.apache.ddlutils.model.Database, java.lang.String)"><!-- --></A><H3>
+ddlutilsFindOrCreateTable</H3>
+<PRE>
+public static org.apache.ddlutils.model.Table <B>ddlutilsFindOrCreateTable</B>(org.apache.ddlutils.model.Database&nbsp;database,
+                                                                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName)</PRE>
+<DL>
+<DD>find or create table
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>database</CODE> - <DD><CODE>tableName</CODE> - 
+<DT><B>Returns:</B><DD>the table</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="ddlutilsFindOrCreateIndex(org.apache.ddlutils.model.Database, java.lang.String, java.lang.String, boolean, java.lang.String...)"><!-- --></A><H3>
+ddlutilsFindOrCreateIndex</H3>
+<PRE>
+public static org.apache.ddlutils.model.Index <B>ddlutilsFindOrCreateIndex</B>(org.apache.ddlutils.model.Database&nbsp;database,
+                                                                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+                                                                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;indexName,
+                                                                        boolean&nbsp;unique,
+                                                                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>...&nbsp;columnNames)</PRE>
+<DL>
+<DD>add an index on a table.  drop a misnamed or a misuniqued index which is existing
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>database</CODE> - <DD><CODE>tableName</CODE> - <DD><CODE>indexName</CODE> - <DD><CODE>unique</CODE> - <DD><CODE>columnNames</CODE> - 
+<DT><B>Returns:</B><DD>the index which is the new one, or existing one if it already exists, or null if a custom index</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="ddlutilsFindOrCreateIndex(org.apache.ddlutils.model.Database, edu.internet2.middleware.grouper.ddl.DdlVersionBean, java.lang.String, java.lang.String, java.lang.String, boolean, java.lang.String...)"><!-- --></A><H3>
+ddlutilsFindOrCreateIndex</H3>
+<PRE>
+public static org.apache.ddlutils.model.Index <B>ddlutilsFindOrCreateIndex</B>(org.apache.ddlutils.model.Database&nbsp;database,
+                                                                        <A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean,
+                                                                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+                                                                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;indexName,
+                                                                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;customScript,
+                                                                        boolean&nbsp;unique,
+                                                                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>...&nbsp;columnNames)</PRE>
+<DL>
+<DD>add an index on a table.  drop a misnamed or a misuniqued index which is existing
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>database</CODE> - <DD><CODE>ddlVersionBean</CODE> - can be null unless custom script<DD><CODE>tableName</CODE> - <DD><CODE>indexName</CODE> - <DD><CODE>customScript</CODE> - use this script to create the index, not ddlutils<DD><CODE>unique</CODE> - <DD><CODE>columnNames</CODE> - 
+<DT><B>Returns:</B><DD>the index which is the new one, or existing one if it already exists, or null if a custom index</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="ddlutilsFindOrCreateForeignKey(org.apache.ddlutils.model.Database, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
+ddlutilsFindOrCreateForeignKey</H3>
+<PRE>
+public static org.apache.ddlutils.model.ForeignKey <B>ddlutilsFindOrCreateForeignKey</B>(org.apache.ddlutils.model.Database&nbsp;database,
+                                                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+                                                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;foreignKeyName,
+                                                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;foreignTableName,
+                                                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;localColumnName,
+                                                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;foreignColumnName)</PRE>
+<DL>
+<DD>add a foreign key on a table.  drop a misnamed foreign key which is existing
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>database</CODE> - <DD><CODE>tableName</CODE> - <DD><CODE>foreignKeyName</CODE> - <DD><CODE>foreignTableName</CODE> - <DD><CODE>localColumnName</CODE> - <DD><CODE>foreignColumnName</CODE> - 
+<DT><B>Returns:</B><DD>the foreign key which is the new one, or existing one if it already exists</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="ddlutilsFindOrCreateForeignKey(org.apache.ddlutils.model.Database, java.lang.String, java.lang.String, java.lang.String, java.util.List, java.util.List)"><!-- --></A><H3>
+ddlutilsFindOrCreateForeignKey</H3>
+<PRE>
+public static org.apache.ddlutils.model.ForeignKey <B>ddlutilsFindOrCreateForeignKey</B>(org.apache.ddlutils.model.Database&nbsp;database,
+                                                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+                                                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;foreignKeyName,
+                                                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;foreignTableName,
+                                                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;localColumnNames,
+                                                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;foreignColumnNames)</PRE>
+<DL>
+<DD>add a foreign key on a table.  drop a misnamed foreign key which is existing
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>database</CODE> - <DD><CODE>tableName</CODE> - <DD><CODE>foreignKeyName</CODE> - <DD><CODE>foreignTableName</CODE> - <DD><CODE>localColumnNames</CODE> - <DD><CODE>foreignColumnNames</CODE> - 
+<DT><B>Returns:</B><DD>the foreign key which is the new one, or existing one if it already exists</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="dropAllForeignKeys(org.apache.ddlutils.model.Database)"><!-- --></A><H3>
+dropAllForeignKeys</H3>
+<PRE>
+public static void <B>dropAllForeignKeys</B>(org.apache.ddlutils.model.Database&nbsp;database)</PRE>
+<DL>
+<DD>drop all foreign keys from a ddlutils database object
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>database</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="ddlutilsFindTable(org.apache.ddlutils.model.Database, java.lang.String, boolean)"><!-- --></A><H3>
+ddlutilsFindTable</H3>
+<PRE>
+public static org.apache.ddlutils.model.Table <B>ddlutilsFindTable</B>(org.apache.ddlutils.model.Database&nbsp;database,
+                                                                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+                                                                boolean&nbsp;exceptionOnNotFound)</PRE>
+<DL>
+<DD>find table, if not exist, throw exception
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>database</CODE> - <DD><CODE>tableName</CODE> - <DD><CODE>exceptionOnNotFound</CODE> - 
+<DT><B>Returns:</B><DD>the table</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="ddlutilsFindColumn(org.apache.ddlutils.model.Database, java.lang.String, java.lang.String, boolean)"><!-- --></A><H3>
+ddlutilsFindColumn</H3>
+<PRE>
+public static org.apache.ddlutils.model.Column <B>ddlutilsFindColumn</B>(org.apache.ddlutils.model.Database&nbsp;database,
+                                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+                                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;columnName,
+                                                                  boolean&nbsp;exceptionIfNotFound)</PRE>
+<DL>
+<DD>find table, if not exist, throw exception
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>database</CODE> - <DD><CODE>tableName</CODE> - <DD><CODE>columnName</CODE> - <DD><CODE>exceptionIfNotFound</CODE> - 
+<DT><B>Returns:</B><DD>the table</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="ddlutilsFindColumn(org.apache.ddlutils.model.Table, java.lang.String, boolean)"><!-- --></A><H3>
+ddlutilsFindColumn</H3>
+<PRE>
+public static org.apache.ddlutils.model.Column <B>ddlutilsFindColumn</B>(org.apache.ddlutils.model.Table&nbsp;table,
+                                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;columnName,
+                                                                  boolean&nbsp;exceptionOnNotFound)</PRE>
+<DL>
+<DD>find column, if not exist, throw exception
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>table</CODE> - table to get column from<DD><CODE>columnName</CODE> - column name of column (case insensitive)<DD><CODE>exceptionOnNotFound</CODE> - 
+<DT><B>Returns:</B><DD>the column</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="ddlutilsFindOrCreateColumn(org.apache.ddlutils.model.Table, java.lang.String, int, java.lang.String, boolean, boolean)"><!-- --></A><H3>
+ddlutilsFindOrCreateColumn</H3>
+<PRE>
+public static org.apache.ddlutils.model.Column <B>ddlutilsFindOrCreateColumn</B>(org.apache.ddlutils.model.Table&nbsp;table,
+                                                                          <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;columnName,
+                                                                          int&nbsp;typeCode,
+                                                                          <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;size,
+                                                                          boolean&nbsp;primaryKey,
+                                                                          boolean&nbsp;required)</PRE>
+<DL>
+<DD>find or create column with various properties
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>table</CODE> - <DD><CODE>columnName</CODE> - <DD><CODE>typeCode</CODE> - from java.sql.Types<DD><CODE>size</CODE> - string, can be a simple int, or comma separated, see ddlutils docs<DD><CODE>primaryKey</CODE> - this should only be true for new tables<DD><CODE>required</CODE> - this should probably only be true for new tables (since ddlutils will copy to temp table)
+<DT><B>Returns:</B><DD>the column</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="ddlutilsFindOrCreateColumn(org.apache.ddlutils.model.Table, java.lang.String, int, java.lang.String, boolean, boolean, java.lang.String)"><!-- --></A><H3>
+ddlutilsFindOrCreateColumn</H3>
+<PRE>
+public static org.apache.ddlutils.model.Column <B>ddlutilsFindOrCreateColumn</B>(org.apache.ddlutils.model.Table&nbsp;table,
+                                                                          <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;columnName,
+                                                                          int&nbsp;typeCode,
+                                                                          <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;size,
+                                                                          boolean&nbsp;primaryKey,
+                                                                          boolean&nbsp;required,
+                                                                          <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;defaultValue)</PRE>
+<DL>
+<DD>find or create column with various properties
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>table</CODE> - <DD><CODE>columnName</CODE> - <DD><CODE>typeCode</CODE> - from java.sql.Types<DD><CODE>size</CODE> - string, can be a simple int, or comma separated, see ddlutils docs<DD><CODE>primaryKey</CODE> - this should only be true for new tables<DD><CODE>required</CODE> - this should probably only be true for new tables (since ddlutils will copy to temp table)<DD><CODE>defaultValue</CODE> - is null for none, or something for default value
+<DT><B>Returns:</B><DD>the column</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="ddlutilsFixSizeColumn(org.apache.ddlutils.model.Table, java.lang.String, int, java.lang.String, boolean, boolean)"><!-- --></A><H3>
+ddlutilsFixSizeColumn</H3>
+<PRE>
+public static org.apache.ddlutils.model.Column <B>ddlutilsFixSizeColumn</B>(org.apache.ddlutils.model.Table&nbsp;table,
+                                                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;columnName,
+                                                                     int&nbsp;typeCode,
+                                                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;size,
+                                                                     boolean&nbsp;primaryKey,
+                                                                     boolean&nbsp;required)</PRE>
+<DL>
+<DD>find or create column with various properties
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>table</CODE> - <DD><CODE>columnName</CODE> - <DD><CODE>typeCode</CODE> - from java.sql.Types<DD><CODE>size</CODE> - string, can be a simple int, or comma separated, see ddlutils docs<DD><CODE>primaryKey</CODE> - this should only be true for new tables<DD><CODE>required</CODE> - this should probably only be true for new tables (since ddlutils will copy to temp table)
+<DT><B>Returns:</B><DD>the column</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="ddlutilsFixSizeColumn(org.apache.ddlutils.model.Table, java.lang.String, int, java.lang.String, boolean, boolean, java.lang.String)"><!-- --></A><H3>
+ddlutilsFixSizeColumn</H3>
+<PRE>
+public static org.apache.ddlutils.model.Column <B>ddlutilsFixSizeColumn</B>(org.apache.ddlutils.model.Table&nbsp;table,
+                                                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;columnName,
+                                                                     int&nbsp;typeCode,
+                                                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;size,
+                                                                     boolean&nbsp;primaryKey,
+                                                                     boolean&nbsp;required,
+                                                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;defaultValue)</PRE>
+<DL>
+<DD>find or create column with various properties
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>table</CODE> - <DD><CODE>columnName</CODE> - <DD><CODE>typeCode</CODE> - from java.sql.Types<DD><CODE>size</CODE> - string, can be a simple int, or comma separated, see ddlutils docs<DD><CODE>primaryKey</CODE> - this should only be true for new tables<DD><CODE>required</CODE> - this should probably only be true for new tables (since ddlutils will copy to temp table)<DD><CODE>defaultValue</CODE> - is null for none, or something for default value
+<DT><B>Returns:</B><DD>the column</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="ddlutilsDropColumn(org.apache.ddlutils.model.Database, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ddl.DdlVersionBean)"><!-- --></A><H3>
+ddlutilsDropColumn</H3>
+<PRE>
+public static void <B>ddlutilsDropColumn</B>(org.apache.ddlutils.model.Database&nbsp;database,
+                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;columnName,
+                                      <A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean)</PRE>
+<DL>
+<DD>find and drop a column if it is there.   If table not there, thats ok
+ also drop all related indexes
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>database</CODE> - <DD><CODE>tableName</CODE> - <DD><CODE>ddlVersionBean</CODE> - <DD><CODE>columnName</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="ddlutilsDropTable(edu.internet2.middleware.grouper.ddl.DdlVersionBean, java.lang.String, boolean)"><!-- --></A><H3>
+ddlutilsDropTable</H3>
+<PRE>
+public static void <B>ddlutilsDropTable</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean,
+                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+                                     boolean&nbsp;falseIfDropBeforeCreate)</PRE>
+<DL>
+<DD>find and drop a table if it is there
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ddlVersionBean</CODE> - <DD><CODE>tableName</CODE> - <DD><CODE>falseIfDropBeforeCreate</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="ddlutilsDropColumn(org.apache.ddlutils.model.Table, java.lang.String, edu.internet2.middleware.grouper.ddl.DdlVersionBean)"><!-- --></A><H3>
+ddlutilsDropColumn</H3>
+<PRE>
+public static void <B>ddlutilsDropColumn</B>(org.apache.ddlutils.model.Table&nbsp;table,
+                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;columnName,
+                                      <A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">DdlVersionBean</A>&nbsp;ddlVersionBean)</PRE>
+<DL>
+<DD>find and drop a column if it is there
+ also drop all related indexes
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>table</CODE> - <DD><CODE>columnName</CODE> - <DD><CODE>ddlVersionBean</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="ddlutilsDropIndexes(org.apache.ddlutils.model.Table, java.lang.String)"><!-- --></A><H3>
+ddlutilsDropIndexes</H3>
+<PRE>
+public static void <B>ddlutilsDropIndexes</B>(org.apache.ddlutils.model.Table&nbsp;table,
+                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;columnName)</PRE>
+<DL>
+<DD>drop all indexes by column name (e.g. if removing column)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>table</CODE> - <DD><CODE>columnName</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assertTablesThere(boolean, boolean)"><!-- --></A><H3>
+assertTablesThere</H3>
+<PRE>
+public static boolean <B>assertTablesThere</B>(boolean&nbsp;expectRecords,
+                                        boolean&nbsp;expectTrue)</PRE>
+<DL>
+<DD>see if tables are there (at least the grouper groups one)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>expectRecords</CODE> - <DD><CODE>expectTrue</CODE> - pritn exception if expecting true
+<DT><B>Returns:</B><DD>true if expect records, and records there.  false if records not there.  exception
+ if exception is thrown and expect true.false if exception and not expect true</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assertTablesThere(boolean, boolean, java.lang.String, boolean)"><!-- --></A><H3>
+assertTablesThere</H3>
+<PRE>
+public static boolean <B>assertTablesThere</B>(boolean&nbsp;expectRecords,
+                                        boolean&nbsp;expectTrue,
+                                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+                                        boolean&nbsp;falseIfDropBeforeCreate)</PRE>
+<DL>
+<DD>see if tables are there (at least the grouper groups one)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>expectRecords</CODE> - <DD><CODE>expectTrue</CODE> - pritn exception if expecting true<DD><CODE>tableName</CODE> - <DD><CODE>falseIfDropBeforeCreate</CODE> - 
+<DT><B>Returns:</B><DD>true if expect records, and records there.  false if records not there.  exception
+ if exception is thrown and expect true.false if exception and not expect true</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assertColumnThere(boolean, java.lang.String, java.lang.String)"><!-- --></A><H3>
+assertColumnThere</H3>
+<PRE>
+public static boolean <B>assertColumnThere</B>(boolean&nbsp;expectTrue,
+                                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+                                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;columnName)</PRE>
+<DL>
+<DD>see if tables are there (at least the grouper groups one)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>expectTrue</CODE> - throw exception if expecting true and not there or vice versa<DD><CODE>tableName</CODE> - <DD><CODE>columnName</CODE> - 
+<DT><B>Returns:</B><DD>true if everything ok, false if not</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="tableExists(java.lang.String)"><!-- --></A><H3>
+tableExists</H3>
+<PRE>
+public static boolean <B>tableExists</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName)</PRE>
+<DL>
+<DD>see if tables are there (at least the grouper groups one)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>tableName</CODE> - 
+<DT><B>Returns:</B><DD>true if everything ok, false if not</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findDbMetadataBean(edu.internet2.middleware.grouper.ddl.DdlVersionable)"><!-- --></A><H3>
+findDbMetadataBean</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.DbMetadataBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl">GrouperDdlUtils.DbMetadataBean</A> <B>findDbMetadataBean</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionable.html?view=co" title="interface in edu.internet2.middleware.grouper.ddl">DdlVersionable</A>&nbsp;ddlVersionable)</PRE>
+<DL>
+<DD>find the correct metadata for the DB
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ddlVersionable</CODE> - 
+<DT><B>Returns:</B><DD>the metadatabean</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="sqlConcatenation(java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
+sqlConcatenation</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>sqlConcatenation</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;field1,
+                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;field2,
+                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;separator)</PRE>
+<DL>
+<DD>Returns the sql to concatenate these two fields separated by the separator
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>field1</CODE> - <DD><CODE>field2</CODE> - <DD><CODE>separator</CODE> - 
+<DT><B>Returns:</B><DD>sql for concatenation</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="sqlConcatenation(java.lang.String, java.lang.String)"><!-- --></A><H3>
+sqlConcatenation</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>sqlConcatenation</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;field1,
+                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;field2)</PRE>
+<DL>
+<DD>Returns the sql to concatenate these two fields separated by the separator
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>field1</CODE> - <DD><CODE>field2</CODE> - 
+<DT><B>Returns:</B><DD>sql for concatenation</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getTableCount(java.lang.String, boolean)"><!-- --></A><H3>
+getTableCount</H3>
+<PRE>
+public static int <B>getTableCount</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;tableName,
+                                boolean&nbsp;exceptionIfTableDoesNotExist)</PRE>
+<DL>
+<DD>Get the number of records in a table
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>tableName</CODE> - <DD><CODE>exceptionIfTableDoesNotExist</CODE> - 
+<DT><B>Returns:</B><DD>count</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdl.html?view=co" title="enum in edu.internet2.middleware.grouper.ddl"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ddl/GrouperDdlUtils.DbMetadataBean.html?view=co" title="class in edu.internet2.middleware.grouper.ddl"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="GrouperDdlUtils.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>
