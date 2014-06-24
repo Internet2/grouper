@@ -33,7 +33,6 @@ package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.int
 
 import java.lang.reflect.InvocationTargetException;
 
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.util.GetExecutor;
 
 /**
  * Specialized executor to get a property from an object.
